@@ -7,12 +7,21 @@
 # from `github:nebelhaus/nebelung`, and this job runs that same script with
 # --check.
 #
-# It fails on three things: the vendored block is stale or hand-edited, a dark
-# block stopped spending the port (or --ink/--well stopped being ours), or a
-# `--nebelung-*` reference appeared in the light theme, which is hand-picked on
-# purpose. The fix is always the same one command:
+# Most of what it fails on is fixed by one command:
 #
 #   node scripts/sync-nebelung.mjs
+#
+# — the vendored block being stale or hand-edited, chiefly. Three failures are
+# NOT fixed by re-running it, and it says so rather than pretending:
+#
+#   - a `--nebelung-*` name that stopped existing upstream. Re-running would
+#     leave a dangling var() and a dark page with no background, so the script
+#     refuses to write; re-point the token by hand.
+#   - --ink or --well drifting apart between the two dark blocks, or stopping
+#     being literals. They are deliberately not nebelung's.
+#   - a page whose dark `theme-color` no longer equals crust. That <meta> is the
+#     last hand-typed copy of the palette, there are seven of them, and no
+#     template generates them.
 #
 # Note it builds nebelung's *main*, unpinned, which is the point: if upstream
 # moves a value, the next PR that touches the stylesheet goes red and says so.
@@ -33,6 +42,9 @@ on:
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 concurrency:
   group: palette-${{ github.ref }}

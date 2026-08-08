@@ -1,3 +1,8 @@
 # wrangler's local account/asset cache — machine state, not source.
 .wrangler/
 .DS_Store
+
+# `nix build github:nebelhaus/nebelung` drops a store symlink here, and
+# scripts/sync-nebelung.mjs's --from flag invites exactly that.
+result
+result-*

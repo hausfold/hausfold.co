@@ -35,15 +35,27 @@
  * ground and wash out on paper. That's why `latte/css/nebelung-latte.css` is
  * not vendored here, and why --check refuses a `--nebelung-*` reference
  * anywhere but the two dark blocks.
+ *
+ * What --check enforces, beyond "the block matches upstream":
+ *
+ *   - each of the ten tokens below reads the `--nebelung-*` name it should, in
+ *     BOTH dark blocks, and each of those names still exists upstream (a rename
+ *     is the one failure re-running this script cannot fix — it would leave a
+ *     dangling var() and a dark page with no background);
+ *   - --ink and --well stay literal, and agree between the two dark blocks;
+ *   - every page's dark `theme-color` still equals crust. That <meta> is the
+ *     last hand-typed copy of the palette, it lives in markup this script does
+ *     not generate, and there are seven of them.
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const TARGET = join(ROOT, "public", "hausfold.css");
+const PUBLIC = join(ROOT, "public");
+const TARGET = join(PUBLIC, "hausfold.css");
 const FLAKE = "github:nebelhaus/nebelung";
 
 const BEGIN =
@@ -156,10 +168,50 @@ function decls(body) {
   return out;
 }
 
-function audit(text) {
-  const problems = [];
+/* Every page's dark `theme-color` is a hand-typed copy of --ground, which is
+ * crust. It's the one place the palette still lives outside hausfold.css, and
+ * an upstream move that this script fixes in the CSS would otherwise leave
+ * seven <meta>s behind — browser chrome a different grey from the page, with
+ * the tool reporting "matches". So it's checked here too, though it can't be
+ * generated: there is no template, and the head is markup. */
+function htmlPages(dir = PUBLIC, out = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) htmlPages(p, out);
+    else if (e.name.endsWith(".html")) out.push(p);
+  }
+  return out;
+}
 
-  for (const block of darkBlocks(text)) {
+function darkThemeColours() {
+  const found = [];
+  for (const page of htmlPages()) {
+    const html = readFileSync(page, "utf8");
+    for (const [, tag] of html.matchAll(/<meta\b([^>]*name="theme-color"[^>]*)>/g)) {
+      if (!/media="\(prefers-color-scheme:\s*dark\)"/.test(tag)) continue;
+      found.push({ page: relative(ROOT, page), value: tag.match(/content="([^"]*)"/)?.[1] });
+    }
+  }
+  return found;
+}
+
+function audit(text, block) {
+  const problems = [];
+  const port = decls(block);
+
+  for (const [token, name] of Object.entries(FROM_NEBELUNG)) {
+    if (!(`--nebelung-${name}` in port)) {
+      problems.push(
+        `nebelung no longer defines --nebelung-${name}, which ${token} reads — the port was ` +
+          `renamed upstream, and re-running this script cannot fix that. Re-point ${token} by hand.`,
+      );
+    }
+  }
+
+  const blocks = darkBlocks(text);
+  const literals = {};
+
+  for (const block of blocks) {
     const d = decls(block.text);
     for (const [token, name] of Object.entries(FROM_NEBELUNG)) {
       const want = `var(--nebelung-${name})`;
@@ -174,6 +226,27 @@ function audit(text) {
             `nebelung's and must stay a literal hex (see hausfold.css's header)`,
         );
       }
+      (literals[token] ??= []).push(d[token]);
+    }
+  }
+
+  /* The two dark blocks say the same thing twice — once for the scheme, once
+   * for the toggle. The var()s can't drift now; these two still can. */
+  for (const [token, values] of Object.entries(literals)) {
+    if (new Set(values).size > 1) {
+      problems.push(
+        `${token} differs between the two dark blocks (${values.join(" vs ")}) — they must agree`,
+      );
+    }
+  }
+
+  const crust = port["--nebelung-crust"];
+  for (const { page, value } of darkThemeColours()) {
+    if (value?.toLowerCase() !== crust?.toLowerCase()) {
+      problems.push(
+        `${page}: dark theme-color is ${value ?? "missing"}, but --ground is ${crust} — ` +
+          `the <meta> is a hand-typed copy of the palette and nothing generates it`,
+      );
     }
   }
 
@@ -216,7 +289,7 @@ if (!r) {
 }
 
 const next = file.slice(0, r.start) + block + file.slice(r.end);
-const problems = audit(next);
+const problems = audit(next, block);
 
 if (check) {
   if (r.text !== block) {

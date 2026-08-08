@@ -136,8 +136,16 @@ read `var(--nebelung-*)` from it. Two dark values are deliberately outside
 that — `--ink`, extrapolated a rung above nebelung's text, and `--well`, which
 is hand-picked and is *not* mantle — and the whole light theme is hand-picked
 too, a paper-warm mirror rather than latte, because nebelung's pastels wash out
-on a light ground. `.github/workflows/palette.yml` enforces all three of those
-statements on every PR that touches the stylesheet.
+on a light ground.
+
+`.github/workflows/palette.yml` runs `sync-nebelung.mjs --check` on every PR
+that touches the stylesheet or `scripts/`. It enforces that the vendored block
+matches upstream, that both dark blocks read the right `--nebelung-*` names and
+that those names still exist, that `--ink` and `--well` are literals which agree
+between the two blocks, that no `--nebelung-*` reaches the light theme, and that
+every page's dark `theme-color` still equals crust. It does **not** know which
+hex `--well` ought to be — that one is a judgement, and the header comment is
+where it's recorded.
 
 `robots.txt` is a real file rather than a default because the SPA fallback
 would otherwise have answered `/robots.txt` with the landing page. There is

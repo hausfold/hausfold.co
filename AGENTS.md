@@ -140,12 +140,19 @@ own CSS port (`dist/css/nebelung-mocha.css`, which `nix build
 github:nebelhaus/nebelung` renders), and both dark blocks read
 `var(--nebelung-*)` out of it. Refresh it with `node
 scripts/sync-nebelung.mjs`; `.github/workflows/palette.yml` runs the same
-script with `--check`. That script is the only thing in this repo outside
-`public/` that the site depends on, and its header explains why the port is
-inlined rather than `@import`ed — the short version is that a second file is a
-second blocking request, and a media-scoped `@import` can't see the
-`data-theme` toggle. Note `deploy.yml` only fires on `public/**`, so editing
-the script alone deploys nothing; running it edits `hausfold.css`, which does.
+script with `--check`. That script is the only thing outside `public/` that
+*edits* the site — nothing runs at serve time, and its output is committed. Its
+header explains why the port is inlined rather than `@import`ed: the short
+version is that a second file is a second blocking request, and a media-scoped
+`@import` can't see the `data-theme` toggle. Note `deploy.yml` only fires on
+`public/**`, so editing the script alone deploys nothing; running it edits
+`hausfold.css`, which does.
+
+`--check` also guards the two things the generator *can't* fix for you: an
+upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
+dangling `var()`, and a dark page with no background — re-point the token by
+hand), and the seven pages' dark **`theme-color`**, which is a hand-typed copy
+of crust living in markup nothing generates.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
 `index.html` until 2026-08-08; five pages needed one set of tokens rather than
