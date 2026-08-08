@@ -36,8 +36,18 @@ instead of the twenty hand-copied hexes it used to carry (ten values, each
 written twice). Run it after an upstream palette change:
 
 ```
-node scripts/sync-nebelung.mjs          # or: nix run nixpkgs#nodejs -- scripts/sync-nebelung.mjs
+node scripts/sync-nebelung.mjs --latest   # has nebelung moved, and would it change anything here?
+node scripts/sync-nebelung.mjs            # re-render the block from the pin
 ```
+
+(No node on the machine? `nix run nixpkgs#nodejs -- scripts/sync-nebelung.mjs`.)
+
+The flake ref is **pinned** to a revision recorded in the script and stamped
+into the generated block. That keeps CI deterministic — the palette check fails
+for what the PR did, never for what nebelung merged this morning — at the price
+of drift being something you *ask* about rather than something that arrives.
+`--latest` is the asking: it reports the new revision and names the values a
+bump would actually change, then you set `PIN`, re-run, and commit the block.
 
 > **That description is about to be wrong.** Under §5.1 of the
 > [rename plan](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md)
@@ -140,7 +150,7 @@ on a light ground.
 
 `.github/workflows/palette.yml` runs `sync-nebelung.mjs --check` on every PR
 that touches the stylesheet or `scripts/`. It enforces that the vendored block
-matches upstream, that both dark blocks read the right `--nebelung-*` names and
+matches the pinned upstream, that both dark blocks read the right `--nebelung-*` names and
 that those names still exist, that `--ink` and `--well` are literals which agree
 between the two blocks, that no `--nebelung-*` reaches the light theme, and that
 every page's dark `theme-color` still equals crust. It does **not** know which

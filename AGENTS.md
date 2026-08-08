@@ -148,6 +148,12 @@ version is that a second file is a second blocking request, and a media-scoped
 `public/**`, so editing the script alone deploys nothing; running it edits
 `hausfold.css`, which does.
 
+**The flake ref is pinned** (`PIN` in the script), so CI is deterministic and a
+CSS PR never goes red for something nebelung merged that morning. The cost is
+that drift is *pulled*: nothing tells you upstream moved. `node
+scripts/sync-nebelung.mjs --latest` asks, and names the values a bump would
+actually change — run it when you touch the palette, not on a schedule.
+
 `--check` also guards the two things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by

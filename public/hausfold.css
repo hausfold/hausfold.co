@@ -60,7 +60,9 @@
  * names, and only the two dark blocks below spend any of them. The light
  * theme is hand-picked and must not reference them.
  *
- * Refresh with `node scripts/sync-nebelung.mjs`. */
+ * From github:nebelhaus/nebelung @ 49f196de2aad — a pin, so nothing
+ * here moves until someone moves it. `node scripts/sync-nebelung.mjs
+ * --latest` says whether there's anything to move to. */
 :root {
   /* Neutral ramp, lightest → darkest. */
   --nebelung-text: #d7d7d7;
