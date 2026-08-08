@@ -1,0 +1,74 @@
+# Check that public/hausfold.css still agrees with nebelung's CSS port.
+#
+# The dark theme's ten nebelung values used to be hand-copied hexes, written
+# twice each (once for `prefers-color-scheme`, once for the `data-theme`
+# toggle) — twenty literals with nothing watching them. They're now
+# `var(--nebelung-*)` reading a block that scripts/sync-nebelung.mjs vendors
+# from `github:nebelhaus/nebelung`, and this job runs that same script with
+# --check.
+#
+# Most of what it fails on is fixed by one command:
+#
+#   node scripts/sync-nebelung.mjs
+#
+# — the vendored block being stale or hand-edited, chiefly. Three failures are
+# NOT fixed by re-running it, and it says so rather than pretending:
+#
+#   - a `--nebelung-*` name that stopped existing upstream. Re-running would
+#     leave a dangling var() and a dark page with no background, so the script
+#     refuses to write; re-point the token by hand.
+#   - --ink or --well drifting apart between the two dark blocks, or stopping
+#     being literals. They are deliberately not nebelung's.
+#   - a page whose dark `theme-color` no longer equals crust. That <meta> is the
+#     last hand-typed copy of the palette, there are seven of them, and no
+#     template generates them.
+#
+# It builds a **pinned** revision of nebelung (PIN in the script), not `main`.
+# So this job is deterministic: it goes red for things the PR did, never for
+# something nebelung merged that morning. A check that fails for reasons you
+# didn't cause is a check people learn to skip.
+#
+# The trade is that upstream drift is pulled, not pushed — nothing here will
+# tell you nebelung moved. `node scripts/sync-nebelung.mjs --latest` asks, and
+# names the values a bump would actually change. No secrets, so this runs on
+# forks too.
+name: Palette
+
+on:
+  pull_request:
+    paths:
+      - 'public/hausfold.css'
+      - 'scripts/**'
+      - '.github/workflows/palette.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/hausfold.css'
+      - 'scripts/**'
+      - '.github/workflows/palette.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: palette-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - run: node scripts/sync-nebelung.mjs --check

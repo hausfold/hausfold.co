@@ -132,7 +132,33 @@ directory is what's on the domain:
 | `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404.html` | served with a real 404 for anything else |
 | `robots.txt` | allows everything; no `Sitemap:` line, and its comment says why |
-| `hausfold.css` | the shared tokens, type and link styles, and the header comment with the design decisions |
+| `hausfold.css` | the shared tokens, type and link styles, the vendored nebelung block, and the header comment with the design decisions |
+
+**The dark theme's nebelung values are generated, not typed.** Since
+2026-08-08, `public/hausfold.css` opens with a block vendored from nebelung's
+own CSS port (`dist/css/nebelung-mocha.css`, which `nix build
+github:nebelhaus/nebelung` renders), and both dark blocks read
+`var(--nebelung-*)` out of it. Refresh it with `node
+scripts/sync-nebelung.mjs`; `.github/workflows/palette.yml` runs the same
+script with `--check`. That script is the only thing outside `public/` that
+*edits* the site — nothing runs at serve time, and its output is committed. Its
+header explains why the port is inlined rather than `@import`ed: the short
+version is that a second file is a second blocking request, and a media-scoped
+`@import` can't see the `data-theme` toggle. Note `deploy.yml` only fires on
+`public/**`, so editing the script alone deploys nothing; running it edits
+`hausfold.css`, which does.
+
+**The flake ref is pinned** (`PIN` in the script), so CI is deterministic and a
+CSS PR never goes red for something nebelung merged that morning. The cost is
+that drift is *pulled*: nothing tells you upstream moved. `node
+scripts/sync-nebelung.mjs --latest` asks, and names the values a bump would
+actually change — run it when you touch the palette, not on a schedule.
+
+`--check` also guards the two things the generator *can't* fix for you: an
+upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
+dangling `var()`, and a dark page with no background — re-point the token by
+hand), and the seven pages' dark **`theme-color`**, which is a hand-typed copy
+of crust living in markup nothing generates.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
 `index.html` until 2026-08-08; five pages needed one set of tokens rather than
@@ -158,11 +184,17 @@ Rules that are easy to break by accident:
   owns and a product cannot be one colour in the index and another in the mark.
   A hue hausfold keeps *at rest* is the thing to avoid: that would put it in
   competition with nebelung's palette, which is the one brand asset the family
-  actually shares. Accents come from `palette.css` in
-  [nebelhaus/workshop](https://github.com/nebelhaus/workshop) — the dark values
-  must match it; the light ones are hand-picked counterparts, because nebelung's
-  pastels are built for a dark ground. `holt` and `flick` have no accent
-  upstream, so theirs are provisional and should be reconciled if they get a row.
+  actually shares. The dark accents no longer *match* nebelung — they **are**
+  nebelung: `--a-pounce` is `var(--nebelung-peach)`, and so on for all six,
+  resolved out of the vendored block above. (`palette.css` in
+  [nebelhaus/workshop](https://github.com/nebelhaus/workshop) was the source
+  while these were hand-copied hexes; nebelung shipping its own CSS port made
+  that hop unnecessary.) The light ones stay hand-picked counterparts —
+  nebelung's pastels are built for a dark ground — which is why `latte` is not
+  vendored and why `--check` fails on a `--nebelung-*` reference outside the
+  two dark blocks. `holt` and `flick` have no accent *assigned* upstream, so
+  teal and yellow are our pick from nebelung's palette rather than nebelung's
+  pick for them, and should be reconciled if they get a row.
 - **No motion, with one hover-only exception.** No load animation, no
   transitions, nothing that moves while you read. The exception, added
   2026-08-08 at the user's request (reshaped the same day, same request): the
@@ -250,6 +282,15 @@ by absolute path, so `open public/index.html` renders unstyled and its links go
 nowhere. The truest local check is `npx wrangler dev` (it exercises
 `not_found_handling` too); `python3 -m http.server` from inside `public/` is
 enough for a look at the type.
+
+A PR that touches `public/hausfold.css` or `scripts/` also runs **Palette**
+(`.github/workflows/palette.yml`), which is `node scripts/sync-nebelung.mjs
+--check` against nebelung's `main`. It goes red when the vendored block is
+stale, when a dark block stops spending the port, when `--ink`/`--well` stop
+being literal, or when a `--nebelung-*` reference lands in the light theme. The
+fix is one command in every case. Because it builds nebelung unpinned, a CSS PR
+can go red for a reason of upstream's rather than its own — that's the signal,
+not a flake: re-run the script and commit the block.
 
 Every PR that touches `public/` also gets its own preview Worker on a
 workers.dev URL, posted as a comment on the PR and deleted when it closes. Use
