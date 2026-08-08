@@ -15,7 +15,10 @@ public/
   index.html                      the landing page
   desktops/index.html             the gallery — rices you can run as they come
   desktops/nebelhaus/index.html   install, contents, requirements, empty shot frames
+  perch/index.html                perch's product page — what it is, how to install it
   perch/privacy/index.html        perch's privacy policy — linked from the App Store
+  terms/index.html                the terms — what a licence grants, what we don't promise
+  refunds/index.html              the refund policy — fourteen days, no questions
   404.html
   hausfold.css                    shared tokens and type, and the design notes
 ```
@@ -34,9 +37,11 @@ public/
 else. It was `single-page-application` — every path answering 200 with the
 landing page — which was right while the site was one sheet and wrong the moment
 `/desktops/pounce` became a plausible typo. One consequence to know: paths the
-SPA fallback used to absorb now 404 honestly, including bare `/perch`. The
-policy URL itself, `/perch/privacy` (with or without the trailing slash),
-resolves as it always did.
+SPA fallback used to absorb now 404 honestly — a list that was written here as
+"including bare `/perch`" and no longer includes it, since `/perch` became a
+real page on 2026-08-08. Directory pages resolve with and without the trailing
+slash (the slashed form is what the 307 lands on), which is why the canonical
+tags matter.
 
 **The name register is not here.** `PRESENCE.md` — every account, handle and
 namespace claimed under the hausfold name, what we hold, what's still a gap, and
