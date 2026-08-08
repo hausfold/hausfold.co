@@ -47,13 +47,6 @@ can't live in a public repo.
 
 ## Deploy
 
-> ⚠️ **Until the three Actions secrets are entered on this repo, the deploy job
-> is red and nothing ships.** They could not be copied — GitHub can't read a
-> secret back out of the repo it's stored in — so `CLOUDFLARE_API_TOKEN`,
-> `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ZONE_ID` have to be re-entered by
-> hand. hausfold.co is up in the meantime, serving the last deploy from the old
-> repo. **Delete this box once they're set.**
-
 **CI does it.** [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)
 runs on every push to `main` that touches `public/`, `wrangler.toml` or the
 workflow itself, and on demand via *Actions → Deploy hausfold.co → Run workflow*.
