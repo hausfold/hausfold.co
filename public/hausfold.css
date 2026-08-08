@@ -1,0 +1,662 @@
+/* ------------------------------------------------------------------
+   hausfold.co — the whole site's stylesheet. Served as-is: this Worker
+   has no build step, so what's in ./public is what's on the domain.
+
+   It was inline in index.html until 2026-08-08, when /desktops arrived
+   and there were five pages to keep in agreement — the landing page,
+   the two under /desktops, 404, and perch's privacy policy, which had
+   been hand-syncing its own copy of the tokens since it was written.
+   One file, one set of tokens; the alternative was the same 200 lines
+   pasted five times and drifting by the second edit.
+
+   Palette: nebelung's neutral ramp in dark, every value pushed one
+            step outward for contrast (crust/subtext1/overlay2/
+            surface1; the text step is extrapolated one rung above
+            #d7d7d7, following the ramp's own ~0x14 spacing). A
+            paper-warm mirror in light, pushed the same distance.
+            The site is greyscale at rest. The only colour anywhere
+            is a product's own accent, and only while you hover its
+            name: borrowed, never the page's own.
+   Accents: the dark values ARE nebelung's, matching palette.css in
+            nebelhaus/workshop (rice pink, pounce peach, perch green,
+            nebelung mauve). holt and flick have no row there yet, so
+            teal and yellow are provisional here. Light-theme values
+            are hand-picked counterparts at the same hue — nebelung's
+            pastels are built for a dark ground and wash out on paper.
+            If an accent changes upstream, change it here too.
+   Type:    New York (ui-serif) + SF Mono. The Mac's own faces, which
+            is the thesis of the site set in the site.
+   Mark:    grey until you hover it, then all six product accents fold
+            into one iridescent sheen — light on a soap film — turning
+            slowly around the glyph, and it fades in rather than
+            snapping. It reuses the very same --a-* tokens the index
+            spends one at a time, so the house cannot show a colour no
+            product owns. This is the site's only animation; it runs on
+            hover only, never on load, and prefers-reduced-motion holds
+            the sheen still rather than dropping it.
+   Shots:   the frames on /desktops are placeholders on purpose —
+            drawn in CSS, no image files. The family's only real rice
+            capture is nebelhaus/assets/hero.png, which the workshop's
+            SHOTLIST.md still calls a placeholder itself. A grey frame
+            that says what it is beats a stale screenshot that lies,
+            and it keeps the site greyscale until there's a shot worth
+            spending colour on.
+   ------------------------------------------------------------------ */
+
+:root {
+  color-scheme: light dark;
+
+  /* paper */
+  --ground: #faf9f7;
+  --ink: #0e0e0e;
+  --ink-2: #35332f;
+  --ink-3: #66645f;
+  --rule: #c4c0bb;
+  --well: #f2f0ed;
+
+  /* borrowed accents, light ground */
+  --a-nebelhaus: #a83a8b;
+  --a-pounce: #a8570f;
+  --a-holt: #0f7268;
+  --a-perch: #2e7a37;
+  --a-nebelung: #6a3fb0;
+  --a-flick: #8a6512;
+
+  --measure: 41rem;
+  --step: clamp(0.94rem, 0.9rem + 0.2vw, 1.02rem);
+}
+
+/* nebelung ramp, one step out: crust / (text +1) / subtext1 / overlay2 / surface1 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --ground: #121212;
+    --ink: #ebebeb;
+    --ink-2: #c3c3c3;
+    --ink-3: #9a9a9a;
+    --rule: #494949;
+    --well: #1a1a1a;
+
+    --a-nebelhaus: #f2c4e5;
+    --a-pounce: #f5b58e;
+    --a-holt: #9be0d5;
+    --a-perch: #abe1a6;
+    --a-nebelung: #c9a8f1;
+    --a-flick: #f7e2b5;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #121212;
+  --ink: #ebebeb;
+  --ink-2: #c3c3c3;
+  --ink-3: #9a9a9a;
+  --rule: #494949;
+  --well: #1a1a1a;
+
+  --a-nebelhaus: #f2c4e5;
+  --a-pounce: #f5b58e;
+  --a-holt: #9be0d5;
+  --a-perch: #abe1a6;
+  --a-nebelung: #c9a8f1;
+  --a-flick: #f7e2b5;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground: #faf9f7;
+  --ink: #0e0e0e;
+  --ink-2: #35332f;
+  --ink-3: #66645f;
+  --rule: #c4c0bb;
+  --well: #f2f0ed;
+
+  --a-nebelhaus: #a83a8b;
+  --a-pounce: #a8570f;
+  --a-holt: #0f7268;
+  --a-perch: #2e7a37;
+  --a-nebelung: #6a3fb0;
+  --a-flick: #8a6512;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: ui-serif, "New York", Georgia, "Iowan Old Style", serif;
+  font-size: var(--step);
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sheet {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem)
+    clamp(2.5rem, 6vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 7vw, 4.75rem);
+}
+
+/* Subpages open on a breadcrumb rather than the ⌂, so the top of the
+   sheet is tighter than the landing page's masthead needs. */
+.sheet--inner {
+  padding-top: clamp(2.25rem, 6vw, 4rem);
+  gap: clamp(2.5rem, 6vw, 3.75rem);
+}
+
+/* --- masthead ------------------------------------------------- */
+
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.mark {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: clamp(3.4rem, 11vw, 5rem);
+  line-height: 0.9;
+  color: var(--ink-3);
+  font-weight: 300;
+  user-select: none;
+  /* Shrink-to-glyph, so the hover target is the house and not the
+     full width of the masthead column. The padding/margin pair widens
+     the hit box back over the glyph — line-height: 0.9 crops the em box
+     and the roof and floor of ⌂ fall outside it — without moving a
+     pixel of layout. */
+  align-self: flex-start;
+  padding: 0.09em 0;
+  margin: -0.09em 0;
+  position: relative;
+}
+
+/* Registered so the angle interpolates. A browser without @property
+   never defines --mark-ang at all — the var() fallback below is what
+   keeps the gradient valid there, and the discrete 0/360deg flip
+   between two identical frames means the sheen shows but holds still.
+   An acceptable floor, no guard needed. */
+@property --mark-ang {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* All six accents folded into one conic gradient — light on a soap
+   film — turning slowly around a point just above the glyph's centre.
+   The coloured copy lives on ::after so hover can fade it in and out
+   instead of snapping; the animation is defined but paused, and hover
+   only runs it, so it never advances while unseen.
+
+   The copy exists ONLY where the clip is real: without the guard, a
+   browser that ignores background-clip would paint a coloured
+   rectangle over the glyph. Forced-colors modes strip the background
+   but keep the transparent fill, so there the copy is simply
+   invisible and the grey glyph underneath stands alone. */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .mark::after {
+    content: "⌂";
+    position: absolute;
+    inset: 0;
+    padding: 0.09em 0;
+    background-image: conic-gradient(
+      from var(--mark-ang, 0deg) at 50% 42%,
+      var(--a-nebelung),
+      var(--a-holt),
+      var(--a-perch),
+      var(--a-flick),
+      var(--a-pounce),
+      var(--a-nebelhaus),
+      var(--a-nebelung)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    animation: mark-turn 18s linear infinite paused;
+  }
+
+  .mark:hover::after {
+    opacity: 1;
+    animation-play-state: running;
+  }
+}
+
+@keyframes mark-turn {
+  to {
+    --mark-ang: 360deg;
+  }
+}
+
+/* Still colour, not grey: the sheen is the point, the turn is the
+   flourish. The opacity fade stays on purpose — a crossfade is the
+   reduced-motion-safe form, not the thing the setting suppresses. */
+@media (prefers-reduced-motion: reduce) {
+  .mark::after {
+    animation: none;
+  }
+}
+
+.wordmark {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: clamp(1.5rem, 5vw, 1.95rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  margin: 0;
+  color: var(--ink);
+}
+
+.standfirst {
+  font-size: clamp(1.28rem, 4vw, 1.72rem);
+  line-height: 1.32;
+  font-weight: 400;
+  letter-spacing: -0.014em;
+  margin: 0;
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+.lede {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+.lede p {
+  margin: 0;
+}
+
+.lede strong {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* --- the index -------------------------------------------------- */
+
+.index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.72rem;
+  max-width: 58ch;
+}
+
+/* No marker and no indent: every line starts on the same left edge as
+   the lede above it, so the index reads as one more paragraph of the
+   page rather than a widget bolted to it. */
+.index li {
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.index-name {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+/* The one place colour is allowed: a product's own accent, on hover of
+   its own name. Each li carries its accent; the name just spends it.
+   Scoped to .index-name rather than to the anchor, so a name that isn't
+   a link — `flick`, which has nowhere to point yet — still answers to
+   the pointer. */
+.index li[data-accent] .index-name:hover,
+.index li[data-accent] a.index-name:focus-visible {
+  color: var(--accent, var(--ink));
+  text-decoration-color: var(--accent, var(--ink));
+}
+
+[data-accent="nebelhaus"] { --accent: var(--a-nebelhaus); }
+[data-accent="pounce"] { --accent: var(--a-pounce); }
+[data-accent="holt"] { --accent: var(--a-holt); }
+[data-accent="perch"] { --accent: var(--a-perch); }
+[data-accent="nebelung"] { --accent: var(--a-nebelung); }
+[data-accent="flick"] { --accent: var(--a-flick); }
+
+/* --- breadcrumb --------------------------------------------------- */
+
+/* The only navigation the site has. Two or three words of mono at the
+   top of a subpage, with the current page not a link — enough to get
+   back up, not a nav bar. */
+.crumbs {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.crumbs .sep {
+  color: var(--rule);
+  user-select: none;
+}
+
+.crumbs [aria-current="page"] {
+  color: var(--ink-2);
+}
+
+/* --- the catalogue ------------------------------------------------ */
+
+.catalogue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+.entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+}
+
+.entry-name {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 1.12rem;
+  color: var(--ink);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Same borrowed-accent rule as the landing index: a product's name takes
+   a product's colour, on hover, and only there. */
+.entry-head a:hover,
+.entry-head a:focus-visible {
+  color: var(--accent, var(--ink));
+  text-decoration-color: var(--accent, var(--ink));
+}
+
+.entry-line {
+  margin: 0;
+  color: var(--ink-2);
+  max-width: 58ch;
+}
+
+/* Three words, not a filter UI. With one desktop in the list there is
+   nothing to filter; these are here to say what kind of thing it is at
+   a glance, and they'll still be true at four. */
+.meta {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* --- the shot frames ---------------------------------------------- */
+
+/* Deliberately empty. A dashed hairline and a mono caption saying what
+   the picture will be — never a fake screenshot, never a stock image.
+   When a real capture exists, drop an <img> inside and delete the
+   <span> label beside it. */
+.shot {
+  aspect-ratio: 16 / 10;
+  border: 1px dashed var(--rule);
+  border-radius: 3px;
+  background: var(--well);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.shot span {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  text-align: center;
+  text-wrap: balance;
+  line-height: 1.5;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+/* Two small frames beside each other on anything wider than a phone,
+   stacked below. No carousel, no lightbox — they're pictures. */
+.shots {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+/* Letterbox, not a void. A full-width 16:9 empty frame is 400px of
+   nothing and reads as a broken image; a banner-shaped one reads as a
+   slot. Give it 16:9 back on the day it holds a real capture. */
+.shot--wide {
+  aspect-ratio: 2.4 / 1;
+}
+
+.shots .shot--wide {
+  grid-column: 1 / -1;
+}
+
+/* --- sections ------------------------------------------------------ */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+.block h2 {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.block p {
+  margin: 0;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+/* --- the command --------------------------------------------------- */
+
+.cmd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--well);
+  padding: 0.85rem 1rem;
+}
+
+.cmd code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-x: auto;
+  white-space: pre;
+  /* The command is long and a phone is narrow. `min-width: 0` is the
+     load-bearing half: without it a flex item refuses to shrink below its
+     content, the box pushes the sheet wider than the viewport, and every
+     paragraph on the page runs off the right edge. With it, the command
+     scrolls inside its own frame and the page doesn't move. */
+  flex: 1 1 12rem;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hidden in markup and revealed by the script, so a page with no JS
+   shows a plain selectable command and not a button that does nothing. */
+.copy {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.copy:hover,
+.copy:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+
+.copy[hidden] {
+  display: none;
+}
+
+.aside {
+  font-size: 0.86rem;
+  color: var(--ink-3);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.aside code,
+.block p code,
+.facts code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.86em;
+  color: var(--ink-2);
+}
+
+/* --- fact lists ---------------------------------------------------- */
+
+/* One term, one clause. A table would rule four lines to say two
+   things; this says them in the same left edge as the prose. */
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1.1rem;
+  max-width: 58ch;
+}
+
+.facts dt {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+.facts dd {
+  margin: 0;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
+
+@media (max-width: 30rem) {
+  .facts {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .facts dd {
+    margin-bottom: 0.65rem;
+  }
+}
+
+.plain {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: var(--ink-2);
+  max-width: 58ch;
+}
+
+.plain .index-name {
+  font-size: 0.88rem;
+}
+
+/* --- colophon ----------------------------------------------------- */
+
+/* One hairline and one line of type. The grid of ruled cells this
+   replaced spent four boxes on two facts. */
+.colophon {
+  border-top: 1px solid var(--rule);
+  padding-top: 1.15rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 1.6rem;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+/* The broadsheet conceit, kept to one mark: masthead, standfirst and
+   lede are all newspaper words, and this is the edition they belong to.
+   Month is enough — the page changes on the order of months. */
+.colophon .issue {
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Once the row wraps, `margin-left: auto` would strand the issue alone
+   on its own right-hand line. Let it sit with the links instead. */
+@media (max-width: 30rem) {
+  .colophon .issue {
+    margin-left: 0;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--ink-3);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--ink-3);
+  outline-offset: 3px;
+}

@@ -1,0 +1,20 @@
+# hausfold.co
+#
+# Why this file exists at all: it was written while
+# `not_found_handling = "single-page-application"` made any path with no file
+# behind it answer 200 with index.html — so https://hausfold.co/robots.txt
+# served the landing page *as* robots rules. That's now `404-page` (2026-08-08),
+# which fixes the fallback; this file still beats it and is still the right
+# place to put a Sitemap line later.
+#
+# Nothing is disallowed, and nothing should be: only ./public is ever uploaded
+# to the Worker, so everything reachable here is meant to be read. PRESENCE.md
+# and the configs never leave the repo.
+#
+# No `Sitemap:` line on purpose. There are five pages, all linked and all
+# carrying a <link rel="canonical">. Add a sitemap when the Astro site lands
+# (rename plan §5.1) and can generate one — a hand-written list is a thing to
+# forget to update, and /desktops is about to grow entries.
+
+User-agent: *
+Allow: /

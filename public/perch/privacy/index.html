@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>perch — privacy</title>
+    <meta
+      name="description"
+      content="Perch's privacy policy: no account, no analytics, no data collected — nothing leaves your Mac except to a device you paired yourself."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Trailing slash: /perch/privacy 307s to /perch/privacy/, so that is
+         the URL crawlers and the App Store listing should settle on. -->
+    <link rel="canonical" href="https://hausfold.co/perch/privacy/" />
+
+    <!-- No og:image here either — see the note in /index.html. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hausfold" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://hausfold.co/perch/privacy/" />
+    <meta property="og:title" content="perch — privacy" />
+    <meta
+      property="og:description"
+      content="Perch's privacy policy: no account, no analytics, no data collected — nothing leaves your Mac except to a device you paired yourself."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <!-- The tokens, the body type and the link styles come from the shared
+         sheet, same as every other page. Until 2026-08-08 this page carried
+         its own copy of all three and a comment explaining that hand-syncing
+         was the only option; a shared stylesheet exists now, so it isn't. -->
+    <link rel="stylesheet" href="/hausfold.css" />
+    <style>
+      /* Everything below is this page's own, and deliberately still inline:
+         it's a legal page with a layout nothing else uses (bare h1/h2/p/ul
+         selectors rather than the site's classes), and it is linked from the
+         App Store. Cascading after the shared sheet, so the two .sheet and
+         .masthead overrides below win. */
+      .sheet {
+        max-width: var(--measure);
+        margin: 0 auto;
+        padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem)
+          clamp(2.5rem, 6vw, 4rem);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(2.5rem, 6vw, 3.5rem);
+      }
+
+      .masthead {
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+      }
+
+      .eyebrow {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+      }
+
+      .eyebrow a {
+        color: var(--ink-3);
+      }
+
+      h1 {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: clamp(1.5rem, 5vw, 1.95rem);
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        margin: 0;
+        color: var(--ink);
+      }
+
+      .standfirst {
+        font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+        line-height: 1.4;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        margin: 0;
+        max-width: 34ch;
+        text-wrap: balance;
+        color: var(--ink-2);
+      }
+
+      section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+
+      h2 {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        font-weight: 400;
+        margin: 0;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      p {
+        margin: 0;
+        max-width: 62ch;
+        color: var(--ink-2);
+      }
+
+      p strong {
+        font-weight: 400;
+        color: var(--ink);
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        max-width: 62ch;
+      }
+
+      li {
+        padding-left: 1.5rem;
+        text-indent: -1.5rem;
+        color: var(--ink-2);
+      }
+
+      li::before {
+        content: "·";
+        display: inline-block;
+        width: 1.5rem;
+        text-indent: 0;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        color: var(--ink-3);
+      }
+
+      footer {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.78rem;
+        color: var(--ink-3);
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="sheet">
+      <header class="masthead">
+        <div class="eyebrow">
+          <a href="/">hausfold</a> / perch
+        </div>
+        <h1>Privacy</h1>
+        <p class="standfirst">
+          Perch does not collect data. Not some, not anonymized, not
+          aggregated — none.
+        </p>
+      </header>
+
+      <section>
+        <h2>What Perch is</h2>
+        <p>
+          Perch is a Mac notch file shelf and its free iPhone/iPad companion.
+          Files move between your own devices, over a connection your Mac and
+          your phone negotiate directly with each other. There is no server in
+          the middle, no account to create, and nothing to sign in to.
+        </p>
+      </section>
+
+      <section>
+        <h2>What we collect</h2>
+        <p><strong>Nothing.</strong> Specifically:</p>
+        <ul>
+          <li>No account, no email, no sign-in of any kind.</li>
+          <li>No analytics SDK and no crash reporter.</li>
+          <li>
+            No network destination other than a device you paired by hand —
+            Perch never talks to a server we run, because we don't run one.
+          </li>
+          <li>
+            Licensing is checked entirely on your Mac: no network call, no
+            file leaves the app's own container to verify it.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What leaves your devices</h2>
+        <p>
+          Nothing, unless you pair a phone to a Mac yourself. From that point
+          on, files you place on the shelf travel directly between that Mac
+          and that phone, encrypted end to end (X25519 key agreement,
+          ChaCha20-Poly1305). We — hausfold — never see them, never hold a
+          copy, and have no way to.
+        </p>
+      </section>
+
+      <section>
+        <h2>Changes</h2>
+        <p>
+          If this ever stops being true — if a future version adds a server,
+          an account, or any form of collection — this page will say so
+          before that version ships, not after.
+        </p>
+      </section>
+
+      <footer>
+        <p>
+          Questions:
+          <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>. Perch itself
+          lives at <a href="https://nebelhaus.com/perch">nebelhaus.com/perch</a>.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

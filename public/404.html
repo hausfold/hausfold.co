@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>not here — hausfold</title>
+    <meta name="color-scheme" content="light dark" />
+    <!-- No canonical and no OG: this document is served under whatever wrong
+         URL the visitor typed, so there is nothing true to point at. `noindex`
+         is the whole head it needs. -->
+    <meta name="robots" content="noindex" />
+
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <link rel="stylesheet" href="/hausfold.css" />
+  </head>
+
+  <body>
+    <main class="sheet">
+      <header class="masthead">
+        <div class="mark" aria-hidden="true">⌂</div>
+        <h1 class="wordmark">404</h1>
+        <p class="standfirst">Nothing at this address.</p>
+      </header>
+
+      <section>
+        <ul class="index" role="list">
+          <!-- No data-accent: neither of these is a product's name, and the
+               accent rule exists so a product's colour follows a product. The
+               house tinting itself pink would break exactly that. -->
+          <li>
+            <a class="index-name" href="/">hausfold</a>, the house.
+            <a class="index-name" href="/desktops">desktops</a>, the ones you
+            can run.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="colophon">
+        <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
+        <a href="https://github.com/nebelhaus">github.com/nebelhaus</a>
+        <span class="issue">Issue 2026.08</span>
+      </footer>
+    </main>
+  </body>
+</html>

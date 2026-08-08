@@ -1,0 +1,34 @@
+# Cloudflare Worker for hausfold.co — the landing page and /desktops.
+#
+# There is no `main` and no build step: this is a static-assets-only Worker, so
+# Cloudflare serves ./public directly and no Worker JS ever runs.
+#
+# `not_found_handling` was `single-page-application` while the site was one
+# sheet — every path returned index.html with a 200, which is exactly right when
+# there is only one page and exactly wrong once there are several: /desktops/typo
+# would answer 200 with the landing page. `404-page` serves ./public/404.html
+# with a real 404 instead. Real paths still resolve first, and `html_handling`
+# stays at its default (`auto-trailing-slash`), which is what maps /desktops to
+# ./public/desktops/index.html.
+#
+# `custom_domain = true` (rather than a `pattern = "hausfold.co/*"` route) is
+# load-bearing: the zone has no DNS records at all, and a plain route needs a
+# proxied record to already exist for the hostname. A custom domain makes wrangler
+# create and proxy that record itself.
+#
+# Deploy:
+#   cd hausfold && npx wrangler deploy      # (nixpkgs' wrangler fails to build — use npx)
+#
+# The token needs, on the hausfold.co zone/account: Workers Scripts:Edit,
+# Workers Routes:Edit, and Zone → DNS:Edit (for the custom-domain record).
+name = "hausfold"
+compatibility_date = "2026-08-04"
+
+routes = [
+  { pattern = "hausfold.co", custom_domain = true },
+  { pattern = "www.hausfold.co", custom_domain = true },
+]
+
+[assets]
+directory = "./public"
+not_found_handling = "404-page"

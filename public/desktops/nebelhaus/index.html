@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nebelhaus — hausfold</title>
+    <meta
+      name="description"
+      content="An opinionated macOS, raised in the fog. Tiling windows, a bar, a themed terminal — the whole Mac in one Nix flake."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="canonical" href="https://hausfold.co/desktops/nebelhaus/" />
+
+    <!-- No og:image — see the note in /index.html. This is the page most
+         likely to be shared of the three, and it's still the right call: a
+         card with no image degrades to the title and one line, and the honest
+         image for this page is a desktop screenshot that doesn't exist yet. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hausfold" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://hausfold.co/desktops/nebelhaus/" />
+    <meta
+      property="og:title"
+      content="nebelhaus — An opinionated macOS, raised in the fog."
+    />
+    <meta
+      property="og:description"
+      content="Tiling windows, a bar, a themed terminal — the whole Mac in one Nix flake. Silver-grey, keyboard-first, reproducible."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <link rel="stylesheet" href="/hausfold.css" />
+  </head>
+
+  <body>
+    <main class="sheet sheet--inner">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">hausfold</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a href="/desktops">desktops</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <span aria-current="page">nebelhaus</span>
+      </nav>
+
+      <header class="masthead">
+        <h1 class="wordmark">nebelhaus</h1>
+        <p class="standfirst">An opinionated macOS, raised in the fog.</p>
+        <div class="lede">
+          <p>
+            macOS arranged like a tiling Linux rig but native to the grain of
+            the Mac — <strong>one Nix flake raises the whole house</strong>.
+            Fog-grey, quiet, and reproducible: wipe the machine, run one
+            command, and the house stands again exactly as it was.
+          </p>
+          <p>
+            You never edit the rice to use it. The installer scaffolds a thin
+            config of your own at <code>~/.config/nix</code> that consumes it as
+            an input, so your machine stays yours and the rice stays upstream.
+          </p>
+        </div>
+      </header>
+
+      <section class="block">
+        <h2>Install</h2>
+        <div class="cmd">
+          <code>curl -fsSL https://nebelhaus.com/init.sh | bash</code>
+          <button class="copy" type="button" hidden>Copy</button>
+        </div>
+        <p class="aside">
+          Or straight from the flake, once Nix is installed:
+          <code>nix run github:nebelhaus/nebelhaus#bootstrap</code>
+        </p>
+        <p>
+          It installs the prerequisites and scaffolds a host file for this
+          machine, then stops — it won't switch a config you haven't
+          personalised, so the first run hands the machine back to you. Once
+          you've made it yours, that first switch puts <code>haus</code> on your
+          PATH: <code>haus rebuild</code> to apply a change,
+          <code>haus rollback</code> to undo one, <code>haus plan</code> to see
+          what a rebuild would do before it does it.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>What it looks like</h2>
+        <div class="shots">
+          <div class="shot shot--wide">
+            <span>the desktop — tiled, with the bar<br />[ shot not taken yet ]</span>
+          </div>
+          <div class="shot">
+            <span>pounce, mid-launch<br />[ shot not taken yet ]</span>
+          </div>
+          <div class="shot">
+            <span>the terminal — zsh, helix, lazygit<br />[ shot not taken yet ]</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>What's in it</h2>
+        <p>
+          The house is built from composable nix-darwin modules. Take the whole
+          thing, or import one room into a config of your own.
+        </p>
+        <dl class="facts">
+          <dt>den</dt>
+          <dd>macOS defaults, the Homebrew framework, core CLI tools, fonts</dd>
+
+          <dt>prowl</dt>
+          <dd>AeroSpace tiling, launched at boot, Caps Lock as the leader key</dd>
+
+          <dt>sill</dt>
+          <dd>a SketchyBar bar perched on the top edge</dd>
+
+          <dt>hearth</dt>
+          <dd>zsh, a tinted starship prompt, git, helix and a themed toolbelt</dd>
+
+          <dt>collar</dt>
+          <dd>Touch ID for sudo, and rebuilds that don't stop to ask twice</dd>
+
+          <dt>secrets</dt>
+          <dd>declarative secrets — projects commit which, never the values</dd>
+
+          <dt>pounce</dt>
+          <dd>the launcher on ⌘Space, its permissions intact across rebuilds</dd>
+
+          <dt>perch</dt>
+          <dd>the notch file shelf, installed and kept at a fixed path</dd>
+
+          <dt>hush</dt>
+          <dd>one hotkey for Focus, with optional shell and Slack hooks</dd>
+
+          <dt>theme</dt>
+          <dd>the wallpaper and a wordmark derived from your accent</dd>
+
+          <dt>apps</dt>
+          <dd>the picks a finished machine gets, one switch each</dd>
+        </dl>
+        <p class="aside">
+          Four presets ship with it — <code>minimal</code>,
+          <code>everyday</code>, <code>full</code> and
+          <code>large-print</code> — plus a writing pack. A preset is data, not
+          code: you can read one in a minute and know the worst it can do.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>What it needs</h2>
+        <dl class="facts">
+          <dt>macOS</dt>
+          <dd>the installer stops on anything that isn't a Mac</dd>
+
+          <dt>Xcode CLT</dt>
+          <dd>installed for you if it isn't there</dd>
+
+          <dt>Nix</dt>
+          <dd>
+            Determinate Nix, installed for you. An existing Nix that Determinate
+            doesn't own has to be removed first.
+          </dd>
+
+          <dt>an admin account</dt>
+          <dd>the first switch needs sudo</dd>
+        </dl>
+      </section>
+
+      <section class="block">
+        <h2>Elsewhere</h2>
+        <ul class="plain" role="list">
+          <li>
+            <a class="index-name" href="https://nebelhaus.com">nebelhaus.com</a>
+            — the docs, the guides, and support.
+          </li>
+          <li>
+            <a
+              class="index-name"
+              href="https://nebelhaus.com/start/first-run/"
+              >first run</a
+            >
+            — what to do once it's on the machine.
+          </li>
+          <li>
+            <a
+              class="index-name"
+              href="https://github.com/nebelhaus/nebelhaus"
+              >github.com/nebelhaus/nebelhaus</a
+            >
+            — the flake itself.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="colophon">
+        <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
+        <a href="https://github.com/nebelhaus">github.com/nebelhaus</a>
+        <span class="issue">Issue 2026.08</span>
+      </footer>
+    </main>
+
+    <script>
+      // The only script on the site, and it is pure enhancement: the command
+      // above is plain selectable text without it. The button ships hidden and
+      // is revealed only where the clipboard API actually exists — which it
+      // doesn't over file://, so a local `open public/…` shows no button. That
+      // is correct, not a bug.
+      if (navigator.clipboard) {
+        for (const btn of document.querySelectorAll(".copy")) {
+          const code = btn.closest(".cmd").querySelector("code");
+          btn.hidden = false;
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(code.textContent.trim()).then(
+              () => {
+                btn.textContent = "Copied";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+              // A denied permission or an unfocused document rejects. Say so on
+              // the button rather than leaving it silent — the command is right
+              // there to select by hand.
+              () => {
+                btn.textContent = "Select it";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+            );
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

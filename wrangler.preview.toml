@@ -1,0 +1,18 @@
+# PR-only Worker config: wrangler.toml's asset settings, with `routes` dropped
+# and `workers_dev` added. No routes means the preview Worker is reachable only
+# on workers.dev and cannot take the hausfold.co hostname.
+#
+# That property is enforced, not just documented — preview.yml's "Refuse a
+# preview config that defines routes" step fails the job if a `routes` block
+# appears here (this file is read from the PR head, so a comment alone would
+# protect nothing).
+#
+# The workflow overrides `name` with hausfold-pr-<number>, which is what makes
+# each PR's URL stable across pushes.
+name = "hausfold-preview"
+compatibility_date = "2026-08-04"
+workers_dev = true
+
+[assets]
+directory = "./public"
+not_found_handling = "404-page"

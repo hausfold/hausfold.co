@@ -1,0 +1,3 @@
+# wrangler's local account/asset cache — machine state, not source.
+.wrangler/
+.DS_Store

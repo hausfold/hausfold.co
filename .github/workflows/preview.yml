@@ -1,0 +1,224 @@
+# Deploy an isolated, route-less Cloudflare Worker for each PR, so a copy
+# change can be looked at on a real URL — in both themes, on a phone — before
+# it becomes the live site. Ported from nebelhaus/workshop's preview-web.yml,
+# minus the build (there is none here: `wrangler deploy` uploads ./public).
+#
+# The PR number gives each preview a stable workers.dev URL across pushes:
+#   https://hausfold-pr-<number>.<your-subdomain>.workers.dev
+#
+# Two things keep this away from hausfold.co:
+#   - wrangler.preview.toml carries no `routes`, so the preview Worker is only
+#     ever reachable on workers.dev;
+#   - the Worker name is always hausfold-pr-<number>, never `hausfold`.
+#
+# Uses the same secrets as deploy.yml (CLOUDFLARE_API_TOKEN,
+# CLOUDFLARE_ACCOUNT_ID) and needs no extra Cloudflare scopes — there's no
+# custom domain to create, so DNS:Edit isn't exercised here. No cache purge
+# either: a fresh Worker per push has nothing stale in front of it.
+#
+# Unlike the workshop's version this reports the URL in a PR comment rather
+# than a deployment environment: GitHub gates environments behind a paid plan
+# for private repos, and this one is private (see README).
+name: Preview hausfold.co
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'public/**'
+      - 'wrangler.toml'
+      - 'wrangler.preview.toml'
+      - '.github/workflows/preview.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    # GitHub withholds repository secrets from forks. Keep the preview deploy
+    # limited to branches in this repo rather than exposing the Cloudflare
+    # token via pull_request_target.
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # This config is read from the PR head, and the deploy overrides only
+      # `--name`. Without this check, a PR could add a route to
+      # wrangler.preview.toml and put its own unmerged branch on hausfold.co —
+      # the CI token has DNS:Edit, so a `custom_domain` route would succeed.
+      # This is what makes "a preview can't take the hostname" a mechanism
+      # rather than a comment asking nicely.
+      #
+      # Strip comments first (the header comment says "routes" itself, and a
+      # trailing `# no route needed` would otherwise trip this), then reject
+      # the word anywhere in what's left. Matching only at line-start missed
+      # `[[routes]]`, which is valid TOML, parses to the same array, and is the
+      # form Cloudflare's own docs reach for most.
+      - name: Refuse a preview config that defines routes
+        run: |
+          if [ ! -f wrangler.preview.toml ]; then
+            echo "::error::wrangler.preview.toml is missing — the deploy below would fall back to a config this step never checked."
+            exit 1
+          fi
+          if sed 's/#.*//' wrangler.preview.toml \
+            | grep -Eq 'routes?|workers_dev[[:space:]]*=[[:space:]]*false'; then
+            echo "::error file=wrangler.preview.toml::A preview Worker must stay route-less and on workers.dev. Remove the route/workers_dev override."
+            exit 1
+          fi
+
+      - name: Upload Cloudflare preview
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIEW_WORKER: hausfold-pr-${{ github.event.pull_request.number }}
+        run: |
+          for attempt in 1 2 3; do
+            set +e
+            output=$(npx --yes wrangler@4 deploy \
+              --config wrangler.preview.toml \
+              --name "$PREVIEW_WORKER" 2>&1)
+            status=$?
+            set -e
+            printf '%s\n' "$output"
+            if [ "$status" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit "$status"
+            fi
+            delay=$((attempt * 5))
+            echo "::warning::Cloudflare upload failed (attempt $attempt/3); retrying in ${delay}s."
+            sleep "$delay"
+          done
+          # Anchor to the Worker's own name: wrangler also prints per-version
+          # URLs like https://<hash>-hausfold-pr-4.<sub>.workers.dev, and a
+          # bare `tail -1` would hand out one of those — a working link, but
+          # pinned to one push, which is the opposite of the stable URL this
+          # workflow exists to give each PR.
+          url=$(printf '%s\n' "$output" \
+            | grep -Eo "https://${PREVIEW_WORKER}\.[a-z0-9-]+\.workers\.dev" \
+            | head -1 || true)
+          if [ -z "$url" ]; then
+            echo "::error::Wrangler uploaded the Worker but did not report a workers.dev preview URL. Is workers.dev disabled on the account?"
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # One comment per PR, edited in place — a push shouldn't add a second
+      # link, it should update the one that's already there.
+      - name: Comment the preview URL
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          marker='<!-- hausfold-preview -->'
+          # shellcheck disable=SC2016  # the backticks are markdown, not a subshell
+          body=$(printf '%s\n### hausfold.co preview\n\n%s\n\nBuilt from `%s`. A route-less Worker — hausfold.co is untouched, and it is deleted when this PR closes.\n' \
+            "$marker" "$PREVIEW_URL" "${SHA:0:7}")
+          existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$marker\"))] | first | .id // empty")
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -f body="$body" >/dev/null
+            echo "Updated comment $existing."
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -f body="$body" >/dev/null
+            echo "Posted a new preview comment."
+          fi
+          {
+            echo '### hausfold.co preview'
+            echo
+            echo "[$PREVIEW_URL]($PREVIEW_URL)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Previews are cheap but they're not free of clutter: one Worker per PR piles
+  # up in the dashboard forever otherwise.
+  cleanup:
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # One REST call — no checkout, no node, no wrangler.
+      #
+      # `wrangler delete` is the obvious tool here and it's the wrong one: after
+      # removing the script it also sweeps the legacy Workers Sites KV namespace
+      # a Worker *might* have, which needs Workers KV Storage:Edit. This token
+      # doesn't carry that scope (nothing else here needs KV), so on PR #4 it
+      # deleted the Worker and then failed on the KV call — cleanup done, merge
+      # painted red. This endpoint needs only Workers Scripts:Edit, which the
+      # deploy already requires.
+      #
+      # Nothing but $PREVIEW_WORKER can be addressed: the Worker name is built
+      # from the PR number, so unlike a config-file deploy there's no file in
+      # the PR's own tree that could redirect it at hausfold.co.
+      - name: Delete Cloudflare preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIEW_WORKER: hausfold-pr-${{ github.event.pull_request.number }}
+        run: |
+          # A closed PR never re-fires this event, so a transient failure here
+          # leaks the Worker until someone re-runs the job by hand. Retry, and
+          # keep the step alive past a curl failure so the log says which.
+          set +e
+          resp=$(curl -sS --retry 3 --retry-connrefused --max-time 30 \
+            -w '\n%{http_code}' -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${PREVIEW_WORKER}?force=true" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+          curl_status=$?
+          set -e
+          code=$(printf '%s' "$resp" | tail -n1)
+          body=$(printf '%s' "$resp" | sed '$d')
+          printf '%s\n' "$body"
+          if [ "$curl_status" -ne 0 ]; then
+            echo "::error::curl exited $curl_status reaching the Cloudflare API — $PREVIEW_WORKER may still exist. Re-run this job."
+            exit 1
+          fi
+          # Judge the envelope when there is one; fall back to the status code
+          # when there isn't. Cloudflare documents this endpoint as returning
+          # *no body* on a successful delete while also showing an envelope
+          # example, so trusting either one alone gets a green delete wrong in
+          # the direction this job was already wrong in once: work done, close
+          # painted red, and the red then indistinguishable from a real leak.
+          if printf '%s' "$body" | grep -q '"success": *true'; then
+            echo "Deleted $PREVIEW_WORKER."
+            exit 0
+          fi
+          # A PR whose preview deploy never succeeded has nothing to delete
+          # (10007 = no such Worker); that shouldn't paint the close red.
+          if printf '%s' "$body" | grep -q '"code": *10007'; then
+            echo "::warning::No preview Worker named $PREVIEW_WORKER — nothing to clean up."
+            exit 0
+          fi
+          if [ -z "$(printf '%s' "$body" | tr -d '[:space:]')" ]; then
+            case "$code" in
+              2*)
+                echo "Deleted $PREVIEW_WORKER (HTTP $code, empty body)."
+                exit 0
+                ;;
+              404)
+                echo "::warning::No preview Worker named $PREVIEW_WORKER (HTTP 404) — nothing to clean up."
+                exit 0
+                ;;
+            esac
+          fi
+          echo "::error::Could not delete $PREVIEW_WORKER (HTTP $code; see the API response above)."
+          exit 1

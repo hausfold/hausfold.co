@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>hausfold</title>
+    <meta
+      name="description"
+      content="hausfold makes the software that turns a Mac into a workspace someone actually designed."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- The apex and www. are both custom domains answering 200, so this page
+         is reachable under at least two hostnames; the canonical collapses
+         them to one. Keep it absolute and keep the trailing slash.
+         (Until 2026-08-08 the Worker also answered *every* unmatched path with
+         this document — `not_found_handling = "single-page-application"` — so
+         the URL count was unbounded. That's now `404-page`, which shrinks the
+         problem without removing it.) -->
+    <link rel="canonical" href="https://hausfold.co/" />
+
+    <!-- There is deliberately no og:image. A card with no image degrades to
+         the title and one line of description, which is the tone we want;
+         a 1200x630 sheet with the wordmark centred on it is the tone we
+         don't. It also keeps this repo free of binary assets, which is the
+         reason there's no build step. If one is ever added it needs a real
+         reason, not "the validator warned". -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hausfold" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://hausfold.co/" />
+    <meta property="og:title" content="hausfold — We rebuild the Mac." />
+    <meta
+      property="og:description"
+      content="hausfold makes the software that turns a Mac into a workspace someone actually designed."
+    />
+    <!-- summary, not summary_large_image: the large variant with no image is
+         the one that renders as a blank grey slab. -->
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Mobile browser chrome, matching --ground in each theme. These two
+         values are the only place the palette is duplicated outside :root;
+         change them with it. -->
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <!-- One stylesheet for the whole site; its header comment carries the
+         palette and type decisions. Read it before changing a colour. -->
+    <link rel="stylesheet" href="/hausfold.css" />
+
+    <!-- Says "hausfold is one organisation, and these accounts are it" to
+         anything resolving the name. No claim here that the page doesn't
+         already make in prose.
+
+         Both GitHub orgs, in that order: `hausfold` is where everything ships
+         from as of 2026-08-08 (PRESENCE.md), and `nebelhaus` stays alive
+         forever holding the redirects, so it is a true alias rather than a
+         stale one. sameAs edges get cached for a long time — listing only the
+         org being emptied would leave the machine-readable identity pointing
+         at a redirect shell once the repos transfer. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "hausfold",
+        "url": "https://hausfold.co/",
+        "description": "hausfold makes the software that turns a Mac into a workspace someone actually designed.",
+        "email": "hi@hausfold.co",
+        "sameAs": [
+          "https://github.com/hausfold",
+          "https://github.com/nebelhaus"
+        ]
+      }
+    </script>
+  </head>
+
+  <body>
+    <main class="sheet">
+      <header class="masthead">
+        <div class="mark" aria-hidden="true">⌂</div>
+        <h1 class="wordmark">hausfold</h1>
+        <p class="standfirst">We rebuild the Mac.</p>
+        <div class="lede">
+          <p>
+            hausfold makes the software that turns a Mac into a workspace
+            someone actually designed. <strong>The whole desktop</strong>, set
+            down in a single file and themed to match, plus the small native
+            tools that live inside it.
+          </p>
+          <p>
+            None of it is a skin. It is the machine, rebuilt: one file you hand
+            to a coder, a designer, or a whole floor of them, and every Mac
+            comes up the same. Take it as it comes, or take it apart.
+          </p>
+        </div>
+      </header>
+
+      <section>
+        <ul class="index" role="list">
+          <li data-accent="nebelhaus">
+            <a class="index-name" href="/desktops">desktops</a>, whole machines
+            that run as they come.
+            <a class="index-name" href="/desktops/nebelhaus">nebelhaus</a> is
+            the first, built for developers.
+          </li>
+          <li data-accent="pounce">
+            <a class="index-name" href="https://nebelhaus.com/pounce">pounce</a
+            >, a launcher you teach your own commands.
+          </li>
+          <li data-accent="holt">
+            <a class="index-name" href="https://github.com/nebelhaus/holt"
+              >holt</a
+            >, parallel coding agents that never collide.
+          </li>
+          <li data-accent="perch">
+            <a class="index-name" href="https://nebelhaus.com/perch">perch</a>,
+            a place for files to park on their way somewhere else.
+          </li>
+          <li data-accent="nebelung">
+            <a class="index-name" href="https://github.com/nebelhaus/nebelung"
+              >nebelung</a
+            >, the quieter set of colours everything shares.
+          </li>
+          <li data-accent="flick">
+            <span class="index-name">flick</span>, your notifications without
+            the noise. Still in the workshop.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="colophon">
+        <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
+        <a href="https://github.com/nebelhaus">github.com/nebelhaus</a>
+        <span class="issue">Issue 2026.08</span>
+      </footer>
+    </main>
+  </body>
+</html>
