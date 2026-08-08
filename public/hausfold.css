@@ -310,9 +310,8 @@ body {
 
 /* The one place colour is allowed: a product's own accent, on hover of
    its own name. Each li carries its accent; the name just spends it.
-   Scoped to .index-name rather than to the anchor, so a name that isn't
-   a link — `flick`, which has nowhere to point yet — still answers to
-   the pointer. */
+   Scoped to .index-name rather than to the anchor, so a name with no
+   link on it — `flick`, today — still answers to the pointer. */
 .index li[data-accent] .index-name:hover,
 .index li[data-accent] a.index-name:focus-visible {
   color: var(--accent, var(--ink));

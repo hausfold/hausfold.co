@@ -54,7 +54,10 @@ with a build step and a real `main`.
 
 *(§5.1's other prerequisite — "this repo goes public" — was settled on
 2026-08-08 by creating this repo public rather than flipping the old one. The
-plan's §5.1 and §3 name `hausfold/website`; that's stale, it means this repo.)*
+plan was amended to match in
+[workshop#260](https://github.com/nebelhaus/workshop/pull/260), so read it as
+written; if you meet `hausfold/website` in it anywhere, that's a leftover and
+it means this repo.)*
 
 **`hausfold/ops` is where a register-shaped thing goes** — handles, account
 facts, where credentials live. Not here, and not the workshop, which is also
@@ -292,11 +295,11 @@ Three things are **not** small, because they're positioning and not code:
   register gains no row for it.)
 
   There is **one standing exception**, and it is narrow: the last line of the
-  landing page's index may carry a workshop-stage name (today `flick`, before it
-  `revena`) on the condition that the register's **Gaps** section accounts for
-  that name explicitly. A name whose status nothing has written down is the
-  failure; a name the register is explicit about is a decision. Two such lines
-  at once would not be an exception, it would be a habit.
+  landing page's index may carry a workshop-stage name on the condition that the
+  register accounts for that name explicitly. A name whose status nothing has
+  written down is the failure; a name the register has an answer for is a
+  decision. Two such lines at once would not be an exception, it would be a
+  habit.
 
   ⚠️ **The check now costs a second repo, and it can't be short-circuited here.**
   The register moved out on 2026-08-08, so you can't confirm this from a file in

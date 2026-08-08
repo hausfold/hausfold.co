@@ -47,6 +47,13 @@ can't live in a public repo.
 
 ## Deploy
 
+> ⚠️ **Until the three Actions secrets are entered on this repo, the deploy job
+> is red and nothing ships.** They could not be copied — GitHub can't read a
+> secret back out of the repo it's stored in — so `CLOUDFLARE_API_TOKEN`,
+> `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ZONE_ID` have to be re-entered by
+> hand. hausfold.co is up in the meantime, serving the last deploy from the old
+> repo. **Delete this box once they're set.**
+
 **CI does it.** [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)
 runs on every push to `main` that touches `public/`, `wrangler.toml` or the
 workflow itself, and on demand via *Actions → Deploy hausfold.co → Run workflow*.
@@ -179,17 +186,16 @@ Plan §5.1 needs the site repo public — a docs site wants edit links and
 contributions — and the obvious move was to scrub `hausfold/website` and flip
 it. **That does not work, and the reason is the useful part.**
 
-Two things in that history had to go: the register (`PRESENCE.md`, eleven
-revisions, each one a full list of what we hold *and don't*) and
-`.wrangler/cache/wrangler-account.json`, which carried the Cloudflare account id
-in nine commits' trees. `git filter-repo --path .wrangler --path PRESENCE.md
---invert-paths` removes both from the branch — and removes neither from GitHub.
-`hausfold/website` had PRs #1–#11, **GitHub keeps `refs/pull/N/head` forever,
-and a history rewrite does not garbage-collect them.** Measured on 2026-08-08:
-all nine PR refs then in existence carried `PRESENCE.md` in their tree, and
-`refs/pull/1/head` descends from the commit that added the account blob. After
-the rewrite, both are still fetchable by SHA — on a repo that has just been made
-public.
+Two things in that history had to go: the register, and a cached Cloudflare
+account id that predates the split. `git filter-repo` removes both from the
+branch — and removes neither from GitHub. `hausfold/website` had pull requests,
+**GitHub keeps `refs/pull/N/head` forever, and a history rewrite does not
+garbage-collect them.** Measured on 2026-08-08: every PR ref then in existence
+still reached both artifacts after the rewrite. They stay fetchable — on a repo
+that has just been made public.
+
+*(The specifics stay in the old repo's own README, where the repo is private.
+Publishing the exact paths and commits would be handing over the fetch recipe.)*
 
 So: **rewriting history on a repo that has ever had a pull request is hygiene,
 not removal.** A new repo has no PR refs, no blob and no old revisions, and
@@ -197,8 +203,9 @@ needs no support ticket to make that true. What it cost was 33 commits of a
 placeholder page and its first real week — and §5.1 replaces that markup with an
 Astro build regardless.
 
-What carried over, on 2026-08-08, as one commit: `public/`, both wrangler
-configs, both workflows, this file and `AGENTS.md`. What didn't: `PRESENCE.md`,
+What carried over, on 2026-08-08, as one commit: everything the old repo
+tracked — `public/`, both wrangler configs, both workflows, `.gitignore`,
+`CLAUDE.md`, this file and `AGENTS.md`. What didn't: `PRESENCE.md`,
 which went to the private [`hausfold/ops`](https://github.com/hausfold/ops) with
 its eleven revisions intact.
 
@@ -208,9 +215,11 @@ its eleven revisions intact.
   not a token "just to test CI". This repo is public from its first commit, it
   has no pre-public history to hide a mistake in, and — see above — deleting a
   commit does not delete it.
-- **`hausfold/website` is never made public.** Archive it, don't delete it: the
-  Cloudflare `custom_domain` binding for `hausfold.co` is tied to the Worker
-  name, and the old repo is where the site's actual history lives.
+- **`hausfold/website` is never made public.** Archive it, don't delete it —
+  it is the only copy of the site's first two months. (Deleting it wouldn't
+  break the domain: the `custom_domain` binding lives in Cloudflare, tied to the
+  Worker name, and both wrangler configs came over here. It would just lose the
+  history.)
 
 ### Before that
 

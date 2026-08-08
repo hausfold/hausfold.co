@@ -8,8 +8,7 @@
 # place to put a Sitemap line later.
 #
 # Nothing is disallowed, and nothing should be: only ./public is ever uploaded
-# to the Worker, so everything reachable here is meant to be read. PRESENCE.md
-# and the configs never leave the repo.
+# to the Worker, so everything reachable here is meant to be read.
 #
 # No `Sitemap:` line on purpose. There are five pages, all linked and all
 # carrying a <link rel="canonical">. Add a sitemap when the Astro site lands

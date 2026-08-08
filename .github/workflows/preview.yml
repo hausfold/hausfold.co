@@ -17,8 +17,11 @@
 # either: a fresh Worker per push has nothing stale in front of it.
 #
 # Unlike the workshop's version this reports the URL in a PR comment rather
-# than a deployment environment: GitHub gates environments behind a paid plan
-# for private repos, and this one is private (see README).
+# than a deployment environment. That was forced when the site lived in a
+# private repo (GitHub gates environments behind a paid plan for those); this
+# repo is public, so an environment is now available and the comment is a
+# choice rather than a constraint. It's a good enough one — the comment edits
+# in place and needs no settings — but it's no longer the only option.
 name: Preview hausfold.co
 
 on:
