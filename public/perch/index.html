@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>perch — hausfold</title>
+    <meta
+      name="description"
+      content="A shelf that drops out of the notch to catch whatever you're dragging. Pile things in, carry them out in one motion. Native, quiet, and it never touches your originals."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="canonical" href="https://hausfold.co/perch/" />
+
+    <!-- No og:image — see the note in /index.html. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hausfold" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://hausfold.co/perch/" />
+    <meta property="og:title" content="perch — A shelf in the notch." />
+    <meta
+      property="og:description"
+      content="Start dragging, flick up to the notch, and a shelf drops down to catch it. Pile in as much as you like, then carry the lot somewhere else in one motion."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <link rel="stylesheet" href="/hausfold.css" />
+  </head>
+
+  <body>
+    <main class="sheet sheet--inner">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">hausfold</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <span aria-current="page">perch</span>
+      </nav>
+
+      <header class="masthead">
+        <h1 class="wordmark">perch</h1>
+        <p class="standfirst">A shelf in the notch.</p>
+        <div class="lede">
+          <p>
+            You know the dance. Drag a file, realise the window you wanted is
+            buried under four others, let go, dig it out, drag again.
+          </p>
+          <p>
+            Perch ends it. Start dragging <strong>anything</strong>, flick up to
+            the notch, and a small shelf drops down to catch it. Pile in as much
+            as you like, from as many places as you like — then grab any tile and
+            carry the whole group to its real home in one motion.
+          </p>
+          <p>
+            It has no Dock icon and asks for no permissions. It sees what you
+            drop on it, and nothing else.
+          </p>
+        </div>
+      </header>
+
+      <section class="block">
+        <h2>Install</h2>
+        <div class="cmd">
+          <code>brew install --cask nebelhaus/tap/perch</code>
+          <button class="copy" type="button" hidden>Copy</button>
+        </div>
+        <p class="aside">
+          Prefer a download? The
+          <a href="https://nebelhaus.com/download/perch">latest release</a> is
+          the same build — signed with our Apple Developer ID and notarized, so
+          it opens straight away with no Gatekeeper prompt and no quarantine
+          hack.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>One setting to turn off</h2>
+        <p>
+          In System Settings ▸ Desktop &amp; Dock, turn <em>off</em> “Drag
+          windows to top of screen to enter Mission Control”. macOS arms that
+          top-edge trigger for the whole of any drag — files included — and it
+          fires over the same band the shelf lives in. Leave it on and the Dock
+          steals the drop. It's the only thing perch asks of your Mac.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>What it looks like</h2>
+        <div class="shots">
+          <div class="shot shot--wide">
+            <span>the shelf, mid-drag<br />[ shot not taken yet ]</span>
+          </div>
+          <div class="shot">
+            <span>a full shelf<br />[ shot not taken yet ]</span>
+          </div>
+          <div class="shot">
+            <span>carrying the lot out<br />[ shot not taken yet ]</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>How it behaves</h2>
+        <dl class="facts">
+          <dt>drop</dt>
+          <dd>
+            files, folders, Photos exports, images dragged out of Safari, links
+            and plain text all land in the same shelf
+          </dd>
+
+          <dt>carry</dt>
+          <dd>
+            take one tile or grab the stack and take the lot; whatever the
+            destination accepts leaves the shelf, and a refused drop springs
+            back
+          </dd>
+
+          <dt>copies</dt>
+          <dd>
+            perch stages its own copy and hands out copies. It never moves,
+            renames, edits or deletes the thing you dropped in — an interrupted
+            drag cannot lose data
+          </dd>
+
+          <dt>patience</dt>
+          <dd>
+            a tile only appears once its copy has finished. Nothing on the shelf
+            is half-written, and quitting doesn't lose it
+          </dd>
+
+          <dt>quiet</dt>
+          <dd>
+            no Dock icon, no Accessibility, no Input Monitoring, no Screen
+            Recording, no telemetry. Nothing about your files is ever written to
+            a log
+          </dd>
+
+          <dt>offline</dt>
+          <dd>
+            the only network call perch makes is an hourly look at its own
+            release tag, and Settings turns that off
+          </dd>
+        </dl>
+      </section>
+
+      <section class="block">
+        <h2>What it needs</h2>
+        <dl class="facts">
+          <dt>macOS 14</dt>
+          <dd>or newer. A notch is nice, not required — the shelf works on any
+            Mac and on any display</dd>
+
+          <dt>nothing else</dt>
+          <dd>no account, no sign-in, and no permission to grant on first
+            launch</dd>
+        </dl>
+        <p class="aside">
+          Perch also has a room in the
+          <a href="/desktops/nebelhaus">nebelhaus</a> desktop, where it's
+          installed and kept up to date with the rest of the house. Standalone
+          and in-the-house are the same app.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>Questions</h2>
+        <dl class="facts">
+          <dt>fair source</dt>
+          <dd>
+            every line of perch is public and readable on GitHub, and each
+            release becomes Apache-2.0 two years after it ships. Until then you
+            may read it, change it and build it for yourself — you just may not
+            sell it back to people. That's
+            <a href="https://fsl.software">fair source</a>, and it's the honest
+            version of “mostly open”
+          </dd>
+
+          <dt>my files</dt>
+          <dd>
+            they stay where they are. Perch keeps its copies inside its own
+            sandbox container, and it only ever knows about the things you
+            dragged onto it
+          </dd>
+
+          <dt>a shelf app?</dt>
+          <dd>
+            there are others, and they're good. Perch's angle is dependability
+            and restraint: copies rather than moves, no permissions to grant, no
+            telemetry, and a shelf that lives where your hand already is
+          </dd>
+        </dl>
+      </section>
+
+      <section class="block">
+        <h2>Elsewhere</h2>
+        <ul class="plain" role="list">
+          <li>
+            <a class="index-name" href="https://github.com/nebelhaus/perch"
+              >github.com/nebelhaus/perch</a
+            >
+            — the source, the changelog, and where to file a bug.
+          </li>
+          <li>
+            <a class="index-name" href="/perch/privacy">privacy</a> — the whole
+            policy, which is shorter than this page.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="colophon">
+        <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
+        <a href="/terms">terms</a>
+        <a href="/refunds">refunds</a>
+        <span class="issue">Issue 2026.08</span>
+      </footer>
+    </main>
+
+    <script>
+      // The site's only script, copied from /desktops/nebelhaus — pure
+      // enhancement. The command above is plain selectable text without it, and
+      // the button stays hidden anywhere navigator.clipboard is absent.
+      if (navigator.clipboard) {
+        for (const btn of document.querySelectorAll(".copy")) {
+          const code = btn.closest(".cmd").querySelector("code");
+          btn.hidden = false;
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(code.textContent.trim()).then(
+              () => {
+                btn.textContent = "Copied";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+              () => {
+                btn.textContent = "Select it";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+            );
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

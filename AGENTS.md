@@ -92,6 +92,30 @@ different session, so read the two together:
 App Store listing needs a policy URL on a domain the seller owns, and hausfold
 is the seller. That one is a legal obligation, not a shop window.
 
+### `/perch`, `/terms`, `/refunds` — the seller's surface, arriving before the sale
+
+Added 2026-08-08, the same §5.1-early move `/desktops` was: treat the markup as
+temporary and the copy as not. Three things to know before editing them:
+
+- **`/perch` is the product page, moved here.** It's the consumer-voice page
+  [`notes/perch-monetization.md`](https://github.com/nebelhaus/workshop/blob/main/notes/perch-monetization.md)
+  Phase 3 asks for, and the landing page links it internally now instead of
+  pointing at `nebelhaus.com/perch`. ⚠️ **The Astro page in `workshop/web` is
+  still live and still what `nebelhaus.com/perch` serves.** Two pages about one
+  product will not agree for long — when §5.1 lands, delete the Astro one rather
+  than reconciling them, and until then fix a fact in *both* or in neither.
+- **`/terms` and `/refunds` exist because Paddle asks for them.** Paddle's
+  account review sits in front of every other step of Phase 2, and it wants
+  policy URLs on the seller's own domain. They describe a licence nobody can buy
+  yet; that's deliberate, not a leak. The app's licence layer is inert until a
+  public key is baked in (`perch/docs/going-paid.md` is that runbook), so these
+  pages are ahead of the software on purpose.
+- **None of the three names a price**, and that was the user's call on
+  2026-08-08: no price goes up before there's a checkout to click, because a
+  price with no button reads as a rug-pull warning to people using perch free
+  today. The price and the Paddle overlay land together, on `/perch`, in one
+  commit on flip day.
+
 ## The site
 
 `public/` is the whole thing, and there is no build step — what's in the
@@ -102,7 +126,10 @@ directory is what's on the domain:
 | `index.html` | the landing page |
 | `desktops/index.html` | the catalogue — one entry per shipping desktop |
 | `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
+| `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `perch/privacy/index.html` | perch's privacy policy. **Linked from the App Store — don't move or rename it.** |
+| `terms/index.html` | what a licence grants, the update year, the fair-source note, what we don't promise |
+| `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404.html` | served with a real 404 for anything else |
 | `robots.txt` | allows everything; no `Sitemap:` line, and its comment says why |
 | `hausfold.css` | the shared tokens, type and link styles, and the header comment with the design decisions |
@@ -146,9 +173,10 @@ Rules that are easy to break by accident:
   crossfade is the reduced-motion-safe form, not the thing the setting exists
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
-- **Almost no JavaScript, and none of it load-bearing.** There is exactly one
-  script, at the foot of `desktops/nebelhaus/index.html`: it reveals the copy
-  button beside the install command. The button ships `hidden` and the script
+- **Almost no JavaScript, and none of it load-bearing.** There are exactly two
+  scripts, and they are the same twelve lines: at the foot of
+  `desktops/nebelhaus/index.html` and of `perch/index.html`, revealing the copy
+  button beside an install command. The button ships `hidden` and the script
   only unhides it where `navigator.clipboard` exists, so the command is plain
   selectable text everywhere else — including over `file://`, where the API is
   absent and no button appears. That is the bar for a second script: pure
@@ -180,19 +208,23 @@ Rules that are easy to break by accident:
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
-  four `og:` tags, `twitter:card`, and both `theme-color`s, on all four public
+  four `og:` tags, `twitter:card`, and both `theme-color`s, on all seven public
   pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.
 - **`theme-color` duplicates `--ground`.** Two `<meta>` values per page, one per
   scheme, and they are the only copy of the palette outside `hausfold.css`.
   Change a ground colour and change all of them with it.
-- **No prices and no licences, anywhere on the site.** Every product line is one
-  clause and one link out, and a rice's page says what it is and how to install
-  it, never what it costs. Pricing copy here would be a second place for perch's
-  terms to drift from `notes/perch-monetization.md` in the workshop. Re-confirmed
-  2026-08-08 when `/desktops` landed — a gallery is the obvious place for this
-  rule to erode.
+- **No prices, anywhere on the site — still true, and now narrower.** No page
+  names a figure, `/perch`, `/terms` and `/refunds` included. The original
+  reason holds: a price here is a second place for perch's terms to drift from
+  `notes/perch-monetization.md` in the workshop, which is the source of truth
+  for what perch costs and what a licence covers. What changed on 2026-08-08 is
+  the *licences* half of this rule: `/terms` and `/refunds` now describe what a
+  licence grants, because Paddle's account review asks for exactly that on the
+  seller's own domain. **The rule to keep is one page, one place**: when a price
+  does land it lands on `/perch` alone, sourced from the monetization note, and
+  every other page keeps linking rather than repeating it.
 - **Links go outward** — *for now.* The landing page indexes the products; it
   doesn't try to hold traffic, and nebelhaus.com and GitHub are where each one
   actually lives. ⚠️ **Plan §5.1 inverts this**: once `/docs`, the gallery,
@@ -201,7 +233,11 @@ Rules that are easy to break by accident:
   move — a link to a page that doesn't exist yet is worse than one extra hop —
   but stop treating "outward" as a principle. It was a consequence of having one
   sheet. `/desktops` is the first place the inversion is already visible: it
-  holds you long enough to run the command, then links out.
+  holds you long enough to run the command, then links out. **`/perch` is the
+  second, and the first one to take a link off the landing page** — the index's
+  perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
+  is the pattern for the rest: a link moves inward on the day the inward page
+  exists, not before.
 
 ## Deploying
 
