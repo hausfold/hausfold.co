@@ -34,13 +34,13 @@
             product owns. This is the site's only animation; it runs on
             hover only, never on load, and prefers-reduced-motion holds
             the sheen still rather than dropping it.
-   Shots:   the frames on /desktops are placeholders on purpose —
-            drawn in CSS, no image files. The family's only real rice
-            capture is nebelhaus/assets/hero.png, which the workshop's
-            SHOTLIST.md still calls a placeholder itself. A grey frame
-            that says what it is beats a stale screenshot that lies,
-            and it keeps the site greyscale until there's a shot worth
-            spending colour on.
+   Shots:   the frames on /desktops and /perch are placeholders on
+            purpose — drawn in CSS, no image files. The family's only
+            real rice capture is nebelhaus/assets/hero.png, which the
+            workshop's SHOTLIST.md still calls a placeholder itself. A
+            grey frame that says what it is beats a stale screenshot
+            that lies, and it keeps the site greyscale until there's a
+            shot worth spending colour on.
    ------------------------------------------------------------------ */
 
 :root {

@@ -37,10 +37,11 @@ public/
 else. It was `single-page-application` — every path answering 200 with the
 landing page — which was right while the site was one sheet and wrong the moment
 `/desktops/pounce` became a plausible typo. One consequence to know: paths the
-SPA fallback used to absorb now 404 honestly. ~~including bare `/perch`~~ —
-`/perch` is a real page as of 2026-08-08 and no longer among them. Directory
-pages resolve with and without the trailing slash (the slashed form is what the
-307 lands on), which is why the canonical tags matter.
+SPA fallback used to absorb now 404 honestly — a list that was written here as
+"including bare `/perch`" and no longer includes it, since `/perch` became a
+real page on 2026-08-08. Directory pages resolve with and without the trailing
+slash (the slashed form is what the 307 lands on), which is why the canonical
+tags matter.
 
 **The name register is not here.** `PRESENCE.md` — every account, handle and
 namespace claimed under the hausfold name, what we hold, what's still a gap, and
