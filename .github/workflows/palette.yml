@@ -1,0 +1,57 @@
+# Check that public/hausfold.css still agrees with nebelung's CSS port.
+#
+# The dark theme's ten nebelung values used to be hand-copied hexes, written
+# twice each (once for `prefers-color-scheme`, once for the `data-theme`
+# toggle) — twenty literals with nothing watching them. They're now
+# `var(--nebelung-*)` reading a block that scripts/sync-nebelung.mjs vendors
+# from `github:nebelhaus/nebelung`, and this job runs that same script with
+# --check.
+#
+# It fails on three things: the vendored block is stale or hand-edited, a dark
+# block stopped spending the port (or --ink/--well stopped being ours), or a
+# `--nebelung-*` reference appeared in the light theme, which is hand-picked on
+# purpose. The fix is always the same one command:
+#
+#   node scripts/sync-nebelung.mjs
+#
+# Note it builds nebelung's *main*, unpinned, which is the point: if upstream
+# moves a value, the next PR that touches the stylesheet goes red and says so.
+# That does mean a CSS PR can go red for a reason that isn't its own — re-run
+# the script, commit the block, carry on. No secrets, so it runs on forks too.
+name: Palette
+
+on:
+  pull_request:
+    paths:
+      - 'public/hausfold.css'
+      - 'scripts/**'
+      - '.github/workflows/palette.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/hausfold.css'
+      - 'scripts/**'
+      - '.github/workflows/palette.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: palette-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - run: node scripts/sync-nebelung.mjs --check

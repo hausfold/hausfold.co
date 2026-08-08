@@ -9,6 +9,9 @@ A handful of hand-written HTML files
 served on [hausfold.co](https://hausfold.co) (and `www.`) by a
 static-assets-only Cloudflare Worker. No build step, no framework, one
 twelve-line script: `wrangler deploy` uploads `public/` and Cloudflare serves it.
+(There is one generator, `scripts/sync-nebelung.mjs`, but its output is
+committed — nothing runs at deploy time, and `public/` is still exactly what
+the domain returns.)
 
 ```
 public/
@@ -21,6 +24,19 @@ public/
   refunds/index.html              the refund policy — fourteen days, no questions
   404.html
   hausfold.css                    shared tokens and type, and the design notes
+scripts/
+  sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
+```
+
+`scripts/` is not part of the site and is not deployed. `sync-nebelung.mjs`
+writes a marked block into `public/hausfold.css` — nebelung's own
+`dist/css/nebelung-mocha.css`, fetched with `nix build
+github:nebelhaus/nebelung` — so the dark theme reads `var(--nebelung-*)`
+instead of the twenty hand-copied hexes it used to carry (ten values, each
+written twice). Run it after an upstream palette change:
+
+```
+node scripts/sync-nebelung.mjs          # or: nix run nixpkgs#nodejs -- scripts/sync-nebelung.mjs
 ```
 
 > **That description is about to be wrong.** Under §5.1 of the
@@ -113,6 +129,15 @@ rather than by accident.
 Both themes are token-level: `prefers-color-scheme` carries the OS preference
 and `:root[data-theme]` overrides it in both directions. Check both before
 shipping a colour change.
+
+The dark theme's nebelung values are **vendored, not typed**: `hausfold.css`
+opens with a generated copy of nebelung's own CSS port, and both dark blocks
+read `var(--nebelung-*)` from it. Two dark values are deliberately outside
+that — `--ink`, extrapolated a rung above nebelung's text, and `--well`, which
+is hand-picked and is *not* mantle — and the whole light theme is hand-picked
+too, a paper-warm mirror rather than latte, because nebelung's pastels wash out
+on a light ground. `.github/workflows/palette.yml` enforces all three of those
+statements on every PR that touches the stylesheet.
 
 `robots.txt` is a real file rather than a default because the SPA fallback
 would otherwise have answered `/robots.txt` with the landing page. There is
