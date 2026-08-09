@@ -85,11 +85,13 @@ pounce --request-accessibility</code>
         <p class="aside">
           The formula installs a prebuilt <code>Pounce.app</code> — signed with
           our Apple Developer ID and notarized, so there's no compile step and
-          no Gatekeeper prompt. The last line asks macOS for the one permission
-          pounce needs; approve it once. Prefer a download? The
+          no Xcode command-line tools to fetch. The last line asks macOS for the
+          permission pounce needs to hold a hotkey; approve it once. Prefer a
+          download? The
           <a href="https://nebelhaus.com/download/pounce">latest release</a> is
-          the same build as a DMG: drag it to Applications and open it, and
-          first launch registers the login item for you.
+          the same build as a DMG: drag it to Applications and open it. First
+          launch registers a login item and starts the daemon — approve the
+          login item in System Settings if macOS asks.
         </p>
       </section>
 
@@ -195,8 +197,8 @@ osascript -e 'display notification "🐾" with title "Pounce"'</code>
         </div>
         <p class="aside">
           It runs the other way too:
-          <code>echo "a\nb\nc" | pounce -p "pick one:"</code> turns any list on
-          stdin into a native picker, so a script you already have can ask a
+          <code>printf 'a\nb\nc\n' | pounce -p "pick one:"</code> turns any list
+          on stdin into a native picker, so a script you already have can ask a
           real question. A submenu is just a command that calls pounce again
           with a new list.
         </p>
@@ -256,9 +258,11 @@ osascript -e 'display notification "🐾" with title "Pounce"'</code>
 
           <dt>Accessibility</dt>
           <dd>
-            one permission, and pounce is honest about why: a global hotkey that
-            works over every app can't be had without it. Nothing else — no
-            Input Monitoring, no Screen Recording, no Full Disk Access
+            one permission to run, and pounce is honest about why: a global
+            hotkey that works over every app can't be had without it. Two
+            features ask for their own the first time you use them — the camera
+            peek, and the Bluetooth plugin. Nothing else: no Input Monitoring,
+            no Screen Recording, no Full Disk Access
           </dd>
 
           <dt>nothing else</dt>
