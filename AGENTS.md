@@ -19,7 +19,7 @@ change.
 **hausfold is the platform, the org and the seller** (decided 2026-08-08 — the
 header of `PRESENCE.md` in the private
 [`hausfold/ops`](https://github.com/hausfold/ops), and
-[`notes/hausfold-rename.md`](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md)
+[`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
 in the workshop). The nix-darwin ricing platform every rice sets `haus.*` options
 on, the apps, the tools — *and* still the name on terms, refunds and press.
 **nebelhaus is one rice built on it.**
@@ -38,10 +38,10 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the hausfold.co landing page — copy, design, the products it lists | here, `public/index.html` |
 | the desktops catalogue, or a desktop's page on it | here, `public/desktops/` |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| anything about a **product** (pounce, perch, nebelung, holt) | that product's own repo — under `github.com/nebelhaus` until the rename plan's §3 transfers it, `github.com/hausfold` after |
-| the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo (`nebelhaus/nebelhaus` → `hausfold/hausfold`) |
-| the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7) |
-| anything about **flick**, which has no repo of its own yet | `incubator/flick` in the workshop |
+| anything about a **product** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold` — §3 transferred every one of them on 2026-08-08/09, so the old `nebelhaus/*` spelling is a redirect, not an address |
+| the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/hausfold` (the checkout is `./hausfold` in the workshop as of 2026-08-09 — **not** `./hausfold.co`, which is this repo) |
+| the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
+| anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
 | the docs, the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.1 |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
@@ -55,7 +55,7 @@ with a build step and a real `main`.
 *(§5.1's other prerequisite — "this repo goes public" — was settled on
 2026-08-08 by creating this repo public rather than flipping the old one. The
 plan was amended to match in
-[workshop#260](https://github.com/nebelhaus/workshop/pull/260), so read it as
+[workshop#260](https://github.com/hausfold/workshop/pull/260), so read it as
 written; if you meet `hausfold/website` in it anywhere, that's a leftover and
 it means this repo.)*
 
@@ -78,7 +78,7 @@ different session, so read the two together:
   two sessions deciding in parallel, both with the user. The user resolved it in
   favour of the page, so `hausfold-rename.md` decision 7, `go-to-market.md` §5
   and `options-roadmap.md` now all read `/desktops`
-  ([workshop#258](https://github.com/nebelhaus/workshop/pull/258)). ⚠️ If you
+  ([workshop#258](https://github.com/hausfold/workshop/pull/258)). ⚠️ If you
   meet `hausfold.co/market` anywhere, it's stale — fix it rather than obey it.
 - **It is plain HTML, not Astro.** §5.1 replaces this markup wholesale when the
   build lands. Don't invest in the structure; do keep the copy, which was
@@ -98,7 +98,7 @@ Added 2026-08-08, the same §5.1-early move `/desktops` was: treat the markup as
 temporary and the copy as not. Three things to know before editing them:
 
 - **`/perch` is the product page, moved here.** It's the consumer-voice page
-  [`notes/perch-monetization.md`](https://github.com/nebelhaus/workshop/blob/main/notes/perch-monetization.md)
+  [`notes/perch-monetization.md`](https://github.com/hausfold/workshop/blob/main/notes/perch-monetization.md)
   Phase 3 asks for, and the landing page links it internally now instead of
   pointing at `nebelhaus.com/perch`. ⚠️ **The Astro page in `workshop/web` is
   still live and still what `nebelhaus.com/perch` serves.** Two pages about one
@@ -192,12 +192,13 @@ Rules that are easy to break by accident:
   actually shares. The dark accents no longer *match* nebelung — they **are**
   nebelung: `--a-pounce` is `var(--nebelung-peach)`, and so on for all six,
   resolved out of the vendored block above. (`palette.css` in
-  [nebelhaus/workshop](https://github.com/nebelhaus/workshop) was the source
+  [hausfold/workshop](https://github.com/hausfold/workshop) was the source
   while these were hand-copied hexes; nebelung shipping its own CSS port made
   that hop unnecessary.) The light ones stay hand-picked counterparts —
   nebelung's pastels are built for a dark ground — which is why `latte` is not
   vendored and why `--check` fails on a `--nebelung-*` reference outside the
-  two dark blocks. `holt` and `flick` have no accent *assigned* upstream, so
+  two dark blocks. `holt` and `trill` (called `flick` when these were picked) have no
+  accent *assigned* upstream, so
   teal and yellow are our pick from nebelung's palette rather than nebelung's
   pick for them, and should be reconciled if they get a row.
 - **No motion, with one hover-only exception.** No load animation, no
@@ -337,7 +338,7 @@ transcript, not your summary of it. The full checklist is the workshop ship skil
 
 anything product-specific that belongs in that product's own repo; a **new positioning
 claim** not backed by
-[`notes/hausfold-rename.md`](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md);
+[`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md);
 and a claim on the page the products don't actually back.
 
 *(This clause used to say the reviewer should catch "any part of the nebelhaus family
@@ -369,7 +370,7 @@ Three things are **not** small, because they're positioning and not code:
   now — `go-to-market.md` §6's placeholder, the 2026-08-06 maker's voice, and
   2026-08-08's platform repositioning — and each was the user's, not a copy
   edit. A new positioning claim needs backing in
-  [`hausfold-rename.md`](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md)
+  [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
   or it isn't a decision, it's a session's opinion.
 - **Adding a row to the gallery.** A second entry means a second thing someone
   can install, so it needs to actually exist and be installable by a stranger
