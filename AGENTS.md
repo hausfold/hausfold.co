@@ -119,6 +119,19 @@ temporary and the copy as not. Three things to know before editing them:
   price with no button reads as a rug-pull warning to people using perch free
   today. The price and the Paddle overlay land together, on `/perch`, in one
   commit on flip day.
+- 🚨 **The contact address is `hi@hausfold.co`, and that is deliberate — do not
+  "upgrade" it to `support@`.** It reads informal for a legal page and a later
+  session will want to fix it. Settled 2026-08-09
+  ([`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
+  §5.4): `hi@` is the address that actually routes, `support@hausfold.co` never
+  existed outside three checkboxes in perch's runbooks, and swapping the
+  printed address is only free *before* the first receipt. If `support@` is
+  ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
+  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `404`,
+  `index`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`, `desktops`,
+  `desktops/nebelhaus` — **plus the JSON-LD organization record**
+  (`index.html:80`), which is the one a find-and-replace over visible copy
+  misses. `rg 'hi@hausfold' public/` before assuming you've seen them all.
 
 ## The site
 
