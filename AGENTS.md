@@ -104,6 +104,10 @@ temporary and the copy as not. Three things to know before editing them:
   still live and still what `nebelhaus.com/perch` serves.** Two pages about one
   product will not agree for long — when §5.1 lands, delete the Astro one rather
   than reconciling them, and until then fix a fact in *both* or in neither.
+  **`/pounce` (added 2026-08-09) inherits every word of that warning** —
+  `workshop/web/src/pages/pounce.astro` is still what `nebelhaus.com/pounce`
+  serves, and it is a *denser* page than perch's, so there is more to drift.
+  Two products, two duplicate pairs, one rule.
 - **`/terms` and `/refunds` exist because Paddle asks for them.** Paddle's
   account review sits in front of every other step of Phase 2, and it wants
   policy URLs on the seller's own domain. They describe a licence nobody can buy
@@ -128,6 +132,7 @@ directory is what's on the domain:
 | `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
 | `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `perch/privacy/index.html` | perch's privacy policy. **Linked from the App Store — don't move or rename it.** |
+| `pounce/index.html` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
 | `terms/index.html` | what a licence grants, the update year, the fair-source note, what we don't promise |
 | `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404.html` | served with a real 404 for anything else |
@@ -157,7 +162,7 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the two things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand), and the seven pages' dark **`theme-color`**, which is a hand-typed copy
+hand), and the eight pages' dark **`theme-color`**, which is a hand-typed copy
 of crust living in markup nothing generates.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
@@ -205,13 +210,17 @@ Rules that are easy to break by accident:
   crossfade is the reduced-motion-safe form, not the thing the setting exists
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
-- **Almost no JavaScript, and none of it load-bearing.** There are exactly two
-  scripts, and they are the same twelve lines: at the foot of
-  `desktops/nebelhaus/index.html` and of `perch/index.html`, revealing the copy
-  button beside an install command. The button ships `hidden` and the script
-  only unhides it where `navigator.clipboard` exists, so the command is plain
-  selectable text everywhere else — including over `file://`, where the API is
-  absent and no button appears. That is the bar for a second script: pure
+- **Almost no JavaScript, and none of it load-bearing.** There are exactly
+  three scripts, and they are the same twelve lines: at the foot of
+  `desktops/nebelhaus/index.html`, of `perch/index.html` and of
+  `pounce/index.html`, revealing the copy button beside a fenced command. The
+  button ships `hidden` and the script only unhides it where
+  `navigator.clipboard` exists, so the command is plain selectable text
+  everywhere else — including over `file://`, where the API is absent and no
+  button appears. Each copy of the script loops over every `.copy` on its page,
+  so a page may hold more than one — `/pounce` does, and the second is not an
+  install command but the four-line example command, which is the thing that
+  page is actually asking you to try. That is the bar for a fourth script: pure
   enhancement, nothing lost without it, and no framework.
 - **Placeholder frames, never a stale screenshot.** `/desktops` draws its shot
   slots in CSS and labels them `[ shot not taken yet ]`. The family's only rice
@@ -240,7 +249,7 @@ Rules that are easy to break by accident:
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
-  four `og:` tags, `twitter:card`, and both `theme-color`s, on all seven public
+  four `og:` tags, `twitter:card`, and both `theme-color`s, on all eight public
   pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.
@@ -269,7 +278,19 @@ Rules that are easy to break by accident:
   second, and the first one to take a link off the landing page** — the index's
   perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
   is the pattern for the rest: a link moves inward on the day the inward page
-  exists, not before.
+  exists, not before. **`/pounce` is the third, and it followed exactly that
+  pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
+  and onto `/pounce`, in the same commit. What's left pointing out of the index
+  is `holt` and `nebelung`, which have no page here yet.
+- **`/pounce` spells the org `hausfold`; every older page still spells it
+  `nebelhaus`, and that is not a mistake to "fix" one page at a time.** Rename
+  plan §3.2 transferred all nine repos on 2026-08-08, so `hausfold/tap/pounce`
+  and `github.com/hausfold/pounce` are the canonical forms and the new page uses
+  them. The old spellings redirect, so nothing is broken — but `/perch` says
+  `nebelhaus/tap/perch` two clicks away, and the same string lives in
+  `workshop/web` ×4 and in two READMEs. **Sweep them together or not at all**:
+  a per-page correction is how the family ends up with three spellings instead
+  of two. Until the sweep, expect the mismatch and don't file it as a bug.
 
 ## Deploying
 
