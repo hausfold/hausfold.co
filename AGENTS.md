@@ -128,6 +128,7 @@ directory is what's on the domain:
 | `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
 | `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `perch/privacy/index.html` | perch's privacy policy. **Linked from the App Store — don't move or rename it.** |
+| `pounce/index.html` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
 | `terms/index.html` | what a licence grants, the update year, the fair-source note, what we don't promise |
 | `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404.html` | served with a real 404 for anything else |
@@ -157,7 +158,7 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the two things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand), and the seven pages' dark **`theme-color`**, which is a hand-typed copy
+hand), and the eight pages' dark **`theme-color`**, which is a hand-typed copy
 of crust living in markup nothing generates.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
@@ -240,7 +241,7 @@ Rules that are easy to break by accident:
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
-  four `og:` tags, `twitter:card`, and both `theme-color`s, on all seven public
+  four `og:` tags, `twitter:card`, and both `theme-color`s, on all eight public
   pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.
@@ -269,7 +270,10 @@ Rules that are easy to break by accident:
   second, and the first one to take a link off the landing page** — the index's
   perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
   is the pattern for the rest: a link moves inward on the day the inward page
-  exists, not before.
+  exists, not before. **`/pounce` is the third, and it followed exactly that
+  pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
+  and onto `/pounce`, in the same commit. What's left pointing out of the index
+  is `holt` and `nebelung`, which have no page here yet.
 
 ## Deploying
 
