@@ -36,19 +36,21 @@ repos and belong to the workshop. If this repo grows one of its own it goes in
 
 ## Caveats
 
-- **This is the one repo in the family where a push is a deploy.** `main` is the
-  live site — there is no staging. That makes the Copilot instructions and
-  `AGENTS.md` load-bearing in a way they aren't elsewhere: a bad merge here is
-  public immediately, and the recovery is a revert plus a CI run.
+- **A push here is a deploy.** `main` is the live site — no staging, no build to
+  fail first (the workshop's `web/` deploys the same way for nebelhaus.com, so
+  this shape isn't unique, but it *is* the property that makes instructions
+  load-bearing here). A bad merge is public immediately; the recovery is a revert
+  plus a CI run.
 - **The Nix bootstrap is for one script, not for a build.** This repo has no
   flake and no build step; `scripts/sync-nebelung.mjs` shells out to `nix build`
   to vendor nebelung's CSS port, and the Palette workflow installs Nix for the
   same reason. Everything else you can do with a text editor and a static server.
-- **Public repo, public previews.** Every PR touching `public/` gets an
-  unauthenticated preview Worker on a workers.dev URL. Combined with the repo
-  being public, a draft on a branch is a draft on the internet — which is why
-  `AGENTS.md`'s rule about never restating the private register applies to
-  branches, not just to `main`.
+- **Public repo, public previews.** A PR from a branch *in this repo* gets an
+  unauthenticated preview Worker on a workers.dev URL (fork PRs don't — the
+  workflow gates on the head repo, because the deploy token can't be handed to
+  a fork). Combined with the repo being public, a draft on a branch is a draft on
+  the internet — which is why `AGENTS.md`'s rule about never restating the
+  private register applies to branches, not just to `main`.
 - **Codex repo-local hooks** have historically not fired in every interactive
   session ([openai/codex#17532](https://github.com/openai/codex/issues/17532)),
   and some builds want an absolute path for `hooks`. If `/hooks` doesn't list

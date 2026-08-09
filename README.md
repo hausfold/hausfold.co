@@ -4,7 +4,7 @@ The site for **hausfold** — ~~the commercial umbrella behind the
 nebelhaus family~~ **the nix-darwin ricing platform, the org everything ships
 from, and the seller** (decided 2026-08-08; nebelhaus is now one rice built on
 it — see the
-[rename plan](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md)).
+[rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)).
 A handful of hand-written HTML files
 served on [hausfold.co](https://hausfold.co) (and `www.`) by a
 static-assets-only Cloudflare Worker. No build step, no framework, one
@@ -50,7 +50,7 @@ of drift being something you *ask* about rather than something that arrives.
 bump would actually change, then you set `PIN`, re-run, and commit the block.
 
 > **That description is about to be wrong.** Under §5.1 of the
-> [rename plan](https://github.com/nebelhaus/workshop/blob/main/notes/hausfold-rename.md)
+> [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
 > this repo takes over the whole site — `/`, `/docs`, the gallery, `/holt`,
 > `/pounce`, `/perch` — which means the Astro build from `workshop/web` and a
 > real `main`. §5.1's other prerequisite, *this repo going public*, is already
@@ -171,7 +171,7 @@ it exercises `not_found_handling`. `python3 -m http.server` from inside
 ## `/desktops`
 
 Added 2026-08-08. The gallery — rices you can install, one page per rice, today
-only [nebelhaus](https://github.com/nebelhaus/nebelhaus).
+only [nebelhaus](https://github.com/hausfold/hausfold).
 
 It holds traffic rather than sending it on, which the landing page deliberately
 doesn't: the whole point is that the install command is *right there*. It's
@@ -181,7 +181,7 @@ of the rules.
 > **The path was `/market` in the rename plan for a few hours.** Two sessions
 > named the gallery on 2026-08-08, blind to each other; the user resolved it in
 > favour of `/desktops` and the plan was amended to match
-> ([workshop#258](https://github.com/nebelhaus/workshop/pull/258)). If you meet
+> ([workshop#258](https://github.com/hausfold/workshop/pull/258)). If you meet
 > `hausfold.co/market` anywhere, it's stale.
 
 Two things about it that look like bugs and aren't:
@@ -265,7 +265,7 @@ its eleven revisions intact.
 ### Before that
 
 The site was `hausfold/` inside
-[nebelhaus/workshop](https://github.com/nebelhaus/workshop) until 2026-08-06,
+[hausfold/workshop](https://github.com/hausfold/workshop) until 2026-08-06,
 when it was split out into `hausfold/website`. ~~It lives in the `hausfold` org,
 not `nebelhaus`, because it isn't part of the product family.~~
 

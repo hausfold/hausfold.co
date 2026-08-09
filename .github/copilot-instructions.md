@@ -26,7 +26,9 @@ The short version:
   borrowed from nebelung and hover-only), no motion beyond the one hover sheen,
   no `og:image` (a decision, not an omission), and **every page carries the same
   head** — a canonical, `og:` tag or `theme-color` changed on one page must
-  change on all of them, and nothing checks.
+  change on all of them. Nothing checks the canonical or the `og:` tags at all;
+  the dark `theme-color` is checked by `sync-nebelung.mjs`, but `palette.yml`'s
+  path filter means an HTML-only PR never runs it.
 - The dark theme's nebelung values are **generated, not typed**: `node
   scripts/sync-nebelung.mjs`, guarded by the Palette workflow's `--check`.
   Don't hand-edit the vendored block.
