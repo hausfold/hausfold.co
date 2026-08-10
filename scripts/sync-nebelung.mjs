@@ -54,7 +54,7 @@
  *   - --ink and --well stay literal, and agree between the two dark blocks;
  *   - every page under public/ HAS a dark `theme-color`, and it equals crust.
  *     That <meta> is the last hand-typed copy of the palette, it lives in
- *     markup this script does not generate, and there are nine of them. This
+ *     markup this script does not generate, and there are ten of them. This
  *     is the one thing --check reads outside `public/hausfold.css`, which is
  *     why palette.yml's paths filter has to include `public/**.html` — a
  *     filter on the stylesheet alone let an HTML-only PR skip the check
@@ -197,7 +197,7 @@ function decls(body) {
 /* Every page's dark `theme-color` is a hand-typed copy of --ground, which is
  * crust. It's the one place the palette still lives outside hausfold.css, and
  * an upstream move that this script fixes in the CSS would otherwise leave
- * nine <meta>s behind — browser chrome a different grey from the page, with
+ * ten <meta>s behind — browser chrome a different grey from the page, with
  * the tool reporting "matches". So it's checked here too, though it can't be
  * generated: there is no template, and the head is markup. */
 function htmlPages(dir = PUBLIC, out = []) {

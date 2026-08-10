@@ -20,7 +20,7 @@
 #   - --ink or --well drifting apart between the two dark blocks, or stopping
 #     being literals. They are deliberately not nebelung's.
 #   - a page whose dark `theme-color` no longer equals crust, or hasn't got one.
-#     That <meta> is the last hand-typed copy of the palette, there are nine of
+#     That <meta> is the last hand-typed copy of the palette, there are ten of
 #     them, and no template generates them.
 #
 # **`public/**.html` is in the paths filter for that last one, and it has to

@@ -107,7 +107,14 @@
         </div>
       </header>
 
-      <section>
+      <!-- .block for its 1.05rem flex gap, and deliberately with no <h2>: the
+           index is still the first thing on the page, with one line under it,
+           not a headed section beside it. The line is a <p class="aside"> and
+           not a seventh <li> on purpose — haus is the floor the six stand on,
+           and a bullet in the same list would make it a peer of pounce. It
+           carries no data-accent for the same reason the ⌂ has none of its
+           own: the house borrows every colour and owns none. -->
+      <section class="block">
         <ul class="index" role="list">
           <li data-accent="nebelhaus">
             <a class="index-name" href="/desktops">desktops</a>, whole machines
@@ -136,6 +143,11 @@
             the noise. In incubator.
           </li>
         </ul>
+        <p class="aside">
+          All of it stands on <a class="index-name" href="/haus">haus</a>, the
+          nix-darwin layer underneath — one file describes the machine, one
+          command makes the Mac match it.
+        </p>
       </section>
 
       <footer class="colophon">

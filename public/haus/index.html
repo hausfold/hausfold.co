@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>haus — hausfold</title>
+    <meta
+      name="description"
+      content="The nix-darwin layer every hausfold desktop is built on. Describe the machine you want in one file, run one command, and the Mac matches it — tiling, bar, shell, fonts, keys, apps and the macOS defaults nobody should have to find twice."
+    />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="canonical" href="https://hausfold.co/haus/" />
+
+    <!-- No og:image — see the note in /index.html. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="hausfold" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://hausfold.co/haus/" />
+    <meta property="og:title" content="haus — The Mac, written down." />
+    <meta
+      property="og:description"
+      content="One file describes the machine. One command makes the Mac match it. A desktop is a set of values for these options — take one as it comes, or write your own."
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <meta
+      name="theme-color"
+      content="#faf9f7"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#121212"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
+    />
+    <link rel="stylesheet" href="/hausfold.css" />
+  </head>
+
+  <body>
+    <main class="sheet sheet--inner">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">hausfold</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <span aria-current="page">haus</span>
+      </nav>
+
+      <header class="masthead">
+        <h1 class="wordmark">haus</h1>
+        <p class="standfirst">The Mac, written down.</p>
+        <div class="lede">
+          <p>
+            <strong>haus is the layer everything else stands on</strong> — a set
+            of nix-darwin modules with one namespace over them. You describe the
+            machine you want in a single file, run one command, and the Mac
+            matches the file: the window manager, the bar, the shell, the fonts,
+            the keybindings, the apps, and the several dozen macOS defaults
+            nobody should have to find twice.
+          </p>
+          <p>
+            It is not a dotfiles repo you fork and then maintain. Every part of
+            the machine is an <em>option</em> with a name and a default, so the
+            file you keep is the handful of lines where your Mac differs from
+            the one we'd hand you.
+          </p>
+          <p>
+            A desktop — <a href="/desktops/nebelhaus">nebelhaus</a>, say — isn't
+            a different program. It's a set of values for these options. Take
+            one as it comes, change a line, or write your own from the same
+            parts.
+          </p>
+        </div>
+      </header>
+
+      <section class="block">
+        <h2>One file</h2>
+        <div class="cmd">
+          <code>{
+  haus.git.name = "Ada Lovelace";
+  haus.git.email = "ada@example.com";
+
+  haus.prowl.enable = true;   # tiling, Caps Lock as the leader key
+  haus.sill.enable = true;    # the bar on the top edge
+  haus.pounce.enable = true;  # the launcher, on ⌘Space
+
+  haus.roster = {
+    # installed, and on Caps Lock + s
+    slack = { cask = "slack"; name = "Slack"; key = "s"; };
+    # installed, no key
+    figma = { cask = "figma"; };
+  };
+}</code>
+          <button class="copy" type="button" hidden>Copy</button>
+        </div>
+        <p>
+          That's a whole machine's worth of decisions in the form they're
+          actually made: one file, plain data, no scripts to read. Run
+          <code>haus rebuild</code> and the Mac is that. Wipe it, run it again,
+          and the Mac is that again — the file is the machine, so nothing drifts
+          out of place because nothing was ever dragged into it.
+        </p>
+        <p class="aside">
+          Options you don't set keep their default, and the defaults are a
+          working Mac rather than an empty one. Nothing above is required to
+          start; a first file that sets a name and an email produces a machine
+          you can use.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>The commands</h2>
+        <dl class="facts">
+          <dt>haus rebuild</dt>
+          <dd>apply the file to this Mac</dd>
+
+          <dt>haus plan</dt>
+          <dd>what a rebuild would change, before it changes it</dd>
+
+          <dt>haus set</dt>
+          <dd>change one option without opening an editor</dd>
+
+          <dt>haus rollback</dt>
+          <dd>the machine you had an hour ago, back</dd>
+
+          <dt>haus update</dt>
+          <dd>move to a newer haus, deliberately, not on someone else's clock</dd>
+
+          <dt>haus doctor</dt>
+          <dd>what this machine is missing, and what to do about it</dd>
+        </dl>
+        <p class="aside">
+          Rollback is the load-bearing one. A change to a Mac is normally
+          something you undo by remembering what you did; here every rebuild
+          leaves a generation behind, so undoing is a command rather than an
+          archaeology.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>What it covers</h2>
+        <p>
+          The parts of a Mac that usually take an afternoon each, and then take
+          it again on the next machine.
+        </p>
+        <dl class="facts">
+          <dt>windows</dt>
+          <dd>tiling, launched at boot, one leader key instead of a chord</dd>
+
+          <dt>the bar</dt>
+          <dd>the clock, battery, media and whatever else you put up there</dd>
+
+          <dt>the shell</dt>
+          <dd>zsh, a prompt, git, an editor and a themed toolbelt</dd>
+
+          <dt>colour and type</dt>
+          <dd>one palette and one font ramp, applied to everything at once</dd>
+
+          <dt>apps</dt>
+          <dd>one list, whatever the source, each with an optional launcher key</dd>
+
+          <dt>macOS itself</dt>
+          <dd>the defaults you'd otherwise hunt through System Settings for</dd>
+
+          <dt>Touch ID</dt>
+          <dd>sudo without the password, and rebuilds that don't stop to ask</dd>
+
+          <dt>secrets</dt>
+          <dd>which secrets a machine needs, declared — never the values</dd>
+        </dl>
+      </section>
+
+      <section class="block">
+        <h2>Take it as it comes, or take it apart</h2>
+        <p>
+          Four presets ship with it — <code>minimal</code>,
+          <code>everyday</code>, <code>full</code> and
+          <code>large-print</code> — plus a writing pack. A preset is data, not
+          code: you can read one in a minute and know the worst it can do.
+          <code>everyday</code> is a Mac for someone who doesn't write software;
+          <code>full</code> is the one with the agent tooling in it.
+        </p>
+        <p>
+          Nothing is all-or-nothing. Import one room into a config you already
+          have and leave the rest of your machine alone — the bar without the
+          tiling, the shell without either.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>Elsewhere</h2>
+        <ul class="plain" role="list">
+          <li>
+            <a class="index-name" href="/desktops">desktops</a> — the machines
+            already built on it, ready to run.
+          </li>
+          <li>
+            <a class="index-name" href="https://nebelhaus.com">nebelhaus.com</a>
+            — the docs: every option, and the guides.
+          </li>
+          <li>
+            <a class="index-name" href="https://github.com/hausfold/hausfold"
+              >github.com/hausfold/hausfold</a
+            >
+            — the flake itself.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="colophon">
+        <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
+        <a href="https://github.com/hausfold">github.com/hausfold</a>
+        <span class="issue">Issue 2026.08</span>
+      </footer>
+    </main>
+
+    <script>
+      // The site's fourth copy of the same twelve lines — see the note in
+      // /desktops/nebelhaus. Pure enhancement: the snippet above is plain
+      // selectable text without it, and the button stays hidden wherever the
+      // clipboard API isn't there (file://, for one).
+      if (navigator.clipboard) {
+        for (const btn of document.querySelectorAll(".copy")) {
+          const code = btn.closest(".cmd").querySelector("code");
+          btn.hidden = false;
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(code.textContent.trim()).then(
+              () => {
+                btn.textContent = "Copied";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+              () => {
+                btn.textContent = "Select it";
+                setTimeout(() => (btn.textContent = "Copy"), 1400);
+              },
+            );
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
