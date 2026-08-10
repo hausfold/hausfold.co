@@ -35,8 +35,8 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 
 > 🚧 **In preview, not decided: the site calls the *layer* `haus` and reserves
 > `hausfold` for the org, the maker and the seller.** `/haus` shipped under
-> that reading (see below), and the landing page's line under the index says
-> "All of it stands on haus". The rename plan's decision #1 said the opposite —
+> that reading (see below), and the landing page's index now opens with a
+> `haus` row above the six. The rename plan's decision #1 said the opposite —
 > *brand ≠ namespace* — so this is a **third** position on the same axis and it
 > is deliberately **not** written into
 > [`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
@@ -153,7 +153,7 @@ directory is what's on the domain:
 | File | What it is |
 |---|---|
 | `index.html` | the landing page |
-| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on, which is why it's a line *under* the index rather than a seventh entry in it |
+| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on, which is why the landing page tiers it *above* the index (its own `.index--floor` list) rather than adding a seventh entry to it |
 | `desktops/index.html` | the catalogue — one entry per shipping desktop |
 | `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
 | `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
