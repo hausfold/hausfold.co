@@ -155,7 +155,7 @@ directory is what's on the domain:
 **The dark theme's nebelung values are generated, not typed.** Since
 2026-08-08, `public/hausfold.css` opens with a block vendored from nebelung's
 own CSS port (`dist/css/nebelung-mocha.css`, which `nix build
-github:nebelhaus/nebelung` renders), and both dark blocks read
+github:hausfold/nebelung` renders), and both dark blocks read
 `var(--nebelung-*)` out of it. Refresh it with `node
 scripts/sync-nebelung.mjs`; `.github/workflows/palette.yml` runs the same
 script with `--check`. That script is the only thing outside `public/` that
@@ -175,8 +175,13 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the two things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand), and the eight pages' dark **`theme-color`**, which is a hand-typed copy
-of crust living in markup nothing generates.
+hand), and the nine pages' dark **`theme-color`**, which is a hand-typed copy
+of crust living in markup nothing generates. A page with **no** dark
+`theme-color` fails it too — that used to pass silently, because a page
+contributing no `<meta>` contributed nothing to compare. **A new page therefore
+owes one**, and because that check reads markup rather than CSS,
+`palette.yml`'s paths filter carries `public/**.html` alongside the stylesheet;
+without it an HTML-only PR skipped the only check watching it.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
 `index.html` until 2026-08-08; five pages needed one set of tokens rather than
@@ -296,15 +301,25 @@ Rules that are easy to break by accident:
   pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
   and onto `/pounce`, in the same commit. What's left pointing out of the index
   is `holt` and `nebelung`, which have no page here yet.
-- **`/pounce` spells the org `hausfold`; every older page still spells it
-  `nebelhaus`, and that is not a mistake to "fix" one page at a time.** Rename
-  plan §3.2 transferred all nine repos on 2026-08-08, so `hausfold/tap/pounce`
-  and `github.com/hausfold/pounce` are the canonical forms and the new page uses
-  them. The old spellings redirect, so nothing is broken — but `/perch` says
-  `nebelhaus/tap/perch` two clicks away, and the same string lives in
-  `workshop/web` ×4 and in two READMEs. **Sweep them together or not at all**:
-  a per-page correction is how the family ends up with three spellings instead
-  of two. Until the sweep, expect the mismatch and don't file it as a bug.
+- **Every page now spells the org `hausfold`. ✅ Swept 2026-08-10, together, as
+  the rule required.** Rename plan §3.2 transferred all nine repos on
+  2026-08-08, so `hausfold/tap/<app>` and `github.com/hausfold/<repo>` are the
+  canonical forms; `/pounce` shipped with them and the rest of the site said
+  `nebelhaus` for two days, deliberately — **"sweep them together or not at
+  all"**, because a per-page correction is how the family ends up with three
+  spellings instead of two. `workshop/web` ×4 and the READMEs went first; this
+  repo was the last holdout, and it went in one commit with
+  `scripts/sync-nebelung.mjs`'s flake ref (a *code* spelling, and the reason
+  the sweep waited for a build to verify against). What's left is a **new**
+  spelling landing on one page — that's still the mistake, and the rule still
+  binds.
+  - **Two `nebelhaus` spellings on these pages are deliberate and must not be
+    swept.** The landing page's JSON-LD `sameAs` lists **both** orgs on
+    purpose — the dead org holds the redirects forever, so it's a true alias,
+    and its own comment says so. And `nebelhaus.com/*` links, the
+    `/desktops/nebelhaus` URL and the word in prose are the **rice**, which
+    keeps its name forever (rename plan §6). Only the org, the repo and the
+    option namespace moved.
 
 ## Deploying
 
@@ -318,14 +333,16 @@ nowhere. The truest local check is `npx wrangler dev` (it exercises
 `not_found_handling` too); `python3 -m http.server` from inside `public/` is
 enough for a look at the type.
 
-A PR that touches `public/hausfold.css` or `scripts/` also runs **Palette**
-(`.github/workflows/palette.yml`), which is `node scripts/sync-nebelung.mjs
---check` against nebelung's `main`. It goes red when the vendored block is
-stale, when a dark block stops spending the port, when `--ink`/`--well` stop
-being literal, or when a `--nebelung-*` reference lands in the light theme. The
-fix is one command in every case. Because it builds nebelung unpinned, a CSS PR
-can go red for a reason of upstream's rather than its own — that's the signal,
-not a flake: re-run the script and commit the block.
+A PR that touches `public/hausfold.css`, any `public/**.html`, or `scripts/`
+also runs **Palette** (`.github/workflows/palette.yml`), which is `node
+scripts/sync-nebelung.mjs --check` against the revision of nebelung the script
+pins. It goes red when the vendored block is stale, when a dark block stops
+spending the port, when `--ink`/`--well` stop being literal, when a
+`--nebelung-*` reference lands in the light theme, or when a page's dark
+`theme-color` is wrong or absent. The fix is one command in every case except
+an upstream rename and the `<meta>`s, which are hand work. Because the ref is
+**pinned**, this job never goes red for something nebelung merged that
+morning — upstream drift is pulled with `--latest`, not pushed at you.
 
 Every PR that touches `public/` also gets its own preview Worker on a
 workers.dev URL, posted as a comment on the PR and deleted when it closes. Use

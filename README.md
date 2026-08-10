@@ -31,7 +31,7 @@ scripts/
 `scripts/` is not part of the site and is not deployed. `sync-nebelung.mjs`
 writes a marked block into `public/hausfold.css` — nebelung's own
 `dist/css/nebelung-mocha.css`, fetched with `nix build
-github:nebelhaus/nebelung` — so the dark theme reads `var(--nebelung-*)`
+github:hausfold/nebelung` — so the dark theme reads `var(--nebelung-*)`
 instead of the twenty hand-copied hexes it used to carry (ten values, each
 written twice). Run it after an upstream palette change:
 
@@ -149,11 +149,15 @@ too, a paper-warm mirror rather than latte, because nebelung's pastels wash out
 on a light ground.
 
 `.github/workflows/palette.yml` runs `sync-nebelung.mjs --check` on every PR
-that touches the stylesheet or `scripts/`. It enforces that the vendored block
+that touches the stylesheet, any page under `public/`, or `scripts/`. It
+enforces that the vendored block
 matches the pinned upstream, that both dark blocks read the right `--nebelung-*` names and
 that those names still exist, that `--ink` and `--well` are literals which agree
 between the two blocks, that no `--nebelung-*` reaches the light theme, and that
-every page's dark `theme-color` still equals crust. It does **not** know which
+every page has a dark `theme-color` and it still equals crust. That last one
+reads markup, not CSS, which is why `public/**.html` is in the paths filter:
+without it an HTML-only PR could add a page with the wrong crust — or no dark
+`<meta>` at all — and go green. It does **not** know which
 hex `--well` ought to be — that one is a judgement, and the header comment is
 where it's recorded.
 

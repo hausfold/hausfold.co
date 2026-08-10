@@ -52,9 +52,13 @@
  *     is the one failure re-running this script cannot fix — it would leave a
  *     dangling var() and a dark page with no background);
  *   - --ink and --well stay literal, and agree between the two dark blocks;
- *   - every page's dark `theme-color` still equals crust. That <meta> is the
- *     last hand-typed copy of the palette, it lives in markup this script does
- *     not generate, and there are seven of them.
+ *   - every page under public/ HAS a dark `theme-color`, and it equals crust.
+ *     That <meta> is the last hand-typed copy of the palette, it lives in
+ *     markup this script does not generate, and there are nine of them. This
+ *     is the one thing --check reads outside `public/hausfold.css`, which is
+ *     why palette.yml's paths filter has to include `public/**.html` — a
+ *     filter on the stylesheet alone let an HTML-only PR skip the check
+ *     covering it.
  */
 
 import { execFileSync } from "node:child_process";
@@ -65,7 +69,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC = join(ROOT, "public");
 const TARGET = join(PUBLIC, "hausfold.css");
-const FLAKE = "github:nebelhaus/nebelung";
+const FLAKE = "github:hausfold/nebelung";
 
 /* The pinned revision the vendored block was rendered from. Bump it by hand —
  * `--latest` tells you whether there's anything to bump *to*, and the rev is
@@ -145,7 +149,7 @@ function render(css) {
     " * names, and only the two dark blocks below spend any of them. The light",
     " * theme is hand-picked and must not reference them.",
     " *",
-    ` * From github:nebelhaus/nebelung @ ${PIN.slice(0, 12)} — a pin, so nothing`,
+    ` * From github:hausfold/nebelung @ ${PIN.slice(0, 12)} — a pin, so nothing`,
     " * here moves until someone moves it. `node scripts/sync-nebelung.mjs",
     " * --latest` says whether there's anything to move to. */",
     ":root {",
@@ -193,7 +197,7 @@ function decls(body) {
 /* Every page's dark `theme-color` is a hand-typed copy of --ground, which is
  * crust. It's the one place the palette still lives outside hausfold.css, and
  * an upstream move that this script fixes in the CSS would otherwise leave
- * seven <meta>s behind — browser chrome a different grey from the page, with
+ * nine <meta>s behind — browser chrome a different grey from the page, with
  * the tool reporting "matches". So it's checked here too, though it can't be
  * generated: there is no template, and the head is markup. */
 function htmlPages(dir = PUBLIC, out = []) {
@@ -209,10 +213,16 @@ function darkThemeColours() {
   const found = [];
   for (const page of htmlPages()) {
     const html = readFileSync(page, "utf8");
+    const before = found.length;
     for (const [, tag] of html.matchAll(/<meta\b([^>]*name="theme-color"[^>]*)>/g)) {
       if (!/media="\(prefers-color-scheme:\s*dark\)"/.test(tag)) continue;
       found.push({ page: relative(ROOT, page), value: tag.match(/content="([^"]*)"/)?.[1] });
     }
+    /* A page with NO dark <meta> is the case this used to miss entirely: it
+     * contributed nothing, so nothing was compared, so it passed. Every page
+     * under public/ owes one, and a new page is exactly where it gets
+     * forgotten — so record the absence and let the comparison below fail it. */
+    if (found.length === before) found.push({ page: relative(ROOT, page), value: undefined });
   }
   return found;
 }
