@@ -733,6 +733,34 @@ body {
   }
 }
 
+/* The org github link is a mark, not a URL — an icon reads faster than
+   the seventh "github.com/hausfold" on the page, and it's the only
+   colophon link that repeats verbatim across the whole site.
+
+   `.colophon` aligns its row on the text baseline, but a flex container
+   with no text of its own synthesizes its baseline as its bottom edge —
+   that bottom edge then lands ON the baseline, so the whole glyph floats
+   above the row instead of sitting in it. `align-self: center` opts this
+   one item out of baseline alignment and centers it on the row's cross
+   axis instead; sizing the mark in `em` keeps it in step with the
+   colophon's own font-size rather than a fixed pixel count. */
+.colophon .gh {
+  display: inline-flex;
+  align-self: center;
+  text-decoration: none;
+}
+
+.colophon .gh svg {
+  display: block;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.colophon .gh:hover,
+.colophon .gh:focus-visible {
+  color: var(--ink);
+}
+
 a {
   color: inherit;
   text-decoration: underline;
