@@ -33,6 +33,23 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 > If you meet that sentence anywhere else, it's stale — fix it rather than obey
 > it.
 
+> ✅ **Decided 2026-08-10 — the layer is `haus`, the house is `hausfold`.**
+> Say **`haus`** for the nix-darwin layer a user installs and writes options
+> for; say **`hausfold`** for the org, the maker and the seller. So the section
+> above still holds with one word swapped: hausfold *makes* the platform and is
+> still the name on terms, refunds and press — but the platform itself is what
+> the site calls `haus`, which is also its CLI and its option namespace.
+> Recorded as decision 8 in
+> [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md),
+> which explains at length why this refines the 2026-08-08 reversal rather than
+> becoming a third position on it.
+>
+> 🚨 **This is not a licence to sweep `hausfold` → `haus`.** Nothing in code
+> moved — the namespace was already `haus.*`, the org already `hausfold`, the
+> domain already `hausfold.co` — and every existing spelling still names the
+> thing it always named. The word changes only where prose meant *the layer*:
+> `/haus`, the landing index, `/desktops`.
+
 | Want to change… | Where |
 |---|---|
 | the hausfold.co landing page — copy, design, the products it lists | here, `public/index.html` |
@@ -127,9 +144,9 @@ temporary and the copy as not. Three things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `404`,
-  `index`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`, `desktops`,
-  `desktops/nebelhaus` — **plus the JSON-LD organization record**
+  ⚠️ **It is not just `/terms`.** The address is on all ten pages — `404`,
+  `index`, `haus`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`,
+  `desktops`, `desktops/nebelhaus` — **plus the JSON-LD organization record**
   (`index.html:80`), which is the one a find-and-replace over visible copy
   misses. `rg 'hi@hausfold' public/` before assuming you've seen them all.
 
@@ -141,6 +158,7 @@ directory is what's on the domain:
 | File | What it is |
 |---|---|
 | `index.html` | the landing page |
+| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on, which is why the landing page tiers it *above* the index (its own `.index--floor` list) rather than adding a seventh entry to it |
 | `desktops/index.html` | the catalogue — one entry per shipping desktop |
 | `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
 | `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
@@ -175,7 +193,7 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the two things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand), and the nine pages' dark **`theme-color`**, which is a hand-typed copy
+hand), and the ten pages' dark **`theme-color`**, which is a hand-typed copy
 of crust living in markup nothing generates. A page with **no** dark
 `theme-color` fails it too — that used to pass silently, because a page
 contributing no `<meta>` contributed nothing to compare. **A new page therefore
@@ -230,9 +248,9 @@ Rules that are easy to break by accident:
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
 - **Almost no JavaScript, and none of it load-bearing.** There are exactly
-  three scripts, and they are the same twelve lines: at the foot of
-  `desktops/nebelhaus/index.html`, of `perch/index.html` and of
-  `pounce/index.html`, revealing the copy button beside a fenced command. The
+  four scripts, and they are the same twelve lines: at the foot of
+  `desktops/nebelhaus/index.html`, of `perch/index.html`, of
+  `pounce/index.html` and of `haus/index.html`, revealing the copy button beside a fenced command. The
   button ships `hidden` and the script only unhides it where
   `navigator.clipboard` exists, so the command is plain selectable text
   everywhere else — including over `file://`, where the API is absent and no
@@ -268,7 +286,7 @@ Rules that are easy to break by accident:
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
-  four `og:` tags, `twitter:card`, and both `theme-color`s, on all eight public
+  six `og:` tags, `twitter:card`, and both `theme-color`s, on all nine public
   pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.

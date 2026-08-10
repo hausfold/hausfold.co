@@ -372,6 +372,17 @@ body {
   line-height: 1.5;
 }
 
+/* The landing page's index is two lists, not one: haus above, the six
+   below. The tier is carried by air rather than by a heading — a heading
+   over the lower half would have to name what those rows are, and any
+   name is wrong for at least two of them (nebelung doesn't run on haus,
+   haus consumes it; holt runs anywhere). .block's 1.05rem gap is a shade
+   too close to the list's own 0.72rem to read as a step, so this buys
+   the difference. It is the only rule either list needs. */
+.index--floor {
+  margin-bottom: 0.6rem;
+}
+
 .index-name {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.92rem;
@@ -675,6 +686,16 @@ body {
 
 .plain .index-name {
   font-size: 0.88rem;
+}
+
+/* Same correction, for the one place a product name sits inside an
+   .aside: /desktops' closing line. .index-name's 0.92rem is an absolute
+   rem, so without this it renders BIGGER and at brighter ink than the
+   0.86rem/--ink-3 note around it — a link that outshouts its own
+   sentence. Relative units here, like `.aside code` already uses. */
+.aside .index-name {
+  font-size: 0.88em;
+  color: var(--ink-2);
 }
 
 /* --- colophon ----------------------------------------------------- */

@@ -7,8 +7,9 @@ it — see the
 [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)).
 A handful of hand-written HTML files
 served on [hausfold.co](https://hausfold.co) (and `www.`) by a
-static-assets-only Cloudflare Worker. No build step, no framework, one
-twelve-line script: `wrangler deploy` uploads `public/` and Cloudflare serves it.
+static-assets-only Cloudflare Worker. No build step, no framework, and the only
+JavaScript is the same twelve lines of copy-button on four of the pages:
+`wrangler deploy` uploads `public/` and Cloudflare serves it.
 (There is one generator, `scripts/sync-nebelung.mjs`, but its output is
 committed — nothing runs at deploy time, and `public/` is still exactly what
 the domain returns.)
@@ -16,8 +17,10 @@ the domain returns.)
 ```
 public/
   index.html                      the landing page
+  haus/index.html                 the platform page — the one file, the commands, what it covers
   desktops/index.html             the gallery — rices you can run as they come
   desktops/nebelhaus/index.html   install, contents, requirements, empty shot frames
+  pounce/index.html               pounce's product page — install, the command format
   perch/index.html                perch's product page — what it is, how to install it
   perch/privacy/index.html        perch's privacy policy — linked from the App Store
   terms/index.html                the terms — what a licence grants, what we don't promise
