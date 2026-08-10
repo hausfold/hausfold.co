@@ -33,17 +33,22 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 > If you meet that sentence anywhere else, it's stale — fix it rather than obey
 > it.
 
-> 🚧 **In preview, not decided: the site calls the *layer* `haus` and reserves
-> `hausfold` for the org, the maker and the seller.** `/haus` shipped under
-> that reading (see below), and the landing page's index now opens with a
-> `haus` row above the six. The rename plan's decision #1 said the opposite —
-> *brand ≠ namespace* — so this is a **third** position on the same axis and it
-> is deliberately **not** written into
-> [`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
-> yet. Until it is: don't sweep the word `hausfold` into `haus` anywhere else,
-> and **don't "correct" `/haus` back** — it's a page the user asked to look at
-> before deciding. Nothing in code moved either way; the namespace was already
-> `haus.*`, the org was already `hausfold`, and this is a copy decision only.
+> ✅ **Decided 2026-08-10 — the layer is `haus`, the house is `hausfold`.**
+> Say **`haus`** for the nix-darwin layer a user installs and writes options
+> for; say **`hausfold`** for the org, the maker and the seller. So the section
+> above still holds with one word swapped: hausfold *makes* the platform and is
+> still the name on terms, refunds and press — but the platform itself is what
+> the site calls `haus`, which is also its CLI and its option namespace.
+> Recorded as decision 8 in
+> [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md),
+> which explains at length why this refines the 2026-08-08 reversal rather than
+> becoming a third position on it.
+>
+> 🚨 **This is not a licence to sweep `hausfold` → `haus`.** Nothing in code
+> moved — the namespace was already `haus.*`, the org already `hausfold`, the
+> domain already `hausfold.co` — and every existing spelling still names the
+> thing it always named. The word changes only where prose meant *the layer*:
+> `/haus`, the landing index, `/desktops`.
 
 | Want to change… | Where |
 |---|---|
