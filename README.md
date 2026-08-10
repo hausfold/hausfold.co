@@ -192,7 +192,7 @@ Two things about it that look like bugs and aren't:
 
 - **The screenshot frames are empty**, drawn in CSS and labelled `[ shot not
   taken yet ]`. There is no real nebelhaus desktop capture to use — the one in
-  `nebelhaus/assets/hero.png` is called a placeholder by the workshop's own
+  `hausfold/assets/hero.png` is called a placeholder by the workshop's own
   `SHOTLIST.md`. Drop an `<img>` in when there is.
 - **The copy button beside the install command disappears over `file://`.** It
   ships `hidden` and the page's one script only reveals it where

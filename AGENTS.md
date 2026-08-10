@@ -84,7 +84,7 @@ different session, so read the two together:
   build lands. Don't invest in the structure; do keep the copy, which was
   written against the real sources.
 - **Every fact on a rice's page is copied from that rice's repo, and copies
-  rot.** Today's page mirrors `nebelhaus/README.md` and `nebelhaus/bootstrap.sh`
+  rot.** Today's page mirrors `hausfold/README.md` and `hausfold/bootstrap.sh`
   as of 2026-08-08. Re-read the source rather than trusting the page —
   especially the install one-liner and the requirements, the two that hurt.
 
@@ -243,7 +243,7 @@ Rules that are easy to break by accident:
   enhancement, nothing lost without it, and no framework.
 - **Placeholder frames, never a stale screenshot.** `/desktops` draws its shot
   slots in CSS and labels them `[ shot not taken yet ]`. The family's only rice
-  capture is `nebelhaus/assets/hero.png`, which the workshop's own
+  capture is `hausfold/assets/hero.png`, which the workshop's own
   `assets/SHOTLIST.md` still calls a placeholder. When a real capture exists,
   drop an `<img>` into the frame and delete the `.shot span` label — a picture
   that lies about what the desktop looks like today is worse than a grey box
