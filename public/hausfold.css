@@ -733,6 +733,23 @@ body {
   }
 }
 
+/* The org github link is a mark, not a URL — an icon reads faster than
+   the seventh "github.com/hausfold" on the page, and it's the only
+   colophon link that repeats verbatim across the whole site. */
+.colophon .gh {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.colophon .gh svg {
+  display: block;
+}
+
+.colophon .gh:hover,
+.colophon .gh:focus-visible {
+  color: var(--ink);
+}
+
 a {
   color: inherit;
   text-decoration: underline;
