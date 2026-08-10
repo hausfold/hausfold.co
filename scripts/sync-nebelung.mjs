@@ -94,7 +94,7 @@ const FROM_NEBELUNG = {
   "--a-holt": "teal",
   "--a-perch": "green",
   "--a-nebelung": "mauve",
-  "--a-flick": "yellow",
+  "--a-trill": "yellow",
 };
 
 /* The two that are deliberately NOT nebelung's, and must stay literal:

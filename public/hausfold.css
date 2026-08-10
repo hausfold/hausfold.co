@@ -31,7 +31,7 @@
             latte: nebelung's pastels are built for a dark ground and
             wash out on paper.
    Accents: the dark values ARE nebelung's — rice pink, pounce peach,
-            perch green, nebelung mauve. holt and flick have no row
+            perch green, nebelung mauve. holt and trill have no row
             upstream yet, so teal and yellow are provisional choices
             of ours from nebelung's palette rather than assignments it
             makes; reconcile them if those two get a row.
@@ -127,7 +127,7 @@
   --a-holt: #0f7268;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
-  --a-flick: #8a6512;
+  --a-trill: #8a6512;
 
   --measure: 41rem;
   --step: clamp(0.94rem, 0.9rem + 0.2vw, 1.02rem);
@@ -152,7 +152,7 @@
     --a-holt: var(--nebelung-teal);
     --a-perch: var(--nebelung-green);
     --a-nebelung: var(--nebelung-mauve);
-    --a-flick: var(--nebelung-yellow);
+    --a-trill: var(--nebelung-yellow);
   }
 }
 
@@ -170,7 +170,7 @@
   --a-holt: var(--nebelung-teal);
   --a-perch: var(--nebelung-green);
   --a-nebelung: var(--nebelung-mauve);
-  --a-flick: var(--nebelung-yellow);
+  --a-trill: var(--nebelung-yellow);
 }
 
 :root[data-theme="light"] {
@@ -187,7 +187,7 @@
   --a-holt: #0f7268;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
-  --a-flick: #8a6512;
+  --a-trill: #8a6512;
 }
 
 * {
@@ -281,7 +281,7 @@ body {
       var(--a-nebelung),
       var(--a-holt),
       var(--a-perch),
-      var(--a-flick),
+      var(--a-trill),
       var(--a-pounce),
       var(--a-nebelhaus),
       var(--a-nebelung)
@@ -381,7 +381,7 @@ body {
 /* The one place colour is allowed: a product's own accent, on hover of
    its own name. Each li carries its accent; the name just spends it.
    Scoped to .index-name rather than to the anchor, so a name with no
-   link on it — `flick`, today — still answers to the pointer. */
+   link on it — `trill`, today — still answers to the pointer. */
 .index li[data-accent] .index-name:hover,
 .index li[data-accent] a.index-name:focus-visible {
   color: var(--accent, var(--ink));
@@ -393,7 +393,7 @@ body {
 [data-accent="holt"] { --accent: var(--a-holt); }
 [data-accent="perch"] { --accent: var(--a-perch); }
 [data-accent="nebelung"] { --accent: var(--a-nebelung); }
-[data-accent="flick"] { --accent: var(--a-flick); }
+[data-accent="trill"] { --accent: var(--a-trill); }
 
 /* --- breadcrumb --------------------------------------------------- */
 
