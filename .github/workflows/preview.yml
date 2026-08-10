@@ -1,6 +1,6 @@
 # Deploy an isolated, route-less Cloudflare Worker for each PR, so a copy
 # change can be looked at on a real URL — in both themes, on a phone — before
-# it becomes the live site. Ported from nebelhaus/workshop's preview-web.yml,
+# it becomes the live site. Ported from hausfold/workshop's preview-web.yml,
 # minus the build (there is none here: `wrangler deploy` uploads ./public).
 #
 # The PR number gives each preview a stable workers.dev URL across pushes:

@@ -4,7 +4,7 @@
 # twice each (once for `prefers-color-scheme`, once for the `data-theme`
 # toggle) — twenty literals with nothing watching them. They're now
 # `var(--nebelung-*)` reading a block that scripts/sync-nebelung.mjs vendors
-# from `github:nebelhaus/nebelung`, and this job runs that same script with
+# from `github:hausfold/nebelung`, and this job runs that same script with
 # --check.
 #
 # Most of what it fails on is fixed by one command:
@@ -19,9 +19,17 @@
 #     refuses to write; re-point the token by hand.
 #   - --ink or --well drifting apart between the two dark blocks, or stopping
 #     being literals. They are deliberately not nebelung's.
-#   - a page whose dark `theme-color` no longer equals crust. That <meta> is the
-#     last hand-typed copy of the palette, there are seven of them, and no
-#     template generates them.
+#   - a page whose dark `theme-color` no longer equals crust, or hasn't got one.
+#     That <meta> is the last hand-typed copy of the palette, there are nine of
+#     them, and no template generates them.
+#
+# **`public/**.html` is in the paths filter for that last one, and it has to
+# be.** The theme-color check reads markup, not CSS, so filtering on
+# `public/hausfold.css` + `scripts/**` alone meant an HTML-only PR — a new page,
+# or a hand-edited <meta> — never ran the one check that watches the palette's
+# last hand-typed copy. It could add a page with the wrong crust, or no dark
+# <meta> at all, and go green. A check that can't see the file it checks is a
+# check that reports "matches" about markup it never read.
 #
 # It builds a **pinned** revision of nebelung (PIN in the script), not `main`.
 # So this job is deterministic: it goes red for things the PR did, never for
@@ -38,12 +46,14 @@ on:
   pull_request:
     paths:
       - 'public/hausfold.css'
+      - 'public/**.html'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   push:
     branches: [main]
     paths:
       - 'public/hausfold.css'
+      - 'public/**.html'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   workflow_dispatch: {}
