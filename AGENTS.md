@@ -286,7 +286,7 @@ Rules that are easy to break by accident:
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
-  four `og:` tags, `twitter:card`, and both `theme-color`s, on all nine public
+  six `og:` tags, `twitter:card`, and both `theme-color`s, on all nine public
   pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.

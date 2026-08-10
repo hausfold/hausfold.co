@@ -688,6 +688,16 @@ body {
   font-size: 0.88rem;
 }
 
+/* Same correction, for the one place a product name sits inside an
+   .aside: /desktops' closing line. .index-name's 0.92rem is an absolute
+   rem, so without this it renders BIGGER and at brighter ink than the
+   0.86rem/--ink-3 note around it — a link that outshouts its own
+   sentence. Relative units here, like `.aside code` already uses. */
+.aside .index-name {
+  font-size: 0.88em;
+  color: var(--ink-2);
+}
+
 /* --- colophon ----------------------------------------------------- */
 
 /* One hairline and one line of type. The grid of ruled cells this
