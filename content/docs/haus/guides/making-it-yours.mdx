@@ -79,8 +79,8 @@ haus.git.org = "analytical-engine";        # the GitHub owner your work lives un
 `org` is the odd one out — not who you are, but where you work. Only gh-dash
 reads it, filling <kbd>⌘</kbd><kbd>G</kbd>'s tabs with that owner's open, green,
 red and just-shipped pull requests, so an org rename is one word here rather
-than one per tab. It needs `haus.hearth.ghDash.enable` on, which it is by
-default. See [your review queue](/docs/haus/guides/the-shell#your-review-queue).
+than one per tab. It does nothing until you turn `haus.hearth.ghDash.enable`
+on — see [your review queue](/docs/haus/guides/the-shell#your-review-queue).
 
 ### The look
 
@@ -89,7 +89,8 @@ haus.theme.accent = "sapphire";     # any of 14 Catppuccin accent names
 haus.wallpaper.style = "minimal";   # none | minimal | orbits | constellation | flow | bold
 ```
 
-The accent lands in the terminal, lazygit, fzf, yazi and the browser at once.
+The accent lands in lazygit, fzf, yazi, Glow and the browser at once — not in
+the terminal itself, which keeps the palette's own colours.
 `minimal` is the desktop haus generates for you and the one it wears by
 default — a flat field in your palette, the ⌂ mark at its centre, a bloom in
 your accent — and `none` keeps whatever wallpaper you already have. Contrast,
@@ -119,7 +120,8 @@ covers the workspace it lands on.
 
 `signingIdentity` is empty by default, which means Pounce runs unsigned and
 macOS re-asks for its Accessibility grant after a rebuild. Name a real Developer
-ID and the grant sticks — see [Pounce](/docs/haus/reference/pounce).
+ID and the grant sticks — see [granting
+Accessibility](/docs/haus/guides/pounce#grant-accessibility).
 
 ### The bar
 
@@ -128,8 +130,9 @@ haus.sill.items.elgato = true;   # agents | aiUsage | cpu | memory | volume |
                                  # calendar | caffeinate | elgato | harvest
 ```
 
-Those nine are opt-in because they're personal — an Elgato Key Light toggle, a
-Harvest timer, an agents pill. Everything else the bar shows is on already. See
+Those nine are off by default — five extra readouts, and four that are frankly
+personal (an agents pill, an AI-spend pill, an Elgato Key Light toggle, a
+Harvest timer). Everything else the bar shows is on already. See
 [the bar](/docs/haus/guides/the-bar#toggling-pills).
 
 ### Homebrew
@@ -327,11 +330,12 @@ printf '#!/bin/sh\nexec gitleaks git --pre-commit --staged --redact --verbose\n'
 chmod +x .git/hooks/pre-commit
 ```
 
-Add `haus.roster.gitleaks.package = pkgs.gitleaks;` so the hook has something to
-run. Scan the
-history you already have *before* you flip the repo public — plain `gitleaks
-git` walks every commit, and deleting a line later doesn't unpublish the key, so
-rotate anything it finds.
+Give the hook something to run with a roster entry —
+`haus.roster.gitleaks.package = pkgs.gitleaks;`, with `pkgs` in your host file's
+args. It exits non-zero on a hit and stops the commit; `git commit --no-verify`
+overrides it when you're sure. Scan the history you already have *before* you
+flip the repo public — plain `gitleaks git` walks every commit, and deleting a
+line later doesn't unpublish the key, so rotate anything it finds.
 </Callout>
 
 <Cards>

@@ -29,7 +29,7 @@ launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace
 |---|---|---|
 | Tiling (AeroSpace) | `org.nixos.aerospace` | `/tmp/aerospace.err.log` |
 | The bar (SketchyBar) | `org.nixos.sketchybar` | `/tmp/sketchybar.err.log` |
-| The bottom bar | `org.nixos.sill-bottom` | `/tmp/sill-bottom.err.log` |
+| The bottom bar, if `haus.sill.bottom.enable` is on | `org.nixos.sill-bottom` | `/tmp/sill-bottom.err.log` |
 | The launcher (Pounce) | `com.hausfold.pounce` | `/tmp/pounce.err.log` |
 
 Read the log before you bounce it — an agent that dies again in ten seconds is
@@ -50,8 +50,9 @@ pounce --request-accessibility   # approve the system dialog
 pounce --check-accessibility     # prints true once granted
 ```
 
-Set [`haus.pounce.signingIdentity`](/docs/haus/reference/pounce) so that grant
-survives future rebuilds. If ⌘Space still opens **Spotlight**, log out and back
+Set
+[`haus.pounce.signingIdentity`](/docs/haus/guides/pounce#grant-accessibility) so
+that grant survives future rebuilds. If ⌘Space still opens **Spotlight**, log out and back
 in once so the symbolic-hotkey reassignment takes.
 
 **Opens, but slowly?** Another hotkey tool — skhd, AeroSpace, Raycast — bound to
@@ -100,7 +101,8 @@ dropdown. Both do both bars, both correctly. By hand:
 
 ```sh
 sketchybar  --reload ~/.config/sketchybar/sketchybarrc    # the menu-bar bar
-sill-bottom --reload ~/.config/sketchybar/sill-bottomrc   # the bottom bar
+sill-bottom --reload ~/.config/sketchybar/sill-bottomrc   # the bottom bar, if
+                                                          # you turned it on
 ```
 
 Two things to get right there, and they bite independently:
@@ -206,15 +208,12 @@ next rebuild? Set
 
 ## A rebuild broke something
 
-```sh
-haus rollback       # back to the previous generation, atomically
-haus generations    # what you can roll back to
-```
-
 `haus rebuild` always builds *before* it switches, so a config with an error in
-it can't activate — you just see the build fail. Generations don't hold macOS's
-own settings; [Keeping it current](/docs/haus/guides/keeping-it-current#when-a-change-goes-wrong)
-covers what does.
+it can't activate — you just see the build fail. For anything that did activate,
+`haus rollback` steps back a generation, atomically. Generations don't hold
+macOS's own settings; [when a change goes
+wrong](/docs/haus/guides/keeping-it-current#when-a-change-goes-wrong) covers
+what does.
 
 ## The installer refuses — "expects Determinate Nix"
 
@@ -223,6 +222,9 @@ installer stops when it finds a `/nix` that Determinate didn't create rather
 than risk breaking the Nix you already have. Uninstall that one and re-run the
 one-liner, or migrate it to Determinate, which is the supported path. Fresh Macs
 need none of this — the bootstrap installs Determinate for you.
+
+Still stuck? [Open an issue](https://github.com/hausfold/haus/issues) with the
+output of `haus doctor`.
 
 <Cards>
   <Card
@@ -238,6 +240,3 @@ need none of this — the bootstrap installs Determinate for you.
     description="doctor, plan, diff and capture in full — the commands that show you a problem before it lands."
   />
 </Cards>
-
-Still stuck? [Open an issue](https://github.com/hausfold/haus/issues) with the
-output of `haus doctor`.
