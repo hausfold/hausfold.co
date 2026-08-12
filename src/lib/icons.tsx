@@ -20,6 +20,7 @@ import {
   PanelTop,
   SquareTerminal,
   Terminal,
+  Wand2,
 } from 'lucide-react';
 import type { Accent } from './shared';
 
@@ -66,6 +67,7 @@ const icons = {
   fingerprint: { icon: Fingerprint },
   bellOff: { icon: BellOff },
   agent: { icon: Bot },
+  wand: { icon: Wand2 },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.
