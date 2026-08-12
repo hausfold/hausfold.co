@@ -12,6 +12,7 @@ import {
   Download,
   Fingerprint,
   Footprints,
+  Hammer,
   Inbox,
   Keyboard,
   Layers,
@@ -21,7 +22,9 @@ import {
   Palette,
   PanelTop,
   RefreshCw,
+  Share2,
   SlidersHorizontal,
+  Snowflake,
   SquareTerminal,
   Terminal,
   Wand2,
@@ -78,6 +81,9 @@ const icons = {
   dials: { icon: SlidersHorizontal },
   lifebuoy: { icon: LifeBuoy },
   door: { icon: DoorOpen },
+  share: { icon: Share2 },
+  flake: { icon: Snowflake },
+  hammer: { icon: Hammer },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.

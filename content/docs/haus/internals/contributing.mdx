@@ -1,0 +1,208 @@
+---
+title: Contributing
+description: The workshop checkout, the bench CLI, and the loop that takes a change from an edit to a release — try it without pushing, feel the whole PR queue at once, then ripple it down the chain.
+icon: hammer
+---
+
+haus is one repo in a family of them, and a change usually has to travel between
+several before you can feel it. This page is that path. To *use* haus you need
+none of it — [Keeping it current](/docs/haus/guides/keeping-it-current) is that
+page.
+
+## The workshop
+
+The [workshop](https://github.com/hausfold/workshop) is a parent directory that
+holds every family repo checked out side by side, plus a `bench` dev CLI:
+
+```sh
+git clone https://github.com/hausfold/workshop.git
+cd workshop
+./bench clone
+```
+
+You end up with `haus/`, `nebelung/`, `pounce/`, `perch/`, `holt/` and the rest
+as independent git repos, with `bench` sitting above them.
+
+## Where a change goes
+
+Every change belongs to exactly one repo, and a colour hex in haus or launchd
+logic in the launcher is in the wrong one even when it works:
+
+| Change | Repo |
+|---|---|
+| macOS defaults, tiling, the bar, the shell, Touch ID | [`haus`](https://github.com/hausfold/haus) |
+| colours, the palette, how a tool is themed | [`nebelung`](https://github.com/hausfold/nebelung) |
+| the launcher app, or a generic command script | [`pounce`](https://github.com/hausfold/pounce) |
+| the notch file shelf | [`perch`](https://github.com/hausfold/perch) |
+| how agent worktrees are made, parked or reaped | [`holt`](https://github.com/hausfold/holt) |
+| the quiet notification banners | [`trill`](https://github.com/hausfold/trill) |
+| the Homebrew formula and cask | [`homebrew-tap`](https://github.com/hausfold/homebrew-tap) — CI-owned; a hand-edit is overwritten |
+| `bench` itself | the workshop |
+| these docs | [`hausfold.co`](https://github.com/hausfold/hausfold.co) — and the workshop's `web/`, until nebelhaus.com retires |
+| your own machine's apps, identity, secrets | `~/.config/nix`, which is yours |
+
+Four command-line tools come out of that, and only the first is for people who
+merely *use* haus:
+
+| Command | Reach for it to… | Ships in |
+|---|---|---|
+| **`haus`** | drive your own Mac — [rebuild, update, roll back, diagnose](/docs/haus/reference/haus) | haus, always |
+| **`holt`** | manage [agent worktrees](/docs/haus/guides/coding-agents) in any git repo | haus, with `developer.agents.enable` on |
+| **`zscratch`** | feel-test a zellij edit with no rebuild | haus, same switch |
+| **`bench`** | move a change across the family repos | the workshop — contributors only |
+
+`haus` knows only *your machine*; `bench` knows only *the family repos*.
+
+## Try it without pushing
+
+You never have to push to *see* a change. `bench try` builds your real machine
+config against the **local checkouts** — uncommitted edits and all — using Nix's
+`--override-input`:
+
+```sh
+./bench try            # does it build? nothing pushed, nothing activated
+./bench try switch     # run it on this Mac, still nothing pushed
+```
+
+When you're happy, commit in the repos you touched and let `bench ship` push
+upstream→downstream, bumping a lock at every hop so the change actually reaches
+your Mac without you hand-walking the
+[pin chain](/docs/haus/internals/flakes#why-a-pin-means-nothing-changes-until-you-say-so).
+It refuses a dirty tree, and fast-forwards each checkout from origin first — a
+lock computed off a stale `main` pins the pre-merge commit and reports success.
+
+`./bench status` opens with what this Mac is actually running, then every repo's
+git state and every stale lock edge. An edge can also be **off-main**: pinned at
+a rev that isn't on that repo's `main`, which is what a `nix flake update` inside
+an open PR leaves behind. It resolves until the branch is deleted on merge, and
+then the downstream repo can't fetch its input at all — so land the upstream PR
+*first*, then ship. `./bench rebuild` is the way back to the pinned build.
+
+## Working with agents
+
+The family is built to be hacked on by several coding agents at once, each in
+its own worktree. That mechanism is [holt](/docs/haus/guides/coding-agents) and
+it works for any repo; two things are specific to a *family* one.
+
+- **`bench try` is worktree-aware.** Run it from inside a worktree and that
+  repo's override points at *your branch*, so a branch can prove it builds before
+  anyone merges it. It substitutes one lane, and only for a repo in the ripple
+  chain — from a *workshop* worktree it overrides nothing. When a change spans
+  repos, `bench try lane` builds your lane together with every `holt child` lane
+  spawned from the same pane, in one rebuild and with no PR.
+- **`bench try switch` works from a worktree too**, and is the only way to feel
+  one unmerged branch alone. The gate is on **who, not where**: a person at the
+  keyboard runs it, an agent is refused — activation is machine-wide and serial,
+  so parallel agents would overwrite each other's Mac. Every switch leaves a
+  receipt `bench status` reads back.
+
+## Feel the whole queue at once
+
+Activating a Mac is serial, so a stack of open PRs can normally only be felt one
+at a time — and merging them first to save the trouble puts unverified code on
+`main`. `bench try-batch` inverts that: per repo it builds a throwaway
+integration tree (`main` plus every open PR merged in), overrides the flake
+there, and builds or activates the whole queue in **one** rebuild, `main`
+untouched.
+
+```sh
+./bench try-batch            # build every open PR together, with a tick-off checklist
+./bench try-batch switch     # and activate the combined tree on this Mac
+```
+
+Then merge only the ones that passed. Test-then-merge, not merge-then-test.
+
+<Callout type="warn" title="Read the dropped list under the checklist">
+A PR that conflicts with the batch, or whose head branch isn't on origin, is
+**excluded** and named in a footer under the checklist. Tick the checklist off
+without reading that footer and you'll believe you felt a PR the batch never
+built.
+</Callout>
+
+## Feel-testing a zellij edit
+
+A zellij plugin `.wasm`, a patched binary, or a layout change to tabs that
+already exist can't hot-reload — a running server holds its plugin wasm in memory
+for its whole lifetime — so seeing one means restarting the server and losing
+every open tab. `zscratch` boots your candidate as a throwaway session in its own
+window instead, rendered over a copy of the live `~/.config/zellij`:
+
+```sh
+zscratch --config config.kdl             # a candidate config.kdl
+zscratch --layout my-layout.kdl          # …or a layout
+zscratch --theme  nebelung.kdl           # …or a theme
+zscratch --plugin tab-bar=tab-bar.wasm   # …or a freshly built plugin
+zscratch --bin /path/to/zellij           # …or a binary-level patch
+zscratch clean                           # kill the scratch session and temp dir
+```
+
+A plain `config.kdl` edit needs none of this — zellij applies most of that file
+to the *running* server in about a second, so `bench try switch` is enough and
+your tabs, panes and live agent sessions stay put.
+
+## The whole life of a change
+
+```text
+hack ─► test ─► assure ─► PR ─► batch-test ─► merge ─► try switch ─► ship ─► release
+```
+
+1. **hack** — in place, or on `worktree-*` branches in parallel.
+2. **test** — `./bench try`, which from inside a worktree builds *that* branch.
+3. **assure** — hand `git diff main...HEAD` to a clean-context reviewer that has
+   read nothing but the diff and the repo's `AGENTS.md`. Advisory, and it catches
+   what only bites after merge: a change in the wrong repo, docs left stale by a
+   renamed option, a colliding hotkey.
+4. **PR** — against `main`, with a **What / Why / Verify / Watch-out** body.
+   Never a direct push or a local merge.
+5. **batch-test** — `./bench try-batch`, the whole queue in one rebuild.
+6. **merge** — the ones that passed; leave the rest open.
+7. **try switch** — on `main`, now that it holds the work.
+8. **ship** — `./bench ship` ripples the locks in dependency order.
+9. **release** — `./bench release <repo>`; CI does the rest.
+
+<Callout title="Releases ride tags, and the version is the date">
+Four repos are releasable — the launcher, the shelf, haus and holt — and the
+number is never typed by hand. `bench release <repo>` stamps today's date
+(`YYYY.MM.DD`, or `-N` on a same-day repeat) into the repo's version source,
+commits it and tags it; passing a version to a CalVer repo is refused. CI then
+publishes the release, and for the two app repos bumps the formula and the cask.
+The command blocks while CI runs, drawing the jobs live, exits non-zero on red
+and fast-forwards your checkout on green; `--ship` ripples the new lock edge in
+the same breath.
+
+A haus release is what the install one-liner serves, so a user-visible haus
+change isn't *out* until it's tagged. And **holt is the exception, forced**:
+`bench release holt 0.2.0` takes a semver and refuses to run without one, because
+its SDKs publish to registries where a number, once published, can never be
+withdrawn.
+</Callout>
+
+Each repo carries its own `AGENTS.md` with the deep rules for its boundary —
+start there when you open one.
+
+## Built on
+
+- [Nix](https://nixos.org) and [nix-darwin](https://github.com/nix-darwin/nix-darwin) — the reproducible system
+- [AeroSpace](https://github.com/nikitabobko/AeroSpace) — tiling; [SketchyBar](https://github.com/FelixKratz/SketchyBar) — the bar
+- [Catppuccin](https://github.com/catppuccin) — the framework nebelung is derived from
+- [Ghostty](https://ghostty.org), [zellij](https://zellij.dev), [yazi](https://yazi-rs.github.io), [helix](https://helix-editor.com), [starship](https://starship.rs) — the terminal stack
+
+haus, nebelung and pounce are MIT. **holt** is Apache-2.0, and **perch** is *fair
+source* — [FSL-1.1-ALv2](https://fsl.software), which turns into Apache-2.0 two
+years after each release ships: read it, build it, change it for yourself, but
+don't sell it as a competing product.
+
+<Cards>
+  <Card
+    icon={<Icon name="flake" />}
+    title="How the flakes fit together"
+    href="/docs/haus/internals/flakes"
+    description="The pin chain bench ship walks for you, and why a pushed commit changes nothing downstream until a lock moves."
+  />
+  <Card
+    icon={<Icon name="agent" />}
+    title="Coding agents"
+    href="/docs/haus/guides/coding-agents"
+    description="holt in full — a worktree per agent, parking work instead of losing it, and resuming a parked session."
+  />
+</Cards>

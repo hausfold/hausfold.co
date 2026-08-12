@@ -161,8 +161,10 @@ working:
 | `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
 **den** (the system defaults and Homebrew) and **hearth** (the shell) are the
-floor the rest stands on, and have no switch. Of the rooms you can *see*, all
-six do.
+floor the rest stands on, and have no switch. Every room you can *see* does.
+The developer pack comes apart further if you'd rather keep some of it:
+`developer.git`, `.toolbelt`, `.agents` and `.languages` each switch off on their
+own.
 
 <Callout type="warn" title="pounce doesn't hand ⌘Space back">
 Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
@@ -197,8 +199,12 @@ darwinConfigurations.myhost = nebelhaus.mkNebelhaus {
 ```
 
 (`nebelhaus` there is the name your flake gave the input, which the scaffolded
-config picks — it's a handle for the layer, not a claim about which desktop you
-run.)
+config picks because it names the desktop you installed. It's a local handle;
+nothing outside your flake reads it.)
+
+Writing one of your own to hand to somebody else is
+[Sharing a rice](/docs/haus/guides/sharing-a-rice) — same format, from the
+authoring end.
 
 | Preset | For |
 |---|---|
