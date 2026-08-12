@@ -11,10 +11,15 @@ const docs = defineDocs({
   dir: 'content/docs',
   docs: {
     // One extra frontmatter key over fumadocs' own: `accent`, naming which
-    // product a page is about. It is the only way colour reaches the chrome
-    // — the sidebar entry and the page's rules take that product's hue on
-    // hover, and nothing takes one at rest. A page about the layer itself
-    // omits it and stays ink, which is the default and the common case.
+    // product a page is about.
+    //
+    // ⚠️ It is an *override*, not the source of a page's colour. Since
+    // 2026-08-12 every page takes its tree's hue at rest — mauve under
+    // /docs/haus, pink under /docs/nebelhaus — from `data-tree`, and
+    // `accent` exists for the page that is genuinely about one product
+    // rather than about the tree it sits in. Most pages therefore have
+    // none, including both nebelhaus pages, which the tree already colours.
+    // See "the borrowed accent" in `src/app/global.css`.
     schema: pageSchema.extend({
       accent: z.enum(accents).optional(),
     }),

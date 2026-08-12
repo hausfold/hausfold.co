@@ -519,20 +519,30 @@ The leash, in full:
   of the six in `src/lib/shared.ts` — and that rule is written *after* the tree
   rules so it wins. Keep it for pages genuinely about a product. **Neither
   ported nebelhaus page carries one any more**: the tree already says pink.
-- **Three intensities, no more**: `--accent` itself, `--accent-wash` (7%, for
-  the active sidebar row, a hovered table row, inline code), and
-  `--accent-line` (55% into the rule colour, for the line under a table head).
-  Both dilutions are declared once on `body` and resolve against whichever
-  `--accent` won.
+- **Four named steps, and nothing mixes its own**: `--accent` itself,
+  `--accent-wash` (7%, for fills — the active sidebar row, a hovered table
+  row, inline code), `--accent-line` (55% into the rule colour, for rules —
+  a table's head, a link's underline, a card's edge on hover), and
+  `--accent-quiet` (50% into `--ink-3`, for a glyph at rest). All four are
+  declared once on `body` and resolve against whichever `--accent` won. **An
+  ad-hoc `color-mix()` at the point of use is the thing to refuse** — if a
+  surface needs a fifth step, name it up there and say what it is for.
 - **Colour orients; it doesn't decorate.** Every place it lands answers *where
   am I* or *what is this*: the tree eyebrow over the title, the active sidebar
-  row, the head of a table, a callout's edge, an icon, a link on hover. If a
-  new use answers neither question, it doesn't get a hue.
+  row, the head of a table, a callout's edge, an icon, a prose link. If a new
+  use answers neither question, it doesn't get a hue.
 - **The six `--a-*` are still the whole vocabulary.** No page, component or
   state may introduce a seventh colour, and the hues still fork by theme in
   `public/hausfold.css` — so this is a change to *where* colour is spent, not
   to *which* colours exist. Fumadocs' own callout hues (oklch
   blue/amber/red/green) stay re-pointed at ours.
+- **Motion is stopped, not promised.** Fumadocs ships ~20 `transition-colors`
+  in components this repo doesn't own, and the hover states above give
+  several of them something to animate. They are crossfades, not movement —
+  but `src/app/global.css` ends with a `prefers-reduced-motion` block that
+  holds them anyway, and hands back exactly one thing: the ⌂ mark's 0.7s
+  fade, which `public/hausfold.css` keeps under that setting on purpose.
+  **A new hover state needs no new exception; a new `@keyframes` does.**
 - **Code blocks keep their own ramp** — nebelung's, at rest, in both themes.
   Shiki emits `var(--nb-token-*)` rather than hexes, so the light/dark fork
   happens in CSS with every other colour on this site. Four of the light

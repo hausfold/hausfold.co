@@ -11,9 +11,18 @@
 
    Two of the three rules the site is built on survive intact:
 
-     no motion           — one exception, the same one: the ⌂ mark's
+     no motion           — nothing moves while you read, and the one
+                           exception is the same one: the ⌂ mark's
                            iridescent sheen, on hover only, defined in
-                           hausfold.css and merely resized here.
+                           hausfold.css and merely resized here. What the
+                           docs *do* carry, and `public/` doesn't, is
+                           fumadocs' colour transitions on hover — dozens
+                           of them, in components we don't own, and this
+                           file gives several of them something new to
+                           animate. They are crossfades rather than
+                           movement, which is the reduced-motion-safe
+                           form; the block at the foot of this file holds
+                           them still anyway when the setting asks.
      both themes, always — colours are tokens; the fork happens once, in
                            hausfold.css, on `prefers-color-scheme` and on
                            `[data-theme]`. next-themes writes BOTH `class`
@@ -35,12 +44,12 @@
                            product in `accent:` frontmatter and override
                            both. The hue is never invented: it is one of
                            the six --a-* the landing page already spends.
-     three intensities   — the accent itself (type, ticks, icons), a wash
-                           at 7% (row hovers, the active sidebar row,
-                           inline code), and a line at ~55% mixed into the
-                           rule colour (the underline beneath a table's
-                           head). Nothing else. A fourth would be a
-                           gradient, and then we are a startup.
+     four named steps    — the accent itself (type, ticks, active icons),
+                           `--accent-wash` for fills, `--accent-line` for
+                           rules, `--accent-quiet` for a resting glyph.
+                           They are declared in one place and nothing mixes
+                           its own: an ad-hoc `color-mix()` at the point of
+                           use is how a palette becomes a gradient.
      colour orients      — every place it lands answers "where am I" or
                            "what is this": the tree eyebrow, the active
                            row, the head of a table, a callout's edge, an
@@ -159,11 +168,14 @@
 body {
   --accent: var(--ink);
 
-  /* The two dilutions. Declared once here so every consumer spends the same
-     two, and so a page's own `--accent` (whichever rule below wins) is what
-     they resolve against. */
-  --accent-wash: color-mix(in oklab, var(--accent) 7%, transparent);
-  --accent-line: color-mix(in oklab, var(--accent) 55%, var(--rule));
+  /* The three dilutions, named. Declared once here so every consumer spends
+     the same three, and so a page's own `--accent` (whichever rule below
+     wins) is what they resolve against. An ad-hoc `color-mix()` at the point
+     of use is how a palette becomes a gradient — if a surface needs a fourth
+     step, give it a name up here and say what it is for. */
+  --accent-wash: color-mix(in oklab, var(--accent) 7%, transparent); /* fills */
+  --accent-line: color-mix(in oklab, var(--accent) 55%, var(--rule)); /* rules */
+  --accent-quiet: color-mix(in oklab, var(--accent) 50%, var(--ink-3)); /* glyphs */
 
   /* Callouts are the one component fumadocs ships with hues of its own —
      oklch blue/amber/red/green, none of them from any palette this family
@@ -294,7 +306,7 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
    it. Icons that carry their own hue (the outward product links) are
    excluded and keep it. */
 #nd-sidebar a svg:not([data-hue]) {
-  color: color-mix(in oklab, var(--accent) 50%, var(--ink-3));
+  color: var(--accent-quiet);
 }
 
 #nd-sidebar a[data-active='true'] svg:not([data-hue]) {
@@ -464,7 +476,7 @@ article h1,
 .prose a {
   color: inherit;
   text-decoration: underline;
-  text-decoration-color: color-mix(in oklab, var(--accent) 45%, var(--rule));
+  text-decoration-color: var(--accent-line);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25em;
 }
@@ -568,7 +580,10 @@ article h1,
 }
 
 /* The first column is nearly always the name of the thing — a room, a pill,
-   a key, a command. It gets the ink and it doesn't wrap mid-name. */
+   a key, a command — so it takes the ink and the rest of the row explains
+   it. Deliberately not `nowrap`: some of these names are
+   `NEBELHAUS_NONINTERACTIVE`, and a column that refuses to wrap pushes the
+   table into a horizontal scroll on a phone. */
 .prose tbody td:first-child {
   color: var(--ink);
 }
@@ -750,11 +765,21 @@ figure.shiki button:hover {
   color: var(--accent);
 }
 
-/* Fumadocs draws a rail down the left of the TOC and a thumb on it for the
-   heading you're inside; the thumb is the accent, the rail stays a rule. */
-#nd-toc [role='none'],
-#nd-toc [data-thumb] {
-  background: var(--accent);
+/* Fumadocs draws a rail down the left of the TOC and slides a thumb along it
+   for the heading you're inside. Both are painted with `--color-fd-primary`
+   — an SVG `stroke` on the rail, a background on the thumb — so the way to
+   reach them is to re-point that token for this subtree rather than to guess
+   at a class. The rail is drawn at low opacity by fumadocs itself, which is
+   what keeps it a rule while the thumb reads as the accent. */
+#nd-toc {
+  --color-fd-primary: var(--accent);
+}
+
+/* …and the rail itself back to a rule: re-pointing the token alone would
+   paint the full-height stroke in the accent, which is a coloured line down
+   the side of every page rather than a mark of where you are. */
+#nd-toc svg path {
+  stroke: var(--rule);
 }
 
 /* --- what to read next ------------------------------------------------ */
@@ -777,6 +802,31 @@ figure.shiki button:hover {
 }
 
 /* --- housekeeping ---------------------------------------------------- */
+
+/* The site's "no motion" rule, enforced rather than asserted. Fumadocs ships
+   ~20 `transition-colors` in components this file doesn't own, and hover
+   states added here give several of them something to animate. A crossfade
+   is not what `prefers-reduced-motion` exists to suppress — but the rule on
+   this site is that a reader who asks for stillness gets it, and the honest
+   way to keep it is a stop, not a paragraph promising there is nothing to
+   stop.
+
+   The one thing given back is the mark's 0.7s crossfade, which hausfold.css
+   keeps under reduced motion on purpose — it drops the turn and holds the
+   colour, and a blanket `!important` would take the colour with it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .mark::after {
+    transition-duration: 0.7s !important;
+  }
+}
 
 html {
   scrollbar-gutter: stable;

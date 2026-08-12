@@ -23,11 +23,12 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     // The way back out to the rest of the site, at the head of the sidebar.
-    // Each carries its own glyph in its own accent — the four rows are the
-    // only colour the chrome holds at rest, and they are there to be found by
-    // shape rather than read. `/haus` takes the layer's mauve, the same hue
-    // the haus tree wears inside the docs, so the outward link and the tree
-    // are visibly the same subject.
+    // Each carries a glyph, to be found by shape rather than read. The three
+    // that name a *product* carry that product's accent — `/haus` takes the
+    // layer's mauve, the same hue the haus tree wears inside the docs, so the
+    // outward link and the tree are visibly the same subject. `/desktops` is
+    // a catalogue rather than a product, owns no accent anywhere on this
+    // site, and so takes the current page's tint like any other row.
     links: [
       { text: 'haus', url: '/haus', external: true, icon: <Icon name="layer" /> },
       { text: 'desktops', url: '/desktops', external: true, icon: <Icon name="desktops" /> },
