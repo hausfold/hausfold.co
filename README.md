@@ -45,6 +45,7 @@ content/docs/                     the docs, as MDX
 src/                              the Next app: layout, theme, MDX components
   app/global.css                  Fumadocs re-pointed at hausfold.css's tokens
   app/not-found.tsx               the 404 — a Next page since 2026-08-12, see below
+  lib/icons.tsx                   the docs' whole icon vocabulary, by name
 scripts/
   sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
 ```

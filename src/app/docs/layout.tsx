@@ -1,6 +1,7 @@
 import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/lib/layout.shared';
+import { Separator } from '@/components/sidebar-parts';
 
 export default function Layout({ children }: LayoutProps<'/docs'>) {
   return (
@@ -14,6 +15,11 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
       // here because the two trees are about different things rather than
       // being two views of the same thing.
       tabMode="auto"
+      // One override, and it is about a selector rather than a shape: the
+      // group label gets a class instead of being styled as "the bare `<p>`
+      // in the sidebar", which the tree switcher also is. See
+      // `src/components/sidebar-parts.tsx`.
+      sidebar={{ components: { Separator } }}
       {...baseOptions()}
     >
       {children}

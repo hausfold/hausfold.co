@@ -1,6 +1,7 @@
 ---
 title: What haus is
 description: One file describes your Mac. One command makes the Mac match it. Everything else here is detail.
+icon: compass
 ---
 
 **haus** is a layer for macOS. You describe the machine you want in one text
@@ -19,6 +20,8 @@ haus rebuild
 
 Slack is installed and bound to a launcher key, your terminal is themed, and
 the change is a line in git you can read six months later.
+
+That is the whole idea. The rest of these pages are the detail.
 
 ## Why bother
 
@@ -39,7 +42,7 @@ it up over time, and that's the whole curve.
 ## What's in the box
 
 haus is organised into **rooms** — each one a group of options you can turn on,
-off, or leave alone.
+off, or leave alone. Turn on the ones you want; the rest cost you nothing.
 
 | Room | What it does |
 |---|---|
@@ -72,7 +75,17 @@ and their improvements are never a surprise on your machine.
 
 ## Where to go next
 
-- **[Install](/docs/haus/install)** — what the one-liner does, and how to read
-  it before you run it.
-- **[nebelhaus](/docs/nebelhaus)** — the desktop most people install haus by
-  installing. Switch trees with the dropdown at the top of the sidebar.
+<Cards>
+  <Card
+    icon={<Icon name="install" />}
+    title="Install"
+    href="/docs/haus/install"
+    description="What the one-liner does, how to read it before you run it, and the two commands that actually change the machine."
+  />
+  <Card
+    icon={<Icon name="desktop" />}
+    title="nebelhaus"
+    href="/docs/nebelhaus"
+    description="The desktop most people install haus by installing. Switch trees with the dropdown at the top of the sidebar."
+  />
+</Cards>

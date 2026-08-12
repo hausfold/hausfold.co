@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { appName, gitConfig } from './shared';
+import { Icon } from './icons';
 
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -21,11 +22,17 @@ export function baseOptions(): BaseLayoutProps {
       // hausfold.co, not a site of their own.
       url: '/',
     },
+    // The way back out to the rest of the site, at the head of the sidebar.
+    // Each carries its own glyph in its own accent — the four rows are the
+    // only colour the chrome holds at rest, and they are there to be found by
+    // shape rather than read. `/haus` takes the layer's mauve, the same hue
+    // the haus tree wears inside the docs, so the outward link and the tree
+    // are visibly the same subject.
     links: [
-      { text: 'haus', url: '/haus', external: true },
-      { text: 'desktops', url: '/desktops', external: true },
-      { text: 'pounce', url: '/pounce', external: true },
-      { text: 'perch', url: '/perch', external: true },
+      { text: 'haus', url: '/haus', external: true, icon: <Icon name="layer" /> },
+      { text: 'desktops', url: '/desktops', external: true, icon: <Icon name="desktops" /> },
+      { text: 'pounce', url: '/pounce', external: true, icon: <Icon name="pounce" /> },
+      { text: 'perch', url: '/perch', external: true, icon: <Icon name="perch" /> },
     ],
     githubUrl: `https://github.com/${gitConfig.user}`,
   };

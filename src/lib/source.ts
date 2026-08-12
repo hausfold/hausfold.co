@@ -5,6 +5,7 @@ import { applyMdxPreset } from 'fumadocs-mdx/config';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import { z } from 'zod';
 import { nebelungCssVars } from './shiki-theme';
+import { resolveIcon } from './icons';
 
 const docs = defineDocs({
   dir: 'content/docs',
@@ -48,6 +49,13 @@ const docs = defineDocs({
 export const source = loader({
   baseUrl: docsRoute,
   source: docs.toFumadocsSource(),
+  // `icon: bar` in a meta.json or a page's frontmatter becomes a glyph in the
+  // sidebar and in the tree switcher. The names are ours, not Lucide's — see
+  // `src/lib/icons.tsx` for the table and for why the indirection earns its
+  // keep. Fumadocs ships a `lucideIconsPlugin` that would take Lucide names
+  // straight from content; we don't use it, because an icon that can carry a
+  // product's accent has to be constructed here rather than named there.
+  icon: resolveIcon,
   plugins: [],
 });
 

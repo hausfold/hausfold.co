@@ -9,13 +9,8 @@
    own CSS port, and this file only says which Fumadocs variable each of
    them stands behind.
 
-   The three rules the site is built on survive intact:
+   Two of the three rules the site is built on survive intact:
 
-     greyscale at rest   — nothing on a page owns a colour. The chrome is
-                           ink on paper (or ink on crust) until you point
-                           at something or open a page that is *about* a
-                           product, and then it borrows that product's
-                           accent. See "the borrowed accent" below.
      no motion           — one exception, the same one: the ⌂ mark's
                            iridescent sheen, on hover only, defined in
                            hausfold.css and merely resized here.
@@ -27,10 +22,35 @@
                            `[data-theme="dark"]` block agree by
                            construction rather than by discipline.
 
+   The third — *greyscale at rest* — is where the docs part company with
+   `public/`, at the user's instruction (2026-08-12). A landing page is
+   read once and it can afford to be austere; a docs site is a place
+   somebody spends an hour lost in, and the first port read as a hearse.
+   So colour is allowed at rest here, on a leash:
+
+     one hue per tree    — every page under /docs/haus wears the palette's
+                           own mauve, every page under /docs/nebelhaus
+                           wears the rice's pink, and a page that is
+                           genuinely about a product may still name that
+                           product in `accent:` frontmatter and override
+                           both. The hue is never invented: it is one of
+                           the six --a-* the landing page already spends.
+     three intensities   — the accent itself (type, ticks, icons), a wash
+                           at 7% (row hovers, the active sidebar row,
+                           inline code), and a line at ~55% mixed into the
+                           rule colour (the underline beneath a table's
+                           head). Nothing else. A fourth would be a
+                           gradient, and then we are a startup.
+     colour orients      — every place it lands answers "where am I" or
+                           "what is this": the tree eyebrow, the active
+                           row, the head of a table, a callout's edge, an
+                           icon. Decoration that answers neither question
+                           doesn't get a hue.
+
    The one thing docs added that the landing pages never needed: syntax
-   colour. That is the "code coloured, chrome greyscale" line — a code
-   block is the one surface here allowed a hue at rest, and the hues are
-   nebelung's. See "the code ramp" at the foot of this file.
+   colour. A code block is the one surface allowed a hue at rest even in
+   `public/`, and the hues are nebelung's. See "the code ramp" at the foot
+   of this file.
    ------------------------------------------------------------------ */
 
 @import 'tailwindcss';
@@ -50,6 +70,18 @@
      Fumadocs' own components lands on the same two stacks. */
   --font-sans: ui-serif, 'New York', Georgia, 'Iowan Old Style', serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Corners, in one place. Fumadocs is built on Tailwind's default scale
+     (0.25–0.75rem), which reads as software; `public/`'s boxes are 3px,
+     which reads as print. Redefining the scale turns every `rounded-lg` in
+     a component we don't own into the site's corner, with no per-component
+     override and nothing to keep in step. `rounded-full` is unaffected —
+     it isn't on this scale — so avatars and pills stay round. */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 5px;
+  --radius-2xl: 6px;
 }
 
 /* --- Fumadocs' palette, re-pointed ---------------------------------- */
@@ -95,30 +127,53 @@
   --color-fd-muted-foreground: var(--ink-3);
 }
 
+/* Same paper, literally: fumadocs paints the sidebar with `bg-fd-card`,
+   which is the well. One rule down its edge is the whole of the division. */
+#nd-sidebar {
+  background: var(--ground);
+}
+
 /* --- the borrowed accent -------------------------------------------- */
 
-/* A docs page may declare in its frontmatter which product it is about
-   (`accent: pounce`). The page renders that as `data-accent` on its own
-   container — but the things that should warm to it (the sidebar's active
-   row, the table of contents, a link in the prose) live OUTSIDE that
-   container, in the layout. `:has()` is what lifts one page's declaration
-   up to the whole document without a client component or a wrapper prop.
+/* Where a page's hue comes from, in order of precedence:
 
-   A page with no `accent` gets `--accent: var(--ink)`, which is to say: no
-   colour at all. That is the default and the common case — most of these
-   pages are about the layer, and the layer is not a product with a hue. */
+     1. `accent: pounce` in the page's frontmatter — the page is *about* a
+        product, and takes that product's colour.
+     2. the tree it lives in — /docs/haus is mauve, /docs/nebelhaus is pink.
+     3. nothing, which is `--ink`: the /docs index itself, which is a
+        doorway to both trees and shouldn't pick a side.
+
+   The page renders both as attributes on its own container
+   (`data-tree`, `data-accent` — see app/docs/[[...slug]]/page.tsx), but
+   the things that should warm to them — the sidebar's active row, the
+   table of contents, a link in the prose — live OUTSIDE that container, in
+   the layout. `:has()` is what lifts one page's declaration up to the whole
+   document without a client component or a wrapper prop.
+
+   Why the tree gets a hue at all: mauve IS nebelung's own accent
+   (`--nebelung-accent: var(--nebelung-mauve)` in the vendored block), so
+   the layer's docs wear the palette the whole family shares rather than a
+   colour invented for them. The desktop's pages wear the desktop's pink,
+   which is the same hue its row on the landing page takes on hover. Neither
+   is a new claim: both are already in `public/hausfold.css`. */
 body {
   --accent: var(--ink);
 
+  /* The two dilutions. Declared once here so every consumer spends the same
+     two, and so a page's own `--accent` (whichever rule below wins) is what
+     they resolve against. */
+  --accent-wash: color-mix(in oklab, var(--accent) 7%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 55%, var(--rule));
+
   /* Callouts are the one component fumadocs ships with hues of its own —
      oklch blue/amber/red/green, none of them from any palette this family
-     uses. They are re-pointed at the site's own borrowed accents so a
-     callout can't introduce a seventh colour.
-     `info` and `idea` take the page's accent, which is to say: nothing,
-     unless the page is about a product. `warning` and `error` keep a real
-     signal — a warning you can't tell from a note isn't one — and borrow it
-     from trill's yellow and the rice's pink, both of which already fork
-     correctly between paper and crust. */
+     uses. They are re-pointed at the site's own accents so a callout can't
+     introduce a seventh colour.
+     `info` and `idea` take the page's accent, so a note reads as part of
+     the page it is on. `warning` and `error` keep a real signal — a warning
+     you can't tell from a note isn't one — and borrow it from trill's
+     yellow and the rice's pink, both of which already fork correctly
+     between paper and crust. */
   --color-fd-info: var(--accent);
   --color-fd-idea: var(--accent);
   --color-fd-success: var(--a-perch);
@@ -126,12 +181,33 @@ body {
   --color-fd-error: var(--a-nebelhaus);
 }
 
+body:has([data-tree='haus']) {
+  --accent: var(--a-nebelung);
+}
+body:has([data-tree='nebelhaus']) {
+  --accent: var(--a-nebelhaus);
+}
+
+/* A page's own declaration, last, so it beats the tree it sits in. */
 body:has([data-accent='nebelhaus']) { --accent: var(--a-nebelhaus); }
 body:has([data-accent='pounce']) { --accent: var(--a-pounce); }
 body:has([data-accent='holt']) { --accent: var(--a-holt); }
 body:has([data-accent='perch']) { --accent: var(--a-perch); }
 body:has([data-accent='nebelung']) { --accent: var(--a-nebelung); }
 body:has([data-accent='trill']) { --accent: var(--a-trill); }
+
+/* An icon may carry a hue of its own, and then it keeps it everywhere —
+   including inside the tree switcher's popover, which React renders in a
+   portal at the end of `<body>` where no `#nd-sidebar` selector reaches.
+   The two tree glyphs need this: they sit side by side in that popover, and
+   "the current page's accent" would paint them both the same. See
+   `src/lib/icons.tsx` for which icons carry one. */
+[data-hue='nebelhaus'] { color: var(--a-nebelhaus); }
+[data-hue='pounce'] { color: var(--a-pounce); }
+[data-hue='holt'] { color: var(--a-holt); }
+[data-hue='perch'] { color: var(--a-perch); }
+[data-hue='nebelung'] { color: var(--a-nebelung); }
+[data-hue='trill'] { color: var(--a-trill); }
 
 /* --- the masthead, shrunk ------------------------------------------- */
 
@@ -170,9 +246,17 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 }
 
 /* Group labels — "Guides", "Reference" — are `.block h2` from the landing
-   page: a line of small caps over a hairline. The sidebar's only bare `<p>`
-   is a separator, which is what makes this selector safe. */
-#nd-sidebar p {
+   page: a line of small caps over a hairline.
+
+   The class comes from our own Separator (src/components/sidebar-parts.tsx)
+   rather than from `#nd-sidebar p`, which this rule used to be. That
+   selector also caught the tree switcher's two `<p>`s, which is how the
+   dropdown ended up announcing "H A U S" with a rule struck under it. */
+.hf-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.6rem;
   font-size: 0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -182,11 +266,12 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   border-bottom: 1px solid var(--rule);
 }
 
-/* The active page is the one place the sidebar spends the page's accent —
-   as *type*, never as a filled pill. fumadocs paints the active row with a
-   tinted background and the hovered one with a grey block; both are the
-   kind of fill this site doesn't have anywhere else, so both are cleared.
-   An id beats a utility class, so no `!important` is needed. */
+/* The active page is where the sidebar spends the page's accent. Fumadocs
+   paints it with a tinted fill of its own (`bg-fd-primary/10`) and the
+   hovered row with a grey block; both are replaced by the accent as *type*
+   over the 7% wash — enough to find the row from the corner of your eye,
+   not enough to read as a button. An id beats a utility class, so no
+   `!important` is needed. */
 #nd-sidebar a,
 #nd-sidebar a:hover,
 #nd-sidebar a[data-active='true'] {
@@ -195,6 +280,7 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 
 #nd-sidebar a[data-active='true'] {
   color: var(--accent);
+  background: var(--accent-wash);
 }
 
 /* Hover stays ink — brighter, not coloured — so running the pointer down a
@@ -203,8 +289,111 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   color: var(--ink);
 }
 
-#nd-toc a[data-active='true'] {
+/* A page's glyph is tinted by the tree it belongs to: a whole column of
+   mauve marks says "you are in the layer" before you have read a word of
+   it. Icons that carry their own hue (the outward product links) are
+   excluded and keep it. */
+#nd-sidebar a svg:not([data-hue]) {
+  color: color-mix(in oklab, var(--accent) 50%, var(--ink-3));
+}
+
+#nd-sidebar a[data-active='true'] svg:not([data-hue]) {
   color: var(--accent);
+}
+
+/* --- the tree switcher ----------------------------------------------- */
+
+/* Two root folders, rendered by fumadocs as a dropdown at the head of the
+   sidebar: the layer, and the desktop built on it. It is the site's
+   positioning made navigable, so it is worth more than a line of text —
+   it carries the tree's glyph in the tree's colour, and its one-line
+   description, which fumadocs hides above `md` and we put back. Both
+   halves are the answer to "which docs am I in", which is the question a
+   two-tree site has to keep answering.
+
+   `:not([data-search-full])` is what separates it from the search button
+   directly above it — the two are otherwise the same element. */
+#nd-sidebar button[aria-haspopup='dialog']:not([data-search-full]) {
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem;
+  border-color: var(--rule);
+  background: transparent;
+}
+
+#nd-sidebar button[aria-haspopup='dialog']:not([data-search-full]):hover {
+  background: var(--accent-wash);
+}
+
+#nd-sidebar button[aria-haspopup='dialog']:not([data-search-full]) p {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+#nd-sidebar button[aria-haspopup='dialog']:not([data-search-full]) p + p {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+
+/* The popover itself is portaled to the end of `<body>`, out of reach of
+   every `#nd-sidebar` selector above, so it is styled on its own terms —
+   as chrome, in mono, like the sidebar that opened it. `[data-side]` is
+   what tells a popover's popup apart from the search dialog, which is the
+   other `role="dialog"` on the page. `[data-hue]` still reaches the two
+   tree glyphs inside it, which is the point of hues. */
+[role='dialog'][data-side] {
+  font-family: var(--font-mono);
+}
+
+[role='dialog'][data-side] p {
+  font-weight: 400;
+}
+
+/* hausfold.css underlines every `a` on the page, which inside a menu means
+   four ruled lines stacked in a 250px box. A row in a menu is a target, not
+   a citation. */
+[role='dialog'][data-side] a {
+  text-decoration: none;
+}
+
+[role='dialog'][data-side] a:hover {
+  background: var(--accent-wash);
+}
+
+/* --- the page's head -------------------------------------------------- */
+
+/* The tree, above the title, in the tree's colour. The sidebar answers
+   "where am I" for the reader who walked here; this answers it for the one
+   who landed from a search result on a page three levels in. */
+.hf-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hf-eyebrow svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* The copy-markdown row. It used to carry a `border-b` under it, which put
+   a full-width rule two lines below the title's own — the page opened with
+   two horizontal lines and no content between them. Space does the same
+   work. */
+.hf-actions {
+  margin-top: 1.4rem;
+  margin-bottom: 2.2rem;
 }
 
 /* --- the page ------------------------------------------------------- */
@@ -231,15 +420,32 @@ article h1,
 
 /* A hairline under every h2, the same rule `.block h2` carries — it is what
    gives the landing page its ruled-column look, and it does the same work
-   over a long docs page. The accent lands here and nowhere else in the
-   prose: a two-pixel warm tick at the left end of an otherwise grey rule. */
+   over a long docs page. The accent lands here as a short warm tick at the
+   left end of an otherwise grey rule: a reader scrolling fast sees the
+   ticks, not the rules. */
 .prose h2 {
   border-bottom: 1px solid var(--rule);
   padding-bottom: 0.35em;
   background-image: linear-gradient(to right, var(--accent), var(--accent));
   background-repeat: no-repeat;
   background-position: 0 100%;
-  background-size: 1.6rem 1px;
+  background-size: 1.8rem 2px;
+}
+
+/* Fumadocs wraps every heading's text in an anchor link, which `.prose a`
+   below then underlined — every h2 on the first port arrived with a line
+   under its words *and* the rule under the heading. The heading is the
+   link; it doesn't need to be dressed as one. */
+.prose :is(h1, h2, h3, h4, h5, h6) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The `#` button beside a heading, which appears on hover — the one place
+   the anchor is allowed to look like an anchor. */
+.prose :is(h2, h3, h4) button:hover {
+  color: var(--accent);
+  background: transparent;
 }
 
 .prose {
@@ -251,13 +457,14 @@ article h1,
   color: var(--ink);
 }
 
-/* Prose links keep the landing page's underline — offset, hairline, grey
-   until you point at it and then the page's own accent. This is the second
-   place colour appears, and like every other one it needs a pointer. */
+/* Prose links keep the landing page's underline — offset, hairline, and now
+   tinted toward the page's accent rather than plain grey, so a paragraph
+   with links in it shows where they are without being a field of blue. On
+   hover the underline and the word both go to the full accent. */
 .prose a {
   color: inherit;
   text-decoration: underline;
-  text-decoration-color: var(--ink-3);
+  text-decoration-color: color-mix(in oklab, var(--accent) 45%, var(--rule));
   text-decoration-thickness: 1px;
   text-underline-offset: 0.25em;
 }
@@ -279,22 +486,107 @@ article h1,
   text-decoration: none;
 }
 
-/* --- fact-shaped things --------------------------------------------- */
+/* A card and a next-page box are links that contain a title and a sentence.
+   Underlining them underlines the whole box, which is how the first pass
+   ended up with four ruled lines inside a rounded rectangle. The box is the
+   affordance. (`.prose .hf-card` outranks `.prose a`; the bare `.hf-card`
+   answers hausfold.css, which underlines every `a` on the page.) */
+.hf-card,
+.prose .hf-card,
+.hf-next a {
+  text-decoration: none;
+}
 
-/* Tables and callouts get the same treatment as `.facts` and `.cmd`: a
-   hairline, a well, and no fill. A callout's left edge is the accent's
-   third and last home on a page. */
+/* An icon dropped into a sentence — `<Icon name="layer" />` in MDX — is a
+   24px Lucide `<svg>` by default, which sets its own line height and breaks
+   the paragraph around it. Sized in `em`, it reads as a glyph. */
+.prose :is(p, li) > svg {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.18em;
+}
+
+/* --- tables ----------------------------------------------------------- */
+
+/* Half the reference in these docs is a table — the rooms, the pills, the
+   gestures, the environment variables — so this is not a detail component.
+   Fumadocs' default is the "rounded table": a bordered card with a vertical
+   rule between every column, which draws twelve lines around eight facts
+   and makes a two-column table of nouns look like a spreadsheet.
+
+   What replaces it is the newspaper form: no frame, no vertical rules, a
+   head in small caps over one accent-tinted line, and alternating bands to
+   carry the eye across a wide row. The only lines left are the ones that
+   separate a row from the next row. */
 .prose table {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  border-collapse: collapse;
+  background: transparent;
   font-size: 0.92em;
+  overflow: visible;
+}
+
+.prose thead {
+  border-bottom: 1px solid var(--accent-line);
 }
 
 .prose thead th {
+  border: 0;
+  background: transparent;
+  padding: 0 0.9rem 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  text-align: start;
   color: var(--ink-3);
   font-weight: 400;
+}
+
+.prose tbody td {
+  border: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--rule) 55%, transparent);
+  padding: 0.6rem 0.9rem;
+  vertical-align: baseline;
+}
+
+/* Bands, not rules, for scanning a wide row: the well is the same fill a
+   code block sits on, so nothing new enters the palette. */
+.prose tbody tr:nth-child(odd) td {
+  background: color-mix(in oklab, var(--well) 60%, transparent);
+}
+
+.prose tbody tr:hover td {
+  background: var(--accent-wash);
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The first column is nearly always the name of the thing — a room, a pill,
+   a key, a command. It gets the ink and it doesn't wrap mid-name. */
+.prose tbody td:first-child {
+  color: var(--ink);
+}
+
+/* --- fact-shaped things --------------------------------------------- */
+
+/* A callout is a ruled sidebar in a printed page, not a floating card: the
+   rounded corner, the full border and the drop shadow are what made
+   fumadocs' default read as a UI element. What's left is one coloured edge
+   and the faintest wash of the same colour — which is also what makes the
+   difference between a note and a warning visible at a glance, since
+   `--callout-color` is fumadocs' own hook and still carries the type. */
+[style*='--callout-color'] {
+  border: 0;
+  border-inline-start: 2px solid var(--callout-color);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: color-mix(in oklab, var(--callout-color) 6%, var(--well));
+  box-shadow: none;
 }
 
 .prose blockquote {
@@ -303,16 +595,55 @@ article h1,
   font-style: normal;
 }
 
-/* A callout is a hairline box on the well, not a floating card: the rounded
-   corner and the drop shadow are the two things that make fumadocs' default
-   read as a UI element rather than as a ruled sidebar in a printed page.
-   The `--callout-color` custom property is fumadocs' own hook, so the
-   coloured rule down the left keeps working. */
-[style*='--callout-color'] {
-  border-radius: 3px;
+/* Keys, as keys. These pages ask you to tap ⇪ and then a letter more often
+   than they ask you to type anything, so the keycap is load-bearing
+   punctuation rather than decoration — and the two-pixel bottom edge is the
+   whole of the trick that makes it read as a key. */
+.prose kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0.1em 0.35em;
   border: 1px solid var(--rule);
-  background: var(--well);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-lg);
+  background: var(--ground);
   box-shadow: none;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Cards are the doorways: the /docs index is two of them, and the foot of a
+   page is one or two more. They take the accent on hover — the whole card,
+   not a border tint, because a card is a target and a target should light
+   up. */
+.hf-card {
+  background: transparent;
+  border-color: var(--rule);
+}
+
+.hf-card:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+}
+
+/* Fumadocs sets a card's icon in a bordered, shadowed plate — a chip inside
+   a box, which is one frame too many and shrinks the only coloured thing on
+   the card to 16px. The plate goes; the glyph gets the room instead, at the
+   size where its hue is actually a colour rather than a tint on a line. */
+.hf-card > div:first-child {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+  margin-bottom: 0.75rem;
+}
+
+.hf-card > div:first-child svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 /* --- the code ramp --------------------------------------------------- */
@@ -323,20 +654,23 @@ article h1,
 
    Light is hand-picked, in the same relationship to paper that
    hausfold.css's light --a-* values have: nebelung's pastels are built for
-   a dark ground and wash out on it. Dark IS nebelung, read straight out of
-   the block `scripts/sync-nebelung.mjs` vendors into hausfold.css. */
+   a dark ground and wash out on it. Four of the seven are literally the
+   site's own light accents, spelled as the token rather than the hex, so a
+   change to the palette reaches the code ramp too. Dark IS nebelung, read
+   straight out of the block `scripts/sync-nebelung.mjs` vendors into
+   hausfold.css. */
 :root {
   --nb-foreground: var(--ink-2);
   --nb-background: transparent;
-  --nb-token-keyword: #6a3fb0;
-  --nb-token-string: #2e7a37;
-  --nb-token-string-expression: #2e7a37;
+  --nb-token-keyword: var(--a-nebelung);
+  --nb-token-string: var(--a-perch);
+  --nb-token-string-expression: var(--a-perch);
   --nb-token-function: #2b5fa8;
-  --nb-token-constant: #a8570f;
+  --nb-token-constant: var(--a-pounce);
   --nb-token-parameter: #9b3d5e;
   --nb-token-comment: #8a8781;
   --nb-token-punctuation: #7b7873;
-  --nb-token-link: #0f7268;
+  --nb-token-link: var(--a-holt);
 }
 
 .dark,
@@ -359,11 +693,23 @@ code .line span[style*='--nb-token-comment'] {
   font-style: italic;
 }
 
+/* One box, one hairline. The `<figure>` fumadocs wraps a code block in
+   already carries a border, a radius and a shadow; giving the `<pre>` inside
+   it the same three drew a second box 14 pixels in from the first, which is
+   the double frame the first port shipped with. The figure is the box; the
+   pre is type. */
 figure[data-rehype-pretty-code-figure],
-.prose pre {
-  background: var(--well);
+.prose figure.shiki {
   border: 1px solid var(--rule);
-  border-radius: 3px;
+  border-radius: var(--radius-lg);
+  background: var(--well);
+  box-shadow: none;
+}
+
+.prose pre {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .prose pre,
@@ -373,12 +719,61 @@ figure[data-rehype-pretty-code-figure],
   line-height: 1.6;
 }
 
+/* The copy button on a code block: grey until you reach for it. */
+figure.shiki button:hover {
+  color: var(--accent);
+}
+
 /* Inline code stays grey in running text — a coloured word inside a
-   sentence reads as a link that doesn't work. */
+   sentence reads as a link that doesn't work — but it sits on the page's
+   own wash, which is what tells `haus rebuild` apart from the words either
+   side of it without a border around every command in a paragraph. */
 .prose :not(pre) > code {
-  color: var(--ink-2);
-  background: transparent;
+  color: var(--ink);
+  background: var(--accent-wash);
+  border-radius: var(--radius-md);
+  padding: 0.08em 0.3em;
   font-size: 0.86em;
+}
+
+/* --- the table of contents ------------------------------------------- */
+
+#nd-toc a {
+  color: var(--ink-3);
+}
+
+#nd-toc a:hover {
+  color: var(--ink);
+}
+
+#nd-toc a[data-active='true'] {
+  color: var(--accent);
+}
+
+/* Fumadocs draws a rail down the left of the TOC and a thumb on it for the
+   heading you're inside; the thumb is the accent, the rail stays a rule. */
+#nd-toc [role='none'],
+#nd-toc [data-thumb] {
+  background: var(--accent);
+}
+
+/* --- what to read next ------------------------------------------------ */
+
+/* The prev/next pair at the foot of a page. It is the single strongest
+   "keep reading" affordance a docs site has, so it is treated as two
+   doorways rather than two grey boxes. */
+.hf-next a {
+  border-color: var(--rule);
+}
+
+.hf-next a:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.hf-next svg {
+  color: var(--accent);
 }
 
 /* --- housekeeping ---------------------------------------------------- */

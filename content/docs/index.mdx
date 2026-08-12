@@ -3,21 +3,29 @@ title: Documentation
 description: Two trees — the haus layer you build on, and the desktops built on it.
 ---
 
-There are two things to read about here, and the switcher at the top of the
-sidebar moves between them.
+A Mac you can describe in one file, and rebuild from it on any machine you
+own. Two things are documented here: the layer that makes that true, and the
+desktop somebody already built with it.
 
 <Cards>
   <Card
+    icon={<Icon name="layer" />}
     title="haus"
     href="/docs/haus"
-    description="The macOS layer. One file describes your Mac; one command makes the Mac match it. Options, rooms, the CLI."
+    description="The layer. One file describes your Mac, one command makes the Mac match it — apps, windows, the bar, the shell, the colours. 236 options across 35 rooms."
   />
   <Card
+    icon={<Icon name="desktop" />}
     title="nebelhaus"
     href="/docs/nebelhaus"
-    description="A desktop built on haus — silver-grey, keyboard-first. What you get, and the first ten minutes with it."
+    description="A desktop built on it. Silver-grey, keyboard-first, tiling, and the same on the next machine. One command from a stock Mac."
   />
 </Cards>
 
-If you don't know which you want: **haus** is the machinery, **nebelhaus** is
-one thing made with it. Installing nebelhaus installs haus underneath.
+**haus** is the machinery; **nebelhaus** is one thing made with it. Installing
+the desktop installs the layer underneath, so if you only want the finished
+room, start on the right.
+
+The switcher at the top of the sidebar moves between the two, and its glyph
+tells you which one you're reading at a glance: <Icon name="layer" /> the
+layer, <Icon name="desktop" /> the desktop.
