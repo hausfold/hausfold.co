@@ -79,17 +79,41 @@
  * The ring below is the same six accents in the same order hausfold.css sweeps
  * them; the geometry is FAN. Only the wedges are generated — the mark's own
  * outline is hand-drawn geometry and stays put.
+ *
+ * ---- the ico fallback -------------------------------------------------------
+ *
+ * WebKit doesn't resolve `<link rel="icon" type="image/svg+xml">`; Safari
+ * falls back to /favicon.ico, which this site didn't have until 2026-08-12.
+ * A rasterized copy of the six-accent sweep would be exactly the frozen
+ * palette snapshot this script exists to prevent, so favicon.ico is
+ * monochrome instead — the same mark, --ink on --nebelung-crust, which sits
+ * outside the accent tokens entirely and so can't go stale when PIN moves.
+ *
+ * The mark's outline is parsed straight out of favicon.svg's own hand-drawn
+ * cover path (the two pentagons under fill-rule="evenodd", below the
+ * generated fan) rather than re-declared here, so a hand-edit to the mark's
+ * position or weight carries into the ico for free. PNG and ICO are encoded
+ * below with node:zlib and a small CRC32 — one binary file, no image
+ * library, no new dependency — and the bytes are deterministic, so --check
+ * can compare them exactly rather than re-rendering to compare pixels.
+ *
+ * That file is a real cost, not a free one: it's the first binary under
+ * public/, in a repo whose "No og:image" rule (AGENTS.md) drew the line at
+ * exactly this kind of asset. Paid deliberately — Safari showing the house
+ * mark flat beats Safari showing nothing.
  */
 
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import zlib from "node:zlib";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC = join(ROOT, "public");
 const TARGET = join(PUBLIC, "hausfold.css");
 const ICON = join(PUBLIC, "favicon.svg");
+const ICO = join(PUBLIC, "favicon.ico");
 const FLAKE = "github:hausfold/nebelung";
 
 /* The pinned revision the vendored block was rendered from. Bump it by hand —
@@ -277,6 +301,151 @@ function renderFan(port) {
     "  </g>",
     "  " + ICON_END,
   ].join("\n");
+}
+
+/* ---- the ico fallback ---------------------------------------------------
+ *
+ * See the module comment above for why this exists and why it's monochrome.
+ */
+
+function parseMarkPolygons(svg) {
+  const m = svg.match(/<path\s+fill="#[0-9a-f]{3,8}"\s+fill-rule="evenodd"\s+d="([^"]+)"/i);
+  if (!m) throw new Error("favicon.svg: no evenodd cover path — did the hand-drawn layer move?");
+  const subpaths = m[1].match(/M[^Z]*Z/g);
+  if (!subpaths || subpaths.length !== 3) {
+    throw new Error("favicon.svg: expected 3 subpaths in the cover path (tile, outer, inner)");
+  }
+  const toPolygon = (s) => {
+    const nums = s.match(/-?[\d.]+/g).map(Number);
+    const pts = [];
+    for (let i = 0; i < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]);
+    return pts;
+  };
+  return { outer: toPolygon(subpaths[1]), inner: toPolygon(subpaths[2]) };
+}
+
+/* Ray-casting point-in-polygon. Both polygons are simple (no self-intersection),
+ * so the ordinary inside test doubles as "is this point on the stroke": on the
+ * mark iff inside outer and outside inner — the same evenodd logic the SVG
+ * itself paints with, just evaluated per pixel instead of by a renderer. */
+function pointInPolygon([x, y], poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi !== yj && y >= Math.min(yi, yj) && y < Math.max(yi, yj)) {
+      if (x < xi + ((y - yi) / (yj - yi)) * (xj - xi)) inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/* Supersampled coverage (ss×ss per pixel), blended between ground and ink —
+ * plain anti-aliasing, cheap enough at favicon sizes and the only way a
+ * 0.15-weight stroke survives being drawn at 16px at all. */
+function rasterizeMark(size, outer, inner, inkRgb, groundRgb, ss = 8) {
+  const rgb = Buffer.alloc(size * size * 3);
+  const unit = 100 / size;
+  for (let py = 0; py < size; py++) {
+    for (let px = 0; px < size; px++) {
+      let hits = 0;
+      for (let sy = 0; sy < ss; sy++) {
+        for (let sx = 0; sx < ss; sx++) {
+          const x = (px + (sx + 0.5) / ss) * unit;
+          const y = (py + (sy + 0.5) / ss) * unit;
+          if (pointInPolygon([x, y], outer) && !pointInPolygon([x, y], inner)) hits++;
+        }
+      }
+      const t = hits / (ss * ss);
+      const o = (py * size + px) * 3;
+      for (let c = 0; c < 3; c++) rgb[o + c] = Math.round(groundRgb[c] * (1 - t) + inkRgb[c] * t);
+    }
+  }
+  return rgb;
+}
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c;
+  }
+  return t;
+})();
+
+function crc32(buf) {
+  let c = 0xffffffff;
+  for (const byte of buf) c = CRC_TABLE[(c ^ byte) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function pngChunk(type, data) {
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, "ascii"), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body));
+  return Buffer.concat([len, body, crc]);
+}
+
+/* 8-bit truecolor RGB, filter-0 (none) on every scanline, deflated with
+ * node:zlib — no palette, no alpha: the tile is opaque everywhere, same as
+ * the SVG's own tile. */
+function encodePng(size, rgb) {
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; /* bit depth */
+  ihdr[9] = 2; /* colour type: truecolor */
+  const raw = Buffer.alloc(size * (1 + size * 3));
+  for (let y = 0; y < size; y++) {
+    const row = y * (1 + size * 3);
+    raw[row] = 0; /* filter: none */
+    rgb.copy(raw, row + 1, y * size * 3, (y + 1) * size * 3);
+  }
+  return Buffer.concat([
+    sig,
+    pngChunk("IHDR", ihdr),
+    pngChunk("IDAT", zlib.deflateSync(raw)),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+/* A "PNG-in-ICO": every browser and OS since Vista decodes an ICO entry
+ * that's a PNG file rather than a legacy BMP, which is what makes hand-
+ * encoding this reasonable at all — one format to get right, not two. */
+function encodeIco(pngsBySize) {
+  const dir = Buffer.alloc(6 + pngsBySize.length * 16);
+  dir.writeUInt16LE(1, 2); /* type: icon */
+  dir.writeUInt16LE(pngsBySize.length, 4);
+  let offset = dir.length;
+  const parts = [dir];
+  pngsBySize.forEach(({ size, png }, i) => {
+    const e = 6 + i * 16;
+    dir[e] = size; /* 0 would mean 256; every size here is under that */
+    dir[e + 1] = size;
+    dir.writeUInt16LE(1, e + 4); /* colour planes */
+    dir.writeUInt16LE(32, e + 6); /* bits per pixel */
+    dir.writeUInt32LE(png.length, e + 8);
+    dir.writeUInt32LE(offset, e + 12);
+    offset += png.length;
+    parts.push(png);
+  });
+  return Buffer.concat(parts);
+}
+
+function renderIco(svg, inkHex, groundHex) {
+  if (!inkHex || !groundHex) {
+    throw new Error(`missing colour — --ink is ${inkHex ?? "missing"}, ground is ${groundHex ?? "missing"}`);
+  }
+  const { outer, inner } = parseMarkPolygons(svg);
+  const ink = hexToRgb(inkHex);
+  const ground = hexToRgb(groundHex);
+  return encodeIco(
+    [16, 32].map((size) => ({ size, png: encodePng(size, rasterizeMark(size, outer, inner, ink, ground)) })),
+  );
 }
 
 /* ---- the target -------------------------------------------------------- */
@@ -553,6 +722,32 @@ if (ground?.toLowerCase() !== crust?.toLowerCase()) {
   );
 }
 
+/* The Safari fallback: same mark, --ink on crust, no accent sweep. See the
+ * module comment ("the ico fallback") for why it's monochrome and generated
+ * rather than hand-drawn. A generation failure (an upstream rename that took
+ * --ink or crust with it) is a real refusal, unlike a merely stale file. */
+let icoBytes = null;
+try {
+  const ink = decls(darkBlocks(next)[0].text)["--ink"];
+  icoBytes = renderIco(iconNext, ink, crust);
+} catch (e) {
+  problems.push(`${relative(ROOT, ICO)}: cannot generate the fallback icon — ${e.message}`);
+}
+
+let icoCurrent = null;
+try {
+  icoCurrent = readFileSync(ICO);
+} catch {
+  icoCurrent = null;
+}
+
+if (icoBytes && (!icoCurrent || !icoBytes.equals(icoCurrent))) {
+  problems.push(
+    `${relative(ROOT, ICO)} is stale or missing — run \`node scripts/sync-nebelung.mjs\` to ` +
+      `regenerate it from the mark, --ink and crust`,
+  );
+}
+
 if (check) {
   if (r.text !== block) {
     problems.unshift(
@@ -565,13 +760,16 @@ if (check) {
     console.error("");
     process.exit(1);
   }
-  console.log("public/hausfold.css and public/favicon.svg match nebelung's CSS port.");
+  console.log("public/hausfold.css, public/favicon.svg and public/favicon.ico match nebelung's CSS port.");
   process.exit(0);
 }
 
-/* A stale fan is the one "problem" writing FIXES, so it must not also refuse
- * the write. Everything else here is a hand-edit this script can't repair. */
-const fatal = problems.filter((p) => !p.includes("the wedge fan is stale"));
+/* A stale fan or a stale/missing ico are the "problems" writing FIXES, so
+ * they must not also refuse the write. Everything else here is a hand-edit
+ * this script can't repair. */
+const fatal = problems.filter(
+  (p) => !p.includes("the wedge fan is stale") && !p.includes("is stale or missing"),
+);
 if (fatal.length) {
   console.error("refusing to write — the site doesn't spend the port the way it should:\n");
   for (const p of fatal) console.error(`  - ${p}`);
@@ -587,9 +785,13 @@ if (iconNext !== icon) {
   writeFileSync(ICON, iconNext);
   wrote.push("the wedge fan in public/favicon.svg");
 }
+if (icoBytes && (!icoCurrent || !icoBytes.equals(icoCurrent))) {
+  writeFileSync(ICO, icoBytes);
+  wrote.push("the Safari fallback at public/favicon.ico");
+}
 
 console.log(
   wrote.length
-    ? `updated ${wrote.join(" and ")}`
-    : "public/hausfold.css and public/favicon.svg already match nebelung's CSS port.",
+    ? `updated ${wrote.join(", ")}`
+    : "public/hausfold.css, public/favicon.svg and public/favicon.ico already match nebelung's CSS port.",
 );

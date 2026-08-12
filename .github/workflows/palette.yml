@@ -28,14 +28,18 @@
 #     in its comment, which is an XML parse error that no browser reports: the
 #     tab just shows a blank page icon and the site looks like it never had a
 #     favicon.
+#   - public/favicon.ico (the Safari fallback, since 2026-08-12) not matching
+#     what the mark, --ink and crust would generate. It's rasterized and
+#     PNG/ICO-encoded by the same script, byte-for-byte deterministic, so this
+#     is an exact comparison — not a re-render.
 #
-# **`public/**.html` and `public/favicon.svg` are in the paths filter for those
-# last two, and they have to be.** Those checks read markup and an SVG, not
-# CSS, so filtering on `public/hausfold.css` + `scripts/**` alone meant an
-# HTML-only PR — a new page, or a hand-edited <meta> — never ran the check
-# watching the palette's hand-typed copies. It could add a page with the wrong
-# crust, or no dark <meta> at all, and go green. A check that can't see the
-# file it checks is a check that reports "matches" about a file it never read.
+# **`public/**.html`, `public/favicon.svg` and `public/favicon.ico` are in the
+# paths filter for those, and they have to be.** Those checks read markup, an
+# SVG and a binary icon, not CSS, so filtering on `public/hausfold.css` +
+# `scripts/**` alone meant an HTML- or icon-only PR — a new page, a hand-edited
+# <meta>, a stale favicon.ico — never ran the check watching it. A check that
+# can't see the file it checks is a check that reports "matches" about a file
+# it never read.
 #
 # It builds a **pinned** revision of nebelung (PIN in the script), not `main`.
 # So this job is deterministic: it goes red for things the PR did, never for
@@ -54,6 +58,7 @@ on:
       - 'public/hausfold.css'
       - 'public/**.html'
       - 'public/favicon.svg'
+      - 'public/favicon.ico'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   push:
@@ -62,6 +67,7 @@ on:
       - 'public/hausfold.css'
       - 'public/**.html'
       - 'public/favicon.svg'
+      - 'public/favicon.ico'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   workflow_dispatch: {}
