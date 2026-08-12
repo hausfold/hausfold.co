@@ -1,199 +1,13 @@
 ---
 title: Coding agents
-description: A machine an AI agent can safely reconfigure, and holt — one isolated worktree per agent, so several can work at once and closing a pane never loses anything.
+description: holt gives every coding agent its own checkout, so several can work at once — and closing a pane parks the work rather than losing it. Any git repo, any client.
 icon: agent
 ---
 
-Point an AI agent at a normal Mac and it `brew install`s things, writes
-dotfiles, and clicks through System Settings on your behalf — and on a haus
-machine most of that would be silently undone by the next rebuild, with no
-record of what changed.
-
-haus gives an agent two things a normal Mac can't:
-
-- **A machine that's safe to reconfigure.** Every change is text in one file,
-  `haus rebuild` builds before it switches so a broken edit never reaches the
-  running system, and `haus rollback` puts the last one back in seconds.
-- **A checkout of its own.** `holt` puts every agent in its own git worktree,
-  so you can run five at once without them fighting over one set of files.
-
-The first half of this page is an agent changing your Mac. The second is
-running several of them at once on any repo.
-
-## An agent that reshapes your Mac
-
-The safety was always there; the missing half was knowledge. Every rebuild
-writes a **skill** called `haus` into the skills directory of each client in
-`haus.agents.clients` — `~/.claude/skills/haus` for Claude Code,
-`~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode.
-Name no clients at all and all three get a copy, so the skill is never the
-missing piece. One body, one copy per client:
-
-| File | What it is |
-|---|---|
-| `SKILL.md` | The loop, the boundaries, the traps. |
-| `references/options.md` | Every `haus.*` option — **generated from the exact revision you're pinned to**. |
-| `references/this-machine.md` | Your host: hostname, host-file path, which rooms are on, your theme and keys, your app roster and its taken leader keys — and the rebuild hazards specific to this machine. |
-| `references/recipes.md` | Worked examples for the common asks. |
-| `consumer-AGENTS.md` | A starter `AGENTS.md` for your own config repo. |
-| `consumer-CLAUDE.md` | Its one-line `@AGENTS.md` pointer, for the client that reads only `CLAUDE.md`. |
-
-The option reference being *generated* is the point: it can only describe
-options that exist on your revision — a confidently-wrong option name costs you
-a failed build — and `haus update` regenerates it with the rest.
-
-<Callout type="tip" title="Check it's there">
-`haus doctor` has an **Agents** section: whether the skill is installed (it
-checks every client's directory and names the copy it found), whether your
-config repo has an `AGENTS.md` and the `CLAUDE.md` pointer beside it, and
-whether the app you're running from can write macOS's protected settings.
-</Callout>
-
-### The loop it follows
-
-<Steps>
-
-<Step>
-**Orient** — read `references/this-machine.md` and your host file, and check
-`haus status`.
-</Step>
-
-<Step>
-**Find the option** — grep the generated reference. If it isn't listed, it
-doesn't exist on your revision, and the agent should say so rather than guess.
-</Step>
-
-<Step>
-**Edit `~/.config/nix/hosts/<hostname>/default.nix`** — the one file you own.
-</Step>
-
-<Step>
-**Apply with `haus rebuild`** — the build gates the switch.
-</Step>
-
-<Step>
-**Verify, or `haus rollback`.**
-</Step>
-
-</Steps>
-
-### What to ask for
-
-Ordinary requests, in your own words:
-
-- *"Install Slack and give it its own workspace"* → an entry in `haus.roster`
-  for the leader key and the Homebrew cask, paired with one in
-  `haus.workspaces` for the workspace and its bar pill.
-- *"Everything's too small"* → `haus.ui.scale`.
-- *"Switch to light mode"* → `haus.theme.flavor` plus
-  `haus.theme.systemAppearance`, so macOS's own Light/Dark moves with the rest.
-- *"Hide the weather in the bar"* → the matching `haus.sill.items.*` toggle.
-- *"Bind a key to open my notes"* → `haus.keys.leaderExtras`.
-
-The skill tells the agent to prefer a `haus.*` option over a raw nix-darwin
-setting, and to say so when nothing covers what you asked — because that's a gap
-in haus, not something to bolt onto your machine.
-
-### What it won't do
-
-- **Touch identity or secrets** without asking — git identity, signing keys,
-  `haus.secrets.*`.
-- **Edit haus itself, `flake.lock`, or anything in `/nix/store`.** Pulling a
-  newer revision is `haus update`, not a hand edit.
-- **Uninstall apps behind your back.** Removing an app from your config stops
-  haus *managing* it; the app stays on disk until you `brew uninstall --zap` it.
-
-<Callout type="warn" title="The one rebuild it will refuse">
-If your host file sets `system.defaults.universalaccess.*` directly, `haus
-rebuild` refuses to run from an agent session whose app lacks **Full Disk
-Access**, and tells you to run the same command yourself.
-
-That domain is TCC-protected, and the grant belongs to the app your session runs
-under. Without it the write fails partway through activation and takes
-everything after it down too — your bar, tiling and palette come back dead, with
-the symptom nowhere near the cause. Refusing is the kinder failure: nothing is
-changed, and your edit is still on disk. `HAUS_AGENT_REBUILD=1` overrides it when
-you know better; the guard recognises a Claude Code session by its environment,
-so a Codex or OpenCode pane sails past it either way.
-
-You can skip the whole hazard: `haus.accessibility.increaseContrast` and
-`haus.accessibility.differentiateWithoutColor` reach the two useful keys in that
-domain with a **guarded** write, so without the grant you lose the setting and
-nothing else. `haus.theme.contrast` is a different thing again — haus's own
-palette axis, painted into the apps haus themes rather than into macOS, so it
-always applies.
-</Callout>
-
-### What a rollback doesn't undo
-
-`haus rollback` rewinds everything Nix manages, instantly. It does **not** rewind
-macOS system settings a rebuild wrote (Dock, keyboard, Finder), and it does not
-rewind Homebrew casks — those live outside Nix generations entirely. A good
-agent says which kind of change it's about to make.
-
-### An AGENTS.md for your own config
-
-`~/.config/nix` is your own git repo — your machine in text. Dropping an
-`AGENTS.md` in it orients any agent you open there, whether or not it found the
-skill. A starter pair ships inside the skill; nothing writes it for you, because
-it's your repo:
-
-```sh
-# whichever of these exists on your machine — the copies are identical:
-#   ~/.claude/skills/haus · ~/.codex/skills/haus · ~/.config/opencode/skills/haus
-skill=~/.claude/skills/haus
-install -m 644 "$skill"/consumer-AGENTS.md ~/.config/nix/AGENTS.md
-install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
-```
-
-`install -m 644`, not `cp`: the starter pair are symlinks into the Nix store,
-whose files are read-only. A plain `cp` preserves that mode, so you land on an
-`AGENTS.md` your editor refuses to save — on the one file the whole point of
-copying is to then edit.
-
-Two files, because the tools disagree about the filename. **`AGENTS.md` carries
-the rules** — Codex, OpenCode, Cursor, Zed, Copilot and everything else that
-speaks [agents.md](https://agents.md) reads it directly. Claude Code reads only
-`CLAUDE.md`, so the second file is a one-line `@AGENTS.md` import and nothing
-else. Copy one and you orient some of your tools and not others.
-
-### Your own instructions, in every client
-
-`haus.agents.instructions` is the other half of what haus writes into an agent's
-home: your always-on operating context, rendered once per installed client at
-the path that client reads — `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md` — under a short generated preamble.
-
-```nix
-haus.agents.instructions = ''
-  # Global instructions
-
-  Ship small, verified changes. Ask before anything hard to reverse…
-'';
-```
-
-Write it **client-neutrally**: the same text reaches whichever agent your ⌘A pane
-spawned, so a line about one client's flags is noise in the other two. Empty (the
-default) writes nothing at all, so a hand-managed instructions file is never
-touched — but *setting* it on a machine that already has one moves yours aside to
-`<file>.backup`. And `haus.agents.skill = false;` stops the skill being written
-at all, for when you'd rather own each client's skills directory yourself.
-
-(Both were `haus.claude.globalMd` and `haus.claude.skill` until August 2026; the
-old names still evaluate, with a warning.)
-
-<Callout type="warn" title="It's still your machine">
-An agent that can rebuild your Mac can change how your Mac behaves. The safety
-here is real, but it is *recovery*, not prevention: the build gates the switch
-and the rollback is atomic, so mistakes are cheap — not impossible. Read the diff
-before you say yes, exactly as you would for any other change to your config.
-</Callout>
-
-## Running several at once — holt
-
-Run two agents in the same checkout and they fight: one switches the branch out
-from under the other, uncommitted edits collide, and closing a pane mid-thought
-can lose work. **`holt`** fixes that by giving every agent its own checkout.
+Run two coding agents in the same checkout and they fight: one switches the
+branch out from under the other, uncommitted edits collide, and closing a pane
+mid-thought can lose work. **`holt`** fixes that by giving every agent its own
+checkout — and haus puts it on your `PATH`, wired to a keybind.
 
 Press **⌘A** in any repo's terminal tab and you get a fresh agent session in an
 isolated git worktree: its own checkout on a `worktree-<name>` branch, branched
@@ -217,7 +31,7 @@ already merged get reaped** — everything unmerged survives on its branch, and 
 agent's transcript survives with it. The checkout is disposable; your work isn't.
 </Callout>
 
-### Resuming
+## Resuming
 
 Because the work is on the branch and the chat is in your client's transcript, a
 closed pane is never a dead end. Run `holt` bare to see everything you can pick
@@ -242,7 +56,7 @@ holt sparkle --pick    # choose from that client's session list instead
 By default it continues the newest conversation. `--pick` opens the client's own
 picker, for when a lane has more than one.
 
-### Spawning from the launcher
+## Spawning from the launcher
 
 For a lane **named after the task** rather than the random
 `luminous-twirling-codd` an unattended agent would coin, summon
@@ -262,7 +76,7 @@ How you commit the prompt picks what happens next:
 Codex receives the screenshot as an image; Claude Code and OpenCode get its path
 in the first prompt.
 
-### Which client gets spawned
+## Which client gets spawned
 
 ```nix
 # both defaults, and only while haus.developer.agents.enable is on
@@ -291,7 +105,7 @@ beside it. Two derivations shipping the same `bin/claude` collide in one profile
 and the rebuild fails with `two given paths contain a conflicting subpath`.
 </Callout>
 
-### Never `git stash` — park instead
+## Never `git stash` — park instead
 
 `git stash` looks like it belongs to the checkout you're standing in. It doesn't.
 The stash is one ref in the repo's shared `.git` directory, so **every worktree
@@ -320,7 +134,7 @@ commit alone. Parking on a branch that isn't an agent branch works, but says so:
 a `wip:` commit shouldn't drift onto a branch you push.
 </Callout>
 
-### Working on another repo: `holt child`
+## Working on another repo: `holt child`
 
 Sometimes an agent in one repo has to change **another** one. Don't reach for a
 raw `git worktree add` — that skips holt's registry, so the statusline never
@@ -334,7 +148,7 @@ That makes a lane on the other repo, registers it as a **child of your current
 pane** so its PR shows up where you're working, and prints only the new checkout
 path — hence the `cd "$(…)"`.
 
-### Cleaning up
+## Cleaning up
 
 Most cleanup is automatic: closing a pane reaps a merged branch, and every `holt`
 listing self-heals first by sweeping parked branches whose PR has since merged.
@@ -357,7 +171,7 @@ never the end of anything: `holt reaped` prints what went, why, and the
 PR closed unmerged, the repo archived — is `holt drop <name>`, which waives the
 merged-branch requirement and nothing else.
 
-### When a session outran its PR
+## When a session outran its PR
 
 You merge the PR, keep talking to the agent, and it makes a few more commits.
 Those commits are now in an odd place: the PR that covered them is closed, and
@@ -462,17 +276,18 @@ the status token: the default shows nothing, everything else is a positive mark.
 Add `--json` to the listing for a machine-readable version, `--version` for
 holt's own.
 
+
 <Cards>
+  <Card
+    icon={<Icon name="wand" />}
+    title="Changing your Mac with an agent"
+    href="/docs/haus/guides/agent-rebuilds"
+    description="The other half: the skill haus writes, the rebuild loop an agent follows, and the one it refuses."
+  />
   <Card
     icon={<Icon name="shell" />}
     title="The terminal"
     href="/docs/haus/guides/the-shell"
     description="Where ⌘A lives — the rest of the zellij keys, and the ⇧ variants that stay inside a worktree."
-  />
-  <Card
-    icon={<Icon name="launcher" />}
-    title="Pounce"
-    href="/docs/haus/guides/pounce"
-    description="The launcher Spawn Agent runs in, and everything else on ⌘Space."
   />
 </Cards>

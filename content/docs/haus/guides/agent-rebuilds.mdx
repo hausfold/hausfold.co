@@ -1,0 +1,200 @@
+---
+title: Changing your Mac with an agent
+description: Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely — the skill haus ships, the loop it follows, and the one rebuild it refuses.
+icon: wand
+---
+
+Point an AI agent at a normal Mac and it `brew install`s things, writes
+dotfiles, and clicks through System Settings on your behalf — and on a haus
+machine most of that would be silently undone by the next rebuild, with no
+record of what changed.
+
+Declarative config flips that. Every change is text in one file, `haus rebuild`
+**builds before it switches** so a broken edit never reaches the running system,
+and `haus rollback` puts the last one back in seconds. That makes yours the rare
+machine an agent can reconfigure without it being reckless.
+
+The safety was always there; the missing half was knowledge. So haus ships it.
+
+## The skill haus writes
+
+Every rebuild writes a **skill** called `haus` into the skills directory of each
+client in `haus.agents.clients` — `~/.claude/skills/haus` for Claude Code,
+`~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode.
+Name no clients at all and all three get a copy, so the skill is never the
+missing piece. One body, one copy per client:
+
+| File | What it is |
+|---|---|
+| `SKILL.md` | The loop, the boundaries, the traps. |
+| `references/options.md` | Every `haus.*` option — **generated from the exact revision you're pinned to**. |
+| `references/this-machine.md` | Your host: hostname, host-file path, which rooms are on, your theme and keys, your app roster and its taken leader keys — and the rebuild hazards specific to this machine. |
+| `references/recipes.md` | Worked examples for the common asks. |
+| `consumer-AGENTS.md` | A starter `AGENTS.md` for your own config repo. |
+| `consumer-CLAUDE.md` | Its one-line `@AGENTS.md` pointer, for the client that reads only `CLAUDE.md`. |
+
+The option reference being *generated* is the point: it can only describe
+options that exist on your revision — a confidently-wrong option name costs you
+a failed build — and `haus update` regenerates it with the rest.
+
+<Callout type="tip" title="Check it's there">
+`haus doctor` has an **Agents** section: whether the skill is installed (it
+checks every client's directory and names the copy it found), whether your
+config repo has an `AGENTS.md` and the `CLAUDE.md` pointer beside it, and
+whether the app you're running from can write macOS's protected settings.
+</Callout>
+
+## The loop it follows
+
+<Steps>
+
+<Step>
+**Orient** — read `references/this-machine.md` and your host file, and check
+`haus status`.
+</Step>
+
+<Step>
+**Find the option** — grep the generated reference. If it isn't listed, it
+doesn't exist on your revision, and the agent should say so rather than guess.
+</Step>
+
+<Step>
+**Edit `~/.config/nix/hosts/<hostname>/default.nix`** — the one file you own.
+</Step>
+
+<Step>
+**Apply with `haus rebuild`** — the build gates the switch.
+</Step>
+
+<Step>
+**Verify, or `haus rollback`.**
+</Step>
+
+</Steps>
+
+## What to ask for
+
+Ordinary requests, in your own words:
+
+- *"Install Slack and give it its own workspace"* → an entry in `haus.roster`
+  for the leader key and the Homebrew cask, paired with one in
+  `haus.workspaces` for the workspace and its bar pill.
+- *"Everything's too small"* → `haus.ui.scale`.
+- *"Switch to light mode"* → `haus.theme.flavor` plus
+  `haus.theme.systemAppearance`, so macOS's own Light/Dark moves with the rest.
+- *"Hide the weather in the bar"* → the matching `haus.sill.items.*` toggle.
+- *"Bind a key to open my notes"* → `haus.keys.leaderExtras`.
+
+The skill tells the agent to prefer a `haus.*` option over a raw nix-darwin
+setting, and to say so when nothing covers what you asked — because that's a gap
+in haus, not something to bolt onto your machine.
+
+## What it won't do
+
+- **Touch identity or secrets** without asking — git identity, signing keys,
+  `haus.secrets.*`.
+- **Edit haus itself, `flake.lock`, or anything in `/nix/store`.** Pulling a
+  newer revision is `haus update`, not a hand edit.
+- **Uninstall apps behind your back.** Removing an app from your config stops
+  haus *managing* it; the app stays on disk until you `brew uninstall --zap` it.
+
+<Callout type="warn" title="The one rebuild it will refuse">
+If your host file sets `system.defaults.universalaccess.*` directly, `haus
+rebuild` refuses to run from an agent session whose app lacks **Full Disk
+Access**, and tells you to run the same command yourself.
+
+That domain is TCC-protected, and the grant belongs to the app your session runs
+under. Without it the write fails partway through activation and takes
+everything after it down too — your bar, tiling and palette come back dead, with
+the symptom nowhere near the cause. Refusing is the kinder failure: nothing is
+changed, and your edit is still on disk. `HAUS_AGENT_REBUILD=1` overrides it when
+you know better; the guard recognises a Claude Code session by its environment,
+so a Codex or OpenCode pane sails past it either way.
+
+You can skip the whole hazard: `haus.accessibility.increaseContrast` and
+`haus.accessibility.differentiateWithoutColor` reach the two useful keys in that
+domain with a **guarded** write, so without the grant you lose the setting and
+nothing else. `haus.theme.contrast` is a different thing again — haus's own
+palette axis, painted into the apps haus themes rather than into macOS, so it
+always applies.
+</Callout>
+
+## What a rollback doesn't undo
+
+`haus rollback` rewinds everything Nix manages, instantly. It does **not** rewind
+macOS system settings a rebuild wrote (Dock, keyboard, Finder), and it does not
+rewind Homebrew casks — those live outside Nix generations entirely. A good
+agent says which kind of change it's about to make.
+
+## An AGENTS.md for your own config
+
+`~/.config/nix` is your own git repo — your machine in text. Dropping an
+`AGENTS.md` in it orients any agent you open there, whether or not it found the
+skill. A starter pair ships inside the skill; nothing writes it for you, because
+it's your repo:
+
+```sh
+# whichever of these exists on your machine — the copies are identical:
+#   ~/.claude/skills/haus · ~/.codex/skills/haus · ~/.config/opencode/skills/haus
+skill=~/.claude/skills/haus
+install -m 644 "$skill"/consumer-AGENTS.md ~/.config/nix/AGENTS.md
+install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
+```
+
+`install -m 644`, not `cp`: the starter pair are symlinks into the Nix store,
+whose files are read-only. A plain `cp` preserves that mode, so you land on an
+`AGENTS.md` your editor refuses to save — on the one file the whole point of
+copying is to then edit.
+
+Two files, because the tools disagree about the filename. **`AGENTS.md` carries
+the rules** — Codex, OpenCode, Cursor, Zed, Copilot and everything else that
+speaks [agents.md](https://agents.md) reads it directly. Claude Code reads only
+`CLAUDE.md`, so the second file is a one-line `@AGENTS.md` import and nothing
+else. Copy one and you orient some of your tools and not others.
+
+## Your own instructions, in every client
+
+`haus.agents.instructions` is the other half of what haus writes into an agent's
+home: your always-on operating context, rendered once per installed client at
+the path that client reads — `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
+`~/.config/opencode/AGENTS.md` — under a short generated preamble.
+
+```nix
+haus.agents.instructions = ''
+  # Global instructions
+
+  Ship small, verified changes. Ask before anything hard to reverse…
+'';
+```
+
+Write it **client-neutrally**: the same text reaches whichever agent your ⌘A pane
+spawned, so a line about one client's flags is noise in the other two. Empty (the
+default) writes nothing at all, so a hand-managed instructions file is never
+touched — but *setting* it on a machine that already has one moves yours aside to
+`<file>.backup`. And `haus.agents.skill = false;` stops the skill being written
+at all, for when you'd rather own each client's skills directory yourself.
+
+(Both were `haus.claude.globalMd` and `haus.claude.skill` until August 2026; the
+old names still evaluate, with a warning.)
+
+<Callout type="warn" title="It's still your machine">
+An agent that can rebuild your Mac can change how your Mac behaves. The safety
+here is real, but it is *recovery*, not prevention: the build gates the switch
+and the rollback is atomic, so mistakes are cheap — not impossible. Read the diff
+before you say yes, exactly as you would for any other change to your config.
+</Callout>
+
+<Cards>
+  <Card
+    icon={<Icon name="agent" />}
+    title="Coding agents"
+    href="/docs/haus/guides/coding-agents"
+    description="The other half: holt, and running several agents at once without them fighting over one checkout."
+  />
+  <Card
+    icon={<Icon name="install" />}
+    title="Install"
+    href="/docs/haus/install"
+    description="Not on a haus machine yet? The one-liner, and what it does before it changes anything."
+  />
+</Cards>
