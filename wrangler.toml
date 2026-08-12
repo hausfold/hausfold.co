@@ -17,8 +17,12 @@
 # proxied record to already exist for the hostname. A custom domain makes wrangler
 # create and proxy that record itself.
 #
-# Deploy:
-#   cd hausfold && npx wrangler deploy      # (nixpkgs' wrangler fails to build — use npx)
+# Deploy (CI does this on push to main; this is the by-hand form):
+#   cd hausfold.co && npx wrangler deploy   # (nixpkgs' wrangler fails to build — use npx)
+#
+# The directory was `hausfold` when this line was written, back when the layer
+# still sat at `./hausfold` and the two were one dot apart. It is `hausfold.co`
+# in the workshop now; the layer moved to `./haus`.
 #
 # The token needs, on the hausfold.co zone/account: Workers Scripts:Edit,
 # Workers Routes:Edit, and Zone → DNS:Edit (for the custom-domain record).

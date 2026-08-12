@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!--
+    hausfold.co's favicon: the haus mark, on the dark field the desktop puts it
+    on, swept through all six product accents.
+
+    It replaced a data: URI repeated in the <head> of all ten pages, which set
+    U+2302 as TEXT in `font-family: monospace` at `x=2 y=13`. Three things were
+    wrong with that and only one was the colour. The glyph sat wherever the
+    browser's default mono face put it, which is off-centre left and low. It
+    inherited that face's TEXT weight, a hairline once scaled to 16px. And on a
+    machine whose mono font has no U+2302 it was tofu. The mark is meant to be
+    the one thing that looks the same everywhere, so it is geometry now, and it
+    is one file rather than ten copies.
+
+    SHAPE. Identical to the desktop's: `markPath` in haus's
+    modules/wallpaper/package.nix, whose comment carries the derivation. The
+    centrelines of the real codepoint traced off Menlo's `house` (SF Mono has no
+    U+2302, so Menlo is what every Mac browser actually falls through to), walls
+    0.77 as wide as the drawing is tall, roof/wall junction 53% up, and the roof
+    slope ENDING on the wall with no eave, which is what reads as the ⌂ rather
+    than as a generic house icon. Placed at 0.72 of that unit box, so the
+    STROKED extent, mitres included, is centred with a 13.5% margin on all four
+    sides. The apex mitre alone overshoots the path by 8.5 units, which is why
+    "centred" here cannot be read off the corner coordinates.
+
+    WEIGHT. 0.15 of the mark's height, against the 0.09 that the desktop and the
+    site's masthead share. Not a disagreement: 0.09 IS the glyph's own stem
+    weight, and a stem drawn to type proportions is a hairline at 16px, which is
+    where a favicon lives. 0.15 lands the stroke on about 1.7 device pixels at
+    16px, which survives the downscale.
+
+    COLOUR. The same six accents in the same order hausfold.css sweeps them
+    (nebelung, holt, perch, trill, pounce, nebelhaus), as the Nebelung pastels,
+    which are the set built to read on a dark field. The sweep is ANGULAR, from
+    twelve o'clock turning clockwise, like the conic-gradient on the masthead
+    and like the wallpaper's mark. SVG has no conic gradient, so it is fanned
+    the way the wallpaper fans it: flat-coloured wedges off one ring, sampled at
+    each wedge's own bisector. A linear gradient was tried first and is the
+    obvious wrong answer for this shape, because the mark is a RING: a linear
+    ramp spends most of itself on the empty corners of the tile and repeats the
+    same hue down both walls. The fan gives every direction its own colour,
+    which is the point of the mark.
+
+    90 wedges, where the wallpaper uses 240. The step between neighbours is
+    invisible at every size a favicon is drawn at; it is faintly bandable if you
+    render this SVG at 512, which nothing does. Regenerate with the same ring
+    and it stays in agreement with the desktop.
+
+    GROUND. #121212, the site's own dark ground: the dark theme's ground token
+    in hausfold.css, and the dark `theme-color`. (Spelled out because an XML
+    comment may not contain two hyphens in a row, and the whole palette is named
+    that way.) The favicon carries its own field rather than borrowing the
+    browser's, because the chrome behind a favicon is not knowable. Zen mats
+    address-bar results on a light chip, tab strips are dark, and a pastel sweep
+    on white is invisible while the light-theme accents on dark are mud. One
+    field, both places, which is also why there is no prefers-color-scheme swap
+    in here: the field never changes, so the accents that read on it never need
+    to.
+  -->
+
+  <!-- The fan, painted over the whole tile and trimmed by the cover below. -->
+  <g transform="translate(50 51.56)">
+    <path transform="rotate(-90)" fill="#c7aaf0" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-86)" fill="#c4aeee" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-82)" fill="#c1b1ec" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-78)" fill="#beb5ea" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-74)" fill="#bbb9e9" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(-70)" fill="#b8bde7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-66)" fill="#b5c0e5" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-62)" fill="#b2c4e3" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-58)" fill="#afc8e1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-54)" fill="#accbdf" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(-50)" fill="#a9cfdd" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-46)" fill="#a6d3dc" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-42)" fill="#a3d7da" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-38)" fill="#a0dad8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-34)" fill="#9dded6" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(-30)" fill="#9ce0d3" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-26)" fill="#9de0d0" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-22)" fill="#9ee0cd" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-18)" fill="#9fe0ca" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-14)" fill="#a0e0c7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(-10)" fill="#a1e0c4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-6)" fill="#a2e0c1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(-2)" fill="#a3e0be" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(2)" fill="#a4e1ba" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(6)" fill="#a5e1b7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(10)" fill="#a6e1b4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(14)" fill="#a7e1b1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(18)" fill="#a8e1ae" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(22)" fill="#a9e1ab" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(26)" fill="#aae1a8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(30)" fill="#aee1a6" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(34)" fill="#b3e1a8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(38)" fill="#b8e1a8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(42)" fill="#bde1aa" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(46)" fill="#c2e1aa" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(50)" fill="#c7e1ac" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(54)" fill="#cce1ac" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(58)" fill="#d1e2ae" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(62)" fill="#d6e2ae" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(66)" fill="#dbe2b0" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(70)" fill="#e0e2b0" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(74)" fill="#e5e2b2" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(78)" fill="#eae2b2" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(82)" fill="#efe2b4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(86)" fill="#f4e2b4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(90)" fill="#f7e0b4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(94)" fill="#f7deb1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(98)" fill="#f7daae" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(102)" fill="#f7d8ac" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(106)" fill="#f6d4a9" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(110)" fill="#f6d2a7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(114)" fill="#f6cea4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(118)" fill="#f6cca2" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(122)" fill="#f6c89f" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(126)" fill="#f6c69c" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(130)" fill="#f6c29a" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(134)" fill="#f5c097" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(138)" fill="#f5bd94" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(142)" fill="#f5b992" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(146)" fill="#f5b68f" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(150)" fill="#f5b691" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(154)" fill="#f5b697" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(158)" fill="#f4b79c" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(162)" fill="#f4b8a2" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(166)" fill="#f4baa8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(170)" fill="#f4baae" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(174)" fill="#f4bcb4" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(178)" fill="#f4bcba" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(182)" fill="#f3bebf" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(186)" fill="#f3bec5" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(190)" fill="#f3c0cb" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(194)" fill="#f3c0d1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(198)" fill="#f2c2d7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(202)" fill="#f2c2dc" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(206)" fill="#f2c4e2" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(210)" fill="#f1c3e5" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(214)" fill="#eec1e6" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(218)" fill="#ebbfe7" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(222)" fill="#e8bde8" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(226)" fill="#e6bce9" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(230)" fill="#e3bae9" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(234)" fill="#e0b8ea" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(238)" fill="#deb6eb" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(242)" fill="#dbb4ec" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(246)" fill="#d8b2ed" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+    <path transform="rotate(250)" fill="#d5b0ed" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(254)" fill="#d3afee" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(258)" fill="#d0adef" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(262)" fill="#cdabf0" d="M0 0L79.85 -4.884 L79.85 4.884Z"/><path transform="rotate(266)" fill="#caa9f1" d="M0 0L79.85 -4.884 L79.85 4.884Z"/>
+  </g>
+
+  <!-- Everything that is NOT the stroke, painted back in the ground colour.
+       Three subpaths under evenodd: the tile, then the mark's OUTER outline,
+       then its INNER one. Outside the outer: 1 crossing, odd, ground. Between
+       them: 2, even, the fan shows through, and that ring IS the stroke. Inside
+       the inner: 3, odd, ground again.
+
+       This is a stroke written out as two explicit polygons rather than an SVG
+       stroke under a <mask> or a <clip-path>. Same picture, and the failure
+       mode is the reason: a favicon is drawn in the restricted SVG-as-image
+       context, and if a renderer there ever ignored the mask the fan would
+       paint the whole tile as a rainbow square. Nothing can ignore fill-rule.
+       The polygons are the base pentagon offset by half the stroke width with
+       the mitres resolved by hand, so the apex still comes to a point. -->
+  <path fill="#121212" fill-rule="evenodd"
+        d="M0 0H100V100H0Z
+           M50 13.51L78.22 47.97L78.22 86.48L21.78 86.48L21.78 47.97Z
+           M50 30.57L67.42 51.83L67.42 75.68L32.58 75.68L32.58 51.83Z"/>
+</svg>

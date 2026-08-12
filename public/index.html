@@ -52,10 +52,11 @@
       media="(prefers-color-scheme: dark)"
     />
 
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' x='2' font-size='13' font-family='monospace'>%E2%8C%82</text></svg>"
-    />
+    <!-- The mark as geometry, in one file rather than a data: URI repeated
+         in ten heads. Read public/favicon.svg's own comment before changing
+         it: the shape, the sweep and its direction are shared with haus's
+         wallpaper, and the weight deliberately is not. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <!-- One stylesheet for the whole site; its header comment carries the
          palette and type decisions. Read it before changing a colour. -->
     <link rel="stylesheet" href="/hausfold.css" />
