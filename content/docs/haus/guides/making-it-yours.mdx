@@ -81,8 +81,12 @@ haus.theme.accent = "sapphire";     # any of the 14 Catppuccin accent names
 haus.wallpaper.style = "minimal";   # none | minimal | orbits | constellation | flow | bold
 ```
 
-The accent recolours the terminal, the bar, lazygit, fzf, yazi and the browser
-together. `minimal` is the desktop haus generates for you — a flat field in your
+The accent recolours lazygit, fzf, yazi, Glow, the browser and the generated
+desktop together — but **not** the terminal, and not the bar beyond its logo
+pill. Single-file dotfiles that bake a palette at their own theme slot (Ghostty,
+starship, tmux, bat, zellij) keep their built-in colour on purpose, and a flake
+check fails the build if one of them ever starts following. `minimal` is the
+desktop haus generates for you — a flat field in your
 palette, the ⌂ mark at its centre, a bloom in your accent — and `"none"` keeps
 the wallpaper you already have. [Theming](/docs/haus/guides/theming) has the
 whole palette and the desktop's own dials.
@@ -153,6 +157,7 @@ working:
 | `haus.perch.enable` | The notch file shelf — the copied `/Applications/Perch.app` stays until you delete it |
 | `haus.hush.enable` | The quiet switch — bar pill, palette command and `hush` CLI |
 | `haus.collar.enable` | Touch ID for `sudo`, and back to the password prompt |
+| `haus.developer.enable` | The developer pack — language toolchains, the git tooling, the agent CLIs. Sub-switches (`.git`, `.toolbelt`, `.agents`, `.languages`) take out one piece at a time |
 | `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
 **den** (the system defaults and Homebrew) and **hearth** (the shell) are the
@@ -169,7 +174,10 @@ switching the room off leaves a spare binding rather than taking one away.)
 
 If what you want is tiling **without** its keyboard claims, don't switch the
 room off: set `haus.keys.leader = "none"` and `haus.keys.windowNav = "none"`
-instead, and prowl keeps arranging windows while Caps Lock stays Caps Lock. See
+instead, and prowl keeps arranging windows while Caps Lock stays Caps Lock. The
+launcher has the same escape — `haus.keys.palette` takes `alt-space`,
+`ctrl-space` or `"none"`, and since only `cmd-space` displaces Spotlight, moving
+it is how you keep both. See
 [rebinding](/docs/haus/guides/window-management#not-fond-of-these-keys).
 
 ## Starting from someone else's rice
@@ -196,7 +204,7 @@ run.)
 |---|---|
 | `full` | the whole thing: bar, tiling, palette, developer pack. The default. |
 | `minimal` | just the themed shell — no bar, no tiling, no palette. Still a developer machine. |
-| `everyday` | the inverse: a Mac for someone who doesn't write code. No developer pack, no Caps-Lock remap. |
+| `everyday` | the inverse: a Mac for someone who doesn't write code. No developer pack, and `prowl.enable = false` — so no tiling either, not just no Caps-Lock remap. |
 | `large-print` | bigger and sharper — the UI and the whole display, plus the high-contrast palette. |
 
 The first three are whole rices; pick one. **`large-print` is a layer** — it
