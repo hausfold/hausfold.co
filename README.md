@@ -5,14 +5,23 @@ nebelhaus family~~ **the nix-darwin ricing platform, the org everything ships
 from, and the seller** (decided 2026-08-08; nebelhaus is now one rice built on
 it — see the
 [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)).
-A handful of hand-written HTML files
-served on [hausfold.co](https://hausfold.co) (and `www.`) by a
-static-assets-only Cloudflare Worker. No build step, no framework, and the only
-JavaScript is the same twelve lines of copy-button on four of the pages:
-`wrangler deploy` uploads `public/` and Cloudflare serves it.
-(There is one generator, `scripts/sync-nebelung.mjs`, but its output is
-committed — nothing runs at deploy time, and `public/` is still exactly what
-the domain returns.)
+Served on [hausfold.co](https://hausfold.co) (and `www.`) by a
+static-assets-only Cloudflare Worker — no Worker JS ever runs.
+
+It is **two things in one tree**, and knowing which one you're editing is the
+first thing to get right:
+
+- **The pages** — `/`, `/haus`, `/desktops`, `/pounce`, `/perch`, `/terms`,
+  `/refunds` — are hand-written HTML in `public/`, with no framework and one
+  twelve-line copy-button script repeated on four of them.
+- **The docs** — everything under `/docs` — are [Fumadocs](https://fumadocs.dev)
+  on Next, built to a **static export**. Added 2026-08-12 (rename plan §5.2).
+
+Since the docs landed there **is** a build step: `npm run build` writes `out/`,
+Next copies `public/` into it verbatim, and `out/` is what `wrangler deploy`
+uploads. So the hand-written pages are still served as exactly the files you
+edit — but `out/` is generated, gitignored, and a deploy that skips the build
+uploads nothing.
 
 ```
 public/
@@ -25,13 +34,27 @@ public/
   perch/privacy/index.html        perch's privacy policy — linked from the App Store
   terms/index.html                the terms — what a licence grants, what we don't promise
   refunds/index.html              the refund policy — fourteen days, no questions
-  404.html
   hausfold.css                    shared tokens and type, and the design notes
   favicon.svg                     the haus mark as geometry, swept; linked from every page
+  favicon.ico                     the same mark, monochrome — Safari's fallback, since 2026-08-12
   robots.txt                      allows everything; its comment says why it exists at all
+  _headers                        content-type for the search index, cache for /_next/static
+content/docs/                     the docs, as MDX
+  haus/                             the layer  — a sidebar tab
+  nebelhaus/                        the desktop — the other tab
+src/                              the Next app: layout, theme, MDX components
+  app/global.css                  Fumadocs re-pointed at hausfold.css's tokens
+  app/not-found.tsx               the 404 — a Next page since 2026-08-12, see below
 scripts/
   sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
 ```
+
+**The 404 moved out of `public/`.** Next's export always writes its own
+`out/404.html` and overwrites anything of that name copied from `public/`, so
+the page had to become `src/app/not-found.tsx` or silently become Next's grey
+default. Same markup, same classes, same words — but it is no longer one of the
+files `sync-nebelung.mjs --check` walks, so its dark `theme-color` is now
+carried by `src/lib/shared.ts` instead and nothing compares the two.
 
 `scripts/` is not part of the site and is not deployed. `sync-nebelung.mjs`
 writes a marked block into `public/hausfold.css` — nebelung's own
@@ -54,18 +77,28 @@ of drift being something you *ask* about rather than something that arrives.
 `--latest` is the asking: it reports the new revision and names the values a
 bump would actually change, then you set `PIN`, re-run, and commit the block.
 
-> **That description is about to be wrong.** Under §5.1 of the
+> **The consolidation is half-landed.** §5.2 of the
 > [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
-> this repo takes over the whole site — `/`, `/docs`, the gallery, `/holt`,
-> `/pounce`, `/perch` — which means the Astro build from `workshop/web` and a
-> real `main`. §5.1's other prerequisite, *this repo going public*, is already
-> done: it was met by [creating this repo](#why-this-repo-starts-at-one-commit)
-> rather than by flipping the old one. The desktops are the first part of that
-> consolidation, arriving ahead of the build — so treat their markup as
-> temporary and their copy as not.
+> moves the whole site into this repo. What has arrived is `/docs` — rebuilt on
+> Fumadocs rather than ported from the workshop's Astro/Starlight tree, which
+> was the user's call on 2026-08-09 — and, arriving ahead of it on 2026-08-08
+> and 2026-08-12, the desktops and the seller's pages (`/desktops`, `/perch`,
+> `/pounce`, `/terms`, `/refunds`), still the hand-written HTML they always
+> were. What has not:
+>
+> - **most of the docs pages.** Five are here; the workshop's `web/` still
+>   holds the rest, and **nebelhaus.com is still live and still serving them**.
+>   A fact fixed in one tree and not the other will disagree — fix it in both
+>   or in neither until the port finishes.
+> - **the landing pages becoming Next routes.** Decided, not done: they are
+>   still the hand-written HTML above, served beside the export.
+> - **`worker.js`** — `/init.sh`, `/download/<app>`, `/api/release/<app>` — and
+>   with it the `hausfold.co/<rice>.sh` installer route and the
+>   `nebelhaus.com/*` 301s. Until those land, the docs print
+>   `nebelhaus.com/init.sh`, which is the URL that actually works.
 
-`not_found_handling = "404-page"` serves `404.html` with a real 404 for anything
-else. It was `single-page-application` — every path answering 200 with the
+`not_found_handling = "404-page"` serves `404.html` — now generated from
+`src/app/not-found.tsx` — with a real 404 for anything else. It was `single-page-application` — every path answering 200 with the
 landing page — which was right while the site was one sheet and wrong the moment
 `/desktops/pounce` became a plausible typo. One consequence to know: paths the
 SPA fallback used to absorb now 404 honestly — a list that was written here as
@@ -84,14 +117,17 @@ can't live in a public repo.
 ## Deploy
 
 **CI does it.** [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)
-runs on every push to `main` that touches `public/`, `wrangler.toml` or the
-workflow itself, and on demand via *Actions → Deploy hausfold.co → Run workflow*.
-It needs three repo secrets — the workflow header lists them and the exact
-Cloudflare permissions each one wants.
+runs on every push to `main` that touches `public/`, `content/`, `src/`, the
+build config, `wrangler.toml` or the workflow itself, and on demand via
+*Actions → Deploy hausfold.co → Run workflow*. It runs `npm ci && npm run
+build` first — `out/` is gitignored, so the build is not optional. It needs
+three repo secrets — the workflow header lists them and the exact Cloudflare
+permissions each one wants.
 
 By hand, when you need it (an unpushed change, a broken token):
 
 ```sh
+npm ci && npm run build
 npx wrangler deploy      # nixpkgs' wrangler fails to build — use npx
 ```
 
@@ -100,7 +136,7 @@ That path uses your own `wrangler login` OAuth session, not the CI token.
 ## Preview a PR
 
 [`.github/workflows/preview.yml`](./.github/workflows/preview.yml) gives every
-PR that touches `public/` (or either wrangler config) its own Worker at
+PR that touches the site or the docs (or either wrangler config) its own Worker at
 `https://hausfold-pr-<number>.<subdomain>.workers.dev`, and comments the link on
 the PR — edited in place, so a push updates the link rather than adding another.
 Closing the PR deletes the Worker.
@@ -180,9 +216,13 @@ nobody "fixes" it.
 
 **Look at it over HTTP, not `file://`.** The stylesheet and every link are
 absolute paths, so `open public/index.html` gets you unstyled text and dead
-links. `npx wrangler dev` is the truest check — it's the same asset server and
-it exercises `not_found_handling`. `python3 -m http.server` from inside
-`public/` is enough for a look at the type.
+links.
+
+For the **docs**, `npm run dev` is the loop — hot reload, and the only way to
+iterate on MDX at any speed. For the **whole site as deployed**, `npm run build
+&& npx wrangler dev` is the truest check: same asset server, and it exercises
+`not_found_handling` and `_headers`. `python3 -m http.server` inside `out/`
+after a build is enough for a look at the type.
 
 ## The desktops
 
@@ -240,9 +280,11 @@ is why the deploy token needs **Zone → DNS:Edit** and not just Workers scopes.
 (SSL/TLS → Edge Certificates), not something this config carries — if the
 redirect ever disappears, look there first, not here.
 
-**Every asset is un-hashed.** `index.html`, `/desktops/nebelhaus` and
-`hausfold.css` all keep the same URL when their contents change, so an edge
-cache can keep serving the old copy after a deploy. `hausfold.css` is the one
+**Every hand-written asset is un-hashed.** `index.html`, `/desktops/nebelhaus`
+and `hausfold.css` all keep the same URL when their contents change, so an
+edge cache can keep serving the old copy after a deploy. (Next's own
+`/_next/static/*` bundles are content-hashed and `public/_headers` caches them
+for a year — they are the exception, not the rule.) `hausfold.css` is the one
 that bites hardest now: a stale stylesheet against fresh markup looks like a
 broken page rather than an old one. That's what the workflow's purge step is
 for; without `CLOUDFLARE_ZONE_ID` set it warns and skips, and your change lands
@@ -272,8 +314,8 @@ Publishing the exact paths and commits would be handing over the fetch recipe.)*
 So: **rewriting history on a repo that has ever had a pull request is hygiene,
 not removal.** A new repo has no PR refs, no blob and no old revisions, and
 needs no support ticket to make that true. What it cost was 33 commits of a
-placeholder page and its first real week — and §5.1 replaces that markup with an
-Astro build regardless.
+placeholder page and its first real week — and §5.2 replaces that markup
+regardless.
 
 What carried over, on 2026-08-08, as one commit: everything the old repo
 tracked — `public/`, both wrangler configs, both workflows, `.gitignore`,

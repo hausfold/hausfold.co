@@ -21,8 +21,12 @@
 #   - --ink or --well drifting apart between the two dark blocks, or stopping
 #     being literals. They are deliberately not nebelung's.
 #   - a page whose dark `theme-color` no longer equals crust, or hasn't got one.
-#     That <meta> is a hand-typed copy of the palette, there are ten of them,
-#     and no template generates them.
+#     That <meta> is a hand-typed copy of the palette, and no template
+#     generates it. It used to live on nine pages; `public/404.html` became
+#     `src/app/not-found.tsx` on 2026-08-12, and every /docs page now takes its
+#     pair from `src/lib/shared.ts` instead. This job walks `public/**.html`
+#     only, so that third copy is unchecked — change a ground colour and change
+#     it there too.
 #   - public/favicon.svg's ground drifting off crust — the tile is hand-drawn
 #     and only its wedge fan is generated — or two hyphens in a row appearing
 #     in its comment, which is an XML parse error that no browser reports: the

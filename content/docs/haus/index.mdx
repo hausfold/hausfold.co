@@ -1,0 +1,78 @@
+---
+title: What haus is
+description: One file describes your Mac. One command makes the Mac match it. Everything else here is detail.
+---
+
+**haus** is a layer for macOS. You describe the machine you want in one text
+file — apps, window management, the bar, the shell, the colours, the macOS
+settings you always change by hand — and one command makes the Mac match it.
+
+```nix
+haus.theme.accent = "sapphire";
+haus.hearth.editor = "nvim";
+haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
+```
+
+```sh
+haus rebuild
+```
+
+Slack is installed and bound to a launcher key, your terminal is themed, and
+the change is a line in git you can read six months later.
+
+## Why bother
+
+- **It survives the machine.** A new Mac, or a wiped one, is one command away
+  from being the old one — because the old one was text.
+- **It undoes.** A failed build never activates. A regretted change is
+  `haus rollback`, atomic, in seconds.
+- **It's one setting, not forty.** The accent colour lands in the terminal,
+  the file manager, git, the bar and the browser at once, because they all
+  read the same value.
+- **Nothing is buried.** Every knob is a documented option with a default, and
+  `haus edit` opens the file that sets them.
+
+You do **not** need to know [Nix](https://nixos.org) going in. It is what makes
+this reproducible, and the installer sets it up for you. You will pick some of
+it up over time, and that's the whole curve.
+
+## What's in the box
+
+haus is organised into **rooms** — each one a group of options you can turn on,
+off, or leave alone.
+
+| Room | What it does |
+|---|---|
+| **prowl** | Tiling windows, and a launcher on a tap of Caps-Lock |
+| **sill** | A status bar: workspaces, weather, media, battery, clock |
+| **hearth** | The terminal — Ghostty, zellij, zsh, and a themed toolbelt |
+| **collar** | Touch ID for `sudo`, including inside a multiplexer |
+| **pounce** | A ⌘Space command palette where every command is a file |
+| **perch** | A file shelf that grows out of the notch to catch drag-drops |
+| **nebelung** | The palette, painted across every tool that can take one |
+| **den** | macOS defaults, Homebrew policy, and the `haus` CLI itself |
+
+Plus the smaller rooms: fonts, wallpaper, hot corners, screenshots, power,
+sound, locale, security, and the rest. There are **236 options across 35
+rooms** — the [full reference](https://nebelhaus.com/reference/options/) lists
+every one with its type and default.
+
+Each piece also stands alone. You can take the whole thing, or just
+[pounce](/pounce), or just the palette.
+
+## The shape of a haus machine
+
+Your config lives at `~/.config/nix` and it is **yours** — your name, your keys,
+your app list. It imports haus; it never edits it. haus stays upstream, pinned
+to an exact commit, and nothing about your machine changes until you run
+`haus update`.
+
+That split is the whole design. Your identity is never in someone else's repo,
+and their improvements are never a surprise on your machine.
+
+## Where to go next
+
+- **[Install](/docs/haus/install)** — what the one-liner does, and how to read
+  it before you run it.
+- **[nebelhaus](/docs/nebelhaus)** — the desktop most people install haus by
+  installing. Switch trees with the dropdown at the top of the sidebar.

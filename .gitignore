@@ -6,3 +6,16 @@
 # scripts/sync-nebelung.mjs's --from flag invites exactly that.
 result
 result-*
+
+# --- the docs build (Next + Fumadocs, static export) -------------------
+# `out/` is what wrangler now serves, and it is generated: Next copies
+# `public/` into it verbatim and writes the exported docs beside them. It
+# must never be committed — a stale checked-in export is a site that lies.
+/node_modules
+/.next/
+/out/
+/build
+.source
+*.tsbuildinfo
+next-env.d.ts
+.env*.local

@@ -2,16 +2,24 @@
 # desktop catalogue itself since 2026-08-12), /desktops/<name>, /haus,
 # /pounce, /perch, and the seller's pages (/terms, /refunds).
 #
-# There is no `main` and no build step: this is a static-assets-only Worker, so
-# Cloudflare serves ./public directly and no Worker JS ever runs.
+# There is no `main`: this is still a static-assets-only Worker and no Worker
+# JS ever runs. What changed on 2026-08-12 is that the assets are now BUILT —
+# `npm run build` (Next + Fumadocs, `output: 'export'`) writes ./out, and Next
+# copies ./public into it verbatim on the way. So the hand-written pages are
+# served from exactly the same files they always were; the docs tree is new
+# beside them.
+#
+# ./out is generated and gitignored. Anything that deploys this config has to
+# run the build first — see .github/workflows/deploy.yml.
 #
 # `not_found_handling` was `single-page-application` while the site was one
 # sheet — every path returned index.html with a 200, which is exactly right when
 # there is only one page and exactly wrong once there are several: /desktops/typo
-# would answer 200 with the landing page. `404-page` serves ./public/404.html
-# with a real 404 instead. Real paths still resolve first, and `html_handling`
-# stays at its default (`auto-trailing-slash`), which is what maps /desktops to
-# ./public/desktops/index.html.
+# would answer 200 with the landing page. `404-page` serves whatever is at
+# ./out/404.html — generated at build time from `src/app/not-found.tsx`, not
+# copied from `public/` — with a real 404 instead. Real paths still resolve
+# first, and `html_handling` stays at its default (`auto-trailing-slash`),
+# which is what maps /desktops/nebelhaus to ./public/desktops/nebelhaus/index.html.
 #
 # `custom_domain = true` (rather than a `pattern = "hausfold.co/*"` route) is
 # load-bearing: the zone has no DNS records at all, and a plain route needs a
@@ -19,7 +27,8 @@
 # create and proxy that record itself.
 #
 # Deploy (CI does this on push to main; this is the by-hand form):
-#   cd hausfold.co && npx wrangler deploy   # (nixpkgs' wrangler fails to build — use npx)
+#   cd hausfold.co && npm ci && npm run build && npx wrangler deploy
+#                                           # (nixpkgs' wrangler fails to build — use npx)
 #
 # The directory was `hausfold` when this line was written, back when the layer
 # still sat at `./hausfold` and the two were one dot apart. It is `hausfold.co`
@@ -36,5 +45,5 @@ routes = [
 ]
 
 [assets]
-directory = "./public"
+directory = "./out"
 not_found_handling = "404-page"

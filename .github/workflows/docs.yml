@@ -1,0 +1,124 @@
+# Check the docs build: it type-checks, it lints, and — the one that isn't
+# boilerplate — it produces the SAME bytes twice.
+#
+# Why the double build is here rather than being a note in a plan:
+#
+# Next mints a random build id per build and embeds it in
+# `_next/static/<id>/`, in every RSC payload and in 404.html. Two builds of
+# identical source therefore differ in dozens of files, including two runs a
+# minute apart in the same directory. `next.config.mjs` pins
+# `generateBuildId`, which makes the whole export byte-identical — and that is
+# what makes "did this deploy change anything?" an answerable question at all.
+#
+# But reproducibility is a property of these versions of Next and Fumadocs,
+# not a promise either of them makes. Without a check, the day a release
+# introduces a timestamp is the day the property quietly stops holding and
+# nothing says so. This costs one extra build and is the only thing that would
+# notice.
+#
+# It also covers the search index, which is the file this repo would most
+# regret being non-deterministic: `out/api/search` is a fully serialized Orama
+# database, ~300 KB today and growing with the corpus.
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.mjs'
+      - 'postcss.config.mjs'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - '.github/workflows/docs.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.mjs'
+      - 'postcss.config.mjs'
+      - 'tsconfig.json'
+      - 'eslint.config.mjs'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npm run types:check
+
+      - name: Lint
+        run: npm run lint
+
+      # Both builds start from no Turbopack cache — the same state a deploy
+      # runs in, since CI never restores `.next`. Measured 2026-08-12 on this
+      # tree: six consecutive cold builds produced byte-identical output,
+      # filenames included.
+      #
+      # One trap worth naming, because it cost an hour: Turbopack's CSS chunk
+      # id (`_next/static/chunks/<id>.css`) is content-derived, so it moves
+      # whenever the stylesheet does — and it is referenced by every page. So
+      # a diff of "one css file plus every html file" is almost always source
+      # drift between the two builds, not the build being nondeterministic.
+      # This job can't have that problem; a human comparing two builds by hand
+      # across an edit can.
+      - name: Build once, cold
+        run: |
+          rm -rf .next out
+          npm run build
+          mv out out-first
+
+      - name: Build again, cold
+        run: |
+          rm -rf .next
+          npm run build
+
+      # `diff -rq` and not a hash of the tree: when this fails, the useful
+      # output is WHICH files moved, because that names the thing that started
+      # embedding a clock.
+      - name: The two builds must be byte-identical
+        run: |
+          if ! diff -rq out-first out; then
+            echo "::error::The export is no longer reproducible. Something in the build now embeds a clock, a random id, or an absolute path — see the differing files above. generateBuildId in next.config.mjs is the usual suspect."
+            exit 1
+          fi
+          echo "Two builds, identical output."
+
+      # A search index that exists but answers nothing is the classic silent
+      # failure here — the page loads, the dialog opens, every query returns
+      # empty, and no build step fails. A size floor is a crude check, but it
+      # is the one that catches the corpus falling out of the index.
+      - name: The search index is not empty
+        run: |
+          size=$(wc -c < out/api/search)
+          echo "out/api/search is $size bytes"
+          if [ "$size" -lt 50000 ]; then
+            echo "::error::out/api/search is only $size bytes — the corpus is missing from the search index."
+            exit 1
+          fi

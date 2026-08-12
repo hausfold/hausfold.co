@@ -1,0 +1,6 @@
+{
+  "title": "nebelhaus",
+  "description": "A desktop built on haus",
+  "root": true,
+  "pages": ["index", "first-run"]
+}

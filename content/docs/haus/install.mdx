@@ -1,0 +1,137 @@
+---
+title: Install
+description: One line scaffolds your config. A second command activates it. Nothing changes until you run the second one.
+---
+
+```sh
+curl -fsSL https://nebelhaus.com/init.sh | bash
+```
+
+That installs Nix if you don't have it, asks you a few questions, and writes
+your config. It does **not** change your Mac — it writes files and then prints
+the one command that activates them.
+
+## Before you start
+
+- A **Mac on Apple Silicon**, running a recent macOS. Intel isn't supported.
+- **Xcode Command Line Tools.** The installer prompts for them if they're
+  missing, then asks you to re-run.
+- **10–15 minutes** and a few GB of download for the first build.
+
+<Callout title="You don't need Nix first">
+The bootstrap installs [Determinate Nix](https://docs.determinate.systems/) for
+you. If you already run stock Nix it stops and explains rather than touching
+your install.
+</Callout>
+
+## Read it first, if you like
+
+`curl … | bash` runs whatever the URL serves, so it's fair to want to look.
+The URL only proxies
+[`bootstrap.sh`](https://github.com/hausfold/haus/blob/main/bootstrap.sh) from
+the public repo — it's boring on purpose.
+
+```sh
+curl -fsSL https://nebelhaus.com/init.sh | less
+
+# or pin an exact release and diff it against GitHub
+curl -fsSL 'https://nebelhaus.com/init.sh?ref=v2026.07.18' | less
+```
+
+By default you get the latest release tag. Releases are date-tagged, so
+`?ref=v2026.07.18` pins a specific day.
+
+## What it does
+
+<Steps>
+
+<Step>
+### Takes a snapshot
+
+Confirms you're on macOS and takes a Time Machine local snapshot as a coarse
+rewind point. Non-fatal if Time Machine is off.
+</Step>
+
+<Step>
+### Asks you a few things
+
+Your git name and email, a preset (full / minimal / custom), an accent colour,
+a wallpaper, and your `$EDITOR`. It also asks whether to keep your current
+Dock, keyboard and Finder settings, and whether to adopt the Homebrew casks
+you already have.
+</Step>
+
+<Step>
+### Shows you what would change
+
+A read-only report before anything is written: which dotfiles get backed up,
+which macOS settings change, and which casks it found. **No app you installed
+is ever removed.**
+</Step>
+
+<Step>
+### Writes your config
+
+Creates `~/.config/nix/` — a small flake that imports haus, plus a host file
+holding your answers — and commits it to git.
+</Step>
+
+</Steps>
+
+Nothing is active yet.
+
+## Build and switch
+
+```sh
+cd ~/.config/nix
+nix build .#darwinConfigurations.$(scutil --get LocalHostName).system \
+  && sudo ./result/sw/bin/darwin-rebuild switch --flake .
+```
+
+The build runs first, and a failed build never touches your system. When it
+succeeds, everything lands at once: apps install, the bar and tiling start,
+your terminal is themed, and `haus` joins your `PATH`.
+
+The first run is slow — it's downloading the world. After that, `haus rebuild`
+is the only command you need.
+
+## If you regret it
+
+| To undo | Use |
+|---|---|
+| The macOS settings | the snapshot from step 1 |
+| Everything haus did | `haus rollback` — atomic, previous generation |
+| Apps | yours. haus never uninstalls one you added |
+
+## Unattended installs
+
+Every question has an environment variable, so the whole thing can run without
+a prompt:
+
+```sh
+NEBELHAUS_NONINTERACTIVE=1 \
+NEBELHAUS_GIT_NAME="Ada Lovelace" \
+NEBELHAUS_GIT_EMAIL="ada@example.com" \
+NEBELHAUS_ACCENT="mauve" \
+bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"
+```
+
+| Variable | Effect |
+|---|---|
+| `NEBELHAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
+| `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing |
+| `NEBELHAUS_PRESET` / `NEBELHAUS_ROOMS` | Which rooms to turn on |
+| `NEBELHAUS_ACCENT` / `NEBELHAUS_WALLPAPER` / `NEBELHAUS_EDITOR` | The look and the editor |
+| `NEBELHAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
+| `NEBELHAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
+| `NEBELHAUS_FROM` | Restore an existing config instead of scaffolding |
+
+These are also what you want if you hand the install to a coding agent: the
+questions are a terminal UI, and a tool driving it blind is how someone else's
+git identity ends up in your config. An agent can do everything up to the
+build; the two `sudo` steps are yours.
+
+## Next
+
+[**First run**](/docs/nebelhaus/first-run) — the four moves that make the
+desktop click.
