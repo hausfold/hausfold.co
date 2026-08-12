@@ -1,0 +1,243 @@
+---
+title: Troubleshooting
+description: The handful of things that go sideways on macOS — a wedged agent, a missing grant, a stubborn cask — and the exact command to unstick each one.
+icon: rescue
+---
+
+Almost every haus problem is one of a few known macOS quirks with a known fix.
+Start here:
+
+```sh
+haus doctor
+```
+
+It checks Nix and the daemon, the Xcode command line tools, the login agents,
+Pounce's Accessibility grant, your secrets, and whether Homebrew has drifted
+from what your config declares — and prints the command to fix each thing it
+finds.
+
+## The one command that unwedges an agent
+
+Tiling, the bar and the launcher are launchd **user agents**. When one of them
+is registered but not answering, restarting it is the same command every time:
+
+```sh
+launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace
+```
+
+| What | Label | Log |
+|---|---|---|
+| Tiling (AeroSpace) | `org.nixos.aerospace` | `/tmp/aerospace.err.log` |
+| The bar (SketchyBar) | `org.nixos.sketchybar` | `/tmp/sketchybar.err.log` |
+| The bottom bar | `org.nixos.sill-bottom` | `/tmp/sill-bottom.err.log` |
+| The launcher (Pounce) | `com.hausfold.pounce` | `/tmp/pounce.err.log` |
+
+Read the log before you bounce it — an agent that dies again in ten seconds is
+telling you something, and that file is where it says it.
+
+The usual reason one is dead is the **cold-boot race**: an agent that launched
+before the desktop session was ready parks itself instead of starting. haus
+guards against it; a kickstart clears the state if you land in it anyway.
+
+## ⌘Space does nothing
+
+If the launcher never opens, kickstart `com.hausfold.pounce` above. If it opens
+but **clipboard and emoji paste** don't work, it's missing the Accessibility
+grant:
+
+```sh
+pounce --request-accessibility   # approve the system dialog
+pounce --check-accessibility     # prints true once granted
+```
+
+Set [`haus.pounce.signingIdentity`](/docs/haus/reference/pounce) so that grant
+survives future rebuilds. If ⌘Space still opens **Spotlight**, log out and back
+in once so the symbolic-hotkey reassignment takes.
+
+**Opens, but slowly?** Another hotkey tool — skhd, AeroSpace, Raycast — bound to
+the same key grabs it with an event tap *ahead* of Pounce, so every summon
+spawns a fresh process instead of hitting the running daemon. Registration still
+reports success and the palette still opens, which is what makes this one hard
+to spot. One command names the culprit:
+
+```sh
+pounce doctor
+```
+
+It combines the daemon's live hotkey self-report with outside-in probes — a
+macOS system-shortcut clash, other hotkey daemons running, and their config
+files scanned for a binding on Pounce's key — and tells you what to unbind.
+
+<Callout type="warn" title="One line of `pounce doctor` is wrong under haus">
+If the daemon isn't running it suggests `brew services start pounce`. That is
+the advice for a standalone Homebrew install; on a haus machine the daemon is
+the launchd agent above, so kickstart it instead.
+</Callout>
+
+## Windows won't tile
+
+Kickstart `org.nixos.aerospace`. Then the smaller ones:
+
+- **Scrambled after sleep?** They self-heal after a couple of seconds. Force it
+  by tapping <kbd>⇪</kbd> then <kbd>`</kbd>.
+- **A window on the wrong workspace?** Same key — it re-sorts everything back to
+  the workspace its [roster entry](/docs/haus/guides/adding-apps) names.
+- **A binding you changed didn't take?** A rebuild rewrites the config and
+  reloads the live daemon for you; force it with `aerospace reload-config`, or
+  run **Reload AeroSpace** from the ⌘Space palette.
+
+## The bar is blank, or stale
+
+Blank: kickstart `org.nixos.sketchybar`, and read `/tmp/sketchybar.err.log`
+first. `could not acquire lock-file` there means a stray `brew services` copy of
+SketchyBar is holding the lock — every rebuild evicts it, so `haus rebuild` is
+the fix.
+
+Stale — a pill you added isn't there, or a colour change didn't land — is a
+different thing: the bar read its config once at boot. Easiest is **Reload
+SketchyBar** from the ⌘Space palette, or the same row in the logo pill's
+dropdown. Both do both bars, both correctly. By hand:
+
+```sh
+sketchybar  --reload ~/.config/sketchybar/sketchybarrc    # the menu-bar bar
+sill-bottom --reload ~/.config/sketchybar/sill-bottomrc   # the bottom bar
+```
+
+Two things to get right there, and they bite independently:
+
+- **Each bar takes its own reload.** They are separate instances under separate
+  names, so a lone `sketchybar --reload` leaves the bottom bar exactly as it was.
+- **Always name the rc.** A bare `--reload` doesn't mean *re-read your config*,
+  it means *re-run the path I resolved at startup* — and that path is a symlink
+  into `/nix/store`, resolved once. So it can keep replaying the config from the
+  generation the bar booted on while exiting 0 and logging
+  `configuration loaded..`. Naming the path re-resolves the symlink now.
+
+Not interested in a custom bar at all? `haus.sill.enable = false` brings the
+native macOS menu bar back.
+
+## The bar, tiling and ⌘Space are *all* dead
+
+Two causes, and they look identical.
+
+### Background Task Management, after a macOS upgrade
+
+On **macOS 26 Tahoe and later**, macOS gates login items whose executable isn't
+Apple-signed. Every Nix agent launches through `/bin/sh`, which Tahoe files
+under "unidentified developer" and can silently refuse to start. The agents
+register fine; they just never run.
+
+```sh
+haus btm     # a no-op before Tahoe; on Tahoe+ it reads the BTM store and instructs
+```
+
+There is **no declarative fix** — the toggle lives in macOS's own BTM store,
+which has no CLI to set it. It's a one-time manual step:
+
+<Steps>
+<Step>
+System Settings ▸ **General** ▸ **Login Items & Extensions**
+</Step>
+<Step>
+Scroll to **Allow in the Background**
+</Step>
+<Step>
+Find the entries named **`sh`**, subtitled *Item from unidentified developer*
+</Step>
+<Step>
+Switch them **on**, then reboot. Already on but still blocked? Off and on again,
+to force a write.
+</Step>
+</Steps>
+
+Inspect the store by hand any time:
+
+```sh
+sudo sfltool dumpbtm | grep -B2 -A8 -iE "nixos|hausfold|darwin-store"
+```
+
+Look for `disallowed`. Search all three names: the launcher registers under
+`com.hausfold.pounce` while tiling and the bar are still `org.nixos.*`.
+
+### A rebuild that aborted before it started them
+
+This one needs no macOS upgrade. If your host file writes
+`system.defaults.universalaccess.*`, activation writes those keys two thirds of
+the way through — and without Full Disk Access that write fails, takes the rest
+of activation with it, and never reaches the launchd agents. The symptom is
+nowhere near the cause.
+
+`haus doctor` reports the grant, and `haus rebuild` refuses up front when it
+detects a Claude Code session without it. Prefer
+`haus.accessibility.increaseContrast` and
+`haus.accessibility.differentiateWithoutColor`, which reach the two useful keys
+in that domain safely — [Changing your Mac with an
+agent](/docs/haus/guides/agent-rebuilds) has the detail.
+
+## Touch ID for `sudo` beachballs inside zellij or tmux
+
+The `pam_reattach` shim isn't loading. It ships with the **collar** room and is
+on by default; check `/etc/pam.d/sudo_local`, where the reattach line must come
+*before* the Touch ID one. Outside a multiplexer Touch ID should just work —
+cancel the prompt to fall back to your password.
+
+## "Refusing to load cask … from an untrusted tap"
+
+Third-party taps fail Homebrew's trust check under the sudo-driven activation a
+rebuild runs. haus turns that requirement off globally with
+`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in `/etc/homebrew/brew.env`. Seeing the error
+means that file didn't land: re-run `haus rebuild`, or export the variable in
+your shell for the one-off.
+
+## An app I removed from my config is still installed
+
+By design. `haus.homebrew.cleanup` defaults to `"none"`, so nothing you
+installed is ever deleted behind your back — and `haus rollback` doesn't rewind
+Homebrew apps either, because they aren't in Nix generations. Remove one by
+hand:
+
+```sh
+brew uninstall --zap <cask>
+```
+
+Want a fully declarative machine, where an undeclared cask is uninstalled on the
+next rebuild? Set
+[`haus.homebrew.cleanup = "zap"`](/docs/haus/guides/making-it-yours#homebrew).
+
+## A rebuild broke something
+
+```sh
+haus rollback       # back to the previous generation, atomically
+haus generations    # what you can roll back to
+```
+
+`haus rebuild` always builds *before* it switches, so a config with an error in
+it can't activate — you just see the build fail. Generations don't hold macOS's
+own settings; [Keeping it current](/docs/haus/guides/keeping-it-current#when-a-change-goes-wrong)
+covers what does.
+
+## The installer refuses — "expects Determinate Nix"
+
+haus is built on [Determinate Nix](https://docs.determinate.systems/), and the
+installer stops when it finds a `/nix` that Determinate didn't create rather
+than risk breaking the Nix you already have. Uninstall that one and re-run the
+one-liner, or migrate it to Determinate, which is the supported path. Fresh Macs
+need none of this — the bootstrap installs Determinate for you.
+
+<Cards>
+  <Card
+    icon={<Icon name="keys" />}
+    title="Keybindings"
+    href="/docs/nebelhaus/keybindings"
+    description="Every key nebelhaus claims — or tap ⇪ then / for the live, roster-aware version."
+  />
+  <Card
+    icon={<Icon name="wrench" />}
+    title="The haus CLI"
+    href="/docs/haus/reference/haus"
+    description="doctor, plan, diff and capture in full — the commands that show you a problem before it lands."
+  />
+</Cards>
+
+Still stuck? [Open an issue](https://github.com/hausfold/haus/issues) with the
+output of `haus doctor`.

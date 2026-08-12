@@ -1,0 +1,350 @@
+---
+title: Making it yours
+description: The one file you edit, how to find the knob you want, and the four ways to change a haus machine — a line, a preset, a room switched off, or a macOS default overridden.
+icon: dials
+---
+
+haus ships a complete opinion, already wired. So customising it isn't
+assembling anything — it's turning a handful of dials. This page is the map of
+those dials, and of the four different shapes a change can take.
+
+## The one file you edit
+
+Your setup has two halves, and they stay cleanly apart:
+
+- **haus** (`github:hausfold/haus`) — generic, no identity, upstream. You never
+  edit it to use it. It moves when you run `haus update`, and not before.
+- **Your config** (`~/.config/nix`) — a short flake that imports haus, plus
+  **one host file**, `hosts/<hostname>/default.nix`, where you live.
+
+Everything on this page goes in that host file:
+
+```sh
+haus edit       # opens it in $EDITOR
+haus rebuild    # builds first — a broken config never activates
+```
+
+It's a plain nix-darwin module, so whatever you write merges with what haus
+already declares, and anything nix-darwin or home-manager accepts works there
+too. Because the two halves are separate repos, pulling a newer haus can't touch
+your identity, your apps or your overrides — which is the whole reason for the
+split. Keep personal things on your side of it.
+
+## Finding the knob
+
+There are **236 options across 35 rooms**, so the useful skill is not memorising
+them. Four ways in, cheapest first:
+
+- **Read them in your own config.** A fresh install drops
+  `hosts/<host>/options.nix` beside your host file — every option at its
+  default, a sentence each, all commented out. Uncomment what you want. It's
+  rendered from the haus you're pinned to, so it can never advertise an option
+  your machine doesn't have.
+
+  ```sh
+  haus options    # refresh it against the current haus (--force overwrites yours)
+  ```
+
+- **Change one without an editor.** `haus set theme.accent teal` writes the
+  override, type-checks it and rebuilds once. See
+  [the haus CLI](/docs/haus/reference/haus#changing-a-setting-without-opening-an-editor).
+- **Ask.** haus installs a skill that teaches a coding agent this whole surface,
+  generated from your pinned revision, so you can describe what you want in
+  plain words — [changing your Mac with an
+  agent](/docs/haus/guides/agent-rebuilds).
+- **Look it up.** The [full options
+  reference](https://nebelhaus.com/reference/options/) has every knob with its
+  type and default.
+
+<Callout title="Scaffolded, not active">
+Nothing in `options.nix` does anything until you uncomment a line *and* import
+it — `haus options` prints the `imports = [ ./options.nix ];` line to add if
+your host file is missing it. Leaving them commented is deliberate: an
+uncommented default is a *definition*, and against a [preset](#starting-from-a-preset)
+that sets the same option differently it's a build-stopping conflict rather
+than a quiet win.
+</Callout>
+
+## The cookbook
+
+### Identity
+
+```nix
+haus.git.name = "Ada Lovelace";
+haus.git.email = "ada@example.com";
+haus.git.signingKey = "6F7BD6F43A7C1420";  # "" to disable commit signing
+haus.git.org = "analytical-engine";        # the GitHub owner your work lives under
+```
+
+`org` is the odd one out — not who you are, but where you work. Only gh-dash
+reads it, filling <kbd>⌘</kbd><kbd>G</kbd>'s tabs with that owner's open, green,
+red and just-shipped pull requests, so an org rename is one word here rather
+than one per tab. It needs `haus.hearth.ghDash.enable` on, which it is by
+default. See [your review queue](/docs/haus/guides/the-shell#your-review-queue).
+
+### The look
+
+```nix
+haus.theme.accent = "sapphire";     # any of 14 Catppuccin accent names
+haus.wallpaper.style = "minimal";   # none | minimal | orbits | constellation | flow | bold
+```
+
+The accent lands in the terminal, lazygit, fzf, yazi and the browser at once.
+`minimal` is the desktop haus generates for you and the one it wears by
+default — a flat field in your palette, the ⌂ mark at its centre, a bloom in
+your accent — and `none` keeps whatever wallpaper you already have. Contrast,
+light mode, the mark's size and the grain all have their own knobs on
+[theming](/docs/haus/guides/theming).
+
+### The shell
+
+```nix
+haus.hearth.editor = "nvim";                # $EDITOR, and every "open in editor" action
+haus.hearth.hijackFileAssociations = false; # make that editor the default file opener
+```
+
+More on both in [the terminal](/docs/haus/guides/the-shell#choosing-your-editor).
+
+### Apps and the launcher
+
+```nix
+haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
+haus.pounce.signingIdentity = "Developer ID Application: Ada Lovelace (TEAMID)";
+```
+
+One list holds every app, font and CLI tool — [adding
+apps](/docs/haus/guides/adding-apps) is the whole recipe, and
+[windows](/docs/haus/guides/window-management#workspaces-and-what-lives-on-them)
+covers the workspace it lands on.
+
+`signingIdentity` is empty by default, which means Pounce runs unsigned and
+macOS re-asks for its Accessibility grant after a rebuild. Name a real Developer
+ID and the grant sticks — see [Pounce](/docs/haus/reference/pounce).
+
+### The bar
+
+```nix
+haus.sill.items.elgato = true;   # agents | aiUsage | cpu | memory | volume |
+                                 # calendar | caffeinate | elgato | harvest
+```
+
+Those nine are opt-in because they're personal — an Elgato Key Light toggle, a
+Harvest timer, an agents pill. Everything else the bar shows is on already. See
+[the bar](/docs/haus/guides/the-bar#toggling-pills).
+
+### Homebrew
+
+```nix
+haus.homebrew.cleanup = "none";    # none | uninstall | zap — what a rebuild does
+                                   # with an app you never declared
+haus.homebrew.autoUpdate = false;  # brew update before each rebuild
+haus.homebrew.upgrade = false;     # upgrade outdated packages each rebuild
+```
+
+`cleanup` is `"none"` so nothing you installed by hand is ever removed. Set it
+to `"zap"` for a fully declarative machine where an undeclared cask comes off on
+the next rebuild.
+
+<Callout type="tip" title="Why a cask app sits on an old version">
+`autoUpdate` and `upgrade` are off so a rebuild is reproducible — it installs a
+cask once, then keeps whatever version brew first laid down. A rebuild keeps an
+app *installed*, not *current*. Upgrade one on demand with
+`brew upgrade --cask zen`, or set both to `true` and every rebuild tracks
+upstream. The trade-off is the flip side of reproducibility: two rebuilds days
+apart can then land different app versions.
+</Callout>
+
+## Turning rooms off
+
+Most rooms are opt-*out*. Each is one switch, and turning one off leaves the
+others working:
+
+| Room | Option | Off means |
+|---|---|---|
+| prowl | `haus.prowl.enable` | No tiling, no leader key, Caps-Lock stays Caps-Lock |
+| sill | `haus.sill.enable` | The native macOS menu bar stays |
+| pounce | `haus.pounce.enable` | <kbd>⌘</kbd><kbd>Space</kbd> stays Spotlight |
+| perch | `haus.perch.enable` | No file shelf in the notch |
+| hush | `haus.hush.enable` | Notifications behave the way macOS ships them |
+| collar | `haus.collar.enable` | Password for `sudo`, not Touch ID |
+| the developer pack | `haus.developer.enable` | No language toolchains, git tooling or agent CLIs |
+| haus's app picks | `haus.apps.videoPlayer.enable` | No IINA; videos keep whatever handler they have |
+
+**den** (macOS defaults, Homebrew and the `haus` CLI) and **hearth** (the
+terminal) have no switch — they're the floor the rest stands on.
+
+If what you want is the tiler *without* its keyboard claims, don't turn the room
+off. Set the keys to `"none"` instead and prowl keeps tiling:
+
+```nix
+haus.keys.leader = "none";      # caps | alt-space | none
+haus.keys.windowNav = "none";   # alt | ctrl-alt | cmd-alt | none
+haus.keys.palette = "none";     # cmd-space | alt-space | ctrl-space | none
+```
+
+Only `cmd-space` displaces Spotlight, so moving the palette elsewhere gives you
+both. More on [rebinding](/docs/haus/guides/window-management#not-fond-of-these-keys).
+
+## Overriding macOS's own settings
+
+haus sets Dock, Finder, trackpad and keyboard defaults, and every one of them is
+a *soft* default — set the same key plainly in your host file and yours wins:
+
+```nix
+# haus hides the Dock and puts it at the bottom; put it on the left, always shown:
+system.defaults.dock.autohide = false;
+system.defaults.dock.orientation = "left";
+```
+
+Anything under
+[`system.defaults`](https://nix-darwin.github.io/nix-darwin/manual/) is fair
+game. Three keys are the exception.
+
+<Callout type="warn" title="Three keys that don't work like the rest">
+Two menu-bar keys are set **firmly**, because they track whether the bar is on:
+`_HIHideMenuBar` (the auto-hide — set it yourself and you get a bar and a menu
+bar fighting over the same strip of pixels) and
+`NSGlobalDomain.SLSMenuBarUseBlurredAppearance` (Tahoe's Liquid Glass made the
+hidden menu bar's hover-reveal translucent, so the bar showed straight through
+it). Setting either plainly is a build-stopping conflict, not a silent loss;
+`lib.mkForce` wins if you mean it.
+
+And one macOS ignores outright: **`NSGlobalDomain.AppleInterfaceStyle`**
+(Light/Dark). It's a typed nix-darwin option, and on macOS 26 writing it does
+nothing in either direction — the key is where macOS *mirrors* the appearance
+it's showing, not a lever, so even a plist read-back agrees with you while
+nothing changes. `haus diff` flags it. Use `haus.theme.systemAppearance`.
+
+Also worth knowing: nix-darwin's `power.sleep.*` runs `systemsetup`, which has
+no way to say *which* power source you mean — on macOS 26 one of them wrote the
+**charger** profile while the Mac was on **battery**, and the output is thrown
+away, so nothing says so. `haus.power.*` says `battery` and `charger`
+separately, which is the only thing a laptop actually wants.
+</Callout>
+
+Nix generations don't hold any of these — macOS preferences are written
+imperatively during activation. `haus capture` before a risky change and `haus
+revert-settings` after is the equivalent of a rollback for them; `haus plan` and
+`haus diff` show you the change before and after. [The haus
+CLI](/docs/haus/reference/haus#looking-before-you-leap) has all four.
+
+## Starting from a preset
+
+A **preset** is a data-only rice — a file whose only top-level key is `haus`. No
+`pkgs`, no `lib`, no activation scripts, so it can't reach outside the option
+surface, and you can read one in a minute and know the worst it can do. Import
+one alongside your host file:
+
+```nix
+darwinConfigurations.myhost = nebelhaus.mkNebelhaus {
+  username = "ada";
+  hostname = "myhost";
+  host = ./hosts/myhost;
+  extraModules = [ nebelhaus.presets.everyday ];
+};
+```
+
+(`nebelhaus` there is the *flake input's* name, which the installer writes for
+you — the layer is what's on the other end of it.)
+
+| Preset | For |
+|---|---|
+| `full` | The whole thing: bar, tiling, palette, developer pack. The default. |
+| `minimal` | Just the themed shell — no bar, no tiling, no palette. Still a developer machine. |
+| `everyday` | The inverse: a Mac for someone who doesn't write code. No developer pack, and no tiling either. |
+| `large-print` | Bigger and sharper — the haus UI and the whole display, plus the high-contrast palette and macOS's own contrast lift. |
+
+The first three are whole rices; pick one. **`large-print` is a layer** — it
+describes seeing rather than the person, so it stacks:
+
+```nix
+extraModules = [ nebelhaus.presets.everyday nebelhaus.presets.large-print ];
+```
+
+Your host file can override anything a preset sets — but **not by being imported
+after it.** Import order carries no priority in Nix's module system. An option
+the preset leaves alone is yours to set plainly; an option it also sets to a
+*different* value is a **conflict** that stops the build until you reach for
+`lib.mkForce`. (Setting one to the value it already holds is fine — identical
+definitions merge.)
+
+```nix
+{ lib, ... }:                        # add lib to your host's args
+{
+  haus.ui.scale = lib.mkForce 1.0;   # large-print sets this — force to win
+}
+```
+
+<Callout title="The two size controls multiply">
+`large-print` uses both. `ui.scale = 1.4` moves the terminal font, the command
+palette, the bar's type, the Dock icons, Finder's sidebar rows and the tiling
+gaps together — pin any one of them afterwards and yours wins.
+`displays.main.uiScale = "larger-text"` moves the main display one step toward
+larger text, which makes **everything** bigger, third-party apps included, at
+the cost of desktop space. A larger-text display leaves you fewer points, and
+`ui.scale` then asks for bigger points inside it. `hausdisp list` prints the
+persistent UUIDs if you want per-display control, which beats the broad `main`
+selector.
+</Callout>
+
+One size limit is macOS's rather than haus's: **the menu bar's height.** The bar
+is 36pt tall with 28pt pills, so the pills sit inside the 32pt band macOS's own
+menu-bar hover-reveal covers — taller pills poke out below it, and there is no
+menu-bar-size setting to delegate to. So the bar's *type* follows `ui.scale` up
+to 1.25× and then stops. Making the whole bar bigger is what
+`displays.*.uiScale` is for: it changes what a point *means*, which is the only
+thing that band responds to.
+
+## Secrets
+
+Anything sensitive belongs in your host file, which is *your* repo. The secret
+**values** belong nowhere on disk at all, and haus ships
+[secretspec](https://secretspec.dev) to keep them there:
+
+```sh
+secretspec set SOME_API_KEY    # once — into your macOS login keychain
+secretspec run -- some-tool    # injected as an env var, for that process only
+```
+
+A committable `secretspec.toml` declares *which* secrets a project needs — names
+and descriptions, never values — and `haus.secrets.provider` (default
+`keyring`, the login keychain) decides where the values live. Point it at a
+cloud vault and they follow you between machines. `secretspec check` lists
+what's still missing on a fresh Mac.
+
+Nothing lands in the world-readable Nix store, and there's no plaintext dotfile
+to remember to keep out of git.
+
+<Callout type="tip" title="Publishing your config? Put gitleaks in front">
+If you'd rather share your host repo than keep it private, add a
+[gitleaks](https://github.com/gitleaks/gitleaks) pre-commit hook so a stray key
+never gets to *be* a commit:
+
+```sh
+cd ~/.config/nix
+printf '#!/bin/sh\nexec gitleaks git --pre-commit --staged --redact --verbose\n' \
+  > .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Add `haus.roster.gitleaks.package = pkgs.gitleaks;` so the hook has something to
+run. Scan the
+history you already have *before* you flip the repo public — plain `gitleaks
+git` walks every commit, and deleting a line later doesn't unpublish the key, so
+rotate anything it finds.
+</Callout>
+
+<Cards>
+  <Card
+    icon={<Icon name="apps" />}
+    title="Adding apps"
+    href="/docs/haus/guides/adding-apps"
+    description="The most common change of all, in full — where an app comes from, and what key launches it."
+  />
+  <Card
+    icon={<Icon name="rescue" />}
+    title="Troubleshooting"
+    href="/docs/haus/reference/troubleshooting"
+    description="When a change lands and something else stops working, the symptom and the command are here."
+  />
+</Cards>
