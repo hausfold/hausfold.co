@@ -1,0 +1,12 @@
+# Static redirects for the assets-only Worker. Cloudflare consumes this file
+# rather than serving it, so it never appears at /_redirects.
+#
+# /desktops was a page until 2026-08-12; its catalogue is now the first
+# section of the landing page. Both spellings are listed because the
+# no-slash form only 307s to the slash form while an index.html exists at
+# that path, and it no longer does.
+#
+# Exact paths only, never `/desktops/*` — the deep page /desktops/nebelhaus/
+# did NOT move, and a wildcard here would swallow it.
+/desktops     /#desktops   301
+/desktops/    /#desktops   301

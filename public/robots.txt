@@ -10,10 +10,10 @@
 # Nothing is disallowed, and nothing should be: only ./public is ever uploaded
 # to the Worker, so everything reachable here is meant to be read.
 #
-# No `Sitemap:` line on purpose. There are five pages, all linked and all
+# No `Sitemap:` line on purpose. There are eight pages, all linked and all
 # carrying a <link rel="canonical">. Add a sitemap when the Astro site lands
 # (rename plan §5.1) and can generate one — a hand-written list is a thing to
-# forget to update, and /desktops is about to grow entries.
+# forget to update, and /desktops/ is about to grow entries.
 
 User-agent: *
 Allow: /
