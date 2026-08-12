@@ -1,0 +1,393 @@
+/* ------------------------------------------------------------------
+   The docs' stylesheet — hausfold.co's broadsheet, wearing Fumadocs.
+
+   Everything below is a *re-pointing*, not a second design system. The
+   tokens come from `public/hausfold.css`, imported here at build time so
+   the hand-written pages and the docs cannot drift apart: one file
+   defines --ground/--ink/--rule/--well and the six --a-* accents, one
+   `scripts/sync-nebelung.mjs` keeps its dark values equal to nebelung's
+   own CSS port, and this file only says which Fumadocs variable each of
+   them stands behind.
+
+   The three rules the site is built on survive intact:
+
+     greyscale at rest   — nothing on a page owns a colour. The chrome is
+                           ink on paper (or ink on crust) until you point
+                           at something or open a page that is *about* a
+                           product, and then it borrows that product's
+                           accent. See "the borrowed accent" below.
+     no motion           — one exception, the same one: the ⌂ mark's
+                           iridescent sheen, on hover only, defined in
+                           hausfold.css and merely resized here.
+     both themes, always — colours are tokens; the fork happens once, in
+                           hausfold.css, on `prefers-color-scheme` and on
+                           `[data-theme]`. next-themes writes BOTH `class`
+                           and `data-theme` (see components/provider.tsx),
+                           so fumadocs' own `.dark` block and hausfold's
+                           `[data-theme="dark"]` block agree by
+                           construction rather than by discipline.
+
+   The one thing docs added that the landing pages never needed: syntax
+   colour. That is the "code coloured, chrome greyscale" line — a code
+   block is the one surface here allowed a hue at rest, and the hues are
+   nebelung's. See "the code ramp" at the foot of this file.
+   ------------------------------------------------------------------ */
+
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+/* The site's own tokens and type. Inlined by PostCSS at build time — it is
+   the same file `public/` serves to the hand-written pages, so there is one
+   copy of the palette in the repo and not two. Its layout classes (.sheet,
+   .index, .catalogue…) go unused here; they are what the landing pages will
+   bring with them when they become Next routes in turn. */
+@import '../../public/hausfold.css';
+
+@theme {
+  /* The Mac's own faces — the thesis of the site, set in the site. Declared
+     as theme tokens too, so any `font-sans`/`font-mono` utility inside
+     Fumadocs' own components lands on the same two stacks. */
+  --font-sans: ui-serif, 'New York', Georgia, 'Iowan Old Style', serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* --- Fumadocs' palette, re-pointed ---------------------------------- */
+
+/* Every `--color-fd-*` becomes a hausfold token. Because those tokens
+   already fork by scheme in hausfold.css, this block is written ONCE and is
+   scheme-agnostic — there is deliberately no dark counterpart to keep in
+   step with it.
+
+   Specificity note: fumadocs' own `.dark { --color-fd-* }` block matches an
+   element that also matches `:root`, at equal specificity, so source order
+   decides — and this file is imported after it. That is load-bearing; move
+   the import above the preset and dark mode silently reverts to fumadocs'
+   greys. */
+:root {
+  --color-fd-background: var(--ground);
+  --color-fd-foreground: var(--ink);
+  --color-fd-muted: var(--well);
+  --color-fd-muted-foreground: var(--ink-3);
+  --color-fd-popover: var(--ground);
+  --color-fd-popover-foreground: var(--ink);
+  --color-fd-card: var(--well);
+  --color-fd-card-foreground: var(--ink);
+  --color-fd-border: var(--rule);
+  --color-fd-primary: var(--ink);
+  --color-fd-primary-foreground: var(--ground);
+  --color-fd-secondary: var(--well);
+  --color-fd-secondary-foreground: var(--ink);
+  --color-fd-accent: var(--well);
+  --color-fd-accent-foreground: var(--ink);
+  --color-fd-ring: var(--ink-3);
+  --color-fd-overlay: rgb(0 0 0 / 0.3);
+}
+
+/* `fumadocs-ui/css/neutral.css` tints the sidebar a shade off the page in
+   dark mode, at `.dark #nd-sidebar` — higher specificity than the block
+   above, so it has to be answered on its own terms. The sidebar here is not
+   a panel; it is the same paper with a rule down its edge. */
+.dark #nd-sidebar,
+:root[data-theme='dark'] #nd-sidebar {
+  --color-fd-muted: var(--well);
+  --color-fd-secondary: var(--well);
+  --color-fd-muted-foreground: var(--ink-3);
+}
+
+/* --- the borrowed accent -------------------------------------------- */
+
+/* A docs page may declare in its frontmatter which product it is about
+   (`accent: pounce`). The page renders that as `data-accent` on its own
+   container — but the things that should warm to it (the sidebar's active
+   row, the table of contents, a link in the prose) live OUTSIDE that
+   container, in the layout. `:has()` is what lifts one page's declaration
+   up to the whole document without a client component or a wrapper prop.
+
+   A page with no `accent` gets `--accent: var(--ink)`, which is to say: no
+   colour at all. That is the default and the common case — most of these
+   pages are about the layer, and the layer is not a product with a hue. */
+body {
+  --accent: var(--ink);
+
+  /* Callouts are the one component fumadocs ships with hues of its own —
+     oklch blue/amber/red/green, none of them from any palette this family
+     uses. They are re-pointed at the site's own borrowed accents so a
+     callout can't introduce a seventh colour.
+     `info` and `idea` take the page's accent, which is to say: nothing,
+     unless the page is about a product. `warning` and `error` keep a real
+     signal — a warning you can't tell from a note isn't one — and borrow it
+     from trill's yellow and the rice's pink, both of which already fork
+     correctly between paper and crust. */
+  --color-fd-info: var(--accent);
+  --color-fd-idea: var(--accent);
+  --color-fd-success: var(--a-perch);
+  --color-fd-warning: var(--a-trill);
+  --color-fd-error: var(--a-nebelhaus);
+}
+
+body:has([data-accent='nebelhaus']) { --accent: var(--a-nebelhaus); }
+body:has([data-accent='pounce']) { --accent: var(--a-pounce); }
+body:has([data-accent='holt']) { --accent: var(--a-holt); }
+body:has([data-accent='perch']) { --accent: var(--a-perch); }
+body:has([data-accent='nebelung']) { --accent: var(--a-nebelung); }
+body:has([data-accent='trill']) { --accent: var(--a-trill); }
+
+/* --- the masthead, shrunk ------------------------------------------- */
+
+.hf-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+/* hausfold.css sizes `.mark` for a landing page (clamp(3.4rem, 11vw, 5rem)).
+   Everything else about it — the shrink-to-glyph hit box, the conic
+   gradient on ::after, the 0.7s fade, the reduced-motion hold — is reused
+   verbatim. This is a resize, not a second mark. */
+.mark--nav {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.wordmark--nav {
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+/* --- the chrome: mono, small, quiet --------------------------------- */
+
+/* Nav, sidebar and table of contents are apparatus, not prose. They take
+   the mono face at the sizes the hand-written pages use for `.meta` and
+   `.crumbs`, so the docs read as more pages of the same publication. */
+#nd-sidebar,
+#nd-toc,
+#nd-nav,
+#nd-subnav {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+/* Group labels — "Guides", "Reference" — are `.block h2` from the landing
+   page: a line of small caps over a hairline. The sidebar's only bare `<p>`
+   is a separator, which is what makes this selector safe. */
+#nd-sidebar p {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* The active page is the one place the sidebar spends the page's accent —
+   as *type*, never as a filled pill. fumadocs paints the active row with a
+   tinted background and the hovered one with a grey block; both are the
+   kind of fill this site doesn't have anywhere else, so both are cleared.
+   An id beats a utility class, so no `!important` is needed. */
+#nd-sidebar a,
+#nd-sidebar a:hover,
+#nd-sidebar a[data-active='true'] {
+  background: transparent;
+}
+
+#nd-sidebar a[data-active='true'] {
+  color: var(--accent);
+}
+
+/* Hover stays ink — brighter, not coloured — so running the pointer down a
+   list of links doesn't strobe. */
+#nd-sidebar a:hover {
+  color: var(--ink);
+}
+
+#nd-toc a[data-active='true'] {
+  color: var(--accent);
+}
+
+/* --- the page ------------------------------------------------------- */
+
+/* Titles are serif and set tight, like `.standfirst`. Fumadocs' default is
+   a heavier sans; the weight is what makes a docs page look like a docs
+   page rather than a printed one. */
+article h1,
+.prose h1 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: -0.014em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: -0.008em;
+}
+
+/* A hairline under every h2, the same rule `.block h2` carries — it is what
+   gives the landing page its ruled-column look, and it does the same work
+   over a long docs page. The accent lands here and nowhere else in the
+   prose: a two-pixel warm tick at the left end of an otherwise grey rule. */
+.prose h2 {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.35em;
+  background-image: linear-gradient(to right, var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 1.6rem 1px;
+}
+
+.prose {
+  color: var(--ink-2);
+}
+
+.prose strong {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* Prose links keep the landing page's underline — offset, hairline, grey
+   until you point at it and then the page's own accent. This is the second
+   place colour appears, and like every other one it needs a pointer. */
+.prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--ink-3);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.prose a:hover,
+.prose a:focus-visible {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+/* Outside the prose — nav, sidebar, TOC, buttons — links are not underlined.
+   hausfold.css underlines every `a` on the page because on a one-sheet
+   landing page every link IS prose; here most of them are apparatus. */
+#nd-nav a,
+#nd-sidebar a,
+#nd-toc a,
+#nd-subnav a,
+.hf-brand a {
+  text-decoration: none;
+}
+
+/* --- fact-shaped things --------------------------------------------- */
+
+/* Tables and callouts get the same treatment as `.facts` and `.cmd`: a
+   hairline, a well, and no fill. A callout's left edge is the accent's
+   third and last home on a page. */
+.prose table {
+  font-size: 0.92em;
+}
+
+.prose thead th {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--accent);
+  color: var(--ink-3);
+  font-style: normal;
+}
+
+/* A callout is a hairline box on the well, not a floating card: the rounded
+   corner and the drop shadow are the two things that make fumadocs' default
+   read as a UI element rather than as a ruled sidebar in a printed page.
+   The `--callout-color` custom property is fumadocs' own hook, so the
+   coloured rule down the left keeps working. */
+[style*='--callout-color'] {
+  border-radius: 3px;
+  border: 1px solid var(--rule);
+  background: var(--well);
+  box-shadow: none;
+}
+
+/* --- the code ramp --------------------------------------------------- */
+
+/* Shiki is configured (src/lib/shiki-theme.ts) to emit `var(--nb-*)` for
+   every token rather than a hex, so the two schemes are two blocks of CSS
+   here instead of two compiled theme objects to keep in step.
+
+   Light is hand-picked, in the same relationship to paper that
+   hausfold.css's light --a-* values have: nebelung's pastels are built for
+   a dark ground and wash out on it. Dark IS nebelung, read straight out of
+   the block `scripts/sync-nebelung.mjs` vendors into hausfold.css. */
+:root {
+  --nb-foreground: var(--ink-2);
+  --nb-background: transparent;
+  --nb-token-keyword: #6a3fb0;
+  --nb-token-string: #2e7a37;
+  --nb-token-string-expression: #2e7a37;
+  --nb-token-function: #2b5fa8;
+  --nb-token-constant: #a8570f;
+  --nb-token-parameter: #9b3d5e;
+  --nb-token-comment: #8a8781;
+  --nb-token-punctuation: #7b7873;
+  --nb-token-link: #0f7268;
+}
+
+.dark,
+:root[data-theme='dark'] {
+  --nb-foreground: var(--nebelung-text);
+  --nb-token-keyword: var(--nebelung-mauve);
+  --nb-token-string: var(--nebelung-green);
+  --nb-token-string-expression: var(--nebelung-green);
+  --nb-token-function: var(--nebelung-blue);
+  --nb-token-constant: var(--nebelung-peach);
+  --nb-token-parameter: var(--nebelung-maroon);
+  --nb-token-comment: var(--nebelung-overlay0);
+  --nb-token-punctuation: var(--nebelung-overlay2);
+  --nb-token-link: var(--nebelung-teal);
+}
+
+/* A comment is the one token that carries an italic, and nebelung's ramp is
+   where the grey comes from — dim enough to skip, legible enough to read. */
+code .line span[style*='--nb-token-comment'] {
+  font-style: italic;
+}
+
+figure[data-rehype-pretty-code-figure],
+.prose pre {
+  background: var(--well);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.prose pre,
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+/* Inline code stays grey in running text — a coloured word inside a
+   sentence reads as a link that doesn't work. */
+.prose :not(pre) > code {
+  color: var(--ink-2);
+  background: transparent;
+  font-size: 0.86em;
+}
+
+/* --- housekeeping ---------------------------------------------------- */
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}

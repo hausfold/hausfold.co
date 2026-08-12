@@ -62,15 +62,25 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
 | anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
-| the docs, the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.1 |
+| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ⚠️ Only five pages have been ported; the rest are still `web/` in the workshop and still live on nebelhaus.com, so a fact fixed in one tree and not the other will disagree |
+| the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.2 |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
-**One change in flight still reshapes this repo** (plan §5.1) — know it before
-you make architectural assumptions here:
+**The change in flight is half-landed** (plan §5.2) — know exactly which half
+before you make architectural assumptions here:
 
-**The whole site moves in**: `/`, `/docs`, `/desktops`, `/holt`, `/pounce`,
-`/perch`. This stops being a static-assets Worker and becomes the Astro site,
-with a build step and a real `main`.
+✅ **`/docs` has arrived**, rebuilt on [Fumadocs](https://fumadocs.dev) — Next,
+`output: 'export'`, static. Not a port of the workshop's Astro/Starlight tree;
+that was the user's call on 2026-08-09. This repo therefore **has a build step**
+now: `npm run build` writes `out/`, Next copies `public/` into it verbatim, and
+`out/` is what deploys. It is still a static-assets Worker with no `main`.
+
+❌ **Not yet, and each is its own piece of work:** the remaining ~24 docs pages;
+the landing pages becoming Next routes (decided, not done — they are still the
+hand-written HTML in `public/`); and `worker.js`, which carries `/init.sh`,
+`/download/<app>`, `/api/release/<app>`, the `hausfold.co/<rice>.sh` installer
+route and the `nebelhaus.com/*` 301s. **Until that last one lands the docs print
+`nebelhaus.com/init.sh`**, because that is the URL that resolves.
 
 *(§5.1's other prerequisite — "this repo goes public" — was settled on
 2026-08-08 by creating this repo public rather than flipping the old one. The
@@ -157,16 +167,21 @@ temporary and the copy as not. Three things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `404`,
-  `index`, `haus`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`,
-  `desktops/nebelhaus` — **plus the JSON-LD organization record**
+  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `index`,
+  `haus`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`,
+  `desktops/nebelhaus` and `src/app/not-found.tsx` (which replaced
+  `public/404.html` on 2026-08-12) — **plus the JSON-LD organization record**
   (`index.html:80`), which is the one a find-and-replace over visible copy
-  misses. `rg 'hi@hausfold' public/` before assuming you've seen them all.
+  misses. `rg 'hi@hausfold' public/ src/` before assuming you've seen them all —
+  one of the nine moved out of `public/` on 2026-08-12, so a grep scoped to it
+  alone misses it now.
 
 ## The site
 
-`public/` is the whole thing, and there is no build step — what's in the
-directory is what's on the domain:
+`public/` is the hand-written half, and it is served verbatim — Next copies the
+whole directory into `out/` untouched, so what's in it is still what's on the
+domain. What changed on 2026-08-12 is that it is no longer *all* of the domain:
+`/docs` is built beside it. See [The docs](#the-docs) below.
 
 | File | What it is |
 |---|---|
@@ -179,10 +194,11 @@ directory is what's on the domain:
 | `pounce/index.html` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
 | `terms/index.html` | what a licence grants, the update year, the fair-source note, what we don't promise |
 | `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
-| `404.html` | served with a real 404 for anything else |
+| ~~`404.html`~~ | **moved to `src/app/not-found.tsx` on 2026-08-12** — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it here produced Next's grey default on the live site. Same markup, same words; it is no longer walked by `sync-nebelung.mjs --check`, and its `theme-color` now comes from `src/lib/shared.ts` |
 | `favicon.svg` | the mark as geometry, on a dark tile, swept through all six accents. Linked from every page; its wedge fan is generated by `scripts/sync-nebelung.mjs` like the stylesheet's block. **The one thing on this site that holds colour with no hover** — see the greyscale rule below |
 | `favicon.ico` | the same mark, monochrome, for Safari — WebKit doesn't resolve the SVG one and falls back to this path. Generated by the same script, from the SVG's own cover path, `--ink` on crust, no accent sweep. **The site's first binary file under `public/`**, added 2026-08-12 — see the script's "the ico fallback" comment for the trade |
 | `robots.txt` | allows everything; no `Sitemap:` line, and its comment says why |
+| `_headers` | two rules: a `Content-Type` for `/api/search` (extensionless, so Cloudflare would otherwise ship the search index uncompressed) and a year of cache for `/_next/static/*` |
 | `hausfold.css` | the shared tokens, type and link styles, the vendored nebelung block, and the header comment with the design decisions |
 
 **The dark theme's nebelung values are generated, not typed.** Since
@@ -309,7 +325,9 @@ Rules that are easy to break by accident:
   crossfade is the reduced-motion-safe form, not the thing the setting exists
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
-- **Almost no JavaScript, and none of it load-bearing.** There are exactly
+- **Almost no JavaScript on the hand-written pages, and none of it
+  load-bearing.** (`/docs` is React and is a different animal — that rule is
+  about `public/`, not about the whole domain.) There are exactly
   four scripts, and they are the same twelve lines: at the foot of
   `desktops/nebelhaus/index.html`, of `perch/index.html`, of
   `pounce/index.html` and of `haus/index.html`, revealing the copy button beside a fenced command. The
@@ -360,15 +378,17 @@ Rules that are easy to break by accident:
   `404-page` shrank that from unlimited to a handful. `public/robots.txt` was
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
-- **Every page carries the same head, and there is no template.** Canonical, the
-  six `og:` tags, `twitter:card`, both `theme-color`s, and (since 2026-08-12,
-  the Safari fallback) both `<link rel="icon" href="/favicon.ico">` and
+- **Every hand-written page carries the same head, and there is no template.**
+  Canonical, the six `og:` tags, `twitter:card`, both `theme-color`s, and
+  (since 2026-08-12, the Safari fallback) both
+  `<link rel="icon" href="/favicon.ico">` and
   `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, on all eight
-  public pages. `404.html` carries the same `theme-color`s, favicon links and
-  stylesheet as the other eight, but skips canonical, the `og:` tags and
-  `twitter:card` — it's served under whatever wrong URL the visitor typed, so
-  there's nothing true to be canonical about. **A change to one is a change to
-  all of them**; nothing checks.
+  hand-written pages. **A change to one is a change to all of them**; nothing
+  checks. ⚠️ **The docs are a second surface, and the better pattern**:
+  `src/app/layout.tsx` is a template, so a head change there — including the
+  favicon — lands on every `/docs` page (and `src/app/not-found.tsx`, the 404
+  that moved out of `public/` the same day) at once. The two halves can drift
+  from each other, which nothing checks either.
 - **`theme-color` duplicates `--ground`.** Two `<meta>` values per page, one per
   scheme. With `public/favicon.svg`'s tile they are the only hand-typed copies
   of the palette outside `hausfold.css` — `sync-nebelung.mjs --check` reads all
@@ -422,17 +442,113 @@ Rules that are easy to break by accident:
     keeps its name forever (rename plan §6). Only the org, the repo and the
     option namespace moved.
 
+## The docs
+
+Added 2026-08-12 (rename plan §5.2). [Fumadocs](https://fumadocs.dev) on Next,
+`output: 'export'` — static, no runtime, no adapter. Content is MDX in
+`content/docs/`; everything else is a thin shell in `src/`.
+
+### Two trees, not one
+
+`content/docs/haus/` and `content/docs/nebelhaus/` are both **root folders**
+(`"root": true` in their `meta.json`), which Fumadocs renders as the switcher at
+the head of the sidebar — the same shape Vercel uses for app-router vs
+pages-router. That is deliberate and it is the site's positioning made
+navigable: **`haus` is the layer, `nebelhaus` is one desktop built on it.** A
+page about the machinery goes in the first; a page about *that* desktop's
+opinions, its install command, its muscle memory goes in the second.
+
+If you can't tell which tree a page belongs in, that's the useful signal: it
+usually means the page is two pages.
+
+Adding a third tab is a positioning change, not a file. It needs the same
+backing as any other claim on this site.
+
+### The editorial bar — this is a rewrite, not a move
+
+The pages come from the workshop's `web/src/content/docs`, and they are **not
+copied across**. The instruction, from the user, is: verify, consolidate,
+simplify, consumerize. **Expect the ported page to be about half the length of
+the original.** What comes out:
+
+- **Maintainer reasoning.** Long passages explaining *why* something was built
+  a certain way, what the alternative was, what failed first. That is a commit
+  message and a note in the workshop; it is not a docs page.
+- **Us-only detail.** One person's hardware, one person's service, the internals
+  of a readout nobody configures. A line naming the thing beats four paragraphs
+  characterising it.
+- **What a reader can find elsewhere in one click.** Point at it.
+
+What stays: the sentences that took work, every fact a reader acts on, and the
+warnings. **Verify each fact against the source repo as you port it** — these
+pages were written against a moving target and some of them have drifted.
+
+### Colour, and where it is allowed
+
+Same rule as the rest of the site, one addition:
+
+- **The chrome is greyscale.** Sidebar, nav, table of contents, headings.
+- **A page may declare `accent: <product>` in its frontmatter** — one of the six
+  in `src/lib/shared.ts`. That tints exactly three things: its sidebar row while
+  active, the tick at the left end of each `h2` rule, and a prose link on hover.
+  It reaches them through `body:has([data-accent=…])` in `src/app/global.css`.
+  **Most pages have no accent, and that is correct** — the layer is not a
+  product with a hue.
+- **Code blocks are the one surface with colour at rest**, and it is nebelung's.
+  Shiki is configured to emit `var(--nb-token-*)` rather than hexes, so the
+  light/dark fork happens in CSS with every other colour on this site.
+- Fumadocs' own callout hues (oklch blue/amber/red/green) are re-pointed at the
+  site's accents. Don't reintroduce them.
+
+`src/app/global.css` is a **re-pointing of Fumadocs' tokens onto
+`public/hausfold.css`**, which it imports at build time — one copy of the
+palette in the repo, not two. Its import order is load-bearing; the file says
+why.
+
+### Components
+
+`src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs and
+nothing else. A component the prose could have been is a component that hides
+the prose from search and from `llms-full.txt`. Adding one is a decision.
+
+### Gotchas paid for already
+
+- **A markdown image is a build-time import** under Fumadocs, resolved relative
+  to the content file — a missing asset is a hard build failure, not a broken
+  `<img>`. Better, but it will bite the first time you port a page with one.
+- **`themes` vs `theme` in the Shiki config.** Fumadocs merges its defaults
+  *under* yours and Shiki branches on `'themes' in options`, so a `theme:` key
+  leaves an empty `themes` beside it and every MDX file fails with
+  `TypeError: Cannot convert undefined or null to object`. `src/lib/source.ts`
+  has the working shape and the explanation.
+- **`out/404.html` always comes from `src/app/not-found.tsx`** and overwrites
+  anything of that name in `public/`. See the file table above.
+
 ## Deploying
 
-Pushing to `main` deploys — the workflow fires on any change under `public/`.
-There is no staging environment: **main is the live site.** Look at your change
-in a browser first, and check both themes.
+Pushing to `main` deploys — the workflow fires on any change under `public/`,
+`content/`, `src/`, or the build config. It runs `npm ci && npm run build`
+first; `out/` is gitignored, so the build is not optional. There is no staging
+environment: **main is the live site.** Look at your change in a browser first,
+and check both themes.
 
 **Use a server, not `file://`.** Every page links `/hausfold.css` and navigates
 by absolute path, so `open public/index.html` renders unstyled and its links go
-nowhere. The truest local check is `npx wrangler dev` (it exercises
-`not_found_handling` too); `python3 -m http.server` from inside `public/` is
-enough for a look at the type.
+nowhere.
+
+- Editing **docs**: `npm run dev`. Hot reload; the only sane MDX loop.
+- Editing **pages**, or checking the site as deployed: `npm run build && npx
+  wrangler dev` — same asset server, and it exercises `not_found_handling` and
+  `_headers`.
+
+A PR that touches the docs or the build also runs **Docs**
+(`.github/workflows/docs.yml`): type-check, lint, then **two cold builds diffed
+against each other**. That last step is the one that isn't boilerplate — the
+export is byte-reproducible today (measured: six consecutive cold builds,
+identical), `generateBuildId` in `next.config.mjs` is what makes it so, and
+without a check the day a Next or Fumadocs release introduces a timestamp is a
+day nothing tells you about. It also asserts `out/api/search` isn't empty: a
+search index that loads and answers nothing fails no build step.
 
 A PR that touches `public/hausfold.css`, any `public/**.html`, or `scripts/`
 also runs **Palette** (`.github/workflows/palette.yml`), which is `node
@@ -454,8 +570,12 @@ repo is public, so the preview URL is no longer the *first* place a draft
 leaks); and it is *not* a staging environment — nothing about the preview
 existing makes the merge safe, it just lets you look.
 
-`wrangler deploy` by hand uses your own OAuth session and is fine for a fix that
-can't wait, but prefer the push — CI is what has the token with DNS:Edit, which
+`npm ci && npm run build && npx wrangler deploy` by hand uses your own OAuth
+session and is fine for a fix that can't wait. **The build half is not
+optional**: `[assets] directory` is `./out`, which is generated and gitignored,
+so a bare `wrangler deploy` either errors on a missing directory or — the worse
+case — uploads whatever a previous local build left there, which may be another
+branch's site. Prefer the push — CI is what has the token with DNS:Edit, which
 the `custom_domain` routes need.
 
 ## Before you open a PR

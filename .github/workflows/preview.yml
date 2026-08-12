@@ -1,7 +1,8 @@
 # Deploy an isolated, route-less Cloudflare Worker for each PR, so a copy
 # change can be looked at on a real URL — in both themes, on a phone — before
-# it becomes the live site. Ported from hausfold/workshop's preview-web.yml,
-# minus the build (there is none here: `wrangler deploy` uploads ./public).
+# it becomes the live site. Ported from hausfold/workshop's preview-web.yml.
+# It grew a build step on 2026-08-12, when the docs landed: wrangler now
+# uploads ./out, which `npm run build` writes.
 #
 # The PR number gives each preview a stable workers.dev URL across pushes:
 #   https://hausfold-pr-<number>.<your-subdomain>.workers.dev
@@ -29,6 +30,13 @@ on:
     types: [opened, synchronize, reopened, closed]
     paths:
       - 'public/**'
+      - 'content/**'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.mjs'
+      - 'postcss.config.mjs'
+      - 'tsconfig.json'
       - 'wrangler.toml'
       - 'wrangler.preview.toml'
       - '.github/workflows/preview.yml'
@@ -50,7 +58,7 @@ jobs:
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -81,6 +89,11 @@ jobs:
             echo "::error file=wrangler.preview.toml::A preview Worker must stay route-less and on workers.dev. Remove the route/workers_dev override."
             exit 1
           fi
+
+      - name: Build the site
+        run: |
+          npm ci
+          npm run build
 
       - name: Upload Cloudflare preview
         id: deploy

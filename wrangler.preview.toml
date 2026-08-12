@@ -9,10 +9,14 @@
 #
 # The workflow overrides `name` with hausfold-pr-<number>, which is what makes
 # each PR's URL stable across pushes.
+#
+# `directory` tracks wrangler.toml's: ./out, the built export. The preview job
+# runs `npm ci && npm run build` before uploading, so a PR preview shows the
+# docs as they would actually deploy rather than the raw ./public tree.
 name = "hausfold-preview"
 compatibility_date = "2026-08-04"
 workers_dev = true
 
 [assets]
-directory = "./public"
+directory = "./out"
 not_found_handling = "404-page"
