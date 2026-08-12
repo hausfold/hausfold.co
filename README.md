@@ -178,7 +178,7 @@ it exercises `not_found_handling`. `python3 -m http.server` from inside
 ## `/desktops`
 
 Added 2026-08-08. The gallery — rices you can install, one page per rice, today
-only [nebelhaus](https://github.com/hausfold/hausfold).
+only [nebelhaus](https://github.com/hausfold/haus).
 
 It holds traffic rather than sending it on, which the landing page deliberately
 doesn't: the whole point is that the install command is *right there*. It's
