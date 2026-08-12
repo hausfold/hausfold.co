@@ -8,6 +8,7 @@
     "install",
     "---Guides---",
     "guides/keeping-it-current",
+    "guides/making-it-yours",
     "guides/window-management",
     "guides/the-bar",
     "guides/the-shell",
@@ -20,6 +21,7 @@
     "guides/agent-rebuilds",
     "---Reference---",
     "reference/haus",
-    "reference/pounce"
+    "reference/pounce",
+    "reference/troubleshooting"
   ]
 }

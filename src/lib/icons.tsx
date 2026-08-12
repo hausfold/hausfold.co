@@ -15,10 +15,12 @@ import {
   Keyboard,
   Layers,
   LayoutGrid,
+  LifeBuoy,
   Monitor,
   Palette,
   PanelTop,
   RefreshCw,
+  SlidersHorizontal,
   SquareTerminal,
   Terminal,
   Wand2,
@@ -72,6 +74,8 @@ const icons = {
   wand: { icon: Wand2 },
   sync: { icon: RefreshCw },
   wrench: { icon: Wrench },
+  dials: { icon: SlidersHorizontal },
+  rescue: { icon: LifeBuoy },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.
