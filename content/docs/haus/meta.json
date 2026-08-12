@@ -12,14 +12,17 @@
     "guides/the-bar",
     "guides/the-shell",
     "guides/adding-apps",
+    "guides/making-it-yours",
     "guides/pounce",
     "guides/theming",
     "guides/touch-id",
     "guides/hush",
     "guides/coding-agents",
     "guides/agent-rebuilds",
+    "guides/leaving",
     "---Reference---",
     "reference/haus",
-    "reference/pounce"
+    "reference/pounce",
+    "reference/troubleshooting"
   ]
 }

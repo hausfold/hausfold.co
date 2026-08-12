@@ -53,7 +53,9 @@ haus doctor        # health check, when it isn't obvious what broke
 ```
 
 Every switch creates a generation, and `rollback` steps back to the last one in
-seconds.
+seconds. When it's a symptom rather than a change — a dead bar, a launcher that
+won't answer — [Troubleshooting](/docs/haus/reference/troubleshooting) has the
+known quirks and the command for each.
 
 <Callout type="warn" title="Rollback doesn't rewind macOS's own settings">
 A generation holds everything Nix wrote — packages, services, login agents — but
