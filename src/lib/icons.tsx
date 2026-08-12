@@ -2,6 +2,7 @@ import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
   BellOff,
+  Bot,
   Boxes,
   Cat,
   CloudFog,
@@ -64,6 +65,7 @@ const icons = {
   terminal: { icon: Terminal },
   fingerprint: { icon: Fingerprint },
   bellOff: { icon: BellOff },
+  agent: { icon: Bot },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.
