@@ -13,6 +13,12 @@ haus doctor    # Nix, the Xcode tools, every GUI agent, cask drift, the
                # secrets — in one pass
 ```
 
+Every agent also keeps a log in `/tmp` — `aerospace`, `sketchybar`,
+`sill-bottom` and `pounce` each write `<name>.out.log` and `<name>.err.log`
+there. Reading the error log is usually faster than restarting blind, and an
+agent that dies again ten seconds after a kick is telling you something that
+only shows up in it.
+
 ## ⌘Space does nothing
 
 Pounce is a launchd **user agent**. If it isn't answering, kick it — this is the
@@ -32,9 +38,10 @@ pounce --request-accessibility   # approve the system dialog
 pounce --check-accessibility     # prints true once granted
 ```
 
-Set `haus.pounce.signingIdentity` so that grant survives rebuilds — see [Pounce
-config](/docs/haus/reference/pounce). If ⌘Space still opens **Spotlight**, log
-out and back in once so the symbolic-hotkey reassignment takes.
+Set `haus.pounce.signingIdentity` so that grant survives rebuilds — see
+[granting Accessibility](/docs/haus/guides/pounce#grant-accessibility). If
+⌘Space still opens **Spotlight**, log out and back in once so the
+symbolic-hotkey reassignment takes.
 
 <Callout title="Palette opens, but slowly?">
 Another hotkey tool — skhd, AeroSpace, Raycast — bound to the same key grabs it
@@ -42,6 +49,11 @@ with an event tap *ahead* of Pounce, so every summon spawns a fresh client
 instead of hitting the daemon's fast path. Registration still reports success
 and the palette still opens, which is what makes it hard to spot. `pounce
 doctor` names the culprit and tells you what to unbind.
+
+One line of its output is wrong on a haus machine: if the daemon isn't running
+it suggests `brew services start pounce`, which is the advice for a standalone
+Homebrew install. Here the daemon is the launchd agent above — kick that
+instead.
 </Callout>
 
 ## Windows won't tile
@@ -59,7 +71,7 @@ The smaller ones:
   <kbd>`</kbd> to re-sort everything to its roster home.
 - **A binding you changed didn't take?** A rebuild rewrites the config, but the
   live daemon holds the old one until it reloads. Force it with `aerospace
-  reload-config`.
+  reload-config`, or run **Reload AeroSpace** from the ⌘Space palette.
 
 ## The bar is blank or missing
 
@@ -67,6 +79,10 @@ The smaller ones:
 launchctl kickstart -k gui/$(id -u)/org.nixos.sketchybar
 launchctl kickstart -k gui/$(id -u)/org.nixos.sill-bottom   # if you run the bottom bar
 ```
+
+If `/tmp/sketchybar.err.log` says `could not acquire lock-file … already
+running?`, a stray `brew services` copy of SketchyBar is holding the lock. Every
+rebuild evicts it, so `haus rebuild` is the fix.
 
 **Running, but stale** — a pill you added isn't there, or a colour change didn't
 land? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or from the
@@ -108,6 +124,33 @@ which has no CLI to set it. So it's a one-time manual step: in **System Settings
 find the entries named **`sh`** (subtitled *Item from unidentified developer*),
 switch them on and reboot. Already on but still blocked? Flip off, then on, to
 force a database write.
+
+You can read the store yourself at any time:
+
+```sh
+sudo sfltool dumpbtm | grep -B2 -A8 -iE "nixos|hausfold|darwin-store"
+```
+
+Look for `disallowed`, and search all three names — the launcher registers under
+`com.hausfold.pounce` while tiling and the bar are still `org.nixos.*`, so a
+grep for `nixos` alone reports a clean store while the launcher is the thing
+that's blocked.
+
+## Every agent is dead, and macOS didn't change
+
+Same symptom, different cause, and this one needs no upgrade: **a rebuild that
+aborted before it got to them.** If your host file writes
+`system.defaults.universalaccess.*`, activation writes those keys two thirds of
+the way through — and without Full Disk Access that write fails, takes the rest
+of activation with it, and never reaches the launchd agents. The failure is
+nowhere near the symptom.
+
+`haus doctor` reports the grant, and `haus rebuild` refuses up front when it
+detects a Claude Code session that lacks it. Better still, sidestep the domain:
+`haus.accessibility.increaseContrast` and
+`haus.accessibility.differentiateWithoutColor` reach the two keys in it that are
+worth having, with a guarded write. [Changing your Mac with an
+agent](/docs/haus/guides/agent-rebuilds) has the detail.
 
 ## Touch ID for sudo beachballs inside a multiplexer
 
@@ -156,8 +199,10 @@ entirely? [Leaving](/docs/haus/guides/leaving) walks each exit, smallest first.
 
 ## "Found a Nix at /nix that isn't Determinate"
 
-haus is built on [Determinate Nix](https://docs.determinate.systems/) and won't
-install on top of a stock single-user Nix rather than risk breaking it. If you
+haus is built on [Determinate Nix](https://docs.determinate.systems/), and the
+installer stops on any `/nix` that Determinate didn't create — single-user or
+multi-user daemon install alike, it's the *flavour* it checks — rather than risk
+breaking the Nix you already have. If you
 have a Nix you don't need, uninstall it and re-run the one-liner; if you want to
 keep it, migrating to Determinate is the supported path. A fresh Mac needs none
 of this — the bootstrap installs Determinate for you.
