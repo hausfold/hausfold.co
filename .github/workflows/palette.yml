@@ -1,4 +1,5 @@
-# Check that public/hausfold.css still agrees with nebelung's CSS port.
+# Check that public/hausfold.css and public/favicon.svg still agree with
+# nebelung's CSS port.
 #
 # The dark theme's ten nebelung values used to be hand-copied hexes, written
 # twice each (once for `prefers-color-scheme`, once for the `data-theme`
@@ -20,16 +21,21 @@
 #   - --ink or --well drifting apart between the two dark blocks, or stopping
 #     being literals. They are deliberately not nebelung's.
 #   - a page whose dark `theme-color` no longer equals crust, or hasn't got one.
-#     That <meta> is the last hand-typed copy of the palette, there are ten of
-#     them, and no template generates them.
+#     That <meta> is a hand-typed copy of the palette, there are ten of them,
+#     and no template generates them.
+#   - public/favicon.svg's ground drifting off crust — the tile is hand-drawn
+#     and only its wedge fan is generated — or two hyphens in a row appearing
+#     in its comment, which is an XML parse error that no browser reports: the
+#     tab just shows a blank page icon and the site looks like it never had a
+#     favicon.
 #
-# **`public/**.html` is in the paths filter for that last one, and it has to
-# be.** The theme-color check reads markup, not CSS, so filtering on
-# `public/hausfold.css` + `scripts/**` alone meant an HTML-only PR — a new page,
-# or a hand-edited <meta> — never ran the one check that watches the palette's
-# last hand-typed copy. It could add a page with the wrong crust, or no dark
-# <meta> at all, and go green. A check that can't see the file it checks is a
-# check that reports "matches" about markup it never read.
+# **`public/**.html` and `public/favicon.svg` are in the paths filter for those
+# last two, and they have to be.** Those checks read markup and an SVG, not
+# CSS, so filtering on `public/hausfold.css` + `scripts/**` alone meant an
+# HTML-only PR — a new page, or a hand-edited <meta> — never ran the check
+# watching the palette's hand-typed copies. It could add a page with the wrong
+# crust, or no dark <meta> at all, and go green. A check that can't see the
+# file it checks is a check that reports "matches" about a file it never read.
 #
 # It builds a **pinned** revision of nebelung (PIN in the script), not `main`.
 # So this job is deterministic: it goes red for things the PR did, never for
@@ -47,6 +53,7 @@ on:
     paths:
       - 'public/hausfold.css'
       - 'public/**.html'
+      - 'public/favicon.svg'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   push:
@@ -54,6 +61,7 @@ on:
     paths:
       - 'public/hausfold.css'
       - 'public/**.html'
+      - 'public/favicon.svg'
       - 'scripts/**'
       - '.github/workflows/palette.yml'
   workflow_dispatch: {}

@@ -133,6 +133,13 @@ way only under the pointer: hovering a name tints it with that product's accent,
 and hovering the `⌂` mark stripes it with all six and lets them drift. Leave,
 and it's grey and still again.
 
+One thing does not give way, and it is deliberate: **the favicon holds the
+six-accent sweep at rest**, because the two hover exceptions are gated on a
+hover a favicon hasn't got — an icon that stays grey until you point at it is
+just a grey icon. It borrows rather than owns like everything else here (same
+six accents, generated out of the same vendored nebelung port), it is chrome
+rather than page, and AGENTS.md records it as the third and only exception.
+
 The gallery is where this rule is under most pressure, and it's why
 `/desktops`'s screenshot slots being empty is a feature rather than a delay: a
 real capture of the nebelhaus desktop is wall-to-wall nebelung, and the day one
