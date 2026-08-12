@@ -1,0 +1,82 @@
+---
+title: Touch ID for sudo
+description: A fingerprint instead of a typed password — and unlike stock Touch ID for sudo, it works inside a terminal multiplexer.
+icon: fingerprint
+---
+
+**collar** is the auth room, and it is two lines of setup with one real payoff:
+`sudo` takes your fingerprint instead of a password, **inside zellij or tmux**,
+where stock Touch ID for sudo silently fails.
+
+## Why the multiplexer matters
+
+Running `sudo` inside a multiplexer detaches from the graphical login session,
+so the Touch ID prompt has nowhere to appear — it just hangs. collar pulls in
+[`pam_reattach`](https://github.com/fabianishere/pam_reattach), which hands the
+prompt back to your login session. Type `sudo -v` in a pane and the macOS dialog
+floats up over the multiplexer; touch the sensor and the command runs. Cancel,
+and you get the password prompt as usual.
+
+## The commands that never ask
+
+Activating a build is the privileged thing this desktop does constantly, and a
+prompt per rebuild buys nothing — you already authenticated to *build* it. So
+activation gets a pass:
+
+```
+<you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
+<you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/haus-activate
+```
+
+Two commands, one act: `darwin-rebuild` is the classic route, `haus-activate`
+the faster one `haus rebuild` takes — it builds the system as *you*, then hands
+the result over, so root never evaluates your config a second time. Nothing else
+is exempt.
+
+<Callout title="How wide is that, really?">
+`haus-activate` takes a path, which looks like the broader grant — but it isn't
+a widening. `darwin-rebuild switch --flake <anything>` already meant "anything I
+can build, I can activate as root, unprompted". Both lines are the same grant,
+and one option drops both.
+</Callout>
+
+## What it stays out of
+
+Key management. **YubiKey and GPG** are deliberately outside haus: key
+material, smartcard setup and `pinentry` are handled by `gpg-agent` and
+`pinentry-mac` at runtime, which keeps secrets off the Nix store and lets you
+manage hardware keys the normal way. Commit signing itself is wired up in
+[the shell](/docs/haus/guides/the-shell) from `haus.git.signingKey`.
+
+## Two switches
+
+collar is on by default, and it has exactly two knobs:
+
+```nix
+haus.collar.enable = true;              # Touch ID for sudo, reattach and all
+haus.collar.passwordlessRebuild = true; # activation never authenticates
+```
+
+Turn the second off on a machine you don't administer alone and activation goes
+back to asking — a fingerprint, or a password if the first is off too. Turn the
+first off and macOS's stock password prompt comes back everywhere.
+
+For most people both stay on, they work from the first `switch`, and typing a
+password to `sudo` becomes a memory.
+
+## Next
+
+<Cards>
+  <Card
+    icon={<Icon name="terminal" />}
+    title="The shell"
+    href="/docs/haus/guides/the-shell"
+    description="Where you'll be typing that sudo — the terminal, the multiplexer and the toolbelt."
+  />
+  <Card
+    icon={<Icon name="install" />}
+    title="Install"
+    href="/docs/haus/install"
+    description="One line scaffolds a config, a second command activates it."
+  />
+</Cards>

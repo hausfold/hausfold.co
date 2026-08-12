@@ -62,7 +62,7 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
 | anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
-| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ⚠️ Only five pages have been ported; the rest are still `web/` in the workshop and still live on nebelhaus.com, so a fact fixed in one tree and not the other will disagree |
+| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ⚠️ Ten pages have been ported so far; the rest are still `web/` in the workshop and still live on nebelhaus.com, so a fact fixed in one tree and not the other will disagree |
 | the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.2 |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
@@ -75,7 +75,9 @@ that was the user's call on 2026-08-09. This repo therefore **has a build step**
 now: `npm run build` writes `out/`, Next copies `public/` into it verbatim, and
 `out/` is what deploys. It is still a static-assets Worker with no `main`.
 
-❌ **Not yet, and each is its own piece of work:** the remaining ~24 docs pages;
+❌ **Not yet, and each is its own piece of work:** the remaining ~19 docs pages
+(the whole `reference/` half, the pounce and agent guides, and the "own it"
+guides — `making-it-yours`, `adding-apps`, `staying-in-sync`, `leaving`);
 the landing pages becoming Next routes (decided, not done — they are still the
 hand-written HTML in `public/`); and `worker.js`, which carries `/init.sh`,
 `/download/<app>`, `/api/release/<app>`, the `hausfold.co/<rice>.sh` installer

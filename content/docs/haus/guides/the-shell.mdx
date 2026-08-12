@@ -1,0 +1,183 @@
+---
+title: The shell
+description: Ghostty opening straight into zellij, a framework-free zsh, and a toolbelt of CLI tools already wearing your palette.
+icon: terminal
+---
+
+**hearth** is the terminal half of the machine. Open your terminal and you land
+in a persistent session, in a themed shell, with a prompt, a file manager, an
+editor and a toolbelt already set up — every one of them painted in the same
+palette as everything else.
+
+## The stack
+
+| Layer | Tool |
+|---|---|
+| Terminal | [Ghostty](https://ghostty.org), title bar hidden, auto-attaching to the session |
+| Multiplexer | [zellij](https://zellij.dev), with its own tab bar and three layouts |
+| Shell | zsh — no framework, fzf-tab completion, sane history |
+| Prompt | [starship](https://starship.rs) |
+| Files | [yazi](https://yazi-rs.github.io), with markdown, code and image previews |
+| Editor | [helix](https://helix-editor.com), and your `$EDITOR` |
+| Jumping | [zoxide](https://github.com/ajeetdsouza/zoxide) — `cd` learns your habits, `cdi` picks from them |
+
+Plus a themed toolbelt: `bat` over `cat`, `lsd` over `ls`, `lazygit` as `lg`,
+`delta` for diffs, and `fzf`, `fd`, `jq`, `gh`, `glow`, `fastfetch` — with
+`nix-index` and `comma` so you can run any nixpkgs command without installing
+it first.
+
+## Ghostty opens into zellij
+
+Launching the terminal drops you into a session called `main` that survives
+closing the window. New panes and tabs inherit your working directory.
+
+Ghostty's own `⌘T`, `⌘P`, `⌘A` and friends are unbound on purpose so zellij can
+own them — the same keys work whether or not you are multiplexed. `⌘C` is not
+one of them; it stayed with the terminal as copy.
+
+| Keys | What it does |
+|---|---|
+| `⌘A` / `⌘⇧A` | New coding agent in its own worktree / the same, replacing this pane |
+| `⌃⌥⇧A` | An agent in *this* checkout — one per tab |
+| `⌘P` / `⌘⇧P` | New pane — hopping out of a worktree, or staying in it |
+| `⌘W` | Close this pane, and the tab with it if it was the last |
+| `⌘T` / `⌘⇧T` | New tab at `~` / at this pane's directory |
+| `⌃⇥` / `⌃⇧⇥` | Walk tabs by recency, browser-style — one tap bounces between your two hottest |
+| `⌘⏎` | Fullscreen this pane; again to drop back into the layout |
+| `⌥[` / `⌥]` | Cycle layouts: grid → spiral → columns |
+| `⌘F` / `⌘⇧F` | Find in this pane / across every pane |
+| `⌘Y` / `⌘⇧Y` | Peek at files — hopping out of a worktree, or staying in it |
+| `⌘L` | Open a link from this pane's scrollback |
+| `⌘G` | Your GitHub review queue, fullscreen |
+
+There is no reload key, because there is nothing to reload: zellij watches its
+own config and applies a change to the running session within a second. A
+`haus rebuild` lands on the session you already have — same tabs, same panes,
+same directories, and a long-running agent never interrupted.
+
+<Callout title="Click a path">
+A click on a file path opens it **in your editor, at its line number** —
+`src/main.rs:42` lands on line 42 — and a click on a directory opens a new tab
+already `cd`'d there. Handy for whatever a build tool just printed. URLs are
+clickable in every pane; paths, in any pane no program has taken the mouse in.
+</Callout>
+
+### Finding things
+
+`⌘F` searches the focused pane, `⌘⇧F` every pane in the session. The overlay
+covers the window but floats above your layout, so `⎋` puts everything back
+untouched. Results appear as you type, with the lines around each hit beside
+them. Inside: `⏎` jumps to the pane a hit came from, `^y` copies the line, `^s`
+flips between this-pane and every-pane without losing your query.
+
+What it searches depends on the pane. A coding-agent pane is searched by its
+**conversation**, not its terminal — an agent that draws fullscreen has no
+scrollback to read, and the transcript is better anyway: the whole thread,
+including text inside collapsed tool output. Claude Code and opencode panes
+work that way; a codex pane and every ordinary shell are searched by
+scrollback.
+
+zellij's own search (`^g` then `s`) is still there, and still the nicer thing
+for a shell you are already reading — it highlights matches in place and walks
+them with `n` / `p`.
+
+### Your review queue
+
+`⌘G` opens [gh-dash](https://github.com/dlvhdr/gh-dash) as an overlay, themed
+like everything else and gone again on `q`. It's off until you ask:
+
+```nix
+haus.hearth.ghDash.enable = true;
+haus.git.org = "your-org";   # or your own account
+```
+
+The first line gets you the tabs that are about *you* — issues you opened,
+issues assigned to you, unread notifications, threads you're in. The second one
+scopes the tabs about your *work*, because a PR tab is a GitHub search and a
+search needs an owner: **open** (everything open, drafts included), **green**
+and **red** (the same queue split by whether CI passed — together they *are* the
+merge decision, and a branch still building is in neither), and **shipped**.
+
+Leave `haus.git.org` empty and those four aren't written at all, which is the
+right answer if you read several owners at once.
+
+## Peeking at files
+
+`⌘Y` opens yazi in a window sized to cover the terminal that summoned it, so it
+reads as that window turning into a file browser rather than a popup landing on
+it. Markdown renders through `glow`, code through `bat`, images through `chafa`.
+`Enter` on a file pages it; `Enter` on a directory opens a new zellij tab
+there, so peek doubles as a browse-and-pick tab chooser. `q` or `⎋` closes it
+and your layout is exactly as you left it.
+
+Every floating terminal haus summons wears a thin outline that follows
+the window's own corner curve, so a dark terminal on a dark window still has an
+edge:
+
+```nix
+haus.hearth.floatBorder = "accent";   # the default — follows haus.theme.accent
+# "grey"      one step off the terminal's background
+# "lavender"  …or any palette accent name
+# "off"       no outline
+```
+
+## Choosing your editor
+
+helix is the default. `haus.hearth.editor` is the one editor the whole desktop
+uses: your `$EDITOR`, and what every "open in an editor" action launches. Those
+open in a new zellij tab, so a terminal editor is the natural fit — a GUI
+editor's CLI works too.
+
+```nix
+haus.hearth.editor = "nvim";                     # any terminal editor
+haus.hearth.hijackFileAssociations = true;       # …and make it macOS's opener for .json, .md, .nix
+```
+
+## Git, without a framework
+
+`g` is `git`, and a finite set of shortcuts ships with it — `gst`, `gco`,
+`gcb`, `gp`, `gpf`, `grbi`, `gwt` and fifty-odd more. The names follow the
+widely-used vocabulary where conventions agree, and deliberately skip the
+ambiguous ones (`gl`, `gr`, `gs`) whose meaning changes between alias sets.
+
+Add, replace or remove one per machine:
+
+```nix
+haus.git.shellAliases = {
+  gsync = "git pull --rebase --autostash";   # add
+  gst = "git status --short --branch";       # replace
+  gco = null;                               # remove
+};
+```
+
+Commit signing lives here too: give
+[`haus.git.signingKey`](https://nebelhaus.com/reference/options/#hausgitsigningkey)
+your key and every commit is signed, on every machine that builds this config.
+`haus.git.name` and `haus.git.email` are the other two.
+
+## Small things you'll notice
+
+- **Tabs name themselves.** `cd` into a repo and the tab takes its name; `cd ~`
+  names it `~`, which is what every fresh tab is born as. No `Tab #3` anywhere.
+- **Worktrees are understood.** A new pane or tab opened inside an agent's
+  throwaway checkout hops to the repo's main checkout, and is named after the
+  repo. The `⇧` variants are the stay-here escape hatch.
+- **Drag to select and it autoscrolls** — fast near the edge, slower as you
+  pull away.
+
+## Next
+
+<Cards>
+  <Card
+    icon={<Icon name="palette" />}
+    title="Theming"
+    href="/docs/haus/guides/theming"
+    description="One palette across every tool — the accent, the contrast, and light mode."
+  />
+  <Card
+    icon={<Icon name="fingerprint" />}
+    title="Touch ID for sudo"
+    href="/docs/haus/guides/touch-id"
+    description="A fingerprint instead of a password, and it works inside the multiplexer."
+  />
+</Cards>

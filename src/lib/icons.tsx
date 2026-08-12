@@ -6,11 +6,15 @@ import {
   Command,
   Compass,
   Download,
+  Fingerprint,
   Footprints,
   Inbox,
   Layers,
+  LayoutGrid,
   Monitor,
+  Palette,
   PanelTop,
+  SquareTerminal,
 } from 'lucide-react';
 import type { Accent } from './shared';
 
@@ -47,6 +51,10 @@ const icons = {
   bar: { icon: PanelTop },
   fog: { icon: CloudFog },
   steps: { icon: Footprints },
+  tiling: { icon: LayoutGrid },
+  terminal: { icon: SquareTerminal },
+  palette: { icon: Palette },
+  fingerprint: { icon: Fingerprint },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.

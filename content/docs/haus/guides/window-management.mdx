@@ -1,0 +1,196 @@
+---
+title: Window management
+description: Tiling windows and the Caps-Lock launcher — how prowl arranges your Mac like a keyboard-driven tiling rig.
+icon: tiling
+---
+
+**prowl** tiles your windows and turns Caps-Lock into a launcher. Windows
+arrange themselves into a tree, the keyboard moves them around it, and nothing
+needs the mouse. It feels like a tiling Linux rig, but they are ordinary macOS
+windows underneath — [AeroSpace](https://github.com/nikitabobko/AeroSpace) does
+the arranging.
+
+## The leader key
+
+Caps-Lock is remapped to a **leader**. Tap it — press and release — and the bar
+turns into letter hints: press an app's letter to launch or focus it. The same
+tap is the way into moving focus, resizing, and jumping between workspaces.
+
+`⌥` is the everyday modifier for the layout chords below.
+
+Focus-by-arrow deliberately isn't a bare `⌥` chord: `⌥`, `⌘` and `⌃` with the
+arrows are all macOS text navigation, so arrow-focus sits behind the leader
+where nothing collides. `⌥H/J/K/L` is there for hands that want Vim keys.
+
+### Not fond of these keys?
+
+Every key above is an option, so none of it is baked in:
+
+```nix
+haus.keys.leader    = "caps";       # caps | alt-space | none
+haus.keys.windowNav = "alt";        # alt | ctrl-alt | cmd-alt | none
+haus.keys.palette   = "cmd-space";  # cmd-space | alt-space | ctrl-space | none
+```
+
+Three reasons people change them:
+
+- **Keeping Caps-Lock.** `leader = "alt-space"` gives you the launcher and
+  leaves the key alone.
+- **A non-US layout.** If `⌥`+letter is how you type accented characters, a
+  window manager owning `⌥` makes the keyboard unusable —
+  `windowNav = "ctrl-alt"` moves every chord at once.
+- **Mouse-first.** `leader = "none"` with `windowNav = "none"` claims no keys
+  at all; prowl still tiles. Reach apps through [pounce](/pounce) instead.
+
+`palette = "none"` hands ⌘Space back to Spotlight.
+
+Whatever you pick, the built-in cheatsheet (tap the leader, then `/`) describes
+the keys you actually have.
+
+## Everyday tiling
+
+| Keys | Action |
+|---|---|
+| `⌥H/J/K/L` | Move focus left / down / up / right |
+| `⌥/` | Tiles layout — toggles horizontal ↔ vertical split |
+| `⌥,` | Accordion layout |
+| `⌥F` | Fullscreen the focused window |
+| `⌥⇧⇥` | Move this workspace to the next monitor |
+| `⌥⇧;` | Enter **service mode** |
+| `⌘Space` | Open [pounce](/pounce) |
+
+No chord here names a *workspace* — those are all leader actions.
+
+## Launch mode — tap ⇪
+
+| Key | Action |
+|---|---|
+| `<app-key>` | Launch or focus that app (`T` for the terminal, `B` for the browser) |
+| `1`–`4` | Go to workspace 1–4 |
+| `⇧1`–`⇧4` | Throw the focused window there and follow it |
+| `⇧<app-key>` | Throw the focused window to that app's workspace and follow it |
+| `←↓↑→` | Move focus, and stay in **navigate mode** so further arrows keep going |
+| `-` / `=` | Shrink / grow, and stay in **resize mode** so you can keep pressing |
+| `V` | Clipboard history |
+| `E` | Emoji picker |
+| `Z` | Reopen the last app you quit |
+| `,` | macOS System Settings |
+| `` ` `` | Re-sort every window to its workspace |
+| `/` | The cheatsheet |
+| `⎋` | Leave without launching anything |
+
+"Go there" and "take this window there" are one `⇧` apart, and both land you on
+the workspace you named. To send a window away and stay put, throw it and `⌘⇥`
+straight back.
+
+`⌥⇥` is deliberately unbound. [pounce's `⌘⇥`
+switcher](/pounce) answers the same
+question better: it is most-recently-used, it goes as far back as you like, and
+its rows carry the window's workspace, so picking one takes you there.
+
+Hang your own commands off the leader with `haus.keys.leaderExtras` — a key, a
+command, and the caption it gets on the cheatsheet.
+
+## Service mode — ⌥⇧;
+
+The structural moves, which you reach for less often:
+
+| Key | Action |
+|---|---|
+| `R` | Flatten the workspace tree |
+| `F` | Float this window instead of tiling it |
+| `⌫` | Close every window but this one |
+| `⌥⇧H/J/K/L` | Join with the neighbour in that direction |
+| `↑` / `↓` / `⇧↓` | Volume up / down / mute |
+| `⎋` | Reload the config and leave |
+
+## Your app roster
+
+The launcher letters come from one list, `haus.roster`. Out of the box that is
+a terminal and a browser; entries compose, so add only your own:
+
+```nix
+haus.roster.slack = {
+  key = "s"; name = "Slack";
+  appId = "com.tinyspeck.slackmacgap";
+  cask = "slack";
+};
+```
+
+| Field | What it does |
+|---|---|
+| `key` | The launcher letter, unique across the roster. `null` — the default — makes the entry install-only: no letter, no cheatsheet row |
+| `name` | The macOS app name, as `open -a` spells it |
+| `appId` | The bundle id. It is what sends the app's windows to the workspace that claims it. `osascript -e 'id of app "Slack"'` prints it |
+| `float` | Keep this app's windows floating — for a picker or status window that would otherwise reflow the whole workspace. Needs `appId`; `titleRegex` narrows it to windows whose title matches |
+| `label` | The cheatsheet caption, if `name` isn't the words you want |
+| `cask` · `brew` · `package` · `appStoreId` | Where it comes from: a Homebrew cask or formula, a Nixpkgs package, or a Mac App Store id. Set the one that applies — two is a build error, none means it's already installed |
+| `enable` · `order` | Turn a default entry off; move an entry up the list |
+
+Which workspace an app lands on is not a field here — that's `haus.workspaces`,
+so several apps can share one.
+
+## Your workspaces
+
+`haus.workspaces` declares the workspaces this machine has and which roster
+apps live on each:
+
+```nix
+# One role, three apps, one pill, one throw key.
+haus.workspaces.comms = {
+  key = "c";
+  icon = ":slack:";
+  apps = [ "slack" "discord" ];
+};
+```
+
+The attribute name *is* the workspace id — a letter like `T`, or a word like
+`comms`. Then:
+
+- **`apps`** — roster ids that live here. Their windows move here on their own,
+  and launching any of them from the leader lands you here. An app belongs to
+  at most one workspace.
+- **`key`** — <kbd>⇪</kbd> then <kbd>⇧</kbd> and this key throws the focused
+  window here. Keys must be unique, and can't reuse `1`–`4`.
+- **`icon`** — the [app-font](https://github.com/kvndrsslr/sketchybar-app-font)
+  ligature drawn in this workspace's bar pill, like `:slack:`. Any other string
+  is drawn as text.
+
+Workspaces `1`–`4` always exist, whatever any app claims.
+
+<Callout title="Windows untangle after sleep">
+macOS scrambles window positions when the machine wakes. prowl re-sorts them to
+their workspaces for you — and you can ask for it any time with <kbd>⇪</kbd>
+then <kbd>`</kbd>.
+</Callout>
+
+## Turning it off
+
+```nix
+haus.prowl.enable = false;
+```
+
+The Caps-Lock remap, the launcher and AeroSpace all stay out of your way. The
+rest still works.
+
+Every binding on this page, plus the terminal's and pounce's, is on the
+[keybindings reference](https://nebelhaus.com/reference/keybindings/) — and on
+the cheatsheet the machine itself carries, which is the copy that can't go
+stale.
+
+## Next
+
+<Cards>
+  <Card
+    icon={<Icon name="bar" />}
+    title="The bar"
+    href="/docs/haus/guides/the-bar"
+    description="Workspace pills, weather, media and a status light — and how to turn any of it off."
+  />
+  <Card
+    icon={<Icon name="terminal" />}
+    title="The shell"
+    href="/docs/haus/guides/the-shell"
+    description="Ghostty opening into zellij, and the keys that move panes and tabs around."
+  />
+</Cards>
