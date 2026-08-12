@@ -1,0 +1,150 @@
+---
+title: Windows
+description: Tiling windows and a launcher on a tap of Caps-Lock — how prowl arranges the Mac from the keyboard.
+icon: tiling
+---
+
+**prowl** is the tiling room. Windows arrange themselves into a tree instead of
+piling up, and the keyboard moves them around it — launch, focus, resize, throw
+one to another workspace, without reaching for the mouse. It feels like a tiling
+Linux rig; underneath it is still native macOS windows, driven by
+[AeroSpace](https://github.com/nikitabobko/AeroSpace).
+
+Two keys carry almost all of it:
+
+- **⇪ Caps-Lock is the leader.** Tap it and the bar turns into letter hints —
+  press an app's letter to launch or focus it. It is also the door to moving
+  focus, resizing, and jumping workspaces.
+- **⌥ Option is the everyday modifier**, for layouts and workspace moves.
+
+Focus-by-arrow deliberately sits *behind* the leader rather than on a bare `⌥`
+chord: `⌥`, `⌘` and `⌃` with the arrow keys are all macOS text navigation, and a
+window manager that took them would break typing everywhere. `⌥H/J/K/L` is there
+too, for hands that want Vim keys.
+
+## Tap ⇪, then
+
+| Key | What happens |
+|---|---|
+| `<app-key>` | Launch or focus that app — `T` terminal, `B` browser, and whatever else you add |
+| `1`–`4` | Go to workspace 1–4 |
+| `⇧` + any of the above | **Throw** the focused window there and follow it |
+| `←↓↑→` | Move focus — and stay in navigate mode, so arrows keep working |
+| `-` / `=` | Shrink / grow, repeatably |
+| `V` / `E` | Clipboard history / emoji picker, via pounce |
+| `Z` | Reopen the last closed app |
+| `,` | macOS System Settings — the `⌘,` convention, one level up |
+| `` ` `` | Re-sort every window to its workspace |
+| `/` | The cheatsheet |
+| `Esc` | Out |
+
+The `⇧` row is the one worth learning: going somewhere and taking the window
+with you is the same motion one `⇧` apart. To send a window away and *stay*,
+throw it and `⌘Tab` back.
+
+## Without the leader
+
+| Keys | What happens |
+|---|---|
+| `⌥/` | Tiles layout — toggles the split horizontal ↔ vertical |
+| `⌥,` | Accordion layout |
+| `⌥F` | Fullscreen |
+| `⌥⇧Tab` | Move this workspace to the next monitor |
+| `⌥⇧;` | **Service mode** — `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧H/J/K/L` joins a neighbour |
+
+`⌥Tab` is deliberately unbound:
+[pounce](https://nebelhaus.com/guides/pounce/)'s `⌘Tab` answers the same question
+better, with a most-recently-used list of *windows* that goes as far back as you
+like and gathers its rows by workspace.
+
+<Callout title="Windows untangle after sleep">
+macOS scrambles window positions when the machine wakes. prowl watches for that
+and re-sorts them to their workspaces on its own — and <kbd>⇪</kbd> then
+<kbd>`</kbd> does it on demand.
+</Callout>
+
+## Not fond of these keys?
+
+None of it is baked in. Three options move the whole vocabulary at once:
+
+```nix
+haus.keys.leader    = "caps";       # caps | alt-space | none
+haus.keys.windowNav = "alt";        # alt | ctrl-alt | cmd-alt | none
+haus.keys.palette   = "cmd-space";  # cmd-space | alt-space | ctrl-space | none
+```
+
+The three reasons people change them:
+
+- **Keep Caps-Lock as Caps-Lock.** `leader = "alt-space"` gives you the launcher
+  without remapping the key.
+- **A non-US layout.** On many layouts `⌥`+letter is how you type an accented
+  character, so a window manager owning `⌥` makes the keyboard unusable.
+  `windowNav = "ctrl-alt"` moves every chord in one go — and the cheatsheet
+  moves with it, because both are generated from the same table.
+- **Mouse-first.** `leader = "none"` with `windowNav = "none"` leaves the
+  keyboard entirely alone: prowl still tiles, but claims no chords.
+
+`palette = "none"` hands ⌘Space back to Spotlight, and is the only value that
+takes it away in the first place.
+
+Whatever you pick, the in-system cheatsheet — tap the leader, then `/` —
+describes the keys you actually have, not the defaults above.
+
+## Workspaces, and what lives on them
+
+A workspace is a named place with apps that belong to it. Declare one, and its
+apps' windows move there by themselves:
+
+```nix
+haus.workspaces.comms = {
+  key = "c";                       # ⇪ ⇧C throws the focused window here
+  icon = ":slack:";                # the bar pill's glyph
+  apps = [ "slack" "discord" ];    # roster ids
+};
+```
+
+The attribute name **is** the workspace id — a letter like `T`, or a word like
+`comms`. Three fields:
+
+- **`apps`** — [roster](/docs/haus/guides/adding-apps) ids that live here.
+  Launching any of them from the leader lands you here. An app belongs to at
+  most one workspace, and naming an id that isn't in the roster warns rather
+  than failing quietly.
+- **`key`** — the `⇪ ⇧`-throw key. There is no bare-key binding for a
+  workspace: that namespace belongs to the launcher letters, one of which
+  usually doubles as "open something here". `null` means the workspace is
+  reachable only by launching an app that belongs to it.
+- **`icon`** — a [SketchyBar app-font](https://github.com/kvndrsslr/sketchybar-app-font)
+  ligature like `:slack:` for the bar's pill; any other string is drawn in the
+  bar's own font.
+
+Workspaces `1`–`4` always exist, whatever any app claims.
+
+The launcher letters themselves come from `haus.roster`, the one list that also
+says where each app is installed from — that's [Adding apps](/docs/haus/guides/adding-apps).
+Out of the box the only letters taken are `T` for the terminal and `B` for the
+browser.
+
+## Turning it off
+
+```nix
+haus.prowl.enable = false;
+```
+
+The Caps-Lock remap, the launcher and AeroSpace all stay out of the way. Nothing
+else in haus depends on it.
+
+<Cards>
+  <Card
+    icon={<Icon name="apps" />}
+    title="Adding apps"
+    href="/docs/haus/guides/adding-apps"
+    description="One list gives an app its launcher letter, its workspace and its installer. This is that list."
+  />
+  <Card
+    icon={<Icon name="bar" />}
+    title="The bar"
+    href="/docs/haus/guides/the-bar"
+    description="The workspace pills on the left of the bar are the other half of this page — plus weather, media and a light that goes red."
+  />
+</Cards>
