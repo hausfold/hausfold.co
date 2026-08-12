@@ -11,6 +11,11 @@
     "guides/the-bar",
     "guides/the-shell",
     "guides/adding-apps",
-    "guides/theming"
+    "guides/pounce",
+    "guides/theming",
+    "guides/touch-id",
+    "guides/hush",
+    "---Reference---",
+    "reference/pounce"
   ]
 }

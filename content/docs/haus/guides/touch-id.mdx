@@ -1,0 +1,80 @@
+---
+title: Touch ID for sudo (collar)
+description: Fingerprint authentication for sudo — even inside zellij or tmux — and a passwordless path for rebuilds.
+icon: fingerprint
+---
+
+**collar** is the small auth room: it turns on **Touch ID for `sudo`**, and —
+the part stock Touch-ID-for-sudo gets wrong — makes that work **inside a
+terminal multiplexer** like zellij or tmux, where it would otherwise silently
+fail.
+
+## What it turns on
+
+```nix
+security.pam.services.sudo_local.touchIdAuth = true;   # fingerprint for sudo
+security.pam.services.sudo_local.reattach   = true;    # make it work in tmux/zellij
+```
+
+`reattach` pulls in [`pam_reattach`](https://github.com/fabianishere/pam_reattach),
+which reattaches the sudo process to your GUI login session — without it,
+`sudo` inside a multiplexer detaches from Aqua and the Touch ID prompt just
+beachballs. Cancel the prompt and it falls back to a typed password.
+
+collar also installs `/etc/sudoers.d/darwin-rebuild`, exempting activation
+from authentication entirely:
+
+```
+<you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
+<you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/haus-activate
+```
+
+Activating a build is the one privileged thing this rice does constantly,
+and a prompt per rebuild buys nothing — you already authenticated to *build*
+it. `darwin-rebuild` is the classic route (and the only one for `haus
+rollback`); `haus-activate` is the faster path `haus rebuild` and `bench try
+switch` take, building as you and handing the result to root without a
+second evaluation. Neither is a wider grant than `darwin-rebuild switch
+--flake <anything>` already was — `haus.collar.passwordlessRebuild = false`
+drops both.
+
+<Callout type="warn" title="Why the stable path, not the store path">
+macOS 26.6 shipped sudo 1.9.17, which stopped dereferencing a command's
+symlink before matching sudoers — a rule against a `/nix/store/…` path only
+matches if you type that literal path, which nobody does. Matching
+`/run/current-system/sw/bin/darwin-rebuild` is what survives a rebuild.
+</Callout>
+
+<Callout title="Yes, it works inside zellij">
+Type `sudo -v` in a zellij pane and the Touch ID dialog floats up right over
+the multiplexer. Touch the sensor, no password typed. (`darwin-rebuild` is
+the happy exception — it doesn't even ask.)
+</Callout>
+
+## What it does *not* do
+
+collar stays out of key management. **YubiKey and GPG** live outside Nix
+entirely — key material, smartcard setup, and `pinentry` are handled by
+`gpg-agent` + `pinentry-mac` at runtime, keeping secrets off the Nix store.
+Commit signing itself is wired up in [the terminal room](/docs/haus/guides/the-shell)
+from `haus.git.signingKey`; collar only handles `sudo` authentication.
+
+## Two switches
+
+```nix
+haus.collar.enable = true;              # Touch ID for sudo, reattach and all
+haus.collar.passwordlessRebuild = true; # activation never authenticates
+```
+
+Both default on. Turn `passwordlessRebuild` off on a machine you don't
+administer alone, and activation goes back to asking. Turn `enable` off and
+macOS's stock password prompt comes back everywhere.
+
+<Cards>
+  <Card
+    icon={<Icon name="shell" />}
+    title="The terminal"
+    href="/docs/haus/guides/the-shell"
+    description="Where commit signing is wired up, and the rest of the command line haus sets up."
+  />
+</Cards>

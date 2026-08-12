@@ -1,12 +1,14 @@
 import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
+  BellOff,
   Boxes,
   Cat,
   CloudFog,
   Command,
   Compass,
   Download,
+  Fingerprint,
   Footprints,
   Inbox,
   Keyboard,
@@ -16,6 +18,7 @@ import {
   Palette,
   PanelTop,
   SquareTerminal,
+  Terminal,
 } from 'lucide-react';
 import type { Accent } from './shared';
 
@@ -57,6 +60,10 @@ const icons = {
   shell: { icon: SquareTerminal },
   palette: { icon: Palette },
   keys: { icon: Keyboard },
+  launcher: { icon: Command },
+  terminal: { icon: Terminal },
+  fingerprint: { icon: Fingerprint },
+  bellOff: { icon: BellOff },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.

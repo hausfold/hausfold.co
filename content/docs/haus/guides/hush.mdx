@@ -1,0 +1,139 @@
+---
+title: Focus & DND (hush)
+description: One quiet switch — bar pill, palette command, and CLI — for macOS Do Not Disturb, your Slack status, and your own hooks.
+icon: bellOff
+---
+
+**hush** is the quiet room. One switch — the bell pill in the bar, "Toggle
+Hush" in the palette, or `hush` in a terminal — turns macOS **Do Not
+Disturb** on or off, optionally sets your **Slack status** (and silences
+Slack on your phone), and runs any **hooks** you add. All three surfaces
+call the same engine, so they can never disagree.
+
+Because hush drives the *real* macOS Focus, everything Focus already does
+comes along free: with **Share Across Devices** on, your iPhone and iPad
+hush too, and the "allowed to break through" list is whatever you've curated
+in System Settings.
+
+## How the toggle works
+
+Apple ships no public API or CLI to set a Focus — every "focus CLI" on
+GitHub is secretly a Shortcuts wrapper. haus takes a different path: macOS
+has a hidden keyboard shortcut slot — *"Turn Do Not Disturb On/Off,"*
+symbolic hotkey **175**, disabled by default — and every rebuild binds it
+declaratively to **⌃⌥⇧⌘ F13**, a chord nothing else uses. `hush` synthesizes
+that keypress; nothing to author by hand, and the binding heals itself on
+every rebuild.
+
+State is read from the Focus database (`~/Library/DoNotDisturb/DB`) when the
+calling app has Full Disk Access, so the pill stays truthful even when you
+toggle Focus from Control Center or your phone; without that grant, hush
+falls back to remembering its own last toggle.
+
+## The one-time grants
+
+Synthesizing a keypress needs **Accessibility**; exact state reads need
+**Full Disk Access** — both granted once, per app, in System Settings →
+Privacy & Security. Run `hush doctor` any time to check each piece and print
+the fix for whatever's missing.
+
+- **Palette toggles work out of the box** — they run under the Pounce
+  daemon, which already holds Accessibility.
+- **For the bar pill**, add **sketchybar** to Accessibility.
+- **For the CLI**, add your terminal.
+- **Optional but recommended**: add the signed **Pounce.app** (or your
+  terminal + sketchybar) to **Full Disk Access** so `hush status` reads the
+  real Focus state instead of guessing.
+
+<Callout type="tip" title="Why grants stick">
+macOS keys TCC grants to a code-signing identity. haus re-signs Pounce with
+your stable identity precisely so these checkboxes survive rebuilds — tick
+them once, forget them.
+</Callout>
+
+## The Slack leg
+
+macOS Focus already silences Slack banners *on your Mac*. The Slack leg does
+what Focus can't: tells your **teammates** (status + 🔕) and silences your
+**phone** (Slack's own DND, all devices). Your previous status is stashed
+and restored on unhush.
+
+It's off by default because it needs a personal Slack token:
+
+<Steps>
+
+1. Create a Slack app for yourself at [api.slack.com/apps](https://api.slack.com/apps)
+   ("From scratch", any name, your workspace).
+
+2. Under **OAuth & Permissions → User Token Scopes**, add
+   `users.profile:write` and `dnd:write`, then **Install to Workspace** and
+   copy the **User OAuth Token** (`xoxp-…`).
+
+3. Stash it in your Keychain — no secret ever touches your config or the
+   Nix store:
+
+   ```bash
+   security add-generic-password -s hush-slack -a "$USER" -w 'xoxp-…'
+   ```
+
+4. Point hush at it in your host file:
+
+   ```nix
+   haus.hush.slack = {
+     enable = true;
+     tokenCommand = "security find-generic-password -s hush-slack -w";
+     statusText = "heads down";
+     statusEmoji = ":no_bell:";
+     snooze = true;                 # silence Slack push on all devices
+   };
+   ```
+
+</Steps>
+
+`hush doctor` verifies the token against Slack's API once it's wired.
+
+## Hooks — make hush yours
+
+Every hush/unhush also runs your own scripts, called with `on` or `off`.
+Failures are logged, never fatal:
+
+```nix
+haus.hush.hooks = [
+  ./onair-light.sh              # turn the Elgato red while hushed
+  "/Users/ada/bin/pause-music"  # strings run as-is, so $HOME paths work
+];
+```
+
+Ideas: pause the music, flip an on-air light, start a Harvest timer, shove
+chatty apps to a parking workspace with `aerospace`.
+
+## Honest scope
+
+- hush flips the built-in **Do Not Disturb**, not named Focus modes — those
+  have no symbolic hotkey to bind.
+- It doesn't manage **which apps or people break through**; that's your
+  Focus allowlist, curated once in System Settings → Focus.
+- Without Full Disk Access, `hush status` is hush's own memory and can
+  drift if you toggle Focus elsewhere — it self-corrects on the next real
+  toggle either way.
+
+## Troubleshooting
+
+**Run `hush doctor` first** — it checks the hotkey binding, the state-read
+grant, and the Slack token, and prints the fix for each.
+
+- **Click the pill, nothing happens** — sketchybar has no Accessibility
+  grant yet; toggle from the palette instead, which needs nothing.
+- **Pill shows the wrong state after toggling from Control Center** — grant
+  Full Disk Access for exact reads.
+- **The chord stopped working** — a rebuild re-binds hotkey 175 on every
+  activation and heals it.
+
+<Cards>
+  <Card
+    icon={<Icon name="bar" />}
+    title="The bar"
+    href="/docs/haus/guides/the-bar"
+    description="Where the hush pill sits, and the rest of what the bar shows."
+  />
+</Cards>
