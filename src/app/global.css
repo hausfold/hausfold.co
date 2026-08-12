@@ -62,7 +62,9 @@
    of this file.
    ------------------------------------------------------------------ */
 
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+@source '../../src';
+@source '../../content';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
