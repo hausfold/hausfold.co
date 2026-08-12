@@ -53,7 +53,7 @@
     />
 
     <!-- The mark as geometry, in one file rather than a data: URI repeated
-         in ten heads. Read public/favicon.svg's own comment before changing
+         in nine heads. Read public/favicon.svg's own comment before changing
          it: the shape, the sweep and its direction are shared with haus's
          wallpaper, and the weight deliberately is not. -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -108,55 +108,138 @@
         </div>
       </header>
 
-      <!-- The index is tiered, and the tier is made of air. haus is the floor
-           the six stand on, so it sits above them in a list of its own with a
-           gap wider than the line spacing — and with no heading over either
-           half. A label was tried and dropped: "what runs on it" is false of
-           nebelung (haus consumes it) and of holt (it runs anywhere), and the
-           moment you name a tier every row in it becomes a claim. Whitespace
-           says "above" and claims nothing.
+      <!-- The desktops. This section was its own page at /desktops until
+           2026-08-12; the catalogue moved up here because the desktops are
+           what the site is for, and a one-entry gallery behind a click read
+           as smaller than it is. /desktops/ now 301s to this anchor (see
+           public/_redirects) and the deep page at /desktops/nebelhaus stays
+           exactly where it was — the URL that gets shared is the one for a
+           particular desktop, not the one for the list. Rebuild the index
+           page when there are enough entries to need filtering; until then
+           the front page IS the list, and the closing note leads with the
+           honest count. "More as they're written" is a deliberate amendment
+           to AGENTS.md's "no coming-soon" rule and was the user's call: the
+           ban is on empty rows and placeholder entries, not on a sentence
+           saying the list is still growing.
 
-           haus carries no data-accent, for the same reason the ⌂ has none of
-           its own: the house borrows every colour and owns none.
+           The id is load-bearing: /desktops/, 404.html and /haus's Elsewhere
+           list all point at /#desktops. -->
+      <section class="block" id="desktops">
+        <h2>Desktops</h2>
+        <p>
+          A desktop here is the <strong>whole machine</strong>, not a theme laid
+          over one. The window manager, the bar, the shell, the terminal, the
+          fonts, the keybindings and the several dozen macOS defaults nobody
+          should have to find twice — all of it written down in one file and
+          applied in one command.
+        </p>
+        <p>
+          Run it on a new Mac and the machine comes up arranged. Wipe that Mac
+          and run it again and it comes up the same. Nothing gets dragged into
+          place by hand, so nothing drifts out of place either.
+        </p>
 
-           .block for its 1.05rem flex gap, and deliberately with no <h2> — the
-           index is still one more paragraph of the page, not a widget bolted
-           to it. -->
-      <section class="block">
-        <ul class="index index--floor" role="list">
-          <li>
-            <a class="index-name" href="/haus">haus</a>, the layer the rest of
-            it stands on — the Mac written down, one file and one command.
+        <!-- No .shot frame here, unlike /desktops/nebelhaus. The frames are
+             deliberately empty placeholders, and an empty box directly under
+             the page's main heading reads as a broken image rather than as a
+             slot. It goes back in — with a real capture in it, not a dashed
+             outline — when the shot in the workshop's SHOT-nebelhaus-desktop.md
+             has actually been taken. -->
+        <ul class="catalogue" role="list">
+          <li class="entry" data-accent="nebelhaus">
+            <div class="entry-head">
+              <h3 class="entry-name">
+                <a href="/desktops/nebelhaus">nebelhaus</a>
+              </h3>
+              <span class="meta">developers · tiling · nix</span>
+            </div>
+            <p class="entry-line">
+              An opinionated macOS, raised in the fog. AeroSpace tiling launched
+              at boot, a SketchyBar bar on the top edge, a themed zsh and helix
+              toolbelt, and the Nix flake that puts all of it there.
+              Silver-grey, keyboard-first, reproducible.
+            </p>
+            <p class="entry-line">
+              <a href="/desktops/nebelhaus"
+                >What's in it, and how to install it</a
+              >
+            </p>
           </li>
         </ul>
+        <p class="aside">
+          One today, and that's the honest number — more as they're written.
+          Every desktop here is a set of values for the same options, so writing
+          your own is editing a file, not starting a project.
+        </p>
+      </section>
+
+      <section class="block">
+        <h2>Apps</h2>
+        <!-- "made to sit inside the desktop", not "come with the desktop":
+             trill is in the incubator and ships with nothing yet, and a
+             blanket claim over a list whose last row says "In incubator"
+             is a claim the products don't back. Phrase the tier by intent
+             and let each row carry its own state. -->
+        <p>
+          Small native Mac apps, made to sit inside the desktop and to work
+          fine without it. Each keeps its settings in a plain file you can
+          read, edit, diff and hand to an agent — no account to make, nothing
+          held behind a subscription, nothing you can't take with you.
+        </p>
         <ul class="index" role="list">
-          <li data-accent="nebelhaus">
-            <a class="index-name" href="/desktops">desktops</a>, whole machines
-            that run as they come.
-          </li>
           <li data-accent="pounce">
             <a class="index-name" href="/pounce">pounce</a>, a launcher you
             teach your own commands.
           </li>
-          <li data-accent="holt">
-            <a class="index-name" href="https://github.com/hausfold/holt"
-              >holt</a
-            >, parallel coding agents that never collide.
-          </li>
           <li data-accent="perch">
             <a class="index-name" href="/perch">perch</a>, a place for files to
             park on their way somewhere else.
-          </li>
-          <li data-accent="nebelung">
-            <a class="index-name" href="https://github.com/hausfold/nebelung"
-              >nebelung</a
-            >, the quieter set of colours everything shares.
           </li>
           <li data-accent="trill">
             <span class="index-name">trill</span>, your notifications without
             the noise. In incubator.
           </li>
         </ul>
+      </section>
+
+      <!-- haus, and the two rows below it, are the postscript — no heading and
+           no rule over either. Both used to sit in the index above the
+           products, haus in a tier of its own; that ordering answered "how"
+           before anyone had asked "what", so the layer now closes the page
+           instead of opening it. It is still the thing that makes this a
+           platform rather than a dotfiles repo, which is why it gets two real
+           sentences here and not a link in the colophon.
+
+           haus carries no data-accent, for the same reason the ⌂ has none of
+           its own: the house borrows every colour and owns none. holt and
+           nebelung do carry theirs — they're products, they're just not
+           products for the person the rest of this page is written for.
+           holt runs anywhere and nebelung is a palette, so neither is a
+           desktop and neither is an app; a quiet line is the whole of the
+           claim we want to make about them here, and both READMEs link back. -->
+      <section class="block">
+        <p>
+          Underneath all of it is <a class="index-name" href="/haus">haus</a>,
+          the layer the desktops and the apps are written against — macOS
+          itself, turned into options you set in a file. That's why a desktop
+          is a set of values rather than a project, and why taking one apart
+          is editing, not forking.
+        </p>
+        <p class="aside">
+          Also from hausfold —
+          <a
+            class="index-name"
+            data-accent="holt"
+            href="https://github.com/hausfold/holt"
+            >holt</a
+          >, parallel coding agents that never collide, and
+          <a
+            class="index-name"
+            data-accent="nebelung"
+            href="https://github.com/hausfold/nebelung"
+            >nebelung</a
+          >, the quieter set of colours everything shares.
+        </p>
       </section>
 
       <footer class="colophon">

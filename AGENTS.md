@@ -28,8 +28,10 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 > you.** It read *hausfold is the commercial umbrella … deliberately not a
 > product brand and not the rice gallery*, and **"Nothing in the nebelhaus
 > family may move into this org."** That rule is **repealed**: all ten repos
-> migrate in, and the gallery is **`hausfold.co/desktops`** — written `/market`
-> here and in the rename plan until later the same day, see `/desktops` below.
+> migrate in, and the gallery is **`hausfold.co/#desktops`** (it was
+> `/desktops`, its own page, until 2026-08-12 — written `/market`
+> here and in the rename plan until later the same day; see the desktops
+> section below).
 > If you meet that sentence anywhere else, it's stale — fix it rather than obey
 > it.
 
@@ -53,7 +55,8 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | Want to change… | Where |
 |---|---|
 | the hausfold.co landing page — copy, design, the products it lists | here, `public/index.html` |
-| the desktops catalogue, or a desktop's page on it | here, `public/desktops/` |
+| the desktops **catalogue** | here, and it is **not** under `public/desktops/` any more — it is the first section of `public/index.html` (`/#desktops`). See below |
+| a **desktop's own page** | here, `public/desktops/<name>/index.html` — that half didn't move |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | anything about a **product** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
@@ -81,11 +84,21 @@ facts, where credentials live. Not here, and not the workshop, which is also
 public. If you find yourself about to write down what we hold and what we don't,
 you are in the wrong repo.
 
-### `/desktops` — the consolidation's first page, arriving early
+### The desktops — the consolidation's first pages, arriving early
 
 Added 2026-08-08, in the same hours as the repositioning above and by a
 different session, so read the two together:
 
+- 🚨 **The catalogue is not a page any more — it is the landing page.** From
+  2026-08-08 to 2026-08-12 it lived at `/desktops`; it is now the first section
+  of `public/index.html`, and `/desktops` + `/desktops/` 301 to `/#desktops`
+  through `public/_redirects`. **The deep page did not move**:
+  `/desktops/nebelhaus/` is untouched, and the `/desktops/` URL segment stays
+  because it is the namespace the second and third desktop land in. So: edit
+  the catalogue in `index.html`, edit a desktop in `desktops/<name>/`. Recreate
+  `desktops/index.html` only when there are enough entries to need a list of
+  their own — and if you do, drop the two `_redirects` lines in the same
+  commit, or the new page will 301 away from itself.
 - **It is the gallery, in substance.** A catalogue of rices with a page each,
   carrying what a rice is, what's in it, what it needs, and the command that
   installs it. Under the old rule that was forbidden; under the new one it's
@@ -105,7 +118,7 @@ different session, so read the two together:
   as of 2026-08-08. Re-read the source rather than trusting the page —
   especially the install one-liner and the requirements, the two that hurt.
 
-`/desktops` isn't the only product page here. `/perch/privacy` predates it: an
+The desktops aren't the only product surface here. `/perch/privacy` predates them: an
 App Store listing needs a policy URL on a domain the seller owns, and hausfold
 is the seller. That one is a legal obligation, not a shop window.
 
@@ -144,9 +157,9 @@ temporary and the copy as not. Three things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address is on all ten pages — `404`,
+  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `404`,
   `index`, `haus`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`,
-  `desktops`, `desktops/nebelhaus` — **plus the JSON-LD organization record**
+  `desktops/nebelhaus` — **plus the JSON-LD organization record**
   (`index.html:80`), which is the one a find-and-replace over visible copy
   misses. `rg 'hi@hausfold' public/` before assuming you've seen them all.
 
@@ -157,10 +170,10 @@ directory is what's on the domain:
 
 | File | What it is |
 |---|---|
-| `index.html` | the landing page |
-| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on, which is why the landing page tiers it *above* the index (its own `.index--floor` list) rather than adding a seventh entry to it |
-| `desktops/index.html` | the catalogue — one entry per shipping desktop |
-| `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames |
+| `index.html` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then haus and a closing line for holt + nebelung |
+| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on. Until 2026-08-12 the landing page said so by tiering it *above* the index in a list of its own; it now says it by position instead, closing the page as a postscript rather than opening it |
+| `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames. Its **parent** `desktops/index.html` no longer exists — see the catalogue note above |
+| `_redirects` | static redirects, exact paths only. Cloudflare consumes the file rather than serving it, and it is evaluated ahead of the assets — never put a `/desktops/*` wildcard in it, or `/desktops/nebelhaus/` goes with it |
 | `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `perch/privacy/index.html` | perch's privacy policy. **Linked from the App Store — don't move or rename it.** |
 | `pounce/index.html` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
@@ -198,7 +211,7 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand); the ten pages' dark **`theme-color`**, which is a hand-typed copy
+hand); the nine pages' dark **`theme-color`**, which is a hand-typed copy
 of crust living in markup nothing generates; and the favicon's **tile**, whose
 ground is the same crust in a hand-drawn path beside the generated fan. A page
 with **no** dark `theme-color` fails it too — that used to pass silently,
@@ -284,13 +297,21 @@ Rules that are easy to break by accident:
   install command but the four-line example command, which is the thing that
   page is actually asking you to try. That is the bar for a fourth script: pure
   enhancement, nothing lost without it, and no framework.
-- **Placeholder frames, never a stale screenshot.** `/desktops` draws its shot
-  slots in CSS and labels them `[ shot not taken yet ]`. The family's only rice
+- **Placeholder frames, never a stale screenshot.** `/desktops/nebelhaus`,
+  `/pounce` and `/perch` draw their shot slots in CSS and label them
+  `[ shot not taken yet ]`. The family's only rice
   capture is `hausfold/assets/hero.png`, which the workshop's own
   `assets/SHOTLIST.md` still calls a placeholder. When a real capture exists,
   drop an `<img>` into the frame and delete the `.shot span` label — a picture
   that lies about what the desktop looks like today is worse than a grey box
-  that admits it doesn't have one.
+  that admits it doesn't have one. ⚠️ **The landing page's catalogue entry is
+  the one exception and carries no frame at all.** Same principle, opposite
+  conclusion: a dashed empty box immediately under the page's first heading
+  reads as a broken image rather than as a reserved slot. A frame goes in there
+  only with a real capture already in it. The scene, the checklist and a
+  ready-to-apply patch are in the workshop's `assets/SHOT-nebelhaus-desktop.md`
+  and `assets/desktops-hero.patch` — but note the patch predates the move and
+  still targets `public/desktops/index.html`, which is gone.
 - **Both themes, every time.** Colours are tokens on `:root`, redefined under
   `@media (prefers-color-scheme: dark)` and again under `:root[data-theme=…]`
   so a viewer's explicit toggle wins in both directions. Style through the
@@ -312,7 +333,7 @@ Rules that are easy to break by accident:
   page as robots rules.
 - **Every page carries the same head, and there is no template.** Canonical, the
   six `og:` tags, `twitter:card`, both `theme-color`s, and
-  `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, on all nine
+  `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, on all eight
   public pages (`404.html` carries only `noindex` and `theme-color` — it's served under
   whatever wrong URL the visitor typed, so there's nothing true to be canonical
   about). **A change to one is a change to all of them**; nothing checks.
@@ -338,8 +359,10 @@ Rules that are easy to break by accident:
   become *internal* and nebelhaus.com 301s here. Don't rewrite them ahead of the
   move — a link to a page that doesn't exist yet is worse than one extra hop —
   but stop treating "outward" as a principle. It was a consequence of having one
-  sheet. `/desktops` is the first place the inversion is already visible: it
-  holds you long enough to run the command, then links out. **`/perch` is the
+  sheet. `/desktops/nebelhaus` is the first place the inversion is already
+  visible: it holds you long enough to run the command, then links out. (Since
+  2026-08-12 the landing page's first section is the catalogue that used to
+  point at it, so the front door now holds a little traffic of its own too.) **`/perch` is the
   second, and the first one to take a link off the landing page** — the index's
   perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
   is the pattern for the rest: a link moves inward on the day the inward page
@@ -452,7 +475,11 @@ Three things are **not** small, because they're positioning and not code:
   can install, so it needs to actually exist and be installable by a stranger
   before it gets a page: a repo and a command that works on a machine that isn't
   yours. "One entry, no apology" is the current shape — no empty slots, no
-  coming-soon.
+  coming-soon **rows**. Amended 2026-08-12, by the user: the closing note may
+  say the list is still growing ("One today, and that's the honest number —
+  more as they're written"). The ban is on a placeholder *entry*, which
+  promises a specific thing that doesn't exist; a sentence about the shape of
+  the catalogue promises nothing anyone can click.
 
   🚨 **And the second rice is gated, in the plan, on a fix that hasn't landed.**
   `options-roadmap.md` §6's Limit 3: two rices composed by a stranger collide in

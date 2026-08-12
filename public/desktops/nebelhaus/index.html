@@ -47,10 +47,17 @@
 
   <body>
     <main class="sheet sheet--inner">
+      <!-- Two crumbs, not three, even though the URL has three segments. The
+           middle one used to be /desktops; that page folded into the landing
+           page's first section on 2026-08-12 and the path now only 301s, so a
+           crumb pointing at it would be a link to a redirect. The URL keeps
+           its /desktops/ segment on purpose — it is the namespace the second
+           and third desktop will land in, and this page's canonical has been
+           shared as-is. -->
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href="/">hausfold</a>
         <span class="sep" aria-hidden="true">/</span>
-        <a href="/desktops">desktops</a>
+        <a href="/#desktops">desktops</a>
         <span class="sep" aria-hidden="true">/</span>
         <span aria-current="page">nebelhaus</span>
       </nav>

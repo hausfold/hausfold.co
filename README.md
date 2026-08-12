@@ -16,10 +16,10 @@ the domain returns.)
 
 ```
 public/
-  index.html                      the landing page
+  index.html                      the landing page — and, since 2026-08-12, the desktop catalogue itself
   haus/index.html                 the platform page — the one file, the commands, what it covers
-  desktops/index.html             the gallery — rices you can run as they come
   desktops/nebelhaus/index.html   install, contents, requirements, empty shot frames
+  _redirects                      static redirects; consumed by Cloudflare, never served
   pounce/index.html               pounce's product page — install, the command format
   perch/index.html                perch's product page — what it is, how to install it
   perch/privacy/index.html        perch's privacy policy — linked from the App Store
@@ -27,6 +27,8 @@ public/
   refunds/index.html              the refund policy — fourteen days, no questions
   404.html
   hausfold.css                    shared tokens and type, and the design notes
+  favicon.svg                     the haus mark as geometry, swept; linked from every page
+  robots.txt                      allows everything; its comment says why it exists at all
 scripts/
   sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
 ```
@@ -58,9 +60,9 @@ bump would actually change, then you set `PIN`, re-run, and commit the block.
 > `/pounce`, `/perch` — which means the Astro build from `workshop/web` and a
 > real `main`. §5.1's other prerequisite, *this repo going public*, is already
 > done: it was met by [creating this repo](#why-this-repo-starts-at-one-commit)
-> rather than by flipping the old one. `/desktops` is the first page of that
-> consolidation, arriving ahead of the build — so treat its markup as temporary
-> and its copy as not.
+> rather than by flipping the old one. The desktops are the first part of that
+> consolidation, arriving ahead of the build — so treat their markup as
+> temporary and their copy as not.
 
 `not_found_handling = "404-page"` serves `404.html` with a real 404 for anything
 else. It was `single-page-application` — every path answering 200 with the
@@ -140,8 +142,8 @@ just a grey icon. It borrows rather than owns like everything else here (same
 six accents, generated out of the same vendored nebelung port), it is chrome
 rather than page, and AGENTS.md records it as the third and only exception.
 
-The gallery is where this rule is under most pressure, and it's why
-`/desktops`'s screenshot slots being empty is a feature rather than a delay: a
+The catalogue is where this rule is under most pressure, and it's why
+`/desktops/nebelhaus`'s screenshot slots being empty is a feature rather than a delay: a
 real capture of the nebelhaus desktop is wall-to-wall nebelung, and the day one
 lands is the day the site stops being greyscale at rest. Worth doing on purpose
 rather than by accident.
@@ -182,15 +184,21 @@ links. `npx wrangler dev` is the truest check — it's the same asset server and
 it exercises `not_found_handling`. `python3 -m http.server` from inside
 `public/` is enough for a look at the type.
 
-## `/desktops`
+## The desktops
 
-Added 2026-08-08. The gallery — rices you can install, one page per rice, today
-only [nebelhaus](https://github.com/hausfold/haus).
+The catalogue — desktops you can install, one page per desktop, today only
+[nebelhaus](https://github.com/hausfold/haus).
 
-It holds traffic rather than sending it on, which the landing page deliberately
-doesn't: the whole point is that the install command is *right there*. It's
-still one screen deep and everything longer links out. `AGENTS.md` has the rest
-of the rules.
+> **It was its own page at `/desktops` from 2026-08-08 to 2026-08-12.** The
+> catalogue is now the landing page's first section, `/#desktops`, and
+> `/desktops` + `/desktops/` 301 there via `public/_redirects`. Two reasons:
+> the desktops are what the site is for, so they shouldn't be a click away
+> from the front door; and a gallery of one entry read as smaller behind a
+> link than it does as the page's own opening section, honestly labelled.
+> **The deep page did not move** — `/desktops/nebelhaus/` is unchanged, and
+> the `/desktops/` segment stays because it's the namespace desktops two and
+> three land in. Rebuild `desktops/index.html` when there are enough entries
+> to need a list of their own; until then the front page *is* the list.
 
 > **The path was `/market` in the rename plan for a few hours.** Two sessions
 > named the gallery on 2026-08-08, blind to each other; the user resolved it in
@@ -198,12 +206,21 @@ of the rules.
 > ([workshop#258](https://github.com/hausfold/workshop/pull/258)). If you meet
 > `hausfold.co/market` anywhere, it's stale.
 
+The deep page holds traffic rather than sending it on, which the landing page
+deliberately doesn't: the whole point is that the install command is *right
+there*. It's still one screen deep and everything longer links out. `AGENTS.md`
+has the rest of the rules.
+
 Two things about it that look like bugs and aren't:
 
 - **The screenshot frames are empty**, drawn in CSS and labelled `[ shot not
   taken yet ]`. There is no real nebelhaus desktop capture to use — the one in
   `hausfold/assets/hero.png` is called a placeholder by the workshop's own
-  `SHOTLIST.md`. Drop an `<img>` in when there is.
+  `SHOTLIST.md`. Drop an `<img>` in when there is. The landing page's own
+  catalogue entry carries **no** frame at all for the same reason stated the
+  other way round: a dashed empty box immediately under the page's first
+  heading reads as a broken image rather than as a reserved slot. Add one there
+  only with a real capture in it.
 - **The copy button beside the install command disappears over `file://`.** It
   ships `hidden` and the page's one script only reveals it where
   `navigator.clipboard` exists, which needs a secure context. The command is
@@ -223,7 +240,7 @@ is why the deploy token needs **Zone → DNS:Edit** and not just Workers scopes.
 (SSL/TLS → Edge Certificates), not something this config carries — if the
 redirect ever disappears, look there first, not here.
 
-**Every asset is un-hashed.** `index.html`, the two `/desktops` pages and
+**Every asset is un-hashed.** `index.html`, `/desktops/nebelhaus` and
 `hausfold.css` all keep the same URL when their contents change, so an edge
 cache can keep serving the old copy after a deploy. `hausfold.css` is the one
 that bites hardest now: a stale stylesheet against fresh markup looks like a

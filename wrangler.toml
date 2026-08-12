@@ -1,5 +1,6 @@
-# Cloudflare Worker for hausfold.co — the landing page, /desktops, /perch,
-# and the seller's pages (/terms, /refunds).
+# Cloudflare Worker for hausfold.co — the landing page (which carries the
+# desktop catalogue itself since 2026-08-12), /desktops/<name>, /haus,
+# /pounce, /perch, and the seller's pages (/terms, /refunds).
 #
 # There is no `main` and no build step: this is a static-assets-only Worker, so
 # Cloudflare serves ./public directly and no Worker JS ever runs.
