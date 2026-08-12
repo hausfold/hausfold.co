@@ -1,0 +1,197 @@
+---
+title: Troubleshooting
+description: The handful of things that go sideways on macOS — a wedged agent, a missing grant, a stubborn cask — and the exact command that unsticks each one.
+icon: lifebuoy
+---
+
+Almost every haus problem is one of a few known macOS quirks with a known fix.
+Start here, whatever the symptom:
+
+```sh
+haus doctor    # Nix, the Xcode CLT, the GUI agents and cask drift, in one shot
+```
+
+## ⌘Space does nothing
+
+Pounce is a launchd **user agent**. If it isn't answering, bounce it — this is
+the clean recovery for *any* wedged agent, and the rest of this page reuses it:
+
+```sh
+launchctl list | grep pounce   # is it running at all?
+
+launchctl bootout gui/$(id -u)/org.nixos.pounce 2>/dev/null
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.pounce.plist
+```
+
+If the palette opens but **clipboard and emoji paste** don't work, it's missing
+the Accessibility grant:
+
+```sh
+pounce --request-accessibility   # approve the system dialog
+pounce --check-accessibility     # prints true once granted
+```
+
+Set `haus.pounce.signingIdentity` so that grant survives rebuilds — see [Pounce
+config](/docs/haus/reference/pounce). If ⌘Space still opens **Spotlight**, log
+out and back in once so the symbolic-hotkey reassignment takes.
+
+<Callout title="Palette opens, but slowly?">
+Another hotkey tool — skhd, AeroSpace, Raycast — bound to the same key grabs it
+with an event tap *ahead* of Pounce, so every summon spawns a fresh client
+instead of hitting the daemon's fast path. Registration still reports success
+and the palette still opens, which is what makes it hard to spot. `pounce
+doctor` names the culprit and tells you what to unbind.
+</Callout>
+
+## Windows won't tile
+
+Almost always the **cold-boot race**: an agent that launched before the desktop
+session was ready parked itself instead of starting. Bounce it:
+
+```sh
+launchctl bootout gui/$(id -u)/org.nixos.aerospace 2>/dev/null
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.aerospace.plist
+```
+
+The smaller ones:
+
+- **Scrambled after sleep, or a window on the wrong workspace?** Tap ⇪ then
+  <kbd>`</kbd> to re-sort everything to its roster home.
+- **A binding you changed didn't take?** A rebuild rewrites the config, but the
+  live daemon holds the old one until it reloads. Force it with `aerospace
+  reload-config`.
+
+## The bar is blank or missing
+
+```sh
+launchctl bootout gui/$(id -u)/org.nixos.sketchybar 2>/dev/null
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.sketchybar.plist
+```
+
+**Running, but stale** — a pill you added isn't there, or a colour change didn't
+land? The easy fix is **Reload SketchyBar** from the ⌘Space palette, or the same
+row in the logo pill's dropdown. By hand:
+
+```sh
+sketchybar  --reload ~/.config/sketchybar/sketchybarrc    # the menu-bar bar
+sill-bottom --reload ~/.config/sketchybar/sill-bottomrc   # the bottom bar, if enabled
+```
+
+<Callout type="warn" title="Always name the rc, and reload each bar">
+`--reload` on its own doesn't mean "re-read your config" — it means *re-run the
+path you resolved at startup*, and that path is a symlink into `/nix/store`
+resolved once. So a bare reload can quietly replay the config from the
+generation the bar booted on while exiting 0 and logging success. Naming the
+path re-resolves it now. And the two bars are separate instances: a lone
+`sketchybar --reload` leaves the bottom one exactly as it was.
+</Callout>
+
+If you'd rather not run a custom bar at all, `haus.sill.enable = false` brings
+the native macOS menu bar back.
+
+## After a macOS upgrade, *every* agent is dead
+
+If the bar, tiling and ⌘Space all come up dead at once right after upgrading to
+**macOS 26 Tahoe or later**, the culprit is **Background Task Management**.
+Tahoe gates login items whose executable isn't Apple-signed, and every Nix agent
+launches through `/bin/sh -c "…"` — which BTM files under "unidentified
+developer" and can silently refuse to start. They register fine; they just never
+run.
+
+```sh
+haus btm    # no-op before Tahoe; on Tahoe+ it reads the BTM store and instructs
+```
+
+There is **no declarative fix** — the toggle lives in macOS's own BTM store,
+which has no CLI to set it. So it's a one-time manual step:
+
+<Steps>
+
+<Step>
+Open **System Settings ▸ General ▸ Login Items & Extensions**.
+</Step>
+
+<Step>
+Scroll to **Allow in the Background** and find the entries named **`sh`**,
+subtitled *Item from unidentified developer*.
+</Step>
+
+<Step>
+Toggle them **on** and reboot. Already on but still blocked? Flip off, then on,
+to force a database write.
+</Step>
+
+</Steps>
+
+## Touch ID for sudo beachballs inside a multiplexer
+
+The `pam_reattach` shim isn't loading. It ships with the **collar** room and is
+on by default; check the order in `/etc/pam.d/sudo_local` — reattach must come
+*before* the Touch ID line. Outside tmux or zellij, Touch ID should just work;
+cancel the prompt to fall back to your password. [Touch
+ID](/docs/haus/guides/touch-id) has the rest.
+
+## "Refusing to load cask … from an untrusted tap"
+
+Third-party taps fail Homebrew's trust check under a sudo-driven activation.
+haus turns that requirement off globally
+(`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in `/etc/homebrew/brew.env`), so seeing this
+means the file didn't land — re-run `haus rebuild`, or export the variable in
+your shell for a one-off.
+
+## An app I removed from my config is still installed
+
+By design. `haus.homebrew.cleanup` is `"none"`, so nothing you installed is ever
+auto-deleted — and **`haus rollback` doesn't rewind Homebrew apps**, because
+they aren't in Nix generations. Remove one by hand:
+
+```sh
+brew uninstall --zap <cask>
+```
+
+For a machine where an undeclared cask *is* removed on the next rebuild, set
+[`haus.homebrew.cleanup = "zap"`](/docs/haus/guides/making-it-yours#homebrew-behaviour).
+
+## A rebuild broke something
+
+```sh
+haus rollback       # atomically back to the previous generation
+haus generations    # what you can roll back to
+```
+
+`haus rebuild` always builds *before* it switches, so a config with an error in
+it can't activate — you get a build failure and a machine exactly as it was. For
+macOS **settings** rather than packages, `haus revert-settings` puts back the
+snapshot `haus capture` took, and the APFS snapshot from install time is the
+coarser rewind.
+
+Want to go further than one generation — switch a room off, or remove haus
+entirely? [Leaving](/docs/haus/guides/leaving) walks each exit, smallest first.
+
+## The installer refuses to run
+
+haus is built on [Determinate Nix](https://docs.determinate.systems/) and won't
+install on top of a stock single-user Nix rather than risk breaking it. If you
+have a Nix you don't need, uninstall it and re-run the one-liner; if you want to
+keep it, migrating to Determinate is the supported path. A fresh Mac needs none
+of this — the bootstrap installs Determinate for you.
+
+## Still stuck?
+
+<Cards>
+  <Card
+    icon={<Icon name="wrench" />}
+    title="The haus CLI"
+    href="/docs/haus/reference/haus"
+    description="doctor, plan, diff, capture — the read-only commands that show you what a change would do before it does it."
+  />
+  <Card
+    icon={<Icon name="dials" />}
+    title="Making it yours"
+    href="/docs/haus/guides/making-it-yours"
+    description="Every dial worth knowing, and the rooms you can switch off when one of them isn't for you."
+  />
+</Cards>
+
+Still nothing? [Open an issue](https://github.com/hausfold/haus/issues) with the
+output of `haus doctor`.

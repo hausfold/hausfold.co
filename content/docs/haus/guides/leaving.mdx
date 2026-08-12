@@ -1,0 +1,193 @@
+---
+title: Leaving
+description: Switch off one room, roll back a generation, or take the whole house down — each exit in turn, smallest first.
+icon: door
+---
+
+haus is opinionated, not possessive. Switching off one room, returning to an
+earlier generation, removing the system layer and removing Nix are four
+operations of very different sizes. **Start with the smallest one that solves
+your problem.**
+
+| What you want | Where to go |
+|---|---|
+| Undo the last rebuild | [Roll back a generation](#roll-back-a-generation) |
+| Stop using tiling, the bar, the launcher or hush | [Switch off a room](#switch-off-a-room) |
+| Remove the managed system, keep Nix | [Take down the system layer](#take-down-the-system-layer) |
+| Remove Nix itself | [Remove Determinate Nix](#remove-determinate-nix) |
+
+<Callout type="warn" title="Keep your config before you remove anything">
+`~/.config/nix` is *your* machine described in text, not generated state.
+Archive it first — a git remote is better, if it holds no secrets.
+
+```sh
+cp -R ~/.config/nix ~/.config/nix.archive
+```
+</Callout>
+
+## Roll back a generation
+
+Every successful switch makes a generation, and stepping back to one takes
+seconds:
+
+```sh
+haus generations         # what you can go back to
+haus rollback            # the previous one
+haus rollback <number>   # a specific one
+```
+
+That restores everything Nix wrote — packages, agents, shell config, paths. It
+does **not** reliably restore macOS's own preferences, which a rebuild sets
+imperatively: the Dock, Finder, the keyboard, the menu bar, file associations.
+`haus revert-settings` puts back whatever `haus capture` last snapshotted; past
+that, System Settings.
+
+**The wallpaper is the sharpest case.** `haus.wallpaper.style` defaults to
+`minimal`, so the desktop is stamped at every activation and macOS keeps no
+record of the picture that was there before. Rolling back doesn't bring yours
+back: re-pick it in System Settings **and** set `haus.wallpaper.style = "none"`,
+or the next rebuild stamps over it again.
+
+## Switch off a room
+
+The visible rooms come out independently, and the rest of the machine keeps
+working:
+
+```nix
+{
+  haus.prowl.enable = false;   # AeroSpace tiling, the Caps-Lock leader, window bindings
+  haus.sill.enable = false;    # SketchyBar and the custom bar
+  haus.pounce.enable = false;  # the launcher daemon, ⌘Space, its Accessibility features
+  haus.hush.enable = false;    # the quiet switch — bell pill, palette command, CLI
+}
+```
+
+```sh
+haus edit
+haus rebuild
+```
+
+Afterwards, check the macOS controls those rooms had taken over — Caps Lock, the
+native menu bar, Spotlight's ⌘Space, Accessibility permissions — are set the way
+you want. [Making it yours](/docs/haus/guides/making-it-yours#turning-rooms-off)
+covers what stays on regardless, and the middle ground where prowl keeps tiling
+but gives your keys back.
+
+## Take down the system layer
+
+This removes nix-darwin's system integration and leaves Nix installed for
+everything else that uses it. Run nix-darwin's own uninstaller:
+
+```sh
+sudo nix --extra-experimental-features "nix-command flakes" \
+  run nix-darwin#darwin-uninstaller
+```
+
+If that can't run, try the locally installed copy: `sudo darwin-uninstaller`.
+**Read the plan before confirming.** It removes the managed system links, static
+files and launchd services, then restores the Nix daemon the installer supplied.
+Restart the Mac when it finishes.
+
+Your config isn't made useless by this — keep it if you might come back, or move
+it out of the active path with `mv ~/.config/nix ~/.config/nix.archive`.
+
+### Put your own dotfiles back
+
+Home Manager preserves a conflicting file with a `.backup` suffix rather than
+clobbering it, so the file you had before the install is usually still there:
+
+```sh
+find "$HOME" -maxdepth 5 -name '*.backup' -print
+```
+
+Typically `~/.zshrc.backup`, `~/.zshenv.backup`,
+`~/.config/starship.toml.backup`, `~/.config/git/config.backup`, plus some
+inside managed directories. Inspect each one, confirm the Nix-managed target is
+gone, then move it back by hand.
+
+<Callout type="warn">
+Don't restore blindly. A backup is the version that existed at the *first*
+conflict, which may be years older than what you'd want today.
+</Callout>
+
+### Apps stay yours
+
+haus never removes an app just because it left your config —
+`haus.homebrew.cleanup` is `"none"`. Compare what you declared against what
+Homebrew actually owns, and remove only what you no longer want:
+
+```sh
+brew list --formula
+brew list --cask
+brew uninstall <formula>
+brew uninstall --cask <cask>          # add --zap to take its data too
+```
+
+## Remove Determinate Nix
+
+<Callout type="error" title="Only after the system layer is down">
+Removing Nix affects **every** Nix-managed project and tool on the Mac, not just
+haus.
+</Callout>
+
+The Determinate installer ships its own uninstaller. Read the plan before
+confirming, and restart when it's done:
+
+```sh
+sudo /nix/nix-installer uninstall
+```
+
+If it fails, follow Determinate's current macOS uninstall guide rather than
+deleting pieces of `/nix` by hand.
+
+## What to check afterwards
+
+No uninstaller can promise to reconstruct every preference that existed before
+an install. Walk this list once:
+
+- Dock autohide and position
+- key repeat and press-and-hold
+- Finder's extensions, hidden files, path bar and view style
+- the native menu bar, and Caps Lock
+- Spotlight's ⌘Space shortcut
+- the wallpaper
+- file associations, if `haus.hearth.hijackFileAssociations` was on
+- the launcher's Accessibility grant, and Touch ID for `sudo`
+
+The APFS snapshot the installer takes before it starts is the coarse rewind, and
+coarse is the word — it reverts unrelated changes made since, so prefer targeted
+restoration unless the machine genuinely needs the wider one.
+
+Then confirm what's actually gone:
+
+```sh
+command -v haus || echo "haus is no longer on PATH"
+command -v darwin-rebuild || echo "darwin-rebuild is no longer on PATH"
+launchctl list | grep -Ei 'pounce|aerospace|sketchybar' || true
+```
+
+A surviving AeroSpace or SketchyBar isn't automatically residue — you may have
+installed it yourself. The question is only whether haus still manages it.
+
+## If something stays behind
+
+A departure that doesn't complete is a bug worth reporting. [Open an
+issue](https://github.com/hausfold/haus/issues) with your Mac model and macOS
+version, whether Nix existed before haus, the path you followed, the exact
+command and its output, and what remained. Strip tokens, keys and personal
+files out of anything you paste.
+
+<Cards>
+  <Card
+    icon={<Icon name="lifebuoy" />}
+    title="Troubleshooting"
+    href="/docs/haus/reference/troubleshooting"
+    description="Before you leave over it — most of what goes wrong is a known macOS quirk with a one-line fix."
+  />
+  <Card
+    icon={<Icon name="sync" />}
+    title="Keeping it current"
+    href="/docs/haus/guides/keeping-it-current"
+    description="The other direction — updating, rolling back, and rebuilding the whole machine on new hardware."
+  />
+</Cards>
