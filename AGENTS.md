@@ -227,11 +227,16 @@ icon-only PR skipped the only check watching it.
 falls back to this path), it's rasterized from `favicon.svg`'s own hand-drawn
 cover path — `--ink` on crust, no accent sweep — with a hand-written PNG/ICO
 encoder in the same script (`node:zlib` + a small CRC32, no image library).
-Deterministic bytes mean `--check` compares the file exactly rather than
-re-rendering to compare pixels, the same way it does for the CSS block. It's
-the site's first binary file under `public/`, which the "No `og:image`" rule
-below drew the line at — paid deliberately, because Safari showing the house
-mark flat beats showing nothing. `palette.yml`'s paths filter carries
+`--check` compares the file exactly rather than re-rendering to compare
+pixels, the same way it does for the CSS block — the bytes are deterministic
+for a given Node/zlib, which is why CI pins `actions/setup-node@v4` to
+`node-version: 22`. **A contributor on a different Node major can see
+`--check` call the file stale with nothing actually wrong**; the fix is the
+same either way — re-run the generator — so it costs a moment of confusion,
+never a wrong result. It's the site's first binary file under `public/`,
+which the "No `og:image`" rule below drew the line at — paid deliberately,
+because Safari showing the house mark flat beats showing nothing.
+`palette.yml`'s paths filter carries
 `public/favicon.ico` alongside `favicon.svg` for the same reason as above.
 
 It guards one non-palette thing as well, because the failure is silent and cost
@@ -357,9 +362,11 @@ Rules that are easy to break by accident:
   six `og:` tags, `twitter:card`, both `theme-color`s, and (since 2026-08-12,
   the Safari fallback) both `<link rel="icon" href="/favicon.ico">` and
   `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, on all eight
-  public pages (`404.html` carries only `noindex` and `theme-color` — it's served under
-  whatever wrong URL the visitor typed, so there's nothing true to be canonical
-  about). **A change to one is a change to all of them**; nothing checks.
+  public pages. `404.html` carries the same `theme-color`s, favicon links and
+  stylesheet as the other eight, but skips canonical, the `og:` tags and
+  `twitter:card` — it's served under whatever wrong URL the visitor typed, so
+  there's nothing true to be canonical about. **A change to one is a change to
+  all of them**; nothing checks.
 - **`theme-color` duplicates `--ground`.** Two `<meta>` values per page, one per
   scheme. With `public/favicon.svg`'s tile they are the only hand-typed copies
   of the palette outside `hausfold.css` — `sync-nebelung.mjs --check` reads all

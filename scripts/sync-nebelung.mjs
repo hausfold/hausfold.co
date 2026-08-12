@@ -94,8 +94,12 @@
  * generated fan) rather than re-declared here, so a hand-edit to the mark's
  * position or weight carries into the ico for free. PNG and ICO are encoded
  * below with node:zlib and a small CRC32 — one binary file, no image
- * library, no new dependency — and the bytes are deterministic, so --check
- * can compare them exactly rather than re-rendering to compare pixels.
+ * library, no new dependency — and the bytes are deterministic for a given
+ * Node/zlib, so --check can compare them exactly rather than re-rendering to
+ * compare pixels. That "for a given Node/zlib" is why CI pins node-version
+ * (palette.yml): a different Node major can make --check call this file
+ * stale for no real reason. The fix is the same either way — re-run this
+ * script — so the failure mode costs confusion, never a wrong result.
  *
  * That file is a real cost, not a free one: it's the first binary under
  * public/, in a repo whose "No og:image" rule (AGENTS.md) drew the line at

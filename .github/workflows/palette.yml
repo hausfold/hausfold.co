@@ -30,8 +30,10 @@
 #     favicon.
 #   - public/favicon.ico (the Safari fallback, since 2026-08-12) not matching
 #     what the mark, --ink and crust would generate. It's rasterized and
-#     PNG/ICO-encoded by the same script, byte-for-byte deterministic, so this
-#     is an exact comparison — not a re-render.
+#     PNG/ICO-encoded by the same script — an exact byte comparison, not a
+#     re-render — deterministic for a given Node/zlib, which is the whole
+#     reason this job pins node-version below rather than trusting whatever
+#     Node happens to be on the runner.
 #
 # **`public/**.html`, `public/favicon.svg` and `public/favicon.ico` are in the
 # paths filter for those, and they have to be.** Those checks read markup, an
