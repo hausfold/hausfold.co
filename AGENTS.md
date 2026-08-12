@@ -222,22 +222,24 @@ rather than CSS, `palette.yml`'s paths filter carries `public/**.html` and
 `public/favicon.svg` alongside the stylesheet; without them an HTML- or
 icon-only PR skipped the only check watching it.
 
-**`public/favicon.ico` is generated too, and checked byte-for-byte.** Added
-2026-08-12 as the Safari fallback (WebKit doesn't resolve the SVG favicon and
-falls back to this path), it's rasterized from `favicon.svg`'s own hand-drawn
-cover path — `--ink` on crust, no accent sweep — with a hand-written PNG/ICO
-encoder in the same script (`node:zlib` + a small CRC32, no image library).
-`--check` compares the file exactly rather than re-rendering to compare
-pixels, the same way it does for the CSS block — the bytes are deterministic
-for a given Node/zlib, which is why CI pins `actions/setup-node@v4` to
-`node-version: 22`. **A contributor on a different Node major can see
-`--check` call the file stale with nothing actually wrong**; the fix is the
-same either way — re-run the generator — so it costs a moment of confusion,
-never a wrong result. It's the site's first binary file under `public/`,
-which the "No `og:image`" rule below drew the line at — paid deliberately,
-because Safari showing the house mark flat beats showing nothing.
-`palette.yml`'s paths filter carries
-`public/favicon.ico` alongside `favicon.svg` for the same reason as above.
+**`public/favicon.ico` is generated too, and checked by decoded pixels, not
+bytes.** Added 2026-08-12 as the Safari fallback (WebKit doesn't resolve the
+SVG favicon and falls back to this path), it's rasterized from
+`favicon.svg`'s own hand-drawn cover path — `--ink` on crust, no accent sweep
+— with a hand-written PNG/ICO encoder in the same script (`node:zlib` + a
+small CRC32, no image library). **It used to compare the file's raw bytes,
+and that broke on this PR's own CI run**: the file generated locally on Node
+22.23.1 didn't match what CI's Node 22.23.2 produced, same picture, different
+`zlib.deflateSync` output — compressed bytes aren't promised stable across
+zlib versions for identical input. `--check` now decodes `favicon.ico` back
+into raw RGB and compares *that* against a fresh rasterization; inflating is
+lossless regardless of which zlib compressed the file, so pixels are the
+actual invariant, where bytes only looked like one until a second machine
+disagreed. It's the site's first binary file under `public/`, which the
+"No `og:image`" rule below drew the line at — paid deliberately, because
+Safari showing the house mark flat beats showing nothing. `palette.yml`'s
+paths filter carries `public/favicon.ico` alongside `favicon.svg` for the
+same reason as above.
 
 It guards one non-palette thing as well, because the failure is silent and cost
 us a render: **two hyphens in a row inside `favicon.svg`'s comment**. XML

@@ -94,12 +94,17 @@
  * generated fan) rather than re-declared here, so a hand-edit to the mark's
  * position or weight carries into the ico for free. PNG and ICO are encoded
  * below with node:zlib and a small CRC32 — one binary file, no image
- * library, no new dependency — and the bytes are deterministic for a given
- * Node/zlib, so --check can compare them exactly rather than re-rendering to
- * compare pixels. That "for a given Node/zlib" is why CI pins node-version
- * (palette.yml): a different Node major can make --check call this file
- * stale for no real reason. The fix is the same either way — re-run this
- * script — so the failure mode costs confusion, never a wrong result.
+ * library, no new dependency.
+ *
+ * --check does NOT compare the file's raw bytes. It first tried to — caught
+ * live on 2026-08-12, when the file this generator wrote on Node 22.23.1
+ * failed CI's check under Node 22.23.2, same pixels, different compressed
+ * bytes: zlib.deflateSync's output isn't promised stable across zlib
+ * versions for identical input. So --check decodes favicon.ico back into raw
+ * RGB (decodeIco, below) and compares *that* against a fresh rasterization.
+ * Inflating is lossless regardless of which zlib compressed the file, so
+ * pixels are the actual invariant this generator can promise; bytes weren't
+ * one, they just happened to hold locally.
  *
  * That file is a real cost, not a free one: it's the first binary under
  * public/, in a repo whose "No og:image" rule (AGENTS.md) drew the line at
@@ -440,16 +445,78 @@ function encodeIco(pngsBySize) {
   return Buffer.concat(parts);
 }
 
-function renderIco(svg, inkHex, groundHex) {
+const ICO_SIZES = [16, 32];
+
+function rasterAllSizes(svg, inkHex, groundHex) {
   if (!inkHex || !groundHex) {
     throw new Error(`missing colour — --ink is ${inkHex ?? "missing"}, ground is ${groundHex ?? "missing"}`);
   }
   const { outer, inner } = parseMarkPolygons(svg);
   const ink = hexToRgb(inkHex);
   const ground = hexToRgb(groundHex);
-  return encodeIco(
-    [16, 32].map((size) => ({ size, png: encodePng(size, rasterizeMark(size, outer, inner, ink, ground)) })),
-  );
+  return ICO_SIZES.map((size) => ({ size, rgb: rasterizeMark(size, outer, inner, ink, ground) }));
+}
+
+function renderIco(pixelsBySize) {
+  return encodeIco(pixelsBySize.map(({ size, rgb }) => ({ size, png: encodePng(size, rgb) })));
+}
+
+/* Read one IHDR + IDAT + IEND PNG back into raw RGB — the inverse of
+ * encodePng, and the reason --check compares *pixels* rather than bytes: see
+ * decodeIco below for why. */
+function decodePng(buf) {
+  const sig = buf.subarray(0, 8);
+  if (!sig.equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    throw new Error("not a PNG (bad signature)");
+  }
+  let offset = 8;
+  let ihdr = null;
+  const idatParts = [];
+  while (offset < buf.length) {
+    const len = buf.readUInt32BE(offset);
+    const type = buf.toString("ascii", offset + 4, offset + 8);
+    const data = buf.subarray(offset + 8, offset + 8 + len);
+    if (type === "IHDR") ihdr = data;
+    if (type === "IDAT") idatParts.push(data);
+    if (type === "IEND") break;
+    offset += 8 + len + 4;
+  }
+  if (!ihdr) throw new Error("no IHDR chunk");
+  const width = ihdr.readUInt32BE(0);
+  const height = ihdr.readUInt32BE(4);
+  if (ihdr[8] !== 8 || ihdr[9] !== 2) throw new Error("expected 8-bit truecolor RGB");
+  const raw = zlib.inflateSync(Buffer.concat(idatParts));
+  const rgb = Buffer.alloc(width * height * 3);
+  for (let y = 0; y < height; y++) {
+    const row = y * (1 + width * 3);
+    if (raw[row] !== 0) throw new Error(`unsupported PNG filter type ${raw[row]} on row ${y}`);
+    raw.copy(rgb, y * width * 3, row + 1, row + 1 + width * 3);
+  }
+  return { width, height, rgb };
+}
+
+/* Read favicon.ico back into {size, rgb} pairs, one per embedded PNG.
+ *
+ * Comparing *pixels* rather than the ICO's raw bytes is deliberate:
+ * zlib.deflateSync's compressed output isn't guaranteed identical across
+ * Node/zlib versions for the same input (confirmed 2026-08-12 — the file
+ * this generator wrote on Node 22.23.1 didn't match what CI's Node 22.23.2
+ * produced, byte for byte, though the picture was the same). Inflating is
+ * lossless regardless of which zlib compressed it, so decoding both sides
+ * and comparing raw RGB is the actual invariant this generator can promise,
+ * where comparing compressed bytes wasn't one — it was a stand-in that
+ * happened to work locally. */
+function decodeIco(buf) {
+  const count = buf.readUInt16LE(4);
+  const images = [];
+  for (let i = 0; i < count; i++) {
+    const e = 6 + i * 16;
+    const size = buf[e] === 0 ? 256 : buf[e];
+    const dataSize = buf.readUInt32LE(e + 8);
+    const offset = buf.readUInt32LE(e + 12);
+    images.push({ size, ...decodePng(buf.subarray(offset, offset + dataSize)) });
+  }
+  return images;
 }
 
 /* ---- the target -------------------------------------------------------- */
@@ -730,22 +797,32 @@ if (ground?.toLowerCase() !== crust?.toLowerCase()) {
  * module comment ("the ico fallback") for why it's monochrome and generated
  * rather than hand-drawn. A generation failure (an upstream rename that took
  * --ink or crust with it) is a real refusal, unlike a merely stale file. */
-let icoBytes = null;
+let icoPixels = null;
 try {
   const ink = decls(darkBlocks(next)[0].text)["--ink"];
-  icoBytes = renderIco(iconNext, ink, crust);
+  icoPixels = rasterAllSizes(iconNext, ink, crust);
 } catch (e) {
   problems.push(`${relative(ROOT, ICO)}: cannot generate the fallback icon — ${e.message}`);
 }
 
-let icoCurrent = null;
-try {
-  icoCurrent = readFileSync(ICO);
-} catch {
-  icoCurrent = null;
+/* Compared by decoded pixels, not raw bytes — decodeIco's own comment says
+ * why. `icoStale` covers both "doesn't exist" and "exists but decodes to
+ * different pixels or won't decode at all" (wrong format, truncated, a size
+ * missing) under one umbrella, since every one of those wants the same fix:
+ * regenerate it. */
+let icoStale = true;
+if (icoPixels) {
+  try {
+    const current = decodeIco(readFileSync(ICO));
+    icoStale =
+      current.length !== icoPixels.length ||
+      icoPixels.some((want, i) => current[i]?.size !== want.size || !current[i]?.rgb.equals(want.rgb));
+  } catch {
+    icoStale = true;
+  }
 }
 
-if (icoBytes && (!icoCurrent || !icoBytes.equals(icoCurrent))) {
+if (icoPixels && icoStale) {
   problems.push(
     `${relative(ROOT, ICO)} is stale or missing — run \`node scripts/sync-nebelung.mjs\` to ` +
       `regenerate it from the mark, --ink and crust`,
@@ -789,8 +866,8 @@ if (iconNext !== icon) {
   writeFileSync(ICON, iconNext);
   wrote.push("the wedge fan in public/favicon.svg");
 }
-if (icoBytes && (!icoCurrent || !icoBytes.equals(icoCurrent))) {
-  writeFileSync(ICO, icoBytes);
+if (icoPixels && icoStale) {
+  writeFileSync(ICO, renderIco(icoPixels));
   wrote.push("the Safari fallback at public/favicon.ico");
 }
 

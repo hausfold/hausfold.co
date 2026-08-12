@@ -28,12 +28,12 @@
 #     in its comment, which is an XML parse error that no browser reports: the
 #     tab just shows a blank page icon and the site looks like it never had a
 #     favicon.
-#   - public/favicon.ico (the Safari fallback, since 2026-08-12) not matching
-#     what the mark, --ink and crust would generate. It's rasterized and
-#     PNG/ICO-encoded by the same script — an exact byte comparison, not a
-#     re-render — deterministic for a given Node/zlib, which is the whole
-#     reason this job pins node-version below rather than trusting whatever
-#     Node happens to be on the runner.
+#   - public/favicon.ico (the Safari fallback, since 2026-08-12) decoding to
+#     different pixels than what the mark, --ink and crust would generate.
+#     Decoded pixels, not raw bytes: an earlier version of this check compared
+#     bytes and broke on its own first CI run — the file zlib.deflateSync
+#     produces for the same pixels isn't promised stable across zlib versions,
+#     and this job's runner doesn't always match a contributor's local Node.
 #
 # **`public/**.html`, `public/favicon.svg` and `public/favicon.ico` are in the
 # paths filter for those, and they have to be.** Those checks read markup, an
