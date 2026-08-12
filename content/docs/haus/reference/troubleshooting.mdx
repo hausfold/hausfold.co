@@ -8,19 +8,20 @@ Almost every haus problem is one of a few known macOS quirks with a known fix.
 Start here, whatever the symptom:
 
 ```sh
-haus doctor    # Nix, the Xcode CLT, the GUI agents and cask drift, in one shot
+haus doctor    # Nix, the Xcode tools, every GUI agent, cask drift, the
+               # launcher's Accessibility grant, the theme ports and your
+               # secrets — in one pass
 ```
 
 ## ⌘Space does nothing
 
-Pounce is a launchd **user agent**. If it isn't answering, bounce it — this is
-the clean recovery for *any* wedged agent, and the rest of this page reuses it:
+Pounce is a launchd **user agent**. If it isn't answering, kick it — this is the
+clean recovery for *any* wedged agent, and the rest of this page reuses it with
+a different label:
 
 ```sh
 launchctl list | grep pounce   # is it running at all?
-
-launchctl bootout gui/$(id -u)/org.nixos.pounce 2>/dev/null
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.pounce.plist
+launchctl kickstart -k gui/$(id -u)/com.hausfold.pounce
 ```
 
 If the palette opens but **clipboard and emoji paste** don't work, it's missing
@@ -46,11 +47,10 @@ doctor` names the culprit and tells you what to unbind.
 ## Windows won't tile
 
 Almost always the **cold-boot race**: an agent that launched before the desktop
-session was ready parked itself instead of starting. Bounce it:
+session was ready parked itself instead of starting. Kick it:
 
 ```sh
-launchctl bootout gui/$(id -u)/org.nixos.aerospace 2>/dev/null
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.aerospace.plist
+launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace
 ```
 
 The smaller ones:
@@ -64,13 +64,13 @@ The smaller ones:
 ## The bar is blank or missing
 
 ```sh
-launchctl bootout gui/$(id -u)/org.nixos.sketchybar 2>/dev/null
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.nixos.sketchybar.plist
+launchctl kickstart -k gui/$(id -u)/org.nixos.sketchybar
+launchctl kickstart -k gui/$(id -u)/org.nixos.sill-bottom   # if you run the bottom bar
 ```
 
 **Running, but stale** — a pill you added isn't there, or a colour change didn't
-land? The easy fix is **Reload SketchyBar** from the ⌘Space palette, or the same
-row in the logo pill's dropdown. By hand:
+land? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or from the
+haus menu on a left-click of the logo pill. By hand:
 
 ```sh
 sketchybar  --reload ~/.config/sketchybar/sketchybarrc    # the menu-bar bar
@@ -103,25 +103,11 @@ haus btm    # no-op before Tahoe; on Tahoe+ it reads the BTM store and instructs
 ```
 
 There is **no declarative fix** — the toggle lives in macOS's own BTM store,
-which has no CLI to set it. So it's a one-time manual step:
-
-<Steps>
-
-<Step>
-Open **System Settings ▸ General ▸ Login Items & Extensions**.
-</Step>
-
-<Step>
-Scroll to **Allow in the Background** and find the entries named **`sh`**,
-subtitled *Item from unidentified developer*.
-</Step>
-
-<Step>
-Toggle them **on** and reboot. Already on but still blocked? Flip off, then on,
-to force a database write.
-</Step>
-
-</Steps>
+which has no CLI to set it. So it's a one-time manual step: in **System Settings
+▸ General ▸ Login Items & Extensions**, scroll to **Allow in the Background**,
+find the entries named **`sh`** (subtitled *Item from unidentified developer*),
+switch them on and reboot. Already on but still blocked? Flip off, then on, to
+force a database write.
 
 ## Touch ID for sudo beachballs inside a multiplexer
 
@@ -168,7 +154,7 @@ coarser rewind.
 Want to go further than one generation — switch a room off, or remove haus
 entirely? [Leaving](/docs/haus/guides/leaving) walks each exit, smallest first.
 
-## The installer refuses to run
+## "Found a Nix at /nix that isn't Determinate"
 
 haus is built on [Determinate Nix](https://docs.determinate.systems/) and won't
 install on top of a stock single-user Nix rather than risk breaking it. If you

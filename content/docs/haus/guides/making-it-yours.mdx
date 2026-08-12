@@ -34,8 +34,8 @@ Three ways in, and none of them is reading a reference end to end:
 - **Your own config already lists them.** A fresh install drops a
   `hosts/<host>/options.nix` beside your host file: every `haus.*` option at its
   default, one sentence each, **all commented out**. Uncomment what you want.
-  `haus options` refreshes it against the layer you're pinned to, so it can't
-  advertise something your machine hasn't got.
+  `haus options` refreshes it against the build you're actually running, so it
+  can't advertise something your machine hasn't got.
 - **One line, no editor.** `haus set theme.accent teal` writes the setting,
   type-checks it and rebuilds in one go; `haus get` reads one back and `haus
   reset` removes it. The [haus CLI reference](/docs/haus/reference/haus#changing-a-setting-without-opening-an-editor)
@@ -47,8 +47,10 @@ Three ways in, and none of them is reading a reference end to end:
 <Callout title="Scaffolded, not active">
 Nothing in `options.nix` does anything until you uncomment a line *and* `import`
 it — `haus options` prints the `imports = [ ./options.nix ];` line to add if it's
-missing. Commented-out is deliberate: haus's defaults are `mkDefault`s, so a file
-spelling every default out would silently beat any preset it imports.
+missing. Commented-out is deliberate, and for two reasons: a file that spelled
+every default out would **collide** with any preset you import — same-priority
+definitions are a build error, not a win — and it would freeze haus's own
+defaults against ever being retuned upstream. Uncomment what you actually mean.
 </Callout>
 
 ## The cookbook
@@ -64,9 +66,11 @@ haus.git.signingKey = "6F7BD6F43A7C1420";  # "" disables commit signing
 haus.git.org = "analytical-engine";        # the GitHub owner your work lives under
 ```
 
-`org` is the odd one out — not who you are, but where you work. gh-dash reads
-it to fill `⌘G`'s PR tabs with that owner's open, green, red and just-shipped
-work, so an org rename is one word rather than one per tab.
+`org` is the odd one out — not who you are, but where you work. gh-dash reads it
+to fill `⌘G`'s PR tabs with that owner's open, green, red and just-shipped work,
+so an org rename is one word rather than one per tab. On its own it does
+nothing: the overlay is opt-in, so set `haus.hearth.ghDash.enable = true`
+alongside it.
 
 ### The look
 
@@ -135,19 +139,28 @@ days apart can land different app versions.
 
 ## Turning rooms off
 
-Some rooms are opt-*out*; the rest are the floor everything else stands on.
+Every room you can see has a switch, and turning one off leaves the rest
+working:
 
-| Room | Off means |
+| Set this to `false` | And you lose |
 |---|---|
-| `haus.prowl.enable = false` | No tiling, no leader key, Caps Lock stays Caps Lock |
-| `haus.sill.enable = false` | The native macOS menu bar comes back |
-| `haus.pounce.enable = false` | ⌘Space stays Spotlight |
-| `haus.hush.enable = false` | No quiet switch — bell pill, palette command and CLI all go |
-| `haus.apps.videoPlayer.enable = false` | No IINA; videos keep whatever handler they have |
+| `haus.prowl.enable` | Tiling, the leader key — Caps Lock stays Caps Lock |
+| `haus.sill.enable` | The custom bar; the native macOS menu bar comes back |
+| `haus.pounce.enable` | The ⌘Space launcher |
+| `haus.perch.enable` | The notch file shelf |
+| `haus.hush.enable` | The quiet switch — bar pill, palette command and `hush` CLI |
+| `haus.collar.enable` | Touch ID for `sudo`, and back to the password prompt |
+| `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
-**den** (system and Homebrew), **hearth** (the shell) and **collar** (Touch ID
-for `sudo`) are always on — turn any of the optional rooms off and the rest keep
-working.
+**den** (the system defaults and Homebrew) and **hearth** (the shell) are the
+two with no switch at all — they're the floor the rest stands on.
+
+<Callout type="warn" title="Two of these don't hand the key back">
+Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
+Spotlight's shortcut with a one-way write, and nothing re-enables it. Same for
+**hush** and the Do-Not-Disturb hotkey. Both are one visit to System Settings ▸
+Keyboard ▸ Keyboard Shortcuts to put back.
+</Callout>
 
 If what you want is tiling **without** its keyboard claims, don't switch the
 room off: set `haus.keys.leader = "none"` and `haus.keys.windowNav = "none"`
@@ -162,13 +175,17 @@ surface, and you can read one in a minute and know the worst it can do. Import
 one alongside your host file:
 
 ```nix
-darwinConfigurations.myhost = haus.mkNebelhaus {
+darwinConfigurations.myhost = nebelhaus.mkNebelhaus {
   username = "ada";
   hostname = "myhost";
   host = ./hosts/myhost;
-  extraModules = [ haus.presets.everyday ];
+  extraModules = [ nebelhaus.presets.everyday ];
 };
 ```
+
+(`nebelhaus` there is the name your flake gave the input, which the scaffolded
+config picks — it's a handle for the layer, not a claim about which desktop you
+run.)
 
 | Preset | For |
 |---|---|
@@ -181,7 +198,7 @@ The first three are whole rices; pick one. **`large-print` is a layer** — it
 describes seeing rather than the person, so it stacks on any of them:
 
 ```nix
-extraModules = [ haus.presets.everyday haus.presets.large-print ];
+extraModules = [ nebelhaus.presets.everyday nebelhaus.presets.large-print ];
 ```
 
 <Callout type="warn" title="Import order carries no priority in Nix">
@@ -226,12 +243,15 @@ system.defaults.dock.orientation = "left";
 Anything under [`system.defaults`](https://nix-darwin.github.io/nix-darwin/manual/)
 is fair game.
 
-<Callout type="warn" title="Four keys that won't yield">
-Two menu-bar keys track whether the bar is on and override you rather than the
-other way round: **`_HIHideMenuBar`** (set it by hand and you get a bar and a
-menu bar fighting over the same strip of pixels) and
-**`NSGlobalDomain.SLSMenuBarUseBlurredAppearance`**, which haus forces opaque
-because Tahoe's Liquid Glass made the hidden menu bar's hover-reveal see-through.
+<Callout type="warn" title="Four keys that don't play by that rule">
+Two menu-bar keys track whether the bar is on, so haus sets them at full
+priority rather than as defaults. **`_HIHideMenuBar`** is the auto-hide: set it
+yourself and you get a *conflicting definition* and a failed evaluation, not a
+quiet win — which is the good outcome, because forcing it while the bar is on
+puts two bars in the same strip of pixels. **`SLSMenuBarUseBlurredAppearance`**
+(System Settings ▸ Menu Bar ▸ "Show menu bar background") haus rewrites on every
+activation, because Tahoe's Liquid Glass made the hidden menu bar's hover-reveal
+see-through; flip it by hand and the next rebuild flips it back.
 
 One macOS ignores outright: **`NSGlobalDomain.AppleInterfaceStyle`** (light or
 dark). It is a real nix-darwin option, and on macOS 26 writing it does nothing —

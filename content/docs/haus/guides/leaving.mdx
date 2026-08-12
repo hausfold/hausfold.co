@@ -12,7 +12,8 @@ your problem.**
 | What you want | Where to go |
 |---|---|
 | Undo the last rebuild | [Roll back a generation](#roll-back-a-generation) |
-| Stop using tiling, the bar, the launcher or hush | [Switch off a room](#switch-off-a-room) |
+| Undo the macOS settings a rebuild moved | `haus revert-settings` — [below](#roll-back-a-generation) |
+| Stop using tiling, the bar, the launcher, the shelf | [Switch off a room](#switch-off-a-room) |
 | Remove the managed system, keep Nix | [Take down the system layer](#take-down-the-system-layer) |
 | Remove Nix itself | [Remove Determinate Nix](#remove-determinate-nix) |
 
@@ -37,10 +38,17 @@ haus rollback <number>   # a specific one
 ```
 
 That restores everything Nix wrote — packages, agents, shell config, paths. It
-does **not** reliably restore macOS's own preferences, which a rebuild sets
-imperatively: the Dock, Finder, the keyboard, the menu bar, file associations.
-`haus revert-settings` puts back whatever `haus capture` last snapshotted; past
-that, System Settings.
+does **not** touch macOS's own preferences, which a rebuild sets imperatively:
+the Dock, Finder, the keyboard, the menu bar, file associations. Those have
+their own pair of commands:
+
+```sh
+haus capture              # snapshot the live settings before a risky change
+haus revert-settings      # put the last snapshot back, byte for byte
+haus revert-settings list # every snapshot you've taken
+```
+
+If you never captured one, System Settings is the way back.
 
 **The wallpaper is the sharpest case.** `haus.wallpaper.style` defaults to
 `minimal`, so the desktop is stamped at every activation and macOS keeps no
@@ -50,15 +58,16 @@ or the next rebuild stamps over it again.
 
 ## Switch off a room
 
-The visible rooms come out independently, and the rest of the machine keeps
-working:
+Every room comes out independently, and the rest of the machine keeps working:
 
 ```nix
 {
   haus.prowl.enable = false;   # AeroSpace tiling, the Caps-Lock leader, window bindings
-  haus.sill.enable = false;    # SketchyBar and the custom bar
+  haus.sill.enable = false;    # SketchyBar — the top bar, and the bottom one if you run it
   haus.pounce.enable = false;  # the launcher daemon, ⌘Space, its Accessibility features
-  haus.hush.enable = false;    # the quiet switch — bell pill, palette command, CLI
+  haus.perch.enable = false;   # the notch file shelf
+  haus.hush.enable = false;    # the quiet switch — its bar pill, palette command and CLI
+  haus.collar.enable = false;  # Touch ID for sudo, back to the password prompt
 }
 ```
 
@@ -67,11 +76,15 @@ haus edit
 haus rebuild
 ```
 
-Afterwards, check the macOS controls those rooms had taken over — Caps Lock, the
-native menu bar, Spotlight's ⌘Space, Accessibility permissions — are set the way
-you want. [Making it yours](/docs/haus/guides/making-it-yours#turning-rooms-off)
-covers what stays on regardless, and the middle ground where prowl keeps tiling
-but gives your keys back.
+Caps Lock and the native menu bar come back on their own — haus re-applies both
+at every activation, so switching prowl or sill off is enough. Two don't:
+**Spotlight's ⌘Space** and the **Do Not Disturb hotkey** were disabled by a
+one-way write, and nothing turns them back on. Both live in System Settings ▸
+Keyboard ▸ Keyboard Shortcuts.
+
+[Making it yours](/docs/haus/guides/making-it-yours#turning-rooms-off) has the
+full table, plus the middle ground where prowl keeps tiling but gives your keys
+back.
 
 ## Take down the system layer
 
@@ -103,7 +116,8 @@ find "$HOME" -maxdepth 5 -name '*.backup' -print
 Typically `~/.zshrc.backup`, `~/.zshenv.backup`,
 `~/.config/starship.toml.backup`, `~/.config/git/config.backup`, plus some
 inside managed directories. Inspect each one, confirm the Nix-managed target is
-gone, then move it back by hand.
+gone, then move it back by hand. One exception to hunting for: zellij's
+`config.kdl.backup` is cleared on every rebuild by design, so it won't be there.
 
 <Callout type="warn">
 Don't restore blindly. A backup is the version that existed at the *first*
@@ -122,6 +136,24 @@ brew list --cask
 brew uninstall <formula>
 brew uninstall --cask <cask>          # add --zap to take its data too
 ```
+
+### Pounce installed on its own
+
+If you installed the launcher through Homebrew rather than as a haus room —
+removing the *room* is just `haus.pounce.enable = false` above:
+
+```sh
+brew services stop pounce
+brew uninstall pounce
+brew untap hausfold/tap
+brew untap nebelhaus/tap   # only if you installed before the org was renamed
+```
+
+Homebrew keys a tap by its directory, so an install that predates the rename
+leaves the old one behind unless you untap it by its old name. Your own commands
+and config live in `~/.config/pounce` — keep or archive that separately — and
+remove Pounce from **System Settings ▸ Privacy & Security ▸ Accessibility** if
+it's still listed.
 
 ## Remove Determinate Nix
 
@@ -143,31 +175,50 @@ deleting pieces of `/nix` by hand.
 ## What to check afterwards
 
 No uninstaller can promise to reconstruct every preference that existed before
-an install. Walk this list once:
+an install. **`haus revert-settings` is the real answer if you captured a
+snapshot** — this list is for when you didn't:
 
-- Dock autohide and position
-- key repeat and press-and-hold
+- the Dock's autohide, position, size and animations
+- key repeat, press-and-hold, and the trackpad's tap-to-click and three-finger drag
 - Finder's extensions, hidden files, path bar and view style
-- the native menu bar, and Caps Lock
-- Spotlight's ⌘Space shortcut
+- hot corners
+- the native menu bar and its clock, and Caps Lock
+- Spotlight's ⌘Space and the Do Not Disturb hotkey — neither comes back on its own
 - the wallpaper
+- where screenshots land and in what format, and the screen-lock delay
+- alert volume and the startup chime (that one is firmware, and survives a reinstall)
+- your keyboard input sources — haus declares them exhaustively, so layouts you
+  never listed were switched off
+- the application firewall
 - file associations, if `haus.hearth.hijackFileAssociations` was on
-- the launcher's Accessibility grant, and Touch ID for `sudo`
+- the launcher's Accessibility grant, and Touch ID for `sudo` — including the
+  passwordless-`sudo` rule for rebuilds, which is the one with a security
+  consequence
 
-The APFS snapshot the installer takes before it starts is the coarse rewind, and
-coarse is the word — it reverts unrelated changes made since, so prefer targeted
-restoration unless the machine genuinely needs the wider one.
+The installer takes an APFS snapshot before it starts, but macOS purges local
+snapshots within about a day, so by the time you're reading this it has almost
+certainly gone. Treat it as luck, not as a plan.
 
 Then confirm what's actually gone:
 
 ```sh
 command -v haus || echo "haus is no longer on PATH"
 command -v darwin-rebuild || echo "darwin-rebuild is no longer on PATH"
-launchctl list | grep -Ei 'pounce|aerospace|sketchybar' || true
+launchctl list | grep -Ei 'hausfold|nebelhaus|pounce|aerospace|sketchybar|sill|hush|sleepwatcher'
 ```
 
-A surviving AeroSpace or SketchyBar isn't automatically residue — you may have
-installed it yourself. The question is only whether haus still manages it.
+That pattern matters: haus runs more agents than the obvious three, under three
+different label prefixes, and a narrower grep reports a clean machine while the
+bottom bar and the hush watcher are still loaded.
+
+A surviving AeroSpace or SketchyBar process isn't automatically residue — both
+are Homebrew installs that haus only *launches*, so `brew uninstall` is what
+actually removes them. A few things no uninstaller touches, because nothing in
+Nix put them there:
+
+```sh
+ls ~/.local/state/nebelhaus ~/.local/state/pounce ~/.config/perch /Applications/Perch.app
+```
 
 ## If something stays behind
 
