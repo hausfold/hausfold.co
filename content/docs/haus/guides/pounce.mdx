@@ -1,0 +1,229 @@
+---
+title: Pounce — the launcher
+description: A native, keyboard-first command palette for macOS. Summon, aim, pounce — and every command is just a file.
+icon: launcher
+accent: pounce
+---
+
+**Pounce** is a free, open-source, native command palette for macOS — a fast,
+dmenu-style picker you summon with a hotkey. Hit **⌘Space**, fuzzy-type, hit
+**Return**. It launches apps, runs commands, answers quick questions inline,
+and hosts a handful of built-in modes: clipboard history, an emoji and
+symbols grid, screenshots, and more.
+
+Its whole personality is one idea: **every command is a file.** Drop a shell
+script in a folder and it's in the palette — no plugin API, no extension
+store, no account.
+
+It's [MIT licensed](https://github.com/hausfold/pounce/blob/main/LICENSE) —
+every feature on this page, no paid tier — and installs standalone from
+Homebrew, no Nix required. Inside haus, the `pounce` module wires it up as a
+login daemon and re-signs it so its Accessibility grant survives rebuilds.
+
+## Summon it
+
+- **⌘Space** — the default hotkey, registered in-process by the daemon so it
+  opens instantly. haus frees ⌘Space from Spotlight so Pounce can own it.
+- **Fn/Globe** — on the nebelhaus desktop, a lone tap opens the emoji and
+  symbols grid. Fn combinations keep working; this reuses Pounce's
+  Accessibility grant and only replaces Globe's stock action while armed.
+- Change either in [config](/docs/haus/reference/pounce#config-file): the
+  `hotkey` block takes a `key` and `modifiers`.
+
+<Callout type="warn" title="If ⌘Space does nothing on a stock Mac">
+Installing standalone, Spotlight still owns ⌘Space and wins silently —
+registration *succeeds*, so Pounce can't tell, and macOS just routes the key
+elsewhere. The daemon checks for this at startup and names the shortcut that
+beat it in its log. Free the key in **System Settings → Keyboard → Keyboard
+Shortcuts → Spotlight**, then restart the daemon. haus users get this for
+free — it turns Spotlight's binding off.
+</Callout>
+
+## What you can do
+
+| | |
+|---|---|
+| **Launch apps** | Type a few letters — `saf` → Safari. A freshly-installed app is boosted so it's easy to find right after install. |
+| **Run commands** | Your scripts and the built-ins appear alongside apps, ranked by how often you use them. |
+| **Clipboard history** | Browse and restore recent copies in a two-pane view; optionally auto-paste into the app you came from. |
+| **Find Files** | Search files and folders by name over Spotlight's index. `⏎` opens, `⌘⏎` reveals in Finder, `⌥⏎` copies the path. |
+| **Quick answers** | Math, unit, time-zone and currency queries answer inline as a pinned first row — `⏎` copies the result. |
+| **Emoji & symbols** | One grid for emoji *and* plain-text symbols — type `command` → ⌘, `arrow` → →, `not equal` → ≠. Ordinary Unicode, so it pastes anywhere. |
+
+Plus a screenshot browser, a live camera peek, and a searchable cheatsheet.
+
+## Navigating the palette
+
+| Key | Action |
+|---|---|
+| Type | Fuzzy-search in real time |
+| `↑` / `↓` | Move the selection |
+| `Return` | Run the default action |
+| `⇧Return` | Insert a newline — the query field is multi-line |
+| `⌘Return` | The modifier action (often "Reveal in Finder" for apps) |
+| `⌥Return` / `⌃Return` | Alternate actions, when shown |
+| `Esc` | Dismiss |
+
+The action bar at the bottom always shows which modifiers do what for the
+selected row.
+
+## How ranking works
+
+Three signals decide the order, so the thing you want is usually already on
+top: **fuzzy match quality** (consecutive runs, word-boundary hits, titles
+count double subtitles), **frecency** (frequency × recency, 72-hour
+half-life), and a **freshly-installed boost** for anything installed in the
+last week (halving every two days).
+
+## Quick answers
+
+Some queries are answered **in the palette** instead of being fuzzy-matched
+against apps and commands. The answer pins to the top as its own row, and
+`Return` copies it — no trigger prefix needed:
+
+| Type | Get |
+|---|---|
+| `2*847`, `2^10`, `sqrt(9)` | Arithmetic |
+| `100 + 10%`, `20% of 150` | Percentages |
+| `72 f in c`, `1 pound in kg`, `1 gib in mib` | Unit conversion |
+| `100 usd in eur`, `$100 in eur` | Currency conversion |
+| `14:00 utc in pst`, `2pm utc in tokyo` | Time-zone conversion |
+
+A query no engine can parse just falls through to normal results, and
+anything without a digit skips the engines entirely — `safari` stays a
+search. Currency uses the European Central Bank's daily reference rates,
+cached locally so it keeps answering offline. It's one of only two things
+that touch the network — the other is the hourly release check — and
+`quickAnswers.currency` in [config](/docs/haus/reference/pounce#config-file)
+turns it off.
+
+## A window switcher, not an app switcher (opt-in)
+
+Pounce ships an **MRU window switcher**: tap the chord to bounce to your last
+window even on another workspace, hold it and keep tapping to walk older
+ones, or type while holding to fuzzy-filter. It moves by *window*, so two
+Ghostty windows are two rows.
+
+It's **off by default** — it needs the Accessibility grant to install an
+event tap. Turn it on with the `windows` block in
+[config](/docs/haus/reference/pounce#config-file) (or `haus.pounce.windowSwitcher`
+in haus, where it defaults on). Under [AeroSpace](/docs/haus/guides/window-management),
+rows gather by workspace under a header each, and focusing goes through
+`aerospace focus --window-id` so a window parked elsewhere surfaces properly.
+One deliberate wrinkle: a bare tap-and-release skips the workspace you're on
+and lands on the most recent window on a **different** one — with two windows
+tiled side by side, the most recent is one you're already looking at, so
+landing there wouldn't be a switch. The skipped siblings are still the rows
+right below you.
+
+## Quit an app when its last window closes (opt-in)
+
+macOS keeps an app running after you close its last window. If your muscle
+memory is from Windows, that's a ⌘Q you forgot every time — turn this on with
+the `autoQuit` block in [config](/docs/haus/reference/pounce#config-file) (or
+`haus.pounce.autoQuit.enable`, off by default) and Pounce asks an app to quit
+when its last window goes away.
+
+**Asked, not killed** — the same Quit event ⌘Q sends, so unsaved work puts up
+its sheet and stays open. **The delay is load-bearing**: `delay` (2s,
+clamped 0.25–3600) is what tells "I'm done with this app" apart from "close
+this window, open another," which is what a browser does on ⌘N. **`exclude`
+replaces the default, not extends it** — out of the box it's
+`["com.apple.finder"]`, since Finder is the one app macOS runs windowless by
+design. It shares the window switcher's Accessibility grant and observers,
+so turning both on costs one grant, not two.
+
+The one thing that will surprise you: an app doing work in the background is
+still just an app with a window. Closing the Docker Desktop dashboard asks
+Docker to quit, which stops your containers — the same shape catches media
+players, torrent clients, and any chat app you keep open for notifications.
+That's what `exclude` is for.
+
+## Two-step commands (submenus)
+
+Some commands open a second picker instead of acting immediately — "Brew
+Services" lists services, "Force Quit" lists processes — and Pounce swaps
+the list **in place**, no window flicker. See
+[Writing pounce commands](/docs/haus/reference/pounce#writing-your-own-command).
+
+## Built-in commands
+
+Out of the box: **Activity Monitor**, **Brew Services**, **Camera**,
+**Capitalize** / **Lowercase** (rewrite the text selected in *any* app),
+**Clipboard History**, **Emoji & Symbols**, **Find Files**, **Force Quit**,
+**Lock Screen**, **Ports**, **Report Pounce Issue**, **Screenshots**,
+**System Settings** (every pane is its own command), and — on a Homebrew
+install — **Update Pounce**, which self-updates in place: `brew upgrade
+pounce` on Homebrew, an in-place swap when dragged to `/Applications`, or a
+nudge to `haus update`
+on Nix/haus, since the next rebuild would revert an in-place update anyway.
+Every command is just a script you can read, copy, or replace.
+
+## Optional plugins
+
+A shelf of plugins ships **off by default**, because each assumes a specific
+tool, service, or app:
+
+| Plugin | What it does | Needs |
+|---|---|---|
+| **Audio Devices** | Switch sound output & input | `switchaudio-osx` |
+| **Bluetooth** | Connect & disconnect paired devices | `blueutil` |
+| **Caffeinate** | Keep the Mac awake, indefinitely or on a timer | nothing |
+| **Docker** | Start/stop/restart & tail container logs | any engine that answers `docker ps` |
+| **GitHub** | Jump to your PRs, reviews, issues & repos | `gh`, authenticated |
+| **Perplexity** | A fresh Perplexity thread from a typed question | a browser |
+| **Spotify** | Playback controls | Spotify.app |
+| **SSH Hosts** | Pick a host from `~/.ssh/config` | hosts in `~/.ssh/config` |
+| **Tailscale** | Connect/disconnect, copy an IP | the `tailscale` CLI |
+
+On Nix, enable by id: `pounce-commands.override { plugins = [ "docker" "ssh" ]; }`.
+Off Nix, every plugin is still just one script — copy it from
+[`pkgs/pounce-commands/optional/`](https://github.com/hausfold/pounce/tree/main/pkgs/pounce-commands/optional)
+into `~/.config/pounce/commands/` and it's live on the next ⌘Space.
+
+## Install it standalone
+
+```sh
+brew tap hausfold/tap
+brew install pounce
+brew services start pounce        # start the daemon
+pounce --request-accessibility    # one-time, for paste-back and event-tap bindings
+```
+
+The formula installs a prebuilt, Developer-ID-signed and notarized
+`Pounce.app` — no Gatekeeper prompt, no compile step. Requires **macOS 14
+Sonoma or later on Apple Silicon**. Because that signing identity is stable,
+the Accessibility grant **survives `brew upgrade`** — approve it once, not
+once per release. Or with Nix: `nix run github:hausfold/pounce -- --help`.
+
+## Grant Accessibility
+
+Clipboard auto-paste, emoji paste, and modifier-only bindings like Fn/Globe
+all synthesize keystrokes; the window switcher and auto-quit read a live
+window snapshot. macOS gates all of it behind one grant:
+
+```sh
+pounce --request-accessibility    # approve the dialog
+pounce --check-accessibility      # prints true when granted
+```
+
+<Callout title="Nix rebuilds and Accessibility">
+A plain Nix rebuild is ad-hoc signed, which would drop the grant every time.
+Inside haus, set `haus.pounce.signingIdentity` and the rice re-signs a stable
+copy of the app with your identity, so the grant persists across rebuilds.
+</Callout>
+
+<Cards>
+  <Card
+    icon={<Icon name="terminal" />}
+    title="Pounce config & CLI"
+    href="/docs/haus/reference/pounce"
+    description="Every config key, CLI flag, and file path — plus how to write your own command."
+  />
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Windows"
+    href="/docs/haus/guides/window-management"
+    description="Where the window switcher's AeroSpace pairing comes from, and the rest of the tiling vocabulary."
+  />
+</Cards>
