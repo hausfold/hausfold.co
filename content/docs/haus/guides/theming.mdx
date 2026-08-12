@@ -1,0 +1,259 @@
+---
+title: Theming
+description: One silver-mist palette across every tool — swapping the accent, raising the contrast, light mode, and the generated desktop.
+icon: palette
+---
+
+The whole system shares one palette: **nebelung**, a silver-mist Catppuccin
+variant. It is Catppuccin with the blue pulled out of the greys and the accents
+calmed down — a fog-grey scheme for people who find most dark themes too loud.
+Grey is the point. It is named for a cat breed the colour of high fog.
+
+nebelung renders that palette onto **50+ tools** — the terminal, the
+multiplexer, the prompt, git, the file manager, the editor, the browser — so
+they all speak the same colours. Three knobs, in the order people reach for
+them:
+
+| Option | What it changes |
+|---|---|
+| [`haus.theme.accent`](#the-accent) | the one hue that tints highlights |
+| [`haus.theme.contrast`](#contrast) | how far text separates from its background |
+| [`haus.theme.flavor`](#light-mode) | dark or light |
+
+They compose, and all three land on the next `haus rebuild`.
+
+## The accent
+
+The greys stay fixed; only the accent hue moves.
+
+```nix
+haus.theme.accent = "sapphire";
+```
+
+Any of the fourteen Catppuccin accent names works, and the default is `mauve`:
+
+`rosewater` · `flamingo` · `pink` · `mauve` · `red` · `maroon` · `peach` ·
+`yellow` · `green` · `teal` · `sky` · `sapphire` · `blue` · `lavender`
+
+It re-tints the tools that render per-accent variants — lazygit borders, fzf
+highlights, yazi, glow's markdown headings, the Zen browser, and the
+[generated desktop](#the-desktop) — while single-file dotfiles keep their built-in
+theme. That list isn't prose anyone maintains by hand: a build-time check fails
+if a surface on it starts, or stops, following the accent.
+
+<Callout type="warn" title="Zen means Zen's chrome, not the web">
+The accent moves the browser's own UI. It does **not** re-tint github.com,
+because those are Catppuccin *userstyles*, compiled inside the browser and
+stored in the Stylus extension rather than in any file haus writes.
+
+Declare the extension and haus closes the loop:
+
+```nix
+haus.zen.extensions.stylus = { };
+```
+
+It deploys Stylus through a macOS managed preference — `haus.roster` can't
+install add-ons — and stamps nebelung's userstyle bundle from *your* accent,
+flavor and contrast, so all three axes on this page reach the web. Because that
+preference is root-owned, Zen will say it is **managed by your organization**;
+that organization is your own config. Set
+`haus.zen.extensions.stylus.mode = "normal_installed"` to keep it removable.
+
+The import itself stays a click, because Stylus has no file interface: activation
+prints a one-time nudge, and you do **Stylus ▸ Manage ▸ Import**.
+</Callout>
+
+## Contrast
+
+The default greys are deliberately soft. If text doesn't separate enough — a
+bright room, a glossy screen, or eyes that want more edge:
+
+```nix
+haus.theme.contrast = "high";
+```
+
+Same hues, same accents; the neutral ramp is pulled apart in OKLCH so every step
+gains separation. Contrast is a property of the **neutrals** only, so a
+high-contrast machine is the same theme read more easily, not a different one.
+
+<Callout type="warn" title="It doesn't reach native macOS apps">
+This recolours everything haus colours. macOS has its own switch, and a
+genuinely high-contrast Mac wants both:
+
+```nix
+haus.accessibility.increaseContrast = true;
+```
+
+That one needs Full Disk Access on whatever you rebuild from.
+</Callout>
+
+## Light mode
+
+```nix
+haus.theme.flavor = "latte";
+```
+
+Light mode is **not** the dark palette inverted. "Catppuccin with the blue
+stripped out" says nothing about dark, so the same recipe is applied to
+Catppuccin **Latte** instead of Mocha: the same warm-grey ramp and the same
+calmed accents, read the other way up. Because it is a real re-render, tools take
+their light-mode branches properly — ANSI black and white swap around, the
+browser switches its `prefers-color-scheme` block, delta marks itself light.
+
+The two axes give four palettes. Contrast of body text on the background —
+measured, not eyeballed, and nebelung's CI holds every one of them above the
+AAA floor:
+
+| | `contrast = "normal"` | `contrast = "high"` |
+|---|---|---|
+| `flavor = "mocha"` | 11.3:1 | 19.9:1 |
+| `flavor = "latte"` | 7.0:1 | 9.9:1 |
+
+<Callout type="warn" title="macOS's own appearance is opt-in">
+By default haus leaves **System Settings ▸ Appearance** alone in both
+directions, so a light config on a dark Mac looks half-finished. One option
+finishes it:
+
+```nix
+haus.theme.systemAppearance = "flavor";  # latte → Light, mocha → Dark
+```
+
+`"light"` and `"dark"` pin it instead; the default `"unmanaged"` is what leaves
+it alone — a managed default would silently undo an appearance you picked by
+hand on your next rebuild. Driving it needs an **Automation** grant for whatever
+runs your rebuild (System Settings ▸ Privacy & Security ▸ Automation); without
+one haus tells you and changes nothing. And if Appearance is set to **Auto**,
+macOS switches polarity on its own schedule — haus sets it at rebuild time and
+doesn't fight it afterwards.
+
+**pounce and perch** are the exception in the other direction: both read their
+palette at runtime and follow macOS's Light/Dark themselves, so on a dark Mac
+they stay dark under `flavor = "latte"`. Pin them with
+`haus.pounce.followSystemAppearance = false` — needed only while macOS stays
+unmanaged.
+</Callout>
+
+## The desktop
+
+The wallpaper is generated on your machine rather than shipped as a picture, and
+it is what you get without saying anything:
+
+```nix
+haus.wallpaper.style = "minimal";   # none | minimal | orbits | constellation | flow | bold
+```
+
+`minimal` is one flat colour out of your palette, the haus mark **⌂** at the
+centre in the family's six accents, and a very broad bloom in your own accent
+behind it. There is no photograph to clash with a terminal in front of it, and
+nothing that stops reading as a background once you have windows open. It is
+drawn from the palette, accent and gaps you already chose, which is why it can
+be the default.
+
+`style = "none"` is a real answer rather than an absence: nothing runs, and
+whatever wallpaper you have stays exactly where it is. The installer asks.
+
+| Knob | |
+|---|---|
+| `haus.wallpaper.depth` | how far in from the palette's outermost tone the field sits, `0`–`5`. `1` (default) is one rung inside black in a dark config and inside white in a light one — a step below what your terminal draws on, which is what keeps a whole screen of it reading as a wall. `haus.wallpaper.background` overrides it with a hex. |
+| `haus.wallpaper.mark.*` | `enable`, `size`, `weight`, `opacity`, `rise`, and `color` — `spectrum` (default), `muted`, `ink` or `accent`. `spectrum` is the six-product sweep the ⌂ wears on [hausfold.co](https://hausfold.co), held still. |
+| `haus.wallpaper.glow.*` | the bloom: `color` (your accent), `strength`, `spread`. |
+| `haus.wallpaper.grain` | film grain — it is what stops the bloom banding into contour rings. `0` turns it off, and you only want that with `glow.enable = false`. |
+| `haus.wallpaper.size` | the pixel size to render at. Set it to your display's **native** count (`system_profiler SPDisplaysDataType` prints it) — anything else is resampled, and resampling undoes the dither. |
+| `haus.wallpaper.debug.enable` | off by default: prints which revision of each family repo this machine was built from, small and dim at the bottom left, at exactly the inset a tiled window's corner lands on — so it only ever surfaces on a bare desktop. |
+
+Preview any of it without rebuilding a Mac:
+
+```sh
+nix build github:hausfold/haus#wallpaper && open result
+```
+
+## Apps you added yourself
+
+Everything above covers the tools haus installs. Apps **you** put in your
+[roster](/docs/haus/guides/adding-apps) get the same treatment, as long as the
+id you keyed the entry under matches a nebelung port:
+
+```nix
+haus.roster.zed = { key = "x"; name = "Zed"; appId = "dev.zed.Zed"; cask = "zed"; };
+```
+
+On the next rebuild its theme is written where that app looks — `~/.config/zed/themes/`
+— in your current flavor, contrast and accent, and re-written whenever you change
+them. The key is the **roster id**, not the display name: `zed`, not
+`zed-editor`. `haus.theme.ports.enable = false` turns the whole pass off.
+
+Dropping a file is enough for apps that read a fixed path. Plenty of others —
+Xcode, Warp, OBS, JetBrains — have no file interface for *choosing* a theme, so
+the file is placed and the one-time pick stays yours. A few (Slack, Raycast)
+can't be installed by file at all. Rather than leave you to discover that months
+later, `haus doctor` says where each one stands:
+
+```
+🌫  Nebelung theme
+  ✓ gitui — themed (~/.config/gitui/theme.ron)
+  ⓘ Xcode — placed at ~/Library/…/Catppuccin Mocha.xccolortheme — pick it in the app's settings
+  ⓘ Slack — not installed — copy the hex string → Slack ▸ Preferences ▸ Themes ▸ paste
+```
+
+A ✓ is live now; a ⓘ tells you the one move left. Ports that would need merging
+into a config file you own (VS Code's `settings.json`) are **listed but never
+written** — silently half-editing your file is worse than telling you what to do.
+nebelung's [ports table](https://github.com/hausfold/nebelung/blob/main/docs/ports.md)
+publishes which is which.
+
+## Obsidian
+
+Obsidian keeps its theme *inside each vault*, so haus doesn't guess which
+folders are yours. List them as home-relative paths:
+
+```nix
+haus.hearth.obsidianVaults = [
+  "Library/Mobile Documents/iCloud~md~obsidian/Documents/notes"
+];
+```
+
+Each listed vault gets the generated theme and has it selected; the rest of its
+appearance settings are preserved. A path without an `.obsidian` directory is
+skipped with a warning, so a typo can't create an empty lookalike vault.
+Obsidian is one of the places light mode doesn't reach yet — it stays dark.
+
+## Using nebelung on its own
+
+nebelung is a standalone colour system; you can theme any tool without the rest
+of haus. Copy a rendered theme out of the flake's output tree, or consume the
+flake:
+
+```nix
+inputs.nebelung.url = "github:hausfold/nebelung";
+# rendered themes:  ${nebelung.packages.${system}.default}/<tool>/...
+# raw palette:      nebelung.palette          # name → "#hex"
+```
+
+glow, lazygit, yazi and the browser render all fourteen accents as separate
+files; the other tools ship one theme with the default accent baked in. Every
+hex, and an interactive preview of all four variants, is in the
+[nebelung repo](https://github.com/hausfold/nebelung).
+
+Colours are generated at **build time** from that one source rather than loaded
+from loose theme files, which is why the palette can never drift out of sync:
+update nebelung, rebuild, and every tool gets the same new values at once.
+
+Want a different fog? The palette is computed in [OKLCH](https://oklch.com/)
+from three knobs — the grey's hue and chroma, and how far the accents are calmed
+— so hue and saturation can be rewritten while perceptual lightness is
+preserved. That is a change in the nebelung repo, not in your host file.
+
+<Cards>
+  <Card
+    icon={<Icon name="bar" />}
+    title="The bar"
+    href="/docs/haus/guides/the-bar"
+    description="The most visible thing your accent lands on, and the pill that sweeps through all six family colours when you hover it."
+  />
+  <Card
+    icon={<Icon name="shell" />}
+    title="The terminal"
+    href="/docs/haus/guides/the-shell"
+    description="The fifty-odd tools this palette is rendered onto, and the keys that drive them."
+  />
+</Cards>

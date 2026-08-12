@@ -1,6 +1,7 @@
 import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
+  Boxes,
   Cat,
   CloudFog,
   Command,
@@ -8,9 +9,13 @@ import {
   Download,
   Footprints,
   Inbox,
+  Keyboard,
   Layers,
+  LayoutGrid,
   Monitor,
+  Palette,
   PanelTop,
+  SquareTerminal,
 } from 'lucide-react';
 import type { Accent } from './shared';
 
@@ -47,6 +52,11 @@ const icons = {
   bar: { icon: PanelTop },
   fog: { icon: CloudFog },
   steps: { icon: Footprints },
+  tiling: { icon: LayoutGrid },
+  apps: { icon: Boxes },
+  shell: { icon: SquareTerminal },
+  palette: { icon: Palette },
+  keys: { icon: Keyboard },
 
   // The outward links at the head of the sidebar — the products' own colours,
   // the same ones the landing page's index spends on hover.

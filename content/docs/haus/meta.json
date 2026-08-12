@@ -3,5 +3,14 @@
   "description": "The macOS layer",
   "icon": "layer",
   "root": true,
-  "pages": ["index", "install", "---Guides---", "guides/the-bar"]
+  "pages": [
+    "index",
+    "install",
+    "---Guides---",
+    "guides/window-management",
+    "guides/the-bar",
+    "guides/the-shell",
+    "guides/adding-apps",
+    "guides/theming"
+  ]
 }

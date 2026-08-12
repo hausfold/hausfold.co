@@ -3,5 +3,5 @@
   "description": "A desktop built on haus",
   "icon": "desktop",
   "root": true,
-  "pages": ["index", "first-run"]
+  "pages": ["index", "first-run", "keybindings"]
 }

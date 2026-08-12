@@ -1,0 +1,223 @@
+---
+title: Adding apps
+description: One list holds every app, font and CLI tool on the machine — what to install it from, and what key launches it.
+icon: apps
+---
+
+Sooner or later you want Slack, or Discord, or `ripgrep`. Everything the machine
+has goes in **one list** — `haus.roster` — and you never choose an *option*, only
+which **fields** to set. A field says where the app comes from; another says what
+key launches it; an entry with neither is still a declaration.
+
+The quickest route doesn't involve editing anything: open pounce, run **Install
+App**, and pick from the curated shelf or search Homebrew, the Mac App Store, or
+your flake's pinned nixpkgs. It writes a small Nix module under
+`hosts/<hostname>/packages/`, rebuilds, and commits that one file. There is no
+`roster.json` behind it — the same options you'd have written by hand.
+
+By hand:
+
+```sh
+haus edit       # opens ~/.config/nix/hosts/<hostname>/default.nix
+haus rebuild    # build, then switch
+```
+
+## Where it comes from
+
+Four source fields, one per package manager. Set **the one** that applies —
+setting two is a build error:
+
+| Field | Installs from | Example |
+|---|---|---|
+| `cask` | a Homebrew cask | `cask = "slack";` |
+| `brew` | a Homebrew formula | `brew = "ical-buddy";` |
+| `package` | your flake's pinned nixpkgs | `package = pkgs.ripgrep;` |
+| `appStoreId` | the Mac App Store | `appStoreId = 497799835;` |
+
+Set none of them and the entry is pure metadata — right for something already on
+the machine (Safari, Music) that you still want a launcher key for.
+
+Don't know a name? `brew search --cask obsidian`, or
+`nix search nixpkgs ripgrep`.
+
+## An app you'll live in
+
+A keyed roster entry gives an app a Caps-Lock letter, a cheatsheet row, and the
+install. A [`haus.workspaces`](/docs/haus/guides/window-management#workspaces-and-what-lives-on-them)
+entry naming it gives it a workspace, a bar pill, and the rule that sends its
+windows there:
+
+```nix
+haus.roster.slack = {
+  key = "s";
+  name = "Slack";
+  appId = "com.tinyspeck.slackmacgap";
+  cask = "slack";
+};
+
+haus.workspaces.S = {
+  key = "s";
+  icon = ":slack:";
+  apps = [ "slack" ];
+};
+```
+
+Rebuild, and <kbd>⇪</kbd> then <kbd>S</kbd> lands you on Slack, on workspace
+`S`, every time.
+
+Two fields everybody looks up:
+
+- **`appId`** — the bundle id, which is how windows get sent to the right
+  workspace. `osascript -e 'id of app "Slack"'` prints it.
+- **`icon`** — on the *workspace*, not the app: a ligature from the
+  [SketchyBar app font](https://github.com/kvndrsslr/sketchybar-app-font), like
+  `:slack:`. Leave it out and the pill shows the workspace id.
+
+Keeping them apart is what lets one workspace hold several apps — a `comms`
+space with Slack, Mail and Messages — instead of one app per workspace.
+
+## An app you just want installed
+
+Omit the launcher fields. No letter, no cheatsheet row, no pill — but still
+**declared**, which is what keeps a later Homebrew cleanup from removing it:
+
+```nix
+haus.roster = {
+  discord = { name = "Discord"; cask = "discord"; };
+  figma   = { name = "Figma";   cask = "figma"; };
+};
+```
+
+<Callout type="warn" title="Homebrew apps sit outside Nix's time machine">
+Casks are installed *by* the rebuild but aren't in Nix generations, so `haus
+rollback` neither uninstalls an app you added nor restores one you removed.
+Deleting the line doesn't delete the app either — `haus.homebrew.cleanup` is
+`"none"` on purpose. To actually remove one: `brew uninstall --zap <cask>`.
+</Callout>
+
+## An App Store app
+
+Recording the id is always safe; **installing** from it is opt-in, because it
+reaches the network and acts on your Apple Account:
+
+```nix
+haus.roster.xcode = {
+  name = "Xcode";
+  appStoreId = 497799835;   # the digits in its App Store URL
+};
+
+haus.appStore.install = true;
+```
+
+Three limits worth knowing before you rely on it. `mas` **cannot sign in** — do
+that once in App Store.app. It **can never buy a paid app**; buy it once, then
+any machine can install it. It **can** fetch a free app you've never had. An
+unpurchased paid app is reported and skipped during a rebuild, never fatal.
+
+A rebuild fetches these during activation, which is already running as root, so
+`mas get` neither prompts nor wedges. Going through pounce's **Install App**
+instead runs it in a visible floating terminal, because that path can be asked
+for an Apple Account.
+
+## A CLI tool
+
+Same list, no launcher fields:
+
+```nix
+haus.roster = {
+  ripgrep = { package = pkgs.ripgrep; };
+  ical-buddy = { brew = "ical-buddy"; };   # when nixpkgs hasn't got it
+};
+```
+
+`scope` applies to `package` only, and it is about **reach**, not privileges:
+
+- **`"user"`** (default) — your profile. Right for anything you run as yourself.
+- **`"system"`** — machine-wide, so it's on `PATH` for root, launchd jobs and
+  non-login shells. What a tool called by a daemon actually needs.
+
+To *try* something without installing it, hearth wires up `comma`:
+
+```sh
+, cowsay "hello fog"     # fetches it, runs it, keeps nothing
+```
+
+Reach for it twice and it has earned a roster entry.
+
+## Every field
+
+| Field | What it's for |
+|---|---|
+| `key` | The launcher letter, unique across the roster, and not one of launch mode's own: `V` `E` `Z` `,` `` ` `` `-` `=` `/` `1`–`4` `Esc` and the arrows are taken, and a rebuild refuses them. `null` (default) makes the entry install-only. |
+| `name` | The macOS app name — what `open -a` uses. Required when `key` is set. |
+| `appId` | The bundle id: auto-assigns windows to a workspace, and matches `float`. |
+| `label` | The cheatsheet caption. `null` uses `name`. |
+| `float` | Keep this app's windows floating instead of tiled — for a picker or status window that would reflow the workspace every time it opens. Needs `appId`. |
+| `titleRegex` | Scopes `float` to matching window titles instead of every window. |
+| `cask` · `brew` · `package` · `appStoreId` | Where it comes from. One of them, or none. |
+| `scope` | `"user"` (default) or `"system"`, for `package` only. |
+| `order` | Lower numbers appear earlier. |
+| `enable` | `false` disables a default or imported entry by id. |
+| `installedBy` | Set by haus, not by you — for an app copied in by its own activation step, which no source field can describe. |
+
+## haus's own apps are entries too
+
+You don't have to know what haus already installs. Each room declares its own:
+prowl brings AeroSpace, sill brings SketchyBar, den brings Ghostty. So giving one
+of them a launcher key means writing only the launcher half:
+
+```nix
+# perch's name, bundle id and installer come from haus.perch.
+haus.roster.perch.key = "p";
+```
+
+The rule underneath: whoever installs an app owns its source fields, whoever
+gives it a key owns its launcher fields. Two modules never fight over one field,
+and your host file never restates what haus is doing.
+
+A handful of apps arrive because haus *chose* them for you rather than because a
+room needs them — those live in `haus.apps`, each behind one switch:
+
+```nix
+haus.apps.videoPlayer.enable = false;          # don't install IINA
+haus.apps.videoPlayer.claimFileTypes = false;  # install it, rebind nothing
+```
+
+What it installs is an ordinary roster entry, so you can key it like any other.
+File-type claims are the same user default Finder's *Get Info ▸ Change All*
+writes, so nothing there is hard to undo — but **only one haus-owned app may
+claim a type**, or macOS asks you to pick a winner on every rebuild. If you add
+an extension to one list, check it against the other by UTI, not by spelling.
+
+<Callout title="It may theme itself on the way in">
+If the id you key the entry under matches a tool nebelung has a port for — `zed`,
+`warp`, `xcode`, `gitui`, `kitty` and a few dozen more — its theme lands where
+that app looks for one on the next rebuild, in your flavor, contrast and accent.
+See [Theming](/docs/haus/guides/theming#apps-you-added-yourself).
+</Callout>
+
+## Then apply it
+
+`haus rebuild` builds first, so a typo can't take down a running system. New
+casks install, new tools land on `PATH`, and a new roster app gets its letter,
+workspace and pill together. If it doesn't tile on first launch, tap
+<kbd>⇪</kbd> then <kbd>`</kbd> to re-sort everything.
+
+Your host file is a plain nix-darwin module — anything nix-darwin or
+home-manager accepts works there and merges with haus. The roster is the common
+case, not the only door.
+
+<Cards>
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Windows"
+    href="/docs/haus/guides/window-management"
+    description="What the launcher letter and the workspace you just declared actually do, and the rest of the tiling vocabulary."
+  />
+  <Card
+    icon={<Icon name="palette" />}
+    title="Theming"
+    href="/docs/haus/guides/theming"
+    description="One palette across every tool that can take one — including the app you just added."
+  />
+</Cards>
