@@ -65,7 +65,7 @@ Every room comes out independently, and the rest of the machine keeps working:
   haus.prowl.enable = false;   # AeroSpace tiling, the Caps-Lock leader, window bindings
   haus.sill.enable = false;    # SketchyBar — the top bar, and the bottom one if you run it
   haus.pounce.enable = false;  # the launcher daemon, ⌘Space, its Accessibility features
-  haus.perch.enable = false;   # the notch file shelf
+  haus.perch.enable = false;   # the notch file shelf — see the residue note below
   haus.hush.enable = false;    # the quiet switch — its bar pill, palette command and CLI
   haus.collar.enable = false;  # Touch ID for sudo, back to the password prompt
 }
@@ -76,11 +76,14 @@ haus edit
 haus rebuild
 ```
 
-Caps Lock and the native menu bar come back on their own — haus re-applies both
-at every activation, so switching prowl or sill off is enough. Two don't:
-**Spotlight's ⌘Space** and the **Do Not Disturb hotkey** were disabled by a
-one-way write, and nothing turns them back on. Both live in System Settings ▸
-Keyboard ▸ Keyboard Shortcuts.
+The native menu bar comes back on its own — haus rewrites that key at every
+activation, so switching sill off is enough. Caps Lock comes back too, but on
+the next **restart**: the remap is a `hidutil` property that lasts until you
+reboot, so the session you rebuilt in keeps it. **Spotlight's
+⌘Space** doesn't: pounce disables that shortcut with a one-way write and nothing
+turns it back on, so re-enable it in System Settings ▸ Keyboard ▸ Keyboard
+Shortcuts. hush leaves the reverse kind of trace — a Do Not Disturb chord bound
+onto a shortcut macOS ships disabled, which stays bound until you clear it.
 
 [Making it yours](/docs/haus/guides/making-it-yours#turning-rooms-off) has the
 full table, plus the middle ground where prowl keeps tiling but gives your keys
@@ -183,7 +186,8 @@ snapshot** — this list is for when you didn't:
 - Finder's extensions, hidden files, path bar and view style
 - hot corners
 - the native menu bar and its clock, and Caps Lock
-- Spotlight's ⌘Space and the Do Not Disturb hotkey — neither comes back on its own
+- Spotlight's ⌘Space, which never comes back on its own, and the Do Not Disturb
+  chord hush bound, which stays bound
 - the wallpaper
 - where screenshots land and in what format, and the screen-lock delay
 - alert volume and the startup chime (that one is firmware, and survives a reinstall)
@@ -213,8 +217,9 @@ bottom bar and the hush watcher are still loaded.
 
 A surviving AeroSpace or SketchyBar process isn't automatically residue — both
 are Homebrew installs that haus only *launches*, so `brew uninstall` is what
-actually removes them. A few things no uninstaller touches, because nothing in
-Nix put them there:
+actually removes them. And a few things nothing has a removal path for — an
+activation step copied the shelf app into place, and state directories are
+written as the machine runs, so no uninstaller takes either away:
 
 ```sh
 ls ~/.local/state/nebelhaus ~/.local/state/pounce ~/.config/perch /Applications/Perch.app

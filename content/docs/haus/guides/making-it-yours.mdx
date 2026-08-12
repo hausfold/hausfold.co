@@ -34,8 +34,9 @@ Three ways in, and none of them is reading a reference end to end:
 - **Your own config already lists them.** A fresh install drops a
   `hosts/<host>/options.nix` beside your host file: every `haus.*` option at its
   default, one sentence each, **all commented out**. Uncomment what you want.
-  `haus options` refreshes it against the build you're actually running, so it
-  can't advertise something your machine hasn't got.
+  `haus options` regenerates it from the build you're actually running, so it
+  can't advertise something your machine hasn't got — and if you've edited your
+  copy it writes `options.nix.new` beside it rather than overwriting your work.
 - **One line, no editor.** `haus set theme.accent teal` writes the setting,
   type-checks it and rebuilds in one go; `haus get` reads one back and `haus
   reset` removes it. The [haus CLI reference](/docs/haus/reference/haus#changing-a-setting-without-opening-an-editor)
@@ -69,8 +70,9 @@ haus.git.org = "analytical-engine";        # the GitHub owner your work lives un
 `org` is the odd one out — not who you are, but where you work. gh-dash reads it
 to fill `⌘G`'s PR tabs with that owner's open, green, red and just-shipped work,
 so an org rename is one word rather than one per tab. On its own it does
-nothing: the overlay is opt-in, so set `haus.hearth.ghDash.enable = true`
-alongside it.
+nothing: set `haus.hearth.ghDash.enable = true` alongside it, and keep the Git
+pack on (`haus.developer.git.enable`) — that's what installs `gh`, and turning
+it off while the overlay is on stops the build.
 
 ### The look
 
@@ -100,7 +102,8 @@ More in [The terminal](/docs/haus/guides/the-shell).
 haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
 haus.prowl.enable = true;          # false: no tiling, no Caps-Lock remap
 haus.pounce.enable = true;         # false: ⌘Space stays Spotlight
-haus.pounce.signingIdentity = "";  # keeps Pounce's Accessibility grant across rebuilds
+haus.pounce.signingIdentity =      # sign it, and its Accessibility grant survives rebuilds
+  "Developer ID Application: Ada Lovelace (ABCDE12345)";
 ```
 
 The roster is the most common edit on the machine and has [a page of its
@@ -147,19 +150,21 @@ working:
 | `haus.prowl.enable` | Tiling, the leader key — Caps Lock stays Caps Lock |
 | `haus.sill.enable` | The custom bar; the native macOS menu bar comes back |
 | `haus.pounce.enable` | The ⌘Space launcher |
-| `haus.perch.enable` | The notch file shelf |
+| `haus.perch.enable` | The notch file shelf — the copied `/Applications/Perch.app` stays until you delete it |
 | `haus.hush.enable` | The quiet switch — bar pill, palette command and `hush` CLI |
 | `haus.collar.enable` | Touch ID for `sudo`, and back to the password prompt |
 | `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
 **den** (the system defaults and Homebrew) and **hearth** (the shell) are the
-two with no switch at all — they're the floor the rest stands on.
+floor the rest stands on, and have no switch. Of the rooms you can *see*, all
+six do.
 
-<Callout type="warn" title="Two of these don't hand the key back">
+<Callout type="warn" title="pounce doesn't hand ⌘Space back">
 Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
-Spotlight's shortcut with a one-way write, and nothing re-enables it. Same for
-**hush** and the Do-Not-Disturb hotkey. Both are one visit to System Settings ▸
-Keyboard ▸ Keyboard Shortcuts to put back.
+Spotlight's shortcut with a one-way write, and nothing re-enables it. Put it
+back yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts. (**hush** is
+the opposite case — it *adds* a Do Not Disturb chord macOS ships disabled, so
+switching the room off leaves a spare binding rather than taking one away.)
 </Callout>
 
 If what you want is tiling **without** its keyboard claims, don't switch the
@@ -244,8 +249,8 @@ Anything under [`system.defaults`](https://nix-darwin.github.io/nix-darwin/manua
 is fair game.
 
 <Callout type="warn" title="Four keys that don't play by that rule">
-Two menu-bar keys track whether the bar is on, so haus sets them at full
-priority rather than as defaults. **`_HIHideMenuBar`** is the auto-hide: set it
+Two menu-bar keys track whether the bar is on, so haus sets them plainly rather
+than as `mkDefault`s. **`_HIHideMenuBar`** is the auto-hide: set it
 yourself and you get a *conflicting definition* and a failed evaluation, not a
 quiet win — which is the good outcome, because forcing it while the bar is on
 puts two bars in the same strip of pixels. **`SLSMenuBarUseBlurredAppearance`**
