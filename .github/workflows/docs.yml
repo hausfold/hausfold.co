@@ -77,22 +77,28 @@ jobs:
         run: npm run lint
 
       # Both builds start from no Turbopack cache — the same state a deploy
-      # runs in, since CI never restores `.next`. Measured 2026-08-12 on this
-      # tree: six consecutive cold builds produced byte-identical output,
-      # filenames included.
+      # runs in, since CI never restores `.next`.
       #
-      # One trap worth naming, because it cost an hour: Turbopack's CSS chunk
-      # id (`_next/static/chunks/<id>.css`) is content-derived, so it moves
-      # whenever the stylesheet does — and it is referenced by every page. So
-      # a diff of "one css file plus every html file" is almost always source
-      # drift between the two builds, not the build being nondeterministic.
-      # This job can't have that problem; a human comparing two builds by hand
-      # across an edit can.
+      # The first `out-first` copy lives OUTSIDE the checkout, in
+      # `$RUNNER_TEMP`, and that placement is load-bearing, not tidiness.
+      # `.gitignore` only excludes `/out/`, not `/out-first/` — so a same-name
+      # copy left inside the repo is a new, unignored directory of rendered
+      # HTML sitting next to the source when the second build runs. Tailwind
+      # v4's automatic content scanner walks the whole project (skipping only
+      # what `.gitignore` excludes) looking for class names to generate, and
+      # it can't tell "previous build output" from "source" — so it picked up
+      # every class already baked into `out-first`'s HTML as a candidate,
+      # generating a CSS file dozens of classes larger than the first build's
+      # and, with it, a different chunk hash and a different byte in every
+      # page that references it. Measured 2026-08-12: with `out-first` inside
+      # the checkout, two cold builds of identical source differed in every
+      # HTML file; moved to `$RUNNER_TEMP`, six consecutive cold builds
+      # produced byte-identical output, filenames included.
       - name: Build once, cold
         run: |
           rm -rf .next out
           npm run build
-          mv out out-first
+          mv out "$RUNNER_TEMP/out-first"
 
       - name: Build again, cold
         run: |
@@ -104,7 +110,7 @@ jobs:
       # embedding a clock.
       - name: The two builds must be byte-identical
         run: |
-          if ! diff -rq out-first out; then
+          if ! diff -rq "$RUNNER_TEMP/out-first" out; then
             echo "::error::The export is no longer reproducible. Something in the build now embeds a clock, a random id, or an absolute path — see the differing files above. generateBuildId in next.config.mjs is the usual suspect."
             exit 1
           fi
