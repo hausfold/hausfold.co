@@ -1,6 +1,7 @@
 {
   "title": "haus",
   "description": "The macOS layer",
+  "icon": "layer",
   "root": true,
   "pages": ["index", "install", "---Guides---", "guides/the-bar"]
 }

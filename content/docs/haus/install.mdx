@@ -1,6 +1,7 @@
 ---
 title: Install
 description: One line scaffolds your config. A second command activates it. Nothing changes until you run the second one.
+icon: install
 ---
 
 ```sh
@@ -10,6 +11,9 @@ curl -fsSL https://nebelhaus.com/init.sh | bash
 That installs Nix if you don't have it, asks you a few questions, and writes
 your config. It does **not** change your Mac — it writes files and then prints
 the one command that activates them.
+
+So the whole install is two moves, and you can stop between them and read what
+the first one wrote.
 
 ## Before you start
 
@@ -133,5 +137,17 @@ build; the two `sudo` steps are yours.
 
 ## Next
 
-[**First run**](/docs/nebelhaus/first-run) — the four moves that make the
-desktop click.
+<Cards>
+  <Card
+    icon={<Icon name="steps" />}
+    title="First run"
+    href="/docs/nebelhaus/first-run"
+    description="The four moves that make the desktop click, and the first tweak you'll want."
+  />
+  <Card
+    icon={<Icon name="bar" />}
+    title="The bar"
+    href="/docs/haus/guides/the-bar"
+    description="What's on the status bar, what each pill does under a click, and how to turn any of it off."
+  />
+</Cards>

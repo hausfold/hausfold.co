@@ -29,6 +29,14 @@ const config = {
   // `next/image`'s optimizer is a server. There isn't one.
   images: { unoptimized: true },
 
+  // Next 16 appends a `nextjs-agent-rules` block to AGENTS.md on every
+  // `next dev`, which in this repo means a hand-curated 570-line document
+  // grows a machine-written section and every session starts with a dirty
+  // tree. The advice in it is real and is kept, in our own words, in
+  // AGENTS.md's "The docs" section: this Next is newer than most training
+  // data, so read `node_modules/next/dist/docs/` before assuming an API.
+  agentRules: false,
+
   reactStrictMode: true,
 };
 

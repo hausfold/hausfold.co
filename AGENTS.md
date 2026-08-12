@@ -280,9 +280,13 @@ to be changed on all of them**, and nothing checks.
 
 Rules that are easy to break by accident:
 
-- **Greyscale at rest, and every colour is borrowed.** No page owns an accent,
-  in either theme. Two exceptions, both added 2026-08-08, both requiring a
-  hover to happen at all: a product's name in the index takes **that product's
+- **Greyscale at rest, and every colour is borrowed.** ⚠️ **This bullet is
+  about `public/` only.** `/docs` spends colour at rest — one hue per tree —
+  since 2026-08-12, at the user's instruction; see [Colour](#colour--️-the-docs-do-not-follow-publics-greyscale-rule)
+  under The docs. The *borrowed* half still binds everywhere: both halves spend
+  the same six `--a-*` and neither may invent a seventh. Here, though, no page
+  owns an accent, in either theme. Two exceptions, both added 2026-08-08, both
+  requiring a hover to happen at all: a product's name in the index takes **that product's
   own accent**, and the `⌂` mark takes **all six at once**, as stripes. Both
   read the same `--a-*` tokens, so the house cannot show a colour no product
   owns and a product cannot be one colour in the index and another in the mark.
@@ -483,33 +487,108 @@ What stays: the sentences that took work, every fact a reader acts on, and the
 warnings. **Verify each fact against the source repo as you port it** — these
 pages were written against a moving target and some of them have drifted.
 
-### Colour, and where it is allowed
+**Write for a first-comer, and hold them** (added 2026-08-12, same instruction
+as the colour change). The reader has not installed anything, does not know
+Nix, and is deciding whether this is for them — so every page opens with what
+the thing *is*, and ends with a way onward rather than a full stop. In
+practice: a lede a stranger can finish, then the detail; a `<Cards>` pair at
+the foot of a page instead of a bare "see also" link; and the prev/next pair
+the layout already renders, which is why `DocsPage` gets `footer` styling
+rather than being switched off. **No page should end without a door out of
+it.** Length still costs — this is not licence to pad a page back to the
+original's.
 
-Same rule as the rest of the site, one addition:
+### Colour — ⚠️ the docs do NOT follow `public/`'s greyscale rule
 
-- **The chrome is greyscale.** Sidebar, nav, table of contents, headings.
-- **A page may declare `accent: <product>` in its frontmatter** — one of the six
-  in `src/lib/shared.ts`. That tints exactly three things: its sidebar row while
-  active, the tick at the left end of each `h2` rule, and a prose link on hover.
-  It reaches them through `body:has([data-accent=…])` in `src/app/global.css`.
-  **Most pages have no accent, and that is correct** — the layer is not a
-  product with a hue.
-- **Code blocks are the one surface with colour at rest**, and it is nebelung's.
-  Shiki is configured to emit `var(--nb-token-*)` rather than hexes, so the
-  light/dark fork happens in CSS with every other colour on this site.
-- Fumadocs' own callout hues (oklch blue/amber/red/green) are re-pointed at the
-  site's accents. Don't reintroduce them.
+🚨 **This section was rewritten on 2026-08-12 and it now says the opposite of
+what it used to.** The first port applied "greyscale at rest" literally: the
+chrome was ink, an accent needed a hover, and the result read — the user's
+word — as a hearse. **The instruction is colour at rest, on a leash.** If you
+meet "the chrome is greyscale" anywhere in a docs file, it's stale.
 
-`src/app/global.css` is a **re-pointing of Fumadocs' tokens onto
-`public/hausfold.css`**, which it imports at build time — one copy of the
-palette in the repo, not two. Its import order is load-bearing; the file says
-why.
+The leash, in full:
+
+- **One hue per tree, at rest.** Every page under `/docs/haus` wears
+  `--a-nebelung` (mauve — which *is* nebelung's own accent in the vendored
+  block, so the layer wears the palette the family shares); every page under
+  `/docs/nebelhaus` wears `--a-nebelhaus`. It comes from `data-tree` on the
+  page container, read by `body:has([data-tree=…])` in `src/app/global.css`.
+  A reader can tell the two halves apart with the page turned upside down,
+  which is the whole point.
+- **A page may still override with `accent: <product>`** in frontmatter — one
+  of the six in `src/lib/shared.ts` — and that rule is written *after* the tree
+  rules so it wins. Keep it for pages genuinely about a product. **Neither
+  ported nebelhaus page carries one any more**: the tree already says pink.
+- **Four named steps, and nothing mixes its own**: `--accent` itself,
+  `--accent-wash` (7%, for fills — the active sidebar row, a hovered table
+  row, inline code), `--accent-line` (55% into the rule colour, for rules —
+  a table's head, a link's underline, a card's edge on hover), and
+  `--accent-quiet` (50% into `--ink-3`, for a glyph at rest). All four are
+  declared once on `body` and resolve against whichever `--accent` won. **An
+  ad-hoc `color-mix()` at the point of use is the thing to refuse** — if a
+  surface needs a fifth step, name it up there and say what it is for.
+- **Colour orients; it doesn't decorate.** Every place it lands answers *where
+  am I* or *what is this*: the tree eyebrow over the title, the active sidebar
+  row, the head of a table, a callout's edge, an icon, a prose link. If a new
+  use answers neither question, it doesn't get a hue.
+- **The six `--a-*` are still the whole vocabulary.** No page, component or
+  state may introduce a seventh colour, and the hues still fork by theme in
+  `public/hausfold.css` — so this is a change to *where* colour is spent, not
+  to *which* colours exist. Fumadocs' own callout hues (oklch
+  blue/amber/red/green) stay re-pointed at ours.
+- **Motion is stopped, not promised.** Fumadocs ships ~20 `transition-colors`
+  in components this repo doesn't own, and the hover states above give
+  several of them something to animate. They are crossfades, not movement —
+  but `src/app/global.css` ends with a `prefers-reduced-motion` block that
+  holds them anyway, and hands back exactly one thing: the ⌂ mark's 0.7s
+  fade, which `public/hausfold.css` keeps under that setting on purpose.
+  **A new hover state needs no new exception; a new `@keyframes` does.**
+- **Code blocks keep their own ramp** — nebelung's, at rest, in both themes.
+  Shiki emits `var(--nb-token-*)` rather than hexes, so the light/dark fork
+  happens in CSS with every other colour on this site. Four of the light
+  tokens now spell `var(--a-*)` rather than repeating the same hex.
+
+`public/` is unchanged and still greyscale at rest. The two halves of the site
+diverge here deliberately: a landing page is read once, a docs page is lived in.
+
+### Icons
+
+`src/lib/icons.tsx` is the **whole** icon vocabulary, and content never names a
+Lucide component: `meta.json` and frontmatter say `icon: bar`, the table maps it
+to a glyph, and `loader({ icon })` in `src/lib/source.ts` resolves it. Two
+reasons, both worth keeping: a page's icon is an editorial claim about what the
+page *is*, and an icon that carries a product's accent (`data-hue`) has to be
+constructed in one place rather than classed in an MDX file. Fumadocs ships a
+`lucideIconsPlugin` that would take Lucide names straight from content — it is
+deliberately not used.
+
+**A hued icon holds its colour anywhere**, including inside the tree switcher's
+popover, which React portals to the end of `<body>` where no `#nd-sidebar`
+selector reaches. That is why the two tree glyphs have hues and the page glyphs
+don't: page glyphs are tinted by their tree, and the two trees have to stay
+distinguishable while sitting side by side in one menu.
+
+**A new page owes an icon**, the same way a new HTML page owes a
+`theme-color` — a row with no glyph in a column of glyphs reads as broken.
 
 ### Components
 
-`src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs and
-nothing else. A component the prose could have been is a component that hides
-the prose from search and from `llms-full.txt`. Adding one is a decision.
+`src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs,
+`Icon`, and nothing else. A component the prose could have been is a component
+that hides the prose from search and from `llms-full.txt`. Adding one is a
+decision.
+
+Two of them are ours in a thin way, and both exist to give the stylesheet a
+class rather than a guess:
+
+- **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
+  box in the prose" puts a doorway's rule on a callout.
+- **`Separator`** (`src/components/sidebar-parts.tsx`) renders the sidebar's
+  group label with `.hf-group`. It used to be styled as `#nd-sidebar p` — which
+  also matched the tree switcher's two `<p>`s, and is why the dropdown once
+  announced "H A U S" with a rule struck under it. **Don't reach for a bare
+  element selector inside fumadocs' chrome**; the same element is three
+  different things in three places.
 
 ### Gotchas paid for already
 
@@ -523,6 +602,15 @@ the prose from search and from `llms-full.txt`. Adding one is a decision.
   has the working shape and the explanation.
 - **`out/404.html` always comes from `src/app/not-found.tsx`** and overwrites
   anything of that name in `public/`. See the file table above.
+- **A root folder's index page is not in `pageTree.children`.** Looking a tree
+  up by `node.index?.url` silently finds nothing and your feature renders
+  nothing; match on `node.$id`, which is the folder name and the page's first
+  slug. `src/app/docs/[[...slug]]/page.tsx` does this for the eyebrow.
+- **This Next is newer than your training data.** Read
+  `node_modules/next/dist/docs/` before assuming an API. Next 16 says so itself
+  by appending a block to `AGENTS.md` on every `next dev` — which in a
+  hand-curated file is vandalism with a good point, so `agentRules: false` in
+  `next.config.mjs` turns it off and this bullet is the part worth keeping.
 
 ## Deploying
 
