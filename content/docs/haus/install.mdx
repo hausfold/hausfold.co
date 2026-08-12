@@ -1,6 +1,6 @@
 ---
 title: Install
-description: One line scaffolds your config. A second command activates it. Nothing changes until you run the second one.
+description: One line scaffolds your config. A second command activates it. Nothing is activated without your say-so.
 icon: install
 ---
 
@@ -13,7 +13,9 @@ your config. It does **not** change your Mac — it writes files and then prints
 the one command that activates them.
 
 So the whole install is two moves, and you can stop between them and read what
-the first one wrote.
+the first one wrote. (Run it from a terminal rather than through a pipe —
+`bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"` — and it can also do the
+second move for you, after asking.)
 
 ## Before you start
 
@@ -59,7 +61,7 @@ rewind point. Non-fatal if Time Machine is off.
 <Step>
 ### Asks you a few things
 
-Your git name and email, a preset (full / minimal / custom), an accent colour,
+Your git name and email, a preset (full / everyday / minimal / custom), an accent colour,
 a wallpaper, and your `$EDITOR`. It also asks whether to keep your current
 Dock, keyboard and Finder settings, and whether to adopt the Homebrew casks
 you already have.
@@ -82,7 +84,9 @@ holding your answers — and commits it to git.
 
 </Steps>
 
-Nothing is active yet.
+Nothing is active yet. Run interactively, the last thing it asks is whether to
+change that — say yes and it runs the two commands below for you, then `haus
+doctor`. Piped, it stops here and prints them.
 
 ## Build and switch
 
@@ -149,5 +153,11 @@ build; the two `sudo` steps are yours.
     title="The bar"
     href="/docs/haus/guides/the-bar"
     description="What's on the status bar, what each pill does under a click, and how to turn any of it off."
+  />
+  <Card
+    icon={<Icon name="sync" />}
+    title="Keeping it current"
+    href="/docs/haus/guides/keeping-it-current"
+    description="The loop from here on: edit, rebuild, update, roll back — and restoring the lot on your next Mac."
   />
 </Cards>

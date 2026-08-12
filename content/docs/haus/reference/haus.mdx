@@ -1,0 +1,182 @@
+---
+title: The haus CLI
+description: Every haus command — apply, update, undo, and the read-only ones that show you a change before you make it.
+icon: wrench
+---
+
+`haus` is the command that drives your machine after install: it wraps the Nix
+build and the activation you would otherwise run by hand, and joins your `PATH`
+with the first successful switch. Run it with no argument and you get `haus
+status`.
+
+For the day-to-day shape of it, see
+[Keeping it current](/docs/haus/guides/keeping-it-current).
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `haus rebuild` | Build, then switch. Your everyday apply — a failed build never touches the running system. |
+| `haus update` | Move the haus pin in `~/.config/nix/flake.lock` forward, upgrade the family's Homebrew apps, then rebuild. |
+| `haus rollback [N]` | Return to the previous generation, or to generation `N`. |
+| `haus generations` | List the generations you can roll back to. |
+| `haus status` | The current generation, and how stale the pinned haus is. |
+| `haus edit` | Open your host file in `$EDITOR`. |
+| `haus set <path> <value>…` | Write a machine override, type-check it, rebuild once. |
+| `haus get [path]` | Print one declared value; with no path, list your overrides. |
+| `haus unset <path>…` | Set nullable options to `null`, then rebuild once. |
+| `haus reset <path>…` | Drop overrides and inherit the value underneath again. |
+| `haus plan` | What the next rebuild would change — read-only. |
+| `haus diff` | What the configuration you're *running* set, versus what macOS actually has right now. |
+| `haus capture [cat…]` | Turn this Mac's current settings into config lines *and* a snapshot. |
+| `haus revert-settings [snapshot\|list]` | Put a captured snapshot back. |
+| `haus options` | Refresh `hosts/<host>/options.nix` — every `haus.*` option at its default, described and commented out — from the build this machine is running. |
+| `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, Pounce's Accessibility grant, your secrets, agent readiness. |
+| `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
+| `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
+
+## Changing a setting without opening an editor
+
+```sh
+haus set theme.accent teal
+haus get theme.accent       # teal
+haus reset theme.accent     # inherit the preset's value again
+```
+
+**Only `haus.*` paths are writable this way.** The prefix itself is optional —
+`theme.accent` and `haus.theme.accent` are the same path, and so is the old
+`nebelhaus.` spelling, which still resolves everywhere with a warning on
+rebuild — but a raw `system.defaults.*` or `homebrew.*` path, or an option that
+doesn't exist, fails before any file is written. Those belong in your host file,
+via `haus edit`. Values take the obvious shell form for strings and JSON for
+booleans, numbers, lists and attribute sets.
+
+`set` accepts as many pairs as you like and applies them in **one** rebuild:
+
+```sh
+haus set theme.flavor latte theme.systemAppearance flavor
+```
+
+That matters when one intent spans two options — light mode is haus's palette
+*and* macOS's own appearance — because two calls would be two rebuilds with the
+machine sitting half-switched in between. Multiple pairs are all-or-nothing:
+one rejected value rolls the whole call back. `unset` and `reset` take lists for
+the same reason.
+
+The two undo verbs differ in one place. `reset` deletes the override, so
+whatever your host file or preset says underneath becomes effective again; a
+path that had no override is reported and skipped rather than fatal. `unset`
+writes `null` unconditionally, so it succeeds only where the option's type
+admits `null`.
+
+### One key inside an option
+
+A path may go *inside* an option rather than merely up to it:
+
+```sh
+haus set sill.items.aiUsage true              # one pill, not the whole bar
+haus set displays.internal.uiScale larger-text
+```
+
+**Prefer the leaf.** Overrides are written with `lib.mkForce`, so naming the
+enclosing set — `haus set sill.items '{"aiUsage":true}'` — forces the *whole*
+set, and every pill you didn't name falls back to its own default.
+
+A misspelled sub-option is refused before anything is written. Keys you invent
+yourself (a display's UUID, say) are taken as given, and what sits under them is
+checked instead. A path and one of its ancestors can't both hold an override:
+the second is refused, naming the first and the `haus reset` that clears it.
+
+### Where the setting lives
+
+`haus set` writes an ordinary Nix module to
+`~/.config/nix/hosts/<hostname>/settings/<path>.nix` and stages it — a git-backed
+flake ignores untracked files, so staging is what makes it take effect. The file
+*is* the setting: no database beside it, safe to read, edit or commit. Neither
+`set` nor `reset` commits or pushes for you.
+
+<Callout title="Also in the launcher">
+[Pounce](/docs/haus/guides/pounce)'s **Haus Settings** command is the same
+mechanism behind three intent-sized buttons — *Make text bigger*, *Switch to
+light mode*, *High contrast on*. The palette keeps no settings of its own; it
+calls `haus set`.
+</Callout>
+
+## Looking before you leap
+
+`haus rollback` rewinds everything Nix owns, atomically. It does **not** rewind
+macOS's own preferences: those are written imperatively during activation, into
+`com.apple.dock`, Finder, `NSGlobalDomain` and friends, and no generation holds
+them. Four commands close that gap:
+
+```sh
+haus plan        # what the next rebuild would change, before it changes it
+haus diff        # what the running config set vs what macOS has right now
+haus capture     # snapshot the settings a rebuild is about to move
+haus revert-settings   # put that snapshot back
+```
+
+`capture` before a risky change and `revert-settings` after is the
+macOS-defaults equivalent of a generation rollback. It defaults to the Dock,
+keyboard and Finder; name a plist domain to reach anything else.
+
+Both read the built activation script itself, and both probe macOS live for the
+accessibility keys it accepts silently and then ignores — so neither is trusting
+a plist or a hand-kept list.
+
+`plan` reports five things, and the middle one is the one people expect to be
+missing: packages, macOS settings, **the files written into your home** — with
+the `onChange` hooks each would fire — launchd jobs, and new casks. Most of what
+a rice changes is neither a package nor a settings key: switching a bar pill on
+moves a config file and nothing else, which no closure diff would show. The
+handful of files written by an activation script rather than linked — zellij's
+`config.kdl` is the one you'll meet — stay outside that set and won't appear.
+
+<Callout type="warn" title="`plan` reads your config directory, not the one you're standing in">
+`haus` always evaluates `~/.config/nix` unless you tell it otherwise. Run `haus
+plan` from a linked git worktree of that config — an agent lane, say — and it
+previews the config on `main`, not the branch you're looking at. It warns and
+names both paths; point it at the tree you mean:
+
+```sh
+HAUS_CONSUMER="$(git rev-parse --show-toplevel)" haus plan
+```
+</Callout>
+
+## The one rebuild it refuses
+
+If your host file writes `system.defaults.universalaccess.*` directly, `haus
+rebuild` refuses to run from a Claude Code session whose app lacks Full Disk
+Access — that write would abort activation partway and take every background
+service down with it. Run the same command yourself, or set
+`HAUS_AGENT_REBUILD=1` when you know better. The guard recognises Claude Code by
+its environment and nothing else, so a Codex or OpenCode pane sails past it
+either way.
+
+You can sidestep the hazard entirely with
+`haus.accessibility.increaseContrast` and
+`haus.accessibility.differentiateWithoutColor`, which reach the two useful keys
+in that domain with a guarded write. [Changing your Mac with an
+agent](/docs/haus/guides/agent-rebuilds) has the detail.
+
+## The other CLIs
+
+`haus` is the only command an end user needs. Turning on
+`haus.developer.agents.enable` adds two more:
+**[`holt`](/docs/haus/guides/coding-agents)**, agent worktrees for any repo, and
+**`zscratch`**, for feel-testing a zellij edit without a rebuild.
+
+<Cards>
+  <Card
+    icon={<Icon name="sync" />}
+    title="Keeping it current"
+    href="/docs/haus/guides/keeping-it-current"
+    description="The same commands in the order you actually reach for them — plus restoring the whole machine on new hardware."
+  />
+  <Card
+    icon={<Icon name="wand" />}
+    title="Changing your Mac with an agent"
+    href="/docs/haus/guides/agent-rebuilds"
+    description="Why a declarative machine is the rare one an AI agent can reconfigure safely."
+  />
+</Cards>

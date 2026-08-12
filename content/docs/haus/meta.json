@@ -7,6 +7,7 @@
     "index",
     "install",
     "---Guides---",
+    "guides/keeping-it-current",
     "guides/window-management",
     "guides/the-bar",
     "guides/the-shell",
@@ -18,6 +19,7 @@
     "guides/coding-agents",
     "guides/agent-rebuilds",
     "---Reference---",
+    "reference/haus",
     "reference/pounce"
   ]
 }
