@@ -1,0 +1,218 @@
+#!/usr/bin/env node
+// Renders content/docs/haus/reference/options.mdx from haus's module system.
+//
+// haus renders its own module system to JSON (nixosOptionsDoc over the
+// per-room option files) and commits it at docs/site-data/. This script reads
+// those files, so the module system remains the single source of truth for
+// every type, default, example and description on the page.
+//
+// Narrative guides stay hand-written. This is the reference only.
+//
+// Usage:
+//   node scripts/gen-options.mjs --haus <haus-checkout>
+//   node scripts/gen-options.mjs --haus <haus-checkout> --check
+//
+// Needs a haus checkout and nothing else: no Nix, flake pin or nixpkgs fetch.
+// haus's site-data-current flake check keeps the committed JSON honest on the
+// side of the repository boundary that owns the derivation.
+
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const PAGE = join(here, '../content/docs/haus/reference/options.mdx');
+const REPO = 'https://github.com/hausfold/haus/blob/main';
+
+const args = process.argv.slice(2);
+const check = args.includes('--check');
+const hausIdx = args.indexOf('--haus');
+const haus = hausIdx >= 0 ? args[hausIdx + 1] : process.env.HAUS_DIR;
+if (!haus || !existsSync(haus)) {
+  console.error('usage: gen-options.mjs --haus <haus-checkout> [--check]');
+  process.exit(2);
+}
+
+// docs/site-data/ is haus's published surface: generated from its module
+// system, committed, and pinned by its own site-data-current flake check. A
+// checkout is all this repository needs.
+const SITE_DATA = join(haus, 'docs/site-data');
+function hausFile(name, why) {
+  const path = join(SITE_DATA, name);
+  if (!existsSync(path)) {
+    console.error(
+      `The haus checkout at ${haus} has no \`docs/site-data/${name}\`.\n\n` +
+        `${why}\n\n` +
+        'That directory is generated and committed by haus (`nix build .#site-data`).\n' +
+        'Update the checkout and re-run.\n',
+    );
+    process.exit(1);
+  }
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+const raw = hausFile('options.json', 'That file is what this page is rendered from.');
+
+// Reading order and a one-line blurb per room. The module system cannot
+// produce these: it has no notion of identity first and policy last, and no
+// place for a sentence about a whole namespace. haus publishes that editorial
+// data beside options.json so every consumer uses the same grouping.
+const GROUPS = hausFile(
+  'groups.json',
+  'That file carries the per-room order and blurbs this page is laid out with.',
+);
+
+// A generated cross-repository artifact fails by emptying, not by erroring.
+// Keep a hard floor here so a namespace disagreement cannot produce a valid
+// page with a title, an intro and zero options.
+const NS = 'haus.';
+const PREFIX = 'haus';
+if (!Object.keys(raw).some((name) => name.startsWith(NS))) {
+  console.error(
+    'options.json carries no `haus.*` keys.\n\n' +
+      'That is a broken render, not a layer with no options. Fix the namespace\n' +
+      'agreement rather than committing an empty page.\n',
+  );
+  process.exit(1);
+}
+
+const options = Object.entries(raw)
+  .filter(([name]) => name.startsWith(NS))
+  .map(([name, option]) => ({ name, ...option }));
+
+// Second path segment is the room: haus.git.name -> git.
+const groupOf = (name) => name.split('.')[1];
+
+const groups = new Map();
+for (const option of options) {
+  const group = groupOf(option.name);
+  if (!groups.has(group)) groups.set(group, []);
+  groups.get(group).push(option);
+}
+
+// A room without an explicit order lands alphabetically after the ordered
+// ones rather than disappearing.
+const orderOf = (group) => GROUPS[group]?.order ?? Number.MAX_SAFE_INTEGER;
+const ordered = [...groups.keys()].sort(
+  (a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b),
+);
+
+const literal = (value) =>
+  value && typeof value === 'object' && 'text' in value ? value.text : undefined;
+
+function renderDefault(option) {
+  const value = literal(option.default);
+  if (value === undefined) return 'no default';
+  const oneLine = value.replace(/\s+/g, ' ').trim();
+  return oneLine.length > 60 ? 'see below' : `default \`${oneLine}\``;
+}
+
+// Fumadocs parses the output as MDX rather than Markdown. Literal braces and
+// angle brackets in prose are therefore JSX unless escaped. Preserve code
+// spans and fenced blocks byte-for-byte; encode those characters everywhere
+// else so descriptions authored in Nix remain prose in the generated page.
+function mdxText(value) {
+  return value
+    .split(/(```[\s\S]*?```|`[^`\n]*`)/g)
+    .map((part, index) =>
+      index % 2 === 1
+        ? part
+        : part.replaceAll('{', '&#123;').replaceAll('}', '&#125;').replaceAll('<', '&lt;'),
+    )
+    .join('');
+}
+
+function docsLinks(value) {
+  return value.replaceAll('](/internals/flakes/', '](/docs/haus/internals/flakes/');
+}
+
+function renderOption(option) {
+  const lines = [
+    `### \`${option.name}\``,
+    '',
+    `\`${option.type}\` · ${renderDefault(option)}`,
+    '',
+  ];
+  lines.push(mdxText((option.description ?? '').trimEnd()), '');
+  const example = literal(option.example);
+  if (example !== undefined) {
+    lines.push('Example:', '', '```nix', example.trimEnd(), '```', '');
+  }
+  const declaration = option.declarations?.[0];
+  if (declaration) {
+    lines.push(`<small>Declared in [\`${declaration}\`](${REPO}/${declaration}).</small>`, '');
+  }
+  return lines.join('\n');
+}
+
+const body = ordered
+  .map((group) => {
+    const heading = [`## ${PREFIX}.${group}`, ''];
+    const blurb = GROUPS[group]?.blurb;
+    if (blurb) heading.push(docsLinks(mdxText(blurb)), '', '');
+    const groupOptions = groups.get(group).sort((a, b) => a.name.localeCompare(b.name));
+    return heading.join('\n') + groupOptions.map(renderOption).join('\n');
+  })
+  .join('\n');
+
+const page = `---
+title: ${PREFIX}.* options
+description: Every option you can set in your host file — types, defaults, and what each one changes.
+icon: options
+tableOfContents:
+  maxHeadingLevel: 2
+---
+
+{/* GENERATED FILE — do not edit by hand.
+
+     Rendered from haus's own module system by scripts/gen-options.mjs.
+     To change an option's description, edit its declaration in haus and
+     regenerate:
+
+         node scripts/gen-options.mjs --haus /path/to/haus
+
+     CI re-renders this and fails if it differs, so a hand edit here is
+     guaranteed to be reverted. */}
+
+These are the \`${PREFIX}.*\` options you set in your host file at
+\`~/.config/nix/hosts/<hostname>/default.nix\`. Everything here is optional
+unless noted; the defaults are a complete, working system.
+
+Apply changes with \`haus rebuild\`. Each option lists its **type** and
+**default** under its name, and links to the file that declares it.
+
+${body}
+
+<Cards>
+  <Card
+    icon={<Icon name="dials" />}
+    title="Making it yours"
+    href="/docs/haus/guides/making-it-yours"
+    description="The practical guide to choosing settings, switching rooms off, and overriding a desktop from your host file."
+  />
+  <Card
+    icon={<Icon name="wrench" />}
+    title="The haus CLI"
+    href="/docs/haus/reference/haus"
+    description="Apply, inspect, change, and undo those options from the command line."
+  />
+</Cards>
+`;
+
+const current = existsSync(PAGE) ? readFileSync(PAGE, 'utf8') : '';
+if (check) {
+  if (current === page) {
+    console.log(`options reference is current (${options.length} options).`);
+    process.exit(0);
+  }
+  console.error(
+    'options reference is STALE.\n\n' +
+      'haus options changed and this page was not regenerated. Run:\n' +
+      '  node scripts/gen-options.mjs --haus <haus-checkout>\n' +
+      'and commit the result. Do not edit the page by hand.\n',
+  );
+  process.exit(1);
+}
+
+writeFileSync(PAGE, page);
+console.log(`wrote ${PAGE} (${options.length} options, ${ordered.length} groups).`);

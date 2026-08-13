@@ -45,8 +45,11 @@ content/docs/                     the docs, as MDX
 src/                              the Next app: layout, theme, MDX components
   app/global.css                  Fumadocs re-pointed at hausfold.css's tokens
   app/not-found.tsx               the 404 — a Next page since 2026-08-12, see below
+  data/rice-bindings.json         generated keybinding drift snapshot
   lib/icons.tsx                   the docs' whole icon vocabulary, by name
 scripts/
+  gen-options.mjs                 renders the committed haus options reference
+  check-rice-bindings.mjs         catches keybinding prose drifting from haus
   sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
 ```
 
@@ -78,6 +81,21 @@ of drift being something you *ask* about rather than something that arrives.
 `--latest` is the asking: it reports the new revision and names the values a
 bump would actually change, then you set `PIN`, re-run, and commit the block.
 
+The other two scripts read haus's committed `docs/site-data/`, so neither
+needs Nix. The options reference is generated and committed; keybinding drift
+is human-gated because its fix is prose, not regeneration:
+
+```
+npm run options -- --haus /path/to/haus
+npm run options:check -- --haus /path/to/haus
+npm run bindings:check -- --haus /path/to/haus
+```
+
+The two weekly drift workflows check `hausfold/haus` main. Options drift opens
+or updates one generated PR; keybinding drift fails until the affected pages
+are reviewed and the snapshot is refreshed with
+`npm run bindings:update -- --haus /path/to/haus`.
+
 > **The consolidation is half-landed.** §5.2 of the
 > [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
 > moves the whole site into this repo. What has arrived is `/docs` — rebuilt on
@@ -87,10 +105,6 @@ bump would actually change, then you set `PIN`, re-run, and commit the block.
 > `/pounce`, `/terms`, `/refunds`), still the hand-written HTML they always
 > were. What has not:
 >
-> - **most of the docs pages.** Five are here; the workshop's `web/` still
->   holds the rest, and **nebelhaus.com is still live and still serving them**.
->   A fact fixed in one tree and not the other will disagree — fix it in both
->   or in neither until the port finishes.
 > - **the landing pages becoming Next routes.** Decided, not done: they are
 >   still the hand-written HTML above, served beside the export.
 > - **`worker.js`** — `/init.sh`, `/download/<app>`, `/api/release/<app>` — and

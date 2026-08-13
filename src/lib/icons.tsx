@@ -79,6 +79,7 @@ const icons = {
   sync: { icon: RefreshCw },
   wrench: { icon: Wrench },
   dials: { icon: SlidersHorizontal },
+  options: { icon: SlidersHorizontal },
   lifebuoy: { icon: LifeBuoy },
   door: { icon: DoorOpen },
   share: { icon: Share2 },
