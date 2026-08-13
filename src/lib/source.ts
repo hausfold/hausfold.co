@@ -64,6 +64,25 @@ export const source = loader({
   plugins: [],
 });
 
+// Processed Markdown is resolved asynchronously. Keep every consumer that
+// gathers all pages in one artifact on a fixed input order, rather than the
+// filesystem/import order Fumadocs happened to produce in this build. The
+// distinction became visible in the two cold-build check once the generated
+// options page joined the corpus.
+export function getPagesInOrder() {
+  return source.getPages().toSorted((a, b) => a.url.localeCompare(b.url));
+}
+
+// createFromSource needs the complete loader for breadcrumbs, not merely its
+// pages. A proxy preserves that surface while making its getPages call use the
+// same stable order as llms-full.txt.
+export const orderedSource = new Proxy(source, {
+  get(target, property, receiver) {
+    if (property === 'getPages') return getPagesInOrder;
+    return Reflect.get(target, property, receiver);
+  },
+});
+
 export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
   const segments = [...page.slugs, 'content.md'];
 
