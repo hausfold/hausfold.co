@@ -47,12 +47,12 @@ nebelhaus.mkNebelhaus {
   hostname = "fog";
   host = ./hosts/fog;          # your identity and your choices
   system = "aarch64-darwin";   # Apple Silicon only
-  extraModules = [ ];          # more nix-darwin modules, or a rice
+  extraModules = [ ];          # more nix-darwin modules, or a desktop
 }
 ```
 
 Only `username` and `hostname` are required. `extraModules` is the seam a
-[shared rice](/docs/haus/guides/sharing-a-rice) arrives through, and the one the
+[shared desktop](/docs/haus/guides/sharing-a-desktop) arrives through, and the one the
 installer uses to import the preset you picked. Eight of haus's modules — `den`,
 `hearth`, `prowl`, `sill`, `collar`, `pounce`, `hush`, `secrets` — are also
 exported on their own under `darwinModules`, alongside a `default` holding the

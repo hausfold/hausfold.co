@@ -29,7 +29,7 @@ from authentication entirely:
 <you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/haus-activate
 ```
 
-Activating a build is the one privileged thing this rice does constantly,
+Activating a build is the one privileged thing this desktop does constantly,
 and a prompt per rebuild buys nothing — you already authenticated to *build*
 it. `darwin-rebuild` is the classic route (and the only one for `haus
 rollback`); `haus-activate` is the faster path `haus rebuild` and `bench try

@@ -182,9 +182,9 @@ launcher has the same escape — `haus.keys.palette` takes `alt-space`,
 it is how you keep both. See
 [rebinding](/docs/haus/guides/window-management#not-fond-of-these-keys).
 
-## Starting from someone else's rice
+## Starting from someone else's desktop
 
-A **preset** is a data-only rice: a file whose only top-level key is `haus`. No
+A **preset** is a data-only desktop: a file whose only top-level key is `haus`. No
 `pkgs`, no `lib`, no activation scripts — so it can't reach outside the option
 surface, and you can read one in a minute and know the worst it can do. Import
 one alongside your host file:
@@ -203,7 +203,7 @@ config picks because it names the desktop you installed. It's a local handle;
 nothing outside your flake reads it.)
 
 Writing one of your own to hand to somebody else is
-[Sharing a rice](/docs/haus/guides/sharing-a-rice) — same format, from the
+[Sharing a desktop](/docs/haus/guides/sharing-a-desktop) — same format, from the
 authoring end.
 
 | Preset | For |
@@ -213,7 +213,7 @@ authoring end.
 | `everyday` | the inverse: a Mac for someone who doesn't write code. No developer pack, and `prowl.enable = false` — so no tiling either, not just no Caps-Lock remap. |
 | `large-print` | bigger and sharper — the UI and the whole display, plus the high-contrast palette. |
 
-The first three are whole rices; pick one. **`large-print` is a layer** — it
+The first three are whole desktops; pick one. **`large-print` is a layer** — it
 describes seeing rather than the person, so it stacks on any of them:
 
 ```nix

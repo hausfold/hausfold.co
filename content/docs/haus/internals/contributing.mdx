@@ -160,9 +160,9 @@ hack ─► test ─► assure ─► PR ─► batch-test ─► merge ─► t
 8. **ship** — `./bench ship` ripples the locks in dependency order.
 9. **release** — `./bench release <repo>`; CI does the rest.
 
-<Callout title="Releases ride tags, and the version is the date">
-Four repos are releasable — the launcher, the shelf, haus and holt — and the
-number is never typed by hand. `bench release <repo>` stamps today's date
+<Callout title="Releases ride tags; three versions are dates">
+Three repos take CalVer — the launcher, the shelf and haus — and their version
+is never typed by hand. `bench release <repo>` stamps today's date
 (`YYYY.MM.DD`, or `-N` on a same-day repeat) into the repo's version source,
 commits it and tags it; passing a version to a CalVer repo is refused. CI then
 publishes the release, and for the two app repos bumps the formula and the cask.

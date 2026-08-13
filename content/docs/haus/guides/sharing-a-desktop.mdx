@@ -1,17 +1,17 @@
 ---
-title: Sharing a rice
-description: A rice is one file that sets nothing but haus options — how to write one, teach it its own first-run tour, prove it composes with a stranger's, and publish it.
+title: Sharing a desktop
+description: A desktop is one file that sets nothing but haus options — how to write one, teach it its own first-run tour, prove it composes with a stranger's, and publish it.
 icon: share
 ---
 
-A **rice** is a single `.nix` file whose only top-level key is `haus`. That is
-the entire format, and the smallness is the point: a rice can't run a script,
+A **desktop** is a single `.nix` file whose only top-level key is `haus`. That is
+the entire format, and the smallness is the point: a desktop can't run a script,
 reach a macOS setting haus doesn't already expose, or hand the build a package
 of its own. A stranger can read one in a minute and know the worst it can do —
 which is what makes importing one from someone you've never met reasonable.
 
 haus ships four of its own, as
-[presets](/docs/haus/guides/making-it-yours#starting-from-someone-elses-rice).
+[presets](/docs/haus/guides/making-it-yours#starting-from-someone-elses-desktop).
 This page is how you write yours.
 
 ## The format
@@ -38,17 +38,17 @@ function. No `system.defaults`, no `pkgs`, no activation hooks. Everything stays
 inside the documented
 [`haus.*` option surface](https://nebelhaus.com/reference/options/).
 
-<Callout title="A whole rice, or a layer?">
-A **whole rice** describes a kind of machine or a kind of person, and picks all
+<Callout title="A whole desktop, or a layer?">
+A **whole desktop** describes a kind of machine or a kind of person, and picks all
 the big rooms — developer tools, tiling, the bar, the launcher. A **layer**
 describes one concern, like larger type, and sets only what that concern needs.
-Layers stack on anything; whole rices collide with each other.
+Layers stack on anything; whole desktops collide with each other.
 </Callout>
 
 ## Teach it your own first lap
 
 The built-in tour teaches haus's core moves in the bar, one hint at a time. A
-rice can replace that lap with its own and stay data-only — and a rice that turns
+desktop can replace that lap with its own and stay data-only — and a desktop that turns
 rooms off usually must, because the built-in one is leader moves plus the
 launcher and has nothing left to teach without them:
 
@@ -74,13 +74,13 @@ off switch is `tour.enable = false`.
 
 **Write keys as `{palette}`, `{leader}` and `{leaderName}`, never as a literal
 chord.** They expand to what *that* machine resolved, so a tour you share still
-names the right keys on a rice that moved `keys.palette` — where a hardcoded
+names the right keys on a desktop that moved `keys.palette` — where a hardcoded
 `⌘Space` would be wrong invisibly, since you never see the consumer's bar. A
 misspelled placeholder renders as typed, and the rebuild warns and names it.
 
 <Callout type="warn" title="The tour is drawn by the bar">
-A rebuild warns when a step needs a room the rice switched off — but those
-warnings live inside sill's own module, so a rice that turns the bar off gets
+A rebuild warns when a step needs a room the desktop switched off — but those
+warnings live inside sill's own module, so a desktop that turns the bar off gets
 none of them. Check that pairing by eye.
 </Callout>
 
@@ -94,16 +94,16 @@ nix eval --impure --expr \
 ```
 
 It prints `true`, or throws naming what escaped — a stray top-level key, or the
-file being a function rather than data. If the file is an app **pack** — a rice
+file being a function rather than data. If the file is an app **pack** — a desktop
 narrowed to `haus.roster`, the apps on a machine — run `lib.checkPack` instead;
 same rule, one level in.
 
 `checkRice` proves the trust boundary and nothing more: it does not prove an
-option name or a value is valid. For that, import the rice into a real host and
+option name or a value is valid. For that, import the desktop into a real host and
 evaluate it:
 
 ```nix
-extraModules = [ ./rices/writer.nix ];
+extraModules = [ ./desktops/writer.nix ];
 ```
 
 ```sh
@@ -121,17 +121,17 @@ Test it combined, not just alone:
 
 ```nix
 extraModules = [
-  ./rices/writer.nix
+  ./desktops/writer.nix
   nebelhaus.presets.large-print
 ];
 ```
 
-Try four things: the rice alone; the rice plus an unrelated layer; a host value
-set on top of one of the rice's own choices; and each combination of rooms it
-turns off. The middle two need neither a Mac nor a build — composing two rices
+Try four things: the desktop alone; the desktop plus an unrelated layer; a host value
+set on top of one of the desktop's own choices; and each combination of rooms it
+turns off. The middle two need neither a Mac nor a build — composing two desktops
 over the option surface takes seconds.
 
-**Two rices compose unless they *disagree*.** Import order carries no priority in
+**Two desktops compose unless they *disagree*.** Import order carries no priority in
 Nix, so "imported last, therefore wins" is not a mechanism you can lean on in
 either direction — but naming the same option is not the problem people assume.
 Same option and the same value merges silently and costs nobody anything. Same
@@ -146,22 +146,22 @@ error: The option `haus.sill.enable' has conflicting definition values:
 
 The option, both files, and the fix. Your consumer resolves it with `lib.mkForce`
 in their host file — so that line belongs in your README for every field you set
-that a reasonable person might disagree with. Narrow the rice until ordinary
+that a reasonable person might disagree with. Narrow the desktop until ordinary
 merging is enough: every optional field you set is one somebody has to force.
 
 <Callout type="warn" title="The quiet half — a list never conflicts, it combines">
 That error only happens for options holding a single value. A **list**-typed one
 — `tour.steps`, `keys.leaderExtras`, `snippets.matches` — never conflicts at all:
-the definitions are combined, with no error and no warning. Two rices that each
+the definitions are combined, with no error and no warning. Two desktops that each
 author one tour step produce a tour with both, in an order neither author chose.
-Worse, it can surface later as something else: two rices each adding a leader key
+Worse, it can surface later as something else: two desktops each adding a leader key
 merge quietly, and *then* prowl asserts that leader keys are unique.
 
 **Attribute sets are the middle case.** `roster`, `workspaces` and
-`pounce.items` merge per key, so two rices naming different apps compose, while
+`pounce.items` merge per key, so two desktops naming different apps compose, while
 two naming the same app's same field conflict as loudly as any single value.
 
-If your rice sets any of these, say so in its README, and say whether it expects
+If your desktop sets any of these, say so in its README, and say whether it expects
 to be the only one.
 </Callout>
 
@@ -177,14 +177,14 @@ bare path still conflicts. Presets are deliberately not wrapped that way.
 The smallest useful repository is deliberately boring:
 
 ```text
-writer-rice/
+writer-desktop/
 ├── README.md
 ├── writer.nix
 └── LICENSE
 ```
 
-In the README, say who the rice is for and what it changes; whether it is a whole
-rice or a layer; which haus revision you tested against; how to import it; what
+In the README, say who the desktop is for and what it changes; whether it is a whole
+desktop or a layer; which haus revision you tested against; how to import it; what
 it deliberately doesn't handle, including rooms or permissions it expects; and
 whether both `checkRice` and a real host evaluation passed.
 
@@ -200,7 +200,7 @@ Keep these in a private host file, or in something honestly labelled as more
 powerful:
 
 - identity, secrets, tokens and personal account names;
-- an app roster that reveals more than the rice needs;
+- an app roster that reveals more than the desktop needs;
 - raw macOS defaults outside `haus.*`;
 - a `pkgs` value, or a `/nix/store` path;
 - activation hooks and shell commands;
@@ -208,7 +208,7 @@ powerful:
   without naming anyone's hardware.
 
 Naming a *package* is fine and doesn't need `pkgs`: options that take one have a
-`packageName` sibling taking the nixpkgs attribute as a string, so a rice can
+`packageName` sibling taking the nixpkgs attribute as a string, so a desktop can
 change the mono font or add a tool without leaving the data-only surface. A
 configuration that genuinely needs `pkgs`, scripts, or arbitrary nix-darwin
 options is a **power module**, and carries a different trust model.
@@ -216,11 +216,11 @@ options is a **power module**, and carries a different trust model.
 ## Before you share
 
 - [ ] `checkRice` prints `true`, and a real host evaluates.
-- [ ] The rice composes with an unrelated layer.
+- [ ] The desktop composes with an unrelated layer.
 - [ ] Every field it sets is in the README with the `lib.mkForce` line a consumer
       needs — or, for a pack, it's imported through `nebelhaus.lib.pack` so they
       don't need one.
-- [ ] If it sets a list, the README says so, because a second rice setting the
+- [ ] If it sets a list, the README says so, because a second desktop setting the
       same one merges into it silently.
 - [ ] Rooms it turns off agree with the features that depend on them,
       `tour.steps` included.
@@ -233,7 +233,7 @@ options is a **power module**, and carries a different trust model.
     icon={<Icon name="dials" />}
     title="Making it yours"
     href="/docs/haus/guides/making-it-yours"
-    description="The other side of the seam — importing someone else's rice, and overriding it from your own host file."
+    description="The other side of the seam — importing someone else's desktop, and overriding it from your own host file."
   />
   <Card
     icon={<Icon name="flake" />}
