@@ -148,6 +148,11 @@ That makes a lane on the other repo, registers it as a **child of your current
 pane** so its PR shows up where you're working, and prints only the new checkout
 path — hence the `cd "$(…)"`.
 
+Pointing agents at haus itself rather than at your own projects?
+[Contributing](/docs/haus/internals/contributing) covers what's different in a
+family repo — building a lane's branch without merging it, and the one
+activation an agent is refused.
+
 ## Cleaning up
 
 Most cleanup is automatic: closing a pane reaps a merged branch, and every `holt`

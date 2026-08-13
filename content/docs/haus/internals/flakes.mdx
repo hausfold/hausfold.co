@@ -1,0 +1,122 @@
+---
+title: How the flakes fit together
+description: Nothing on your Mac changes until you say so — this is the machinery behind that, from the config the installer scaffolds to the exact commit every input is pinned at.
+icon: flake
+---
+
+Nothing about your machine changes until you ask for it, and no two machines
+built from the same config disagree. Both of those come from the same place:
+haus is a [Nix flake](https://nix.dev/concepts/flakes.html), your config is
+another one that imports it, and every import is pinned to an exact commit.
+
+## Your config is a thin consumer
+
+The installer scaffolds `~/.config/nix` as a flake that takes haus as an input
+and calls its builder:
+
+```nix
+{
+  inputs.nebelhaus.url = "github:hausfold/haus";
+
+  outputs = { nebelhaus, ... }: {
+    darwinConfigurations.<hostname> = nebelhaus.mkNebelhaus {
+      username = "<user>";
+      hostname = "<hostname>";
+      host = ./hosts/<hostname>;
+    };
+  };
+}
+```
+
+(The input is named `nebelhaus` because it names the desktop you installed rather
+than the layer under it. It's a local handle; nothing outside your flake reads
+it.)
+
+Your choices live in `hosts/<hostname>/default.nix` — [the one file you
+edit](/docs/haus/guides/making-it-yours). haus stays upstream, and you never
+edit it.
+
+## The builder
+
+`mkNebelhaus` is the entry point. Given a user, a hostname and a host file it
+returns a whole nix-darwin system with every room wired up:
+
+```nix
+nebelhaus.mkNebelhaus {
+  username = "ada";
+  hostname = "fog";
+  host = ./hosts/fog;          # your identity and your choices
+  system = "aarch64-darwin";   # Apple Silicon only
+  extraModules = [ ];          # more nix-darwin modules, or a desktop
+}
+```
+
+Only `username` and `hostname` are required. `extraModules` is the seam a
+[shared desktop](/docs/haus/guides/sharing-a-desktop) arrives through, and the one the
+installer uses to import the preset you picked. Eight of haus's modules — `den`,
+`hearth`, `prowl`, `sill`, `collar`, `pounce`, `hush`, `secrets` — are also
+exported on their own under `darwinModules`, alongside a `default` holding the
+lot. Reach for one of those only with the builder still around it: a module
+declares no options of its own and takes the username from `mkNebelhaus`, so on
+its own it doesn't evaluate.
+
+## The inputs
+
+The haus flake pulls together nine:
+
+| Input | What it is |
+|---|---|
+| `nixpkgs` | the package set, tracking unstable |
+| `nix-darwin` | the macOS system modules |
+| `home-manager` | your user environment |
+| `catppuccin` | the theme framework nebelung derives from |
+| `nebelung` | the palette |
+| `pounce` | the launcher app |
+| `perch` | the notch file shelf — this input tracks perch's default branch, but what gets *built* is the notarized release zip perch's own flake pins |
+| `holt` | the worktree substrate, put on your `PATH` when `developer.agents.enable` is on |
+| `nix-index-database` | the index behind `nix-index` and `comma` |
+
+## Why a pin means "nothing changes until you say so"
+
+Every input is recorded in `flake.lock` as an **exact commit hash**, never as
+"latest". That is what makes a rebuild reproducible — the same lock produces the
+same system on any machine, on any day.
+
+The flip side surprises everyone: pushing a change to the palette or to haus
+changes **nothing** on your Mac until your `flake.lock` is bumped to the new
+commit. A single colour change therefore has to walk the whole chain, each link
+a lock pinning the exact commit of the one before it:
+
+```text
+nebelung ──► pounce ──► haus ──► ~/.config/nix ──► your Mac
+```
+
+You never walk it by hand. [`haus update`](/docs/haus/guides/keeping-it-current#pulling-a-newer-haus)
+moves your pin to the latest haus — which already has its own inputs pinned —
+upgrades the family's Homebrew apps, and rebuilds. Walking the *upstream* half is
+a contributor's job, and `bench ship` does it; see
+[Contributing](/docs/haus/internals/contributing).
+
+## Cold-boot safety
+
+Nix lives on its own APFS volume, and at cold boot macOS will try to launch
+haus's three GUI agents — AeroSpace, SketchyBar and Pounce — before that volume
+is mounted. haus wraps those three in a shim that waits for the Dock, Finder and
+SystemUIServer first, then gives up after a minute and launches anyway. That is
+why your bar and your tiling come back after a reboot rather than racing the
+login.
+
+<Cards>
+  <Card
+    icon={<Icon name="sync" />}
+    title="Keeping it current"
+    href="/docs/haus/guides/keeping-it-current"
+    description="The everyday consequence of all this — update, rebuild, roll back, and rebuild the whole machine on new hardware."
+  />
+  <Card
+    icon={<Icon name="hammer" />}
+    title="Contributing"
+    href="/docs/haus/internals/contributing"
+    description="The workshop, the bench CLI, and how a change is moved down that chain rather than by hand."
+  />
+</Cards>

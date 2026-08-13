@@ -161,8 +161,10 @@ working:
 | `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
 **den** (the system defaults and Homebrew) and **hearth** (the shell) are the
-floor the rest stands on, and have no switch. Of the rooms you can *see*, all
-six do.
+floor the rest stands on, and have no switch. Every room you can *see* does.
+The developer pack comes apart further if you'd rather keep some of it:
+`developer.git`, `.toolbelt`, `.agents` and `.languages` each switch off on their
+own.
 
 <Callout type="warn" title="pounce doesn't hand ⌘Space back">
 Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
@@ -180,9 +182,9 @@ launcher has the same escape — `haus.keys.palette` takes `alt-space`,
 it is how you keep both. See
 [rebinding](/docs/haus/guides/window-management#not-fond-of-these-keys).
 
-## Starting from someone else's rice
+## Starting from someone else's desktop
 
-A **preset** is a data-only rice: a file whose only top-level key is `haus`. No
+A **preset** is a data-only desktop: a file whose only top-level key is `haus`. No
 `pkgs`, no `lib`, no activation scripts — so it can't reach outside the option
 surface, and you can read one in a minute and know the worst it can do. Import
 one alongside your host file:
@@ -197,8 +199,12 @@ darwinConfigurations.myhost = nebelhaus.mkNebelhaus {
 ```
 
 (`nebelhaus` there is the name your flake gave the input, which the scaffolded
-config picks — it's a handle for the layer, not a claim about which desktop you
-run.)
+config picks because it names the desktop you installed. It's a local handle;
+nothing outside your flake reads it.)
+
+Writing one of your own to hand to somebody else is
+[Sharing a desktop](/docs/haus/guides/sharing-a-desktop) — same format, from the
+authoring end.
 
 | Preset | For |
 |---|---|
@@ -207,7 +213,7 @@ run.)
 | `everyday` | the inverse: a Mac for someone who doesn't write code. No developer pack, and `prowl.enable = false` — so no tiling either, not just no Caps-Lock remap. |
 | `large-print` | bigger and sharper — the UI and the whole display, plus the high-contrast palette. |
 
-The first three are whole rices; pick one. **`large-print` is a layer** — it
+The first three are whole desktops; pick one. **`large-print` is a layer** — it
 describes seeing rather than the person, so it stacks on any of them:
 
 ```nix

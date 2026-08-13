@@ -87,7 +87,7 @@ appearance shows on the next summon; either falls back to `theme`, and
 built-in resolves to `~/.config/pounce/themes/<name>.json` — a flat
 catppuccin-style `name → "#hex"` map
 ([nebelung's](https://github.com/hausfold/nebelung) `palette/*.hex.json`
-files verbatim), which is how the rice's `theme.flavor` / `theme.contrast`
+files verbatim), which is how the desktop's `theme.flavor` / `theme.contrast`
 reach Pounce without a rebuild:
 
 ```sh
@@ -261,7 +261,7 @@ query=$(printf '' | pounce --chain -p "App Store — type a search, then Enter")
 ### A step that takes a paragraph
 
 A step whose answer is a sentence wants more than a filter box — three flags
-turn a `pounce` step into one (the rice's **Spawn Agent** is the worked
+turn a `pounce` step into one (the desktop's **Spawn Agent** is the worked
 example): `--actions` labels more than one verb on a rowless prompt (Return
 hands back `<action>\ttext`, action being `enter`/`cmd`/`opt`/`ctrl`); `⇧↵`
 inserts a newline and the box grows with the text; `--draft <key>` files the

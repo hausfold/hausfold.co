@@ -13,6 +13,7 @@
     "guides/the-shell",
     "guides/adding-apps",
     "guides/making-it-yours",
+    "guides/sharing-a-desktop",
     "guides/pounce",
     "guides/theming",
     "guides/touch-id",
@@ -23,6 +24,9 @@
     "---Reference---",
     "reference/haus",
     "reference/pounce",
-    "reference/troubleshooting"
+    "reference/troubleshooting",
+    "---Internals---",
+    "internals/flakes",
+    "internals/contributing"
   ]
 }
