@@ -68,7 +68,7 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
 | anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
-| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ⚠️ Eighteen of twenty-nine source pages have been ported (batch four, 2026-08-12); the rest are still `web/` in the workshop and still live on nebelhaus.com, so a fact fixed in one tree and not the other will disagree |
+| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. The old tree still lives on nebelhaus.com until the 301s land, so a fact fixed in one tree and not the other will disagree |
 | the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.2 |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
@@ -77,14 +77,15 @@ before you make architectural assumptions here:
 
 ✅ **`/docs` has arrived**, rebuilt on [Fumadocs](https://fumadocs.dev) — Next,
 `output: 'export'`, static. Not a port of the workshop's Astro/Starlight tree;
-that was the user's call on 2026-08-09. This repo therefore **has a build step**
-now: `npm run build` writes `out/`, Next copies `public/` into it verbatim, and
-`out/` is what deploys. It is still a static-assets Worker with no `main`.
+that was the user's call on 2026-08-09. **All twenty-nine source decisions are
+now closed:** twenty-eight became Fumadocs pages, and `start/the-family` was
+deliberately retired. This repo therefore **has a build step** now: `npm run
+build` writes `out/`, Next copies `public/` into it verbatim, and `out/` is what
+deploys. It is still a static-assets Worker with no `main`.
 
-❌ **Not yet, and each is its own piece of work:** the remaining eleven docs
-pages (the work-list is `notes/hausfold-rename.md` §5.2 in the workshop);
-the landing pages becoming Next routes (decided, not done — they are still the
-hand-written HTML in `public/`); and `worker.js`, which carries `/init.sh`,
+❌ **Not yet, and each is its own piece of work:** the landing pages becoming
+Next routes (decided, not done — they are still the hand-written HTML in
+`public/`); and `worker.js`, which carries `/init.sh`,
 `/download/<app>`, `/api/release/<app>`, the `hausfold.co/<rice>.sh` installer
 route and the `nebelhaus.com/*` 301s. **Until that last one lands the docs print
 `nebelhaus.com/init.sh`**, because that is the URL that resolves.
@@ -218,8 +219,8 @@ script with `--check`. **The same script also writes the favicon's colour
 sweep** — `public/favicon.svg`'s wedge fan is ninety hexes interpolated off the
 six accents, which is exactly the frozen snapshot the vendoring exists to
 prevent, so it comes out of the port too and `--check` fails if it drifts.
-That script is the only thing outside `public/` that
-*edits* the site — nothing runs at serve time, and its output is committed. Its
+That script is the only thing outside `public/` that edits the hand-written
+half — nothing runs at serve time, and its output is committed. Its
 header explains why the port is inlined rather than `@import`ed: the short
 version is that a second file is a second blocking request, and a media-scoped
 `@import` can't see the `data-theme` toggle. Note `deploy.yml` only fires on

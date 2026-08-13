@@ -1,0 +1,33 @@
+# Fail when haus's bindings move past what the site's prose was checked against.
+# The live cheatsheet is generated in haus; this repository snapshots that
+# surface because its keybinding pages are prose and must be reviewed by hand.
+name: keybindings drift
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch: {}
+  push:
+    paths:
+      - 'scripts/check-rice-bindings.mjs'
+      - 'src/data/rice-bindings.json'
+      - '.github/workflows/keybindings-drift.yml'
+  pull_request:
+    paths:
+      - 'scripts/check-rice-bindings.mjs'
+      - 'src/data/rice-bindings.json'
+      - '.github/workflows/keybindings-drift.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: hausfold/haus
+          path: .haus
+      - run: node scripts/check-rice-bindings.mjs --haus .haus

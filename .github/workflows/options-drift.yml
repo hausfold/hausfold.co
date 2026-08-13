@@ -1,0 +1,108 @@
+# Keep the generated options reference aligned with haus's committed site data.
+#
+# A push or pull request hard-fails on drift. A scheduled or manual run has no
+# branch to fix, so it regenerates the page and opens or updates one long-lived
+# PR. The derivation stays in haus; this repository only reads JSON.
+name: options drift
+
+on:
+  schedule:
+    - cron: '30 9 * * 1'
+  workflow_dispatch: {}
+  push:
+    paths:
+      - 'scripts/gen-options.mjs'
+      - 'content/docs/haus/reference/options.mdx'
+      - '.github/workflows/options-drift.yml'
+  pull_request:
+    paths:
+      - 'scripts/gen-options.mjs'
+      - 'content/docs/haus/reference/options.mdx'
+      - '.github/workflows/options-drift.yml'
+
+jobs:
+  check:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: hausfold/haus
+          path: .haus
+
+      - run: node scripts/gen-options.mjs --haus .haus --check
+
+  regenerate:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: hausfold/haus
+          path: .haus
+
+      - run: node scripts/gen-options.mjs --haus .haus
+
+      # Nothing but this workflow writes ci/options-drift, so replacing its
+      # history keeps repeated Monday runs on one PR without rewriting a human
+      # branch.
+      - name: Open or update the drift PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          page=content/docs/haus/reference/options.mdx
+          if git diff --quiet -- "$page"; then
+            echo "options reference is current — nothing to open."
+            exit 0
+          fi
+
+          haus_sha=$(git -C .haus rev-parse --short HEAD)
+          branch=ci/options-drift
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add "$page"
+          git commit -m "docs: regenerate the options reference (haus ${haus_sha})"
+          git push --force origin "$branch"
+
+          compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+
+          if [ -n "$(gh pr list --head "$branch" --state open --json number -q '.[].number')" ]; then
+            echo "existing PR updated with haus ${haus_sha}."
+            exit 0
+          fi
+
+          cat > /tmp/pr-body.md <<BODY
+          \`reference/options.mdx\` had drifted from haus's module system. This PR is
+          the regenerated page — opened by \`options-drift.yml\`'s weekly run, against
+          haus [\`${haus_sha}\`](https://github.com/hausfold/haus/commit/${haus_sha}).
+
+          Nothing here was written by hand: \`scripts/gen-options.mjs\` renders the
+          whole page from haus's committed site data. Skim the diff for surprises,
+          then merge.
+
+          If the diff looks wrong, the fix belongs in haus's option declarations,
+          not here. This page has no independent copy to correct.
+
+          This branch is force-pushed by CI every Monday it finds drift, so it stays a
+          single moving PR rather than a stack of stale ones.
+          BODY
+
+          if gh pr create --base main --head "$branch" \
+               --title 'docs: regenerate the options reference' \
+               --body-file /tmp/pr-body.md; then
+            exit 0
+          fi
+
+          echo "::warning::could not open the PR automatically — enable Actions to create pull requests in the org settings"
+          echo "::notice::branch ${branch} is pushed and ready: ${compare}"
+          exit 1
