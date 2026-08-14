@@ -9,13 +9,14 @@ curl -fsSL https://nebelhaus.com/init.sh | bash
 ```
 
 That installs Nix if you don't have it, asks you a few questions, and writes
-your config. It does **not** change your Mac — it writes files and then prints
-the one command that activates them.
+your config. It does **not** change your Mac on its own — it writes files, prints
+the one command that activates them, and asks before running it for you.
 
 So the whole install is two moves, and you can stop between them and read what
-the first one wrote. (Run it from a terminal rather than through a pipe —
-`bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"` — and it can also do the
-second move for you, after asking.)
+the first one wrote. (The pipe doesn't cost you the questions — the installer
+reaches your terminal directly, so `| bash` interviews you like any other form.
+Somewhere with no one watching — CI, a container, or a run whose output you've
+captured to a file — it takes the defaults and never offers to switch.)
 
 ## Before you start
 
@@ -84,9 +85,10 @@ holding your answers — and commits it to git.
 
 </Steps>
 
-Nothing is active yet. Run interactively, the last thing it asks is whether to
-change that — say yes and it runs the two commands below for you, then `haus
-doctor`. Piped, it stops here and prints them.
+Nothing is active yet. Wherever there's a terminal to ask on — piped or not —
+the last thing it asks is whether to change that: say yes and it runs the two
+commands below for you, then `haus doctor`. Unattended, it stops here and prints
+them.
 
 ## Build and switch
 
@@ -128,7 +130,7 @@ bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"
 | Variable | Effect |
 |---|---|
 | `NEBELHAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
-| `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing |
+| `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal — pair it with `--defaults` for a silent run |
 | `NEBELHAUS_DESKTOP` | Which desktop to select — `nebelhaus`, `everyday`, `minimal`, `blank`. The pre-desktops `NEBELHAUS_PRESET` is still read, with `full` meaning `nebelhaus` |
 | `NEBELHAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
 | `NEBELHAUS_ACCENT` / `NEBELHAUS_WALLPAPER` / `NEBELHAUS_EDITOR` | The look and the editor |
