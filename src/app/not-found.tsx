@@ -68,7 +68,10 @@ export default function NotFound() {
             keep it in step with the eight static ones by hand. */}
         <span
           className="stage"
-          title="Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty."
+          tabIndex={0}
+          role="note"
+          aria-label="Pre-release. Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty."
+          data-note="Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty."
         >
           Pre-release
         </span>
