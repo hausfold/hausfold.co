@@ -166,10 +166,14 @@ different session, so read the two together:
   internal module names (`den`, `prowl`, `sill`, `hearth`, `collar`) at readers
   who will only ever meet the **rooms** those modules implement, and claimed the
   installer runs on any Mac when it stops on Intel. **The reader-facing
-  vocabulary is rooms** — windows, the bar, the launcher, the shelf, the
-  terminal, focus, security, agents — the same twelve the docs sidebar is
-  organised around. A `haus.*` namespace is a thing you type, not a thing a
-  landing page names.
+  vocabulary is rooms** — the same ones the docs sidebar is organised around,
+  and `/desktops/nebelhaus` names the eight nebelhaus turns on (windows, the
+  bar, the launcher, the shelf, the terminal, focus, security, agents), per
+  `desktops/choosing.mdx`. A `haus.*` namespace is a thing you type, not a
+  thing a landing page names. ⚠️ Don't put a *count* of the rooms on a page:
+  `content/docs/haus/index.mdx` says twelve and `content/docs/haus/meta.json`
+  lists thirteen entries under `---Rooms---` (`rooms/agent-rebuilds` is the
+  odd one), so any number you write here is wrong somewhere.
 
 The desktops aren't the only product surface here. `/perch/privacy` predates them: an
 App Store listing needs a policy URL on a domain the seller owns, and hausfold

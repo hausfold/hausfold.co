@@ -49,7 +49,7 @@ export default function Nebelhaus() {
         <div className="lede">
           <p>
             A Mac arranged like a tiling Linux rig, but native to the grain of the Mac —{' '}
-            <strong>one command raises the whole house</strong>. Fog-grey, keyboard-first, and the
+            <strong>one Nix flake raises the whole house</strong>. Fog-grey, keyboard-first, and the
             same after you wipe the machine.
           </p>
           <p>
@@ -106,7 +106,10 @@ export default function Nebelhaus() {
           <dd>tiling launched at boot, and Caps Lock as the leader key instead of a chord</dd>
 
           <dt>the bar</dt>
-          <dd>workspaces, weather, media, battery, clock — and a light that reddens when something has stopped</dd>
+          <dd>
+            workspaces, weather, media, battery, clock — and a light that reddens when something has
+            stopped
+          </dd>
 
           <dt>the launcher</dt>
           <dd>pounce on ⌘Space, where every command is a file you can write</dd>
@@ -121,13 +124,18 @@ export default function Nebelhaus() {
           <dd>one hotkey for Do Not Disturb, your Slack status, and your own hooks</dd>
 
           <dt>security</dt>
-          <dd>Touch ID for <code>sudo</code>, inside a multiplexer too, and secrets declared rather than pasted</dd>
+          <dd>
+            Touch ID for <code>sudo</code>, inside a multiplexer too, and secrets declared rather
+            than pasted
+          </dd>
 
           <dt>agents</dt>
           <dd>coding agents, each in its own checkout of the repo, so they never collide</dd>
 
           <dt>the colours</dt>
-          <dd>the nebelung palette and a generated wallpaper, rendered onto twenty-odd tools at once</dd>
+          <dd>
+            the nebelung palette and a generated wallpaper, rendered onto twenty-odd tools at once
+          </dd>
         </dl>
         <p className="aside">
           nebelhaus is one desktop of four — the others are <code>everyday</code>,{' '}
@@ -149,6 +157,11 @@ export default function Nebelhaus() {
           <dd>
             Determinate Nix, installed for you. If you already run stock Nix it stops and explains
             rather than touching it
+          </dd>
+
+          <dt>an admin account</dt>
+          <dd>
+            the two steps that actually change the machine run under <code>sudo</code>
           </dd>
 
           <dt>10–15 minutes</dt>
