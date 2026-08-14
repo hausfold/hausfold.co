@@ -112,11 +112,12 @@ everything after it down too — your bar, tiling and palette come back dead, wi
 the symptom nowhere near the cause. Refusing is the kinder failure: nothing is
 changed, and your edit is still on disk.
 
-The way past it is usually to stop writing the domain by hand.
+The way past it is always to stop writing the domain by hand.
 `haus.accessibility.*` reaches every key in it that macOS actually honours —
-`increaseContrast`, `differentiateWithoutColor`, `reduceMotion` and
-`reduceTransparency` — with a **guarded** write, so without the grant you lose
-that setting and nothing else, and the rebuild runs from anywhere. Otherwise:
+seven of them, which since August 2026 is **every key nix-darwin types there**,
+so the raw form no longer reaches anything the safe one doesn't — with a
+**guarded** write, so without the grant you lose that setting and nothing else,
+and the rebuild runs from anywhere. Otherwise:
 run it from an app that holds the grant, or set `HAUS_FDA_ANYWAY=1` when you know
 better (`HAUS_AGENT_REBUILD=1`, the name this had while the check was
 agent-scoped, still works).
