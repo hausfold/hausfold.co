@@ -34,7 +34,7 @@ npm test                             # worker.js, offline, ~1s
 |---|---|
 | a page | `src/app/<route>/page.tsx` |
 | a docs page | `content/docs/<tree>/*.mdx` |
-| colour, type, layout | `public/hausfold.css` — its header comment is the design record |
+| colour, type, layout | `public/hausfold.css` — its header comment is the design record (the docs' own type and per-tree hue are `src/app/global.css`) |
 | what `hausfold.co/<name>.sh` installs | `worker.js` — a second desktop is a row in `DESKTOPS`, not a new route |
 
 Three things here are **generated, never hand-typed**: the dark palette

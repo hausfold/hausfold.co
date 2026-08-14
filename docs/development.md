@@ -55,8 +55,9 @@ heard of.
 Three outputs are committed and none is written by hand.
 
 **The palette.** `public/hausfold.css` opens with a block vendored from
-nebelung's own CSS port, so the dark theme reads `var(--nebelung-*)` instead of
-twenty hand-copied hexes. The same script draws the favicon's accent sweep.
+nebelung's own CSS port — fetched with `nix build github:hausfold/nebelung`, the
+one script here that wants Nix — so the dark theme reads `var(--nebelung-*)`
+instead of twenty hand-copied hexes. The same script draws both favicons.
 
 ```sh
 npm run palette              # re-render the block from the pinned revision
@@ -74,20 +75,22 @@ keybinding snapshot** (`src/data/rice-bindings.json`) both read haus's committed
 
 ```sh
 npm run options -- --haus /path/to/haus          # regenerate
+npm run options:check -- --haus /path/to/haus    # is the committed page current?
 npm run bindings:check -- --haus /path/to/haus   # did haus's bindings move?
 npm run bindings:update -- --haus /path/to/haus  # accept them, after reviewing the prose
 ```
 
-A weekly workflow watches `hausfold/haus` for both. Options drift opens or
-updates one generated PR; keybinding drift only *fails*, on purpose — its fix is
-prose someone has to read, not a regeneration.
+Two weekly workflows watch `hausfold/haus`, one per file — and both also fail on
+a PR that hand-edits the output. Options drift opens or updates one generated
+PR; keybinding drift only *fails*, on purpose — its fix is prose someone has to
+read, not a regeneration.
 
 ## what CI checks
 
 | workflow | on a PR touching | what it does |
 |---|---|---|
 | `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
-| `worker.yml` | `worker.js`, `test/`, either wrangler config | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS` |
+| `worker.yml` | `worker.js`, `test/`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS` |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
 
 The reproducible-build check is the one that isn't boilerplate. The export is
@@ -98,9 +101,9 @@ Fumadocs release introduces a timestamp is a day nothing tells you about.
 `palette.yml` goes red when the vendored block is stale, when a dark block
 stops spending it, when a `--nebelung-*` reference lands in the light theme, or
 when the dark `theme-color` in `src/lib/shared.ts` stops matching crust. One
-command fixes all of those except an upstream *rename*, which is hand work — a
-token that stopped existing leaves a dangling `var()` and a dark page with no
-background.
+command fixes all of those except two, which are hand work: `themeColor`, which
+nothing generates, and an upstream *rename* — a token that stopped existing
+leaves a dangling `var()` and a dark page with no background.
 
 Two things it guards that aren't colours: `favicon.ico` is compared as
 **decoded pixels, not bytes** (identical input, different zlib version, different
