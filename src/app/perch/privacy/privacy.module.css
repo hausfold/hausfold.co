@@ -8,8 +8,16 @@
    imports and a page's is an implementation detail, and bare element selectors
    under a shared layout would leak onto every other page besides. So the same
    rules live here as a CSS module, scoped under `.policy` on the page's own
-   `<main>`, which also lifts them a specificity rung above `public/hausfold.css`
-   and Tailwind's preflight rather than leaving them to source order.
+   `<main>`.
+
+   Every DESCENDANT rule below (`.policy h1`, `.policy p`, …) is a specificity
+   rung above `public/hausfold.css`'s bare selectors and Tailwind's preflight,
+   so those win outright. ⚠️ **`.policy` itself does not**: it is a single class,
+   exactly like `.sheet`, and both land on the same `<main>` — so its `gap`
+   beats the shared sheet's on source order alone (the page's chunk loads after
+   the layout's). True today, and the one line here worth re-checking if the
+   page ever looks wrong; `main.policy` would harden it without changing a
+   value.
 
    The tokens — --measure, --ink, --ink-2, --ink-3, --rule — still come from
    the shared sheet, exactly as they did after 2026-08-08. This page has not

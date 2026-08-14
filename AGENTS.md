@@ -392,8 +392,15 @@ Rules that are easy to break by accident:
   load-bearing.** ⚠️ **Restated 2026-08-14, because the old wording said "and
   no framework" and there is a framework now.** The pages are Next routes, so
   they ship Next's client runtime whether they use it or not — that is the
-  price of the port and it was paid deliberately. What the rule still governs
-  is *our* script, and there is exactly one piece: `<Command>`
+  price of the port and it was paid deliberately. **They also mount fumadocs'
+  search provider**, because `<Provider>` is in the root layout: ⌘K on
+  `/terms` opens the docs search dialog and lazily fetches the ~457 KB Orama
+  index. That has been true of the 404 since 2026-08-12 and of the other eight
+  since 2026-08-14. It is a reasonable thing for a site to do and nobody has
+  asked for it to stop — but it is a decision, so it is written down; moving
+  `<Provider>` into `src/app/docs/layout.tsx` is how you'd undo it. What the
+  rule still governs is *our* script, and there is exactly one piece:
+  `<Command>`
   (`src/components/command.tsx`), used on `/haus`, `/perch`, `/pounce` and
   `/desktops/nebelhaus`, which was four identical twelve-line `<script>` blocks
   until the port. Its bar is unchanged and is the bar for a second one: the

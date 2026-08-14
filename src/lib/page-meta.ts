@@ -9,6 +9,11 @@ import { appName } from '@/lib/shared';
 // canonical, the six `og:` tags and the `twitter:card` are written once and a
 // new page cannot ship without them.
 //
+// Note the output is three twitter tags, not one: Next derives
+// `twitter:title` and `twitter:description` from the openGraph pair below.
+// The hand-written pages sent `twitter:card` alone. Harmless, and arguably
+// what they should have sent — but it is a difference, so it is written down.
+//
 // What is deliberately NOT here: `theme-color` and the two `<link rel=icon>`s,
 // which are `viewport` and `metadata.icons` in `src/app/layout.tsx` and
 // therefore already land on every route in the build — docs and landing pages

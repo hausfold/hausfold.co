@@ -13,11 +13,15 @@ export const gitConfig = {
   branch: 'main',
 };
 
-// Two `theme-color`s per page, one per scheme — the same pair every
-// hand-written page in `public/` carries, and the same values as
-// `--ground` in `public/hausfold.css`. `scripts/sync-nebelung.mjs --check`
-// asserts the HTML pages' copies; this is the docs build's copy of the same
-// fact, so change all three together.
+// Two `theme-color`s, one per scheme, for the whole site — spent by `viewport`
+// in `src/app/layout.tsx`, which puts them on every route in the build. The
+// values are `--ground` in `public/hausfold.css`.
+//
+// 🚨 **This is the copy `scripts/sync-nebelung.mjs --check` reads**, and it is
+// the only one: until 2026-08-14 the same pair was hand-typed into ten
+// `public/**.html` heads and the script walked those instead. Change a ground
+// colour in the stylesheet and change `dark` here with it, or Palette goes red
+// naming this line.
 export const themeColor = {
   light: '#faf9f7',
   dark: '#121212',

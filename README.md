@@ -328,15 +328,18 @@ is why the deploy token needs **Zone → DNS:Edit** and not just Workers scopes.
 redirect ever disappears, look there first, not here.
 
 **Every page URL and every asset under `public/` is un-hashed.** `/`,
-`/desktops/nebelhaus` and `hausfold.css` all keep the same URL when their
+`/desktops/nebelhaus` and `/favicon.svg` all keep the same URL when their
 contents change, so an
 edge cache can keep serving the old copy after a deploy. (Next's own
 `/_next/static/*` bundles are content-hashed and `public/_headers` caches them
-for a year — they are the exception, not the rule.) `hausfold.css` is the one
-that bites hardest now: a stale stylesheet against fresh markup looks like a
-broken page rather than an old one. That's what the workflow's purge step is
-for; without `CLOUDFLARE_ZONE_ID` set it warns and skips, and your change lands
-whenever the edge feels like it.
+for a year — they are the exception, not the rule.) The worst case is a page
+held in cache while the hashed bundle it asks for has already been renamed: it
+reads as broken rather than merely old. ⚠️ **`hausfold.css` used to be named
+here as the one that bit hardest, and it no longer applies** — since the
+landing pages became routes on 2026-08-14 nothing links `/hausfold.css`; it is
+inlined into those content-hashed bundles. Either way, the workflow's purge
+step is the answer; without `CLOUDFLARE_ZONE_ID` set it warns and skips, and
+your change lands whenever the edge feels like it.
 
 ## Why this repo starts at one commit
 
