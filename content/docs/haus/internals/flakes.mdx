@@ -33,7 +33,7 @@ than the layer under it. It's a local handle; nothing outside your flake reads
 it.)
 
 Your choices live in `hosts/<hostname>/default.nix` — [the one file you
-edit](/docs/haus/guides/making-it-yours). haus stays upstream, and you never
+edit](/docs/haus/desktops/customizing). haus stays upstream, and you never
 edit it.
 
 ## The builder
@@ -51,9 +51,10 @@ nebelhaus.mkNebelhaus {
 }
 ```
 
-Only `username` and `hostname` are required. `extraModules` is the seam a
-[shared desktop](/docs/haus/guides/sharing-a-desktop) arrives through, and the one the
-installer uses to import the preset you picked. Eight of haus's modules — `den`,
+Only `username` and `hostname` are required. `desktop` selects the one
+[desktop](/docs/haus/desktops/choosing) this machine runs — the argument the
+installer writes for you — and `extraModules` is the seam for any other
+nix-darwin module, an app pack included. Eight of haus's modules — `den`,
 `hearth`, `prowl`, `sill`, `collar`, `pounce`, `hush`, `secrets` — are also
 exported on their own under `darwinModules`, alongside a `default` holding the
 lot. Reach for one of those only with the builder still around it: a module
@@ -91,7 +92,7 @@ a lock pinning the exact commit of the one before it:
 nebelung ──► pounce ──► haus ──► ~/.config/nix ──► your Mac
 ```
 
-You never walk it by hand. [`haus update`](/docs/haus/guides/keeping-it-current#pulling-a-newer-haus)
+You never walk it by hand. [`haus update`](/docs/haus/keeping-it-current#pulling-a-newer-haus)
 moves your pin to the latest haus — which already has its own inputs pinned —
 upgrades the family's Homebrew apps, and rebuilds. Walking the *upstream* half is
 a contributor's job, and `bench ship` does it; see
@@ -110,7 +111,7 @@ login.
   <Card
     icon={<Icon name="sync" />}
     title="Keeping it current"
-    href="/docs/haus/guides/keeping-it-current"
+    href="/docs/haus/keeping-it-current"
     description="The everyday consequence of all this — update, rebuild, roll back, and rebuild the whole machine on new hardware."
   />
   <Card

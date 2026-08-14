@@ -41,27 +41,32 @@ it up over time, and that's the whole curve.
 
 ## What's in the box
 
-haus is organised into **rooms** — each one a group of options you can turn on,
+haus is organised into twelve **rooms** — each one a capability you can turn on,
 off, or leave alone. Turn on the ones you want; the rest cost you nothing.
 
 | Room | What it does |
 |---|---|
-| **prowl** | Tiling windows, and a launcher on a tap of Caps-Lock |
-| **sill** | A status bar: workspaces, weather, media, battery, clock |
-| **hearth** | The terminal — Ghostty, zellij, zsh, and a themed toolbelt |
-| **collar** | Touch ID for `sudo`, including inside a multiplexer |
-| **pounce** | A ⌘Space command palette where every command is a file |
-| **perch** | A file shelf that grows out of the notch to catch drag-drops |
-| **nebelung** | The palette, painted across every tool that can take one |
-| **den** | macOS defaults, Homebrew policy, and the `haus` CLI itself |
+| **[Apps](/docs/haus/rooms/apps)** | One list holds every app, font and CLI tool, and where each installs from |
+| **[Appearance](/docs/haus/rooms/appearance)** | The palette, the accent, the wallpaper, fonts and interface scale |
+| **[Displays](/docs/haus/rooms/displays)** | Per-screen scaling, said as an intent rather than a pixel count |
+| **[Development](/docs/haus/rooms/development)** | Ghostty, zellij, zsh, the editor, Git tooling and language runtimes |
+| **[Windows](/docs/haus/rooms/windows)** | Tiling, workspaces, and a launcher on a tap of Caps-Lock |
+| **[Bar](/docs/haus/rooms/bar)** | A status bar: workspaces, weather, media, battery, clock |
+| **[Launcher](/docs/haus/rooms/launcher)** | A ⌘Space command palette where every command is a file |
+| **[Shelf](/docs/haus/rooms/shelf)** | A file shelf that drops out of the notch to catch drag-drops |
+| **[Focus](/docs/haus/rooms/focus)** | One quiet switch: Do Not Disturb, your status, your hooks |
+| **[AI](/docs/haus/rooms/ai)** | Coding agents, each with its own checkout of the repo |
+| **[Text expansion](/docs/haus/rooms/text-expansion)** | Type a short trigger, get the long thing, in any app |
+| **[Security](/docs/haus/rooms/security)** | Touch ID for `sudo`, lock behaviour, firewall, secrets |
 
-Plus the smaller rooms: fonts, wallpaper, hot corners, screenshots, power,
-sound, locale, security, and the rest. There are **237 options across 35
-rooms** — the [full reference](/docs/haus/reference/options) lists
-every one with its type and default.
+Underneath them is the foundation nobody switches off: the macOS defaults, the
+Homebrew policy and the `haus` CLI itself. The [full
+reference](/docs/haus/reference/options) lists every option in every room, with
+its type and default.
 
-Each piece also stands alone. You can take the whole thing, or just
-[pounce](/pounce), or just the palette.
+Which rooms are on is your **desktop's** decision, and disagreeing with it is one
+line in your host file. Each piece also stands alone: you can take the whole
+thing, or just [pounce](/pounce), or just the palette.
 
 ## The shape of a haus machine
 
@@ -81,6 +86,12 @@ and their improvements are never a surprise on your machine.
     title="Install"
     href="/docs/haus/install"
     description="What the one-liner does, how to read it before you run it, and the one command that actually changes the machine."
+  />
+  <Card
+    icon={<Icon name="choose" />}
+    title="Choose a desktop"
+    href="/docs/haus/desktops/choosing"
+    description="Which rooms this Mac runs, and what the visible choices are — nebelhaus, everyday, minimal, blank, or one of your own."
   />
   <Card
     icon={<Icon name="desktop" />}

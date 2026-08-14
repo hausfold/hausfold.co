@@ -1,11 +1,11 @@
 ---
-title: Making it yours
-description: One file holds every choice you make — the dials worth knowing, the rooms you can switch off, and how to beat a default haus set.
+title: Customize a desktop
+description: One file holds every choice you make — the dials worth knowing, the rooms you can switch off, and how to beat anything your desktop set.
 icon: dials
 ---
 
-haus ships a whole opinion, already wired. So customising it isn't assembly —
-it's turning a handful of dials, and every one of them lives in the same file.
+A desktop ships a whole opinion, already wired. So customising it isn't assembly
+— it's turning a handful of dials, and every one of them lives in the same file.
 
 ## The one file you edit
 
@@ -43,15 +43,15 @@ Three ways in, and none of them is reading a reference end to end:
   has the model.
 - **Ask for it in words.** haus installs a skill that teaches a coding agent this
   whole surface, generated from the revision you run — see [Changing your Mac
-  with an agent](/docs/haus/guides/agent-rebuilds).
+  with an agent](/docs/haus/rooms/agent-rebuilds).
 
 <Callout title="Scaffolded, not active">
 Nothing in `options.nix` does anything until you uncomment a line *and* `import`
 it — `haus options` prints the `imports = [ ./options.nix ];` line to add if it's
 missing. Commented-out is deliberate, and for two reasons: a file that spelled
-every default out would **collide** with any preset you import — same-priority
-definitions are a build error, not a win — and it would freeze haus's own
-defaults against ever being retuned upstream. Uncomment what you actually mean.
+every default out would pin every one of them against your desktop, and it would
+freeze haus's own defaults against ever being retuned upstream. Uncomment what
+you actually mean.
 </Callout>
 
 ## The cookbook
@@ -88,7 +88,7 @@ starship, tmux, bat, zellij) keep their built-in colour on purpose, and a flake
 check fails the build if one of them ever starts following. `minimal` is the
 desktop haus generates for you — a flat field in your
 palette, the ⌂ mark at its centre, a bloom in your accent — and `"none"` keeps
-the wallpaper you already have. [Theming](/docs/haus/guides/theming) has the
+the wallpaper you already have. The [Appearance room](/docs/haus/rooms/appearance) has the
 whole palette and the desktop's own dials.
 
 ### The terminal
@@ -98,7 +98,7 @@ haus.hearth.editor = "nvim";                # the ONE editor: $EDITOR and every 
 haus.hearth.hijackFileAssociations = false; # make that editor the default file opener
 ```
 
-More in [The terminal](/docs/haus/guides/the-shell).
+More in [the Development room](/docs/haus/rooms/development).
 
 ### Apps, windows and the launcher
 
@@ -111,7 +111,7 @@ haus.pounce.signingIdentity =      # sign it, and its Accessibility grant surviv
 ```
 
 The roster is the most common edit on the machine and has [a page of its
-own](/docs/haus/guides/adding-apps).
+own](/docs/haus/rooms/apps).
 
 ### The bar
 
@@ -122,7 +122,7 @@ haus.sill.items.elgato = true;  # opt-in extras — see The bar
 
 The optional pills are personal — an Elgato key-light toggle, a Harvest timer,
 an agents readout — so they're off unless you ask. [The
-bar](/docs/haus/guides/the-bar) lists them.
+bar](/docs/haus/rooms/bar) lists them.
 
 ### Homebrew behaviour
 
@@ -157,14 +157,16 @@ working:
 | `haus.perch.enable` | The notch file shelf — the copied `/Applications/Perch.app` stays until you delete it |
 | `haus.hush.enable` | The quiet switch — bar pill, palette command and `hush` CLI |
 | `haus.collar.enable` | Touch ID for `sudo`, and back to the password prompt |
-| `haus.developer.enable` | The developer pack — language toolchains, the git tooling, the agent CLIs. Sub-switches (`.git`, `.toolbelt`, `.agents`, `.languages`) take out one piece at a time |
+| `haus.developer.enable` | The Development room — language toolchains, the Git tooling, the CLI toolbelt. Sub-switches (`.git`, `.toolbelt`, `.languages`) take out one piece at a time |
+| `haus.ai.enable` | The AI room — the agent clients, holt, and the lifecycle wiring around them |
+| `haus.snippets.enable` | Text expansion |
 | `haus.apps.videoPlayer.enable` | IINA; videos keep whatever handler they have |
 
-**den** (the system defaults and Homebrew) and **hearth** (the shell) are the
-floor the rest stands on, and have no switch. Every room you can *see* does.
-The developer pack comes apart further if you'd rather keep some of it:
-`developer.git`, `.toolbelt`, `.agents` and `.languages` each switch off on their
-own.
+The macOS defaults, the Homebrew policy and the `haus` CLI itself are the
+foundation the rest stands on, and have no switch. Every room you can *see*
+does — and each one is off in the [blank
+desktop](/docs/haus/desktops/blank), so what's on your Mac is whatever your
+desktop asked for plus whatever you did.
 
 <Callout type="warn" title="pounce doesn't hand ⌘Space back">
 Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
@@ -180,62 +182,45 @@ instead, and prowl keeps arranging windows while Caps Lock stays Caps Lock. The
 launcher has the same escape — `haus.keys.palette` takes `alt-space`,
 `ctrl-space` or `"none"`, and since only `cmd-space` displaces Spotlight, moving
 it is how you keep both. See
-[rebinding](/docs/haus/guides/window-management#not-fond-of-these-keys).
+[rebinding](/docs/haus/rooms/windows#not-fond-of-these-keys).
 
-## Starting from someone else's desktop
+## Disagreeing with your desktop
 
-A **preset** is a data-only desktop: a file whose only top-level key is `haus`. No
-`pkgs`, no `lib`, no activation scripts — so it can't reach outside the option
-surface, and you can read one in a minute and know the worst it can do. Import
-one alongside your host file:
+Your host file wins. Anything the desktop chose, you change with a **plain
+assignment** — no `lib.mkForce`, no import order to reason about:
 
 ```nix
-darwinConfigurations.myhost = nebelhaus.mkNebelhaus {
-  username = "ada";
-  hostname = "myhost";
-  host = ./hosts/myhost;
-  extraModules = [ nebelhaus.presets.everyday ];
-};
+# the desktop set theme.accent = "mauve"; you'd rather have teal
+haus.theme.accent = "teal";
+haus.sill.enable = false;      # and no bar, thanks
 ```
 
-(`nebelhaus` there is the name your flake gave the input, which the scaffolded
-config picks because it names the desktop you installed. It's a local handle;
-nothing outside your flake reads it.)
+That's the ladder doing its job: rooms declare defaults, a desktop states its
+choices above them, your host sits above both, and anything `haus set` writes
+sits above that. Switching desktops is one line in your flake — see
+[Choose a desktop](/docs/haus/desktops/choosing).
 
-Writing one of your own to hand to somebody else is
-[Sharing a desktop](/docs/haus/guides/sharing-a-desktop) — same format, from the
-authoring end.
-
-| Preset | For |
-|---|---|
-| `full` | the whole thing: bar, tiling, palette, developer pack. The default. |
-| `minimal` | just the themed shell — no bar, no tiling, no palette. Still a developer machine. |
-| `everyday` | the inverse: a Mac for someone who doesn't write code. No developer pack, and `prowl.enable = false` — so no tiling either, not just no Caps-Lock remap. |
-| `large-print` | bigger and sharper — the UI and the whole display, plus the high-contrast palette. |
-
-The first three are whole desktops; pick one. **`large-print` is a layer** — it
-describes seeing rather than the person, so it stacks on any of them:
+<Callout type="warn" title="Naming a list replaces it, so restate the parts you want">
+Your host wins **whole**. A list-typed option — `tour.steps`,
+`keys.leaderExtras`, `snippets.matches` — that you name at all discards the
+desktop's version rather than adding to it, so if you want most of what the
+desktop had plus one of your own, write out all of them:
 
 ```nix
-extraModules = [ nebelhaus.presets.everyday nebelhaus.presets.large-print ];
+haus.snippets.matches = [
+  { trigger = "@@"; replace = "ada@example.com"; }   # the desktop's, kept
+  { trigger = ";sig"; replace = "— Ada"; }           # and mine
+];
 ```
 
-<Callout type="warn" title="Import order carries no priority in Nix">
-Your host file overrides a preset — but not by being imported after it. An
-option the preset leaves alone is yours to set plainly; one it sets to a
-*different* value is a **conflict**, not a silent win, until you reach for
-`lib.mkForce`. (Restating a preset's own value costs nothing — identical
-definitions merge.)
-
-```nix
-{ lib, ... }:                          # add lib to your host's args
-{
-  haus.ui.scale = lib.mkForce 1.0;     # large-print sets this — force to win
-}
-```
+To take a list away entirely, use its room's switch — `haus.tour.enable =
+false` rather than an empty `tour.steps`, which is a type error.
 </Callout>
 
-`large-print` pulls two complementary levers. `haus.ui.scale` moves haus's own
+## Bigger type
+
+`haus.appearance.largePrint = true` is one named answer to a whole-machine
+question, and it pulls two complementary levers. `haus.ui.scale` moves haus's own
 type together — the terminal, the palette, the bar, the Dock, Finder's sidebar,
 the tiling gaps — and `haus.displays.main.uiScale` moves the *display* one step
 toward larger text, which enlarges everything including apps haus knows nothing
@@ -318,8 +303,8 @@ chmod +x .git/hooks/pre-commit
 <Cards>
   <Card
     icon={<Icon name="apps" />}
-    title="Adding apps"
-    href="/docs/haus/guides/adding-apps"
+    title="Apps"
+    href="/docs/haus/rooms/apps"
     description="The most common change of all, in depth — one list holds every app, font and CLI tool on the machine."
   />
   <Card

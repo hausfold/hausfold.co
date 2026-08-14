@@ -1,0 +1,95 @@
+---
+title: Share a desktop
+description: Publishing a desktop someone can read before they run it — what the repository holds, what the README owes them, and the checklist before you hand it out.
+icon: share
+---
+
+A desktop is one readable file, so sharing one is mostly about making it easy to
+*read* — and about being honest in the README, which is the part the format
+can't check for you.
+
+## Publish something inspectable
+
+The smallest useful repository is deliberately boring:
+
+```text
+writer-desktop/
+├── README.md
+├── writer.nix
+└── LICENSE
+```
+
+For a first release, invite people to vendor the `.nix` file into their own
+config rather than fetching it:
+
+```sh
+curl -O https://raw.githubusercontent.com/you/writer-desktop/main/writer.nix
+mv writer.nix ~/.config/nix/desktops/
+```
+
+```nix
+desktop = ./desktops/writer.nix;
+```
+
+A flake wrapper can come later if versioned imports turn out to be useful. It
+should not hide the data people are being asked to trust, and any wrapper owes
+every module it rebuilds a `_file`, or the conflicts it causes name no file at
+all.
+
+## What the README owes a reader
+
+Someone deciding whether to run your desktop is deciding what their Mac will
+feel like tomorrow. Tell them:
+
+- **who it's for** — the kind of person or the kind of work, in a sentence;
+- **which rooms it turns on, and which it deliberately leaves off**, with the
+  reason for the off ones. That reason is the part they cannot reconstruct from
+  the file;
+- **the strong opinions** — a claimed global hotkey, a remapped Caps Lock, a
+  changed default browser, anything that will surprise muscle memory;
+- **which haus revision you tested against**;
+- **what it deliberately doesn't handle** — permissions it expects the person to
+  grant, hardware it assumes, apps it doesn't install;
+- **any list-typed option it sets** (`tour.steps`, `keys.leaderExtras`,
+  `snippets.matches`), because a host that names the same one
+  [replaces yours whole](/docs/haus/desktops/creating#leave-room-for-the-host)
+  and has to restate the entries it wants to keep;
+- **that both `checkDesktop` and a real host evaluation passed**.
+
+You do not need to document how to override you. Anything a desktop sets, a host
+beats with a plain assignment — that is a property of the seam, and it holds for
+every desktop without either of you doing anything.
+
+## App packs are the neighbouring format
+
+If what you want to share is a *set of apps* rather than a whole machine, that's
+a **pack**: a data-only file that sets nothing but `haus.roster`, imported
+through `nebelhaus.lib.pack`. It lowers every field it sets, so a consumer's own
+host wins with a plain assignment. A pack is not a desktop and doesn't compete
+with one — a machine has one desktop and as many packs as it likes.
+
+## Before you share
+
+- [ ] `checkDesktop` prints `true`, and a real host evaluates.
+- [ ] You have run it on a Mac, not only evaluated it.
+- [ ] Every room it turns off agrees with the features that depend on that room,
+      `tour.steps` included.
+- [ ] The README states the audience, the rooms, the strong opinions, the tested
+      revision and the limits.
+- [ ] Any list-typed option it sets is named in the README.
+- [ ] There is no identity, secret or device-specific data anywhere in it.
+
+<Cards>
+  <Card
+    icon={<Icon name="dials" />}
+    title="Customize a desktop"
+    href="/docs/haus/desktops/customizing"
+    description="The other side of the seam — running someone else's desktop and overriding it from your own host file."
+  />
+  <Card
+    icon={<Icon name="choose" />}
+    title="Choose a desktop"
+    href="/docs/haus/desktops/choosing"
+    description="How selection works, and the four desktops haus ships."
+  />
+</Cards>

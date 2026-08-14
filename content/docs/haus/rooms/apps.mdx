@@ -1,6 +1,6 @@
 ---
-title: Adding apps
-description: One list holds every app, font and CLI tool on the machine — what to install it from, and what key launches it.
+title: Apps
+description: Every app, font and CLI tool on the machine in one list — where each one installs from, what key launches it, and the packs that bring a whole set at once.
 icon: apps
 ---
 
@@ -20,6 +20,17 @@ By hand:
 ```sh
 haus edit       # opens ~/.config/nix/hosts/<hostname>/default.nix
 haus rebuild    # build, then switch
+```
+
+## Enable it
+
+The Apps room is always present — the roster is a list, and an empty one is a
+machine with nothing extra on it. What you switch on are the curated extras:
+
+```nix
+haus.apps.videoPlayer.enable = true;   # IINA, and the file types it claims
+haus.apps.packs.writing.enable = true; # a saved collection, in one line
+haus.appStore.install = true;          # let a rebuild install appStoreId entries
 ```
 
 ## Where it comes from
@@ -43,7 +54,7 @@ Don't know a name? `brew search --cask obsidian`, or
 ## An app you'll live in
 
 A keyed roster entry gives an app a Caps-Lock letter, a cheatsheet row, and the
-install. A [`haus.workspaces`](/docs/haus/guides/window-management#workspaces-and-what-lives-on-them)
+install. A [workspace](/docs/haus/rooms/windows#workspaces-and-what-lives-on-them)
 entry naming it gives it a workspace, a bar pill, and the rule that sends its
 windows there:
 
@@ -193,7 +204,7 @@ an extension to one list, check it against the other by UTI, not by spelling.
 If the id you key the entry under matches a tool nebelung has a port for — `zed`,
 `warp`, `xcode`, `gitui`, `kitty` and a few dozen more — its theme lands where
 that app looks for one on the next rebuild, in your flavor, contrast and accent.
-See [Theming](/docs/haus/guides/theming#apps-you-added-yourself).
+See [the Appearance room](/docs/haus/rooms/appearance#apps-you-added-yourself).
 </Callout>
 
 ## Then apply it
@@ -206,19 +217,49 @@ workspace and pill together. If it doesn't tile on first launch, tap
 Your host file is a plain nix-darwin module — anything nix-darwin or
 home-manager accepts works there and merges with haus. The roster is the common
 case, not the only door; [Making it
-yours](/docs/haus/guides/making-it-yours) is the rest of what that file can say.
+yours](/docs/haus/desktops/customizing) is the rest of what that file can say.
+
+## Works with
+
+- **[Windows](/docs/haus/rooms/windows)** — a roster id named in a workspace
+  gets that workspace's pill and the rule that sends its windows there.
+- **[Launcher](/docs/haus/rooms/launcher)** — **Install App** writes a roster
+  entry for you and rebuilds, so the common case needs no editor.
+- **[Appearance](/docs/haus/rooms/appearance)** — an app whose id nebelung has a
+  port for is themed on the next rebuild.
+
+## Permissions and side effects
+
+`haus.appStore.install` is off by default: it reaches the network and acts on
+your Apple Account, and it can never be complete — `mas` cannot sign in and
+cannot buy a paid app.
+
+What a rebuild does to apps you *didn't* declare is
+[`haus.homebrew.cleanup`](/docs/haus/desktops/customizing#homebrew-behaviour),
+`"none"` by default, so nothing you installed by hand is ever removed.
+
+## Remove it
+
+Delete the roster entry and rebuild. Whether the app itself goes depends on that
+same `cleanup` policy — with the default `"none"` it stays installed and simply
+stops being declared. A pack switches off as one line.
+
+## Options
+
+Every setting, with types and defaults:
+[Apps](/docs/haus/reference/options#apps).
 
 <Cards>
   <Card
     icon={<Icon name="tiling" />}
     title="Windows"
-    href="/docs/haus/guides/window-management"
+    href="/docs/haus/rooms/windows"
     description="What the launcher letter and the workspace you just declared actually do, and the rest of the tiling vocabulary."
   />
   <Card
     icon={<Icon name="palette" />}
-    title="Theming"
-    href="/docs/haus/guides/theming"
+    title="Appearance"
+    href="/docs/haus/rooms/appearance"
     description="One palette across every tool that can take one — including the app you just added."
   />
 </Cards>

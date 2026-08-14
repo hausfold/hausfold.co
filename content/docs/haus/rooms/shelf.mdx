@@ -1,0 +1,88 @@
+---
+title: Shelf
+description: Perch — a shelf that drops out of the notch mid-drag to catch files, so you never have to dig the destination window out first.
+icon: shelf
+---
+
+You know the dance: drag a file, realise the window you wanted is buried under
+four others, let go, dig it out, drag again. The Shelf room installs
+**[perch](/perch)**, which ends it — start dragging anything, flick up to the
+notch, and a small shelf drops down to catch it. Pile in as much as you like,
+from as many places as you like, then grab any tile and carry the whole group to
+its real home in one motion.
+
+## Enable it
+
+```nix
+haus.perch.enable = true;
+```
+
+```sh
+haus rebuild
+```
+
+Perch is copied to `/Applications` and kept current with the rest of the house.
+Standalone and in-the-house are the same app — if you already installed it with
+`brew install --cask hausfold/tap/perch`, letting the room own it is the
+upgrade.
+
+## Configure it
+
+There is one setting, and it's about colour:
+
+```nix
+haus.perch.followSystemAppearance = true;
+```
+
+With it on, the shelf follows macOS Light/Dark itself — no rebuild, no relaunch —
+at your `haus.theme.contrast`, rather than being pinned to
+`haus.theme.flavor` like every other themed tool. Perch has no theme picker of
+its own (a five-second surface has nowhere to put one), so this is the only word
+on its colours.
+
+## How it behaves
+
+- **drop** — files, folders, Photos exports, images dragged out of Safari, links
+  and plain text all land in the same shelf;
+- **carry** — take one tile or grab the stack; whatever the destination accepts
+  leaves the shelf, and a refused drop springs back;
+- **copies** — perch stages its own copy and hands out copies. It never moves,
+  renames, edits or deletes what you dropped in, so an interrupted drag cannot
+  lose data;
+- **patience** — a tile appears only once its copy has finished. Nothing on the
+  shelf is half-written, and quitting doesn't lose it.
+
+## Works with
+
+- **[the Appearance room](/docs/haus/rooms/appearance)** — the shelf takes your palette
+  and contrast, unless you hand the polarity to macOS with
+  `followSystemAppearance`.
+
+## Permissions and side effects
+
+Perch asks for **none** of the permissions that make a Mac app feel invasive: no
+Accessibility, no Input Monitoring, no Screen Recording, no Dock icon, no
+telemetry. It sees what you drop on it and nothing else.
+
+One macOS setting fights it, and haus can't fix it for you: **System Settings ▸
+Desktop & Dock ▸ "Drag windows to top of screen to enter Mission Control"**.
+macOS arms that top-edge trigger for the whole of any drag — files included — and
+it fires over the same band the shelf lives in. Leave it on and the Dock steals
+the drop.
+
+A notch is nice, not required: the shelf works on any Mac and on any display.
+
+## Remove it
+
+```nix
+haus.perch.enable = false;
+```
+
+The room stops installing and updating it. The copy already at
+`/Applications/Perch.app` stays until you delete it — a rebuild never removes an
+app from your Applications folder behind your back.
+
+## Options
+
+Every setting, with types and defaults:
+[`haus.perch`](/docs/haus/reference/options#shelf).

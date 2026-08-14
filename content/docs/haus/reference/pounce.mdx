@@ -5,7 +5,7 @@ icon: terminal
 accent: pounce
 ---
 
-Reference for configuring and driving [Pounce](/docs/haus/guides/pounce).
+Reference for configuring and driving the [launcher](/docs/haus/rooms/launcher).
 
 ## Config file
 
@@ -99,7 +99,7 @@ curl -fsSLo ~/.config/pounce/themes/nebelung-latte.json \
 
 `quickAnswers.currency` and `updates.check` are the only two settings that
 touch the network — set both `false` for a fully offline Pounce.
-`autoQuit.enabled` turns on [quit-on-last-window-close](/docs/haus/guides/pounce#quit-an-app-when-its-last-window-closes-opt-in);
+`autoQuit.enabled` turns on [the auto-quit behaviour](/docs/haus/rooms/launcher#quit-an-app-when-its-last-window-closes-opt-in);
 the whole `autoQuit` block is startup-only, so **any** edit inside it needs
 the daemon restart above, not just flipping `enabled`. `windowMode` and
 `scale` are independent knobs — proportions vs. size — and compose: a
@@ -341,8 +341,8 @@ hotkey, and permission survival for you.
 <Cards>
   <Card
     icon={<Icon name="launcher" />}
-    title="Pounce — the launcher"
-    href="/docs/haus/guides/pounce"
+    title="Launcher"
+    href="/docs/haus/rooms/launcher"
     description="What Pounce does day to day: ranking, quick answers, the window switcher, built-in commands."
   />
 </Cards>

@@ -1,0 +1,195 @@
+---
+title: Create a desktop
+description: A desktop is one file whose only top-level key is haus — the closed format, what it may and may not set, and how to prove it before anyone else runs it.
+icon: hammer
+---
+
+A **desktop** is a single `.nix` file whose only top-level key is `haus`. That is
+the entire format, and the smallness is the point: a desktop can't run a script,
+reach a macOS setting haus doesn't already expose, or hand the build a package of
+its own. A stranger can read one in a minute and know the worst it can do — which
+is what makes running one from someone you've never met reasonable.
+
+haus ships four: [nebelhaus, everyday, minimal and
+blank](/docs/haus/desktops/choosing#the-four-that-ship). This page is how you
+write yours.
+
+## The format
+
+```nix
+{
+  haus = {
+    developer.enable = false;
+    prowl.enable = false;
+    keys.leader = "none";
+
+    theme = {
+      flavor = "latte";
+      accent = "rosewater";
+    };
+
+    sill.items.weather = false;
+  };
+}
+```
+
+There is no `{ pkgs, lib, config, ... }:` header — this is data, not a module
+function. No `system.defaults`, no `pkgs`, no activation hooks, no `imports`.
+Everything stays inside the documented
+[`haus.*` option surface](/docs/haus/reference/options), and only the leaves
+marked safe for desktop data.
+
+Someone selects it the same way they select one of haus's own:
+
+```nix
+desktop = ./desktops/writer.nix;
+```
+
+## A desktop is the whole answer
+
+A host runs **exactly one**, so yours is not a diff against nebelhaus — it is
+the complete selection. Whatever you don't say, the rooms' own neutral defaults
+decide, which for every optional room means **off**.
+
+That is the one thing to check twice when you port something that used to be a
+layer stacked on another desktop: the values it silently inherited are now
+values it has to state. haus's own `everyday` is the worked example — it names
+`collar.passwordlessRebuild` and `hush.enable` explicitly, because inheriting
+them quietly was how the old preset worked and losing them quietly is how the
+port would have failed.
+
+Say what your desktop is **for** in a comment at the top, and say what it
+deliberately leaves out. The reason a room is off is the part a reader can't
+reconstruct.
+
+## Teach it your own first lap
+
+The built-in tour teaches haus's core moves in the bar, one hint at a time. A
+desktop can replace that lap with its own and stay data-only — and a desktop
+that turns rooms off usually must, because the built-in one is leader moves plus
+the launcher and has nothing left to teach without them:
+
+```nix
+haus.tour.steps = [
+  {
+    hint = "Press {palette}, type tour, then hit ↵";
+    detect = "palette";
+  }
+  {
+    hint = "Move to another workspace";
+    detect = "workspace";
+  }
+];
+```
+
+Steps run in order and advance on signals haus already emits, never on
+keystrokes. `detect` takes one of `launch`, `workspace`, `navigate`, `resize` or
+`palette`; the first four need prowl, and `palette` needs the launcher *and* a
+palette key bound. A left click skips a step. Left at its default `null`,
+`tour.steps` keeps the built-in lap — an **empty** list is a type error, and the
+off switch is `tour.enable = false`.
+
+**Write keys as `{palette}`, `{leader}` and `{leaderName}`, never as a literal
+chord.** They expand to what *that* machine resolved, so a tour you share still
+names the right keys on a host that moved `keys.palette` — where a hardcoded
+`⌘Space` would be wrong invisibly, since you never see the consumer's bar. A
+misspelled placeholder renders as typed, and the rebuild warns and names it.
+
+<Callout type="warn" title="The tour is drawn by the bar">
+A rebuild warns when a step needs a room the desktop switched off — but those
+warnings live inside sill's own module, so a desktop that turns the bar off gets
+none of them. Check that pairing by eye.
+</Callout>
+
+## Prove the boundary
+
+Run the same structural check haus runs against its own desktops:
+
+```sh
+nix eval --impure --expr \
+  '(builtins.getFlake "github:hausfold/haus").lib.checkDesktop ./writer.nix'
+```
+
+It prints `true`, or throws naming exactly what escaped — a stray top-level key,
+an `imports`, a merge or priority instruction, an option that isn't a haus
+option, or a leaf that is host-only because it names a person or a piece of
+hardware. Every rule has a fixture behind it, so the message names the file and
+the option rather than failing somewhere deeper.
+
+If the file is an app **pack** — a data-only file narrowed to `haus.roster`, the
+apps on a machine — run `lib.checkPack` instead; same idea, one level in.
+
+`checkDesktop` proves the trust boundary and the option names. To prove the
+*values* build a machine, select it from a real host and evaluate:
+
+```sh
+nix eval .#darwinConfigurations.myhost.system.drvPath
+```
+
+[`haus plan`](/docs/haus/reference/haus) is the stronger version of that last
+step: it prints what a rebuild *would* change — packages, settings, files,
+launchd jobs, casks — and changes nothing. It builds first, so it takes longer
+than the eval above; it tells you correspondingly more.
+
+## Leave room for the host
+
+Anything your desktop sets, a consumer overrides with a plain assignment in
+their host file. That already works — the desktop's values arrive below a host's
+in the priority ladder, so nobody needs `lib.mkForce` to disagree with you.
+
+The exception is worth knowing before you set one:
+
+<Callout type="warn" title="A list you set is replaced whole, not added to">
+Every leaf a desktop sets is carried in at the desktop's priority, **a list
+included** — so a host that names `tour.steps`, `keys.leaderExtras` or
+`snippets.matches` at all replaces yours rather than appending to it. Someone
+who wants three of your four entries has to restate all four.
+
+That is the deliberate choice: a host says something, and the host's value is
+what you get. The alternative — lists concatenating — means a consumer can add
+to your list but can never drop one entry from it.
+
+**Attribute sets are the middle case.** `roster`, `workspaces` and
+`pounce.items` are carried per key, so a host that names one app's field leaves
+the rest of yours standing.
+
+List what your desktop sets in its README, so restating it is possible without
+reading the file.
+</Callout>
+
+## What doesn't belong in one
+
+Keep these in a private host file, or in something honestly labelled as more
+powerful:
+
+- identity, secrets, tokens and personal account names;
+- an app roster that reveals more than the desktop needs;
+- raw macOS defaults outside `haus.*`;
+- a `pkgs` value, or a `/nix/store` path;
+- activation hooks and shell commands;
+- a display UUID — `haus.displays.main` says "the screen this Mac is using"
+  without naming anyone's hardware.
+
+`checkDesktop` refuses every one of them, so this list is what the error message
+will be about rather than a set of rules you have to remember.
+
+Naming a *package* is fine and doesn't need `pkgs`: options that take one have a
+`packageName` sibling taking the nixpkgs attribute as a string, so a desktop can
+change the mono font or add a tool without leaving the data-only surface. A
+configuration that genuinely needs `pkgs`, scripts, or arbitrary nix-darwin
+options is a **power module**, and carries a different trust model.
+
+<Cards>
+  <Card
+    icon={<Icon name="share" />}
+    title="Share a desktop"
+    href="/docs/haus/desktops/sharing"
+    description="Publishing something inspectable: what the repository holds, what the README owes a reader, and the checklist before you hand it out."
+  />
+  <Card
+    icon={<Icon name="flake" />}
+    title="How the flakes fit together"
+    href="/docs/haus/internals/flakes"
+    description="Where a desktop sits in the priority ladder, and why a pinned input means nothing on your Mac changes until you say so."
+  />
+</Cards>

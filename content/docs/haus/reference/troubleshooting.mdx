@@ -39,7 +39,7 @@ pounce --check-accessibility     # prints true once granted
 ```
 
 Set `haus.pounce.signingIdentity` so that grant survives rebuilds — see
-[granting Accessibility](/docs/haus/guides/pounce#grant-accessibility). If
+[the Launcher room](/docs/haus/rooms/launcher#grant-accessibility). If
 ⌘Space still opens **Spotlight**, log out and back in once so the
 symbolic-hotkey reassignment takes.
 
@@ -150,7 +150,7 @@ detects a Claude Code session that lacks it. Better still, sidestep the domain:
 `haus.accessibility.increaseContrast` and
 `haus.accessibility.differentiateWithoutColor` reach the two keys in it that are
 worth having, with a guarded write. [Changing your Mac with an
-agent](/docs/haus/guides/agent-rebuilds) has the detail.
+agent](/docs/haus/rooms/agent-rebuilds) has the detail.
 
 ## Touch ID for sudo beachballs inside a multiplexer
 
@@ -158,7 +158,7 @@ The `pam_reattach` shim isn't loading. It ships with the **collar** room and is
 on by default; check the order in `/etc/pam.d/sudo_local` — reattach must come
 *before* the Touch ID line. Outside tmux or zellij, Touch ID should just work;
 cancel the prompt to fall back to your password. [Touch
-ID](/docs/haus/guides/touch-id) has the rest.
+ID](/docs/haus/rooms/security) has the rest.
 
 ## "Refusing to load cask … from an untrusted tap"
 
@@ -179,7 +179,7 @@ brew uninstall --zap <cask>
 ```
 
 For a machine where an undeclared cask *is* removed on the next rebuild, set
-[`haus.homebrew.cleanup = "zap"`](/docs/haus/guides/making-it-yours#homebrew-behaviour).
+[Customize a desktop](/docs/haus/desktops/customizing#homebrew-behaviour).
 
 ## A rebuild broke something
 
@@ -195,7 +195,7 @@ snapshot `haus capture` took, and the APFS snapshot from install time is the
 coarser rewind.
 
 Want to go further than one generation — switch a room off, or remove haus
-entirely? [Leaving](/docs/haus/guides/leaving) walks each exit, smallest first.
+entirely? [Leaving](/docs/haus/leaving) walks each exit, smallest first.
 
 ## "Found a Nix at /nix that isn't Determinate"
 
@@ -218,8 +218,8 @@ of this — the bootstrap installs Determinate for you.
   />
   <Card
     icon={<Icon name="dials" />}
-    title="Making it yours"
-    href="/docs/haus/guides/making-it-yours"
+    title="Customize a desktop"
+    href="/docs/haus/desktops/customizing"
     description="Every dial worth knowing, and the rooms you can switch off when one of them isn't for you."
   />
 </Cards>

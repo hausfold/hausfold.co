@@ -1,13 +1,20 @@
 ---
-title: Touch ID for sudo (collar)
-description: Fingerprint authentication for sudo — even inside zellij or tmux — and a passwordless path for rebuilds.
-icon: fingerprint
+title: Security
+description: Touch ID for sudo — even inside a multiplexer — plus lock behaviour, the firewall, and where this machine gets its secrets.
+icon: shield
 ---
 
 **collar** is the small auth room: it turns on **Touch ID for `sudo`**, and —
 the part stock Touch-ID-for-sudo gets wrong — makes that work **inside a
 terminal multiplexer** like zellij or tmux, where it would otherwise silently
 fail.
+
+## Enable it
+
+```nix
+haus.collar.enable = true;
+haus.collar.passwordlessRebuild = true;
+```
 
 ## What it turns on
 
@@ -56,7 +63,7 @@ the happy exception — it doesn't even ask.)
 collar stays out of key management. **YubiKey and GPG** live outside Nix
 entirely — key material, smartcard setup, and `pinentry` are handled by
 `gpg-agent` + `pinentry-mac` at runtime, keeping secrets off the Nix store.
-Commit signing itself is wired up in [the terminal room](/docs/haus/guides/the-shell)
+Commit signing itself is wired up in [the Development room](/docs/haus/rooms/development)
 from `haus.git.signingKey`; collar only handles `sudo` authentication.
 
 ## Two switches
@@ -70,11 +77,51 @@ Both default on. Turn `passwordlessRebuild` off on a machine you don't
 administer alone, and activation goes back to asking. Turn `enable` off and
 macOS's stock password prompt comes back everywhere.
 
+## The rest of the room
+
+Three more surfaces, each unset by default so a fresh Mac keeps macOS's own
+answer until you say otherwise:
+
+```nix
+haus.lock.requirePassword = true;        # and .requirePasswordDelay
+haus.security.firewall.enable = true;    # the built-in application firewall
+haus.secrets.provider = "keychain";      # where secret values come from
+```
+
+The firewall is off on a fresh Mac; it is the setting to turn on for a laptop
+that joins networks you don't own. Secrets themselves never live in your config —
+haus declares which exist and fetches them at runtime.
+
+## Works with
+
+- **[Development](/docs/haus/rooms/development)** — commit signing is configured
+  there; this room is what stops `sudo` asking for a password.
+- **[AI](/docs/haus/rooms/ai)** — `passwordlessRebuild` is what lets an agent
+  run `haus rebuild` end to end without a prompt it can't answer.
+
+## Remove it
+
+```nix
+haus.collar.enable = false;
+```
+
+`sudo` goes back to the password prompt. The firewall and lock settings stop
+being written but keep whatever value they last had — unsetting an option stops
+managing a macOS setting rather than restoring the one before it.
+
+`haus.secrets.provider` is host-only: where a machine keeps its secrets is a
+fact about that machine.
+
+## Options
+
+Every setting, with types and defaults:
+[Security](/docs/haus/reference/options#security).
+
 <Cards>
   <Card
     icon={<Icon name="shell" />}
-    title="The terminal"
-    href="/docs/haus/guides/the-shell"
+    title="Development"
+    href="/docs/haus/rooms/development"
     description="Where commit signing is wired up, and the rest of the command line haus sets up."
   />
 </Cards>
