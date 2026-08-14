@@ -146,18 +146,19 @@ HAUS_CONSUMER="$(git rev-parse --show-toplevel)" haus plan
 ## The one rebuild it refuses
 
 If your host file writes `system.defaults.universalaccess.*` directly, `haus
-rebuild` refuses to run from a Claude Code session whose app lacks Full Disk
-Access — that write would abort activation partway and take every background
-service down with it. Run the same command yourself, or set
-`HAUS_AGENT_REBUILD=1` when you know better. The guard recognises Claude Code by
-its environment and nothing else, so a Codex or OpenCode pane sails past it
-either way.
+rebuild` refuses to run whenever the app it runs under lacks Full Disk Access —
+that write would abort activation partway and take every background service down
+with it. The grant belongs to the app, not to you, so this catches a plain
+terminal nobody has granted just as surely as an agent pane, and lets an agent
+pane inside a granted terminal through.
 
-You can sidestep the hazard entirely with
-`haus.accessibility.increaseContrast` and
-`haus.accessibility.differentiateWithoutColor`, which reach the two useful keys
-in that domain with a guarded write. [Changing your Mac with an
-agent](/docs/haus/rooms/agent-rebuilds) has the detail.
+Sidestep it with `haus.accessibility.*`, which reaches every key in that domain
+macOS actually honours (`increaseContrast`, `differentiateWithoutColor`,
+`reduceMotion`, `reduceTransparency`) with a guarded write. Otherwise run the
+command from an app that holds the grant, or set `HAUS_FDA_ANYWAY=1` when you
+know better. `haus plan` says which grant a rebuild wants before it runs.
+[Changing your Mac with an agent](/docs/haus/rooms/agent-rebuilds) has the
+detail.
 
 ## The other CLIs
 

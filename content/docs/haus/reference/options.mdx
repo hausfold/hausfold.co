@@ -1096,14 +1096,26 @@ with a rice built for colour-blind readability.
 null (the default) leaves whatever you have alone — this is a
 personal setting, so the rice never picks a value for you.
 
-REACHABILITY: `com.apple.universalaccess` is TCC-protected. It writes
-only when the app that runs the rebuild holds Full Disk Access
-(System Settings ▸ Privacy & Security ▸ Full Disk Access; on macOS 26
-a stale grant often needs removing and re-adding with (+)). Without
-that grant the rice logs a warning and moves on — it does NOT fail
-the rebuild. Worth knowing: an agent-driven `haus rebuild` runs under
-a different app than your terminal, so it may skip this while your
-own rebuild applies it.
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant the rice warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service the rice installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
 
 Example:
 
@@ -1126,14 +1138,126 @@ restyles the tools nebelhaus colours, this reaches everything else.
 null (the default) leaves whatever you have alone — this is a
 personal setting, so the rice never picks a value for you.
 
-REACHABILITY: `com.apple.universalaccess` is TCC-protected. It writes
-only when the app that runs the rebuild holds Full Disk Access
-(System Settings ▸ Privacy & Security ▸ Full Disk Access; on macOS 26
-a stale grant often needs removing and re-adding with (+)). Without
-that grant the rice logs a warning and moves on — it does NOT fail
-the rebuild. Worth knowing: an agent-driven `haus rebuild` runs under
-a different app than your terminal, so it may skip this while your
-own rebuild applies it.
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant the rice warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service the rice installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+
+#### `haus.accessibility.reduceMotion`
+
+`null or boolean` · default `null`
+
+macOS's "Reduce motion" — Spaces cross-fade instead of sliding,
+Mission Control and the Dock drop their zoom animations, and window
+minimise/restore is stripped back.
+
+BIGGER THAN IT LOOKS, which is why it is here rather than inside
+`haus.animations`. This is the single flag every browser maps to the
+`prefers-reduced-motion: reduce` CSS media query, through
+`NSWorkspace.accessibilityDisplayShouldReduceMotion` — `hausax` reads
+that exact property, so `hausax | jq .reduceMotion` is how you check
+it landed. Turning it on rewrites the web: mostly for the better,
+except on sites whose scroll-reveal animation is what makes the
+content visible in the first place, which then never appears at all.
+
+If what you want is a snappier Dock and nothing else,
+`haus.animations = "fast"` is five plain timing keys in two ordinary
+domains, moves no accessibility flag, and needs no TCC grant.
+
+
+null (the default) leaves whatever you have alone — this is a
+personal setting, so the rice never picks a value for you.
+
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant the rice warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service the rice installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+
+#### `haus.accessibility.reduceTransparency`
+
+`null or boolean` · default `null`
+
+macOS's "Reduce transparency" — the menu bar, Control Center, sheets
+and sidebars stop sampling what is behind them and go opaque. The
+setting to reach for if Liquid Glass costs you more legibility than
+it buys, and it pairs naturally with `increaseContrast`.
+
+Worth knowing if you run the bar: sill paints its own background, so
+its pills look the same either way — what changes is the macOS menu
+bar band behind them, which stops being translucent.
+
+
+null (the default) leaves whatever you have alone — this is a
+personal setting, so the rice never picks a value for you.
+
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant the rice warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service the rice installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
 
 Example:
 
@@ -1189,10 +1313,13 @@ scroll-reveal animation is what sets the content visible in the first
 place, which then never appears at all. These five keys are in two
 entirely different domains and move no accessibility flag — `hausax`
 reads that exact `NSWorkspace` property, so `hausax | jq .reduceMotion`
-stays `false` with this set to `"fast"` — that's the whole reason this
-group exists as five curated keys instead of one switch. If you DO want the
-accessibility switch, that's `System Settings ▸ Accessibility ▸
-Display`, deliberately not a rice option.
+stays `false` with this set to `"fast"` (on a machine that hasn't also
+set `haus.accessibility.reduceMotion`, which is the option that DOES move
+it) — that's the whole reason this
+group exists as five curated keys instead of one switch. If you DO want
+the accessibility switch, it is `haus.accessibility.reduceMotion`: a
+separate option, in a TCC-protected domain, with that blast radius spelled
+out on it. Setting both is coherent and neither implies the other.
 
 WHEN YOU'LL FEEL IT. The four Dock keys are live the moment activation
 finishes — nix-darwin restarts the Dock whenever anything in its domain
