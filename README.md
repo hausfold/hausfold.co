@@ -5,10 +5,10 @@ nebelhaus family~~ **the nix-darwin ricing platform, the org everything ships
 from, and the seller** (decided 2026-08-08; nebelhaus is now one rice built on
 it — see the
 [rename plan](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)).
-Served on [hausfold.co](https://hausfold.co) (and `www.`) by a
-static-assets-only Cloudflare Worker — no Worker JS ever runs.
+Served on [hausfold.co](https://hausfold.co) (and `www.`) by a Cloudflare
+Worker. Static assets short-circuit first, so almost nothing runs Worker JS.
 
-It is **two things in one tree**, and knowing which one you're editing is the
+It is **three things in one tree**, and knowing which one you're editing is the
 first thing to get right:
 
 - **The pages** — `/`, `/haus`, `/desktops`, `/pounce`, `/perch`, `/terms`,
@@ -16,6 +16,14 @@ first thing to get right:
   twelve-line copy-button script repeated on four of them.
 - **The docs** — everything under `/docs` — are [Fumadocs](https://fumadocs.dev)
   on Next, built to a **static export**. Added 2026-08-12 (rename plan §5.2).
+- **The routes that can't be files** — `/nebelhaus.sh` (the install one-liner,
+  proxying a desktop's `bootstrap.sh`), `/download/<app>` and
+  `/api/release/<app>` (which nothing here calls yet — it is for the landing
+  pages once they become Next routes) — are `worker.js`, with unit tests in
+  `test/`. Added 2026-08-14, ported from the workshop's `web/`. This is the
+  only code here where a bug is a *security* bug, so read its header before
+  changing it: `?ref=` is held to the release-tag shape on purpose, because a
+  commit SHA would let a fork's object be served from this domain.
 
 Since the docs landed there **is** a build step: `npm run build` writes `out/`,
 Next copies `public/` into it verbatim, and `out/` is what `wrangler deploy`
@@ -51,6 +59,8 @@ scripts/
   gen-options.mjs                 renders the committed haus options reference
   check-rice-bindings.mjs         catches keybinding prose drifting from haus
   sync-nebelung.mjs               vendors nebelung's CSS port into hausfold.css
+worker.js                         /<desktop>.sh, /download/<app>, /api/release/<app>
+test/worker.test.js               the Worker's tests — ref validation, above all
 ```
 
 **The 404 moved out of `public/`.** Next's export always writes its own
@@ -107,10 +117,17 @@ are reviewed and the snapshot is refreshed with
 >
 > - **the landing pages becoming Next routes.** Decided, not done: they are
 >   still the hand-written HTML above, served beside the export.
-> - **`worker.js`** — `/init.sh`, `/download/<app>`, `/api/release/<app>` — and
->   with it the `hausfold.co/<rice>.sh` installer route and the
->   `nebelhaus.com/*` 301s. Until those land, the docs print
->   `nebelhaus.com/init.sh`, which is the URL that actually works.
+> - **the `nebelhaus.com/*` 301s.** That zone still serves the old Astro site
+>   from the workshop's `web/`, so until it becomes redirects there are two
+>   live copies of every docs page and a fact fixed in one will disagree with
+>   the other.
+>
+> ✅ **`worker.js` arrived on 2026-08-14** — `/nebelhaus.sh`,
+> `/download/<app>` and `/api/release/<app>`, ported from the workshop's `web/`
+> with its tests. The installer one-liner is
+> `curl -fsSL https://hausfold.co/nebelhaus.sh | bash`, and the docs print it;
+> `nebelhaus.com/init.sh` keeps working until the 301s land, and afterwards as
+> a redirect to this one.
 
 `not_found_handling = "404-page"` serves `404.html` — now generated from
 `src/app/not-found.tsx` — with a real 404 for anything else. It was `single-page-application` — every path answering 200 with the

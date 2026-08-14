@@ -5,7 +5,7 @@ icon: install
 ---
 
 ```sh
-curl -fsSL https://nebelhaus.com/init.sh | bash
+curl -fsSL https://hausfold.co/nebelhaus.sh | bash
 ```
 
 That installs Nix if you don't have it, asks you a few questions, and writes
@@ -39,14 +39,17 @@ The URL only proxies
 the public repo — it's boring on purpose.
 
 ```sh
-curl -fsSL https://nebelhaus.com/init.sh | less
+curl -fsSL https://hausfold.co/nebelhaus.sh | less
 
 # or pin an exact release and diff it against GitHub
-curl -fsSL 'https://nebelhaus.com/init.sh?ref=v2026.07.18' | less
+curl -fsSL 'https://hausfold.co/nebelhaus.sh?ref=v2026.07.18' | less
 ```
 
 By default you get the latest release tag. Releases are date-tagged, so
-`?ref=v2026.07.18` pins a specific day.
+`?ref=v2026.07.18` pins a specific day — and a **release tag is the only thing
+`?ref=` accepts**. Anything else is refused rather than fetched, which is what
+stops a link with someone else's commit in it from serving you a script off
+this domain.
 
 ## What it does
 
@@ -124,7 +127,7 @@ NEBELHAUS_NONINTERACTIVE=1 \
 NEBELHAUS_GIT_NAME="Ada Lovelace" \
 NEBELHAUS_GIT_EMAIL="ada@example.com" \
 NEBELHAUS_ACCENT="mauve" \
-bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"
+bash -c "$(curl -fsSL https://hausfold.co/nebelhaus.sh)"
 ```
 
 | Variable | Effect |

@@ -41,10 +41,11 @@ repos and belong to the workshop. If this repo grows one of its own it goes in
   this shape isn't unique, but it *is* the property that makes instructions
   load-bearing here). A bad merge is public immediately; the recovery is a revert
   plus a CI run.
-- **The Nix bootstrap is for one script, not for a build.** This repo has no
-  flake and no build step; `scripts/sync-nebelung.mjs` shells out to `nix build`
-  to vendor nebelung's CSS port, and the Palette workflow installs Nix for the
-  same reason. Everything else you can do with a text editor and a static server.
+- **The Nix bootstrap is for one script, not for the build.** This repo has no
+  flake, and its build (`npm run build` — Next, since the docs landed on
+  2026-08-12) never touches Nix; `scripts/sync-nebelung.mjs` shells out to `nix
+  build` to vendor nebelung's CSS port, and the Palette workflow installs Nix
+  for that one reason. Everything else needs node and a static server.
 - **Public repo, public previews.** A PR from a branch *in this repo* gets an
   unauthenticated preview Worker on a workers.dev URL (fork PRs don't — the
   workflow gates on the head repo, because the deploy token can't be handed to

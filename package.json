@@ -12,7 +12,9 @@
     "palette": "node scripts/sync-nebelung.mjs",
     "palette:check": "node scripts/sync-nebelung.mjs --check",
     "types:check": "next typegen && tsc --noEmit",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "cnfast": "^0.1.0",
@@ -37,6 +39,7 @@
     "postcss": "^8.5.25",
     "serve": "^14.2.6",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.7"
   }
 }
