@@ -2,12 +2,17 @@
 # desktop catalogue itself since 2026-08-12), /desktops/<name>, /haus,
 # /pounce, /perch, and the seller's pages (/terms, /refunds).
 #
-# There is no `main`: this is still a static-assets-only Worker and no Worker
-# JS ever runs. What changed on 2026-08-12 is that the assets are now BUILT —
-# `npm run build` (Next + Fumadocs, `output: 'export'`) writes ./out, and Next
-# copies ./public into it verbatim on the way. So the hand-written pages are
-# served from exactly the same files they always were; the docs tree is new
-# beside them.
+# Since 2026-08-14 there IS a `main`: `worker.js` carries the three routes that
+# can't be files — `/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`
+# — and nothing else. Static assets still short-circuit first, so every page on
+# the site is served without the Worker running at all; only a path that
+# matches no asset reaches `worker.js`, and everything it doesn't claim goes
+# straight back out through the `ASSETS` binding.
+#
+# The assets are BUILT (since 2026-08-12) — `npm run build` (Next + Fumadocs,
+# `output: 'export'`) writes ./out, and Next copies ./public into it verbatim on
+# the way. So the hand-written pages are served from exactly the same files you
+# edit; the docs tree is new beside them.
 #
 # ./out is generated and gitignored. Anything that deploys this config has to
 # run the build first — see .github/workflows/deploy.yml.
@@ -37,6 +42,7 @@
 # The token needs, on the hausfold.co zone/account: Workers Scripts:Edit,
 # Workers Routes:Edit, and Zone → DNS:Edit (for the custom-domain record).
 name = "hausfold"
+main = "worker.js"
 compatibility_date = "2026-08-04"
 
 routes = [
@@ -44,6 +50,17 @@ routes = [
   { pattern = "www.hausfold.co", custom_domain = true },
 ]
 
+# `binding = "ASSETS"` is what lets worker.js hand a request it doesn't claim
+# back to the asset server (404 page, `_redirects` and `_headers` included)
+# instead of writing a second, worse 404 of its own.
 [assets]
 directory = "./out"
+binding = "ASSETS"
 not_found_handling = "404-page"
+
+# Optional hard pin: uncomment and set REF to a tag to force every
+# `/<desktop>.sh` at that ref for everyone, regardless of the latest release.
+# Left unset, the Worker auto-resolves the desktop repo's latest GitHub release
+# tag (cached ~1h), falling back to `main` before the first release exists.
+# [vars]
+# REF = "v2026.07.18"

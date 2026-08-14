@@ -13,10 +13,17 @@
 # `directory` tracks wrangler.toml's: ./out, the built export. The preview job
 # runs `npm ci && npm run build` before uploading, so a PR preview shows the
 # docs as they would actually deploy rather than the raw ./public tree.
+#
+# `main` tracks it too, so a preview URL answers `/nebelhaus.sh`,
+# `/download/<app>` and `/api/release/<app>` exactly as the live site would.
+# That is the only way to *feel* an installer change before it becomes the
+# install command: those three are the part of this site no local file shows.
 name = "hausfold-preview"
+main = "worker.js"
 compatibility_date = "2026-08-04"
 workers_dev = true
 
 [assets]
 directory = "./out"
+binding = "ASSETS"
 not_found_handling = "404-page"
