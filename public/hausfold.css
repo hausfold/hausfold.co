@@ -773,6 +773,84 @@ body {
   }
 }
 
+/* The edition's other half: what stage the software behind the page is
+   at. Set in the issue's own micro-caps and immediately after it, so the
+   right-hand end of the row reads as one more piece of edition metadata
+   rather than as a disclaimer bolted onto the footer. It takes no
+   `margin-left: auto` of its own — `.issue` has already pushed the pair
+   right, and the colophon's column gap is the whole of the space
+   between them.
+
+   Deliberately NOT dimmed below the issue. This is the quietest place on
+   the site that can still honestly carry the claim; one further step
+   down in contrast turns it into decoration.
+
+   The long form is a real bubble rather than a native `title`. A `title`
+   was the first attempt and it is the wrong control here: it waits about
+   a second before appearing, it renders in the OS chrome rather than in
+   the page, and on a mark this small that reads as "nothing happened" —
+   which is exactly what it read as. This version paints in the page,
+   appears immediately, and answers the keyboard as well as the mouse
+   (hence `tabindex="0"` on the span). `aria-label` carries the same
+   sentence for anything that can't see the bubble at all. */
+.colophon .stage {
+  position: relative;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: help;
+}
+
+/* The bubble. Anchored to the mark's right edge and opening upward,
+   because the mark is the last thing on the last line of the page —
+   there is nothing below it to open into. `width: max-content` capped
+   against the viewport keeps it one tidy block on a wide screen without
+   letting it run off a narrow one.
+
+   It undoes the micro-caps deliberately: the mark is a label and reads
+   as tracked uppercase, the sentence is prose and has to read as prose. */
+.colophon .stage::after {
+  content: attr(data-note);
+  position: absolute;
+  bottom: calc(100% + 0.7rem);
+  right: 0;
+  z-index: 2;
+  width: max-content;
+  max-width: min(30rem, calc(100vw - 3rem));
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--ground);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.14s ease,
+    visibility 0.14s;
+}
+
+.colophon .stage:hover::after,
+.colophon .stage:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* The span is focusable so the bubble is reachable without a mouse; it is
+   not a control, so it takes the page's own focus treatment rather than a
+   button's. */
+.colophon .stage:focus-visible {
+  outline: 1px solid var(--ink-3);
+  outline-offset: 3px;
+}
+
 /* The org github link is a mark, not a URL — an icon reads faster than
    the seventh "github.com/hausfold" on the page, and it's the only
    colophon link that repeats verbatim across the whole site.
