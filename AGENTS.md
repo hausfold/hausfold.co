@@ -392,15 +392,19 @@ Rules that are easy to break by accident:
   load-bearing.** ⚠️ **Restated 2026-08-14, because the old wording said "and
   no framework" and there is a framework now.** The pages are Next routes, so
   they ship Next's client runtime whether they use it or not — that is the
-  price of the port and it was paid deliberately. **They also mount fumadocs'
-  search provider**, because `<Provider>` is in the root layout: ⌘K on
-  `/terms` opens the docs search dialog and lazily fetches the ~457 KB Orama
-  index. That has been true of the 404 since 2026-08-12 and of the other eight
-  since 2026-08-14. It is a reasonable thing for a site to do and nobody has
-  asked for it to stop — but it is a decision, so it is written down; moving
-  `<Provider>` into `src/app/docs/layout.tsx` is how you'd undo it. What the
-  rule still governs is *our* script, and there is exactly one piece:
-  `<Command>`
+  price of the port and it was paid deliberately. **What they do NOT ship is
+  fumadocs.** `<Provider>` lives in `src/app/docs/layout.tsx`, not in the root
+  layout, and that placement is load-bearing: at the root — where it sat for
+  the two days `/docs` was the only thing under that layout — it gave every
+  landing page the search context, the ⌘K binding and a lazy fetch of the
+  ~457 KB Orama index. Measured after moving it down: a landing page is 8
+  chunks / 173 KB gzip, a docs page 16 / 398 KB. 🚨 **Don't move `<Provider>`
+  back up** to satisfy a component that asks for it — give that component its
+  own boundary instead. The cost of the split, and it is intended: the
+  light/dark toggle is a `/docs` affordance, and the landing pages follow
+  `prefers-color-scheme` exactly as they did when they were hand-written HTML
+  and shipped no toggle at all. What the rule still governs is *our* script,
+  and there is exactly one piece: `<Command>`
   (`src/components/command.tsx`), used on `/haus`, `/perch`, `/pounce` and
   `/desktops/nebelhaus`, which was four identical twelve-line `<script>` blocks
   until the port. Its bar is unchanged and is the bar for a second one: the
@@ -432,7 +436,11 @@ Rules that are easy to break by accident:
 - **Both themes, every time.** Colours are tokens on `:root`, redefined under
   `@media (prefers-color-scheme: dark)` and again under `:root[data-theme=…]`
   so a viewer's explicit toggle wins in both directions. Style through the
-  tokens, never inside the media query.
+  tokens, never inside the media query. ⚠️ **Only `/docs` has a toggle**, since
+  `<Provider>` moved into its layout on 2026-08-14 — so on a landing page the
+  `[data-theme]` blocks never match and the media query is the whole story.
+  Keep writing both anyway: the fork is in `public/hausfold.css`, which both
+  halves share, and a landing page that ever gains a toggle should just work.
 - **No `og:image`, and that's a decision, not an omission.** A link card with no
   image degrades to the title and one line — which is the tone the page is for.
   A 1200×630 sheet with the wordmark centred on it is the tone it isn't. Every
@@ -499,17 +507,22 @@ Rules that are easy to break by accident:
   and onto `/pounce`, in the same commit. What's left pointing out of the index
   is `holt` and `nebelung`, which have no page here yet.
 
-  **Two mechanical consequences of the 2026-08-14 port, both easy to get
-  wrong.** An internal link is now a `<Link>` from `next/link` and an external
-  one stays a plain `<a>` — `eslint-config-next` enforces it, and a `<Link>` to
+  ✅ **The inversion is complete for the pages that exist.** `/perch/privacy`'s
+  footer was the last holdout — it said `nebelhaus.com/perch` for six days
+  after `/perch` landed here — and moved inward on 2026-08-14. Every link that
+  has an inward destination now takes it; what still points out is `holt`,
+  `nebelung` and the docs, which have no page here yet.
+
+  **Three mechanical consequences of the 2026-08-14 port, all easy to get
+  wrong.** An internal link is a `<Link>` from `next/link` and an external one
+  stays a plain `<a>` — `eslint-config-next` enforces it, and a `<Link>` to
   a route that doesn't exist is a build-time failure rather than a 404 someone
-  finds later. And `trailingSlash: true` means `<Link href="/perch">` renders
+  finds later. `trailingSlash: true` means `<Link href="/perch">` renders
   `/perch/`, so an inward link costs one fewer redirect than the hand-written
-  `href="/perch"` did. ⚠️ **`/perch/privacy`'s footer is the one inward link
-  that hasn't moved** — it still says `nebelhaus.com/perch` although `/perch`
-  has existed here since 2026-08-08. Left alone by the port on purpose (it
-  changed no copy, and that page is linked from an App Store listing); it is a
-  one-line follow-up, not a migration detail.
+  `href="/perch"` did. And 🚨 **a `worker.js` route is internal but NOT a Next
+  route**: `/download/<app>`, `/nebelhaus.sh` and `/api/release/<app>` take a
+  plain `<a>`, because `next/link` would client-navigate to a page the router
+  has never heard of. `/perch` and `/pounce` both link one.
 - **Every page now spells the org `hausfold`. ✅ Swept 2026-08-10, together, as
   the rule required.** Rename plan §3.2 transferred all nine repos on
   2026-08-08, so `hausfold/tap/<app>` and `github.com/hausfold/<repo>` are the

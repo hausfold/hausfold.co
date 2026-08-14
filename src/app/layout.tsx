@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Provider } from '@/components/provider';
 import { appName, siteUrl, themeColor } from '@/lib/shared';
 import './global.css';
 
@@ -59,12 +58,28 @@ export const viewport: Viewport = {
   ],
 };
 
+// 🚨 **No `<Provider>` here — it belongs to `/docs` alone**, in
+// `src/app/docs/layout.tsx`. It sat at the root for the two days when `/docs`
+// was the only thing under this layout, and when the landing pages arrived on
+// 2026-08-14 that quietly gave every one of them fumadocs' search context and
+// its ⌘K binding: pressing it on `/terms` opened the docs search and fetched
+// the ~457 KB index. Moving it down is what makes "almost no JavaScript on the
+// landing pages" true again rather than aspirational.
+//
+// The trade, and it is deliberate: `next-themes` lives inside that provider, so
+// an explicit light/dark choice is a `/docs` thing. The landing pages follow
+// `prefers-color-scheme` only — which is exactly what they did as
+// hand-written HTML, since none of them ever shipped a toggle. `hausfold.css`
+// keeps its `:root[data-theme=…]` blocks either way; nothing on a landing page
+// sets the attribute, so they simply don't match.
+//
+// `suppressHydrationWarning` stays on `<html>`: it is what lets the provider
+// write `class`/`data-theme` there before React hydrates, on the routes that
+// still have one.
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex flex-col min-h-screen">
-        <Provider>{children}</Provider>
-      </body>
+      <body className="flex flex-col min-h-screen">{children}</body>
     </html>
   );
 }
