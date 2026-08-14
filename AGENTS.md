@@ -2,8 +2,8 @@
 
 **hausfold.co** — a small static site on a Cloudflare Worker. This file is the
 one set of instructions for every agent working here; [`README.md`](./README.md)
-covers how the thing is built and deployed, and this file covers what you may
-change.
+and the four pages under [`docs/`](./docs) cover what the thing is and how it is
+built, run and deployed, and this file covers what you may change.
 
 > **Terminology update, decided 2026-08-13:** user-facing copy calls an
 > installable `{ haus = { … }; }` configuration a **desktop**, not a "rice".
@@ -14,7 +14,7 @@ change.
 > **This repo is public, and it starts at one commit on purpose.** The site
 > lived in the private `hausfold/website` until 2026-08-08. It moved here rather
 > than being flipped, because that repo's history could not be made safe — see
-> [README's history section](./README.md#why-this-repo-starts-at-one-commit).
+> [`docs/history.md`](./docs/history.md).
 > Two consequences you will feel: **`git log` before 2026-08-08 is in the old
 > repo, not this one**, and **nothing private may ever be committed here again**
 > — no register, no account facts, no "temporarily" pasted ids. There is no
