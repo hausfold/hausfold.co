@@ -76,6 +76,16 @@ because of it: the plain key assumes you want the *real* repo, and `⇧` says st
 in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle — resuming one, setting work aside, cleaning up.
 
+**Where that agent's terminal lives is this room's call**, though, and
+`haus.hearth.lanes.backend` is the switch. `"zellij"`, the default, is what the
+rows above describe: the lane is a pane in the `main` session. `"zmx"` makes it
+its own [zmx](https://github.com/neurosnap/zmx) session in its own Ghostty
+window, tiled by prowl — the session outlives every client attached to it, so
+`⌘W` detaches and the agent keeps thinking, and reopening the lane rejoins the
+live conversation instead of replaying a transcript. The trade is splits: zmx
+has none by design, so prowl tiles real windows rather than a second window
+manager nested inside a terminal.
+
 **zellij boots Locked.** Its single-key submode leaders stay inert until you
 press `Ctrl g`, so a stray keystroke can't drop you into resize mode. Everything
 in the table above works regardless. `haus.hearth.zellijStartLocked` flips it.
