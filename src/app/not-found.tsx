@@ -63,6 +63,15 @@ export default function NotFound() {
           </svg>
         </a>
         <span className="issue">Issue 2026.08</span>
+        {/* The ninth colophon. This page moved out of `public/` on
+            2026-08-12, so it is the one a grep scoped to `public/` misses —
+            keep it in step with the eight static ones by hand. */}
+        <span
+          className="stage"
+          title="Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty."
+        >
+          Pre-release
+        </span>
       </footer>
     </main>
   );

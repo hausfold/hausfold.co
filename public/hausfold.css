@@ -773,6 +773,28 @@ body {
   }
 }
 
+/* The edition's other half: what stage the software behind the page is
+   at. Set in the issue's own micro-caps and immediately after it, so the
+   right-hand end of the row reads as one more piece of edition metadata
+   rather than as a disclaimer bolted onto the footer. It takes no
+   `margin-left: auto` of its own — `.issue` has already pushed the pair
+   right, and the colophon's column gap is the whole of the space
+   between them.
+
+   Deliberately NOT dimmed below the issue. This is the quietest place on
+   the site that can still honestly carry the claim; one further step
+   down in contrast turns it into decoration. `cursor: help` is the only
+   hint that the long form is in `title` — the full sentence lives in
+   each repo's README, which is where anyone actually installing this
+   reads it. */
+.colophon .stage {
+  white-space: nowrap;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: help;
+}
+
 /* The org github link is a mark, not a URL — an icon reads faster than
    the seventh "github.com/hausfold" on the page, and it's the only
    colophon link that repeats verbatim across the whole site.
