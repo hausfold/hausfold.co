@@ -1,8 +1,10 @@
 // hausfold.co — one Worker in front of the static export.
 //
-//   /<desktop>.sh       → PROXIES that desktop's bootstrap.sh as text/plain, so
-//                         the install one-liner is exactly:
-//                             curl -fsSL https://hausfold.co/nebelhaus.sh | bash
+//   /<desktop>.sh       → PROXIES haus's bootstrap.sh as text/plain with that
+//                         desktop pinned, so the install one-liner is exactly:
+//                             curl -fsSL https://hausfold.co/minimal.sh | bash
+//                         `/haus.sh` is the same script with nothing pinned,
+//                         for someone who hasn't chosen yet and wants asking
 //   /download/<app>     → 302 to the latest GitHub release's macOS artifact,
 //                         so the product pages (and curl) get a stable URL while
 //                         GitHub keeps hosting bytes and counting downloads
@@ -21,13 +23,31 @@
 //
 //   - `/init.sh` became `/<desktop>.sh`. hausfold.co is the platform's door,
 //     not one desktop's, so the installer is named after the desktop you are
-//     installing — `hausfold.co/nebelhaus.sh`. There is deliberately no
-//     `/init.sh` here: nebelhaus.com still answers that URL with the script
-//     today, and when it becomes the 301 map (§5.2) its redirect should point
-//     straight at `/nebelhaus.sh`, so a shell history from 2026 costs one hop.
-//   - The resolution table is data. Today it holds one name; a second desktop
-//     is a row, not a route. What happens when a desktop lives in a repo we
-//     don't own is deliberately deferred (§5.2) — ship the one-name version.
+//     installing — `hausfold.co/minimal.sh`. There is deliberately no
+//     `/init.sh` here, and there doesn't need to be: nebelhaus.com's 301 map
+//     already resolves it to `/nebelhaus.sh` in one hop (workshop
+//     `web/worker.js`, with a test on it). Leave that target alone —
+//     `/init.sh` WAS nebelhaus's installer, so landing it on the URL that now
+//     pins nebelhaus preserves what whoever saved that link actually wanted,
+//     where `/haus.sh` would ask them a question they already answered.
+//   - The resolution table is data. A desktop is a row, not a route. What
+//     happens when a desktop lives in a repo we don't own is deliberately
+//     deferred (§5.2), but the row already has a `repo` field for it.
+//
+// ⚠️ Updated 2026-08-14, when `minimal` and `everyday` joined `nebelhaus`.
+// Two things that read as decisions and are:
+//
+//   - `/nebelhaus.sh` was NOT renamed, and nothing about it changed for the
+//     person who already has it in a shell history — it simply stopped being
+//     *the* installer and became *an* installer. The desktop is expected to
+//     lose the nebelhaus name eventually; when it does, the new name is a new
+//     row and this one stays as an alias. A published install command is the
+//     last thing on this site that should ever 404.
+//   - `/haus.sh` is the new front door, and it pins nothing on purpose. The
+//     old comment here said "the desktop's name is the point of the route",
+//     which was true when one desktop existed and is now half true: the name
+//     is the point when you know it, and the question is the point when you
+//     don't.
 //
 // We PROXY (fetch), not redirect, so the pretty URL is what curl sees and
 // there's no hop to a raw.githubusercontent.com link. By default the script is
@@ -40,13 +60,34 @@
 // promise that `hausfold.co/<key>.sh` keeps resolving, so only desktops the
 // site actually presents belong in it.
 //
-// ⚠️ `nebelhaus` maps to `hausfold/haus` because nebelhaus is the desktop that
-// ships *inside* the layer's own repo — it is not a spelling mistake, and the
-// file it fetches is that repo's `bootstrap.sh`. And `nebelung.sh` would be
-// the wrong name for it: nebelung is the palette, nebelhaus is the desktop.
+// ⚠️ Every row maps to `hausfold/haus` because all four desktops ship *inside*
+// the layer's own repo, as `desktops/<name>.nix` — that is not a spelling
+// mistake, and the file each row fetches is that one repo's `bootstrap.sh`.
+// (`nebelung.sh` would be the wrong name for any of them: nebelung is the
+// palette, nebelhaus is a desktop.) The row exists to say which desktop the
+// URL means, not which repo it came from; the day a desktop lives in a repo
+// we don't own, `repo` is already where that goes.
+//
+// `pin: null` is the entry point that asks. `/haus.sh` installs the layer and
+// lets bootstrap's own interview choose, which is what someone who hasn't
+// decided wants; every other row skips that one question because the URL they
+// typed already answered it.
+//
+// 🚨 `blank` is deliberately absent. It is a real desktop in the repo — the
+// null selection, for someone assembling rooms by hand — but it is not a thing
+// this site presents, and a key here is a promise to keep serving it.
 const DESKTOPS = {
-  nebelhaus: "hausfold/haus",
+  haus: { repo: "hausfold/haus", pin: null },
+  nebelhaus: { repo: "hausfold/haus", pin: "nebelhaus" },
+  everyday: { repo: "hausfold/haus", pin: "everyday" },
+  minimal: { repo: "hausfold/haus", pin: "minimal" },
 };
+
+// A desktop name we are willing to write into the served script. The values
+// above are ours, not a visitor's, so this is belt-and-braces rather than a
+// boundary — but the one thing that must never happen here is a newline or a
+// shell metacharacter reaching a line of bash we generate.
+const SAFE_DESKTOP = /^[a-z][a-z0-9-]*$/;
 
 const BOOTSTRAP = "bootstrap.sh";
 const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path traversal
@@ -181,8 +222,51 @@ async function serveReleaseMeta(app) {
   });
 }
 
+// Write the chosen desktop into the script we serve, so `curl -fsSL
+// https://hausfold.co/minimal.sh | bash` installs minimal without the reader
+// having to remember an env var or answer a question they already answered by
+// typing the URL.
+//
+// Three things about the shape, each paid for:
+//
+//   - It goes AFTER the shebang, never before it. Under `curl | bash` the
+//     shebang is an inert comment and the position wouldn't matter, but people
+//     save this script and run it directly, and a file whose first line is an
+//     `export` has no interpreter.
+//   - Both spellings are exported. bootstrap.sh has read `NEBELHAUS_DESKTOP`
+//     since before the rename and `HAUS_DESKTOP` is the name it should have;
+//     this Worker serves whatever the latest RELEASE of haus contains, which
+//     may predate either. Emitting both means the pin works against an old
+//     bootstrap and a new one, and the old spelling can be dropped here once
+//     no supported release reads it alone.
+//   - The comment above it is for the person who pipes this to `less` first,
+//     which is the person we most want reading it.
+//
+// ⚠️ This is the ONE place the Worker modifies what it proxies. Everything
+// else about `/<desktop>.sh` is a byte-for-byte pass-through, and it should
+// stay that way — if a second thing ever needs injecting, that is the moment
+// to ask whether bootstrap should be taking arguments instead.
+function pinDesktop(script, pin) {
+  if (!pin || !SAFE_DESKTOP.test(pin)) return script;
+  const inject =
+    `\n# Pinned by hausfold.co/${pin}.sh — you asked for this desktop by URL,\n` +
+    `# so the installer will not ask again. Unset to be asked:\n` +
+    `export HAUS_DESKTOP=${pin} NEBELHAUS_DESKTOP=${pin}\n`;
+  // A `#!` script with no newline at all is still a shebang line, and the one
+  // outcome this function must never produce is an `export` above it — so it
+  // gets the inject appended rather than falling through to the prepend
+  // branch, which is what an earlier `nl !== -1` guard did.
+  if (script.startsWith("#!")) {
+    const nl = script.indexOf("\n");
+    return nl === -1
+      ? script + inject
+      : script.slice(0, nl) + inject + script.slice(nl + 1);
+  }
+  return inject.trimStart() + script;
+}
+
 async function serveInstaller(desktop, url, env) {
-  const repo = DESKTOPS[desktop];
+  const { repo, pin } = DESKTOPS[desktop];
   const pinned = url.searchParams.get("ref");
   // A visitor's pin is held to the tag shape (see RELEASE_TAG); a resolved or
   // deploy-pinned ref is re-checked against SAFE_REF because neither is
@@ -200,9 +284,12 @@ async function serveInstaller(desktop, url, env) {
   if (!up.ok) {
     return text(`# could not fetch ${BOOTSTRAP} at '${ref}' (HTTP ${up.status})\n`, 502);
   }
-  return text(await up.text(), 200, {
+  return text(pinDesktop(await up.text(), pin), 200, {
     "cache-control": "public, max-age=300",
     "x-hausfold-ref": ref,
+    // Which desktop this URL means, for anyone checking with `curl -I` rather
+    // than reading the body. Absent on /haus.sh, which pins nothing.
+    ...(pin ? { "x-hausfold-desktop": pin } : {}),
   });
 }
 

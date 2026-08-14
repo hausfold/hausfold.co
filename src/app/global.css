@@ -263,6 +263,24 @@ body:has(.sheet) {
   font-family: var(--font-display);
   font-size: var(--step);
   line-height: 1.62;
+
+  /* 🚨 Load-bearing for the break-out plates (.catalogue and .gallery in
+     public/hausfold.css), and the reason they measure `100cqw` rather
+     than `100vw`: `html { scrollbar-gutter: stable }` at the foot of this
+     file reserves the scrollbar's strip permanently, so 100vw is WIDER
+     than the page by that strip on every machine that draws a classic
+     scrollbar. A plate sized off 100vw therefore sits ~7.5px proud of the
+     reading column on each side — the exact misalignment the plates'
+     clamp exists to prevent, and invisible on macOS overlay scrollbars,
+     which is the only place it got looked at. A container is the one way
+     to ask for the layout width instead of the viewport's.
+
+     Scoped to the landing half rather than declared on `body` outright:
+     `container-type: inline-size` implies `contain: layout`, which makes
+     the element a containing block for fixed-position descendants, and
+     /docs portals fumadocs' chrome to the end of <body>. No landing page
+     positions anything fixed (checked), so here it costs nothing. */
+  container-type: inline-size;
 }
 
 body:has([data-tree='haus']) {

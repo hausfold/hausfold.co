@@ -5,11 +5,11 @@ icon: install
 ---
 
 ```sh
-curl -fsSL https://hausfold.co/nebelhaus.sh | bash
+curl -fsSL https://hausfold.co/haus.sh | bash
 ```
 
-That installs Nix if you don't have it, asks you a few questions, and writes
-your config. It does **not** change your Mac on its own — it writes files, prints
+That installs Nix if you don't have it, asks you a few questions — including
+which desktop you want — and writes your config. It does **not** change your Mac on its own — it writes files, prints
 the one command that activates them, and asks before running it for you.
 
 So the whole install is two moves, and you can stop between them and read what
@@ -17,6 +17,35 @@ the first one wrote. (The pipe doesn't cost you the questions — the installer
 reaches your terminal directly, so `| bash` interviews you like any other form.
 Somewhere with no one watching — CI, a container, or a run whose output you've
 captured to a file — it takes the defaults and never offers to switch.)
+
+## If you already know which desktop you want
+
+Every desktop has its own URL, and typing it answers the question before it's
+asked:
+
+```sh
+curl -fsSL https://hausfold.co/nebelhaus.sh | bash   # the full desktop
+curl -fsSL https://hausfold.co/everyday.sh  | bash   # for someone who doesn't write code
+curl -fsSL https://hausfold.co/minimal.sh   | bash   # just the themed shell
+```
+
+They're the same script — the URL sets the desktop and the installer skips that
+one question. `haus.sh` is the one that asks. A Mac runs exactly one desktop,
+and whichever you pick, changing your mind later is a line in your own config,
+not a reinstall.
+
+Piping to `bash` passes no arguments, which is why the desktop rides in the URL
+rather than on a flag. If you'd rather use the flag, give `bash` a `-s --`:
+
+```sh
+curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=minimal
+```
+
+<Callout title="A desktop is not a lock-in">
+Every desktop is a set of values for the same options. Anything one of them
+chose, your own file overrides in a line — so picking is a starting point, not
+a commitment.
+</Callout>
 
 ## Before you start
 
@@ -39,11 +68,15 @@ The URL only proxies
 the public repo — it's boring on purpose.
 
 ```sh
-curl -fsSL https://hausfold.co/nebelhaus.sh | less
+curl -fsSL https://hausfold.co/haus.sh | less
 
 # or pin an exact release and diff it against GitHub
-curl -fsSL 'https://hausfold.co/nebelhaus.sh?ref=v2026.07.18' | less
+curl -fsSL 'https://hausfold.co/haus.sh?ref=v2026.07.18' | less
 ```
+
+A desktop's URL serves that same file with two lines added at the top, saying
+which desktop you asked for. `haus.sh` adds nothing at all, so it's the one to
+diff against GitHub.
 
 By default you get the latest release tag. Releases are date-tagged, so
 `?ref=v2026.07.18` pins a specific day — and a **release tag is the only thing
@@ -128,14 +161,14 @@ NEBELHAUS_NONINTERACTIVE=1 \
 NEBELHAUS_GIT_NAME="Ada Lovelace" \
 NEBELHAUS_GIT_EMAIL="ada@example.com" \
 NEBELHAUS_ACCENT="mauve" \
-bash -c "$(curl -fsSL https://hausfold.co/nebelhaus.sh)"
+bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 ```
 
 | Variable | Effect |
 |---|---|
 | `NEBELHAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
 | `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal — pair it with `--defaults` for a silent run |
-| `NEBELHAUS_DESKTOP` | Which desktop to select — `nebelhaus`, `everyday`, `minimal`, `blank`. The pre-desktops `NEBELHAUS_PRESET` is still read, with `full` meaning `nebelhaus` |
+| `HAUS_DESKTOP` | Which desktop to select — `nebelhaus`, `everyday`, `minimal`, `blank` — or `--desktop=<name>` on the command line. Setting it skips that question even in an interactive run, which is what a desktop's own URL does for you. `NEBELHAUS_DESKTOP` is the older spelling and still read; so is the pre-desktops `NEBELHAUS_PRESET`, with `full` meaning `nebelhaus` |
 | `NEBELHAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
 | `NEBELHAUS_ACCENT` / `NEBELHAUS_WALLPAPER` / `NEBELHAUS_EDITOR` | The look and the editor |
 | `NEBELHAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
