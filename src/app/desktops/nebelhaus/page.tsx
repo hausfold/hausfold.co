@@ -97,6 +97,14 @@ export default function Nebelhaus() {
       <section className="block">
         <h2>Install</h2>
         <Command>curl -fsSL https://hausfold.co/nebelhaus.sh | bash</Command>
+        {/* This URL is in shell histories and in print, so it keeps working
+            forever. What changed on 2026-08-14 is what it MEANS: it used to
+            be the installer and is now nebelhaus's installer, one of four
+            routes. /haus.sh is the one that asks. */}
+        <p className="aside">
+          That URL picks this desktop. <a href="/haus.sh">hausfold.co/haus.sh</a> is the same script
+          with nothing picked, if you&apos;d rather be asked.
+        </p>
         <p>
           It installs Nix if you don&apos;t have it, asks you a few things — your name, an accent
           colour, an editor — and writes your config. It does <strong>not</strong> change the Mac on
@@ -111,14 +119,28 @@ export default function Nebelhaus() {
 
       <section className="block">
         <h2>What it looks like</h2>
-        {/* One frame, not three. They are deliberately empty placeholders
-            (AGENTS.md: never a stale screenshot), and three dashed boxes in a
-            row spend a third of the page saying nothing — one reserved slot
-            reads as a promise, three read as a gallery that failed to load.
-            The scene and the crop are in the workshop's
-            SHOT-nebelhaus-desktop.md; when the capture exists, drop an
-            <Image> in and delete the label. */}
-        <div className="shots">
+        {/* One frame today, and a gallery the moment there are two.
+
+            Those are not in tension, and the resolution is the `:only-child`
+            rule in .gallery: a lone frame renders full width and identical to
+            the old `.shots` single, and a second one turns the row into the
+            sideways scroller without a markup change. So this keeps the
+            editorial call that arrived with the condensation pass — the
+            frames are deliberately empty placeholders (AGENTS.md: never a
+            stale screenshot), and three dashed boxes in a row spend a third
+            of the page saying nothing, where one reserved slot reads as a
+            promise — while putting the container in place now rather than
+            re-deciding the markup on the day a capture lands. The scene and
+            the crop are in the workshop's SHOT-nebelhaus-desktop.md.
+
+            tabIndex={0} and the label are not decoration: a scroll container
+            is only keyboard-operable if it can take focus, and Safari (unlike
+            Chrome) does not make one focusable on its own. Without this the
+            arrow keys reach nothing and everything past the right edge is
+            mouse-only, which is a WCAG 2.1.1 failure rather than a rough
+            edge. The visible ring is .gallery:focus-visible. They are
+            harmless while there is one frame and nothing overflows. */}
+        <div className="gallery" tabIndex={0} role="group" aria-label="Screenshots of nebelhaus">
           <div className="shot shot--wide">
             <span>
               the desktop — tiled, with the bar
@@ -171,10 +193,16 @@ export default function Nebelhaus() {
             the nebelung palette and a generated wallpaper, rendered onto twenty-odd tools at once
           </dd>
         </dl>
+        {/* The two named desktops moved inward on 2026-08-14, the day their
+            pages landed — AGENTS.md's rule is that a link moves inward on the
+            day the inward page exists, not before. `blank` stays in <code>
+            rather than becoming a link: it is the null selection, it has no
+            page here, and it deliberately isn't in the catalogue either. */}
         <p className="aside">
-          nebelhaus is one desktop of four — the others are <code>everyday</code>,{' '}
-          <code>minimal</code> and <code>blank</code>, and a Mac runs exactly one. Anything it chose,
-          your own file overrides in a line.
+          nebelhaus is one desktop of four — the others are{' '}
+          <Link href="/desktops/everyday">everyday</Link>,{' '}
+          <Link href="/desktops/minimal">minimal</Link> and <code>blank</code>, and a Mac runs
+          exactly one. Anything it chose, your own file overrides in a line.
         </p>
       </section>
 

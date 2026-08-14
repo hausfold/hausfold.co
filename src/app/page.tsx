@@ -105,25 +105,126 @@ export default function Home() {
             designer, or a whole floor of them, and every Mac comes up arranged the same way.
           </p>
 
-          {/* No .shot frame here, unlike /desktops/nebelhaus. The frames are
-              deliberately empty placeholders, and an empty box directly under
-              the page's main heading reads as a broken image rather than as a
-              slot. It goes back in — with a real capture in it, not a dashed
-              outline — when the shot in the workshop's
-              SHOT-nebelhaus-desktop.md has actually been taken. */}
+          {/* The catalogue breaks out of the 41rem measure — see .catalogue in
+              public/hausfold.css for why a picture may and prose may not.
+
+              🚨 This section used to carry NO frame, and AGENTS.md said so:
+              "a dashed empty box immediately under the page's first heading
+              reads as a broken image rather than as a reserved slot." The
+              user reversed that on 2026-08-14, and the reason it stops
+              biting is structural rather than a change of taste — the frame
+              is no longer immediately under a heading. It sits inside a
+              plate, beside two paragraphs and a name, at roughly half the
+              width it would have had. A slot with a caption and a label
+              beside it reads as a slot; the same slot alone under an <h2>
+              read as breakage.
+
+              ONE frame here, however many the desktop's own page carries.
+              The catalogue answers "which of these is mine?" and one
+              establishing view per row is what that question needs; the
+              gallery is on /desktops/<name>, where the reader has already
+              chosen and wants to look.
+
+              It is not a link while it is empty. When a real capture lands
+              (workshop assets/SHOT-nebelhaus-desktop.md), wrap it in a
+              <Link> to the desktop's page with aria-hidden + tabIndex={-1}
+              so the row doesn't announce the same destination three times —
+              a big picture you can't click is a frustration, but a dashed
+              box promising nothing isn't one. */}
           <ul className="catalogue" role="list">
             <li className="entry" data-accent="nebelhaus">
-              <div className="entry-head">
-                <h3 className="entry-name">
-                  <Link href="/desktops/nebelhaus">nebelhaus</Link>
-                </h3>
-                <span className="meta">developers · tiling · nix</span>
+              <div className="entry-body">
+                <div className="entry-head">
+                  <h3 className="entry-name">
+                    <Link href="/desktops/nebelhaus">nebelhaus</Link>
+                  </h3>
+                  <span className="meta">developers · tiling · nix</span>
+                </div>
+                <p className="entry-line">
+                  An opinionated macOS, raised in the fog. Tiling launched at boot, a bar across the
+                  top edge, a themed zsh-and-helix terminal, Touch ID for <code>sudo</code>, and one
+                  muted palette painted across every app you own.
+                </p>
+                <p className="entry-line">
+                  <Link href="/desktops/nebelhaus">What&apos;s in it, and how to install it</Link>
+                </p>
               </div>
-              <p className="entry-line">
-                An opinionated macOS, raised in the fog. Tiling launched at boot, a bar across the
-                top edge, a themed zsh-and-helix terminal, Touch ID for <code>sudo</code>, and one
-                muted palette painted across every app you own.
-              </p>
+              {/* aria-hidden: the caption repeats the name of the link three
+                  lines above it, so a screen reader would announce
+                  "nebelhaus" twice per row to say nothing it hasn't heard.
+                  The frame is a placeholder — there is no information in it
+                  a reader is missing. When a real capture lands, drop the
+                  aria-hidden with it and give the <Image> alt text that
+                  describes the machine rather than repeating the name. */}
+              <div className="shot" aria-hidden="true">
+                <span>
+                  nebelhaus — the desktop
+                  <br />
+                  [ shot not taken yet ]
+                </span>
+              </div>
+            </li>
+
+            {/* 🚨 No data-accent on these two, unlike nebelhaus above, and it
+                is not an oversight. The six --a-* accents belong to PRODUCTS
+                and the vocabulary is closed (AGENTS.md); nebelhaus has one
+                because the rice is a named thing with a hue assigned
+                upstream, and everyday and minimal are selections of the same
+                options rather than products of their own. So their names
+                hover to plain ink. Inventing a seventh and an eighth hue to
+                make the rows look uniform is exactly what the greyscale rule
+                exists to stop — and the row that carries a colour is
+                carrying a real distinction, not a decoration. */}
+            <li className="entry">
+              <div className="entry-body">
+                <div className="entry-head">
+                  <h3 className="entry-name">
+                    <Link href="/desktops/everyday">everyday</Link>
+                  </h3>
+                  <span className="meta">everyone else · no code · nix</span>
+                </div>
+                <p className="entry-line">
+                  A Mac for someone who doesn&apos;t write code. A quiet bar with the clock and the
+                  weather, a search box on ⌘Space that opens anything, a wallpaper and colours that
+                  agree — and none of the developer tooling. Windows behave the way they already do.
+                </p>
+                <p className="entry-line">
+                  <Link href="/desktops/everyday">What&apos;s in it, and how to install it</Link>
+                </p>
+              </div>
+              <div className="shot" aria-hidden="true">
+                <span>
+                  everyday — the desktop
+                  <br />
+                  [ shot not taken yet ]
+                </span>
+              </div>
+            </li>
+
+            <li className="entry">
+              <div className="entry-body">
+                <div className="entry-head">
+                  <h3 className="entry-name">
+                    <Link href="/desktops/minimal">minimal</Link>
+                  </h3>
+                  <span className="meta">developers · terminal only · nix</span>
+                </div>
+                <p className="entry-line">
+                  Just the themed shell. A tinted prompt, the same toolbelt nebelhaus ships and the
+                  colours to match, on an otherwise stock macOS. Few rooms, not few tools — nothing
+                  here reaches outside the window you type in.
+                </p>
+                <p className="entry-line">
+                  <Link href="/desktops/minimal">What&apos;s in it, and how to install it</Link>
+                </p>
+              </div>
+              <div className="shot" aria-hidden="true">
+                <span>
+                  minimal — the terminal
+                  <br />
+                  [ shot not taken yet ]
+                </span>
+              </div>
             </li>
           </ul>
           <p>
@@ -131,8 +232,15 @@ export default function Home() {
             windows, the bar, the launcher, the shelf, the terminal — and anything it chose, your own
             file overrides in a line.
           </p>
+          {/* Was "One today, and that's the honest number" from 2026-08-12,
+              when it was. Three now, and the sentence keeps doing the same
+              job: lead with the real count rather than implying a catalogue
+              that doesn't exist. The fourth desktop, `blank`, ships in the
+              repo and is deliberately not listed — it is the null selection
+              for someone assembling rooms by hand, not a thing to install,
+              and a row for it would promise a machine it doesn't produce. */}
           <p className="aside">
-            One today, and that&apos;s the honest number — more as they&apos;re written. Every
+            Three today, and that&apos;s the honest number — more as they&apos;re written. Every
             desktop here is a set of values for the same options, so writing your own is editing a
             file, not starting a project.
           </p>

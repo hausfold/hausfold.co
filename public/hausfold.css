@@ -149,6 +149,13 @@
   --a-trill: #8a6512;
 
   --measure: 41rem;
+  /* .sheet's own side padding, named because the break-out plates
+     (.catalogue, .gallery) have to land on exactly this gutter or their
+     edges sit a few pixels off the column above them — which reads as a
+     mistake rather than as a bleed. Change it here, not in .sheet. */
+  --gutter: clamp(1.4rem, 5vw, 2rem);
+  /* How wide a picture may go. Prose never leaves --measure. */
+  --plate-max: 64rem;
   --step: clamp(0.94rem, 0.9rem + 0.2vw, 1.02rem);
 }
 
@@ -227,8 +234,7 @@ body {
 .sheet {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem)
-    clamp(2.5rem, 6vw, 4rem);
+  padding: clamp(3.5rem, 9vw, 7.5rem) var(--gutter) clamp(2.5rem, 6vw, 4rem);
   display: flex;
   flex-direction: column;
   gap: clamp(3rem, 7vw, 4.75rem);
@@ -450,16 +456,96 @@ body {
 
 /* --- the catalogue ------------------------------------------------ */
 
+/* The ONE place on this site that leaves the 41rem measure, and the
+   reason it may: a desktop is a picture of a whole machine, and a
+   picture is the thing that earns width. Prose isn't — which is why
+   --measure is untouched and only this list breaks out. Widening the
+   sheet itself would have moved nothing, since every text block inside
+   it is separately capped at 58/62ch.
+
+   How the break-out works: `50%` in margin-inline resolves against
+   .sheet's own content box, and the sheet is centred, so its midpoint
+   IS the viewport's — the plate lands centred on the page whatever the
+   sheet is doing above it.
+
+   The width is a clamp of three terms and it has three regimes, which
+   are worth stating exactly because the first draft of this comment got
+   them wrong and a reviewer reading a correct render would have called
+   it a bug:
+
+     up to 41rem + 2×gutter (~720px)  the plate IS the reading column;
+                                      .sheet hasn't hit its max-width
+                                      yet, so there is no room outside
+                                      it to bleed into
+     ~720px to ~1090px                the plate is the viewport minus
+                                      one --gutter each side, and grows
+                                      with the window while the column
+                                      stays at 41rem
+     above ~1090px                    the plate is --plate-max (64rem)
+                                      and stops
+
+   So the floor (`100%`) is what pins the plate's edges to the
+   paragraph's on a phone, and the ceiling is what keeps its gutter
+   equal to the sheet's own at every width in between. Neither end is
+   decoration.
+
+   🚨 `100cqw`, NOT `100vw`, and the difference is the whole reason the
+   plate lines up: html sets `scrollbar-gutter: stable`, so 100vw is
+   wider than the page by the scrollbar's reserved strip wherever a
+   classic scrollbar is drawn, which pushes the plate ~7.5px past the
+   column on each side. That is the very misalignment this clamp was
+   written to remove, and it is invisible on macOS overlay scrollbars.
+   The container it measures is declared on `body:has(.sheet)` in
+   src/app/global.css — see the comment there before moving either. */
 .catalogue {
+  --plate: clamp(100%, var(--plate-max), calc(100cqw - 2 * var(--gutter)));
+  width: var(--plate);
+  margin-block: 0.5rem 0;
+  margin-inline: calc(50% - var(--plate) / 2);
   list-style: none;
-  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(2.5rem, 6vw, 3.5rem);
+  gap: clamp(2rem, 5vw, 3rem);
 }
 
+/* Every entry is one wide plate, and they STACK. Deliberately not a
+   grid of cards and deliberately not a horizontal scroller: picking a
+   desktop is a commitment rather than a glance, so the reader wants
+   every option visible at once and every name on the same left edge to
+   compare. A scroller hides what it doesn't fit and gives no hint how
+   much is behind the right edge; a 2-up grid stops the names sharing
+   an axis. Four of these read as a catalogue, and one reads as a
+   plate — which is the case that matters, because a one-item gallery
+   is the shape most likely to look like a mistake.
+
+   The hairline above is the same vocabulary as .block h2's rule, not a
+   card border: the plate gets its structure from the picture and the
+   width, and this site boxes a command, not an article. */
 .entry {
+  display: grid;
+  gap: clamp(1.1rem, 3vw, 1.5rem);
+  border-top: 1px solid var(--rule);
+  padding-top: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+/* Text left, picture right, and the text column first in the DOM so a
+   screen reader and a phone both get name → line → picture, which is
+   the order a newspaper item runs in anyway. No `order` swap, so the
+   focus path is the reading path. 46rem is where two columns stop
+   squeezing the line under ~40 characters. */
+@media (min-width: 46rem) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    align-items: center;
+  }
+}
+
+/* The words half of the plate. Its own stack, so the two columns can
+   centre against each other without the gap between name and line
+   inheriting the plate's much larger one. */
+.entry-body {
   display: flex;
   flex-direction: column;
   gap: 1.05rem;
@@ -540,22 +626,118 @@ body {
 }
 
 /* Two small frames beside each other on anything wider than a phone,
-   stacked below. No carousel, no lightbox — they're pictures. */
+   stacked below. No carousel, no lightbox — they're pictures. This is
+   still what /perch and /pounce use: two or three views of an app,
+   inside the measure, where the reader is not going anywhere. */
 .shots {
   display: grid;
   gap: 0.9rem;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 }
 
-/* Letterbox, not a void. A full-width 16:9 empty frame is 400px of
-   nothing and reads as a broken image; a banner-shaped one reads as a
-   slot. Give it 16:9 back on the day it holds a real capture. */
+/* Letterbox, not a void. A 16:9 empty frame is 400px of nothing and
+   reads as a broken image; a banner-shaped one reads as a slot. Give
+   it 16:9 back on the day it holds a real capture. */
 .shot--wide {
   aspect-ratio: 2.4 / 1;
 }
 
 .shots .shot--wide {
   grid-column: 1 / -1;
+}
+
+/* A desktop's own gallery: one row, scrolled sideways, breaking out of
+   the measure the same way the landing page's catalogue does.
+
+   This is the one place on the site a horizontal scroller is the right
+   component, and the distinction is the whole reason it gets a class of
+   its own rather than becoming what .shots means. It is NOT a count —
+   an earlier draft of this comment drew the line at "three frames is
+   not a gallery", which condemned the very page it was defending. The
+   line is what the row is FOR:
+
+     a CATALOGUE is a set of commitments a reader compares, so every
+       item has to be in view at once and on a shared left edge, and
+       nothing may hide behind an edge — that is .catalogue, and it
+       stacks
+     a GALLERY is one subject looked at from several angles, already
+       chosen, in no fixed order, where reaching the end is optional
+       and missing the last frame costs the reader nothing
+
+   /desktops/<name> is the second kind however many frames it holds: a
+   desktop's page is a portrait of one machine, and the pictures are all
+   landscape, so sideways is how they want to be read and stacking them
+   turns the page into a column of screenshots with the words pushed off
+   the bottom. /perch and /pounce keep the stacked .shots grid because
+   their frames sit INSIDE an argument — the reader is mid-paragraph and
+   should not be asked to operate anything.
+
+   The break-out is what makes it legible AS a scroller — a frame cut
+   off by the viewport edge is the affordance, and a row that ends
+   neatly inside the column reads as finished. No arrows, no dots, no
+   autoplay: the site's no-motion rule stands, and a snap point is a
+   landing position rather than an animation. */
+.gallery {
+  /* Same plate as .catalogue — see there for the three regimes and for
+     why this measures the container rather than the viewport. */
+  --plate: clamp(100%, var(--plate-max), calc(100cqw - 2 * var(--gutter)));
+  width: var(--plate);
+  margin-inline: calc(50% - var(--plate) / 2);
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* proximity, not mandatory: mandatory fights a trackpad flick and can
+     strand a reader between two frames on a short list. */
+  padding-bottom: 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+
+/* flex, not a grid of auto columns: `grid-auto-columns` sizes the TRACK,
+   so a frame that wants to be wider than its neighbours can't ask for
+   it — which .shot--wide has to. A flex-basis per item can. */
+.gallery > .shot {
+  flex: 0 0 min(26rem, 82%);
+  scroll-snap-align: start;
+}
+
+/* 🚨 The rule that lets the container ship before the pictures do. Every
+   desktop page holds exactly ONE frame today — three dashed placeholders in
+   a row read as a gallery that failed to load, which is the honesty rule
+   counted rather than argued — and a lone frame here renders full width,
+   identical to the single `.shots` frame it replaces, with nothing to scroll
+   and no scrollbar. Add a second real capture and the row becomes the
+   scroller with no markup change and no decision to re-make.
+
+   Without this the one frame would sit at 26rem in a 64rem plate, which
+   reads as a thumbnail that failed rather than as a picture. */
+.gallery > .shot:only-child {
+  flex-basis: 100%;
+}
+
+/* The establishing shot leads and is given room to. In the scroller
+   that means a wider frame, not a full-width row.
+
+   Note what --wide does and doesn't do here: the row equalises heights
+   (flex's default cross-axis stretch), so .shot--wide's 2.4/1 only
+   seeds the line's height and does not survive as the frame's ratio —
+   the lead shot ends up simply WIDER than its neighbours rather than
+   letterboxed. That is deliberate: a row of frames with ragged bottoms
+   reads as broken, and "wider" is the emphasis this needs anyway. The
+   ratio still does its full job in .shots, where each frame sets its
+   own height. */
+.gallery > .shot--wide {
+  flex-basis: min(38rem, 92%);
+}
+
+/* The scroll container is focusable (see the tabIndex in the markup),
+   so it owes a visible ring like anything else that takes focus. */
+.gallery:focus-visible {
+  outline: 2px solid var(--ink-3);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
 /* --- sections ------------------------------------------------------ */

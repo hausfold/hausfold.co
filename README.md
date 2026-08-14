@@ -3,7 +3,8 @@
 **The house's front door — and the URL that installs the house.**
 
 ```sh
-curl -fsSL https://hausfold.co/nebelhaus.sh | bash
+curl -fsSL https://hausfold.co/haus.sh | bash      # asks which desktop
+curl -fsSL https://hausfold.co/minimal.sh | bash   # or answer it by URL
 ```
 
 [hausfold.co](https://hausfold.co) is the landing pages, the docs, and that
@@ -14,9 +15,9 @@ deploys it.
 
 | | |
 |---|---|
-| **the pages** — `/`, `/desktops/nebelhaus`, `/perch` (`/perch/privacy`), `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
+| **the pages** — `/`, `/desktops/{nebelhaus,everyday,minimal}`, `/perch` (`/perch/privacy`), `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
 | **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, [`/docs/pounce`](https://hausfold.co/docs/pounce) the launcher | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell the halves apart with the page upside down |
-| **the three routes that can't be files** — `/nebelhaus.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
+| **the three routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
 
 Everything else is a file: `npm run build` writes `out/`, Next copies `public/`
 into it verbatim, and `out/` is what ships.
@@ -35,7 +36,7 @@ npm test                             # worker.js, offline, ~1s
 | a page | `src/app/<route>/page.tsx` |
 | a docs page | `content/docs/<tree>/*.mdx` |
 | colour, type, layout | `public/hausfold.css` — its header comment is the design record (the docs' own type and per-tree hue are `src/app/global.css`) |
-| what `hausfold.co/<name>.sh` installs | `worker.js` — a second desktop is a row in `DESKTOPS`, not a new route |
+| what `hausfold.co/<name>.sh` installs | `worker.js` — a desktop is a row in `DESKTOPS`, not a new route. A row pins that desktop into the script it proxies; `/haus.sh` pins nothing and lets the installer ask |
 
 Three things here are **generated, never hand-typed**: the dark palette
 (vendored from [nebelung](https://github.com/hausfold/nebelung)), the haus
