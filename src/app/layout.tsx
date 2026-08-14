@@ -3,13 +3,18 @@ import { Provider } from '@/components/provider';
 import { appName, siteUrl, themeColor } from '@/lib/shared';
 import './global.css';
 
-// The head every docs page carries. AGENTS.md's rule for `public/` is that
-// the canonical, the `og:` tags and the two `theme-color`s are hand-copied
-// onto every page and *nothing checks* — this is the half of the site where
-// that stops being true: one object, applied by Next to every route.
+// The head EVERY page carries — docs and landing pages alike, since the eight
+// hand-written pages in `public/` became Next routes.
+//
+// AGENTS.md's rule for `public/` used to be that the canonical, the `og:` tags
+// and the two `theme-color`s were hand-copied onto every page and *nothing
+// checked*. Nothing is hand-copied now: what varies per page (title,
+// description, canonical, `og:url`) is `src/lib/page-meta.ts`, and what does
+// not — the icons and the two `theme-color`s below — is here, applied by Next
+// to every route in the build.
 //
 // No `og:image`, deliberately, and for the same reason the hand-written
-// pages have none: a link card with no image degrades to the title and one
+// pages had none: a link card with no image degrades to the title and one
 // line, which is the tone these pages are for. The scaffolded `/og` route
 // that would have generated one per page was removed rather than left
 // switched off.
@@ -20,10 +25,15 @@ export const metadata: Metadata = {
     default: `${appName} docs`,
   },
   description: 'Documentation for haus — the macOS layer — and the desktops built on it.',
+  // `en_US`, not `en`: `og:locale` wants language_TERRITORY, which is what all
+  // eight hand-written pages sent and what `src/lib/page-meta.ts` keeps
+  // sending. This said `en` while the two halves were separate documents; one
+  // build emitting both spellings would be the drift the merge is meant to
+  // end.
   openGraph: {
     siteName: appName,
     type: 'website',
-    locale: 'en',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary',

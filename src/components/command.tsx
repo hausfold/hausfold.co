@@ -1,6 +1,21 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+
+// Does this browser have the clipboard API? The answer differs between the
+// server (where the button must render `hidden`, because that is what ships in
+// the exported HTML and what a reader with JS off keeps) and the client, which
+// is exactly what `useSyncExternalStore`'s third argument is for. Written as a
+// `useEffect` + `setState` first, which works and is what the original script
+// did — but it is a cascading render on every page with a command on it, and
+// `react-hooks/set-state-in-effect` says so.
+//
+// It never changes after hydration, so `subscribe` registers nothing and
+// returns a no-op unsubscribe. Both live at module scope so the references are
+// stable across renders.
+const subscribe = () => () => {};
+const hasClipboard = () => Boolean(navigator.clipboard);
+const serverSnapshot = () => false;
 
 // The fenced command with a copy button — the twelve lines that used to sit at
 // the foot of `/haus`, `/perch`, `/pounce` and `/desktops/nebelhaus` as four
@@ -18,14 +33,12 @@ import { useEffect, useRef, useState } from 'react';
 // rather than a loop over `document.querySelectorAll('.copy')`, which is the
 // one behavioural difference and it is invisible.
 export function Command({ children }: { children: string }) {
-  const [ready, setReady] = useState(false);
+  const ready = useSyncExternalStore(subscribe, hasClipboard, serverSnapshot);
   const [label, setLabel] = useState('Copy');
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  useEffect(() => {
-    if (navigator.clipboard) setReady(true);
-    return () => clearTimeout(timer.current);
-  }, []);
+  // The reset timer must not fire into an unmounted component.
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   function copy() {
     // `.trim()` because the JSX template literal, like the old `<code>`'s

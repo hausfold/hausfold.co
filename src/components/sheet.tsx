@@ -30,16 +30,42 @@ export function GithubMark() {
   );
 }
 
-/** The foot of every sheet. `hi@hausfold.co` first and the issue line last are
- *  fixed — AGENTS.md is explicit that the address is `hi@`, deliberately, and
- *  that it is not to be "upgraded" to `support@`. Whatever a page puts
- *  between them is its own. */
-export function Colophon({ children }: { children?: ReactNode }) {
+/** The pre-release mark's sentence. Added 2026-08-14 as a hand-copied `<span>`
+ *  on all eight colophons that had one, plus the 404's — this is those nine
+ *  copies, once. It is a second piece of edition metadata rather than a banner,
+ *  which is why it sits at the colophon's right-hand end in the issue's own
+ *  micro-caps and spends none of the page's attention. */
+const PRE_RELEASE_NOTE =
+  "Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty.";
+
+/** The foot of every sheet. `hi@hausfold.co` first, then the issue line and
+ *  the pre-release mark — AGENTS.md is explicit that the address is `hi@`,
+ *  deliberately, and that it is not to be "upgraded" to `support@`. Whatever a
+ *  page puts between them is its own.
+ *
+ *  `note` overrides the pre-release sentence for a page that can make a more
+ *  specific promise; `/perch` is the only one that does, because perch#57 let
+ *  it say what the shelf actually does rather than the general thing. The
+ *  bubble is drawn
+ *  in the page (`.stage[data-note]` in `public/hausfold.css`), not by a native
+ *  `title` — a `title` on a mark this small waits a second and then paints in
+ *  OS chrome, which reads as broken. `tabIndex`/`aria-label` are what make it
+ *  reachable without a mouse. */
+export function Colophon({ children, note = PRE_RELEASE_NOTE }: { children?: ReactNode; note?: string }) {
   return (
     <footer className="colophon">
       <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
       {children}
       <span className="issue">Issue 2026.08</span>
+      <span
+        className="stage"
+        tabIndex={0}
+        role="note"
+        aria-label={`Pre-release. ${note}`}
+        data-note={note}
+      >
+        Pre-release
+      </span>
     </footer>
   );
 }

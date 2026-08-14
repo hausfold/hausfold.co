@@ -1,0 +1,122 @@
+/* perch's privacy policy has a layout nothing else on the site uses — bare
+   h1/h2/p/ul selectors rather than the site's classes — and it is linked from
+   the App Store, so it does not get to drift.
+
+   This was a `<style>` block inside `public/perch/privacy/index.html`,
+   cascading after the shared sheet because it came later in one document. A
+   Next route has no such guarantee: stylesheet order between a layout's
+   imports and a page's is an implementation detail, and bare element selectors
+   under a shared layout would leak onto every other page besides. So the same
+   rules live here as a CSS module, scoped under `.policy` on the page's own
+   `<main>`, which also lifts them a specificity rung above `public/hausfold.css`
+   and Tailwind's preflight rather than leaving them to source order.
+
+   The tokens — --measure, --ink, --ink-2, --ink-3, --rule — still come from
+   the shared sheet, exactly as they did after 2026-08-08. This page has not
+   carried its own copy of the palette since then and must not start again. */
+
+.policy {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem) clamp(2.5rem, 6vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+.policy :global(.masthead) {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.eyebrow {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+
+.eyebrow a {
+  color: var(--ink-3);
+}
+
+.policy h1 {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: clamp(1.5rem, 5vw, 1.95rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  margin: 0;
+  color: var(--ink);
+}
+
+.policy :global(.standfirst) {
+  font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0;
+  max-width: 34ch;
+  text-wrap: balance;
+  color: var(--ink-2);
+}
+
+.policy section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.policy h2 {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+  margin: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.policy p {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--ink-2);
+}
+
+.policy p strong {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.policy ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 62ch;
+}
+
+.policy li {
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  color: var(--ink-2);
+}
+
+.policy li::before {
+  content: '·';
+  display: inline-block;
+  width: 1.5rem;
+  text-indent: 0;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  color: var(--ink-3);
+}
+
+.policy footer {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
