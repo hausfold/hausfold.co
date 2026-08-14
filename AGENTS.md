@@ -559,6 +559,39 @@ The leash, in full:
 `public/` is unchanged and still greyscale at rest. The two halves of the site
 diverge here deliberately: a landing page is read once, a docs page is lived in.
 
+### Type — ⚠️ the docs spend three faces, `public/` spends two
+
+Decided 2026-08-14, by the user, and it is the same divergence colour makes
+one section above. `public/` sets New York for everything. The docs split it:
+
+- **Headings are the serif** (`--font-display`, the same New York stack), and
+  `h1` is bumped to `clamp(1.85rem, …, 2.25rem)` from fumadocs' `1.75em`.
+  This is the page's one piece of voice.
+- **Body is SF** (`--font-sans`, which is now `-apple-system`), at
+  `clamp(0.98rem, …, 1.06rem)` / 1.7 rather than `--step` / 1.62.
+- **Chrome stays mono**, unchanged.
+
+Why: New York at 16px on a dark ground reads as an *unloaded* font rather than
+a chosen one — a serif's thin strokes bloom on dark, and 16px is a UI size
+where this face wants ~19px. Both faces are still the Mac's own, so the thesis
+is intact; each just goes where it earns its keep.
+
+Two things this constrains:
+
+- **`--font-sans` is the body face, deliberately.** It is the token every
+  `font-sans` utility inside fumadocs' own components resolves, so the search
+  dialog, the buttons and the tree switcher follow with nothing to keep in
+  step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the 404's
+  `body:has(.sheet)` — and nothing else should name it or re-type the stack.
+- **`src/app/not-found.tsx` is exempt**, via `body:has(.sheet)` — it is
+  `public/`'s markup living under this layout, and without the exemption the
+  404 becomes the one landing page set in SF.
+- **Heading rules must exclude `.not-prose`.** Fumadocs builds components out
+  of headings — a Card's title is an `<h3 class="not-prose text-sm">` sitting
+  inside the prose container — so a bare `.prose h3` puts the display serif on
+  a 14px UI label, which is the size this split exists to get the serif out
+  of. Same family of mistake as the sidebar's bare `<p>` selector above.
+
 ### Icons
 
 `src/lib/icons.tsx` is the **whole** icon vocabulary, and content never names a

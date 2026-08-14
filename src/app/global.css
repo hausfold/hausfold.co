@@ -76,10 +76,33 @@
 @import '../../public/hausfold.css';
 
 @theme {
-  /* The Mac's own faces — the thesis of the site, set in the site. Declared
-     as theme tokens too, so any `font-sans`/`font-mono` utility inside
-     Fumadocs' own components lands on the same two stacks. */
-  --font-sans: ui-serif, 'New York', Georgia, 'Iowan Old Style', serif;
+  /* The Mac's own faces — the thesis of the site, set in the site. Three of
+     them here, where `public/` spends two.
+
+     ⚠️ This is a deliberate divergence from the hand-written pages, decided
+     2026-08-14 with the user, and it is the same divergence colour already
+     makes: a landing page is read once, a docs page is lived in. `public/`
+     sets New York for everything; here the serif keeps the *titles* and SF
+     takes the *body*.
+
+     Why: New York at `--step` (16px) reads as an unloaded font rather than
+     a chosen one — worst on dark, where a serif's thin strokes bloom, but
+     the size is wrong in both themes: 16px is a UI size, and this face
+     wants nearer 19px to read as the book face it is. Rather than inflate
+     every page to book measure, the two faces go where each earns its
+     keep: the serif does the voice, at title sizes where it is
+     unmistakably deliberate, and SF does the reading, where density is the
+     enemy. Applied to both themes on purpose — one face per role beats a
+     face that changes with the ground. Both are still the Mac's own, so the
+     thesis is intact.
+
+     `--font-sans` is the *body* face on purpose rather than a new name:
+     it is the token every `font-sans` utility inside Fumadocs' own
+     components resolves, so buttons, the search dialog and the tree
+     switcher come out in SF with nothing to keep in step. Headings ask for
+     `--font-display` explicitly; nothing else may. */
+  --font-sans: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  --font-display: ui-serif, 'New York', Georgia, 'Iowan Old Style', serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Corners, in one place. Fumadocs is built on Tailwind's default scale
@@ -170,6 +193,28 @@
 body {
   --accent: var(--ink);
 
+  /* `public/hausfold.css` sets `body { font-family: <serif> }` for the
+     hand-written pages, and this file imports it — so without this line
+     every docs page inherits the landing page's face. The docs read on SF
+     instead; see the `@theme` block for why. `--font-display` is spent by
+     the heading rules further down and nowhere else. */
+  font-family: var(--font-sans);
+
+  /* Reading rhythm, and it belongs to the body face rather than to a page.
+     SF's apparent size runs a touch smaller than the serif's at the same
+     `font-size`, and a docs page is read for minutes rather than seconds,
+     so this is a rung above `--step` with more air than hausfold.css's
+     1.62. The landing page keeps its own.
+
+     It sits on `body` rather than on `.prose` because the whole document
+     should read at one size — but note that the chrome does NOT follow it:
+     the sidebar, TOC and eyebrow all set their own `rem` sizes a few rules
+     down, so they are unmoved by this (measured: sidebar 15px before and
+     after). If you ever give a chrome surface an `em`/inherited size, it
+     will start tracking this line. */
+  font-size: clamp(0.98rem, 0.94rem + 0.22vw, 1.06rem);
+  line-height: 1.7;
+
   /* The three dilutions, named. Declared once here so every consumer spends
      the same three, and so a page's own `--accent` (whichever rule below
      wins) is what they resolve against. An ad-hoc `color-mix()` at the point
@@ -193,6 +238,19 @@ body {
   --color-fd-success: var(--a-perch);
   --color-fd-warning: var(--a-trill);
   --color-fd-error: var(--a-nebelhaus);
+}
+
+/* The 404 is the one route under this layout that is NOT a docs page: it is
+   `public/404.html`'s markup, moved into `src/app/not-found.tsx` because
+   Next's export overwrites a same-named file (see AGENTS.md). It belongs to
+   the hand-written half and reads in the hand-written half's face, so the
+   body rules above are handed back for it — otherwise the 404 became the
+   one landing page set in SF, which is exactly the drift the type split is
+   supposed to be a considered exception to rather than an accident. */
+body:has(.sheet) {
+  font-family: var(--font-display);
+  font-size: var(--step);
+  line-height: 1.62;
 }
 
 body:has([data-tree='haus']) {
@@ -414,20 +472,41 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 
 /* Titles are serif and set tight, like `.standfirst`. Fumadocs' default is
    a heavier sans; the weight is what makes a docs page look like a docs
-   page rather than a printed one. */
+   page rather than a printed one.
+
+   This rule, the h2/h3/h4 rule below, and the 404's `body:has(.sheet)`
+   above are the only three that spend `--font-display`. Everything a reader
+   reads at length is `--font-sans`, which is SF here. See the `@theme`
+   block. */
 article h1,
 .prose h1 {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-weight: 400;
-  letter-spacing: -0.014em;
   line-height: 1.2;
   text-wrap: balance;
+  /* Fumadocs sets this at `1.75em`, which was in scale with a serif body
+     and is undersized beside SF. The serif can afford — and needs — more
+     room here: it is the page's one piece of voice, and at this size its
+     strokes are thick enough to hold on a dark ground, which is the whole
+     reason the body moved off it.
+
+     Fluid, like every other size on this site: a fixed 2.25rem serif is a
+     lot of title on a 320px phone, and `text-wrap: balance` softens that
+     without solving it. */
+  font-size: clamp(1.85rem, 1.5rem + 1.6vw, 2.25rem);
+  letter-spacing: -0.02em;
 }
 
-.prose h2,
-.prose h3,
-.prose h4 {
-  font-family: var(--font-sans);
+/* `:not(.not-prose)` is doing real work, not defending against a hypothetical.
+   Fumadocs builds components out of headings — a Card's title is an `<h3
+   class="not-prose text-sm">`, a Step's label likewise — and they sit inside
+   the prose container, so a bare `.prose h3` catches them. That put the
+   display serif on a 14px UI label, which is the exact size and weight this
+   split exists to get the serif *out* of. `not-prose` is fumadocs' own mark
+   for "this is furniture, not text"; honouring it is the narrowest way to
+   say headings-that-are-headings. */
+.prose :is(h2, h3, h4):not(.not-prose) {
+  font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.008em;
 }
