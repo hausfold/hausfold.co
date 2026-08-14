@@ -612,6 +612,15 @@ distinguishable while sitting side by side in one menu.
 **A new page owes an icon**, the same way a new HTML page owes a
 `theme-color` — a row with no glyph in a column of glyphs reads as broken.
 
+**One exception, and it proves the rule**: the three brand marks — GitHub,
+Anthropic, OpenAI — in `src/components/page-actions.tsx`. They are not in the
+table on purpose, because the table is the vocabulary *content* may name, and
+a page should not be able to put GitHub's logo in its frontmatter. They are
+the only SVG paths in `src/` that are neither Lucide's nor ours; they live
+beside the one menu that draws them, and they are `currentColor`, so they take
+the row's ink like every other glyph in that chrome. A second such exception
+would not be an exception.
+
 ### Components
 
 `src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs,
@@ -619,7 +628,7 @@ distinguishable while sitting side by side in one menu.
 that hides the prose from search and from `llms-full.txt`. Adding one is a
 decision.
 
-Two of them are ours in a thin way, and both exist to give the stylesheet a
+Three components are ours. Two are thin, and exist to give the stylesheet a
 class rather than a guess:
 
 - **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
@@ -630,6 +639,24 @@ class rather than a guess:
   announced "H A U S" with a rule struck under it. **Don't reach for a bare
   element selector inside fumadocs' chrome**; the same element is three
   different things in three places.
+
+The third is not thin, and it is a decision rather than a class:
+
+- **`ViewOptions`** (`src/components/page-actions.tsx`) is the "Open in…" menu
+  in the page's meta row, and it **replaces** fumadocs' `ViewOptionsPopover`
+  rather than styling it. Fumadocs' ships six destinations; ours lists four —
+  the page as Markdown, its source on GitHub, and the two assistants with the
+  reach to make the entry worth a row. 🚨 **That list is an endorsement**: a
+  menu is a list of things this site is recommending, which is the same kind
+  of claim as a name on the landing page, so it is hardcoded in the component
+  rather than passed in per page. Adding a fifth is a decision, not a config
+  change — and the bar is reach, not what our own prose happens to mention.
+
+  The page actions live in the row *above* the title (`.hf-meta`), not under
+  the description where fumadocs puts them: they are chrome, addressed to a
+  reader who is not reading yet, and the eyebrow's row was already being
+  drawn. They come before the `h1` in the DOM as a result, which is a chosen
+  trade — see the comment in `src/app/docs/[[...slug]]/page.tsx`.
 
 ### Gotchas paid for already
 
