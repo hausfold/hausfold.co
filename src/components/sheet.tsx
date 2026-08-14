@@ -51,7 +51,13 @@ const PRE_RELEASE_NOTE =
  *  `title` — a `title` on a mark this small waits a second and then paints in
  *  OS chrome, which reads as broken. `tabIndex`/`aria-label` are what make it
  *  reachable without a mouse. */
-export function Colophon({ children, note = PRE_RELEASE_NOTE }: { children?: ReactNode; note?: string }) {
+export function Colophon({
+  children,
+  note = PRE_RELEASE_NOTE,
+}: {
+  children?: ReactNode;
+  note?: string;
+}) {
   return (
     <footer className="colophon">
       <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
