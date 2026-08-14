@@ -59,8 +59,8 @@ Certificates), not something this repo carries — if the redirect ever
 disappears, look there, not here.
 
 **Every page URL and every asset under `public/` is un-hashed.** `/`,
-`/desktops/nebelhaus` and `/favicon.svg` keep their URL when their contents
-change, so an edge cache can keep serving the old copy after a deploy. Next's
+`/docs/haus/desktops/nebelhaus` and `/favicon.svg` keep their URL when their
+contents change, so an edge cache can keep serving the old copy after a deploy. Next's
 own `/_next/static/*` bundles are content-hashed and cached for a year by
 `_headers` — they're the exception. The worst case is a page held in cache while
 the hashed bundle it asks for has already been renamed: that reads as broken

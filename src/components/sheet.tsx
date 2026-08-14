@@ -77,9 +77,11 @@ export function Colophon({
 }
 
 /** The breadcrumb an inner page opens on instead of the ⌂. `trail` is
- *  everything before the current page; `/desktops/nebelhaus` is the one page
- *  with two entries in it, and deliberately not three — see its own page for
- *  why the middle crumb points at `/#desktops` rather than at `/desktops`. */
+ *  everything before the current page. Every remaining `.sheet--inner` page
+ *  passes a single entry — hausfold, then the page. The three
+ *  `/desktops/<name>` pages passed two (hausfold ▸ desktops), and were the
+ *  only ones that ever did; they were deleted on 2026-08-14, so nothing here
+ *  currently exercises a trail longer than one. It still takes a list. */
 export function Crumbs({
   trail,
   current,

@@ -1,0 +1,132 @@
+---
+title: nebelhaus
+description: An opinionated macOS, raised in the fog — tiling windows, a bar, a themed terminal. The desktop most people install haus by installing.
+icon: nebelhaus
+---
+
+**nebelhaus** is a Mac arranged like a tiling Linux rig, but native to the grain
+of the Mac: fog-grey, keyboard-first, and the same after you wipe the machine.
+It is the desktop you get if you don't pick one, and the one most people meet
+haus through.
+
+You never edit the desktop to use it. The installer scaffolds a thin config of
+your own at `~/.config/nix` that consumes it as an input, so your machine stays
+yours and nebelhaus stays upstream.
+
+```sh
+curl -fsSL https://hausfold.co/nebelhaus.sh | bash
+```
+
+That URL picks this desktop, so the installer skips the question.
+[Install](/docs/haus/install) has the rest — what the script does, how to read
+it first, and the one command that actually changes the Mac.
+
+## What it turns on
+
+haus is organised into [rooms](/docs/haus), each one a capability with its own
+switch. nebelhaus turns nearly all of them on.
+
+| Room | What you get |
+|---|---|
+| **[Windows](/docs/haus/rooms/windows)** | Tiling launched at boot, and Caps-Lock as the leader key instead of a chord |
+| **[Bar](/docs/haus/rooms/bar)** | Workspaces, weather, media, battery, clock — and a light that reddens when something has stopped |
+| **[Launcher](/docs/haus/rooms/launcher)** | [pounce](/docs/pounce) on ⌘Space, where every command is a file you can write |
+| **[Shelf](/docs/haus/rooms/shelf)** | [perch](/docs/perch), dropping out of the notch to catch a drag on its way somewhere else |
+| **[Development](/docs/haus/rooms/development)** | Ghostty, zellij, zsh, a tinted prompt, helix and a toolbelt that all matches |
+| **[Focus](/docs/haus/rooms/focus)** | One hotkey for Do Not Disturb, your Slack status, and your own hooks |
+| **[Security](/docs/haus/rooms/security)** | Touch ID for `sudo`, inside a multiplexer too, and secrets declared rather than pasted |
+| **[AI](/docs/haus/rooms/ai)** | Coding agents, each in its own checkout of the repo, so they never collide |
+| **[Appearance](/docs/haus/rooms/appearance)** | The nebelung palette and a generated wallpaper, rendered onto twenty-odd tools at once |
+
+Anything it chose, your own file overrides in a line — see [Customize a
+desktop](/docs/haus/desktops/customizing).
+
+## First moves
+
+The first switch has finished. Windows now tile themselves, the menu bar has
+been replaced, your terminal opens into a themed session, ⌘Space belongs to the
+palette, and `haus` is on your `PATH`. Here's the muscle memory.
+
+| Keys | What happens |
+|---|---|
+| **⌘Space** | The palette. Type a few letters, hit Return. Start here for everything |
+| **Tap ⇪, then a letter** | Launch or focus that app. `T` is the terminal, `B` the browser |
+| **Tap ⇪, then an arrow** | Move focus between tiled windows. Keep arrowing; hold ⇧ to *move* the window instead |
+| **Tap ⇪, then a digit** | Jump to that workspace. Add ⇧ to throw the current window there |
+| **Tap ⇪, then /** | The cheatsheet, generated from *your* app list — so it is never out of date |
+
+<Callout title="Tap Caps-Lock, don't hold it">
+It's a leader key now, not a modifier. Tap and release, then press the letter.
+</Callout>
+
+Try these in order: tap **⇪ T** and the terminal opens and tiles itself;
+**⌘Space**, type `saf`, Return and Safari launches; **⇪ then ← / →** jumps focus
+between the two; **⌥/** flips the split between horizontal and vertical;
+**⌘Space**, type `emoji`, Return turns the palette into an emoji grid.
+
+One permission to grant — a few palette features use a keyboard path macOS gates
+behind Accessibility. Everything else works without it.
+
+```sh
+pounce --request-accessibility
+```
+
+The rest of the keys are the rooms' own, and they are written out in full where
+they're configured rather than copied here:
+[Windows](/docs/haus/rooms/windows) has tiling, the leader and every workspace
+throw — including how to move all of it onto keys you'd rather use;
+[Development](/docs/haus/rooms/development) has the terminal's chord set;
+[pounce](/docs/pounce/using) has the palette. There is also a live copy on your
+own machine — tap **⇪ /** — generated from your own tables, so use that one when
+they disagree.
+
+## Making it yours
+
+Your settings live in one file, and `haus edit` opens it. The tweaks people
+reach for first are an accent, an editor, and an app with a launcher key and a
+workspace of its own.
+
+```nix
+haus.theme.accent = "sapphire";        # one accent, everywhere
+haus.hearth.editorName = "neovim";     # named, so haus installs it
+
+haus.roster.slack = {                  # an app, with a launcher key
+  key = "s";
+  name = "Slack";
+  appId = "com.tinyspeck.slackmacgap";
+  cask = "slack";
+};
+haus.workspaces.S = {                  # …and a workspace of its own
+  key = "s";
+  icon = ":slack:";
+  apps = [ "slack" ];
+};
+```
+
+Then `haus rebuild`. [Customize a
+desktop](/docs/haus/desktops/customizing) is the rest of what that file can say,
+and [the haus reference](/docs/haus/reference/haus) is every command the CLI
+has.
+
+## Where to go next
+
+<Cards>
+  <Card
+    icon={<Icon name="choose" />}
+    title="Choose a desktop"
+    href="/docs/haus/desktops/choosing"
+    description="The four that ship, side by side — and how to switch to another one in a single line."
+  />
+  <Card
+    icon={<Icon name="dials" />}
+    title="Customize a desktop"
+    href="/docs/haus/desktops/customizing"
+    description="The one file you edit, the dials worth knowing, and how to beat anything a desktop set."
+  />
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Windows"
+    href="/docs/haus/rooms/windows"
+    description="Tiling, workspaces and the leader key in full — every default binding, and how to move them."
+  />
+</Cards>

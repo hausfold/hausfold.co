@@ -15,8 +15,8 @@ deploys it.
 
 | | |
 |---|---|
-| **the pages** — `/`, `/desktops/{nebelhaus,everyday,minimal}`, `/perch` (`/perch/privacy`), `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
-| **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, [`/docs/pounce`](https://hausfold.co/docs/pounce) the launcher | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell the halves apart with the page upside down |
+| **the pages** — `/`, `/perch` (`/perch/privacy`), `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
+| **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, plus a tree each for [pounce](https://hausfold.co/docs/pounce), [perch](https://hausfold.co/docs/perch) and [trill](https://hausfold.co/docs/trill) | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell them apart with the page upside down |
 | **the three routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
 
 Everything else is a file: `npm run build` writes `out/`, Next copies `public/`

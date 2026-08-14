@@ -1,6 +1,8 @@
 import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
+  Armchair,
+  Bell,
   BellOff,
   Bot,
   Boxes,
@@ -9,6 +11,7 @@ import {
   Compass,
   DoorOpen,
   Download,
+  Feather,
   Fingerprint,
   Footprints,
   Hammer,
@@ -47,8 +50,8 @@ import type { Accent } from './shared';
 // file.
 //
 // `hue` is for the icons that must hold their own colour wherever they are
-// drawn: the two tree icons appear side by side in the switcher, so they
-// cannot both be "the current page's accent", and the outward product links
+// drawn: the four tree icons appear side by side in the switcher, so they
+// cannot all be "the current page's accent", and the outward product links
 // are the products' own. Everything else has no hue and is tinted by the
 // page's accent in `global.css` — which is what makes a whole tree read as
 // one colour without any page saying so.
@@ -58,15 +61,20 @@ type IconSpec = {
 };
 
 const icons = {
-  // The two trees. These are the switcher's glyphs, and the one place the
-  // sidebar tells you which half of the docs you are in at a glance. Both
-  // carry a hue, because they sit side by side in the switcher's popover
+  // The four trees. These are the switcher's glyphs, and the one place the
+  // sidebar tells you which quarter of the docs you are in at a glance. All
+  // four carry a hue, because they sit side by side in the switcher's popover
   // where "the current page's accent" would paint them the same.
   //
   // `pounce` was an outward link to /pounce until that page was retired into
-  // this tree; it is the same glyph and the same hue, promoted.
+  // this tree; it is the same glyph and the same hue, promoted. `perch` was
+  // the sidebar's way-out row to /perch and was promoted the same way when
+  // perch got a tree on 2026-08-14 — the product page stayed, so the row is
+  // gone and this glyph now means the tree.
   layer: { icon: Layers, hue: 'nebelung' },
   pounce: { icon: Command, hue: 'pounce' },
+  perch: { icon: Inbox, hue: 'perch' },
+  trill: { icon: Bell, hue: 'trill' },
 
   // Pages. No hue: they take the tree's.
   compass: { icon: Compass },
@@ -98,14 +106,25 @@ const icons = {
   expand: { icon: TextCursorInput },
   shield: { icon: ShieldCheck },
   choose: { icon: ListChecks },
+
+  // The four desktops, one page each under `haus/desktops/`. No hue on any of
+  // them, unlike the tree glyphs above: they are page rows inside the haus
+  // tree and take its mauve like every other row, and a desktop owns no
+  // accent anywhere on this site in the first place (AGENTS.md's closed
+  // vocabulary — nebelhaus is a named thing with an upstream hue, `everyday`
+  // and `minimal` are selections of the same options). `nebelhaus` was called
+  // `desktop` and carried nebelhaus's hue while it pointed OUT of the docs at
+  // /desktops/nebelhaus; that page was deleted on 2026-08-14 and the link
+  // turned inward, which is exactly the condition for dropping a hue.
+  nebelhaus: { icon: Cat },
+  everyday: { icon: Armchair },
+  minimal: { icon: Feather },
   blank: { icon: SquareDashed },
 
-  // The outward links at the head of the sidebar, and the cards that point at
-  // the same places — the products' own colours, the same ones the landing
-  // page's index spends on hover.
+  // The one outward link left at the head of the sidebar. `desktops` names a
+  // kind of thing rather than a product, owns no accent anywhere on this
+  // site, and so takes the current page's tint like any other row.
   desktops: { icon: Monitor },
-  desktop: { icon: Cat, hue: 'nebelhaus' },
-  perch: { icon: Inbox, hue: 'perch' },
 } satisfies Record<string, IconSpec>;
 
 export type IconName = keyof typeof icons;

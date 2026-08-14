@@ -1,0 +1,69 @@
+---
+title: Install
+description: One brew command, or a signed download — and the one macOS setting that steals the drop if you leave it on.
+icon: install
+---
+
+```sh
+brew install --cask hausfold/tap/perch
+```
+
+That's the whole install. No account, no sign-in, no licence key.
+
+Prefer a download? The [latest release](https://hausfold.co/download/perch) is
+the same build — signed with our Apple Developer ID and notarized, so it opens
+straight away with no Gatekeeper prompt and no quarantine hack.
+
+## Turn one macOS setting off
+
+In **System Settings ▸ Desktop & Dock**, turn *off* **"Drag windows to top of
+screen to enter Mission Control"**.
+
+macOS arms that top-edge trigger for the whole of any drag — files included —
+and it fires over the same band the shelf lives in. Leave it on and the Dock
+steals the drop. It's the only thing perch asks of your Mac.
+
+## What it needs
+
+- **macOS 14** or newer.
+- **A notch is nice, not required.** The shelf works on any Mac and on any
+  display.
+- **Nothing else.** perch asks for none of the permissions that make a Mac app
+  feel invasive: no Accessibility, no Input Monitoring, no Screen Recording.
+
+## On a haus machine
+
+If your Mac runs [haus](/docs/haus), let the Shelf room own perch instead — it
+installs it and keeps it current with everything else, and survives a rebuild:
+
+```nix
+haus.perch.enable = true;
+```
+
+```sh
+haus rebuild
+```
+
+If you already installed it with Homebrew, letting the room own it is the
+upgrade. [The Shelf room](/docs/haus/rooms/shelf) has the one option it adds.
+
+## Updating
+
+perch checks its own release tag hourly and tells you when there's a newer one;
+applying it is always your keystroke, and Settings turns the check off
+altogether. On a haus machine, `haus update` carries it with everything else.
+
+<Cards>
+  <Card
+    icon={<Icon name="shelf" />}
+    title="Using the shelf"
+    href="/docs/perch/using"
+    description="Catching a drag, carrying the stack out, and what the shelf does when you close it."
+  />
+  <Card
+    icon={<Icon name="shield" />}
+    title="Privacy"
+    href="/perch/privacy"
+    description="The whole policy, on hausfold.co — what perch stores, where, and what it never sends."
+  />
+</Cards>

@@ -29,8 +29,11 @@ outside even that: flat ink on crust.
 The six `--a-*` accents are the whole vocabulary. Nothing may invent a seventh.
 
 **The docs are the deliberate exception**: one hue per tree, at rest, so a
-reader can tell `/docs/haus` from `/docs/pounce` with the page upside down.
-A landing page is read once; a docs page is lived in. Same six accents.
+reader can tell `/docs/haus` from `/docs/pounce`, `/docs/perch` or `/docs/trill`
+with the page upside down.
+A landing page is read once; a docs page is lived in. Same six accents — four
+of which are now spent as tree hues, which is exactly why there is no seventh
+to hand out.
 
 ## both themes, every time
 
@@ -53,7 +56,9 @@ on it is the tone they aren't. Every validator flags its absence. That flag is
 not a bug report.
 
 **The screenshot frames are empty**, drawn in CSS and labelled `[ shot not taken
-yet ]`. There is no real capture of the nebelhaus desktop yet, and a picture
+yet ]` — and `/perch` is the only page that still draws any, the desktop pages
+having been retired into the docs. There is no real capture of the nebelhaus
+desktop yet, and a picture
 that lies about what the desktop looks like today is worse than a grey box that
 admits it hasn't got one. Drop an image in when one exists — note
 `images: { unoptimized: true }`, since `next/image`'s optimizer is a server and

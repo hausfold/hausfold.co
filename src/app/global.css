@@ -178,9 +178,10 @@
 
      1. `accent: pounce` in the page's frontmatter — the page is *about* a
         product, and takes that product's colour.
-     2. the tree it lives in — /docs/haus is mauve, /docs/pounce is peach.
+     2. the tree it lives in — /docs/haus is mauve, /docs/pounce peach,
+        /docs/perch green, /docs/trill yellow.
      3. nothing, which is `--ink`: the /docs index itself, which is a
-        doorway to both trees and shouldn't pick a side.
+        doorway to every tree and shouldn't pick a side.
 
    The page renders both as attributes on its own container
    (`data-tree`, `data-accent` — see app/docs/[[...slug]]/page.tsx), but
@@ -192,9 +193,10 @@
    Why the tree gets a hue at all: mauve IS nebelung's own accent
    (`--nebelung-accent: var(--nebelung-mauve)` in the vendored block), so
    the layer's docs wear the palette the whole family shares rather than a
-   colour invented for them. The desktop's pages wear the desktop's pink,
-   which is the same hue its row on the landing page takes on hover. Neither
-   is a new claim: both are already in `public/hausfold.css`. */
+   colour invented for them; and an app's tree wears that app's own accent,
+   the same hue its row on the landing page takes on hover. Neither is a new
+   claim — every value is already in `public/hausfold.css`, and a tree is
+   never the reason a seventh colour gets invented. */
 body {
   --accent: var(--ink);
 
@@ -266,17 +268,18 @@ body:has(.sheet) {
   font-size: var(--step);
   line-height: 1.62;
 
-  /* 🚨 Load-bearing twice over: for `.sheet`'s own right-leaning inset and
-     for the break-out plate (`.gallery` in public/hausfold.css), both of
-     which measure `100cqw` rather than
+  /* 🚨 Load-bearing: `.sheet`'s left-leaning `--sheet-inset` (in
+     public/hausfold.css) measures `100cqw` rather than
      `100vw`. Reason: `html { scrollbar-gutter: stable }` at the foot of this
      file reserves the scrollbar's strip permanently, so 100vw is WIDER
      than the page by that strip on every machine that draws a classic
-     scrollbar. A plate sized off 100vw therefore sits ~7.5px proud of the
-     reading column on each side — the exact misalignment the plates'
+     scrollbar. An inset computed off 100vw therefore sits ~7.5px proud of
+     where a centred page's edge would be — the exact misalignment the
      clamp exists to prevent, and invisible on macOS overlay scrollbars,
      which is the only place it got looked at. A container is the one way
-     to ask for the layout width instead of the viewport's.
+     to ask for the layout width instead of the viewport's. (It was
+     load-bearing twice over until the break-out plates were deleted on
+     2026-08-14; the inset is the survivor, and it is enough on its own.)
 
      Scoped to the landing half rather than declared on `body` outright:
      `container-type: inline-size` implies `contain: layout`, which makes
@@ -291,6 +294,12 @@ body:has([data-tree='haus']) {
 }
 body:has([data-tree='pounce']) {
   --accent: var(--a-pounce);
+}
+body:has([data-tree='perch']) {
+  --accent: var(--a-perch);
+}
+body:has([data-tree='trill']) {
+  --accent: var(--a-trill);
 }
 
 /* A page's own declaration, last, so it beats the tree it sits in. */
@@ -369,6 +378,31 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   padding-bottom: 0.4rem;
   margin-bottom: 0.5rem;
   border-bottom: 1px solid var(--rule);
+}
+
+/* A tree's row at `/docs` — the four roots, rendered as links rather than as
+   accordions (see `Folder` in src/components/sidebar-parts.tsx).
+
+   This rule is geometry only, and it exists because fumadocs does not export
+   the styled `SidebarItem` its own renderer uses — the base primitive is a
+   bare `<a>`. The numbers are fumadocs' own (`p-2`, `gap-2`, `rounded-lg`,
+   `size-4` on the glyph) so a tree row sits on exactly the grid its
+   neighbours do. Everything else — ink, hover, the active wash, the glyph's
+   tint — comes from the `#nd-sidebar a` rules below, which reach this row
+   like any other and are the reason it cannot drift out of step. */
+.hf-tree {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.hf-tree svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
 }
 
 /* The active page is where the sidebar spends the page's accent. Fumadocs

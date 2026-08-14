@@ -2,7 +2,7 @@ import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/lib/layout.shared';
 import { Provider } from '@/components/provider';
-import { Separator } from '@/components/sidebar-parts';
+import { Folder, Separator } from '@/components/sidebar-parts';
 
 // `<Provider>` is here rather than in the root layout, and that placement is
 // the whole of what keeps the landing pages quiet. It carries fumadocs' search
@@ -19,19 +19,23 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
     <Provider>
       <DocsLayout
         tree={source.getPageTree()}
-        // The layer and the launcher are two trees, not two sections of one.
-        // `content/docs/*/meta.json`'s `root: true` makes each a tab, and
+        // The layer and the three apps are four trees, not four sections of
+        // one. `content/docs/*/meta.json`'s `root: true` makes each a tab, and
         // `tabMode: 'auto'` renders the switcher as a dropdown at the head of
         // the sidebar rather than a row of tabs across the top — the same
         // shape Vercel uses for app-router vs pages-router, and the right one
-        // here because the two trees are about different things rather than
-        // being two views of the same thing.
+        // here because the trees are about different things rather than
+        // being views of the same thing.
         tabMode="auto"
-        // One override, and it is about a selector rather than a shape: the
-        // group label gets a class instead of being styled as "the bare `<p>`
-        // in the sidebar", which the tree switcher also is. See
-        // `src/components/sidebar-parts.tsx`.
-        sidebar={{ components: { Separator } }}
+        // Two overrides, both in `src/components/sidebar-parts.tsx`:
+        //
+        //   Separator  a selector fix — the group label gets a class instead
+        //              of being styled as "the bare `<p>` in the sidebar",
+        //              which the tree switcher also is.
+        //   Folder     a shape change — at `/docs`, where the four roots are
+        //              the sidebar's whole contents, each is a link to its
+        //              tree rather than an accordion over it.
+        sidebar={{ components: { Separator, Folder } }}
         {...baseOptions()}
       >
         {children}
