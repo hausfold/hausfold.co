@@ -145,11 +145,14 @@ the way through — and without Full Disk Access that write fails, takes the res
 of activation with it, and never reaches the launchd agents. The failure is
 nowhere near the symptom.
 
-`haus doctor` reports the grant, and `haus rebuild` refuses up front when it
-detects a Claude Code session that lacks it. Better still, sidestep the domain:
-`haus.accessibility.increaseContrast` and
-`haus.accessibility.differentiateWithoutColor` reach the two keys in it that are
-worth having, with a guarded write. [Changing your Mac with an
+`haus doctor`'s **Permissions** section reports the grant, `haus plan` says
+whether this rebuild needs it before you run one, and `haus rebuild` refuses up
+front whenever the app it runs under lacks it — agent pane or plain terminal
+alike, since the grant follows the app. Better still, sidestep the domain:
+`haus.accessibility.*` reaches every key in it that macOS actually honours
+(`increaseContrast`, `differentiateWithoutColor`, `reduceMotion`,
+`reduceTransparency`) with a guarded write, which costs you the setting and
+nothing else when the grant is missing. [Changing your Mac with an
 agent](/docs/haus/rooms/agent-rebuilds) has the detail.
 
 ## Touch ID for sudo beachballs inside a multiplexer

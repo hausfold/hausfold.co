@@ -100,23 +100,31 @@ in haus, not something to bolt onto your machine.
 
 <Callout type="warn" title="The one rebuild it will refuse">
 If your host file sets `system.defaults.universalaccess.*` directly, `haus
-rebuild` refuses to run from an agent session whose app lacks **Full Disk
-Access**, and tells you to run the same command yourself.
+rebuild` refuses to run whenever the app it runs under lacks **Full Disk
+Access**, and tells you how to get past it.
 
-That domain is TCC-protected, and the grant belongs to the app your session runs
-under. Without it the write fails partway through activation and takes
+That domain is TCC-protected, and the grant belongs to the app the rebuild runs
+under — not to you, and not to root. So this is **not an agent rule**: an agent
+pane inside a terminal that holds the grant rebuilds perfectly well, and you at
+that same keyboard, in a terminal nobody has granted, are refused identically.
+Without the grant the write fails partway through activation and takes
 everything after it down too — your bar, tiling and palette come back dead, with
 the symptom nowhere near the cause. Refusing is the kinder failure: nothing is
-changed, and your edit is still on disk. `HAUS_AGENT_REBUILD=1` overrides it when
-you know better; the guard recognises a Claude Code session by its environment,
-so a Codex or OpenCode pane sails past it either way.
+changed, and your edit is still on disk.
 
-You can skip the whole hazard: `haus.accessibility.increaseContrast` and
-`haus.accessibility.differentiateWithoutColor` reach the two useful keys in that
-domain with a **guarded** write, so without the grant you lose the setting and
-nothing else. `haus.theme.contrast` is a different thing again — haus's own
-palette axis, painted into the apps haus themes rather than into macOS, so it
-always applies.
+The way past it is usually to stop writing the domain by hand.
+`haus.accessibility.*` reaches every key in it that macOS actually honours —
+`increaseContrast`, `differentiateWithoutColor`, `reduceMotion` and
+`reduceTransparency` — with a **guarded** write, so without the grant you lose
+that setting and nothing else, and the rebuild runs from anywhere. Otherwise:
+run it from an app that holds the grant, or set `HAUS_FDA_ANYWAY=1` when you know
+better (`HAUS_AGENT_REBUILD=1`, the name this had while the check was
+agent-scoped, still works).
+
+`haus plan` tells you which grant a rebuild wants *before* it runs, and `haus
+doctor`'s **Permissions** section says whether this app has it.
+`haus.theme.contrast` is a different thing again — haus's own palette axis,
+painted into the apps haus themes rather than into macOS, so it always applies.
 </Callout>
 
 ## What a rollback doesn't undo
