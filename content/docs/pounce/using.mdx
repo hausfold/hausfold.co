@@ -1,0 +1,105 @@
+---
+title: Using the palette
+description: Summoning it, the keys that move you around, how ranking picks the first row, and the questions it answers inline.
+icon: keys
+---
+
+## Summon it
+
+- **⌘Space** — the default hotkey, registered in-process by the daemon so it
+  opens instantly.
+- **Fn/Globe** — a lone tap opens the emoji and symbols grid. Fn combinations
+  keep working; this reuses Pounce's Accessibility grant and only replaces
+  Globe's stock action while armed. (On by default inside haus;
+  `"mode:emoji": { "hotkey": "fn" }` elsewhere.)
+- Change either in [config](/docs/pounce/config#config-file): the `hotkey`
+  block takes a `key` and `modifiers`.
+
+Not opening at all? [Install](/docs/pounce/install#one-key-to-free-up) covers
+the ⌘Space collision with Spotlight, which fails silently.
+
+## Navigating
+
+| Key | Action |
+|---|---|
+| Type | Fuzzy-search in real time |
+| `↑` / `↓` | Move the selection |
+| `Return` | Run the default action |
+| `⇧Return` | Insert a newline — the query field is multi-line |
+| `⌘Return` | The modifier action (often "Reveal in Finder" for apps) |
+| `⌥Return` / `⌃Return` | Alternate actions, when shown |
+| `Esc` | Dismiss |
+
+The action bar at the bottom always shows which modifiers do what for the
+selected row.
+
+## How ranking works
+
+Three signals decide the order, so the thing you want is usually already on
+top:
+
+- **Fuzzy match quality** — consecutive runs, word-boundary hits, and titles
+  counting double subtitles.
+- **Frecency** — frequency × recency, on a 72-hour half-life.
+- **A freshly-installed boost** for anything installed in the last week,
+  halving every two days.
+
+An app you'd rather never see can be hidden or sunk with `apps.hideBundleIds` /
+`apps.demoteBundleIds`, and any row can take a search shorthand — see
+[per-item settings](/docs/pounce/config#per-item-settings-items).
+
+## Quick answers
+
+Some queries are answered **in the palette** instead of being fuzzy-matched
+against apps and commands. The answer pins to the top as its own row, and
+`Return` copies it — no trigger prefix needed:
+
+| Type | Get |
+|---|---|
+| `2*847`, `2^10`, `sqrt(9)` | Arithmetic |
+| `100 + 10%`, `20% of 150` | Percentages |
+| `72 f in c`, `1 pound in kg`, `1 gib in mib` | Unit conversion |
+| `100 usd in eur`, `$100 in eur` | Currency conversion |
+| `14:00 utc in pst`, `2pm utc in tokyo` | Time-zone conversion |
+
+A query no engine can parse just falls through to normal results, and anything
+without a digit skips the engines entirely — `safari` stays a search.
+
+Currency uses the European Central Bank's daily reference rates, cached locally
+so it keeps answering offline. It is one of only two things that touch the
+network — the other is the hourly release check — and
+`quickAnswers.currency` in [config](/docs/pounce/config#config-file) turns it
+off.
+
+## The built-in modes
+
+The palette is not the only window Pounce draws. Each of these is an item you
+can run from the palette, bind to a key of its own, or launch from a script:
+
+| Mode | What it is |
+|---|---|
+| `mode:clipboard` | Clipboard history, two-pane, searchable, with optional auto-paste |
+| `mode:emoji` | Emoji *and* plain-text symbols in one grid — `command` → ⌘, `not equal` → ≠ |
+| `mode:filesearch` | Files and folders by name, over Spotlight's index |
+| `mode:screenshots` | A browser for the shots you've taken |
+| `mode:camera` | A live camera peek |
+
+`pounce run mode:clipboard` opens one directly; `"mode:clipboard": { "hotkey":
+"cmd+shift+v" }` in [config](/docs/pounce/config#per-item-settings-items) gives
+it a key. The cheatsheet overlay (`pounce --cheatsheet`) is the sixth window,
+and takes its content from `~/.config/pounce/cheatsheet.json`.
+
+<Cards>
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Beyond launching"
+    href="/docs/pounce/beyond-launching"
+    description="Two opt-in behaviours that are not a palette at all: an MRU window switcher, and quitting an app when its last window closes."
+  />
+  <Card
+    icon={<Icon name="launcher" />}
+    title="Commands"
+    href="/docs/pounce/commands"
+    description="Everything that ships in the list out of the box, and the plugin shelf that doesn't."
+  />
+</Cards>

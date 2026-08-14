@@ -1,0 +1,83 @@
+---
+title: CLI reference
+description: Every pounce flag and subcommand — the palette, the built-in windows, pickers, drafts, transforms and housekeeping.
+icon: terminal
+---
+
+```sh
+pounce --launcher                 # apps + commands palette (the default mode)
+pounce --max-empty 7              # rows to show before you type
+pounce -p "Pick:"                 # generic picker; reads lines from stdin
+pounce -i "sf.symbol.name"        # icon for the picker
+pounce -p "Search:" --chain       # picker whose free-text Enter feeds another pounce step
+pounce run cmd:emoji              # run one item by its key (for external binders)
+
+# built-in windows — items, not flags
+pounce run mode:clipboard         # clipboard history
+pounce run mode:emoji             # emoji + symbols picker
+pounce run mode:screenshots       # screenshot browser
+pounce run mode:camera            # live camera preview
+pounce run mode:filesearch        # file/folder search (Spotlight index)
+pounce run app:/Applications/Ghostty.app
+pounce --cheatsheet [path]        # cheatsheet overlay
+pounce --transform 'tr a-z A-Z'   # rewrite the selected text through a shell filter
+
+# settings
+pounce config print               # print the annotated config, touching nothing
+pounce config init                # write ~/.config/pounce/config.json
+
+# housekeeping
+pounce doctor                     # diagnose a dead/slow hotkey or binding
+pounce --request-accessibility / --check-accessibility
+pounce --request-bluetooth / --check-bluetooth
+pounce --help / --version
+```
+
+## Flags
+
+| Flag | Purpose |
+|---|---|
+| `-p`, `--placeholder` | Prompt text for the search field |
+| `-i`, `--icon` | SF Symbol icon for the picker |
+| `--chain [keys]` | Mark a free-text commit as feeding another `pounce` step. Optional comma-separated action list (`--chain enter,opt`); bare `--chain` means `enter` |
+| `--actions <spec>` | Label the action bar on a rowless step: `"Go\|shift:New line\|cmd:Screenshot\|opt:Drafts"` |
+| `--draft <key>` | Keep typed text on any non-commit dismissal, filed under `<key>` |
+| `--query <text>` | Open with the box pre-filled, caret at the end |
+| `--transform <filter>` | Pipe the current selection through a shell filter and paste the result back (needs Accessibility) |
+| `--copy-file <path>` | Copy a file's contents to the clipboard |
+| `--max-empty <n>` | How many rows to show before anything is typed |
+| `--cheatsheet [path]` | Open the cheatsheet overlay |
+
+## Subcommands
+
+| Subcommand | Purpose |
+|---|---|
+| `run <item-key>` | Run one item by the key `items` uses, for binders that own the keystroke |
+| `config print` / `config init` | Print the annotated config, or write one |
+| `doctor` | Report the daemon, the grant, and every binding actually armed |
+| `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
+| `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear` — files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
+
+## Homebrew binaries
+
+`brew install pounce` puts `pounce` (the app/daemon), `pounce-palette` (the
+launcher wrapper, for binding a hotkey externally), and one `pounce-<command>`
+wrapper per built-in on your `PATH`.
+
+Inside haus, set the palette up via `haus.pounce` instead — the module handles
+the daemon, the hotkey, and permission survival for you.
+
+<Cards>
+  <Card
+    icon={<Icon name="shell" />}
+    title="Writing your own command"
+    href="/docs/pounce/writing-commands"
+    description="Where most of these flags are actually spent: a script that asks a question and acts on the answer."
+  />
+  <Card
+    icon={<Icon name="dials" />}
+    title="Config reference"
+    href="/docs/pounce/config"
+    description="The file side of the same surface — every key, and the three blocks that need a restart."
+  />
+</Cards>

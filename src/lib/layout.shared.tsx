@@ -23,19 +23,20 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     // The way back out to the rest of the site, at the head of the sidebar.
-    // Each carries a glyph, to be found by shape rather than read. The two
-    // that name a *product* carry that product's accent; `/desktops` is a
+    // Each carries a glyph, to be found by shape rather than read. `perch`
+    // names a *product* and carries that product's accent; `/desktops` is a
     // catalogue rather than a product, owns no accent anywhere on this site,
     // and so takes the current page's tint like any other row.
     //
-    // There is no `haus` row any more. It pointed at `/haus`, which was
-    // retired into `/docs/haus` on 2026-08-14 — and a link out of the docs
+    // Two rows left on 2026-08-14, for one reason: **a link out of the docs
     // that lands back in the docs is not a way out, it is the tree switcher
-    // at the top of this same sidebar. The url below is `/#desktops` rather
-    // than `/desktops` for a smaller reason: `/desktops` only 301s there.
+    // at the top of this same sidebar.** `haus` pointed at `/haus`, which was
+    // retired into `/docs/haus`; `pounce` pointed at `/pounce`, which was
+    // retired into `/docs/pounce`. Both glyphs live in the switcher now — see
+    // `src/lib/icons.tsx`. The url below is `/#desktops` rather than
+    // `/desktops` for a smaller reason: `/desktops` only 301s there.
     links: [
       { text: 'desktops', url: '/#desktops', external: true, icon: <Icon name="desktops" /> },
-      { text: 'pounce', url: '/pounce', external: true, icon: <Icon name="pounce" /> },
       { text: 'perch', url: '/perch', external: true, icon: <Icon name="perch" /> },
     ],
     githubUrl: `https://github.com/${gitConfig.user}`,

@@ -38,8 +38,8 @@
    So colour is allowed at rest here, on a leash:
 
      one hue per tree    — every page under /docs/haus wears the palette's
-                           own mauve, every page under /docs/nebelhaus
-                           wears the rice's pink, and a page that is
+                           own mauve, every page under /docs/pounce wears
+                           pounce's own peach, and a page that is
                            genuinely about a product may still name that
                            product in `accent:` frontmatter and override
                            both. The hue is never invented: it is one of
@@ -74,7 +74,7 @@
    `public/` because that is where `scripts/sync-nebelung.mjs` writes it.
 
    Its layout classes (.sheet, .index, .catalogue…) are no longer unused here —
-   they are what the eight landing routes are built out of, which is what makes
+   they are what the seven landing routes are built out of, which is what makes
    this one import the single copy of the palette in the repo. */
 @import '../../public/hausfold.css';
 
@@ -176,7 +176,7 @@
 
      1. `accent: pounce` in the page's frontmatter — the page is *about* a
         product, and takes that product's colour.
-     2. the tree it lives in — /docs/haus is mauve, /docs/nebelhaus is pink.
+     2. the tree it lives in — /docs/haus is mauve, /docs/pounce is peach.
      3. nothing, which is `--ink`: the /docs index itself, which is a
         doorway to both trees and shouldn't pick a side.
 
@@ -243,16 +243,19 @@ body {
   --color-fd-error: var(--a-nebelhaus);
 }
 
-/* The landing half, handed its own face back. Every one of the eight routes
+/* The landing half, handed its own face back. Every one of the seven routes
    that is NOT a docs page puts `.sheet` on its `<main>`, so this one selector
    covers all of them and the body rules above apply to `/docs` alone.
 
    It was written on 2026-08-12 for `src/app/not-found.tsx` — then the only
    landing-half page under this layout, because Next's export overwrites a
-   same-named `public/404.html` — and it carried the other seven for free when
-   they became routes on 2026-08-14. Without it they would read in SF, which is
-   exactly the drift the type split is supposed to be a considered exception to
-   rather than an accident.
+   same-named `public/404.html` — and it carried the rest for free when they
+   became routes on 2026-08-14. (There were nine that day. `/haus` and
+   `/pounce` were both retired into their docs trees later the same day, which
+   is why the count keeps shrinking and why a number in this comment is worth
+   distrusting.) Without it they would read in SF, which is exactly the drift
+   the type split is supposed to be a considered exception to rather than an
+   accident.
 
    🚨 The corollary: a new landing page whose `<main>` is not a `.sheet` comes
    out in the docs' face, silently. */
@@ -265,8 +268,8 @@ body:has(.sheet) {
 body:has([data-tree='haus']) {
   --accent: var(--a-nebelung);
 }
-body:has([data-tree='nebelhaus']) {
-  --accent: var(--a-nebelhaus);
+body:has([data-tree='pounce']) {
+  --accent: var(--a-pounce);
 }
 
 /* A page's own declaration, last, so it beats the tree it sits in. */

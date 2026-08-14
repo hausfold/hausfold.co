@@ -104,10 +104,10 @@ for (const key of ['wmBindings', 'launchModeKeys', 'resizeModeKeys']) {
   }
 }
 console.error(`
-Update the docs to match haus —
-  content/docs/nebelhaus/keybindings.mdx
-  content/docs/haus/guides/window-management.mdx
-  content/docs/nebelhaus/first-run.mdx
+Update the pages that print these keys —
+  src/app/desktops/nebelhaus/page.tsx   (#first-moves and #keys)
+  content/docs/haus/rooms/windows.mdx
+  content/docs/haus/rooms/development.mdx
 — then refresh the snapshot:
   node scripts/check-rice-bindings.mjs --haus <haus-checkout> --update`);
 process.exit(1);

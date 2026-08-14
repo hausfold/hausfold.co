@@ -1,0 +1,112 @@
+---
+title: Install
+description: Homebrew or a DMG, the one macOS permission pounce asks for, and how to free ⌘Space from Spotlight.
+icon: install
+---
+
+Pounce is a prebuilt, Developer-ID-signed and notarized `Pounce.app` — no
+compile step, no Xcode command-line tools to fetch, no Gatekeeper prompt.
+
+## Homebrew
+
+```sh
+brew tap hausfold/tap
+brew install pounce
+brew services start pounce        # start the daemon
+pounce --request-accessibility    # one-time, approve the dialog
+```
+
+Because that signing identity is stable, the Accessibility grant **survives
+`brew upgrade`** — approve it once, not once per release.
+
+## Or a download
+
+The [latest release](https://hausfold.co/download/pounce) is the same build as
+a DMG: drag it to Applications and open it. First launch registers a login item
+and starts the daemon — approve the login item in System Settings if macOS
+asks.
+
+With Nix, without installing anything:
+`nix run github:hausfold/pounce -- --help`.
+
+## What it needs
+
+| | |
+|---|---|
+| **macOS 14** | Sonoma or newer, on Apple Silicon |
+| **Accessibility** | One permission — see below |
+| **Nothing else** | No account, no key, no sign-in, no Xcode, no Nix |
+
+## One key to free up
+
+Pounce wants **⌘Space**, and on a stock Mac that key belongs to Spotlight.
+
+<Callout type="warn" title="If ⌘Space does nothing on a stock Mac">
+Spotlight wins **silently** — registration *succeeds*, so Pounce can't tell,
+and macOS just routes the key elsewhere. The daemon checks for this at startup
+and names the shortcut that beat it in its log.
+
+Free the key in **System Settings → Keyboard → Keyboard Shortcuts →
+Spotlight**, then restart the daemon.
+</Callout>
+
+Would you rather keep Spotlight where it is? The hotkey is a line of
+[config](/docs/pounce/config#config-file) — the `hotkey` block takes a `key`
+and a list of `modifiers`:
+
+```jsonc
+{ "hotkey": { "key": "space", "modifiers": ["opt"] } }   // ⌥Space instead
+```
+
+(On a haus machine you write `haus.keys.palette = "alt-space"` instead, and the
+rebuild generates that block for you.) Inside
+[haus](/docs/haus/rooms/launcher) ⌘Space is handed over for you either way,
+because haus turns Spotlight's binding off.
+
+## Grant Accessibility
+
+Clipboard auto-paste, emoji paste, and modifier-only bindings like Fn/Globe all
+synthesize keystrokes; the [window switcher and
+auto-quit](/docs/pounce/beyond-launching) read a live window snapshot. macOS
+gates all of it behind one grant:
+
+```sh
+pounce --request-accessibility    # approve the dialog
+pounce --check-accessibility      # prints true when granted
+```
+
+Pounce is honest about why it asks: a global hotkey that works over every app
+can't be had without it. Two features ask for their own the first time you use
+them — the camera peek, and the Bluetooth plugin. Nothing else: no Input
+Monitoring, no Screen Recording, no Full Disk Access.
+
+<Callout title="Nix rebuilds and Accessibility">
+A plain Nix rebuild is ad-hoc signed, which would drop the grant every time.
+Inside haus, set `haus.pounce.signingIdentity` and the desktop re-signs a
+stable copy of the app with your identity, so the grant persists across
+rebuilds. See [the Launcher room](/docs/haus/rooms/launcher).
+</Callout>
+
+## Check it landed
+
+```sh
+pounce doctor
+```
+
+It reports whether the daemon is up, whether Accessibility is granted, every
+binding it actually armed — and what beat it to a hotkey if something did.
+
+<Cards>
+  <Card
+    icon={<Icon name="keys" />}
+    title="Using the palette"
+    href="/docs/pounce/using"
+    description="Summoning, the keys that move you around, how ranking decides the first row, and the answers that come back inline."
+  />
+  <Card
+    icon={<Icon name="launcher" />}
+    title="Commands"
+    href="/docs/pounce/commands"
+    description="What ships in the palette out of the box, and the plugin shelf you turn on by id."
+  />
+</Cards>

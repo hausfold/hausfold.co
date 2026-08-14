@@ -1,0 +1,19 @@
+{
+  "title": "pounce",
+  "description": "The launcher you teach",
+  "icon": "pounce",
+  "root": true,
+  "pages": [
+    "---Start---",
+    "index",
+    "install",
+    "using",
+    "beyond-launching",
+    "---Commands---",
+    "commands",
+    "writing-commands",
+    "---Reference---",
+    "config",
+    "cli"
+  ]
+}

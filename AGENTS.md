@@ -66,7 +66,8 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the desktops **catalogue** | here, and it is **not** a page of its own any more — it is the first section of `src/app/page.tsx` (`/#desktops`). See below |
 | a **desktop's own page** | here, `src/app/desktops/<name>/page.tsx` — that half didn't move, only its file extension did |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| anything about a **product** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
+| a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
+| a product's **documentation** | **here** — and since 2026-08-14 pounce's is a **docs tree of its own**, `content/docs/pounce/`, the second tab in the switcher. The source of truth for a *fact* is still the product's repo; what lives here is the manual written against it. See [Two trees](#two-trees-not-one) |
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
 | anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
@@ -193,10 +194,16 @@ things to know before editing them:
   still live and still what `nebelhaus.com/perch` serves.** Two pages about one
   product will not agree for long — when §5.1 lands, delete the Astro one rather
   than reconciling them, and until then fix a fact in *both* or in neither.
-  **`/pounce` (added 2026-08-09) inherits every word of that warning** —
-  `workshop/web/src/pages/pounce.astro` is still what `nebelhaus.com/pounce`
-  serves, and it is a *denser* page than perch's, so there is more to drift.
-  Two products, two duplicate pairs, one rule.
+  ✅ **`/pounce` used to inherit every word of that warning, and no longer
+  exists.** It was added 2026-08-09 and **retired on 2026-08-14** into
+  `content/docs/pounce/` — pounce's docs tree — with `/pounce` 301ing to
+  `/docs/pounce/`. The reasoning: pounce installs from Homebrew with no Nix, is
+  read about far more than it is pitched, and one product does not need a sheet
+  *and* a manual on the same domain. The duplicate-pair rule therefore now binds
+  for **perch alone** on this site; `workshop/web/src/pages/pounce.astro` still
+  serves `nebelhaus.com/pounce` and is on its way out with the rest of that
+  tree. **Don't rebuild `/pounce` as a landing page** — put the words in the
+  docs tree.
 - **`/terms` and `/refunds` exist because Paddle asks for them.** Paddle's
   account review sits in front of every other step of Phase 2, and it wants
   policy URLs on the seller's own domain. They describe a licence nobody can buy
@@ -216,8 +223,8 @@ things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address still reaches all eight pages, but
-  since 2026-08-14 it is *written* five times rather than ten: once in
+  ⚠️ **It is not just `/terms`.** The address still reaches every landing page,
+  but since 2026-08-14 it is *written* five times rather than ten: once in
   `src/components/sheet.tsx`'s `<Colophon>` (which is every page's footer), and
   once each in the prose of `/terms`, `/refunds` and `/perch/privacy` — the
   three that name it in a sentence as well as a footer. The fifth is the
@@ -232,15 +239,28 @@ things to know before editing them:
 Next copies into `out/` untouched. The hand-written *half* still exists — it is
 just spelled in TSX and lives under `src/app/` beside the docs.
 
+**There are seven landing routes, and the number has been wrong twice in one
+day.** Nine became Next routes on 2026-08-14; hours later `/haus` was retired
+into `/docs/haus` and `/pounce` into `/docs/pounce`. If you meet "the nine
+`.sheet` routes" or "the eight" anywhere, it's stale — and the useful lesson is
+that a count in a comment rots faster than the thing it counts.
+
+**Both retirements were the same judgement**, arrived at independently by two
+sessions on the same day, which is worth taking as a rule rather than a
+coincidence: **a page that a docs tree also covers does not stay in step with
+it.** `/haus` had become a shorter, staler account of `/docs/haus`; `/pounce`
+was a sheet beside a manual. The corollary, and the reason `/perch` is not
+next: perch's sheet is a *sales* page with a policy URL and, later, a price —
+things a manual is the wrong shape for, and things `/docs` does not carry.
+
 The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
 | `/` | `src/app/page.tsx` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then the **haus** section (the one-file example, inherited from `/haus`) and a closing line for holt + nebelung. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
-| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, what you get, requirements. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
+| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, what you get, requirements — **plus `#first-moves`, a "Making it yours" section and `#keys`**, which are what the retired `/docs/nebelhaus` tree left behind (2026-08-14, and explicitly "for now"). ⚠️ Those three reprint material that `/docs/haus/desktops/customizing` and `/docs/haus/reference/haus` also carry; that duplication is the price of the retirement and is the first thing to reconcile if desktops get a tree back. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
-| `/pounce` | `src/app/pounce/page.tsx` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
 | `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
 | `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
@@ -439,17 +459,19 @@ Rules that are easy to break by accident:
   `prefers-color-scheme` exactly as they did when they were hand-written HTML
   and shipped no toggle at all. What the rule still governs is *our* script,
   and there is exactly one piece: `<Command>`
-  (`src/components/command.tsx`), used on `/`, `/perch`, `/pounce` and
+  (`src/components/command.tsx`), used on `/`, `/perch` and
   `/desktops/nebelhaus`, which was four identical twelve-line `<script>` blocks
-  until the port. Its bar is unchanged and is the bar for a second one: the
+  until the port (`/haus` and `/pounce` were two of the four, and are docs
+  trees now — the landing page inherited `/haus`'s example file). Its bar is
+  unchanged and is the bar for a second one: the
   button renders `hidden` in the exported HTML and unhides only where
   `navigator.clipboard` exists, so the command is plain selectable text with JS
   off — **pure enhancement, nothing lost without it**. A page may hold more
-  than one; `/pounce` does, and its second is not an install command but the
-  four-line example, which is the thing that page is actually asking you to
-  try. (`/docs` is React through and through and is a different animal.)
-- **Placeholder frames, never a stale screenshot.** `/desktops/nebelhaus`,
-  `/pounce` and `/perch` draw their shot slots in CSS and label them
+  than one; `/desktops/nebelhaus` does, since it absorbed the first-run page's
+  `haus edit` snippet. (`/docs` is React through and through and is a different
+  animal — a fenced block there is MDX, with fumadocs' own copy button.)
+- **Placeholder frames, never a stale screenshot.** `/desktops/nebelhaus`
+  and `/perch` draw their shot slots in CSS and label them
   `[ shot not taken yet ]`. The family's only rice
   capture is `hausfold/assets/hero.png`, which the workshop's own
   `assets/SHOTLIST.md` still calls a placeholder. When a real capture exists,
@@ -541,8 +563,10 @@ Rules that are easy to break by accident:
   is the pattern for the rest: a link moves inward on the day the inward page
   exists, not before. **`/pounce` is the third, and it followed exactly that
   pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
-  and onto `/pounce`, in the same commit. What's left pointing out of the index
-  is `holt` and `nebelung`, which have no page here yet.
+  and onto `/pounce`, in the same commit. (That line points at `/docs/pounce`
+  since 2026-08-14, when the sheet was retired into the docs tree — still
+  inward, one door further in.) What's left pointing out of the index is `holt`
+  and `nebelung`, which have no page here yet.
 
   ✅ **The inversion is complete.** `/perch/privacy`'s footer was the
   second-to-last holdout — it said `nebelhaus.com/perch` for six days after
@@ -567,7 +591,12 @@ Rules that are easy to break by accident:
   `href="/perch"` did. And 🚨 **a `worker.js` route is internal but NOT a Next
   route**: `/download/<app>`, `/nebelhaus.sh` and `/api/release/<app>` take a
   plain `<a>`, because `next/link` would client-navigate to a page the router
-  has never heard of. `/perch` and `/pounce` both link one.
+  has never heard of. `/perch` links one. ⚠️ **In MDX the same trap is worse**,
+  because `a: createRelativeLink(source, page)` in
+  `src/app/docs/[[...slug]]/page.tsx` turns every internal-looking href into
+  fumadocs' Link — so a docs page pointing at a Worker route writes the
+  **absolute** URL (`https://hausfold.co/download/pounce`), which
+  `/docs/pounce/install` does.
 - **Every page now spells the org `hausfold`. ✅ Swept 2026-08-10, together, as
   the rule required.** Rename plan §3.2 transferred all nine repos on
   2026-08-08, so `hausfold/tap/<app>` and `github.com/hausfold/<repo>` are the
@@ -596,19 +625,46 @@ Added 2026-08-12 (rename plan §5.2). [Fumadocs](https://fumadocs.dev) on Next,
 
 ### Two trees, not one
 
-`content/docs/haus/` and `content/docs/nebelhaus/` are both **root folders**
+`content/docs/haus/` and `content/docs/pounce/` are both **root folders**
 (`"root": true` in their `meta.json`), which Fumadocs renders as the switcher at
 the head of the sidebar — the same shape Vercel uses for app-router vs
 pages-router. That is deliberate and it is the site's positioning made
-navigable: **`haus` is the layer, `nebelhaus` is one desktop built on it.** A
-page about the machinery goes in the first; a page about *that* desktop's
-opinions, its install command, its muscle memory goes in the second.
+navigable: **`haus` is the layer, `pounce` is an app that runs on it — and
+without it.** A page about the machinery goes in the first; a page about the
+app goes in the second.
 
 If you can't tell which tree a page belongs in, that's the useful signal: it
 usually means the page is two pages.
 
-Adding a third tab is a positioning change, not a file. It needs the same
-backing as any other claim on this site.
+> 🚨 **The axis changed on 2026-08-14 and this section says the opposite of
+> what it used to.** It read *`haus` is the layer, `nebelhaus` is one desktop
+> built on it*, with `content/docs/nebelhaus/` as the second tab. The switcher
+> is now **the layer, and the apps** — which is the landing page's own
+> structure (`#desktops`, `Apps`, then haus), so it is an alignment rather than
+> a new claim. Two consequences:
+>
+> - **`content/docs/nebelhaus/` is gone**, retired into
+>   `/desktops/nebelhaus` (`#first-moves`, `#keys`) with six 301s in
+>   `public/_redirects`. A desktop is a set of values for haus's own options
+>   rather than a subject of its own, and choosing between desktops is already
+>   documented at `content/docs/haus/desktops/`. **This is explicitly "for
+>   now"** — the user's word. If desktops earn a tree again, they earn it as
+>   *desktops*, not as one of them.
+> - **A product's docs may be a tree.** The rule that follows: a **room page
+>   documents the room** — the haus wiring, the options, what turns on — and
+>   everything about the app itself lives in the app's own tree.
+>   `rooms/launcher` was 268 lines documenting pounce end to end and is ~90
+>   documenting the module; `rooms/shelf` was already that shape at 88 lines,
+>   though perch has no tree behind it yet, so it demonstrates only the thin
+>   half. `rooms/ai` is still 339 lines mostly about holt, and is the next one
+>   to shrink when holt gets a tree.
+
+Adding a tab is still a positioning change, not a file. It needs the same
+backing as any other claim on this site — and the test the pounce tab passed
+is **can a stranger install this without haus?** pounce is MIT and one `brew
+install`, so a URL under `/docs/haus/` was telling most of its readers
+something untrue. perch and holt clear the same bar; nebelung (a palette) and
+a desktop do not.
 
 ### The editorial bar — this is a rewrite, not a move
 
@@ -653,14 +709,17 @@ The leash, in full:
 - **One hue per tree, at rest.** Every page under `/docs/haus` wears
   `--a-nebelung` (mauve — which *is* nebelung's own accent in the vendored
   block, so the layer wears the palette the family shares); every page under
-  `/docs/nebelhaus` wears `--a-nebelhaus`. It comes from `data-tree` on the
-  page container, read by `body:has([data-tree=…])` in `src/app/global.css`.
-  A reader can tell the two halves apart with the page turned upside down,
-  which is the whole point.
+  `/docs/pounce` wears `--a-pounce` (peach — the product's own). It comes from
+  `data-tree` on the page container, read by `body:has([data-tree=…])` in
+  `src/app/global.css`. A reader can tell the two halves apart with the page
+  turned upside down, which is the whole point.
 - **A page may still override with `accent: <product>`** in frontmatter — one
   of the six in `src/lib/shared.ts` — and that rule is written *after* the tree
-  rules so it wins. Keep it for pages genuinely about a product. **Neither
-  ported nebelhaus page carries one any more**: the tree already says pink.
+  rules so it wins. Keep it for the page that is genuinely about a **different**
+  product than its tree. **No page in the pounce tree carries one**, because the
+  tree already says peach; the worked example is the other direction —
+  `haus/rooms/launcher` sets `accent: pounce` so the room reads as the app it
+  installs rather than as the layer around it.
 - **Four named steps, and nothing mixes its own**: `--accent` itself,
   `--accent-wash` (7%, for fills — the active sidebar row, a hovered table
   row, inline code), `--accent-line` (55% into the rule colour, for rules —

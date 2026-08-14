@@ -15,6 +15,22 @@ import { pageMetadata } from '@/lib/page-meta';
 // the options reference from haus's own module system. Check this page against
 // `content/docs/haus/install.mdx` and `content/docs/haus/desktops/choosing.mdx`
 // rather than against a README in another repo.
+//
+// 🚨 It also carries what used to be the `/docs/nebelhaus` tree. That tab was
+// retired on 2026-08-14 when the docs switcher's axis became "the layer, and
+// the apps": a desktop is a set of values for haus's own options rather than a
+// subject of its own, so `first-run` and `keybindings` were retired *here*,
+// and `/docs/nebelhaus/*` now 301s to this page. It is explicitly a holding
+// position — the user's word was "for now".
+//
+// What came across is what a first week actually needs, and no more. The
+// terminal chords, service mode and the Ghostty unbindings did NOT: they are
+// layer facts, not this desktop's, and they live in /docs/haus/rooms/development
+// and /docs/haus/rooms/windows, which this page links rather than repeats.
+//
+// The keys are `.facts` lists, not tables, because `public/hausfold.css` has no
+// table styles at all — that is deliberate ("a table would rule four lines to
+// say two"), and a dt/dd pair is the same key→meaning shape anyway.
 export const metadata = pageMetadata({
   title: 'nebelhaus — hausfold',
   description:
@@ -24,6 +40,24 @@ export const metadata = pageMetadata({
   ogDescription:
     'Tiling windows, a bar, a themed terminal — the whole Mac in one Nix flake. Silver-grey, keyboard-first, reproducible.',
 });
+
+// The three tweaks people reach for first, carried over from the retired
+// `/docs/nebelhaus/first-run` page. A `<Command>` block, not a code fence:
+// this half of the site has no syntax highlighter and doesn't want one.
+const settings = `haus.theme.accent = "sapphire";        # one accent, everywhere
+haus.hearth.editorName = "neovim";     # named, so haus installs it
+
+haus.roster.slack = {                  # an app, with a launcher key
+  key = "s";
+  name = "Slack";
+  appId = "com.tinyspeck.slackmacgap";
+  cask = "slack";
+};
+haus.workspaces.S = {                  # …and a workspace of its own
+  key = "s";
+  icon = ":slack:";
+  apps = [ "slack" ];
+};`;
 
 export default function Nebelhaus() {
   return (
@@ -144,6 +178,187 @@ export default function Nebelhaus() {
         </p>
       </section>
 
+      {/* The id is load-bearing: /docs/haus/install's "First run" card and the
+          /docs/nebelhaus/first-run redirect both land on it. */}
+      <section className="block" id="first-moves">
+        <h2>First moves</h2>
+        <p>
+          The first switch has finished. Windows now tile themselves, the menu bar has been
+          replaced, your terminal opens into a themed session, ⌘Space belongs to the palette, and{' '}
+          <code>haus</code> is on your <code>PATH</code>. Here&apos;s the muscle memory.
+        </p>
+        <dl className="facts">
+          <dt>⌘Space</dt>
+          <dd>
+            the palette. Type a few letters, hit Return. Start here for everything —{' '}
+            <Link href="/docs/pounce">what else it does</Link>
+          </dd>
+
+          <dt>Tap ⇪, then a letter</dt>
+          <dd>
+            launch or focus that app. <code>T</code> is the terminal, <code>B</code> the browser
+          </dd>
+
+          <dt>Tap ⇪, then an arrow</dt>
+          <dd>
+            move focus between tiled windows. Keep arrowing; hold ⇧ to <em>move</em> the window
+            instead
+          </dd>
+
+          <dt>Tap ⇪, then a digit</dt>
+          <dd>jump to that workspace. Add ⇧ to throw the current window there</dd>
+
+          <dt>Tap ⇪, then /</dt>
+          <dd>
+            the cheatsheet, generated from <em>your</em> app list — so it is never out of date
+          </dd>
+        </dl>
+        <p className="aside">
+          Tap Caps-Lock — don&apos;t hold it. It&apos;s a leader key now, not a modifier.
+        </p>
+        <p>
+          Try these in order: tap <strong>⇪ T</strong> and the terminal opens and tiles itself;{' '}
+          <strong>⌘Space</strong>, type <code>saf</code>, Return and Safari launches;{' '}
+          <strong>⇪ then ← / →</strong> jumps focus between the two; <strong>⌥/</strong> flips the
+          split between horizontal and vertical; <strong>⌘Space</strong>, type{' '}
+          <code>emoji</code>, Return turns the palette into an emoji grid.
+        </p>
+        <p>
+          One permission to grant — a few palette features use a keyboard path macOS gates behind
+          Accessibility. Everything else works without it.
+        </p>
+        <Command>pounce --request-accessibility</Command>
+      </section>
+
+      <section className="block">
+        <h2>Making it yours</h2>
+        <p>
+          Your settings live in one file. <code>haus edit</code> opens it; the tweaks people reach
+          for first are an accent, an editor, and an app with a launcher key and a workspace of its
+          own.
+        </p>
+        <Command>{settings}</Command>
+        <p>
+          Then <code>haus rebuild</code>. The commands you&apos;ll actually use:
+        </p>
+        <dl className="facts">
+          <dt>haus rebuild</dt>
+          <dd>build, then switch. Your everyday apply</dd>
+
+          <dt>haus plan</dt>
+          <dd>
+            what a rebuild <em>would</em> change — packages, settings, files. Read-only
+          </dd>
+
+          <dt>haus update</dt>
+          <dd>pull new versions, then rebuild</dd>
+
+          <dt>haus status</dt>
+          <dd>which generation you&apos;re on, and how stale it is</dd>
+
+          <dt>haus rollback</dt>
+          <dd>back to the previous generation. A failed build never activated in the first place</dd>
+
+          <dt>haus doctor</dt>
+          <dd>health check, with the exact fix for anything it finds</dd>
+        </dl>
+        <p className="aside">
+          The full list is{' '}
+          <Link href="/docs/haus/reference/haus">the haus reference</Link>, and{' '}
+          <Link href="/docs/haus/keeping-it-current">Keeping it current</Link> is the loop they
+          belong to.
+        </p>
+      </section>
+
+      {/* The /docs/nebelhaus/keybindings redirect lands here. */}
+      <section className="block" id="keys">
+        <h2>The keys</h2>
+        <p>
+          The defaults, and the ones worth knowing in week one. ⌥ Option · ⌘ Command · ⌃ Control ·
+          ⇧ Shift · ⇪ Caps-Lock. There is a live copy on your own machine — tap <strong>⇪ /</strong>{' '}
+          — generated from your own tables; use that one when they disagree.
+        </p>
+        <p>
+          Three options move everything below: <code>haus.keys.leader</code> (what ⇪ is),{' '}
+          <code>haus.keys.windowNav</code> (what ⌥ is) and <code>haus.keys.palette</code> (what
+          opens the launcher). Each can also be <code>&quot;none&quot;</code>, which removes its
+          bindings rather than moving them.
+        </p>
+
+        <h3>Tiling</h3>
+        <dl className="facts">
+          <dt>⌥H ⌥J ⌥K ⌥L</dt>
+          <dd>focus left / down / up / right</dd>
+
+          <dt>⌥/ · ⌥,</dt>
+          <dd>tiles layout, toggling horizontal ↔ vertical · accordion layout</dd>
+
+          <dt>⌥F</dt>
+          <dd>fullscreen</dd>
+
+          <dt>⌥⇧Tab</dt>
+          <dd>move the workspace to the next monitor</dd>
+
+          <dt>⌥⇧;</dt>
+          <dd>
+            service mode — flatten the tree, float a window, close every other one, join a
+            neighbour
+          </dd>
+        </dl>
+        <p className="aside">
+          ⌥Tab is deliberately unbound: ⌘Tab below answers the same question better.
+        </p>
+
+        <h3>Tap ⇪ — launch mode</h3>
+        <dl className="facts">
+          <dt>an app key</dt>
+          <dd>
+            launch or focus that app — <code>T</code> terminal, <code>B</code> browser by default.
+            ⇧ throws the focused window to that app&apos;s workspace and follows it
+          </dd>
+
+          <dt>1–4 · ⇧1–⇧4</dt>
+          <dd>focus workspace 1–4 · throw the focused window there and follow it</dd>
+
+          <dt>←↓↑→</dt>
+          <dd>
+            focus a tiled window — drops into navigate mode, where arrows repeat and ⇧+arrow{' '}
+            <em>moves</em> the window
+          </dd>
+
+          <dt>- / =</dt>
+          <dd>resize mode: shrink / grow, repeatably</dd>
+
+          <dt>V · E · Z</dt>
+          <dd>clipboard history · emoji picker · reopen the last closed app</dd>
+
+          <dt>, · ` · /</dt>
+          <dd>macOS System Settings · re-sort every window to its workspace · this cheatsheet</dd>
+        </dl>
+
+        <h3>The palette — ⌘Space</h3>
+        <dl className="facts">
+          <dt>⌘Space · ⌘Tab</dt>
+          <dd>open it · most-recently-used window switcher, across workspaces</dd>
+
+          <dt>fn, tapped alone</dt>
+          <dd>emoji picker</dd>
+
+          <dt>⏎ · ⇧⏎ · ⌘⏎</dt>
+          <dd>
+            default action · newline, since the query field is multi-line · the modifier action,
+            e.g. Reveal in Finder
+          </dd>
+        </dl>
+        <p className="aside">
+          The terminal has a chord set of its own — panes, tabs, find, agent worktrees — and it
+          belongs to the layer rather than to this desktop:{' '}
+          <Link href="/docs/haus/rooms/development">Development</Link> has it, and{' '}
+          <Link href="/docs/haus/rooms/windows">Windows</Link> has the tiling half in full,
+          including how to move all of it onto keys you&apos;d rather use.
+        </p>
+      </section>
+
       <section className="block">
         <h2>What it needs</h2>
         <dl className="facts">
@@ -174,19 +389,31 @@ export default function Nebelhaus() {
         {/* These pointed at nebelhaus.com until 2026-08-14. The docs are in
             this repo now (content/docs/), so the outward links were sending
             readers to the older of two live copies — see AGENTS.md on the
-            301s that finally retire that tree. */}
+            301s that finally retire that tree.
+
+            They pointed at /docs/nebelhaus for a few hours after that, until
+            the tree itself was retired into this page. "What it is" is this
+            page's masthead and "first run" is the #first-moves section above,
+            so neither wants a row: what is left points at the layer, which is
+            the one thing this page is deliberately not a copy of. */}
         <ul className="plain" role="list">
           <li>
-            <Link className="index-name" href="/docs/nebelhaus">
-              the docs
+            <Link className="index-name" href="/docs/haus">
+              the haus docs
             </Link>{' '}
-            — what it is, and whether it&apos;s for you.
+            — the layer this desktop is a set of values for, room by room.
           </li>
           <li>
-            <Link className="index-name" href="/docs/nebelhaus/first-run">
-              first run
+            <Link className="index-name" href="/docs/haus/desktops/customizing">
+              making it yours
             </Link>{' '}
-            — what to do once it&apos;s on the machine.
+            — overriding anything the desktop chose, in a line.
+          </li>
+          <li>
+            <Link className="index-name" href="/docs/pounce">
+              pounce
+            </Link>{' '}
+            — the palette on ⌘Space, in full.
           </li>
           <li>
             <a className="index-name" href="https://github.com/hausfold/haus">

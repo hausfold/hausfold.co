@@ -13,16 +13,17 @@ npm run types:check && npm run lint  # what CI runs first
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
 `worker.js` behave. `/desktops` should 301 to `/#desktops`, `/haus` to
-`/docs/haus/`, and a made-up path should 404 rather than answer 200.
+`/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
+rather than answer 200.
 
 ## the map
 
 ```
 src/app/                          the routes
   page.tsx                        landing page — masthead, the desktop catalogue (#desktops), the apps
-  perch/, pounce/,                one page each; perch/privacy/ is linked from the App Store
-  desktops/nebelhaus/,            — don't move or rename that URL
-  terms/, refunds/
+  perch/,                         one page each; perch/privacy/ is linked from the App Store
+  desktops/nebelhaus/,            — don't move or rename that URL. The desktop page also
+  terms/, refunds/                carries #first-moves and #keys, from the retired docs tree
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
   docs/                           the Fumadocs shell
@@ -35,7 +36,7 @@ src/lib/
   page-meta.ts                    a page's canonical + og: tags, in one call
   shared.ts                       the strings the build repeats, theme-color included
   icons.tsx                       the docs' whole icon vocabulary, by name
-content/docs/                     the docs, as MDX — haus/ and nebelhaus/ are both root folders
+content/docs/                     the docs, as MDX — haus/ and pounce/ are both root folders
 public/                           assets only; no HTML lives here
   hausfold.css                    tokens, type, and the design decisions in its header
   _redirects  _headers            consumed by Cloudflare, never served

@@ -39,6 +39,8 @@
 /docs/haus/guides/the-bar/            /docs/haus/rooms/bar/               301
 /docs/haus/guides/pounce              /docs/haus/rooms/launcher/          301
 /docs/haus/guides/pounce/             /docs/haus/rooms/launcher/          301
+/docs/haus/reference/pounce           /docs/pounce/config/                301
+/docs/haus/reference/pounce/          /docs/pounce/config/                301
 /docs/haus/guides/hush                /docs/haus/rooms/focus/             301
 /docs/haus/guides/hush/               /docs/haus/rooms/focus/             301
 /docs/haus/guides/coding-agents       /docs/haus/rooms/ai/                301
@@ -57,3 +59,27 @@
 /docs/haus/guides/keeping-it-current/ /docs/haus/keeping-it-current/      301
 /docs/haus/guides/leaving             /docs/haus/leaving/                 301
 /docs/haus/guides/leaving/            /docs/haus/leaving/                 301
+
+# pounce stopped having a product page on 2026-08-14 and became a docs tree of
+# its own — the second tab in the switcher. The app installs from Homebrew with
+# no Nix, so a URL under /docs/haus/ was telling most of its readers the wrong
+# thing; a sheet at /pounce beside a manual at /docs/pounce was one surface too
+# many. `rooms/launcher` above survives as the *room* — the haus wiring — which
+# is why the guides/pounce line is unchanged.
+/pounce                               /docs/pounce/                       301
+/pounce/                              /docs/pounce/                       301
+
+# The nebelhaus docs tree was retired the same day, into the desktop's own page
+# — "for now", explicitly a holding position. A desktop is a set of values for
+# haus's options rather than a subject of its own, so the switcher's axis is
+# the layer and the apps. Both deep pages land on the section that carries what
+# they carried; the anchors are in public/hausfold.css's scroll-margin rule.
+#
+# Exact paths, as everywhere in this file — a /docs/nebelhaus/* wildcard would
+# be fine today and wrong the moment the tree comes back.
+/docs/nebelhaus                       /desktops/nebelhaus/                301
+/docs/nebelhaus/                      /desktops/nebelhaus/                301
+/docs/nebelhaus/first-run             /desktops/nebelhaus/#first-moves    301
+/docs/nebelhaus/first-run/            /desktops/nebelhaus/#first-moves    301
+/docs/nebelhaus/keybindings           /desktops/nebelhaus/#keys           301
+/docs/nebelhaus/keybindings/          /desktops/nebelhaus/#keys           301

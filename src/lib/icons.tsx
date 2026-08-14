@@ -5,7 +5,6 @@ import {
   Bot,
   Boxes,
   Cat,
-  CloudFog,
   Command,
   Compass,
   DoorOpen,
@@ -60,15 +59,19 @@ type IconSpec = {
 
 const icons = {
   // The two trees. These are the switcher's glyphs, and the one place the
-  // sidebar tells you which half of the docs you are in at a glance.
+  // sidebar tells you which half of the docs you are in at a glance. Both
+  // carry a hue, because they sit side by side in the switcher's popover
+  // where "the current page's accent" would paint them the same.
+  //
+  // `pounce` was an outward link to /pounce until that page was retired into
+  // this tree; it is the same glyph and the same hue, promoted.
   layer: { icon: Layers, hue: 'nebelung' },
-  desktop: { icon: Cat, hue: 'nebelhaus' },
+  pounce: { icon: Command, hue: 'pounce' },
 
   // Pages. No hue: they take the tree's.
   compass: { icon: Compass },
   install: { icon: Download },
   bar: { icon: PanelTop },
-  fog: { icon: CloudFog },
   steps: { icon: Footprints },
   tiling: { icon: LayoutGrid },
   apps: { icon: Boxes },
@@ -97,10 +100,11 @@ const icons = {
   choose: { icon: ListChecks },
   blank: { icon: SquareDashed },
 
-  // The outward links at the head of the sidebar — the products' own colours,
-  // the same ones the landing page's index spends on hover.
+  // The outward links at the head of the sidebar, and the cards that point at
+  // the same places — the products' own colours, the same ones the landing
+  // page's index spends on hover.
   desktops: { icon: Monitor },
-  pounce: { icon: Command, hue: 'pounce' },
+  desktop: { icon: Cat, hue: 'nebelhaus' },
   perch: { icon: Inbox, hue: 'perch' },
 } satisfies Record<string, IconSpec>;
 

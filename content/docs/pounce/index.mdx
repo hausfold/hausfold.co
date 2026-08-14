@@ -1,0 +1,97 @@
+---
+title: What pounce is
+description: A native, keyboard-first command palette for macOS where every command is a file. Free, MIT, no account — summon, aim, pounce.
+icon: compass
+---
+
+**Pounce** is a free, open-source, native command palette for macOS — a fast,
+dmenu-style picker you summon with a hotkey. Hit **⌘Space**, fuzzy-type, hit
+**Return**. It launches apps, runs commands, answers quick questions inline,
+and hosts a handful of built-in modes: clipboard history, an emoji and symbols
+grid, screenshots, and more.
+
+Every launcher lets you open an app. The moment you want it to do something of
+your own, you are reading an extension SDK, making an account, or waiting for
+someone else to publish the thing you needed twenty minutes ago.
+
+Pounce takes the other road. Its whole personality is one idea: **every command
+is a file.** Drop a shell script in a folder and it's in the palette — five
+lines, two comments, no plugin API, no extension store, no account.
+
+It is [MIT licensed](https://github.com/hausfold/pounce/blob/main/LICENSE) —
+every feature in these pages, no paid tier — and it installs standalone from
+Homebrew with **no Nix required**.
+
+## What's in it
+
+| | |
+|---|---|
+| **Apps & actions** | One list, fuzzy-matched. Type `saf`, get Safari; your own commands sit in the same list, ranked the same way. |
+| **Quick answers** | `2*847`, `72 f in c`, `100 usd in eur`, `14:00 utc in pst` — the answer pins to the top row and `⏎` copies it. |
+| **Clipboard history** | Your recent copies in a two-pane view, searchable, with an optional paste straight back into the app you came from. |
+| **Find Files** | Search by name as you type, over Spotlight's own index. `⏎` opens, `⌘⏎` reveals in Finder, `⌥⏎` copies the path. |
+| **Emoji & symbols** | One grid for both — type `command` and get ⌘, `arrow` and get →. Plain Unicode, so it pastes anywhere. |
+| **Settings panes** | Every System Settings pane by name — "Displays" goes to Displays, not to the Settings window. |
+| **Windows** | An opt-in `⌘Tab` that walks your actual *windows*, newest first, with type-to-filter. |
+| **Plugins** | Docker, SSH hosts, Tailscale, Spotify, Bluetooth, audio devices, GitHub, caffeinate — off by default, on by id, each still just a script. |
+
+A screenshot browser, a live camera peek and a searchable cheatsheet live
+beside them.
+
+## How it behaves
+
+- **Instant.** The daemon holds the hotkey in-process, so a press lands in an
+  already-warm program — no shell, no client to spawn, no round trip.
+- **It learns.** Match quality, then frequency × recency on a 72-hour
+  half-life, plus a nudge for apps you've just installed. What you meant is
+  usually the first row.
+- **Quiet.** No account, no sign-in, no telemetry, nothing to log in to and
+  nothing reported back.
+- **Offline.** Two outbound calls exist and both are optional: daily reference
+  rates for currency conversion, and an hourly look at pounce's own release
+  tag. Either can be turned off in [config](/docs/pounce/config); everything
+  else works with the Wi-Fi off.
+- **Updates are nudged, never automatic.** A pending release pins itself to the
+  first row and notifies at most once a day; `⌘⏎` skips that version. Applying
+  it is always your keystroke.
+- **Diagnosable.** `pounce doctor` answers the three questions that go wrong —
+  is the daemon up, is Accessibility granted, is something else eating your
+  hotkey.
+
+## Questions
+
+**Free how?** Free as in no money and free as in MIT. Read it, fork it, ship
+your own — there is no licence key, no trial timer and no tier above the one
+you have.
+
+**Another launcher?** There are good ones, and if you want a marketplace of
+ready-made extensions you should use one of them. Pounce's angle is ownership:
+the extension API is the shell you already know, and nothing you write depends
+on us staying interested.
+
+**My scripts?** They stay yours, as files, in your own folder. Nothing is
+imported into a database, so backing them up is backing up a directory and
+moving Macs is copying one.
+
+## Inside a haus machine
+
+Pounce runs perfectly well on its own, and that is how most people meet it. It
+is also a **room** in [haus](/docs/haus) — the macOS layer — where the daemon,
+the hotkey and the Accessibility grant are wired up with the rest of the
+machine and survive a rebuild. Standalone and in-the-house are the same app;
+only the wiring differs. See [the Launcher room](/docs/haus/rooms/launcher).
+
+<Cards>
+  <Card
+    icon={<Icon name="install" />}
+    title="Install"
+    href="/docs/pounce/install"
+    description="One brew command, one permission, and the one key you may have to free up first."
+  />
+  <Card
+    icon={<Icon name="shell" />}
+    title="Writing your own command"
+    href="/docs/pounce/writing-commands"
+    description="A shell script with two comment lines. The whole extension model, on one page."
+  />
+</Cards>
