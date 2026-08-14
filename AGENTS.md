@@ -614,6 +614,13 @@ class rather than a guess:
   up by `node.index?.url` silently finds nothing and your feature renders
   nothing; match on `node.$id`, which is the folder name and the page's first
   slug. `src/app/docs/[[...slug]]/page.tsx` does this for the eyebrow.
+- **A `display: contents` wrapper at the top of a route segment silently kills
+  scroll-to-top.** Next's scroll handler walks the segment's first DOM node
+  and skips any element whose `getBoundingClientRect()` is all zeros — which
+  `contents` always is — then gives up when there's no sibling to try. The
+  page changes and the reader stays at the old page's offset. Put `data-tree`
+  / `data-accent` on `DocsPage`'s own `<article>` instead; it takes arbitrary
+  props.
 - **This Next is newer than your training data.** Read
   `node_modules/next/dist/docs/` before assuming an API. Next 16 says so itself
   by appending a block to `AGENTS.md` on every `next dev` — which in a
