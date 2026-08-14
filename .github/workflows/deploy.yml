@@ -73,12 +73,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      # Every hand-written asset is un-hashed — the HTML pages and hausfold.css
-      # all keep their URL when their contents change — so a deploy with no purge can
+      # Every page URL is un-hashed — `/`, `/perch`, `/docs/…` all keep their
+      # URL when their contents change — so a deploy with no purge can
       # leave the old copy in front of visitors for as long as Cloudflare's
-      # default cache decides. A stale stylesheet against fresh markup is the
-      # worst case: it reads as broken rather than old. Purging is the only
-      # way to make a content change land immediately.
+      # default cache decides. The worst case is a cached page still asking for
+      # a `/_next/static/*` bundle the new build renamed: that reads as broken
+      # rather than old. Purging is the only way to make a content change land
+      # immediately.
       - name: Purge Cloudflare cache
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

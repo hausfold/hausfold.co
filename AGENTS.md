@@ -60,9 +60,9 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 
 | Want to change… | Where |
 |---|---|
-| the hausfold.co landing page — copy, design, the products it lists | here, `public/index.html` |
-| the desktops **catalogue** | here, and it is **not** under `public/desktops/` any more — it is the first section of `public/index.html` (`/#desktops`). See below |
-| a **desktop's own page** | here, `public/desktops/<name>/index.html` — that half didn't move |
+| the hausfold.co landing page — copy, design, the products it lists | here, `src/app/page.tsx` (it was `public/index.html` until 2026-08-14) |
+| the desktops **catalogue** | here, and it is **not** a page of its own any more — it is the first section of `src/app/page.tsx` (`/#desktops`). See below |
+| a **desktop's own page** | here, `src/app/desktops/<name>/page.tsx` — that half didn't move, only its file extension did |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | anything about a **product** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
@@ -93,9 +93,16 @@ prints it says so; `nebelhaus.com/init.sh` keeps working meanwhile, and becomes
 a redirect to this one when the 301s land. There is deliberately **no
 `/init.sh` here** — the desktop's name is the point of the route.
 
-❌ **Not yet, and each is its own piece of work:** the landing pages becoming
-Next routes (decided, not done — they are still the hand-written HTML in
-`public/`); and the `nebelhaus.com/*` 301s, which live in the workshop's `web/`
+✅ **The landing pages arrived on 2026-08-14** — all eight became Next routes
+under `src/app/`, and `public/` holds no HTML at all any more. Same markup, same
+`.sheet` classes out of `public/hausfold.css`, same words; what stopped being
+hand-copied is the head (`src/lib/page-meta.ts`), the copy-button script
+(`src/components/command.tsx`) and the breadcrumb/colophon
+(`src/components/sheet.tsx`). **Every "the markup is temporary, the copy is
+not" note below has now cashed in**: the markup was replaced, the copy was
+carried across unchanged.
+
+❌ **Not yet:** the `nebelhaus.com/*` 301s, which live in the workshop's `web/`
 and are what finally retires the old tree. **Until they land there are two live
 copies of every docs page**, so a fact fixed in one tree and not the other will
 disagree.
@@ -119,14 +126,16 @@ different session, so read the two together:
 
 - 🚨 **The catalogue is not a page any more — it is the landing page.** From
   2026-08-08 to 2026-08-12 it lived at `/desktops`; it is now the first section
-  of `public/index.html`, and `/desktops` + `/desktops/` 301 to `/#desktops`
+  of `src/app/page.tsx`, and `/desktops` + `/desktops/` 301 to `/#desktops`
   through `public/_redirects`. **The deep page did not move**:
   `/desktops/nebelhaus/` is untouched, and the `/desktops/` URL segment stays
   because it is the namespace the second and third desktop land in. So: edit
-  the catalogue in `index.html`, edit a desktop in `desktops/<name>/`. Recreate
-  `desktops/index.html` only when there are enough entries to need a list of
-  their own — and if you do, drop the two `_redirects` lines in the same
-  commit, or the new page will 301 away from itself.
+  the catalogue in `src/app/page.tsx`, edit a desktop in
+  `src/app/desktops/<name>/page.tsx`. Add a `src/app/desktops/page.tsx` only
+  when there are enough entries to need a list of their own — and if you do,
+  drop the two `_redirects` lines in the same commit, or the new page will 301
+  away from itself. (Cloudflare evaluates `_redirects` ahead of the assets, so
+  a route existing does not beat a redirect pointing away from it.)
 - **It is the gallery, in substance.** A catalogue of rices with a page each,
   carrying what a rice is, what's in it, what it needs, and the command that
   installs it. Under the old rule that was forbidden; under the new one it's
@@ -138,9 +147,11 @@ different session, so read the two together:
   and `options-roadmap.md` now all read `/desktops`
   ([workshop#258](https://github.com/hausfold/workshop/pull/258)). ⚠️ If you
   meet `hausfold.co/market` anywhere, it's stale — fix it rather than obey it.
-- **It is plain HTML, not Astro.** §5.1 replaces this markup wholesale when the
-  build lands. Don't invest in the structure; do keep the copy, which was
-  written against the real sources.
+- ~~**It is plain HTML, not Astro.** §5.1 replaces this markup wholesale when
+  the build lands.~~ **Done, 2026-08-14** — and it went the way this bullet
+  asked: the structure was replaced, the copy was carried across word for word.
+  The instruction that outlives it is the second half: the copy was written
+  against the real sources, so keep it.
 - **Every fact on a rice's page is copied from that rice's repo, and copies
   rot.** Today's page mirrors `hausfold/README.md` and `hausfold/bootstrap.sh`
   as of 2026-08-08. Re-read the source rather than trusting the page —
@@ -153,7 +164,9 @@ is the seller. That one is a legal obligation, not a shop window.
 ### `/perch`, `/terms`, `/refunds` — the seller's surface, arriving before the sale
 
 Added 2026-08-08, the same §5.1-early move `/desktops` was: treat the markup as
-temporary and the copy as not. Three things to know before editing them:
+temporary and the copy as not. **The markup half of that came due on
+2026-08-14** — all three are Next routes now, with the copy unchanged. Three
+things to know before editing them:
 
 - **`/perch` is the product page, moved here.** It's the consumer-voice page
   [`notes/perch-monetization.md`](https://github.com/hausfold/workshop/blob/main/notes/perch-monetization.md)
@@ -185,39 +198,57 @@ temporary and the copy as not. Three things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address is on all nine pages — `index`,
-  `haus`, `perch`, `perch/privacy`, `pounce`, `refunds`, `terms`,
-  `desktops/nebelhaus` and `src/app/not-found.tsx` (which replaced
-  `public/404.html` on 2026-08-12) — **plus the JSON-LD organization record**
-  (`index.html:80`), which is the one a find-and-replace over visible copy
-  misses. `rg 'hi@hausfold' public/ src/` before assuming you've seen them all —
-  one of the nine moved out of `public/` on 2026-08-12, so a grep scoped to it
-  alone misses it now.
+  ⚠️ **It is not just `/terms`.** The address still reaches all nine pages, but
+  since 2026-08-14 it is *written* five times rather than ten: once in
+  `src/components/sheet.tsx`'s `<Colophon>` (which is every page's footer), and
+  once each in the prose of `/terms`, `/refunds` and `/perch/privacy` — the
+  three that name it in a sentence as well as a footer. The fifth is the
+  **JSON-LD organization record** in `src/app/page.tsx`, which is the one a
+  find-and-replace over visible copy misses. `rg 'hi@hausfold' src/` finds all
+  of them; there is nothing under `public/` to grep any more.
 
 ## The site
 
-`public/` is the hand-written half, and it is served verbatim — Next copies the
-whole directory into `out/` untouched, so what's in it is still what's on the
-domain. What changed on 2026-08-12 is that it is no longer *all* of the domain:
-`/docs` is built beside it. See [The docs](#the-docs) below.
+**`public/` is assets now, not pages.** It held the hand-written half until
+2026-08-14; the eight pages became Next routes and what is left is six files
+Next copies into `out/` untouched. The hand-written *half* still exists — it is
+just spelled in TSX and lives under `src/app/` beside the docs.
+
+The pages, and the one rule each carries that isn't obvious:
+
+| Route | Source | What it is |
+|---|---|---|
+| `/` | `src/app/page.tsx` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then haus and a closing line for holt + nebelung. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/haus` | `src/app/haus/page.tsx` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on. Until 2026-08-12 the landing page said so by tiering it *above* the index in a list of its own; it now says it by position instead, closing the page as a postscript rather than opening it |
+| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, contents, requirements, empty shot frames. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
+| `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves |
+| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
+| `/pounce` | `src/app/pounce/page.tsx` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
+| `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
+| `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
+| `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
+| `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
+
+The three things every page above shares, and where they live now — this is the
+part that used to be hand-copied nine times:
+
+| Thing | Where |
+|---|---|
+| canonical, the six `og:` tags, `twitter:card` | `src/lib/page-meta.ts`, called once per page |
+| both `theme-color`s, both `<link rel=icon>`, `og:site_name`/`type`/`locale` | `src/app/layout.tsx` — every route in the build, docs included |
+| the breadcrumb, the colophon, the GitHub mark | `src/components/sheet.tsx` |
+| a fenced command with its copy button | `src/components/command.tsx` |
+
+And what is left under `public/`:
 
 | File | What it is |
 |---|---|
-| `index.html` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then haus and a closing line for holt + nebelung |
-| `haus/index.html` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on. Until 2026-08-12 the landing page said so by tiering it *above* the index in a list of its own; it now says it by position instead, closing the page as a postscript rather than opening it |
-| `desktops/nebelhaus/index.html` | a desktop's page: install, contents, requirements, empty shot frames. Its **parent** `desktops/index.html` no longer exists — see the catalogue note above |
-| `_redirects` | static redirects, exact paths only. Cloudflare consumes the file rather than serving it, and it is evaluated ahead of the assets — never put a `/desktops/*` wildcard in it, or `/desktops/nebelhaus/` goes with it |
-| `perch/index.html` | perch's product page: the dance, install, the one system setting, how it behaves |
-| `perch/privacy/index.html` | perch's privacy policy. **Linked from the App Store — don't move or rename it.** |
-| `pounce/index.html` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
-| `terms/index.html` | what a licence grants, the update year, the fair-source note, what we don't promise |
-| `refunds/index.html` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
-| ~~`404.html`~~ | **moved to `src/app/not-found.tsx` on 2026-08-12** — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it here produced Next's grey default on the live site. Same markup, same words; it is no longer walked by `sync-nebelung.mjs --check`, and its `theme-color` now comes from `src/lib/shared.ts` |
+| `_redirects` | static redirects, exact paths only. Cloudflare consumes the file rather than serving it, and it is evaluated ahead of the assets — never put a `/desktops/*` wildcard in it, or `/desktops/nebelhaus/` goes with it. **A route existing does not beat a redirect pointing away from it**, which is why adding a `/desktops` page means deleting two lines here in the same commit |
 | `favicon.svg` | the mark as geometry, on a dark tile, swept through all six accents. Linked from every page; its wedge fan is generated by `scripts/sync-nebelung.mjs` like the stylesheet's block. **The one thing on this site that holds colour with no hover** — see the greyscale rule below |
 | `favicon.ico` | the same mark, monochrome, for Safari — WebKit doesn't resolve the SVG one and falls back to this path. Generated by the same script, from the SVG's own cover path, `--ink` on crust, no accent sweep. **The site's first binary file under `public/`**, added 2026-08-12 — see the script's "the ico fallback" comment for the trade |
 | `robots.txt` | allows everything; no `Sitemap:` line, and its comment says why |
 | `_headers` | two rules: a `Content-Type` for `/api/search` (extensionless, so Cloudflare would otherwise ship the search index uncompressed) and a year of cache for `/_next/static/*` |
-| `hausfold.css` | the shared tokens, type and link styles, the vendored nebelung block, and the header comment with the design decisions |
+| `hausfold.css` | the shared tokens, type and link styles, the vendored nebelung block, and the header comment with the design decisions. ⚠️ **Nothing links it any more.** It reaches the browser through `src/app/global.css`'s `@import`, inlined into Next's own bundle at build time, so `/hausfold.css` is still *served* but is a dead URL. It stays under `public/` because that is the path `global.css` imports and the path `scripts/sync-nebelung.mjs` writes — moving it means editing both, for nothing |
 
 **The dark theme's nebelung values are generated, not typed.** Since
 2026-08-08, `public/hausfold.css` opens with a block vendored from nebelung's
@@ -229,13 +260,12 @@ script with `--check`. **The same script also writes the favicon's colour
 sweep** — `public/favicon.svg`'s wedge fan is ninety hexes interpolated off the
 six accents, which is exactly the frozen snapshot the vendoring exists to
 prevent, so it comes out of the port too and `--check` fails if it drifts.
-That script is the only thing outside `public/` that edits the hand-written
-half — nothing runs at serve time, and its output is committed. Its
+Nothing runs at serve time and the script's output is committed. Its
 header explains why the port is inlined rather than `@import`ed: the short
 version is that a second file is a second blocking request, and a media-scoped
-`@import` can't see the `data-theme` toggle. Note `deploy.yml` only fires on
-`public/**`, so editing the script alone deploys nothing; running it edits
-`hausfold.css`, which does.
+`@import` can't see the `data-theme` toggle. Note `deploy.yml` does not fire on
+`scripts/**`, so editing the script alone deploys nothing; running it edits
+`hausfold.css` under `public/`, which does.
 
 **The flake ref is pinned** (`PIN` in the script), so CI is deterministic and a
 CSS PR never goes red for something nebelung merged that morning. The cost is
@@ -246,15 +276,20 @@ actually change — run it when you touch the palette, not on a schedule.
 `--check` also guards the things the generator *can't* fix for you: an
 upstream **rename** (a `--nebelung-*` name that stopped existing leaves a
 dangling `var()`, and a dark page with no background — re-point the token by
-hand); the nine pages' dark **`theme-color`**, which is a hand-typed copy
-of crust living in markup nothing generates; and the favicon's **tile**, whose
-ground is the same crust in a hand-drawn path beside the generated fan. A page
-with **no** dark `theme-color` fails it too — that used to pass silently,
-because a page contributing no `<meta>` contributed nothing to compare. **A new
-page therefore owes one**, and because those checks read markup and an SVG
-rather than CSS, `palette.yml`'s paths filter carries `public/**.html` and
-`public/favicon.svg` alongside the stylesheet; without them an HTML- or
-icon-only PR skipped the only check watching it.
+hand); the dark **`theme-color`**, which is a hand-typed copy of crust that
+nothing generates; and the favicon's **tile**, whose ground is the same crust
+in a hand-drawn path beside the generated fan. Because those checks read a TS
+module and an SVG rather than CSS, `palette.yml`'s paths filter carries
+`src/lib/shared.ts` and `public/favicon.svg` alongside the stylesheet; without
+them a theme-colour- or icon-only PR skipped the only check watching it.
+
+> 🚨 **This used to be ten hand-typed `<meta>`s and a rule that "a new page owes
+> a `theme-color`".** Both are gone as of 2026-08-14: the eight pages became
+> Next routes, `viewport.themeColor` in `src/app/layout.tsx` writes the pair
+> into every route in the build, and the one remaining copy of the value is
+> `themeColor.dark` in `src/lib/shared.ts` — which is what `--check` now reads.
+> A new page cannot forget a `theme-color`, because no page declares one. If
+> you meet the old rule anywhere, it's stale.
 
 **`public/favicon.ico` is generated too, and checked by decoded pixels, not
 bytes.** Added 2026-08-12 as the Safari fallback (WebKit doesn't resolve the
@@ -284,22 +319,28 @@ in prose instead.
 
 Read `hausfold.css`'s header comment before changing a colour. It was inline in
 `index.html` until 2026-08-08; five pages needed one set of tokens rather than
-five copies drifting apart. `perch/privacy` keeps a second, page-specific
-`<style>` block *after* the link — its layout uses bare element selectors that
-nothing else does — but its tokens now come from the shared sheet like
-everyone's.
+five copies drifting apart. `/perch/privacy` still keeps a layout of its own —
+bare `h1`/`h2`/`p`/`ul` selectors that nothing else uses — but it is
+`privacy.module.css` now rather than an inline `<style>`. **The scoping is
+load-bearing**: those selectors relied on cascading after the shared sheet
+inside one standalone document, and under a shared layout they would paint
+every other page. A CSS module also fixes the order properly, since stylesheet
+order between a layout's imports and a page's is not something to lean on.
 
-The table above is the whole of `public/`, and reading it as "the landing page,
-plus some extras" has caught agents out twice — `perch/privacy` in particular
-is easy to miss and is the one URL here with an obligation attached. Tokens no
-longer drift between them (that's what `hausfold.css` is for), but **the head
-still does: a canonical, an `og:` tag or a theme colour changed on one page has
-to be changed on all of them**, and nothing checks.
+Reading the page table as "the landing page, plus some extras" has caught
+agents out twice — `/perch/privacy` in particular is easy to miss and is the
+one URL here with an obligation attached. **The head no longer drifts between
+them**: a canonical or an `og:` tag is `src/lib/page-meta.ts`, and a theme
+colour is `src/app/layout.tsx`, so a change to one *is* a change to all of them.
+That sentence used to end "and nothing checks", which was the whole reason to
+be careful; the care can go somewhere more useful now.
 
 Rules that are easy to break by accident:
 
 - **Greyscale at rest, and every colour is borrowed.** ⚠️ **This bullet is
-  about `public/` only.** `/docs` spends colour at rest — one hue per tree —
+  about the landing pages only** — the nine `.sheet` routes, which were
+  `public/**.html` until 2026-08-14 and which this file called "`public/`" for
+  short while they were. `/docs` spends colour at rest — one hue per tree —
   since 2026-08-12, at the user's instruction; see [Colour](#colour--️-the-docs-do-not-follow-publics-greyscale-rule)
   under The docs. The *borrowed* half still binds everywhere: both halves spend
   the same six `--a-*` and neither may invent a seventh. Here, though, no page
@@ -347,26 +388,29 @@ Rules that are easy to break by accident:
   crossfade is the reduced-motion-safe form, not the thing the setting exists
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
-- **Almost no JavaScript on the hand-written pages, and none of it
-  load-bearing.** (`/docs` is React and is a different animal — that rule is
-  about `public/`, not about the whole domain.) There are exactly
-  four scripts, and they are the same twelve lines: at the foot of
-  `desktops/nebelhaus/index.html`, of `perch/index.html`, of
-  `pounce/index.html` and of `haus/index.html`, revealing the copy button beside a fenced command. The
-  button ships `hidden` and the script only unhides it where
-  `navigator.clipboard` exists, so the command is plain selectable text
-  everywhere else — including over `file://`, where the API is absent and no
-  button appears. Each copy of the script loops over every `.copy` on its page,
-  so a page may hold more than one — `/pounce` does, and the second is not an
-  install command but the four-line example command, which is the thing that
-  page is actually asking you to try. That is the bar for a fourth script: pure
-  enhancement, nothing lost without it, and no framework.
+- **Almost no JavaScript of our own on the landing pages, and none of it
+  load-bearing.** ⚠️ **Restated 2026-08-14, because the old wording said "and
+  no framework" and there is a framework now.** The pages are Next routes, so
+  they ship Next's client runtime whether they use it or not — that is the
+  price of the port and it was paid deliberately. What the rule still governs
+  is *our* script, and there is exactly one piece: `<Command>`
+  (`src/components/command.tsx`), used on `/haus`, `/perch`, `/pounce` and
+  `/desktops/nebelhaus`, which was four identical twelve-line `<script>` blocks
+  until the port. Its bar is unchanged and is the bar for a second one: the
+  button renders `hidden` in the exported HTML and unhides only where
+  `navigator.clipboard` exists, so the command is plain selectable text with JS
+  off — **pure enhancement, nothing lost without it**. A page may hold more
+  than one; `/pounce` does, and its second is not an install command but the
+  four-line example, which is the thing that page is actually asking you to
+  try. (`/docs` is React through and through and is a different animal.)
 - **Placeholder frames, never a stale screenshot.** `/desktops/nebelhaus`,
   `/pounce` and `/perch` draw their shot slots in CSS and label them
   `[ shot not taken yet ]`. The family's only rice
   capture is `hausfold/assets/hero.png`, which the workshop's own
   `assets/SHOTLIST.md` still calls a placeholder. When a real capture exists,
-  drop an `<img>` into the frame and delete the `.shot span` label — a picture
+  drop a `<Image>` into the frame and delete the `.shot span` label — note
+  `images: { unoptimized: true }` in `next.config.mjs`, because `next/image`'s
+  optimizer is a server and there isn't one — a picture
   that lies about what the desktop looks like today is worse than a grey box
   that admits it doesn't have one. ⚠️ **The landing page's catalogue entry is
   the one exception and carries no frame at all.** Same principle, opposite
@@ -374,8 +418,10 @@ Rules that are easy to break by accident:
   reads as a broken image rather than as a reserved slot. A frame goes in there
   only with a real capture already in it. The scene, the checklist and a
   ready-to-apply patch are in the workshop's `assets/SHOT-nebelhaus-desktop.md`
-  and `assets/desktops-hero.patch` — but note the patch predates the move and
-  still targets `public/desktops/index.html`, which is gone.
+  and `assets/desktops-hero.patch` — but the patch is now **twice** overtaken:
+  it targets `public/desktops/index.html`, which the 2026-08-12 catalogue move
+  deleted, in a file format the 2026-08-14 port replaced. Read it for the scene
+  and the crop; don't try to apply it.
 - **Both themes, every time.** Colours are tokens on `:root`, redefined under
   `@media (prefers-color-scheme: dark)` and again under `:root[data-theme=…]`
   so a viewer's explicit toggle wins in both directions. Style through the
@@ -400,22 +446,23 @@ Rules that are easy to break by accident:
   `404-page` shrank that from unlimited to a handful. `public/robots.txt` was
   written for the same reason — before it, the SPA fallback served the landing
   page as robots rules.
-- **Every hand-written page carries the same head, and there is no template.**
-  Canonical, the six `og:` tags, `twitter:card`, both `theme-color`s, and
-  (since 2026-08-12, the Safari fallback) both
-  `<link rel="icon" href="/favicon.ico">` and
-  `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, on all eight
-  hand-written pages. **A change to one is a change to all of them**; nothing
-  checks. ⚠️ **The docs are a second surface, and the better pattern**:
-  `src/app/layout.tsx` is a template, so a head change there — including the
-  favicon — lands on every `/docs` page (and `src/app/not-found.tsx`, the 404
-  that moved out of `public/` the same day) at once. The two halves can drift
-  from each other, which nothing checks either.
-- **`theme-color` duplicates `--ground`.** Two `<meta>` values per page, one per
-  scheme. With `public/favicon.svg`'s tile they are the only hand-typed copies
-  of the palette outside `hausfold.css` — `sync-nebelung.mjs --check` reads all
-  eleven, which is why `public/**.html` and `public/favicon.svg` are in
-  `palette.yml`'s paths filter. Change a ground colour and change them with it.
+- **Every page carries the same head, and it comes from a template.** ⚠️ **This
+  bullet said the opposite until 2026-08-14** — "there is no template… a change
+  to one is a change to all of them; nothing checks" — and the two halves of
+  the site could drift from each other with nothing checking that either. Both
+  are fixed by the same move. `src/lib/page-meta.ts` builds the canonical, the
+  six `og:` tags and `twitter:card` from four arguments; `src/app/layout.tsx`
+  adds both `theme-color`s and both `<link rel=icon>`s to every route in the
+  build, docs included. **A new page that forgets `pageMetadata` has no
+  canonical and no `og:` tags** — that is the one thing still worth checking by
+  eye, and it is one line per page rather than fifteen.
+- **`theme-color` duplicates `--ground`.** One pair for the whole site, in
+  `src/lib/shared.ts`. With `public/favicon.svg`'s tile it is the only
+  hand-typed copy of the palette outside `hausfold.css` —
+  `sync-nebelung.mjs --check` reads both, which is why `src/lib/shared.ts` and
+  `public/favicon.svg` are in `palette.yml`'s paths filter. Change a ground
+  colour and change them with it. (It was ten copies, one per page, until the
+  landing pages became routes.)
 - **No prices, anywhere on the site — still true, and now narrower.** No page
   names a figure, `/perch`, `/terms` and `/refunds` included. The original
   reason holds: a price here is a second place for perch's terms to drift from
@@ -444,6 +491,18 @@ Rules that are easy to break by accident:
   pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
   and onto `/pounce`, in the same commit. What's left pointing out of the index
   is `holt` and `nebelung`, which have no page here yet.
+
+  **Two mechanical consequences of the 2026-08-14 port, both easy to get
+  wrong.** An internal link is now a `<Link>` from `next/link` and an external
+  one stays a plain `<a>` — `eslint-config-next` enforces it, and a `<Link>` to
+  a route that doesn't exist is a build-time failure rather than a 404 someone
+  finds later. And `trailingSlash: true` means `<Link href="/perch">` renders
+  `/perch/`, so an inward link costs one fewer redirect than the hand-written
+  `href="/perch"` did. ⚠️ **`/perch/privacy`'s footer is the one inward link
+  that hasn't moved** — it still says `nebelhaus.com/perch` although `/perch`
+  has existed here since 2026-08-08. Left alone by the port on purpose (it
+  changed no copy, and that page is linked from an App Store listing); it is a
+  one-line follow-up, not a migration detail.
 - **Every page now spells the org `hausfold`. ✅ Swept 2026-08-10, together, as
   the rule required.** Rename plan §3.2 transferred all nine repos on
   2026-08-08, so `hausfold/tap/<app>` and `github.com/hausfold/<repo>` are the
@@ -566,13 +625,19 @@ The leash, in full:
   happens in CSS with every other colour on this site. Four of the light
   tokens now spell `var(--a-*)` rather than repeating the same hex.
 
-`public/` is unchanged and still greyscale at rest. The two halves of the site
-diverge here deliberately: a landing page is read once, a docs page is lived in.
+The landing pages are unchanged and still greyscale at rest. The two halves of
+the site diverge here deliberately: a landing page is read once, a docs page is
+lived in. **They are one Next app since 2026-08-14, and this divergence is the
+reason to keep saying "two halves" anyway** — it is a divergence of style, and
+the thing that keeps it mechanical is `body:has(.sheet)` in
+`src/app/global.css`: a page whose `<main>` is a `.sheet` gets the landing
+half's type back, and every landing page's `<main>` is one.
 
-### Type — ⚠️ the docs spend three faces, `public/` spends two
+### Type — ⚠️ the docs spend three faces, the landing pages spend two
 
 Decided 2026-08-14, by the user, and it is the same divergence colour makes
-one section above. `public/` sets New York for everything. The docs split it:
+one section above. The landing pages set New York for everything. The docs
+split it:
 
 - **Headings are the serif** (`--font-display`, the same New York stack), and
   `h1` is bumped to `clamp(1.85rem, …, 2.25rem)` from fumadocs' `1.75em`.
@@ -591,11 +656,16 @@ Two things this constrains:
 - **`--font-sans` is the body face, deliberately.** It is the token every
   `font-sans` utility inside fumadocs' own components resolves, so the search
   dialog, the buttons and the tree switcher follow with nothing to keep in
-  step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the 404's
-  `body:has(.sheet)` — and nothing else should name it or re-type the stack.
-- **`src/app/not-found.tsx` is exempt**, via `body:has(.sheet)` — it is
-  `public/`'s markup living under this layout, and without the exemption the
-  404 becomes the one landing page set in SF.
+  step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the landing
+  half's `body:has(.sheet)` — and nothing else should name it or re-type the
+  stack.
+- **The nine landing pages are exempt**, via `body:has(.sheet)`. It was written
+  on 2026-08-12 for `src/app/not-found.tsx` alone, the only landing-half page
+  under this layout at the time, and it carried the other eight for free when
+  they arrived two days later — because the thing it keys on is the `.sheet`
+  class every one of them puts on its `<main>`. **A landing page whose `<main>`
+  is not a `.sheet` silently comes out in SF**, which is the one way to get
+  this wrong.
 - **Heading rules must exclude `.not-prose`.** Fumadocs builds components out
   of headings — a Card's title is an `<h3 class="not-prose text-sm">` sitting
   inside the prose container — so a bare `.prose h3` puts the display serif on
@@ -670,6 +740,9 @@ The third is not thin, and it is a decision rather than a class:
 
 ### Gotchas paid for already
 
+*(This list started as the docs' own and is now the whole site's — the landing
+pages joined the same Next app on 2026-08-14. The last three are theirs.)*
+
 - **A markdown image is a build-time import** under Fumadocs, resolved relative
   to the content file — a missing asset is a hard build failure, not a broken
   `<img>`. Better, but it will bite the first time you port a page with one.
@@ -696,6 +769,22 @@ The third is not thin, and it is a decision rather than a class:
   by appending a block to `AGENTS.md` on every `next dev` — which in a
   hand-curated file is vandalism with a good point, so `agentRules: false` in
   `next.config.mjs` turns it off and this bullet is the part worth keeping.
+- **A child's `openGraph` replaces the parent's rather than merging into it.**
+  A page that sets only `url`/`title`/`description` silently drops
+  `og:site_name`, `og:type` and `og:locale` from the layout. `pageMetadata`
+  spells all six out for that reason — don't "simplify" it back down.
+- **Bare element selectors can't live in a page component.** `/perch/privacy`'s
+  layout is `h1`/`h2`/`p`/`ul`, which worked as an inline `<style>` in a
+  standalone document and would paint every other page under a shared layout.
+  It is a **CSS module** (`privacy.module.css`), scoped under `.policy` — which
+  also settles the cascade, since stylesheet order between a layout's imports
+  and a page's is not a guarantee.
+- **"Is the API there?" is `useSyncExternalStore`, not `useEffect` +
+  `setState`.** The copy button must render `hidden` on the server and unhide
+  on a client that has `navigator.clipboard`; the effect-then-setState spelling
+  is a cascading render and `react-hooks/set-state-in-effect` fails the lint.
+  `src/components/command.tsx` has the shape — a no-op `subscribe`, a client
+  snapshot, and `false` as the server snapshot.
 
 ## Deploying
 
@@ -705,14 +794,17 @@ run build` first; `out/` is gitignored, so the build is not optional. There is
 no staging environment: **main is the live site.** Look at your change in a
 browser first, and check both themes.
 
-**Use a server, not `file://`.** Every page links `/hausfold.css` and navigates
-by absolute path, so `open public/index.html` renders unstyled and its links go
-nowhere.
+**There is no file to open any more** — every page is a route, so there is
+nothing under `public/` to `open` and no `file://` trap left to fall into.
 
-- Editing **docs**: `npm run dev`. Hot reload; the only sane MDX loop.
-- Editing **pages**, or checking the site as deployed: `npm run build && npx
-  wrangler dev` — same asset server, and it exercises `not_found_handling`,
-  `_headers`, `_redirects` **and `worker.js`**.
+- Editing **any page, docs or landing**: `npm run dev`. Hot reload — and since
+  2026-08-14 that covers the landing pages too, which is the one plain win of
+  the port.
+- Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
+  asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
+  **and `worker.js`**. Worth it for anything touching a URL: `/haus` should 307
+  to `/haus/`, `/desktops` should 301 to `/#desktops`, and a nonexistent path
+  should 404 rather than answer 200.
 - Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
   `wrangler dev` loop above for the routing, because the one thing the unit
   tests can't prove is that a request reaches the Worker at all:
@@ -720,9 +812,11 @@ nowhere.
   `x-hausfold-ref`, and `curl -sI localhost:8787/api/search` must still be the
   built docs index rather than anything the Worker claimed by accident.
 
-A PR that touches the docs or the build also runs **Docs**
+A PR that touches `src/`, `content/`, `public/` or the build also runs **Docs**
 (`.github/workflows/docs.yml`): type-check, lint, then **two cold builds diffed
-against each other**. That last step is the one that isn't boilerplate — the
+against each other**. Its name is narrower than its job — since 2026-08-14 it
+is the check on the landing pages too, and it is what would catch a page that
+doesn't compile. That last step is the one that isn't boilerplate — the
 export is byte-reproducible today (measured: six consecutive cold builds,
 identical), `generateBuildId` in `next.config.mjs` is what makes it so, and
 without a check the day a Next or Fumadocs release introduces a timestamp is a
@@ -737,20 +831,22 @@ a `main` in `wrangler.toml` and none in `wrangler.preview.toml` means a PR's
 installer change looks fine on the preview URL precisely *because* the route
 isn't running there.
 
-A PR that touches `public/hausfold.css`, any `public/**.html`, or `scripts/`
+A PR that touches `public/hausfold.css`, `src/lib/shared.ts`, either favicon or
+`scripts/`
 also runs **Palette** (`.github/workflows/palette.yml`), which is `node
 scripts/sync-nebelung.mjs --check` against the revision of nebelung the script
 pins. It goes red when the vendored block is stale, when a dark block stops
 spending the port, when `--ink`/`--well` stop being literal, when a
-`--nebelung-*` reference lands in the light theme, or when a page's dark
-`theme-color` is wrong or absent. The fix is one command in every case except
-an upstream rename and the `<meta>`s, which are hand work. Because the ref is
+`--nebelung-*` reference lands in the light theme, or when the dark
+`theme-color` is wrong. The fix is one command in every case except
+an upstream rename and `themeColor`, which are hand work. Because the ref is
 **pinned**, this job never goes red for something nebelung merged that
 morning — upstream drift is pulled with `--latest`, not pushed at you.
 
-Every PR that touches `public/` also gets its own preview Worker on a
+Every PR that touches `src/`, `content/`, `public/` or the build config also
+gets its own preview Worker on a
 workers.dev URL, posted as a comment on the PR and deleted when it closes. Use
-it for anything the local file can't show you — a phone, someone else's eyes, a
+it for anything `npm run dev` can't show you — a phone, someone else's eyes, a
 real `https://` origin. Two limits: the URL is public and unauthenticated, so a
 draft on a PR branch is a draft on the internet (as is the branch itself — this
 repo is public, so the preview URL is no longer the *first* place a draft
