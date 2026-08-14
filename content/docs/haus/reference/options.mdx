@@ -62,7 +62,7 @@ is already running as root, so it neither prompts nor wedges.
 
 ### haus.apps
 
-The apps the rice picks for you, the saved collections you can switch on in one line, and the file types they claim — the ones a finished machine has rather than the ones a room needs to work. Each is one switch you can turn off; what it installs is a roster entry like any other, so you can retune or replace it by app id.
+The apps haus picks for you, the saved collections you can switch on in one line, and the file types they claim — the ones a finished machine has rather than the ones a room needs to work. Each is one switch you can turn off; what it installs is a roster entry like any other, so you can retune or replace it by app id.
 
 #### `haus.apps.packs.writing.enable`
 
@@ -105,7 +105,7 @@ A short list on purpose: it covers what you actually double-click,
 not everything IINA can decode. Dead, professional and DRM'd
 containers (qt, divx, asf, f4v, 3g2, ogm, rm, rmvb, mxf, dv, …) are
 left alone — they still play via Open With, they just don't get the
-default, and every extension the rice claims is a binding it
+default, and every extension haus claims is a binding it
 re-asserts on every rebuild.
 
 Video only. Audio (mp3, flac, m4a, wav, …), `.gif` and playlists
@@ -128,7 +128,7 @@ install the app and leave every association alone.
 
 `boolean` · default `false`
 
-Install IINA — the rice's video player — as the roster entry `iina`.
+Install IINA — haus's video player — as the roster entry `iina`.
 A nixpkgs build, so it lands in ~/Applications/Home Manager Apps
 rather than /Applications.
 
@@ -167,8 +167,8 @@ pull newer formulae. Turn on if you want brew to track upstream.
 How `darwin-rebuild switch` treats Homebrew casks/brews that are
 installed but NOT declared anywhere in your config.
 
-- "none" (default, safe): leave undeclared formulae/casks alone. The
-  rice never deletes apps you installed yourself.
+- "none" (default, safe): leave undeclared formulae/casks alone.
+  haus never deletes apps you installed yourself.
 - "uninstall": remove undeclared formulae/casks (keeps their data).
 - "zap": remove undeclared formulae/casks AND their app data. Fully
   declarative, but a stray cask you forgot to list is deleted — with
@@ -308,12 +308,12 @@ theme slot (ghostty, starship, tmux, bat, zellij, …) keep their built-in
 colour and don't follow this option. The base palette stays the same
 Nebelung grey either way — only the accent hue changes.
 
-Zen means Zen's own UI, and the web is a separate story. The rice places
+Zen means Zen's own UI, and the web is a separate story. haus places
 the Nebelung userChrome/userContent pair, but userContent only styles
 `about:` pages — github.com and youtube.com are themed by the Stylus
 extension, whose Catppuccin-derived styles carry their OWN `accentColor`
 var (default mauve) inside the extension's storage, where no stylesheet
-can reach it. Declare `haus.zen.extensions.stylus` and the rice
+can reach it. Declare `haus.zen.extensions.stylus` and haus
 stamps that var with this accent and tells you, once, when there's a new
 bundle to import; the import itself stays a click, because Stylus has no
 file interface. Until you make it, the web keeps the accent you last
@@ -349,7 +349,7 @@ clips to white, so latte goes 7.0:1 → 9.9:1 where mocha goes 11.3 → 19.9.
 Both keep all twelve ramp steps distinct, which is the property nebelung's
 tests actually assert.
 
-Honest scope. This recolours what the rice injects colours into:
+Honest scope. This recolours what haus injects colours into:
 Ghostty, bat, delta, lsd, yazi, zellij, glow, starship, lazygit, the
 bar, pounce and perch (at runtime, via ~/.config/&#123;pounce,perch&#125;/themes/ —
 and unlike `flavor`, contrast reaches both on BOTH halves of their
@@ -372,8 +372,8 @@ Example:
 
 `one of "mocha", "latte"` · default `"mocha"`
 
-Light or dark. "mocha" (the default) is the rice as it has always been;
-"latte" is light mode.
+Light or dark. "mocha" (the default) is the dark half of Nebelung,
+which is what haus has always shipped; "latte" is light mode.
 
 Not an inversion of the dark palette — a different SOURCE palette. Nebelung
 is "Catppuccin with the blue stripped out", and those rules say nothing
@@ -387,7 +387,7 @@ CI measures each one's contrast ratio rather than eyeballing it.
 
 Honest scope, in two parts.
 
-What follows it: every tool the rice injects colours into or points at a
+What follows it: every tool haus injects colours into or points at a
 rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
 lazygit, zellij, opencode, the bar, Zen and Obsidian, plus helix
 whenever it is the editor `haus.hearth.editorName` selects (Nebelung
@@ -402,14 +402,14 @@ What does NOT follow it:
   - pounce and perch, by default. Both read their palette at runtime and
     can pick per polarity, so haus.pounce.followSystemAppearance
     and haus.perch.followSystemAppearance (default true) hand that
-    choice to macOS Light/Dark instead: the rice installs every rendered
+    choice to macOS Light/Dark instead: haus installs every rendered
     variant into ~/.config/&#123;pounce,perch&#125;/themes/ and writes the
     dark/light PAIR at your `contrast`. Set either option false to pin
     that app to this flavor like everything else.
   - macOS's own Light/Dark appearance, unless you opt in with
-    haus.theme.systemAppearance = "flavor". Left at its default the
-    rice does not touch system appearance in either direction, so a
-    latte rice on a dark macOS looks half-done and that half is yours —
+    haus.theme.systemAppearance = "flavor". Left at its default haus
+    does not touch system appearance in either direction, so latte on
+    a dark macOS looks half-done and that half is yours —
     except in pounce and perch, which read the appearance themselves.
   - three of the six desktops (haus.wallpaper.style). The hand-made
     "orbits", "constellation" and "flow" have the dark palette baked into
@@ -432,7 +432,7 @@ Example:
 Theme the apps in your roster (`haus.roster`) that Nebelung ships a
 port for, without wiring each one by hand.
 
-The rice already themes every tool it installs itself — the shell, the
+haus already themes every tool it installs itself — the shell, the
 terminal, the git stack, Zen, Obsidian. This covers the other direction:
 an app YOU added to the roster that Nebelung happens to have a theme for.
 Add `zed`, `warp` or `xcode` to `haus.roster` and its Nebelung theme
@@ -459,9 +459,9 @@ half-applying someone's config is worse than saying so.
 
 `one of "unmanaged", "flavor", "light", "dark"` · default `"unmanaged"`
 
-Whether the rice also sets macOS's OWN Light/Dark appearance — the one
+Whether haus also sets macOS's OWN Light/Dark appearance — the one
 in System Settings ▸ Appearance, which paints Finder, the menu bar and
-every native app the rice can't reach.
+every native app haus can't reach.
 
   unmanaged  (default) leave it alone, in both directions. Your Mac's
              appearance stays yours; nothing about a rebuild moves it.
@@ -473,7 +473,7 @@ every native app the rice can't reach.
 
 Default "unmanaged" on purpose: a managed default would silently revert
 an appearance you picked in System Settings on the next rebuild, which
-is a worse surprise than a half-light rice.
+is a worse surprise than a half-light machine.
 
 How it is applied, and why it is not a `system.defaults` key. Measured
 on macOS 26.6 (2026-08-08), NOT recalled from docs:
@@ -482,7 +482,7 @@ on macOS 26.6 (2026-08-08), NOT recalled from docs:
 one does nothing; `activateSettings -u` does not help; a process launched
 fresh afterwards still reports the old appearance, and no
 AppleInterfaceThemeChangedNotification is posted. That key is a mirror
-the appearance system writes, not a lever. So the rice drives appearance
+the appearance system writes, not a lever. So haus drives appearance
 through System Events (AppleScript) at each home-manager activation,
 which does flip it live in ~0.3s — and confirms the result with `hausax`
 (AppKit's effective appearance), never by reading the key back.
@@ -494,14 +494,14 @@ it macOS refuses, the rebuild says so in a named warning and carries on
 — the appearance just doesn't move, and nothing else is affected.
 
 One more thing macOS can undo: System Settings ▸ Appearance ▸ **Auto**
-switches polarity on its own schedule. The rice sets the appearance at
+switches polarity on its own schedule. haus sets the appearance at
 rebuild time and does not fight it afterwards, so on an Auto machine
 this option holds only until the next scheduled switch. Pick Light or
 Dark there if you want it to stick.
 
 Interaction worth knowing: haus.&#123;pounce,perch&#125;.followSystemAppearance
 hand polarity to macOS. Set this to "flavor" and macOS's polarity is in
-turn the rice's, so those two end up following `flavor` transitively —
+turn haus's, so those two end up following `flavor` transitively —
 which is usually what you wanted, but it does mean `followSystemAppearance`
 stops being an independent axis on this machine.
 
@@ -522,7 +522,7 @@ The desktop behind everything. `minimal` is generated on this machine — a flat
 `null or string matching the pattern #[0-9a-fA-F]{6}` · default `null`
 
 The field colour, as a literal hex — an escape hatch out of the palette
-for a desktop that wants a colour the rice doesn't have.
+for a desktop that wants a colour Nebelung doesn't have.
 
 Null (the default) resolves it from haus.wallpaper.depth against the
 flavour's ladder, which is the arrangement that keeps following the
@@ -562,8 +562,8 @@ true
 `list of string` · default `[ "self" "nebelung" "pounce" "perch" "holt" ]`
 
 Which flake inputs the band names, in the order it prints them. `self`
-is the rice itself and prints as `haus`; every other entry is an input
-name out of the rice's own flake, and one that isn't there is skipped
+is haus itself and prints as `haus`; every other entry is an input
+name out of haus's own flake, and one that isn't there is skipped
 rather than failing the build.
 
 The default is the family chain, which is the one thing a rev is worth
@@ -631,7 +631,7 @@ answer to "I want it blacker" without anyone having to name a colour.
 
 Nebelung's background tones are a ladder of six, ordered here from the
 end nearest the polarity's extreme inwards, so the SAME number means the
-same distance from black in a dark rice and from white in a light one:
+same distance from black in a dark flavour and from white in a light one:
 
   depth  dark (mocha)          light (latte)
   0      crust    #121212      base     #f1f1f1
@@ -645,7 +645,7 @@ same distance from black in a dark rice and from white in a light one:
 white. The default of 1 lands exactly one rung inside that extreme in
 EITHER polarity, which is what keeps the desktop reading as material
 rather than as a hole cut in the screen while still being properly dark
-in a dark rice — a full screen of `base` reads as a big terminal window,
+in a dark flavour — a full screen of `base` reads as a big terminal window,
 not as a wall behind one.
 
 The two columns are NOT symmetric, and the asymmetry is the palette's
@@ -653,11 +653,11 @@ rather than a choice: mocha's canvas (`base`) sits at depth 2 because
 two tones are darker than it, while latte's canvas is the LIGHTEST tone
 it has, so it sits at depth 0. So the ONE number moves the two flavours
 in opposite directions relative to their canvas — the default puts a
-dark rice one step BELOW the colour its terminal draws on (#191919) and
+dark flavour one step BELOW the colour its terminal draws on (#191919) and
 a light one one step below the canvas too (#e9e9e9), which is the
 agreement worth having, since a full screen of near-white is the one
 field size where latte's canvas stops being comfortable. `depth = 0` is
-the way to match the terminal exactly in a light rice; `depth = 2` is
+the way to match the terminal exactly in a light flavour; `depth = 2` is
 the way to match it in a dark one.
 
 Which flavour's column applies follows haus.theme.flavor, like every
@@ -786,7 +786,7 @@ What the mark is drawn in.
              looks with a pointer on it on hausfold.co, held still.
 
 `spectrum` is the default, and follows the flavour like everything
-else: the six are the Nebelung pastels in a dark rice and their darker
+else: the six are the Nebelung pastels in a dark flavour and their darker
 counterparts in a light one, because a pastel sheen on a white wall is
 invisible. It is the loudest of the four on purpose — one small piece of
 colour is the whole of what this desktop says out loud, and it says the
@@ -938,7 +938,7 @@ thing this layer can do, so the bare room does not do it uninvited — a
 DESKTOP says which look it wants, and nebelhaus picks `minimal`.
 
 That is the second change of mind on this option, and the reasoning
-survives both: `minimal` was made the default so a rice wouldn't ship
+survives both: `minimal` was made the default so a desktop wouldn't ship
 looking like nothing in particular, which is still true of nebelhaus
 and is why its desktop sets it. What changed is that a desktop is now
 the thing making that choice, rather than every install of the layer.
@@ -985,7 +985,7 @@ Example:
 
 `string` · default `"JetBrainsMono Nerd Font Mono"`
 
-The rice's type family, as Ghostty's `font-family` names it.
+haus's type family, as Ghostty's `font-family` names it.
 
 It reaches the terminal AND the menu bar: every pill label and icon
 sill draws is in this family, at sizes of its own (see
@@ -995,7 +995,7 @@ sill draws is in this family, at sizes of its own (see
 This should be a NERD FONT patched build: starship's prompt, lsd's
 icons, yazi previews and half the bar's icons draw with glyphs a stock
 font renders as tofu. If you change this, set `package` (or
-`packageName`) too — the rice can only install a font it's been given,
+`packageName`) too — haus can only install a font it's been given,
 and it warns when you name a family without one.
 
 The name is taken verbatim, so a "… Nerd Font Mono" family is drawn in
@@ -1014,15 +1014,15 @@ Example:
 
 `null or package` · default `null`
 
-The package providing `name`. null (the default) installs the rice's
+The package providing `name`. null (the default) installs haus's
 own JetBrains Mono Nerd Font, which is what `name` defaults to.
 
 Set this whenever you change `name`, or the family simply won't exist
-on the machine and Ghostty will silently fall back — the rice warns if
+on the machine and Ghostty will silently fall back — haus warns if
 it spots that combination.
 
-A shared rice can't set this one — it needs `pkgs`, and a data-only
-rice has no arguments. Use `packageName` there.
+A shared desktop can't set this one — it needs `pkgs`, and a data-only
+desktop has no arguments. Use `packageName` there.
 
 Example:
 
@@ -1062,7 +1062,7 @@ Example:
 `positive integer, meaning >0` · default `fonts.mono.baseSize, scaled by haus.ui.scale and rounded`
 
 Terminal font size in points. The single most useful knob for a
-larger-text machine, since it moves everything the rice actually
+larger-text machine, since it moves everything haus actually
 lives in.
 
 nebelhaus's 19pt baseline exists for a reason worth knowing: the Ghostty window is
@@ -1082,7 +1082,7 @@ Example:
 
 ### haus.accessibility
 
-macOS accessibility keys the rice can actually apply. These write to a TCC-protected domain, so they take effect only when the app you run the rebuild from holds Full Disk Access — otherwise the rice warns and moves on.
+macOS accessibility keys haus can actually apply. These write to a TCC-protected domain, so they take effect only when the app you run the rebuild from holds Full Disk Access — otherwise haus warns and moves on.
 
 #### `haus.accessibility.differentiateWithoutColor`
 
@@ -1090,11 +1090,11 @@ macOS accessibility keys the rice can actually apply. These write to a TCC-prote
 
 macOS's "Differentiate without colour" — native UI adds shapes and
 text where it would otherwise rely on hue alone. The setting to pair
-with a rice built for colour-blind readability.
+with a desktop built for colour-blind readability.
 
 
 null (the default) leaves whatever you have alone — this is a
-personal setting, so the rice never picks a value for you.
+personal setting, so haus never picks a value for you.
 
 REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
 the one property in the whole option surface that can differ
@@ -1107,12 +1107,12 @@ The grant follows the APP, not you and not root — so an
 agent-driven rebuild in a pane of a terminal that has it works
 fine, and the same agent under a different app does not.
 
-Without the grant the rice warns and carries on: you lose this
+Without the grant haus warns and carries on: you lose this
 setting and nothing else. That containment is the whole reason
 `com.apple.universalaccess` has options here at all — written the
 other way, through `system.defaults.universalaccess.*`, a missing
 grant aborts the rest of activation and takes every background
-service the rice installs with it.
+service haus installs with it.
 
 `haus plan` says up front when a rebuild needs the grant, and
 `haus doctor`'s Permissions section says whether this app has it.
@@ -1136,7 +1136,7 @@ restyles the tools nebelhaus colours, this reaches everything else.
 
 
 null (the default) leaves whatever you have alone — this is a
-personal setting, so the rice never picks a value for you.
+personal setting, so haus never picks a value for you.
 
 REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
 the one property in the whole option surface that can differ
@@ -1149,12 +1149,12 @@ The grant follows the APP, not you and not root — so an
 agent-driven rebuild in a pane of a terminal that has it works
 fine, and the same agent under a different app does not.
 
-Without the grant the rice warns and carries on: you lose this
+Without the grant haus warns and carries on: you lose this
 setting and nothing else. That containment is the whole reason
 `com.apple.universalaccess` has options here at all — written the
 other way, through `system.defaults.universalaccess.*`, a missing
 grant aborts the rest of activation and takes every background
-service the rice installs with it.
+service haus installs with it.
 
 `haus plan` says up front when a rebuild needs the grant, and
 `haus doctor`'s Permissions section says whether this app has it.
@@ -1190,7 +1190,7 @@ domains, moves no accessibility flag, and needs no TCC grant.
 
 
 null (the default) leaves whatever you have alone — this is a
-personal setting, so the rice never picks a value for you.
+personal setting, so haus never picks a value for you.
 
 REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
 the one property in the whole option surface that can differ
@@ -1203,12 +1203,12 @@ The grant follows the APP, not you and not root — so an
 agent-driven rebuild in a pane of a terminal that has it works
 fine, and the same agent under a different app does not.
 
-Without the grant the rice warns and carries on: you lose this
+Without the grant haus warns and carries on: you lose this
 setting and nothing else. That containment is the whole reason
 `com.apple.universalaccess` has options here at all — written the
 other way, through `system.defaults.universalaccess.*`, a missing
 grant aborts the rest of activation and takes every background
-service the rice installs with it.
+service haus installs with it.
 
 `haus plan` says up front when a rebuild needs the grant, and
 `haus doctor`'s Permissions section says whether this app has it.
@@ -1236,7 +1236,7 @@ bar band behind them, which stops being translucent.
 
 
 null (the default) leaves whatever you have alone — this is a
-personal setting, so the rice never picks a value for you.
+personal setting, so haus never picks a value for you.
 
 REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
 the one property in the whole option surface that can differ
@@ -1249,12 +1249,12 @@ The grant follows the APP, not you and not root — so an
 agent-driven rebuild in a pane of a terminal that has it works
 fine, and the same agent under a different app does not.
 
-Without the grant the rice warns and carries on: you lose this
+Without the grant haus warns and carries on: you lose this
 setting and nothing else. That containment is the whole reason
 `com.apple.universalaccess` has options here at all — written the
 other way, through `system.defaults.universalaccess.*`, a missing
 grant aborts the rest of activation and takes every background
-service the rice installs with it.
+service haus installs with it.
 
 `haus plan` says up front when a rebuild needs the grant, and
 `haus doctor`'s Permissions section says whether this app has it.
@@ -1280,7 +1280,7 @@ three animations run, and two it plays at all.
 
 `"system"` (the default) writes NOTHING — not the macOS values, nothing
 at all — so whatever your Dock does today, it keeps doing. Same policy
-as `haus.hotCorners`: the rice doesn't overwrite a setting you didn't
+as `haus.hotCorners`: haus doesn't overwrite a setting you didn't
 ask it about.
 
 `"fast"` writes five keys, all `mkDefault`, so any one of them can be
@@ -1298,7 +1298,7 @@ GOING BACK IS NOT AUTOMATIC, which is the one thing about this group
 that can surprise you and the reason it isn't on by default. Setting
 `"system"` again means STOP WRITING, not RESTORE: a `defaults` write is
 sticky and macOS keeps no memory of what was there before, so once
-you've rebuilt on `"fast"`, the five keys keep the rice's numbers.
+you've rebuilt on `"fast"`, the five keys keep haus's numbers.
 Undoing it means naming the values you want back in your host file
 (they're `mkDefault`, so a plain value wins), or a `defaults delete`.
 Worth knowing before you try `"fast"` on a Dock you tuned by hand.
@@ -1323,12 +1323,12 @@ out on it. Setting both is coherent and neither implies the other.
 
 WHEN YOU'LL FEEL IT. The four Dock keys are live the moment activation
 finishes — nix-darwin restarts the Dock whenever anything in its domain
-is written, and the rice always writes `autohide`. The NSGlobalDomain
+is written, and haus always writes `autohide`. The NSGlobalDomain
 one is read by each app AT LAUNCH, so apps you already have open keep
 animating their windows until you relaunch them; `activateSettings`
 can't reach back into a running `NSApplication`.
 
-These are timings, not a state the rice can prove from a plist — unlike
+These are timings, not a state haus can prove from a plist — unlike
 the `haus.accessibility` keys, there's no oracle for "did the Dock
 slide faster". They're felt, not measured. The one measurable claim
 here is the negative one above.
@@ -1388,7 +1388,7 @@ true
 Where ⇧⌘3 / ⇧⌘4 / ⇧⌘5 write their files. null (the default) leaves
 macOS's own choice alone, which is the Desktop.
 
-Absolute, or starting with `~/` — the rice expands the `~` for you and
+Absolute, or starting with `~/` — haus expands the `~` for you and
 CREATES the directory during activation. Both halves matter: macOS
 stores this string verbatim and expands nothing, and if the path does
 not exist screencapture silently falls back to the Desktop, so a
@@ -1447,7 +1447,7 @@ false
 
 ### haus.sound
 
-Alert volume and sound, interface sound effects, and the boot chime. Volume is 0–100 the way the slider reads it — macOS stores a curve, and the rice does the conversion.
+Alert volume and sound, interface sound effects, and the boot chime. Volume is 0–100 the way the slider reads it — macOS stores a curve, and haus does the conversion.
 
 #### `haus.sound.alertSound`
 
@@ -1464,8 +1464,8 @@ null (the default) leaves macOS's own choice alone.
 An enum rather than a path on purpose. macOS stores an absolute path
 here and validates nothing, and a path that doesn't resolve does not
 fall back to the default beep — it goes SILENT (measured by ear,
-2026-08-08), while the plist still reads like a working setting. The
-rice builds the path from the name and skips the write with a warning
+2026-08-08), while the plist still reads like a working setting.
+haus builds the path from the name and skips the write with a warning
 if that file is missing, so a macOS release retiring a sound can't
 quietly mute you.
 
@@ -1485,7 +1485,7 @@ How loud the alert beep is, 0–100, exactly as the slider in System
 Settings ▸ Sound reads. null (the default) leaves macOS's own choice
 alone.
 
-The rice converts to the exponential value macOS actually stores
+haus converts to the exponential value macOS actually stores
 (`e^(v/100 − 1)`, with 0 meaning silence), because that key is not a
 fraction: writing the obvious `0.5` gets you 31%.
 
@@ -1577,13 +1577,13 @@ note, not an error, so a `displays.<uuid>` entry for the monitor at the
 office can't fail a rebuild on the train.
 
 Why this option exists at all: display scaling is the only lever macOS 26
-gives us for "make EVERYTHING bigger", system-wide, including apps the rice
+gives us for "make EVERYTHING bigger", system-wide, including apps haus
 knows nothing about. macOS's own text-size setting writes a value no running
 app re-reads, while the accessibility scalars that do work affect contrast
 or motion rather than system-wide size — measured, not assumed (the
 workshop's notes/macos-settings-matrix.md records the sweep). So
-`haus.ui.scale` and `haus.fonts` make the *rice* bigger, and this
-makes the *Mac* bigger.
+`haus.ui.scale` and `haus.fonts` make *haus's own tools* bigger, and
+this makes the *Mac* bigger.
 
 Example:
 
@@ -1629,7 +1629,7 @@ host-specific display setting refine a broad profile such as
 `haus.appearance.largePrint` without depending on activation order.
 
 Honest scope: this is a real, system-wide size change — every app gets
-bigger, not just the rice's own tools — and the cost is desk space,
+bigger, not just haus's own tools — and the cost is desk space,
 because a larger UI means less of it. It also can't run from a rebuild
 with no GUI session attached (over SSH, say); the setting applies at
 the next activation you run while logged in.
@@ -1654,17 +1654,17 @@ The shell and terminal experience.
 
 `string` · default `the command for haus.hearth.editorName — hx for helix`
 
-The ONE editor command the rice uses everywhere. It's the shell command
+The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
 action launches — the "Nix Config" palette command, the bar's nix-open
 item, and the file-association hijack. Those open the target in a new
 zellij tab running this command, so a terminal editor is the natural
-fit for the rice; a GUI editor's CLI works too (e.g. "code" or
+fit for haus; a GUI editor's CLI works too (e.g. "code" or
 "code -w" to block).
 
 It defaults to the command for `haus.hearth.editorName`, so choosing an
 editor there is enough. Set this only for the case that option cannot
-express: pointing the rice at something it does not install. Naming a
+express: pointing haus at something it does not install. Naming a
 command here does NOT install it — that machine has to already have it.
 
 Example:
@@ -1679,8 +1679,8 @@ Example:
 
 `one of "helix", "nano", "neovim", "vim"` · default `"helix"`
 
-Which editor this room installs. `helix` (the default) is the one the
-rice is themed around; `neovim`, `vim` and `nano` are installed as-is,
+Which editor this room installs. `helix` (the default) is the one haus
+is themed around; `neovim`, `vim` and `nano` are installed as-is,
 with no Nebelung theme — Nebelung has a port for helix and not for
 them.
 
@@ -1689,7 +1689,7 @@ whatever the chosen editor answers to on PATH (`hx`, `nvim`, `vim`,
 `nano`). Choosing here is the whole gesture: the editor is installed
 AND every "open in an editor" action follows it.
 
-A desktop may set this. To point the rice at an editor it does not
+A desktop may set this. To point haus at an editor it does not
 install — a GUI one, or something from your own host file — leave this
 alone and set `haus.hearth.editor` instead.
 
@@ -1784,6 +1784,43 @@ handler behind an interactive dialog; set it by hand once if wanted:
 
 <small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
 
+#### `haus.hearth.lanes.backend`
+
+`one of "zellij", "zmx"` · default `"zellij"`
+
+Where an agent lane's terminal actually lives.
+
+`zellij` (the default) is the behaviour haus has always had: a
+lane is a pane in the `main` zellij session, and `holt` execs the
+client in the pane you ran it from. Panes are cheap, but a lane's
+identity is then a (session, pane-id) pair that only zellij
+understands — which is why the bar keeps a state file per pane and
+joins it back to a checkout path to work out which window to raise.
+
+`zmx` makes the lane its own zmx session, viewed through its own
+Ghostty window, tiled by prowl — all three named
+`holt.<repo>.<lane>`. Three consequences, in the order you'd feel
+them:
+
+- **Closing the window stops meaning parking the work.** A zmx
+  session outlives every client attached to it, so ⌘W detaches and
+  the agent keeps thinking; `holt <name>` reopens a window onto the
+  live conversation instead of resuming a transcript.
+- **The name is the join.** `zmx ls --where state=waiting`,
+  AeroSpace's `window-title-regex`, and the lane in `holt --json`
+  all key off one string.
+- **Splits are gone**, because zmx has none by design. Prowl tiles
+  the windows instead, which is the trade: a real window manager
+  rather than a second one nested inside a terminal.
+
+Both backends can be installed at once — this only picks which one
+`holt` opens into, through the `[hooks] open`/`resume` seam in
+`~/.config/holt/config.toml`. If zmx is somehow missing at runtime
+the hook defers (exit 3) and holt falls back to its built-in, so the
+worst case is the zellij behaviour you already had.
+
+<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+
 #### `haus.hearth.obsidianVaults`
 
 `list of string` · default `[ ]`
@@ -1853,7 +1890,7 @@ Zen browser policy, extensions and the optional native tab bridge.
 
 Browser extensions to deploy into Zen, by a stable id of your choosing.
 
-The mechanism is Firefox's enterprise policies — the rice renders an
+The mechanism is Firefox's enterprise policies — haus renders an
 `ExtensionSettings` block — so it reaches Zen the way an IT department
 reaches Firefox, without a profile to hand-edit. `haus.roster`
 deliberately cannot do this: a roster entry installs from a cask, a
@@ -1862,16 +1899,16 @@ of those.
 
 Two consequences of HOW the policies are delivered, both visible.
 Firefox only ever looks for a `policies.json` inside the app bundle,
-which a rice has no business writing into (it breaks the code signature
-and a cask upgrade wipes it), so the rice uses the other route macOS
+which haus has no business writing into (it breaks the code signature
+and a cask upgrade wipes it), so haus uses the other route macOS
 offers: a managed preference at
 `/Library/Preferences/app.zen-browser.zen.plist`. That file is
 root-owned, so it's written during system activation and a `haus
 rebuild` that can't reach it warns instead of installing anything. And
 because enterprise policies are on, Zen will tell you it is "managed by
-your organization" — that organization is this rice.
+your organization" — that organization is haus.
 
-The rice knows the id and slug of the extensions it themes
+haus knows the id and slug of the extensions it themes
 (stylus),
 so those need only be named. Everything else needs `id` — see that
 option for where to find it.
@@ -1879,7 +1916,7 @@ option for where to find it.
 Naming `stylus` here also turns on the stamped userstyle bundle (see
 haus.theme.accent): the Catppuccin-derived styles Stylus imports
 carry their own accent and flavor variables, which no palette file can
-reach, so the rice stamps the bundle from your theme — accent, flavor,
+reach, so haus stamps the bundle from your theme — accent, flavor,
 and the contrast it's rendered for — and tells you when there's a new
 one to import.
 
@@ -1887,7 +1924,7 @@ Example:
 
 ```nix
 {
-  # Known to the rice — id and slug are filled in.
+  # Known to haus — id and slug are filled in.
   stylus = { };
   # Anything else: bring the id.
   ublock-origin = {
@@ -1903,7 +1940,7 @@ Example:
 
 `boolean` · default `true`
 
-Whether to deploy this extension. Set false to remove one an imported rice added.
+Whether to deploy this extension. Set false to remove one an imported desktop added.
 
 <small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
 
@@ -1934,7 +1971,7 @@ Example:
 `one of "force_installed", "normal_installed", "allowed", "blocked"` · default `"force_installed"`
 
 Firefox's `installation_mode`. `force_installed` installs it
-and stops the user removing it (the point, for a rice that
+and stops the user removing it (the point, for a desktop that
 wants an extension present); `normal_installed` installs it
 but leaves it removable.
 
@@ -1969,9 +2006,9 @@ this extension: a file on disk cannot have been signed by
 Mozilla, and Zen refuses an unsigned add-on
 (`ERROR_SIGNEDSTATE_REQUIRED`) unless
 `xpinstall.signatures.required` is off. So naming one makes
-the rice lock that pref off **for the whole browser** — the
+haus lock that pref off **for the whole browser** — the
 same switch `haus.zen.tabBridge.enable` documents, since the
-bridge is the rice's own `file://` install. An `https://` AMO
+bridge is haus's own `file://` install. An `https://` AMO
 url never turns it on.
 
 <small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
@@ -1981,11 +2018,11 @@ url never turns it on.
 `attribute set` · default `{ }`
 
 Anything else to put in Zen's policy set, merged beside the
-`ExtensionSettings` block `haus.zen.extensions` renders. The rice OWNS
+`ExtensionSettings` block `haus.zen.extensions` renders. haus OWNS
 the file these land in — `/Library/Preferences/app.zen-browser.zen.plist`,
 written as root — so this is the escape hatch for the rest of the policy
 surface rather than a reason to take the file back by hand. Keys here
-win over the rice's on a collision.
+win over haus's on a collision.
 
 Write the policy names as Firefox documents them, nested: this becomes
 the top level of a plist beside `EnterprisePoliciesEnabled`, so
@@ -1995,7 +2032,7 @@ every policy back to `{ }` (and naming no extensions) takes the file
 down again on the next rebuild.
 
 The merge is one level deep, so naming a policy takes that policy over
-WHOLE. Two of them the rice writes itself: `ExtensionSettings` (from
+WHOLE. Two of them haus writes itself: `ExtensionSettings` (from
 `haus.zen.extensions`) and `Preferences` (which is where the signature
 switch a `file://` install needs ends up). Restate what you still want
 if you set either — dropping the signature switch this way is invisible
@@ -2018,7 +2055,7 @@ Example:
 
 `boolean` · default `false`
 
-Deploy the rice's own tiny extension into Zen, so the bar can find and
+Deploy haus's own tiny extension into Zen, so the bar can find and
 switch to the tab that is making noise.
 
 This is what makes the media pill's ⌘ click land on the **tab** rather
@@ -2031,23 +2068,23 @@ needs the Accessibility permission and is exactly as pleasant as it
 sounds.
 
 Off by default because it force-installs an add-on into your browser,
-which is not a thing a rice should do to you unasked. Turning it on
-costs one derivation, a native-messaging manifest, and two keys in the
-rice's root-owned policy plist — one of which is the signature switch
-below. Turning it back off stops the rice deploying it — what Zen then
+which is not a thing haus should do to you unasked. Turning it on
+costs one derivation, a native-messaging manifest, and two keys in
+haus's root-owned policy plist — one of which is the signature switch
+below. Turning it back off stops haus deploying it — what Zen then
 does with the add-on already installed is Firefox's policy engine's
-business, not the rice's, so check `about:addons` and remove it there if
+business, not haus's, so check `about:addons` and remove it there if
 it outstays the option.
 
 **Zen only, and that's a signing constraint rather than a choice.**
 Release Firefox refuses an extension Mozilla hasn't signed, and it is
 built so that no pref and no policy can say otherwise. Zen is built the
-other way (`MOZ_REQUIRE_SIGNING = false`), which is the whole reason the
-rice can build the `.xpi` itself and install it out of the nix store.
+other way (`MOZ_REQUIRE_SIGNING = false`), which is the whole reason
+haus can build the `.xpi` itself and install it out of the nix store.
 
 It still costs a switch. Zen carries Firefox's own preference defaults,
 which turn signature enforcement back on, so turning this option on also
-makes the rice lock `xpinstall.signatures.required = false` — for the
+makes haus lock `xpinstall.signatures.required = false` — for the
 browser, not just for its own add-on. Without it Zen refuses the bridge
 with `ERROR_SIGNEDSTATE_REQUIRED` and the option quietly does nothing;
 with it, an unsigned add-on from anywhere would also install if
@@ -2128,7 +2165,7 @@ Example:
 
 The terminal toolbelt: bat, fzf, fd, ripgrep, yazi, zoxide, lsd,
 glow, jq, tree, chafa, ttyd and fastfetch — the themed replacements
-for cat, find, grep, ls and friends that the rice's shell is built
+for cat, find, grep, ls and friends that haus's shell is built
 around.
 
 Off leaves a plain shell. The prompt (starship) and the colour scheme
@@ -2142,7 +2179,7 @@ Tiling, window navigation, hot corners, and the leader key that launches an app 
 
 ### haus.hotCorners
 
-What each corner of the screen does when the pointer reaches it. Every corner is unset by default, so the rice never overwrites one you set yourself.
+What each corner of the screen does when the pointer reaches it. Every corner is unset by default, so haus never overwrites one you set yourself.
 
 #### `haus.hotCorners.bottomLeft`
 
@@ -2167,14 +2204,14 @@ display.
 
 null (the default) writes nothing at all, which is not the same as
 "disabled": corners are a setting people have usually already made by
-hand, and a rice that names one it doesn't care about would silently
+hand, and a desktop that names one it doesn't care about would silently
 erase it. Use `"disabled"` to explicitly claim a corner and make it inert.
 
 Setting a corner also clears its MODIFIER key. macOS stores "hold ⌘ for
 this corner" separately (`wvous-*-modifier`), and a leftover modifier from
-an earlier setup makes a corner the rice just declared look broken —
+an earlier setup makes a corner you just declared look broken —
 nothing happens, because you weren't holding the key nobody told you
-about. Corners the rice leaves at null keep whatever modifier they have.
+about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
 macOS's own window and Space management, which prowl replaces. They still
@@ -2211,14 +2248,14 @@ display.
 
 null (the default) writes nothing at all, which is not the same as
 "disabled": corners are a setting people have usually already made by
-hand, and a rice that names one it doesn't care about would silently
+hand, and a desktop that names one it doesn't care about would silently
 erase it. Use `"disabled"` to explicitly claim a corner and make it inert.
 
 Setting a corner also clears its MODIFIER key. macOS stores "hold ⌘ for
 this corner" separately (`wvous-*-modifier`), and a leftover modifier from
-an earlier setup makes a corner the rice just declared look broken —
+an earlier setup makes a corner you just declared look broken —
 nothing happens, because you weren't holding the key nobody told you
-about. Corners the rice leaves at null keep whatever modifier they have.
+about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
 macOS's own window and Space management, which prowl replaces. They still
@@ -2255,14 +2292,14 @@ display.
 
 null (the default) writes nothing at all, which is not the same as
 "disabled": corners are a setting people have usually already made by
-hand, and a rice that names one it doesn't care about would silently
+hand, and a desktop that names one it doesn't care about would silently
 erase it. Use `"disabled"` to explicitly claim a corner and make it inert.
 
 Setting a corner also clears its MODIFIER key. macOS stores "hold ⌘ for
 this corner" separately (`wvous-*-modifier`), and a leftover modifier from
-an earlier setup makes a corner the rice just declared look broken —
+an earlier setup makes a corner you just declared look broken —
 nothing happens, because you weren't holding the key nobody told you
-about. Corners the rice leaves at null keep whatever modifier they have.
+about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
 macOS's own window and Space management, which prowl replaces. They still
@@ -2299,14 +2336,14 @@ display.
 
 null (the default) writes nothing at all, which is not the same as
 "disabled": corners are a setting people have usually already made by
-hand, and a rice that names one it doesn't care about would silently
+hand, and a desktop that names one it doesn't care about would silently
 erase it. Use `"disabled"` to explicitly claim a corner and make it inert.
 
 Setting a corner also clears its MODIFIER key. macOS stores "hold ⌘ for
 this corner" separately (`wvous-*-modifier`), and a leftover modifier from
-an earlier setup makes a corner the rice just declared look broken —
+an earlier setup makes a corner you just declared look broken —
 nothing happens, because you weren't holding the key nobody told you
-about. Corners the rice leaves at null keep whatever modifier they have.
+about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
 macOS's own window and Space management, which prowl replaces. They still
@@ -2645,7 +2682,7 @@ Example:
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so the rice merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a rice-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
 
 <small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
 
@@ -3276,7 +3313,7 @@ Example:
 
 `boolean` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so the rice merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a rice-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
 
 <small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
 
@@ -3406,7 +3443,7 @@ The Wi-Fi status pill.
 
 The logo's resting colour, by Catppuccin name. `null` (the default)
 follows `haus.theme.accent`, which is almost always what you want — the
-pill is the rice's own mark, so it wearing the rice's own accent is the
+pill is haus's own mark, so it wearing haus's own accent is the
 point.
 
 This is only the RESTING colour. `haus.sill.logo.status` paints over it
@@ -3479,7 +3516,7 @@ There is deliberately no way to point this at an image file. SketchyBar
 draws a `background.image` left-anchored, at a scale you have to
 hand-tune per asset, and applies no tint to it — so a picture here can
 follow neither `haus.theme.accent` nor the state colours below, and
-cannot sweep on hover. The rice drew this pill as a PNG for a while and
+cannot sweep on hover. haus drew this pill as a PNG for a while and
 every one of those was a real limitation of it.
 
 Example:
@@ -3516,9 +3553,9 @@ something without being clicked:
 
 | colour | meaning |
 |---|---|
-| accent | everything the rice runs is up |
-| `yellow` | a newer rice is pinned upstream (needs `haus.sill.logo.updateCheck`) |
-| `red` | something the rice runs is enabled but not running |
+| accent | everything haus runs is up |
+| `yellow` | a newer haus is pinned upstream (needs `haus.sill.logo.updateCheck`) |
+| `red` | something haus runs is enabled but not running |
 
 Red is the one that matters. It is the same check `haus doctor` opens
 with — `nix-daemon`, plus each of AeroSpace / SketchyBar / pounce whose
@@ -3557,9 +3594,9 @@ Leader mode suppresses it for the same reason.
 
 `boolean` · default `false`
 
-Add the yellow "a newer rice is available" state to the logo pill. Off
+Add the yellow "a newer haus is available" state to the logo pill. Off
 by default because it is the one part of the pill that leaves the
-machine: it asks GitHub for the rice's current head (the same
+machine: it asks GitHub for haus's current head (the same
 `git ls-remote` behind `haus status`) once every half hour, and a bar
 that phones home should be something you turned on.
 
@@ -3581,7 +3618,7 @@ Colour the media pill's glyph from the current cover art instead of from
 what kind of thing is playing.
 
 The colour is the cover's average, SNAPPED to the nearest member of the
-rice's palette — so the pill picks up the mood of a record without ever
+Nebelung palette — so the pill picks up the mood of a record without ever
 drawing a colour that isn't in the theme. Off by default because it
 trades a stable meaning (pink is Music, green is Spotify, red is video)
 for a colour that changes every three minutes.
@@ -3761,7 +3798,7 @@ feel, and the muscle memory it suits is not everyone's.
 
 Unlike the rest of pounce's config, the auto-quit settings are read once
 — when the daemon arms them — rather than per open. So a rebuild that
-touches any of the three restarts the pounce daemon, which the rice does
+touches any of the three restarts the pounce daemon, which haus does
 for you; nothing here needs a log-out to land.
 
 <small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
@@ -3802,7 +3839,7 @@ Example:
 
 `boolean` · default `false`
 
-The pounce command palette daemon (⌘Space) + its rice commands.
+The pounce command palette daemon (⌘Space) + the palette commands haus ships.
 
 <small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
 
@@ -3818,7 +3855,7 @@ picks between them per open (no rebuild, no daemon restart).
 Honest scope: this makes pounce the one themed tool that does NOT follow
 haus.theme.flavor — a flavor pin is a *palette* choice, and asking
 to follow the system says the polarity is macOS's call. The contrast
-axis still applies to both halves. Everything else on the rice keeps
+axis still applies to both halves. Every other themed tool keeps
 whatever flavor pins.
 
 false pins pounce to the flavor like every other port, which is exactly
@@ -3851,10 +3888,10 @@ separated by spaces, modifiers by "+", the notation Emacs and VS Code use:
 The modifier-only laptop Fn/Globe key is the one special single-step
 value: hotkey = "fn". It needs Pounce's Accessibility grant, unlike a
 Carbon chord or leader sequence, and fires only when Fn is tapped alone.
-The rice uses it for mode:emoji by default; set that item's hotkey to
+haus uses it for mode:emoji by default; set that item's hotkey to
 null to leave the Globe key to macOS.
 
-Sequences are worth knowing about on a tiling rice: they open a namespace
+Sequences are worth knowing about on a tiling desktop: they open a namespace
 that structurally can't collide with the ⌥/⌘ chords prowl already claims,
 and they need no Accessibility grant (pounce grabs the second step as an
 ordinary global hotkey for a couple of seconds rather than tapping events).
@@ -3917,8 +3954,8 @@ Defaults to a name derived from the key, which is right often
 enough to leave alone: `mode:clipboard` becomes "Clipboard
 history", `app:/Applications/Ghostty.app` becomes "Ghostty", and
 `cmd:brew-services` becomes "Brew services". Set this when the
-derived name isn't what the palette actually calls the row — the
-rice can't read a command's own `# pounce: name` header at
+derived name isn't what the palette actually calls the row —
+haus can't read a command's own `# pounce: name` header at
 evaluation time, so that one is a guess.
 
 Example:
@@ -3980,10 +4017,10 @@ Files, the cheatsheet and the window switcher.
 
 Follows haus.ui.scale by default, so you rarely set this directly.
 It exists as its own option for the case where the palette wants a
-different size from the rest of the rice — the launcher is read at arm's
+different size from the rest of haus — the launcher is read at arm's
 length for a second, not lived in like the terminal.
 
-pounce's own range is narrower than ui.scale's, so a rice at
+pounce's own range is narrower than ui.scale's, so a machine at
 `ui.scale = 2.5` gets a palette at 2.0 rather than an evaluation error.
 
 Two things adapt on their own, which is why one number is enough: the
@@ -4038,7 +4075,7 @@ Example:
 `one of "default", "compact"` · default `"compact"`
 
 The palette's proportions. `compact` is narrower with tighter rows and
-keeps its list hidden until you type — the rice's tuned look, and what it
+keeps its list hidden until you type — haus's tuned look, and what it
 shipped before this option existed. `default` is pounce's roomier layout,
 which shows the top results the moment it opens.
 
@@ -4213,7 +4250,7 @@ Coding agents: which clients this machine installs, the worktree lifecycle aroun
 
 ### haus.ai
 
-The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, and the two files the rice ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
+The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, and the two files haus ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
 
 #### `haus.ai.clients`
 
@@ -4329,22 +4366,22 @@ in `ai.clients`, to the path that client actually reads:
 
 Write it client-neutrally: the same text reaches whichever agent the ⌘A
 pane spawns, so a line about a Claude-only skill or file path is noise
-to the other two. When set, the rice prepends two short sections of its
+to the other two. When set, haus prepends two short sections of its
 own — a note that the file is generated and where to actually edit it
-(with THAT client's path), and the `holt` worktree etiquette, since the
-rice ships `holt` and that rule is what keeps it working — then your
+(with THAT client's path), and the `holt` worktree etiquette, since
+haus ships `holt` and that rule is what keeps it working — then your
 text.
 
 Empty (the default) writes nothing at all, for any client, so a
-hand-managed instructions file is never clobbered just to inject the
-rice's note. If you set it and one of those paths already holds a file
+hand-managed instructions file is never clobbered just to inject
+haus's note. If you set it and one of those paths already holds a file
 you wrote by hand, home-manager moves yours aside as `<file>.backup`
 rather than refusing — quiet, so check for one before the first rebuild
 after setting this.
 
-With `ai.clients` empty (a machine the rice installs no client on)
+With `ai.clients` empty (a machine haus installs no client on)
 every known client's path is written instead of none: the list being
-empty means the rice installs none, not that no agent runs here.
+empty means haus installs none, not that no agent runs here.
 
 Example:
 
@@ -4373,7 +4410,7 @@ for Claude Code compatibility, and prefers its own copy when both
 exist — so a machine running both clients sees the skill once, not
 twice.
 
-The skill's option reference is GENERATED from the rice revision this
+The skill's option reference is GENERATED from the haus revision this
 machine is pinned to, so it can only ever describe options that
 actually exist here — and it is regenerated by `haus update`. It also
 carries this host's current state (which rooms are on, where the host
@@ -4383,7 +4420,7 @@ opened there is oriented whichever client it runs.
 
 Unrelated to the clients' own settings, which follow
 `haus.ai.enable`. This is a plain file drop: with
-`ai.clients` empty — a machine the rice installs no client on, which
+`ai.clients` empty — a machine haus installs no client on, which
 can still have one from npm or Homebrew — every known client's directory
 gets a copy rather than none. Set false to leave every client's skills
 directory alone.
@@ -4410,7 +4447,7 @@ many Electron apps).
 
 Off by default: it installs the Espanso.app cask and needs a one-time
 macOS Accessibility grant (System Settings → Privacy & Security →
-Accessibility → enable Espanso) the first time it runs. The rice runs
+Accessibility → enable Espanso) the first time it runs. haus runs
 the SIGNED app bundle rather than a nix-store binary on purpose, so
 that grant is keyed to a stable identity and survives reboots and
 nixpkgs bumps — you grant it once, not on every rebuild (and so the
@@ -4614,7 +4651,7 @@ that keeps the prompt working when sudo runs inside a terminal
 multiplexer (tmux/zellij/screen), where it otherwise beachballs.
 
 Off means macOS's stock password prompt everywhere, including for the
-rebuild below. Nothing else in the rice depends on it.
+rebuild below. Nothing else in haus depends on it.
 
 <small>Declared in [`modules/collar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/collar/options.nix).</small>
 
@@ -4692,7 +4729,7 @@ Every field except the id is optional, and WHICH fields you set is
 what the entry means. Set `key` and it joins the launcher; set none
 of the launcher/workspace/install fields and it's install-only —
 which is how a font or a command-line tool lives in the same list as
-Slack instead of in a second one beside it. The rice's own
+Slack instead of in a second one beside it. haus's own
 `homebrew.casks` / `home.packages` still work and still merge; you
 just shouldn't need them for an app.
 
@@ -4835,9 +4872,9 @@ four sources above describes it: pounce and perch copy a
 notarized bundle into /Applications from their own activation
 step, which is neither a cask nor a package you can list.
 
-Set BY the rice, not by you. It exists so the roster can still
+Set BY haus, not by you. It exists so the roster can still
 answer "who installed this?" for those apps — without it, a host
-adding a leader key for Perch had to KNOW the rice already ships
+adding a leader key for Perch had to KNOW haus already ships
 it, leave every source field null, and leave a comment explaining
 the hole. This is that comment, as data.
 
@@ -4918,8 +4955,8 @@ Roster order; lower values appear first. Ties are sorted by app id.
 Nixpkgs package that installs this entry. Where it lands is
 `scope`'s call.
 
-A shared rice or app pack can't set this one — it needs `pkgs`, and a
-data-only rice has no arguments. Use `packageName` there.
+A shared desktop or app pack can't set this one — it needs `pkgs`, and
+a data-only desktop has no arguments. Use `packageName` there.
 
 Example:
 
@@ -4986,8 +5023,8 @@ every window the app opens. null (default) floats all of them.
 
 Some apps' windows report their title only AFTER AeroSpace has
 already detected and tiled them once (a race, not a bug this
-option can fix) — Ghostty is the known case, which is why this
-rice's own Ghostty float rule is hand-written in aerospace.toml
+option can fix) — Ghostty is the known case, which is why
+haus's own Ghostty float rule is hand-written in aerospace.toml
 rather than generated from the roster. If a title rule flaps,
 that race is almost certainly why. Ignored when `float` is false.
 
@@ -5055,12 +5092,12 @@ throw (above) sends the focused window here regardless of which
 member app owns it. An app id may belong to at most one
 workspace.
 
-A plain list, not wrapped in `lib.mkDefault` even where the rice
+A plain list, not wrapped in `lib.mkDefault` even where haus
 itself contributes to it (ghostty → workspace `T`, say) — list
 options MERGE across modules at equal priority but a `mkDefault`
 list is dropped whole rather than merged the moment anything else
 defines the same option, so a host adding a second app to `T`
-would silently lose ghostty's membership if the rice's own
+would silently lose ghostty's membership if haus's own
 contribution used `mkDefault` here. Override a single membership
 by dropping the app's id from your own list instead.
 
@@ -5118,13 +5155,13 @@ Example:
 
 ### haus.ui
 
-One number for "make the interface bigger", applied across the rice's own surfaces.
+One number for "make the interface bigger", applied across haus's own surfaces.
 
 #### `haus.ui.scale`
 
 `integer or floating point number between 0.5 and 3.0 (both inclusive)` · default `1.0`
 
-One number for "make the interface bigger". 1.0 is the rice as tuned;
+One number for "make the interface bigger". 1.0 is haus as tuned;
 1.35 is a comfortable large-print setting; below 1.0 tightens things up.
 
 It sets the DEFAULT of the sizes it drives, so anything you pin by hand
@@ -5144,7 +5181,7 @@ What it currently moves:
   - the Dock icon size (system.defaults.dock.tilesize)
   - Finder's sidebar rows (NSTableViewDefaultSizeMode) — a threshold
     rather than a multiplier, and it is set at every scale: at or below
-    1.0 the rice picks SMALL rows (more fits in a tiled window), above
+    1.0 haus picks SMALL rows (more fits in a tiled window), above
     1.0 it picks Apple's large ones
   - prowl's window gaps
 
@@ -5159,7 +5196,7 @@ Where it stops, and why it isn't a gap waiting to be filled:
     taller pills poke out below it. That band is macOS's, fixed, and has
     no setting behind it — measured, not assumed. So the bar's type
     follows this option up to the largest that still fits a pill
-    (1.25x) and then stops, silently: past that a rice simply gets the
+    (1.25x) and then stops, silently: past that a machine simply gets the
     ceiling. The only way to make the whole bar bigger is to change what
     a point MEANS — the display's scaled resolution, below.
   - perch, the notch shelf. It sizes itself from the SCREEN — a fraction
@@ -5167,7 +5204,7 @@ Where it stops, and why it isn't a gap waiting to be filled:
     thing hanging off the notch, and it means NEITHER lever moves it: a
     scaled display shrinks the shelf's width in points by the same
     factor that makes a point bigger, so it stays the same physical
-    size while everything around it grows. A large-print rice gets a
+    size while everything around it grows. A large-print machine gets a
     normal-sized shelf, and there is no option here that changes that.
   - anything outside nebelhaus. macOS has no system-wide UI scale, so
     third-party apps follow only a display-resolution change.
@@ -5188,7 +5225,7 @@ Example:
 
 ### haus.keys
 
-The keys the rice owns — the leader, the palette, the window-chord modifier — and anything extra you hang off the leader.
+The keys haus owns — the leader, the palette, the window-chord modifier — and anything extra you hang off the leader.
 
 #### `haus.keys.leader`
 
@@ -5200,11 +5237,11 @@ to that workspace and follows it there, an arrow navigates, `-`/`=`
 resizes.
 
   - "caps" (default): Caps Lock. AeroSpace can't bind Caps Lock itself,
-    so the rice remaps it to F18 with hidutil and binds that.
+    so haus remaps it to F18 with hidutil and binds that.
   - "alt-space": the leader without giving up Caps Lock. No remap at all.
   - "none": no leader. Caps Lock stays Caps Lock, launch mode is
     unreachable, and nothing is remapped — the setting for a mouse-first
-    rice, or for a Mac you are handing to someone else. What the leader
+    machine, or for a Mac you are handing to someone else. What the leader
     fronted is still reachable: apps through the palette, window moves
     through service mode's join-with and the palette's own commands.
     Workspace focus and the workspace throws go away with it — they
@@ -5312,7 +5349,7 @@ daemon, so it's near-instant and doesn't go through AeroSpace.
 "cmd-space" (default) is the one value that also DISABLES Spotlight's
 own ⌘Space, because the two can't share it. Every other value leaves
 Spotlight alone — including "none", which hands the palette's job back
-to Spotlight entirely. That's a fix as much as an option: the rice used
+to Spotlight entirely. That's a fix as much as an option: haus used
 to take Spotlight's ⌘Space away unconditionally, even where nothing
 claimed it.
 
@@ -5340,7 +5377,7 @@ throwing the focused window there — hangs off `leader` instead, not
 this option.
 
 "alt" (default) is ⌥. The alternatives are for **non-US keyboard
-layouts**, where ⌥+letter types accented characters — a rice that owns
+layouts**, where ⌥+letter types accented characters — a machine that owns
 ⌥+letter is unusable on those, which is the concrete reason this option
 exists.
 
@@ -5357,7 +5394,7 @@ Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
 
 "none" drops the modifier chords entirely: no focus/layout chords, no
-service mode. Combined with `leader = "none"` that's a rice where the
+service mode. Combined with `leader = "none"` that's a machine where the
 tiler tiles and the keyboard is left alone — mouse-first. The cheatsheet
 follows, so it never advertises a key that does nothing.
 
@@ -5384,7 +5421,7 @@ navigate / resize / palette) as ONE quiet pill in the bar, advancing
 live as each move is detected. It never opens a window or steals
 focus: a fresh machine just shows a dormant "new here?" hint, clicking
 it (or `haus tour`, or ⌘Space → tour) starts the lap, right-click
-hides it forever. Detection reuses signals the rice already fires (the
+hides it forever. Detection reuses signals haus already fires (the
 leader-mode scripts) — no key logging, no Accessibility.
 
 Needs prowl + sill (it silently stays out of the bar without them);
@@ -5398,11 +5435,11 @@ the ⌘Space step is dropped when pounce is off. Progress lives in
 `null or (non-empty (list of (submodule)))` · default `null`
 
 A community-authored tour, in order. null keeps the built-in four-move
-nebelhaus tour unchanged; supplying a list replaces it, so a shared rice can
-teach its own workflow without shipping scripts or reaching outside the
+nebelhaus tour unchanged; supplying a list replaces it, so a shared desktop
+can teach its own workflow without shipping scripts or reaching outside the
 `haus.*` option surface.
 
-Detection reuses signals the rice already emits. `launch`, `workspace`,
+Detection reuses signals haus already emits. `launch`, `workspace`,
 `navigate` and `resize` need prowl; `palette` needs Pounce and its palette
 binding. The module warns when a chosen detector's room is disabled.
 
@@ -5428,7 +5465,7 @@ Example:
 
 `one of "launch", "workspace", "navigate", "resize", "palette"` · no default
 
-The existing rice signal that completes this step: entering launch,
+The existing haus signal that completes this step: entering launch,
 navigate or resize mode; changing workspace; or running the Haus Tour
 command from Pounce (`palette`). The tour observes outcomes, never
 keystrokes. Clicking the pill still skips a step that cannot be
@@ -5451,7 +5488,7 @@ The instruction shown in the tour pill for this step.
 Name keys with the placeholders `{palette}`, `{leader}` and
 `{leaderName}` rather than typing a chord: they expand to what
 THIS machine resolved, so a tour written once still teaches the
-right keys on a rice that moved `keys.palette` or `keys.leader`.
+right keys on a machine that moved `keys.palette` or `keys.leader`.
 A hardcoded "⌘Space" is wrong on that machine and the author
 never sees it — the consumer does.
 
@@ -5578,7 +5615,7 @@ Example:
 
 ### haus.locale
 
-Language, region, units and keyboard layouts. What a rice in any language other than English needs — and the one room whose settings reach apps you already have open, because the rice posts the change notification macOS itself posts.
+Language, region, units and keyboard layouts. What a machine in any language other than English needs — and the one room whose settings reach apps you already have open, because haus posts the change notification macOS itself posts.
 
 #### `haus.locale.hourFormat`
 
@@ -5615,14 +5652,14 @@ hausax input-sources --all
 THIS ONE OWNS THE LIST. Unlike every other option in §5.6's groups, a
 non-null value here is exhaustive: layouts you don't name get
 disabled, because "add these and keep whatever else was there" makes
-a rice that can never remove a layout it once added. Non-keyboard
+a machine that can never remove a layout it once added. Non-keyboard
 input methods (emoji picker, press-and-hold) are never touched.
 
 Applied through the documented Text Input Sources API rather than by
 writing `com.apple.HIToolbox` directly. The plist route does work, but
 it resolves a layout by an English display name (`Swiss French`, not
 `SwissFrench`) next to a numeric id that is required and never
-validated — a table the rice would have to hardcode and would get
+validated — a table haus would have to hardcode and would get
 wrong for exactly the layouts nobody here tests.
 
 Example:
@@ -5649,7 +5686,7 @@ fallback chain, not a single choice.
 
 TAKES EFFECT ON RELAUNCH: an app picks its language when it starts.
 Already-open apps keep the old one until you quit and reopen them,
-and the login window follows at next login. Nothing the rice can post
+and the login window follows at next login. Nothing haus can post
 changes that — it is how bundle resources load.
 
 Example:
