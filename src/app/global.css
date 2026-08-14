@@ -439,6 +439,21 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 
 /* --- the page's head -------------------------------------------------- */
 
+/* One row above the title carrying everything *about* the page: the tree on
+   the left, the page-as-a-file actions on the right. Nothing sits between
+   the description and the body any more — a docs page's first job is to be
+   read, and the reader who wants the file is a minority the row already had
+   room for. It wraps rather than shrinking: on a phone the actions drop to
+   their own line and keep their labels, which is better than an icon nobody
+   can name. */
+.hf-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.2rem;
+  margin-bottom: 0.6rem;
+}
+
 /* The tree, above the title, in the tree's colour. The sidebar answers
    "where am I" for the reader who walked here; this answers it for the one
    who landed from a search result on a page three levels in. */
@@ -446,7 +461,6 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 0.6rem;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.16em;
@@ -459,13 +473,54 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   height: 0.95rem;
 }
 
-/* The copy-markdown row. It used to carry a `border-b` under it, which put
-   a full-width rule two lines below the title's own — the page opened with
-   two horizontal lines and no content between them. Space does the same
-   work. */
+/* Copy the page as Markdown; open it in GitHub, in a Markdown view or in a
+   model. `margin-inline-start: auto` puts them at the far end of the row
+   whether or not the eyebrow is there — the docs index has no tree, so it
+   has no eyebrow, and the actions still land right. */
 .hf-actions {
-  margin-top: 1.4rem;
-  margin-bottom: 2.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-inline-start: auto;
+}
+
+/* Fumadocs ships both of these as `buttonVariants({color: 'secondary'})` —
+   a bordered, filled, 13px sans button. Undone here rather than replaced:
+   they become two lines of the same mono chrome the nav, the sidebar and
+   the TOC are set in, quiet at rest and ink on hover, like a TOC row.
+
+   No accent on hover, deliberately. The eyebrow beside them is the one
+   coloured thing in this row and it is coloured because it answers "where
+   am I"; a utility that answers "what can I do with this file" is not
+   orientation, and two hues in a six-word row is how a leash becomes a
+   gradient. */
+.hf-action {
+  height: auto;
+  padding: 0;
+  gap: 0.35rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.hf-action:hover,
+.hf-action:focus-visible,
+.hf-action[data-popup-open] {
+  background: none;
+  color: var(--ink);
+}
+
+/* Both the copy glyph and the popover's chevron are shipped at
+   `text-fd-muted-foreground`, which would leave them grey while the label
+   goes ink on hover — two colours inside one control. */
+.hf-action svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: inherit;
 }
 
 /* --- the page ------------------------------------------------------- */

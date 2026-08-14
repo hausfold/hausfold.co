@@ -61,24 +61,46 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       // has, and it costs nothing to make it look like one.
       footer={{ className: 'hf-next' }}
     >
-      {/* Which half of the docs you are in, above the title — the same
-          answer the sidebar's switcher gives, for the reader who arrived
-          from a search result and never saw the sidebar. */}
-      {eyebrow && (
-        <p className="hf-eyebrow">
-          {eyebrow.icon}
-          {eyebrow.name}
-        </p>
-      )}
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
-      <div className="hf-actions flex flex-row gap-2 items-center">
-        <MarkdownCopyButton markdownUrl={markdownUrl} />
-        <ViewOptionsPopover
-          markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
-        />
+      {/* The page's meta row — everything *about* this page, on one line
+          above the title, and nothing between the description and the
+          first sentence of the body.
+
+          Left: which half of the docs you are in — the same answer the
+          sidebar's switcher gives, for the reader who arrived from a
+          search result and never saw the sidebar. Right: what you can do
+          with the page as a file — copy it as Markdown, open it in
+          GitHub or in a model.
+
+          They share a row because they are the same kind of thing: an
+          answer to "what is this page", addressed to a reader who is not
+          reading yet. The actions used to sit *under* the description as
+          two bordered buttons, which gave the loudest object above the
+          fold to the ~1-in-50 visit that wants a file, and pushed the
+          lede down a hundred pixels for the other forty-nine. Here they
+          cost no height at all: the eyebrow's row was already being
+          drawn. */}
+      <div className="hf-meta">
+        {eyebrow && (
+          <p className="hf-eyebrow">
+            {eyebrow.icon}
+            {eyebrow.name}
+          </p>
+        )}
+        <div className="hf-actions">
+          <MarkdownCopyButton className="hf-action" markdownUrl={markdownUrl}>
+            Copy Markdown
+          </MarkdownCopyButton>
+          <ViewOptionsPopover
+            className="hf-action"
+            markdownUrl={markdownUrl}
+            githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
+          >
+            Open in…
+          </ViewOptionsPopover>
+        </div>
       </div>
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX
           components={getMDXComponents({
