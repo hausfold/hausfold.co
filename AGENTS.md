@@ -999,7 +999,7 @@ Two things this constrains:
   step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the landing
   half's `body:has(.sheet)` — and nothing else should name it or re-type the
   stack.
-- **The eight landing pages are exempt**, via `body:has(.sheet)`. It was written
+- **Every `.sheet` route is exempt**, via `body:has(.sheet)`. It was written
   on 2026-08-12 for `src/app/not-found.tsx` alone, the only landing-half page
   under this layout at the time, and it carried the rest for free when
   they arrived two days later — because the thing it keys on is the `.sheet`

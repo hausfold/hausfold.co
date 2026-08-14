@@ -105,7 +105,7 @@ for (const key of ['wmBindings', 'launchModeKeys', 'resizeModeKeys']) {
 }
 console.error(`
 Update the pages that print these keys —
-  src/app/desktops/nebelhaus/page.tsx   (#first-moves and #keys)
+  content/docs/haus/desktops/nebelhaus.mdx   (#first-moves)
   content/docs/haus/rooms/windows.mdx
   content/docs/haus/rooms/development.mdx
 — then refresh the snapshot:
