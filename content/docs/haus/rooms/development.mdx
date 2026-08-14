@@ -6,8 +6,8 @@ icon: shell
 
 **hearth** is the terminal room. It sets up the whole command line — emulator,
 multiplexer, shell, prompt, file manager, editor, and a toolbelt of modern
-replacements for the usual commands — every one of them painted from the same
-[palette](/docs/haus/rooms/appearance).
+replacements for the usual commands — painted from the same
+[palette](/docs/haus/rooms/appearance), down to the default editor.
 
 | | | |
 |---|---|---|
@@ -16,7 +16,7 @@ replacements for the usual commands — every one of them painted from the same
 | Shell | zsh | no framework, fzf-tab, sensible history, git aliases |
 | Prompt | [starship](https://starship.rs) | |
 | Files | [yazi](https://yazi-rs.github.io) | markdown, code and image previews |
-| Editor | [helix](https://helix-editor.com) | the default `$EDITOR` |
+| Editor | [helix](https://helix-editor.com) | the default `$EDITOR` — or neovim, vim, nano ([below](#choosing-your-editor)) |
 | Jumper | [zoxide](https://github.com/ajeetdsouza/zoxide) | `cd` learns your habits; `cdi` opens a picker |
 
 Plus `bat` over `cat`, `lsd` over `ls`, `lazygit` (`lg`), `delta` for git diffs,
@@ -172,15 +172,27 @@ haus.git.shellAliases = {
 
 ## Choosing your editor
 
-helix is the default. `haus.hearth.editor` is **the one** editor haus uses
-everywhere — your `$EDITOR`, and what every "open in an editor" action launches.
-Those open in a new zellij tab, so a terminal editor is the natural fit; a GUI
-editor's CLI works too.
+Name one and the room installs it. `haus.hearth.editorName` takes **helix** (the
+default), **neovim**, **vim** or **nano** — one choice that installs the editor,
+sets your `$EDITOR`, and points every "open in an editor" action at it. Those
+open in a new zellij tab, which is why the list is terminal editors.
 
 ```nix
-haus.hearth.editor = "nvim";                    # any terminal editor
+haus.hearth.editorName = "neovim";              # installed, and $EDITOR
 haus.hearth.hijackFileAssociations = true;      # off by default: make it the
                                                 # opener for .json, .md, .nix, …
+```
+
+helix is the one haus paints from the palette — Nebelung has a theme for it and
+none for the others, so the alternatives arrive in their own default colours.
+
+To point haus at an editor it does **not** install — a GUI one, or something
+your host installs itself — set `haus.hearth.editor` instead. That one is a
+shell command haus runs, so it belongs in your host file rather than in a shared
+desktop, and it wins over whatever `editorName` chose:
+
+```nix
+haus.hearth.editor = "code -w";                 # points at it; installs nothing
 ```
 
 ## Smaller things you'll notice
