@@ -20,7 +20,7 @@ rather than answer 200.
 
 ```
 src/app/                          the routes
-  page.tsx                        landing page — masthead, the desktop catalogue (#desktops), the apps
+  page.tsx                        landing page — nav, masthead, #desktops (a sentence + links), apps, haus
   perch/,                         one page each; perch/privacy/ is linked from the App Store
   desktops/nebelhaus/,            — don't move or rename that URL. The desktop page also
   terms/, refunds/                carries #first-moves and #keys, from the retired docs tree

@@ -24,9 +24,12 @@ export function baseOptions(): BaseLayoutProps {
     },
     // The way back out to the rest of the site, at the head of the sidebar.
     // Each carries a glyph, to be found by shape rather than read. `perch`
-    // names a *product* and carries that product's accent; `/desktops` is a
-    // catalogue rather than a product, owns no accent anywhere on this site,
-    // and so takes the current page's tint like any other row.
+    // names a *product* and carries that product's accent; `/desktops` names
+    // a kind of thing rather than a product, owns no accent anywhere on this
+    // site, and so takes the current page's tint like any other row. (It
+    // lands on `/#desktops`, which since 2026-08-14 is a sentence and four
+    // links rather than a catalogue — still the right destination, because
+    // three of those links are the desktops' own pages.)
     //
     // Two rows left on 2026-08-14, for one reason: **a link out of the docs
     // that lands back in the docs is not a way out, it is the tree switcher

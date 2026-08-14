@@ -3,8 +3,11 @@
 # BEFORE worker.js, which is why a rule here can shadow a Worker route (and
 # why none of them do).
 #
-# /desktops was a page until 2026-08-12; its catalogue is now the first
-# section of the landing page. Both spellings are listed because the
+# /desktops was a page until 2026-08-12, then the landing page's first
+# section; since 2026-08-14 that section is one sentence and four links, and
+# the comparison lives at /docs/haus/desktops/choosing. The target is
+# unchanged and stays that way whatever #desktops becomes — this URL has been
+# shared since 2026-08-08. Both spellings are listed because the
 # no-slash form only 307s to the slash form while an index.html exists at
 # that path, and it no longer does.
 #

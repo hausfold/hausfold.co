@@ -73,9 +73,11 @@
    on 2026-08-14 and nothing `<link>`s `/hausfold.css` any more. It stays under
    `public/` because that is where `scripts/sync-nebelung.mjs` writes it.
 
-   Its layout classes (.sheet, .index, .catalogue…) are no longer unused here —
-   they are what the seven landing routes are built out of, which is what makes
-   this one import the single copy of the palette in the repo. */
+   Its layout classes (.sheet, .index, .block…) are no longer unused here —
+   they are what every landing route is built out of, which is what makes
+   this one import the single copy of the palette in the repo. (A count used
+   to stand where "every" does; it was wrong three times in one day. Don't put
+   one back.) */
 @import '../../public/hausfold.css';
 
 @theme {
@@ -243,8 +245,8 @@ body {
   --color-fd-error: var(--a-nebelhaus);
 }
 
-/* The landing half, handed its own face back. Every one of the seven routes
-   that is NOT a docs page puts `.sheet` on its `<main>`, so this one selector
+/* The landing half, handed its own face back. Every route that is NOT a docs
+   page puts `.sheet` on its `<main>`, so this one selector
    covers all of them and the body rules above apply to `/docs` alone.
 
    It was written on 2026-08-12 for `src/app/not-found.tsx` — then the only
@@ -264,9 +266,10 @@ body:has(.sheet) {
   font-size: var(--step);
   line-height: 1.62;
 
-  /* 🚨 Load-bearing for the break-out plates (.catalogue and .gallery in
-     public/hausfold.css), and the reason they measure `100cqw` rather
-     than `100vw`: `html { scrollbar-gutter: stable }` at the foot of this
+  /* 🚨 Load-bearing twice over: for `.sheet`'s own right-leaning inset and
+     for the break-out plate (`.gallery` in public/hausfold.css), both of
+     which measure `100cqw` rather than
+     `100vw`. Reason: `html { scrollbar-gutter: stable }` at the foot of this
      file reserves the scrollbar's strip permanently, so 100vw is WIDER
      than the page by that strip on every machine that draws a classic
      scrollbar. A plate sized off 100vw therefore sits ~7.5px proud of the
