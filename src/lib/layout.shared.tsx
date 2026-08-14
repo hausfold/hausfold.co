@@ -23,15 +23,18 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     // The way back out to the rest of the site, at the head of the sidebar.
-    // Each carries a glyph, to be found by shape rather than read. The three
-    // that name a *product* carry that product's accent — `/haus` takes the
-    // layer's mauve, the same hue the haus tree wears inside the docs, so the
-    // outward link and the tree are visibly the same subject. `/desktops` is
-    // a catalogue rather than a product, owns no accent anywhere on this
-    // site, and so takes the current page's tint like any other row.
+    // Each carries a glyph, to be found by shape rather than read. The two
+    // that name a *product* carry that product's accent; `/desktops` is a
+    // catalogue rather than a product, owns no accent anywhere on this site,
+    // and so takes the current page's tint like any other row.
+    //
+    // There is no `haus` row any more. It pointed at `/haus`, which was
+    // retired into `/docs/haus` on 2026-08-14 — and a link out of the docs
+    // that lands back in the docs is not a way out, it is the tree switcher
+    // at the top of this same sidebar. The url below is `/#desktops` rather
+    // than `/desktops` for a smaller reason: `/desktops` only 301s there.
     links: [
-      { text: 'haus', url: '/haus', external: true, icon: <Icon name="layer" /> },
-      { text: 'desktops', url: '/desktops', external: true, icon: <Icon name="desktops" /> },
+      { text: 'desktops', url: '/#desktops', external: true, icon: <Icon name="desktops" /> },
       { text: 'pounce', url: '/pounce', external: true, icon: <Icon name="pounce" /> },
       { text: 'perch', url: '/perch', external: true, icon: <Icon name="perch" /> },
     ],

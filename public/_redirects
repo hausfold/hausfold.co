@@ -13,6 +13,14 @@
 /desktops     /#desktops   301
 /desktops/    /#desktops   301
 
+# /haus was a sheet of its own until 2026-08-14, written before the docs
+# existed. It now says less about haus than /docs/haus does, in more words, so
+# it is retired rather than kept in step — the one part worth reading twice
+# (the example file) moved to the landing page's closing section. Both
+# spellings again, for the reason above.
+/haus         /docs/haus/  301
+/haus/        /docs/haus/  301
+
 # The docs tree was reorganised around desktops and rooms on 2026-08-14: the
 # undifferentiated /docs/haus/guides/* list became one page per room, plus a
 # Desktops section. Every old URL is listed by hand, in both spellings, because

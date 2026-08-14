@@ -56,7 +56,9 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 > moved — the namespace was already `haus.*`, the org already `hausfold`, the
 > domain already `hausfold.co` — and every existing spelling still names the
 > thing it always named. The word changes only where prose meant *the layer*:
-> `/haus`, the landing index, `/desktops`.
+> the landing page's closing section, the landing index, `/desktops`. (It used
+> to name `/haus` first; that page was retired into `/docs/haus` on
+> 2026-08-14 — see the page table below.)
 
 | Want to change… | Where |
 |---|---|
@@ -152,10 +154,22 @@ different session, so read the two together:
   asked: the structure was replaced, the copy was carried across word for word.
   The instruction that outlives it is the second half: the copy was written
   against the real sources, so keep it.
-- **Every fact on a rice's page is copied from that rice's repo, and copies
-  rot.** Today's page mirrors `hausfold/README.md` and `hausfold/bootstrap.sh`
-  as of 2026-08-08. Re-read the source rather than trusting the page —
-  especially the install one-liner and the requirements, the two that hurt.
+- **Every fact on a desktop's page is a copy, and copies rot** — especially the
+  install one-liner and the requirements, the two that hurt. ✅ **The source
+  changed on 2026-08-14, and it's now inside this repo**: check the page against
+  `content/docs/haus/install.mdx` and `content/docs/haus/desktops/choosing.mdx`,
+  not against a README in another org. Those pages were verified against haus
+  when they were ported, `reference/options.mdx` is *generated* from haus's
+  module system with CI re-rendering it, and a drift you fix there fixes the
+  docs at the same time.
+  The old source is what let this page drift for six days: it listed haus's
+  internal module names (`den`, `prowl`, `sill`, `hearth`, `collar`) at readers
+  who will only ever meet the **rooms** those modules implement, and claimed the
+  installer runs on any Mac when it stops on Intel. **The reader-facing
+  vocabulary is rooms** — windows, the bar, the launcher, the shelf, the
+  terminal, focus, security, agents — the same twelve the docs sidebar is
+  organised around. A `haus.*` namespace is a thing you type, not a thing a
+  landing page names.
 
 The desktops aren't the only product surface here. `/perch/privacy` predates them: an
 App Store listing needs a policy URL on a domain the seller owns, and hausfold
@@ -198,7 +212,7 @@ things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address still reaches all nine pages, but
+  ⚠️ **It is not just `/terms`.** The address still reaches all eight pages, but
   since 2026-08-14 it is *written* five times rather than ten: once in
   `src/components/sheet.tsx`'s `<Colophon>` (which is every page's footer), and
   once each in the prose of `/terms`, `/refunds` and `/perch/privacy` — the
@@ -218,9 +232,8 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then haus and a closing line for holt + nebelung. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
-| `/haus` | `src/app/haus/page.tsx` | the platform page: the one file, the commands, what it covers, presets. **Not a product page** — it's the floor the products stand on. Until 2026-08-12 the landing page said so by tiering it *above* the index in a list of its own; it now says it by position instead, closing the page as a postscript rather than opening it |
-| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, contents, requirements, empty shot frames. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
+| `/` | `src/app/page.tsx` | the landing page — masthead, the **desktop catalogue** (`#desktops`), the `Apps` list, then the **haus** section (the one-file example, inherited from `/haus`) and a closing line for holt + nebelung. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, what you get, requirements. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
 | `/pounce` | `src/app/pounce/page.tsx` | pounce's product page: install, the ⌘Space collision, what's in it, the command format, how it behaves |
@@ -228,6 +241,23 @@ The pages, and the one rule each carries that isn't obvious:
 | `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
+
+🚨 **`/haus` is gone, as of 2026-08-14 — don't rebuild it.** It was written
+before the docs existed, and once `/docs/haus` landed it was a second, shorter,
+staler account of the same subject: its commands list was a subset of
+[`reference/haus`](content/docs/haus/reference/haus.mdx), its "what it covers"
+a subset of the rooms table, its four-desktops paragraph a subset of
+[`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). Two pages about
+one thing do not stay in step — the same rule this file applies to
+`nebelhaus.com/perch`. `/haus` and `/haus/` now 301 to `/docs/haus/` in
+`public/_redirects`, and the docs sidebar lost its `haus` way-out row for the
+same reason (a link out of the docs that lands in the docs is the tree switcher).
+**The one piece that was worth keeping is the example file**, which is a sales
+argument rather than a reference and so belongs on a sheet someone reads once:
+it moved to the landing page's closing `haus` section, which gained a heading
+in the same commit. That section is still the **postscript by position** — the
+2026-08-12 decision that haus closes the page rather than opening it stands, and
+the reason still holds.
 
 The three things every page above shares, and where they live now — this is the
 part that used to be hand-copied nine times:
@@ -338,7 +368,7 @@ be careful; the care can go somewhere more useful now.
 Rules that are easy to break by accident:
 
 - **Greyscale at rest, and every colour is borrowed.** ⚠️ **This bullet is
-  about the landing pages only** — the nine `.sheet` routes, which were
+  about the landing pages only** — the eight `.sheet` routes, which were
   `public/**.html` until 2026-08-14 and which this file called "`public/`" for
   short while they were. `/docs` spends colour at rest — one hue per tree —
   since 2026-08-12, at the user's instruction; see [Colour](#colour--️-the-docs-do-not-follow-publics-greyscale-rule)
@@ -405,7 +435,7 @@ Rules that are easy to break by accident:
   `prefers-color-scheme` exactly as they did when they were hand-written HTML
   and shipped no toggle at all. What the rule still governs is *our* script,
   and there is exactly one piece: `<Command>`
-  (`src/components/command.tsx`), used on `/haus`, `/perch`, `/pounce` and
+  (`src/components/command.tsx`), used on `/`, `/perch`, `/pounce` and
   `/desktops/nebelhaus`, which was four identical twelve-line `<script>` blocks
   until the port. Its bar is unchanged and is the bar for a second one: the
   button renders `hidden` in the exported HTML and unhides only where
@@ -423,7 +453,10 @@ Rules that are easy to break by accident:
   `images: { unoptimized: true }` in `next.config.mjs`, because `next/image`'s
   optimizer is a server and there isn't one — a picture
   that lies about what the desktop looks like today is worse than a grey box
-  that admits it doesn't have one. ⚠️ **The landing page's catalogue entry is
+  that admits it doesn't have one. **One frame is a reserved slot; three are a
+  gallery that failed to load** — `/desktops/nebelhaus` drew three until
+  2026-08-14 and now draws the wide one alone, which is the same rule read for
+  quantity rather than for honesty. ⚠️ **The landing page's catalogue entry is
   the one exception and carries no frame at all.** Same principle, opposite
   conclusion: a dashed empty box immediately under the page's first heading
   reads as a broken image rather than as a reserved slot. A frame goes in there
@@ -507,11 +540,19 @@ Rules that are easy to break by accident:
   and onto `/pounce`, in the same commit. What's left pointing out of the index
   is `holt` and `nebelung`, which have no page here yet.
 
-  ✅ **The inversion is complete for the pages that exist.** `/perch/privacy`'s
-  footer was the last holdout — it said `nebelhaus.com/perch` for six days
-  after `/perch` landed here — and moved inward on 2026-08-14. Every link that
-  has an inward destination now takes it; what still points out is `holt`,
-  `nebelung` and the docs, which have no page here yet.
+  ✅ **The inversion is complete.** `/perch/privacy`'s footer was the
+  second-to-last holdout — it said `nebelhaus.com/perch` for six days after
+  `/perch` landed here — and `/desktops/nebelhaus`'s whole *Elsewhere* list was
+  the last, pointing at `nebelhaus.com` and `nebelhaus.com/start/first-run/` two
+  days after `/docs` had both. Both moved inward on 2026-08-14. Every link with
+  an inward destination now takes it; what still points out is `holt` and
+  `nebelung`, which have no page here yet, and GitHub.
+
+  🚨 **The docs are the trap in this rule.** `/docs` has been here since
+  2026-08-12, but the old tree is still live on `nebelhaus.com` and every URL
+  under it still resolves — so a stale outward link doesn't 404 and nothing
+  tells you it's stale; it just serves the older of two copies. `rg
+  'nebelhaus\.com' src/ content/` before you believe there are none left.
 
   **Three mechanical consequences of the 2026-08-14 port, all easy to get
   wrong.** An internal link is a `<Link>` from `next/link` and an external one
@@ -679,9 +720,9 @@ Two things this constrains:
   step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the landing
   half's `body:has(.sheet)` — and nothing else should name it or re-type the
   stack.
-- **The nine landing pages are exempt**, via `body:has(.sheet)`. It was written
+- **The eight landing pages are exempt**, via `body:has(.sheet)`. It was written
   on 2026-08-12 for `src/app/not-found.tsx` alone, the only landing-half page
-  under this layout at the time, and it carried the other eight for free when
+  under this layout at the time, and it carried the rest for free when
   they arrived two days later — because the thing it keys on is the `.sheet`
   class every one of them puts on its `<main>`. **A landing page whose `<main>`
   is not a `.sheet` silently comes out in SF**, which is the one way to get
@@ -822,8 +863,8 @@ nothing under `public/` to `open` and no `file://` trap left to fall into.
   the port.
 - Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
   asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
-  **and `worker.js`**. Worth it for anything touching a URL: `/haus` should 307
-  to `/haus/`, `/desktops` should 301 to `/#desktops`, and a nonexistent path
+  **and `worker.js`**. Worth it for anything touching a URL: `/desktops` should
+  301 to `/#desktops`, `/haus` to `/docs/haus/`, and a nonexistent path
   should 404 rather than answer 200.
 - Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
   `wrangler dev` loop above for the routing, because the one thing the unit

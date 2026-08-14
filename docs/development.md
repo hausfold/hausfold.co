@@ -12,15 +12,15 @@ npm run types:check && npm run lint  # what CI runs first
 `npm run dev` is the loop for everything with a URL. Reach for `wrangler dev`
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
-`worker.js` behave. `/haus` should 307 to `/haus/`, `/desktops` should 301 to
-`/#desktops`, and a made-up path should 404 rather than answer 200.
+`worker.js` behave. `/desktops` should 301 to `/#desktops`, `/haus` to
+`/docs/haus/`, and a made-up path should 404 rather than answer 200.
 
 ## the map
 
 ```
 src/app/                          the routes
   page.tsx                        landing page — masthead, the desktop catalogue (#desktops), the apps
-  haus/, perch/, pounce/,         one page each; perch/privacy/ is linked from the App Store
+  perch/, pounce/,                one page each; perch/privacy/ is linked from the App Store
   desktops/nebelhaus/,            — don't move or rename that URL
   terms/, refunds/
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
