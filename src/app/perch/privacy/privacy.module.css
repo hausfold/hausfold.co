@@ -17,15 +17,24 @@
    beats the shared sheet's on source order alone (the page's chunk loads after
    the layout's). True today, and the one line here worth re-checking if the
    page ever looks wrong; `main.policy` would harden it without changing a
-   value.
+   value. 🚨 The same mechanism is a trap for anything `.sheet` changes
+   *later*: whatever this block restates, this page keeps, silently. That is
+   how `margin` nearly left this one page centred when the column started
+   leaning right — see the note on `.policy` below.
 
    The tokens — --measure, --ink, --ink-2, --ink-3, --rule — still come from
    the shared sheet, exactly as they did after 2026-08-08. This page has not
    carried its own copy of the palette since then and must not start again. */
 
+/* ⚠️ No `margin` here, deliberately, and it is the one property this block
+   must NOT restate. `.sheet` stopped being centred on 2026-08-14 —
+   `margin-inline: auto var(--sheet-inset)` leans the column right — and
+   because `.policy` is on the same `<main>` and loads after, a `margin: 0
+   auto` here would leave this one page centred while the other eight leaned.
+   `--sheet-inset` is declared by the `.sheet` rule on this very element, so
+   letting the shared value through is both correct and self-maintaining. */
 .policy {
   max-width: var(--measure);
-  margin: 0 auto;
   padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem) clamp(2.5rem, 6vw, 4rem);
   display: flex;
   flex-direction: column;

@@ -197,7 +197,8 @@ export default function Nebelhaus() {
             pages landed — AGENTS.md's rule is that a link moves inward on the
             day the inward page exists, not before. `blank` stays in <code>
             rather than becoming a link: it is the null selection, it has no
-            page here, and it deliberately isn't in the catalogue either. */}
+            page here, and it is deliberately not named on the landing page
+            either. */}
         <p className="aside">
           nebelhaus is one desktop of four — the others are{' '}
           <Link href="/desktops/everyday">everyday</Link>,{' '}
