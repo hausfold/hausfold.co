@@ -493,10 +493,19 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
    coloured thing in this row and it is coloured because it answers "where
    am I"; a utility that answers "what can I do with this file" is not
    orientation, and two hues in a six-word row is how a leash becomes a
-   gradient. */
+   gradient.
+
+   The layout properties are declared here rather than inherited: the copy
+   button gets `inline-flex` from fumadocs' own class list, but the "Open
+   in…" trigger is our component and carries this class alone. */
 .hf-action {
+  display: inline-flex;
+  align-items: center;
   height: auto;
-  padding: 0;
+  /* Vertical padding only, and it is not decoration: without it the control
+     is the height of one 0.72rem line — about 20px, under the 24px a touch
+     target owes. It buys the height without drawing anything. */
+  padding: 0.25rem 0;
   gap: 0.35rem;
   border: 0;
   border-radius: 0;
@@ -504,14 +513,26 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 400;
+  white-space: nowrap;
   color: var(--ink-3);
+  cursor: pointer;
 }
 
 .hf-action:hover,
-.hf-action:focus-visible,
 .hf-action[data-popup-open] {
   background: none;
   color: var(--ink);
+}
+
+/* Fumadocs' button ships a 2px focus ring that this rule's `border: 0` and
+   flat background leave floating around nothing much. A keyboard reader
+   still has to see where they are, so the focus state is the hover state
+   plus an outline the site draws elsewhere. */
+.hf-action:focus-visible {
+  background: none;
+  color: var(--ink);
+  outline: 1px solid var(--accent-line);
+  outline-offset: 3px;
 }
 
 /* Both the copy glyph and the popover's chevron are shipped at
@@ -521,6 +542,60 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   width: 0.85rem;
   height: 0.85rem;
   color: inherit;
+}
+
+/* The "Open in…" menu. Four rows: the page as Markdown, its source on
+   GitHub, and the two models. It is our own component
+   (`src/components/page-actions.tsx`) rather than fumadocs' six-item one,
+   so this styles markup we own — mono like the rest of the chrome, and the
+   accent spent only on the hovered row, which is `--accent-wash` doing the
+   same job it does for a hovered table row and the active sidebar row.
+
+   The popup is portalled to the end of `<body>`, so no `.hf-actions`
+   ancestor selector can reach it. This class is on the popup itself for
+   that reason, the same way a hued icon has to carry its colour rather than
+   inherit it inside the tree switcher. */
+.hf-menu {
+  min-width: 13rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.hf-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-md);
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.hf-menu a:hover,
+.hf-menu a:focus-visible {
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+/* Base UI moves focus into the menu when it opens, so the first row is
+   focus-visible immediately and Chrome draws its own two-tone ring around
+   it — the heaviest object on the page, in a menu made of hairlines. This
+   replaces it with the site's own rule colour, inside the row's edge. */
+.hf-menu a:focus-visible {
+  outline: 1px solid var(--accent-line);
+  outline-offset: -1px;
+}
+
+.hf-menu svg {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--ink-3);
+}
+
+.hf-menu a:hover svg,
+.hf-menu a:focus-visible svg {
+  color: var(--accent);
 }
 
 /* --- the page ------------------------------------------------------- */

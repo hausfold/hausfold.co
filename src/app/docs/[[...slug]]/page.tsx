@@ -5,13 +5,13 @@ import {
   DocsPage,
   DocsTitle,
   MarkdownCopyButton,
-  ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { gitConfig } from '@/lib/shared';
+import { ViewOptions } from '@/components/page-actions';
+import { gitConfig, siteUrl } from '@/lib/shared';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -74,11 +74,15 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           They share a row because they are the same kind of thing: an
           answer to "what is this page", addressed to a reader who is not
           reading yet. The actions used to sit *under* the description as
-          two bordered buttons, which gave the loudest object above the
-          fold to the ~1-in-50 visit that wants a file, and pushed the
-          lede down a hundred pixels for the other forty-nine. Here they
-          cost no height at all: the eyebrow's row was already being
-          drawn. */}
+          two bordered buttons — the loudest objects above the fold, in the
+          position the lede wants, pushing the first sentence of the page
+          about 100px down. Here they cost no height at all: the eyebrow's
+          row was already being drawn.
+
+          The trade, so it reads as chosen: they now come before the `h1`
+          in the DOM, so a screen reader meets them before the title.
+          Heading navigation is unaffected, and the alternative is a split
+          between DOM order and visual order, which is worse. */}
       <div className="hf-meta">
         {eyebrow && (
           <p className="hf-eyebrow">
@@ -90,13 +94,12 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           <MarkdownCopyButton className="hf-action" markdownUrl={markdownUrl}>
             Copy Markdown
           </MarkdownCopyButton>
-          <ViewOptionsPopover
+          <ViewOptions
             className="hf-action"
             markdownUrl={markdownUrl}
             githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
-          >
-            Open in…
-          </ViewOptionsPopover>
+            pageUrl={`${siteUrl}${page.url}`}
+          />
         </div>
       </div>
       <DocsTitle>{page.data.title}</DocsTitle>
