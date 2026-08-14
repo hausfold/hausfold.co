@@ -23,6 +23,7 @@ For the day-to-day shape of it, see
 | `haus status` | The current generation, and how stale the pinned haus is. |
 | `haus edit` | Open your host file in `$EDITOR`. |
 | `haus set <path> <value>…` | Write a machine override, type-check it, rebuild once. |
+| `haus set` | With no arguments: search every option this machine has, then pick or type the value. |
 | `haus get [path]` | Print one declared value; with no path, list your overrides. |
 | `haus unset <path>…` | Set nullable options to `null`, then rebuild once. |
 | `haus reset <path>…` | Drop overrides and inherit the value underneath again. |
@@ -68,6 +69,27 @@ whatever your host file or desktop says underneath becomes effective again; a
 path that had no override is reported and skipped rather than fatal. `unset`
 writes `null` unconditionally, so it succeeds only where the option's type
 admits `null`.
+
+### When you don't know what it's called
+
+Run `haus set` with no arguments and it asks instead:
+
+```sh
+haus set
+```
+
+The first prompt is a search over every option this machine's pinned haus has —
+the path and a line of what it does, both searchable, so `light mode` finds
+`theme.flavor` as readily as `flavor` does. The second prompt is shaped by the
+option's own type: a closed set of values (an enum, a boolean) becomes a list
+with today's value under the cursor, and anything else is a text box holding the
+current default. Then it confirms, and hands the pair to the same `haus set`
+you would have typed — same type-check, same rollback, same single rebuild.
+
+Tab completion knows the same list: `haus set <TAB>`, and likewise for `get`,
+`unset` and `reset`. Both read a static catalogue installed with your build, so
+neither one evaluates your configuration to answer — they describe the revision
+you have pinned, and `haus update` moves them with it.
 
 ### One key inside an option
 
