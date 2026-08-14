@@ -63,7 +63,7 @@ its own it doesn't evaluate.
 
 ## The inputs
 
-The haus flake pulls together nine:
+The haus flake pulls together ten:
 
 | Input | What it is |
 |---|---|
@@ -74,7 +74,8 @@ The haus flake pulls together nine:
 | `nebelung` | the palette |
 | `pounce` | the launcher app |
 | `perch` | the notch file shelf — this input tracks perch's default branch, but what gets *built* is the notarized release zip perch's own flake pins |
-| `holt` | the worktree substrate, put on your `PATH` when `developer.agents.enable` is on |
+| `holt` | the worktree substrate, put on your `PATH` when `haus.ai.enable` is on |
+| `zmx` | the session backend an agent lane's window uses when `haus.hearth.lanes.backend = "zmx"` — the one input that deliberately doesn't follow our `nixpkgs`, since it builds through zig2nix against a pinned Zig |
 | `nix-index-database` | the index behind `nix-index` and `comma` |
 
 ## Why a pin means "nothing changes until you say so"
