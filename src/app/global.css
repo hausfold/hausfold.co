@@ -74,7 +74,7 @@
    `public/` because that is where `scripts/sync-nebelung.mjs` writes it.
 
    Its layout classes (.sheet, .index, .catalogue…) are no longer unused here —
-   they are what the nine landing routes are built out of, which is what makes
+   they are what the eight landing routes are built out of, which is what makes
    this one import the single copy of the palette in the repo. */
 @import '../../public/hausfold.css';
 
@@ -243,13 +243,13 @@ body {
   --color-fd-error: var(--a-nebelhaus);
 }
 
-/* The landing half, handed its own face back. Every one of the nine routes
+/* The landing half, handed its own face back. Every one of the eight routes
    that is NOT a docs page puts `.sheet` on its `<main>`, so this one selector
    covers all of them and the body rules above apply to `/docs` alone.
 
    It was written on 2026-08-12 for `src/app/not-found.tsx` — then the only
    landing-half page under this layout, because Next's export overwrites a
-   same-named `public/404.html` — and it carried the other eight for free when
+   same-named `public/404.html` — and it carried the other seven for free when
    they became routes on 2026-08-14. Without it they would read in SF, which is
    exactly the drift the type split is supposed to be a considered exception to
    rather than an accident.

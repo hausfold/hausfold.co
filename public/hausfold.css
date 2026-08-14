@@ -583,7 +583,7 @@ body {
 
 /* The landing page's catalogue section, and the only fragment target on the
    site. Every /desktops link already in the wild — the 301 in _redirects,
-   404.html, /haus's Elsewhere list — lands here, and a fragment jump skips
+   the 404, the docs sidebar's way-out row — lands here, and a fragment jump skips
    .sheet's whole top padding, so without this the DESKTOPS rule arrives
    flush against the top edge of the viewport. Not the sheet's full padding:
    a fragment SHOULD sit higher than the top of the document, just not
@@ -714,10 +714,10 @@ body {
   font-size: 0.88rem;
 }
 
-/* Same correction, for the one place a product name sits inside an .aside:
-   the landing page's closing "also from hausfold" line. (The note under the
-   desktop catalogue used to be the other one; it lost its haus link when the
-   catalogue moved onto the landing page and haus got a block of its own.)
+/* Same correction, wherever an .index-name sits inside an .aside. Two places
+   on the landing page since 2026-08-14: the closing "also from hausfold" line,
+   which is where this rule was written for, and the haus section's pointer at
+   the docs, which arrived when /haus was retired.
    .index-name's 0.92rem is an absolute rem, so
    without this it renders BIGGER and at brighter ink than the
    0.86rem/--ink-3 note around it — a link that outshouts its own

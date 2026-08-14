@@ -15,7 +15,7 @@ import { Colophon, GithubMark } from '@/components/sheet';
 // `next/link` would have prefetched a route that didn't exist. The landing
 // pages became routes, so that reason is gone — and this page is no longer the
 // odd one out under the layout, either: it is one hand-written-half page
-// among nine.
+// among eight.
 //
 // `noindex` is added by Next for this route; the original page set it by
 // hand for the same reason — the document is served under whatever wrong URL
@@ -55,8 +55,8 @@ export default function NotFound() {
 
       {/* This was "the ninth colophon", carrying its own copy of the issue
           line and the pre-release mark, with a comment telling you to keep it
-          in step with the eight static ones by hand. There is nothing to keep
-          in step now — all nine are this component. */}
+          in step with the static ones by hand. There is nothing to keep
+          in step now — every colophon on the site is this component. */}
       <Colophon>
         <GithubMark />
       </Colophon>

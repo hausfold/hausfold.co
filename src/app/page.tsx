@@ -1,11 +1,15 @@
 import Link from 'next/link';
+import { Command } from '@/components/command';
 import { Colophon, GithubMark } from '@/components/sheet';
 import { pageMetadata } from '@/lib/page-meta';
 
-// The landing page, ported from `public/index.html` (rename plan §5.2 — the
-// half AGENTS.md listed as "decided, not done"). Same markup, same classes out
-// of `public/hausfold.css`, same words; the head is `pageMetadata` and the
-// `theme-color`/favicon pair comes from `src/app/layout.tsx`.
+// The landing page. Condensed on 2026-08-14: the prose was carried across from
+// `public/index.html` a few hours earlier and read like a manifesto, so every
+// section lost its second and third paragraph and kept the sentence that was
+// doing the work.
+//
+// The head is `pageMetadata` and the `theme-color`/favicon pair comes from
+// `src/app/layout.tsx`.
 export const metadata = pageMetadata({
   title: 'hausfold',
   description:
@@ -35,6 +39,20 @@ const organization = {
   sameAs: ['https://github.com/hausfold', 'https://github.com/nebelhaus'],
 };
 
+// The one file, in the form it's actually written. Every option here is real
+// and spelled as `content/docs/haus/reference/options.mdx` spells it — that
+// page is generated from haus's own module system, so it is the thing to check
+// this against when it drifts.
+const example = `{
+  haus.theme.accent = "sapphire";
+
+  haus.prowl.enable = true;   # tiling, Caps Lock as the leader key
+  haus.pounce.enable = true;  # the launcher, on ⌘Space
+
+  # installed, and on Caps Lock + s
+  haus.roster.slack = { cask = "slack"; name = "Slack"; key = "s"; };
+}`;
+
 export default function Home() {
   return (
     <>
@@ -51,14 +69,14 @@ export default function Home() {
           <p className="standfirst">We rebuild the Mac.</p>
           <div className="lede">
             <p>
-              hausfold makes the software that turns a Mac into a workspace someone actually
-              designed. <strong>The whole desktop</strong>, set down in a single file and themed to
-              match, plus the small native tools that live inside it.
+              A new Mac takes a weekend to make yours, and by the next one you can&apos;t remember
+              how you did it. hausfold turns that weekend into <strong>a file</strong> — the window
+              manager, the bar, the shell, the fonts, the keys, the apps, and the several dozen macOS
+              settings nobody should have to find twice.
             </p>
             <p>
-              None of it is a skin. It is the machine, rebuilt: one file you hand to a coder, a
-              designer, or a whole floor of them, and every Mac comes up the same. Take it as it
-              comes, or take it apart.
+              One command and the Mac matches the file. Wipe the machine, run it again, and it comes
+              up the same — nothing drifts out of place, because nothing was ever dragged into it.
             </p>
           </div>
         </header>
@@ -77,20 +95,14 @@ export default function Home() {
             ban is on empty rows and placeholder entries, not on a sentence
             saying the list is still growing.
 
-            The id is load-bearing: /desktops/, src/app/not-found.tsx and
-            /haus's Elsewhere list all point at /#desktops. */}
+            The id is load-bearing: /desktops/ and src/app/not-found.tsx both
+            point at /#desktops, as does the docs sidebar's way back out. */}
         <section className="block" id="desktops">
           <h2>Desktops</h2>
           <p>
-            A desktop here is the <strong>whole machine</strong>, not a theme laid over one. The
-            window manager, the bar, the shell, the terminal, the fonts, the keybindings and the
-            several dozen macOS defaults nobody should have to find twice — all of it written down
-            in one file and applied in one command.
-          </p>
-          <p>
-            Run it on a new Mac and the machine comes up arranged. Wipe that Mac and run it again
-            and it comes up the same. Nothing gets dragged into place by hand, so nothing drifts out
-            of place either.
+            A desktop is the <strong>whole machine</strong>, not a theme laid over one: every choice
+            above, written down together and applied in one command. Hand the file to a coder, a
+            designer, or a whole floor of them, and every Mac comes up arranged the same way.
           </p>
 
           {/* No .shot frame here, unlike /desktops/nebelhaus. The frames are
@@ -108,20 +120,16 @@ export default function Home() {
                 <span className="meta">developers · tiling · nix</span>
               </div>
               <p className="entry-line">
-                An opinionated macOS, raised in the fog. AeroSpace tiling launched at boot, a
-                SketchyBar bar on the top edge, a themed zsh and helix toolbelt, and the Nix flake
-                that puts all of it there. Silver-grey, keyboard-first, reproducible.
-              </p>
-              <p className="entry-line">
-                <Link href="/desktops/nebelhaus">What&apos;s in it, and how to install it</Link>
+                An opinionated macOS, raised in the fog. Tiling launched at boot, a bar across the
+                top edge, a themed zsh-and-helix terminal, Touch ID for <code>sudo</code>, and one
+                muted palette painted across every app you own.
               </p>
             </li>
           </ul>
           <p>
-            A Mac runs exactly one of them. A desktop picks which <strong>rooms</strong> it wants —
-            the bar, the launcher, tiling, the terminal, the shelf — and what the visible choices
-            are; anything it chose, your own file overrides in a line. Choosing again is changing
-            that line, not unpicking a pile.
+            A Mac runs exactly one. A desktop picks which <strong>rooms</strong> it turns on — the
+            windows, the bar, the launcher, the shelf, the terminal — and anything it chose, your own
+            file overrides in a line.
           </p>
           <p className="aside">
             One today, and that&apos;s the honest number — more as they&apos;re written. Every
@@ -139,9 +147,8 @@ export default function Home() {
               and let each row carry its own state. */}
           <p>
             Small native Mac apps, made to sit inside the desktop and to work fine without it. Each
-            keeps its settings in a plain file you can read, edit, diff and hand to an agent — no
-            account to make, nothing held behind a subscription, nothing you can&apos;t take with
-            you.
+            keeps its settings in a plain file you can read, diff and hand to an agent — no account,
+            no subscription, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
             <li data-accent="pounce">
@@ -163,31 +170,49 @@ export default function Home() {
           </ul>
         </section>
 
-        {/* haus, and the two rows below it, are the postscript — no heading and
-            no rule over either. Both used to sit in the index above the
-            products, haus in a tier of its own; that ordering answered "how"
-            before anyone had asked "what", so the layer now closes the page
-            instead of opening it. It is still the thing that makes this a
-            platform rather than a dotfiles repo, which is why it gets two real
-            sentences here and not a link in the colophon.
+        {/* haus closes the page, and that ordering is deliberate: it used to
+            open the index, in a tier above the products, which answered "how"
+            before anyone had asked "what".
+
+            It gained a heading and the example file on 2026-08-14, when /haus
+            was retired in favour of /docs/haus — the one-file demo was the
+            piece of that page worth keeping on a sheet someone reads once, and
+            a link with two sentences over it wasn't carrying it. Still the
+            postscript by position; no longer a footnote by weight.
 
             haus carries no data-accent, for the same reason the ⌂ has none of
             its own: the house borrows every colour and owns none. holt and
             nebelung do carry theirs — they're products, they're just not
-            products for the person the rest of this page is written for.
-            holt runs anywhere and nebelung is a palette, so neither is a
+            products for the person the rest of this page is written for. */}
+        <section className="block">
+          <h2>haus</h2>
+          <p>
+            Underneath all of it is <strong>haus</strong>, the layer the desktops and the apps are
+            written against — macOS itself, turned into options you set in a file.
+          </p>
+          <Command>{example}</Command>
+          <p>
+            Run <code>haus rebuild</code> and the Mac is that: Slack installed and on a key, tiling
+            on, the terminal themed. <code>haus plan</code> shows a change before you make it, and{' '}
+            <code>haus rollback</code> takes it back. That&apos;s why a desktop is a set of values
+            rather than a project, and why taking one apart is editing, not forking.
+          </p>
+          <p className="aside">
+            <Link className="index-name" href="/docs/haus">
+              The docs
+            </Link>{' '}
+            have every room and every option — and{' '}
+            <Link className="index-name" href="/docs/haus/install">
+              what the install actually does
+            </Link>
+            , step by step, before you run it.
+          </p>
+        </section>
+
+        {/* holt runs anywhere and nebelung is a palette, so neither is a
             desktop and neither is an app; a quiet line is the whole of the
             claim we want to make about them here, and both READMEs link back. */}
         <section className="block">
-          <p>
-            Underneath all of it is{' '}
-            <Link className="index-name" href="/haus">
-              haus
-            </Link>
-            , the layer the desktops and the apps are written against — macOS itself, turned into
-            options you set in a file. That&apos;s why a desktop is a set of values rather than a
-            project, and why taking one apart is editing, not forking.
-          </p>
           <p className="aside">
             Also from hausfold —{' '}
             <a className="index-name" data-accent="holt" href="https://github.com/hausfold/holt">

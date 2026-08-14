@@ -14,7 +14,7 @@ deploys it.
 
 | | |
 |---|---|
-| **the pages** — `/`, `/haus`, `/desktops/nebelhaus`, `/perch` (`/perch/privacy`), `/pounce`, `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
+| **the pages** — `/`, `/desktops/nebelhaus`, `/perch` (`/perch/privacy`), `/pounce`, `/terms`, `/refunds` | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
 | **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, [`/docs/nebelhaus`](https://hausfold.co/docs/nebelhaus) the desktop | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell the halves apart with the page upside down |
 | **the three routes that can't be files** — `/nebelhaus.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
 

@@ -280,10 +280,14 @@ export default function Pounce() {
             </a>{' '}
             — the source, the changelog, and where to file a bug.
           </li>
+          {/* Inward on 2026-08-14. It pointed at nebelhaus.com/guides/pounce,
+              which still resolves and still serves the older of two live
+              copies — the launcher room has been in this repo since
+              2026-08-12. */}
           <li>
-            <a className="index-name" href="https://nebelhaus.com/guides/pounce/">
+            <Link className="index-name" href="/docs/haus/rooms/launcher">
               the guide
-            </a>{' '}
+            </Link>{' '}
             — the long version: config, the command format, the plugin shelf.
           </li>
         </ul>

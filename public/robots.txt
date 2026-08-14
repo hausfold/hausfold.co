@@ -10,10 +10,14 @@
 # Nothing is disallowed, and nothing should be: only ./public is ever uploaded
 # to the Worker, so everything reachable here is meant to be read.
 #
-# No `Sitemap:` line on purpose. There are eight pages, all linked and all
-# carrying a <link rel="canonical">. Add a sitemap when the Astro site lands
-# (rename plan §5.1) and can generate one — a hand-written list is a thing to
-# forget to update, and /desktops/ is about to grow entries.
+# No `Sitemap:` line on purpose — but the reason has changed, so read this
+# before adding one. It used to be "there are eight pages, all linked; add a
+# sitemap when the Astro site lands and can generate one". The build landed on
+# 2026-08-14 and it is Next, not Astro, and there are now some forty pages once
+# /docs is counted. So the missing piece is no longer a build that could
+# generate a sitemap — it is that nobody has written the generator. Every page
+# is still linked and still carries a <link rel="canonical">; a hand-written
+# list is still a thing to forget to update.
 
 User-agent: *
 Allow: /
