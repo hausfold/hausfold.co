@@ -19,7 +19,7 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
     <Provider>
       <DocsLayout
         tree={source.getPageTree()}
-        // The layer and the desktops are two trees, not two sections of one.
+        // The layer and the launcher are two trees, not two sections of one.
         // `content/docs/*/meta.json`'s `root: true` makes each a tab, and
         // `tabMode: 'auto'` renders the switcher as a dropdown at the head of
         // the sidebar rather than a row of tabs across the top — the same

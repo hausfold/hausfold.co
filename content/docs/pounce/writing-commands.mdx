@@ -1,0 +1,123 @@
+---
+title: Writing your own command
+description: One shell script with an optional comment header. No SDK, no manifest, no build step — plus submenus, chaining, and pounce as a generic picker.
+icon: shell
+---
+
+Pounce has no plugin SDK. A command is **one shell script** with an optional
+metadata header. Drop it in a folder and it is in the palette on the next open
+— no build step, no restart, no manifest:
+
+```bash
+#!/bin/bash
+# pounce: name = Say Hello
+# pounce: description = A friendly notification
+# pounce: icon = hand.wave
+osascript -e 'display notification "🐾" with title "Pounce"'
+```
+
+Put it in `~/.config/pounce/commands/`, summon the palette, type `hello`.
+
+The registry re-scans every time you summon. Scripts don't need the executable
+bit — Pounce runs them with `bash` either way — but they **must** end in `.sh`,
+or Pounce never lists them.
+
+| Header key | Meaning | Default |
+|---|---|---|
+| `name` | Title shown in the palette | the filename (without `.sh`) |
+| `description` | Subtitle | *(empty)* |
+| `icon` | An [SF Symbol](https://developer.apple.com/sf-symbols/) name | `sparkles` |
+| `submenu` | `true` — the command re-invokes Pounce for a second step | `false` |
+
+Parsing stops at the first non-header line, within the first 30 lines.
+
+## Submenus and chaining
+
+Set `submenu = true` and pipe your options through `pounce` again — the list
+swaps in place with no flicker:
+
+```bash
+#!/bin/bash
+# pounce: name = Brew Services
+# pounce: submenu = true
+service=$(list_services | pounce -p "Service:")
+[ -n "$service" ] && toggle_service "$service"
+```
+
+When the second step is a **search** rather than a list, pass `--chain`: on an
+empty match Enter hands the raw text back, and `--chain` tells Pounce that text
+feeds another `pounce`, holding the window's loading skeleton instead of fading
+between steps:
+
+```bash
+query=$(printf '' | pounce --chain -p "App Store — type a search, then Enter")
+[ -n "$query" ] && mas search "$query" | pounce -p "Install:"
+```
+
+## A step that takes a paragraph
+
+A step whose answer is a sentence wants more than a filter box. Three flags
+turn a `pounce` step into one — haus's **Spawn Agent** command is the worked
+example:
+
+- `--actions` labels more than one verb on a rowless prompt. Return hands back
+  `<action>\ttext`, where action is `enter` / `cmd` / `opt` / `ctrl`.
+- `⇧↵` inserts a newline, and the box grows with the text.
+- `--draft <key>` files the query on every non-commit dismissal;
+  `pounce drafts <key> get <i>` reads it back, and `--query <text>` reopens the
+  box pre-filled for editing.
+
+```sh
+sel=$(printf '' | pounce --chain enter,opt --draft my-prompt \
+        --actions "Go|shift:New line|cmd:With a screenshot|opt:Drafts" \
+        -p "What should it do?")
+case "$(printf '%s' "$sel" | cut -f1)" in
+  enter) go   "$(printf '%s' "$sel" | cut -f2-)" ;;
+  cmd)   shot "$(printf '%s' "$sel" | cut -f2-)" ;;
+  opt)   show_drafts ;;
+esac
+```
+
+## Pounce as a generic picker
+
+Beyond commands, `pounce` is a dmenu-style picker: pipe it lines, get the
+chosen one on stdout.
+
+```sh
+printf 'a\nb\nc\n' | pounce -p "pick one:"
+```
+
+A piped list keeps **your order** — only the launcher's own apps get sorted —
+so a ranking your script already computed survives into the picker. Each line
+can carry extra tab-separated columns:
+
+```
+title <TAB> subtitle <TAB> icon <TAB> actions <TAB> group
+```
+
+`actions` is `label | key:label | key:label…` (the first is Return, the rest
+are modifier combos); `group` is an optional section header, as Force Quit does
+with *Applications* / *Background*.
+
+## Reading real ones
+
+The [built-in
+commands](https://github.com/hausfold/pounce/tree/main/pkgs/pounce-commands/commands)
+are copy-pasteable examples of submenus, grouping and icons — and they are the
+same kind of file yours is, in the same format, with no privileged API between
+them and you.
+
+<Cards>
+  <Card
+    icon={<Icon name="terminal" />}
+    title="CLI reference"
+    href="/docs/pounce/cli"
+    description="Every flag a script can reach for — pickers, drafts, transforms, and running one item by key."
+  />
+  <Card
+    icon={<Icon name="launcher" />}
+    title="Commands"
+    href="/docs/pounce/commands"
+    description="What ships already, the plugin shelf, and how your folder shadows ours."
+  />
+</Cards>

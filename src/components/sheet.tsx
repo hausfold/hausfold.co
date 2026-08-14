@@ -31,7 +31,7 @@ export function GithubMark() {
 }
 
 /** The pre-release mark's sentence. Added 2026-08-14 as a hand-copied `<span>`
- *  on all eight colophons that had one, plus the 404's — this is those nine
+ *  on every colophon that had one, plus the 404's — this is all of those
  *  copies, once. It is a second piece of edition metadata rather than a banner,
  *  which is why it sits at the colophon's right-hand end in the issue's own
  *  micro-caps and spends none of the page's attention. */

@@ -15,11 +15,11 @@ const docs = defineDocs({
     //
     // ⚠️ It is an *override*, not the source of a page's colour. Since
     // 2026-08-12 every page takes its tree's hue at rest — mauve under
-    // /docs/haus, pink under /docs/nebelhaus — from `data-tree`, and
+    // /docs/haus, peach under /docs/pounce — from `data-tree`, and
     // `accent` exists for the page that is genuinely about one product
     // rather than about the tree it sits in. Most pages therefore have
-    // none, including both nebelhaus pages, which the tree already colours.
-    // See "the borrowed accent" in `src/app/global.css`.
+    // none, including every page in the pounce tree, which the tree
+    // already colours. See "the borrowed accent" in `src/app/global.css`.
     schema: pageSchema.extend({
       accent: z.enum(accents).optional(),
     }),

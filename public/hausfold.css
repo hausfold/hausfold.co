@@ -1,6 +1,9 @@
 /* ------------------------------------------------------------------
-   hausfold.co — the whole site's stylesheet. Served as-is: this Worker
-   has no build step, so what's in ./public is what's on the domain.
+   hausfold.co — the whole site's stylesheet. ⚠️ Nothing `<link>`s it any
+   more: since 2026-08-14 it reaches the browser through
+   `src/app/global.css`'s `@import`, inlined into Next's own bundle at build
+   time. It stays here because this is the path that import names and the
+   path `scripts/sync-nebelung.mjs` writes.
 
    It was inline in index.html until 2026-08-08, when /desktops arrived
    and there were five pages to keep in agreement — the landing page,
@@ -575,20 +578,39 @@ body {
   border-bottom: 1px solid var(--rule);
 }
 
+/* A block's own subdivisions. `h2` above is the mono rule that opens a
+   section; `h3` sits inside one, in the page's own face and with no rule of
+   its own, so it divides rather than announces. Added 2026-08-14 with the key
+   groups on /desktops/nebelhaus — the first place a .sheet section wanted a
+   second level. Without it an h3 falls to the browser default, which is
+   larger than the h2 above it. */
+.block h3 {
+  margin: 0.45rem 0 -0.35rem;
+  font-size: var(--step);
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .block p {
   margin: 0;
   color: var(--ink-2);
   max-width: 62ch;
 }
 
-/* The landing page's catalogue section, and the only fragment target on the
-   site. Every /desktops link already in the wild — the 301 in _redirects,
-   the 404, the docs sidebar's way-out row — lands here, and a fragment jump skips
-   .sheet's whole top padding, so without this the DESKTOPS rule arrives
-   flush against the top edge of the viewport. Not the sheet's full padding:
-   a fragment SHOULD sit higher than the top of the document, just not
-   touching it. */
-#desktops {
+/* The fragment targets. A jump to one skips .sheet's whole top padding, so
+   without this the heading arrives flush against the top edge of the
+   viewport. Not the sheet's full padding: a fragment SHOULD sit higher than
+   the top of the document, just not touching it.
+
+   #desktops is the landing page's catalogue, where every /desktops link
+   already in the wild lands — the 301 in _redirects, the 404, the docs
+   sidebar's way-out row. #first-moves and #keys are on /desktops/nebelhaus
+   and carry what the retired /docs/nebelhaus tree used to;
+   /docs/haus/install's "First run" card and two _redirects lines point at
+   them. */
+#desktops,
+#first-moves,
+#keys {
   scroll-margin-top: clamp(1.5rem, 4vw, 2.5rem);
 }
 

@@ -6,7 +6,7 @@ import { type ReactNode } from 'react';
 // 🚨 **Mounted by `src/app/docs/layout.tsx`, not by the root layout.** It
 // carries fumadocs' search context — the ⌘K binding and the lazy fetch of the
 // Orama index — plus `next-themes`, and it doubles a page's JS. At the root it
-// reached the nine landing pages for nothing; scoped to `/docs` it reaches
+// reached every landing page for nothing; scoped to `/docs` it reaches
 // exactly what spends it. If a component ever demands it higher up, give that
 // component its own provider rather than raising this one.
 export function Provider({ children }: { children: ReactNode }) {

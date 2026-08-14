@@ -1,0 +1,98 @@
+---
+title: Beyond launching
+description: Two opt-in behaviours that aren't a palette — an MRU window switcher, and asking an app to quit when its last window closes.
+icon: tiling
+---
+
+Both of these are **off by default**, and both need the [Accessibility
+grant](/docs/pounce/install#grant-accessibility) — they share one grant and one
+set of observers, so turning both on costs one approval, not two.
+
+## A window switcher, not an app switcher
+
+Pounce ships an **MRU window switcher**: tap the chord to bounce to your last
+window even on another workspace, hold it and keep tapping to walk older ones,
+or type while holding to fuzzy-filter. It moves by *window*, so two Ghostty
+windows are two rows.
+
+```jsonc
+{
+  "windows": {
+    "enabled": true,
+    "key": "tab",
+    "modifiers": ["cmd"]
+  }
+}
+```
+
+Inside haus that is `haus.pounce.windowSwitcher`, where it defaults **on**.
+
+**With a tiling window manager**, rows gather by workspace under a header each,
+and focusing goes through `aerospace focus --window-id` so a window parked
+elsewhere surfaces properly. One deliberate wrinkle: a bare tap-and-release
+skips the workspace you're on and lands on the most recent window on a
+**different** one — with two windows tiled side by side, the most recent is one
+you're already looking at, so landing there wouldn't be a switch. The skipped
+siblings are still the rows right below you.
+
+<Callout title="It is a startup setting">
+The `windows` block is captured when the daemon arms, so an edit needs a
+restart, not just a re-open:
+
+```sh
+launchctl kickstart -k "gui/$(id -u)/com.hausfold.pounce"
+```
+</Callout>
+
+## Quit an app when its last window closes
+
+macOS keeps an app running after you close its last window. If your muscle
+memory is from Windows, that's a ⌘Q you forgot every time.
+
+```jsonc
+{
+  "autoQuit": {
+    "enabled": true,
+    "delay": 2,
+    "exclude": ["com.apple.finder"]
+  }
+}
+```
+
+In haus: `haus.pounce.autoQuit.enable`, off by default.
+
+**Asked, not killed** — the same Quit event ⌘Q sends, so unsaved work puts up
+its sheet and stays open.
+
+**The delay is load-bearing.** `delay` (2s, clamped 0.25–3600) is what tells "I'm
+done with this app" apart from "close this window, open another," which is what
+a browser does on ⌘N.
+
+**`exclude` replaces the default, it doesn't extend it.** Out of the box it is
+`["com.apple.finder"]`, since Finder is the one app macOS runs windowless by
+design — name anything else and you have dropped Finder from the list.
+
+<Callout type="warn" title="The one thing that will surprise you">
+An app doing work in the background is still just an app with a window. Closing
+the Docker Desktop dashboard asks Docker to quit, which stops your containers —
+and the same shape catches media players, torrent clients, and any chat app you
+keep open for notifications. That's what `exclude` is for.
+</Callout>
+
+The whole `autoQuit` block is startup-only too, so **any** edit inside it needs
+the daemon restart above — not just flipping `enabled`.
+
+<Cards>
+  <Card
+    icon={<Icon name="dials" />}
+    title="Config reference"
+    href="/docs/pounce/config"
+    description="Every key in config.json, what it defaults to, and which three blocks need a restart."
+  />
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Windows, in haus"
+    href="/docs/haus/rooms/windows"
+    description="Where the AeroSpace pairing comes from, and the rest of the tiling vocabulary it slots into."
+  />
+</Cards>

@@ -9,8 +9,8 @@
 # installs Determinate Nix once, puts it on PATH for the rest of the session,
 # and points Nix at the agent proxy's CA.
 #
-# Nothing else here needs it: the site has no build step, and `public/` is what
-# the Worker serves.
+# Nothing else here needs it: the site's own build is `npm ci && npm run build`,
+# which is plain Node, and `out/` is what the Worker serves.
 #
 # Wired up as:
 #   Claude Code  .claude/settings.json  → SessionStart hook

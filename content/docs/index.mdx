@@ -1,11 +1,11 @@
 ---
 title: Documentation
-description: Two trees — the haus layer you build on, and the desktops built on it.
+description: Two trees — the haus layer your Mac is built on, and pounce, the launcher that runs with or without it.
 ---
 
-A Mac you can describe in one file, and rebuild from it on any machine you
-own. Two things are documented here: the layer that makes that true, and the
-desktop somebody already built with it.
+A Mac you can describe in one file, and rebuild from it on any machine you own —
+and the small native tools that live inside it. Two things are documented here:
+the layer, and the app.
 
 <Cards>
   <Card
@@ -15,20 +15,25 @@ desktop somebody already built with it.
     description="The layer. One file describes your Mac, one command makes the Mac match it — apps, windows, the bar, the shell, the colours. Twelve rooms you turn on and off."
   />
   <Card
-    icon={<Icon name="desktop" />}
-    title="nebelhaus"
-    href="/docs/nebelhaus"
-    description="A desktop built on it. Silver-grey, keyboard-first, tiling, and the same on the next machine. One command from a stock Mac."
+    icon={<Icon name="pounce" />}
+    title="pounce"
+    href="/docs/pounce"
+    description="The launcher you teach. One keypress, your apps and your own commands in one list — and a command is just a shell script in a folder. Free, MIT, no Nix required."
   />
 </Cards>
 
-**haus** is the machinery; **nebelhaus** is one thing made with it. Installing
-the desktop installs the layer underneath, so if you only want the finished
-room, start on the right.
+**haus** is the machinery; **pounce** is one of the things that runs on it — and
+runs perfectly well on a Mac that has never heard of it. Installing haus can
+install pounce for you; installing pounce needs nothing but Homebrew.
 
 The switcher at the top of the sidebar moves between the two, and its glyph
 tells you which one you're reading at a glance: <Icon name="layer" /> the
-layer, <Icon name="desktop" /> the desktop.
+layer, <Icon name="pounce" /> the launcher.
+
+Looking for a **desktop** — nebelhaus and the rest? A desktop is a set of
+values for haus's own options rather than a project of its own, so it is
+documented with the layer: [choosing one](/docs/haus/desktops/choosing) covers
+what each turns on, and [nebelhaus](/desktops/nebelhaus) has a page of its own.
 
 Reading this with an AI tool? These docs publish themselves in machine-readable
 form: [`/llms.txt`](/llms.txt) is a table of contents with one-line

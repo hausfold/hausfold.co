@@ -21,12 +21,13 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const MDX = page.data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
 
-  // Which tree the page is in — `haus` or `nebelhaus` — from its first slug.
+  // Which tree the page is in — `haus` or `pounce` — from its first slug.
   // This is what gives a whole tree one hue without every page in it saying
   // so, and it is the reason most pages need no `accent` at all: the layer's
-  // pages wear the palette's own mauve, the desktop's pages wear its pink,
-  // and `accent` in frontmatter is left for the page that is genuinely about
-  // a *product*. See "the borrowed accent" in `global.css`.
+  // pages wear the palette's own mauve, the launcher's pages wear pounce's
+  // peach, and `accent` in frontmatter is left for the page that is genuinely
+  // about a *different* product than its tree — `rooms/launcher` in the haus
+  // tree is the worked example. See "the borrowed accent" in `global.css`.
   const tree = page.slugs[0];
   // The tree's own node, for its name and its glyph. A root folder's `$id`
   // is its directory under `content/docs`, which is also the page's first

@@ -29,7 +29,7 @@ outside even that: flat ink on crust.
 The six `--a-*` accents are the whole vocabulary. Nothing may invent a seventh.
 
 **The docs are the deliberate exception**: one hue per tree, at rest, so a
-reader can tell `/docs/haus` from `/docs/nebelhaus` with the page upside down.
+reader can tell `/docs/haus` from `/docs/pounce` with the page upside down.
 A landing page is read once; a docs page is lived in. Same six accents.
 
 ## both themes, every time

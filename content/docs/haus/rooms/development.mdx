@@ -41,7 +41,18 @@ Launching the terminal drops you into a persistent session called `main`; new
 panes and tabs inherit your working directory. Ghostty's own `⌘T`, `⌘P`, `⌘Y`,
 `⌘W` and friends are **unbound** on purpose, so those keys mean the same thing
 whether or not you're multiplexed. (`⌘C` is not one of them — it stayed with
-Ghostty, as copy.)
+Ghostty, as copy. Day to day you won't press it, since zellij copies a mouse
+selection the moment you release it, but a `⇧`-drag makes a Ghostty-level
+selection and `⌘C` takes it.)
+
+Two of the unbindings are fixes rather than hand-offs:
+
+- **`⌘W`.** Ghostty's default there closes the whole surface, and with close
+  confirmation off a stray `⌘W` silently took the window and the session in it.
+  Now it closes one pane; `⌘⇧W` still closes the window.
+- **`⌘D` / `⌘⇧D` do nothing**, on purpose. Their Ghostty defaults nest a second
+  terminal *inside* the one zellij is driving — invisible to the multiplexer, so
+  its layout and pane keys would apply to half the window. Use `⌘P`.
 
 | Keys | What happens |
 |---|---|

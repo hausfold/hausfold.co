@@ -151,8 +151,15 @@ export default function Home() {
             no subscription, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
+            {/* pounce points at its docs, not at a product page: it had one
+                at /pounce until 2026-08-14, and it was retired into the docs
+                tree rather than kept beside it. The app installs from
+                Homebrew with no Nix and is read about far more than it is
+                pitched, so the manual IS its front door. perch still has a
+                sheet of its own — it is an App Store app with a policy URL
+                and, later, a price. */}
             <li data-accent="pounce">
-              <Link className="index-name" href="/pounce">
+              <Link className="index-name" href="/docs/pounce">
                 pounce
               </Link>
               , a launcher you teach your own commands.
