@@ -1,6 +1,6 @@
 ---
-title: Focus & DND (hush)
-description: One quiet switch — bar pill, palette command, and CLI — for macOS Do Not Disturb, your Slack status, and your own hooks.
+title: Focus
+description: One quiet switch — bar pill, palette command and CLI — for macOS Do Not Disturb, your Slack status, and your own hooks on both edges.
 icon: bellOff
 ---
 
@@ -14,6 +14,12 @@ Because hush drives the *real* macOS Focus, everything Focus already does
 comes along free: with **Share Across Devices** on, your iPhone and iPad
 hush too, and the "allowed to break through" list is whatever you've curated
 in System Settings.
+
+## Enable it
+
+```nix
+haus.hush.enable = true;
+```
 
 ## How the toggle works
 
@@ -129,11 +135,35 @@ grant, and the Slack token, and prints the fix for each.
 - **The chord stopped working** — a rebuild re-binds hotkey 175 on every
   activation and heals it.
 
+## Works with
+
+- **[Bar](/docs/haus/rooms/bar)** — the pill that shows the state and toggles it.
+- **[Launcher](/docs/haus/rooms/launcher)** — the same toggle as a command.
+
+Neither is required: with both rooms off, `hush` is still a CLI.
+
+## Remove it
+
+```nix
+haus.hush.enable = false;
+```
+
+The pill, the command and the CLI go. The Do Not Disturb chord this room adds is
+one macOS ships disabled, so switching the room off leaves a spare binding
+rather than taking one away — the opposite of the launcher's ⌘Space.
+
+`haus.hush.slack.tokenCommand` is host-only: it names a secret on one machine.
+
+## Options
+
+Every setting, with types and defaults:
+[Focus](/docs/haus/reference/options#focus).
+
 <Cards>
   <Card
     icon={<Icon name="bar" />}
-    title="The bar"
-    href="/docs/haus/guides/the-bar"
+    title="Bar"
+    href="/docs/haus/rooms/bar"
     description="Where the hush pill sits, and the rest of what the bar shows."
   />
 </Cards>

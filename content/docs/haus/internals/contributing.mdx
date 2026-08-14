@@ -6,7 +6,7 @@ icon: hammer
 
 haus is one repo in a family of them, and a change usually has to travel between
 several before you can feel it. This page is that path. To *use* haus you need
-none of it — [Keeping it current](/docs/haus/guides/keeping-it-current) is that
+none of it — [Keeping it current](/docs/haus/keeping-it-current) is that
 page.
 
 ## The workshop
@@ -47,7 +47,7 @@ merely *use* haus:
 | Command | Reach for it to… | Ships in |
 |---|---|---|
 | **`haus`** | drive your own Mac — [rebuild, update, roll back, diagnose](/docs/haus/reference/haus) | haus, always |
-| **`holt`** | manage [agent worktrees](/docs/haus/guides/coding-agents) in any git repo | haus, with `developer.agents.enable` on |
+| **`holt`** | manage [agent worktrees](/docs/haus/rooms/ai) in any git repo | haus, with `haus.ai.enable` on |
 | **`zscratch`** | feel-test a zellij edit with no rebuild | haus, same switch |
 | **`bench`** | move a change across the family repos | the workshop — contributors only |
 
@@ -81,7 +81,7 @@ then the downstream repo can't fetch its input at all — so land the upstream P
 ## Working with agents
 
 The family is built to be hacked on by several coding agents at once, each in
-its own worktree. That mechanism is [holt](/docs/haus/guides/coding-agents) and
+its own worktree. That mechanism is [the AI room](/docs/haus/rooms/ai) and
 it works for any repo; two things are specific to a *family* one.
 
 - **`bench try` is worktree-aware.** Run it from inside a worktree and that
@@ -201,8 +201,8 @@ don't sell it as a competing product.
   />
   <Card
     icon={<Icon name="agent" />}
-    title="Coding agents"
-    href="/docs/haus/guides/coding-agents"
+    title="AI"
+    href="/docs/haus/rooms/ai"
     description="holt in full — a worktree per agent, parking work instead of losing it, and resuming a parked session."
   />
 </Cards>

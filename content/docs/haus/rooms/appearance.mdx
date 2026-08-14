@@ -1,6 +1,6 @@
 ---
-title: Theming
-description: One silver-mist palette across every tool — swapping the accent, raising the contrast, light mode, and the generated desktop.
+title: Appearance
+description: One silver-mist palette across every tool — the accent, the contrast, light mode, the generated wallpaper, and one line for bigger type.
 icon: palette
 ---
 
@@ -170,7 +170,7 @@ nix build github:hausfold/haus#wallpaper && open result
 ## Apps you added yourself
 
 Everything above covers the tools haus installs. Apps **you** put in your
-[roster](/docs/haus/guides/adding-apps) get the same treatment, as long as the
+Apps you [added yourself](/docs/haus/rooms/apps) get the same treatment, as long as the
 id you keyed the entry under matches a nebelung port:
 
 ```nix
@@ -243,17 +243,51 @@ from three knobs — the grey's hue and chroma, and how far the accents are calm
 — so hue and saturation can be rewritten while perceptual lightness is
 preserved. That is a change in the nebelung repo, not in your host file.
 
+## Works with
+
+- **[Displays](/docs/haus/rooms/displays)** — `haus.appearance.largePrint` is
+  one line for bigger type: it moves the interface scale, the contrast, macOS's
+  own contrast lift and `displays.main.uiScale` together, each as a default you
+  can still pin by hand.
+- **[Apps](/docs/haus/rooms/apps)** — anything you add whose id nebelung has a
+  port for is themed too.
+- Every other room takes its colours from here rather than declaring its own.
+
+## Permissions and side effects
+
+Following macOS's own Light/Dark needs an **Automation** grant for whatever runs
+your rebuild (System Settings ▸ Privacy & Security ▸ Automation), as
+[light mode](#light-mode) describes. Theme *ports* write files into apps haus
+did not install — that's the point of them, and
+`haus.theme.ports.enable = false` stops it.
+
+## Remove it
+
+The room has no off switch, because a machine with no colours is not a thing
+anyone wants. The parts do:
+
+```nix
+haus.theme.ports.enable = false;   # stop writing themes into other apps
+haus.wallpaper.style = "none";     # keep the desktop picture you had
+haus.appearance.largePrint = false;
+```
+
+## Options
+
+Every setting, with types and defaults:
+[Appearance](/docs/haus/reference/options#appearance).
+
 <Cards>
   <Card
     icon={<Icon name="bar" />}
-    title="The bar"
-    href="/docs/haus/guides/the-bar"
+    title="Bar"
+    href="/docs/haus/rooms/bar"
     description="The most visible thing your accent lands on, and the pill that sweeps through all six family colours when you hover it."
   />
   <Card
     icon={<Icon name="shell" />}
-    title="The terminal"
-    href="/docs/haus/guides/the-shell"
+    title="Development"
+    href="/docs/haus/rooms/development"
     description="The fifty-odd tools this palette is rendered onto, and the keys that drive them."
   />
 </Cards>

@@ -10,7 +10,7 @@ with the first successful switch. Run it with no argument and you get `haus
 status`.
 
 For the day-to-day shape of it, see
-[Keeping it current](/docs/haus/guides/keeping-it-current).
+[Keeping it current](/docs/haus/keeping-it-current).
 
 ## Commands
 
@@ -40,7 +40,7 @@ For the day-to-day shape of it, see
 ```sh
 haus set theme.accent teal
 haus get theme.accent       # teal
-haus reset theme.accent     # inherit the preset's value again
+haus reset theme.accent     # inherit the desktop's value again
 ```
 
 **Only `haus.*` paths are writable this way.** The prefix itself is optional —
@@ -64,7 +64,7 @@ one rejected value rolls the whole call back. `unset` and `reset` take lists for
 the same reason.
 
 The two undo verbs differ in one place. `reset` deletes the override, so
-whatever your host file or preset says underneath becomes effective again; a
+whatever your host file or desktop says underneath becomes effective again; a
 path that had no override is reported and skipped rather than fatal. `unset`
 writes `null` unconditionally, so it succeeds only where the option's type
 admits `null`.
@@ -96,7 +96,7 @@ flake ignores untracked files, so staging is what makes it take effect. The file
 `set` nor `reset` commits or pushes for you.
 
 <Callout title="Also in the launcher">
-[Pounce](/docs/haus/guides/pounce)'s **Haus Settings** command is the same
+The [launcher](/docs/haus/rooms/launcher)'s **Haus Settings** command is the same
 mechanism behind three intent-sized buttons — *Make text bigger*, *Switch to
 light mode*, *High contrast on*. The palette keeps no settings of its own; it
 calls `haus set`.
@@ -157,26 +157,26 @@ You can sidestep the hazard entirely with
 `haus.accessibility.increaseContrast` and
 `haus.accessibility.differentiateWithoutColor`, which reach the two useful keys
 in that domain with a guarded write. [Changing your Mac with an
-agent](/docs/haus/guides/agent-rebuilds) has the detail.
+agent](/docs/haus/rooms/agent-rebuilds) has the detail.
 
 ## The other CLIs
 
 `haus` is the only command an end user needs. Turning on
 `haus.developer.agents.enable` adds two more:
-**[`holt`](/docs/haus/guides/coding-agents)**, agent worktrees for any repo, and
+**[the AI room](/docs/haus/rooms/ai)**, agent worktrees for any repo, and
 **`zscratch`**, for feel-testing a zellij edit without a rebuild.
 
 <Cards>
   <Card
     icon={<Icon name="sync" />}
     title="Keeping it current"
-    href="/docs/haus/guides/keeping-it-current"
+    href="/docs/haus/keeping-it-current"
     description="The same commands in the order you actually reach for them — plus restoring the whole machine on new hardware."
   />
   <Card
     icon={<Icon name="wand" />}
     title="Changing your Mac with an agent"
-    href="/docs/haus/guides/agent-rebuilds"
+    href="/docs/haus/rooms/agent-rebuilds"
     description="Why a declarative machine is the rare one an AI agent can reconfigure safely."
   />
 </Cards>

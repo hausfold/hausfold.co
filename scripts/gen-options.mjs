@@ -53,14 +53,29 @@ function hausFile(name, why) {
 
 const raw = hausFile('options.json', 'That file is what this page is rendered from.');
 
-// Reading order and a one-line blurb per room. The module system cannot
-// produce these: it has no notion of identity first and policy last, and no
-// place for a sentence about a whole namespace. haus publishes that editorial
-// data beside options.json so every consumer uses the same grouping.
+// The room registry: which room owns each namespace, the order a person should
+// meet them in, and a sentence about each. The module system cannot produce any
+// of it — it has no notion of "identity first, policy last", no place for a
+// sentence about a whole namespace, and no idea that `haus.sill` and
+// `haus.menuBar` are one room with two addresses. haus publishes it beside
+// options.json so every consumer groups the surface the same way.
 const GROUPS = hausFile(
   'groups.json',
-  'That file carries the per-room order and blurbs this page is laid out with.',
+  'That file carries the room registry this page is laid out from.',
 );
+// `groups.json` still carries a flat `<namespace>: { order, blurb }` alias at
+// its top level for an older renderer. Read the versioned tables instead: the
+// aliases are editorial only, and the owner — which room a namespace is in —
+// exists nowhere but `namespaces`.
+const NAMESPACES = GROUPS.namespaces ?? {};
+const ROOMS = GROUPS.rooms;
+if (!ROOMS) {
+  console.error(
+    'groups.json carries no `rooms` table.\n\n' +
+      'The haus checkout predates the room registry. Update it and re-run.\n',
+  );
+  process.exit(1);
+}
 
 // A generated cross-repository artifact fails by emptying, not by erroring.
 // Keep a hard floor here so a namespace disagreement cannot produce a valid
@@ -80,7 +95,7 @@ const options = Object.entries(raw)
   .filter(([name]) => name.startsWith(NS))
   .map(([name, option]) => ({ name, ...option }));
 
-// Second path segment is the room: haus.git.name -> git.
+// Second path segment is the namespace: haus.git.name -> git.
 const groupOf = (name) => name.split('.')[1];
 
 const groups = new Map();
@@ -90,12 +105,30 @@ for (const option of options) {
   groups.get(group).push(option);
 }
 
-// A room without an explicit order lands alphabetically after the ordered
+// A namespace without an explicit order lands alphabetically after the ordered
 // ones rather than disappearing.
-const orderOf = (group) => GROUPS[group]?.order ?? Number.MAX_SAFE_INTEGER;
+const orderOf = (group) => NAMESPACES[group]?.order ?? Number.MAX_SAFE_INTEGER;
 const ordered = [...groups.keys()].sort(
   (a, b) => orderOf(a) - orderOf(b) || a.localeCompare(b),
 );
+
+// The page is laid out by ROOM — the unit the product model names and the one
+// the sidebar is organised around — with each room's namespaces under it in
+// their own reading order. A namespace whose room the registry doesn't know
+// still renders, in a trailing room of its own, because a reference page that
+// silently drops options is worse than one with an ugly heading.
+const roomOf = (group) => NAMESPACES[group]?.owner ?? group;
+const roomOrder = (room) => ROOMS[room]?.order ?? Number.MAX_SAFE_INTEGER;
+const rooms = new Map();
+for (const group of ordered) {
+  const room = roomOf(group);
+  if (!rooms.has(room)) rooms.set(room, []);
+  rooms.get(room).push(group);
+}
+const orderedRooms = [...rooms.keys()].sort(
+  (a, b) => roomOrder(a) - roomOrder(b) || a.localeCompare(b),
+);
+const roomTitle = (room) => ROOMS[room]?.title ?? room;
 
 const literal = (value) =>
   value && typeof value === 'object' && 'text' in value ? value.text : undefined;
@@ -128,7 +161,7 @@ function docsLinks(value) {
 
 function renderOption(option) {
   const lines = [
-    `### \`${option.name}\``,
+    `#### \`${option.name}\``,
     '',
     `\`${option.type}\` · ${renderDefault(option)}`,
     '',
@@ -145,13 +178,20 @@ function renderOption(option) {
   return lines.join('\n');
 }
 
-const body = ordered
-  .map((group) => {
-    const heading = [`## ${PREFIX}.${group}`, ''];
-    const blurb = GROUPS[group]?.blurb;
+function renderNamespace(group) {
+  const heading = [`### ${PREFIX}.${group}`, ''];
+  const blurb = NAMESPACES[group]?.blurb;
+  if (blurb) heading.push(docsLinks(mdxText(blurb)), '', '');
+  const groupOptions = groups.get(group).sort((a, b) => a.name.localeCompare(b.name));
+  return heading.join('\n') + groupOptions.map(renderOption).join('\n');
+}
+
+const body = orderedRooms
+  .map((room) => {
+    const heading = [`## ${roomTitle(room)}`, ''];
+    const blurb = ROOMS[room]?.blurb;
     if (blurb) heading.push(docsLinks(mdxText(blurb)), '', '');
-    const groupOptions = groups.get(group).sort((a, b) => a.name.localeCompare(b.name));
-    return heading.join('\n') + groupOptions.map(renderOption).join('\n');
+    return heading.join('\n') + rooms.get(room).map(renderNamespace).join('\n');
   })
   .join('\n');
 
@@ -178,6 +218,11 @@ These are the \`${PREFIX}.*\` options you set in your host file at
 \`~/.config/nix/hosts/<hostname>/default.nix\`. Everything here is optional
 unless noted; the defaults are a complete, working system.
 
+The page is grouped by **room** — the same rooms the sidebar is organised
+around — and each room lists the \`${PREFIX}.*\` namespaces it owns. A room
+can own more than one: the Bar room is \`${PREFIX}.sill\` (its own bar) *and*
+\`${PREFIX}.menuBar\` (macOS's).
+
 Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
@@ -186,8 +231,8 @@ ${body}
 <Cards>
   <Card
     icon={<Icon name="dials" />}
-    title="Making it yours"
-    href="/docs/haus/guides/making-it-yours"
+    title="Customize a desktop"
+    href="/docs/haus/desktops/customizing"
     description="The practical guide to choosing settings, switching rooms off, and overriding a desktop from your host file."
   />
   <Card
@@ -215,4 +260,7 @@ if (check) {
 }
 
 writeFileSync(PAGE, page);
-console.log(`wrote ${PAGE} (${options.length} options, ${ordered.length} groups).`);
+console.log(
+  `wrote ${PAGE} (${options.length} options, ${ordered.length} namespaces, ` +
+    `${orderedRooms.length} rooms).`,
+);

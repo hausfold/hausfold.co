@@ -10,3 +10,40 @@
 # did NOT move, and a wildcard here would swallow it.
 /desktops     /#desktops   301
 /desktops/    /#desktops   301
+
+# The docs tree was reorganised around desktops and rooms on 2026-08-14: the
+# undifferentiated /docs/haus/guides/* list became one page per room, plus a
+# Desktops section. Every old URL is listed by hand, in both spellings, because
+# each guide went to a DIFFERENT place — a wildcard could only send them all to
+# one, and a docs link someone bookmarked is worth more than three lines of
+# file.
+/docs/haus/guides/adding-apps         /docs/haus/rooms/apps/              301
+/docs/haus/guides/adding-apps/        /docs/haus/rooms/apps/              301
+/docs/haus/guides/theming             /docs/haus/rooms/appearance/        301
+/docs/haus/guides/theming/            /docs/haus/rooms/appearance/        301
+/docs/haus/guides/the-shell           /docs/haus/rooms/development/       301
+/docs/haus/guides/the-shell/          /docs/haus/rooms/development/       301
+/docs/haus/guides/window-management   /docs/haus/rooms/windows/           301
+/docs/haus/guides/window-management/  /docs/haus/rooms/windows/           301
+/docs/haus/guides/the-bar             /docs/haus/rooms/bar/               301
+/docs/haus/guides/the-bar/            /docs/haus/rooms/bar/               301
+/docs/haus/guides/pounce              /docs/haus/rooms/launcher/          301
+/docs/haus/guides/pounce/             /docs/haus/rooms/launcher/          301
+/docs/haus/guides/hush                /docs/haus/rooms/focus/             301
+/docs/haus/guides/hush/               /docs/haus/rooms/focus/             301
+/docs/haus/guides/coding-agents       /docs/haus/rooms/ai/                301
+/docs/haus/guides/coding-agents/      /docs/haus/rooms/ai/                301
+/docs/haus/guides/touch-id            /docs/haus/rooms/security/          301
+/docs/haus/guides/touch-id/           /docs/haus/rooms/security/          301
+/docs/haus/guides/agent-rebuilds      /docs/haus/rooms/agent-rebuilds/    301
+/docs/haus/guides/agent-rebuilds/     /docs/haus/rooms/agent-rebuilds/    301
+/docs/haus/guides/making-it-yours     /docs/haus/desktops/customizing/    301
+/docs/haus/guides/making-it-yours/    /docs/haus/desktops/customizing/    301
+/docs/haus/guides/sharing-a-desktop   /docs/haus/desktops/creating/       301
+/docs/haus/guides/sharing-a-desktop/  /docs/haus/desktops/creating/       301
+/docs/haus/guides/sharing-a-rice      /docs/haus/desktops/creating/       301
+/docs/haus/guides/sharing-a-rice/     /docs/haus/desktops/creating/       301
+/docs/haus/guides/keeping-it-current  /docs/haus/keeping-it-current/      301
+/docs/haus/guides/keeping-it-current/ /docs/haus/keeping-it-current/      301
+/docs/haus/guides/leaving             /docs/haus/leaving/                 301
+/docs/haus/guides/leaving/            /docs/haus/leaving/                 301

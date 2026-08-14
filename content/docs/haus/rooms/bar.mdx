@@ -1,12 +1,18 @@
 ---
-title: The bar
-description: Workspace pills, weather, media and a status light — what's on the bar, what each pill does, and how to turn any of it off.
+title: Bar
+description: Workspace pills, weather, media and a status light — what the bar carries, what each pill does, and how to turn any of it off.
 icon: bar
 ---
 
 **sill** replaces the macOS menu bar with a scriptable status bar, painted in
 your palette and wired to your tiling. While it's on, the native menu bar is
 hidden — the bar is the one place to glance.
+
+## Enable it
+
+```nix
+haus.sill.enable = true;
+```
 
 ## What's on it
 
@@ -143,7 +149,7 @@ A pill set `false` is never created — its update script doesn't even run.
 | `volume` | Output volume and mute state. |
 | `calendar` | Your next meeting and one gesture to join it. Reads `in 12m · Design review`; the whole pill fills five minutes either side of the start. **Right-click joins** the conferencing link; left-click opens the day as a timeline. |
 | `caffeinate` | A coffee pill: click for 1, 2, 4, 8 hours or until stopped; right-click stops. Survives a bar reload. |
-| `agents` | Tracks your [coding-agent](/docs/haus/guides/coding-agents) panes — amber when one is waiting on you, click to jump to it. |
+| `agents` | Tracks your [agent](/docs/haus/rooms/ai) panes — amber when one is waiting on you, click to jump to it. |
 | `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. |
 | `elgato` | Toggles an Elgato Key Light on your network. |
 | `harvest` | Harvest time tracking. Reads credentials from a file you provide. |
@@ -204,17 +210,37 @@ haus.sill.enable = false;
 The native menu bar comes back, and the bottom bar goes with it. Tiling and
 everything else are unaffected.
 
+## Works with
+
+Every pill that isn't the bar's own comes from another room, and appears only
+when that room is on:
+
+- **[Windows](/docs/haus/rooms/windows)** — the workspace pills and the leader's
+  letter hints;
+- **[Focus](/docs/haus/rooms/focus)** — the quiet switch's pill;
+- **[AI](/docs/haus/rooms/ai)** — the agents readout, amber when a session is
+  waiting on you;
+- **[Launcher](/docs/haus/rooms/launcher)** — what a click on the logo pill can
+  reach.
+
+A missing room removes its pill and nothing else.
+
+## Options
+
+Every setting, with types and defaults:
+[Bar](/docs/haus/reference/options#bar).
+
 <Cards>
   <Card
     icon={<Icon name="tiling" />}
     title="Windows"
-    href="/docs/haus/guides/window-management"
+    href="/docs/haus/rooms/windows"
     description="The workspace pills on the left of the bar belong to the tiling room — this is where you say what lives on each one."
   />
   <Card
     icon={<Icon name="palette" />}
-    title="Theming"
-    href="/docs/haus/guides/theming"
+    title="Appearance"
+    href="/docs/haus/rooms/appearance"
     description="Where the bar's colour comes from, and the one line that moves it here and in every other tool at once."
   />
 </Cards>

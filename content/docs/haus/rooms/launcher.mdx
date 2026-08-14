@@ -1,6 +1,6 @@
 ---
-title: Pounce — the launcher
-description: A native, keyboard-first command palette for macOS. Summon, aim, pounce — and every command is just a file.
+title: Launcher
+description: Pounce — a native, keyboard-first command palette where every command is a file. Summon, aim, pounce.
 icon: launcher
 accent: pounce
 ---
@@ -19,6 +19,16 @@ It's [MIT licensed](https://github.com/hausfold/pounce/blob/main/LICENSE) —
 every feature on this page, no paid tier — and installs standalone from
 Homebrew, no Nix required. Inside haus, the `pounce` module wires it up as a
 login daemon and re-signs it so its Accessibility grant survives rebuilds.
+
+## Enable it
+
+```nix
+haus.pounce.enable = true;
+haus.keys.palette = "cmd-space";   # or alt-space, ctrl-space, "none"
+```
+
+Only `cmd-space` displaces Spotlight — moving the palette elsewhere is how you
+keep both.
 
 ## Summon it
 
@@ -107,7 +117,7 @@ Ghostty windows are two rows.
 It's **off by default** — it needs the Accessibility grant to install an
 event tap. Turn it on with the `windows` block in
 [config](/docs/haus/reference/pounce#config-file) (or `haus.pounce.windowSwitcher`
-in haus, where it defaults on). Under [AeroSpace](/docs/haus/guides/window-management),
+in haus, where it defaults on). Under [the Windows room](/docs/haus/rooms/windows),
 rows gather by workspace under a header each, and focusing goes through
 `aerospace focus --window-id` so a window parked elsewhere surfaces properly.
 One deliberate wrinkle: a bare tap-and-release skips the workspace you're on
@@ -213,6 +223,35 @@ Inside haus, set `haus.pounce.signingIdentity` and the desktop re-signs a stable
 copy of the app with your identity, so the grant persists across rebuilds.
 </Callout>
 
+## Works with
+
+- **[Apps](/docs/haus/rooms/apps)** — **Install App** writes a roster entry and
+  rebuilds.
+- **[AI](/docs/haus/rooms/ai)** — **Spawn Agent** creates a named worktree and
+  opens a session in it.
+- **[Focus](/docs/haus/rooms/focus)** — the quiet switch is a command here too.
+- **[Windows](/docs/haus/rooms/windows)** — the opt-in `⌘Tab` window switcher.
+
+Each appears only when its room is on.
+
+## Remove it
+
+```nix
+haus.pounce.enable = false;
+```
+
+<Callout type="warn" title="⌘Space doesn't go back on its own">
+haus disables Spotlight's shortcut with a one-way write, and nothing re-enables
+it. Put it back yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts.
+</Callout>
+
+## Options
+
+Every setting, with types and defaults:
+[Launcher](/docs/haus/reference/options#launcher). `haus.pounce.signingIdentity`
+is host-only: it names a certificate on one machine, so a shared desktop may not
+set it.
+
 <Cards>
   <Card
     icon={<Icon name="terminal" />}
@@ -223,7 +262,7 @@ copy of the app with your identity, so the grant persists across rebuilds.
   <Card
     icon={<Icon name="tiling" />}
     title="Windows"
-    href="/docs/haus/guides/window-management"
+    href="/docs/haus/rooms/windows"
     description="Where the window switcher's AeroSpace pairing comes from, and the rest of the tiling vocabulary."
   />
 </Cards>

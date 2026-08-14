@@ -1,13 +1,13 @@
 ---
-title: The terminal
-description: Ghostty, zellij, zsh and a themed toolbelt — the command line haus sets up, and the keys that drive it.
+title: Development
+description: The terminal, the shell, the multiplexer and the editor, plus Git tooling, the CLI toolbelt and language runtimes — the command line haus sets up, and the keys that drive it.
 icon: shell
 ---
 
 **hearth** is the terminal room. It sets up the whole command line — emulator,
 multiplexer, shell, prompt, file manager, editor, and a toolbelt of modern
-replacements for the usual commands — every one of them painted in the same
-[palette](/docs/haus/guides/theming).
+replacements for the usual commands — every one of them painted from the same
+[palette](/docs/haus/rooms/appearance).
 
 | | | |
 |---|---|---|
@@ -22,6 +22,18 @@ replacements for the usual commands — every one of them painted in the same
 Plus `bat` over `cat`, `lsd` over `ls`, `lazygit` (`lg`), `delta` for git diffs,
 and `fzf`, `fd`, `jq`, `gh`, `glow`, `fastfetch` — with `nix-index` and `comma`
 so you can run anything else in nixpkgs without installing it.
+
+## Enable it
+
+```nix
+haus.developer.enable = true;
+haus.developer.languages = [ "node" ];
+```
+
+The terminal stack itself — Ghostty, zellij, zsh, the prompt, the editor — is
+part of the foundation and always there. `haus.developer.*` is what brings the
+*tools*: the CLI toolbelt, the Git tooling and the language runtimes, each with
+a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
 
 ## Ghostty opens into zellij
 
@@ -50,7 +62,7 @@ Ghostty, as copy.)
 own copy of the repo on its own branch, so several agents can work at once
 without fighting over one set of files. Half the rows above have a `⇧` variant
 because of it: the plain key assumes you want the *real* repo, and `⇧` says stay
-in the copy. [Coding agents](/docs/haus/guides/coding-agents) has the rest of the
+in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle — resuming one, setting work aside, cleaning up.
 
 **zellij boots Locked.** Its single-key submode leaders stay inert until you
@@ -181,17 +193,42 @@ haus.hearth.hijackFileAssociations = true;      # off by default: make it the
 - **`Ctrl Tab` really works**, which it usually doesn't on macOS: Ghostty
   forwards the kitty-protocol encoding so zellij sees it.
 
+## Works with
+
+- **[AI](/docs/haus/rooms/ai)** — with both rooms on, agent panes get their
+  zellij bindings and the worktree lifecycle around them.
+- **[Appearance](/docs/haus/rooms/appearance)** — the whole stack is painted
+  from the same palette.
+- **[Launcher](/docs/haus/rooms/launcher)** — commands that open a terminal land
+  in the same multiplexer you already live in.
+
+## Remove it
+
+```nix
+haus.developer.enable = false;
+```
+
+The toolchains, the Git tooling and the toolbelt go; the terminal, shell and
+editor stay, because they are the floor rather than the room. Take out one piece
+at a time with `haus.developer.git.enable`, `.toolbelt.enable` or an empty
+`.languages`.
+
+## Options
+
+Every setting, with types and defaults:
+[Development](/docs/haus/reference/options#development).
+
 <Cards>
   <Card
     icon={<Icon name="palette" />}
-    title="Theming"
-    href="/docs/haus/guides/theming"
+    title="Appearance"
+    href="/docs/haus/rooms/appearance"
     description="Where every colour in the table above comes from, and the one line that changes all of them at once."
   />
   <Card
     icon={<Icon name="tiling" />}
     title="Windows"
-    href="/docs/haus/guides/window-management"
+    href="/docs/haus/rooms/windows"
     description="The terminal is one window among many. This is how the rest of them arrange themselves."
   />
 </Cards>

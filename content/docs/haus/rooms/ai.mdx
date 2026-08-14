@@ -1,6 +1,6 @@
 ---
-title: Coding agents
-description: holt gives every coding agent its own checkout, so several can work at once — and closing a pane parks the work rather than losing it. Any git repo, any client.
+title: AI
+description: Coding agents as a room — the clients this machine installs, holt giving each agent its own checkout, and the lifecycle around them. Any git repo, any client.
 icon: agent
 ---
 
@@ -31,6 +31,19 @@ already merged get reaped** — everything unmerged survives on its branch, and 
 agent's transcript survives with it. The checkout is disposable; your work isn't.
 </Callout>
 
+## Enable it
+
+```nix
+haus.ai = {
+  enable = true;
+  clients = [ "claude" "opencode" ];
+  default = "claude";
+};
+```
+
+That brings the clients you named, `holt`, and the worktree lifecycle wiring.
+Nothing else in the house has to be on for it to work.
+
 ## Resuming
 
 Because the work is on the branch and the chat is in your client's transcript, a
@@ -60,7 +73,7 @@ picker, for when a lane has more than one.
 
 For a lane **named after the task** rather than the random
 `luminous-twirling-codd` an unattended agent would coin, summon
-[Pounce](/docs/haus/guides/pounce) and run **Spawn Agent**: pick a repo, describe
+the [launcher](/docs/haus/rooms/launcher) and run **Spawn Agent**: pick a repo, describe
 the job, and it creates the checkout and opens a session in that repo's zellij
 tab. Naming the branch from the prompt is the whole point.
 
@@ -217,7 +230,7 @@ A tab holding more than one agent also gets a small trailing chip with the count
 one agent needs no number. The dot shows the most urgent state in the tab, so
 peach always wins and the tab that needs you never hides behind one that's merely
 busy. (The peach wash is dropped on the tab you're already looking at.) The
-[`agents` bar pill](/docs/haus/guides/the-bar) is the same signal for when you're
+the [bar](/docs/haus/rooms/bar) is the same signal for when you're
 out in the GUI rather than in the terminal.
 
 Both are reported by each client's own lifecycle hooks — the agent says what it's
@@ -282,17 +295,45 @@ Add `--json` to the listing for a machine-readable version, `--version` for
 holt's own.
 
 
+## Works with
+
+Three contributions, each appearing only when its receiving room is on, and none
+of them switching that room on for you:
+
+- **[Development](/docs/haus/rooms/development)** — the agent keybindings and
+  pane lifecycle inside the multiplexer;
+- **[Bar](/docs/haus/rooms/bar)** — the agents pill, amber when a session is
+  waiting on you;
+- **[Launcher](/docs/haus/rooms/launcher)** — **Spawn Agent**, which names the
+  worktree after the job.
+
+## Remove it
+
+```nix
+haus.ai.enable = false;
+```
+
+The clients, `holt` and the wiring go — including from a desktop that named
+clients, because the room's switch is what decides, not the list. What stays is
+everything on disk: the worktrees you created and their branches are ordinary
+git, and removing the room never deletes work.
+
+## Options
+
+Every setting, with types and defaults:
+[AI](/docs/haus/reference/options#ai).
+
 <Cards>
   <Card
     icon={<Icon name="wand" />}
     title="Changing your Mac with an agent"
-    href="/docs/haus/guides/agent-rebuilds"
+    href="/docs/haus/rooms/agent-rebuilds"
     description="The other half: the skill haus writes, the rebuild loop an agent follows, and the one it refuses."
   />
   <Card
     icon={<Icon name="shell" />}
-    title="The terminal"
-    href="/docs/haus/guides/the-shell"
+    title="Development"
+    href="/docs/haus/rooms/development"
     description="Where ⌘A lives — the rest of the zellij keys, and the ⇧ variants that stay inside a worktree."
   />
 </Cards>

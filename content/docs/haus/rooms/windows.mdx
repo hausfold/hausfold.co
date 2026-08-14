@@ -1,6 +1,6 @@
 ---
 title: Windows
-description: Tiling windows and a launcher on a tap of Caps-Lock — how prowl arranges the Mac from the keyboard.
+description: Tiling, named workspaces and window navigation from the keyboard — how prowl arranges the Mac, and how to keep the arranging without the key claims.
 icon: tiling
 ---
 
@@ -21,6 +21,14 @@ Focus-by-arrow deliberately sits *behind* the leader rather than on a bare `⌥`
 chord: `⌥`, `⌘` and `⌃` with the arrow keys are all macOS text navigation, and a
 window manager that took them would break typing everywhere. `⌥H/J/K/L` is there
 too, for hands that want Vim keys.
+
+## Enable it
+
+```nix
+haus.prowl.enable = true;
+haus.keys.leader = "caps";     # or "none" to keep Caps Lock as Caps Lock
+haus.keys.windowNav = "alt";
+```
 
 ## Tap ⇪, then
 
@@ -53,7 +61,7 @@ throw it and `⌘Tab` back.
 | `⌥⇧;` | **Service mode** — `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧H/J/K/L` joins a neighbour |
 
 `⌥Tab` is deliberately unbound:
-[pounce](/docs/haus/guides/pounce#a-window-switcher-not-an-app-switcher-opt-in)'s `⌘Tab` answers the same question
+[the Launcher room](/docs/haus/rooms/launcher#a-window-switcher-not-an-app-switcher-opt-in)'s `⌘Tab` answers the same question
 better, with a most-recently-used list of *windows* that goes as far back as you
 like and gathers its rows by workspace.
 
@@ -108,7 +116,7 @@ haus.workspaces.comms = {
 The attribute name **is** the workspace id — a letter like `T`, or a word like
 `comms`. Three fields:
 
-- **`apps`** — [roster](/docs/haus/guides/adding-apps) ids that live here.
+- **`apps`** — [roster](/docs/haus/rooms/apps) ids that live here.
   Launching any of them from the leader lands you here. An app belongs to at
   most one workspace, and naming an id that isn't in the roster warns rather
   than failing quietly.
@@ -123,7 +131,7 @@ The attribute name **is** the workspace id — a letter like `T`, or a word like
 Workspaces `1`–`4` always exist, whatever any app claims.
 
 The launcher letters themselves come from `haus.roster`, the one list that also
-says where each app is installed from — that's [Adding apps](/docs/haus/guides/adding-apps).
+says where each app is installed from — that's [the Apps room](/docs/haus/rooms/apps).
 Out of the box the only letters taken are `T` for the terminal and `B` for the
 browser.
 
@@ -134,20 +142,35 @@ haus.prowl.enable = false;
 ```
 
 The Caps-Lock remap, the launcher and AeroSpace all stay out of the way. Nothing
-else in haus depends on it — [Leaving](/docs/haus/guides/leaving#switch-off-a-room)
+else in haus depends on it — [Leaving](/docs/haus/leaving#switch-off-a-room)
 does the same for the other rooms.
+
+## Works with
+
+- **[Bar](/docs/haus/rooms/bar)** — the workspace pills, and the letter hints
+  the leader draws, are this room's contribution to the bar. No bar, no hints;
+  the tiling itself is unaffected.
+- **[Apps](/docs/haus/rooms/apps)** — a roster entry's `key` is what the leader
+  launches, and its workspace is where its windows land.
+- **[Launcher](/docs/haus/rooms/launcher)** — its opt-in `⌘Tab` window switcher
+  answers the same question from the other side.
+
+## Options
+
+Every setting, with types and defaults:
+[Windows](/docs/haus/reference/options#windows).
 
 <Cards>
   <Card
     icon={<Icon name="apps" />}
-    title="Adding apps"
-    href="/docs/haus/guides/adding-apps"
+    title="Apps"
+    href="/docs/haus/rooms/apps"
     description="One list gives an app its launcher letter, its workspace and its installer. This is that list."
   />
   <Card
     icon={<Icon name="bar" />}
-    title="The bar"
-    href="/docs/haus/guides/the-bar"
+    title="Bar"
+    href="/docs/haus/rooms/bar"
     description="The workspace pills on the left of the bar are the other half of this page — plus weather, media and a light that goes red."
   />
 </Cards>

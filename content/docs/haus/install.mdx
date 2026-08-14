@@ -61,7 +61,7 @@ rewind point. Non-fatal if Time Machine is off.
 <Step>
 ### Asks you a few things
 
-Your git name and email, a preset (full / everyday / minimal / custom), an accent colour,
+Your git name and email, a desktop (nebelhaus / everyday / minimal / custom), an accent colour,
 a wallpaper, and your `$EDITOR`. It also asks whether to keep your current
 Dock, keyboard and Finder settings, and whether to adopt the Homebrew casks
 you already have.
@@ -110,7 +110,7 @@ is the only command you need.
 | The macOS settings | the snapshot from step 1 |
 | Everything haus did | `haus rollback` — atomic, previous generation |
 | Apps | yours. haus never uninstalls one you added |
-| All of it | [Leaving](/docs/haus/guides/leaving) — every exit in turn, smallest first |
+| All of it | [Leaving](/docs/haus/leaving) — every exit in turn, smallest first |
 
 ## Unattended installs
 
@@ -129,7 +129,8 @@ bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"
 |---|---|
 | `NEBELHAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
 | `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing |
-| `NEBELHAUS_PRESET` / `NEBELHAUS_ROOMS` | Which rooms to turn on |
+| `NEBELHAUS_DESKTOP` | Which desktop to select — `nebelhaus`, `everyday`, `minimal`, `blank`. The pre-desktops `NEBELHAUS_PRESET` is still read, with `full` meaning `nebelhaus` |
+| `NEBELHAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
 | `NEBELHAUS_ACCENT` / `NEBELHAUS_WALLPAPER` / `NEBELHAUS_EDITOR` | The look and the editor |
 | `NEBELHAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
 | `NEBELHAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
@@ -151,14 +152,14 @@ build; the two `sudo` steps are yours.
   />
   <Card
     icon={<Icon name="bar" />}
-    title="The bar"
-    href="/docs/haus/guides/the-bar"
+    title="Bar"
+    href="/docs/haus/rooms/bar"
     description="What's on the status bar, what each pill does under a click, and how to turn any of it off."
   />
   <Card
     icon={<Icon name="sync" />}
     title="Keeping it current"
-    href="/docs/haus/guides/keeping-it-current"
+    href="/docs/haus/keeping-it-current"
     description="The loop from here on: edit, rebuild, update, roll back — and restoring the lot on your next Mac."
   />
 </Cards>
