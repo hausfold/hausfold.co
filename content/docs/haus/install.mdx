@@ -46,7 +46,10 @@ curl -fsSL 'https://hausfold.co/nebelhaus.sh?ref=v2026.07.18' | less
 ```
 
 By default you get the latest release tag. Releases are date-tagged, so
-`?ref=v2026.07.18` pins a specific day.
+`?ref=v2026.07.18` pins a specific day — and a **release tag is the only thing
+`?ref=` accepts**. Anything else is refused rather than fetched, which is what
+stops a link with someone else's commit in it from serving you a script off
+this domain.
 
 ## What it does
 

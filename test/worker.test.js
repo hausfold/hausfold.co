@@ -77,14 +77,59 @@ describe('/<desktop>.sh ref validation (path-traversal guard)', () => {
     });
   }
 
-  it('accepts a well-formed tag and proxies bootstrap.sh', async () => {
+  it('accepts a well-formed release tag and proxies bootstrap.sh', async () => {
     globalThis.fetch = makeFetch([
-      { match: 'raw.githubusercontent.com/hausfold/haus/v1.2.3/bootstrap.sh', body: '#!/bin/bash\n' },
+      { match: 'raw.githubusercontent.com/hausfold/haus/v2026.07.18/bootstrap.sh', body: '#!/bin/bash\n' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v1.2.3'), {});
+    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.07.18'), {});
     expect(res.status).toBe(200);
-    expect(res.headers.get('x-hausfold-ref')).toBe('v1.2.3');
+    expect(res.headers.get('x-hausfold-ref')).toBe('v2026.07.18');
     expect(await res.text()).toBe('#!/bin/bash\n');
+  });
+
+  it('accepts a same-day repeat tag (v<date>-N)', async () => {
+    globalThis.fetch = makeFetch([
+      { match: 'raw.githubusercontent.com/hausfold/haus/v2026.08.14-1/bootstrap.sh', body: 'OK' },
+    ]);
+    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.08.14-1'), {});
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('?ref= is a release tag, not any ref (fork-network guard)', () => {
+  // The traversal guard above is not what stops this one. A commit SHA passes
+  // SAFE_REF, and raw.githubusercontent.com serves any object in a public
+  // repo's FORK NETWORK — including commits on no branch — so a SHA anyone can
+  // get in there via a fork PR would otherwise be servable as
+  // `hausfold.co/nebelhaus.sh?ref=<sha>`: our domain, our TLS, their script.
+  // Only the repo's own maintainers can create a tag.
+  const NOT_TAGS = [
+    ['a commit SHA', '0a3f9c1d2e4b5a6f7089abcdef0123456789abcd'],
+    ['a branch', 'main'],
+    ['a fork branch name', 'attacker-patch-1'],
+    ['a tag-ish prefix', 'v2026.07.18-evil-branch'],
+    ['a bare semver tag', 'v1.2.3'],
+  ];
+
+  for (const [label, ref] of NOT_TAGS) {
+    it(`refuses ${label} with 400 and no fetch`, async () => {
+      globalThis.fetch = makeFetch([{ match: 'raw.githubusercontent.com', body: 'BOOT' }]);
+      const res = await worker.fetch(req(`/nebelhaus.sh?ref=${encodeURIComponent(ref)}`), {});
+      expect(res.status).toBe(400);
+      expect(await res.text()).toContain('release tag');
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+  }
+
+  it('still lets the deploy-time REF var pin a branch', async () => {
+    // That one is set by whoever deploys the Worker, not by whoever clicks a
+    // link — pinning a branch during an incident is what it exists for.
+    globalThis.fetch = makeFetch([
+      { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body: 'MAIN' },
+    ]);
+    const res = await worker.fetch(req('/nebelhaus.sh'), { REF: 'main' });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-hausfold-ref')).toBe('main');
   });
 });
 
@@ -180,14 +225,14 @@ describe('serveInstaller upstream handling', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com', status: 404, body: 'not found' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v1.0.0'), {});
+    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.01.02'), {});
     expect(res.status).toBe(502);
-    expect(await res.text()).toContain('v1.0.0');
+    expect(await res.text()).toContain('v2026.01.02');
   });
 
   it('sets caching headers on a successful proxy', async () => {
     globalThis.fetch = makeFetch([{ match: 'raw.githubusercontent.com', body: 'OK' }]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v1.0.0'), {});
+    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.01.02'), {});
     expect(res.headers.get('cache-control')).toBe('public, max-age=300');
     expect(res.headers.get('content-type')).toContain('text/plain');
   });
@@ -254,6 +299,34 @@ describe('/download and /api/release', () => {
     const res = await worker.fetch(req('/download/perch'), {});
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toBe('https://github.com/hausfold/perch/releases/latest');
+  });
+
+  it('falls back to the releases page rather than handing over a non-macOS asset', async () => {
+    globalThis.fetch = makeFetch([
+      {
+        match: 'api.github.com/repos/hausfold/perch/releases/latest',
+        json: {
+          tag_name: 'v2026.01.02',
+          assets: [
+            { name: 'checksums.txt', size: 10, browser_download_url: 'https://example.com/checksums.txt' },
+          ],
+        },
+      },
+    ]);
+    const res = await worker.fetch(req('/download/perch'), {});
+    expect(res.headers.get('location')).toBe('https://github.com/hausfold/perch/releases/latest');
+  });
+
+  it('answers the same with a trailing slash', async () => {
+    // Every page URL on this site canonicalizes to a trailing slash
+    // (`trailingSlash: true`), so a hand-typed /download/pounce/ that 404s is a
+    // trap the site's own convention lays.
+    globalThis.fetch = makeFetch([
+      { match: 'api.github.com/repos/hausfold/pounce/releases/latest', json: PONCE_RELEASE },
+    ]);
+    const res = await worker.fetch(req('/download/pounce/'), {});
+    expect(res.status).toBe(302);
+    expect(res.headers.get('location')).toBe(PONCE_RELEASE.assets[0].browser_download_url);
   });
 
   it('serves release metadata as JSON and caches it', async () => {

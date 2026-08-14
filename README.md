@@ -18,9 +18,12 @@ first thing to get right:
   on Next, built to a **static export**. Added 2026-08-12 (rename plan §5.2).
 - **The routes that can't be files** — `/nebelhaus.sh` (the install one-liner,
   proxying a desktop's `bootstrap.sh`), `/download/<app>` and
-  `/api/release/<app>` — are `worker.js`, with unit tests in `test/`. Added
-  2026-08-14, ported from the workshop's `web/`. This is the only code here
-  where a bug is a *security* bug, so read its header before changing it.
+  `/api/release/<app>` (which nothing here calls yet — it is for the landing
+  pages once they become Next routes) — are `worker.js`, with unit tests in
+  `test/`. Added 2026-08-14, ported from the workshop's `web/`. This is the
+  only code here where a bug is a *security* bug, so read its header before
+  changing it: `?ref=` is held to the release-tag shape on purpose, because a
+  commit SHA would let a fork's object be served from this domain.
 
 Since the docs landed there **is** a build step: `npm run build` writes `out/`,
 Next copies `public/` into it verbatim, and `out/` is what `wrangler deploy`

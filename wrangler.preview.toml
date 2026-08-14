@@ -15,9 +15,16 @@
 # docs as they would actually deploy rather than the raw ./public tree.
 #
 # `main` tracks it too, so a preview URL answers `/nebelhaus.sh`,
-# `/download/<app>` and `/api/release/<app>` exactly as the live site would.
-# That is the only way to *feel* an installer change before it becomes the
-# install command: those three are the part of this site no local file shows.
+# `/download/<app>` and `/api/release/<app>` — the only way to *feel* an
+# installer change before it becomes the install command, since those three are
+# the part of this site no local file shows.
+#
+# ⚠️ One dimension it can NOT reproduce: Cloudflare's Cache API is a no-op on
+# workers.dev, so the ~1h release-tag cache never holds here and every preview
+# request hits api.github.com unauthenticated. Past the shared-IP rate limit
+# the preview quietly falls back to `main` while production serves the release
+# tag — so a preview serving a different script than you expect is a rate
+# limit, not a bug in the change you are looking at.
 name = "hausfold-preview"
 main = "worker.js"
 compatibility_date = "2026-08-04"

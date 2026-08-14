@@ -1,5 +1,7 @@
-# Static redirects for the assets-only Worker. Cloudflare consumes this file
-# rather than serving it, so it never appears at /_redirects.
+# Static redirects, applied by Cloudflare's asset server. It consumes this file
+# rather than serving it, so it never appears at /_redirects — and it runs
+# BEFORE worker.js, which is why a rule here can shadow a Worker route (and
+# why none of them do).
 #
 # /desktops was a page until 2026-08-12; its catalogue is now the first
 # section of the landing page. Both spellings are listed because the

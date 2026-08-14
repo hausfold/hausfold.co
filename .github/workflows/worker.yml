@@ -52,7 +52,9 @@ jobs:
           for f in wrangler.toml wrangler.preview.toml; do
             grep -q '^main = "worker.js"' "$f" \
               || { echo "::error file=$f::$f must set main = \"worker.js\" — the live config and the preview config have to run the same Worker."; exit 1; }
-            grep -q '^binding = "ASSETS"' "$f" \
-              || { echo "::error file=$f::$f must set [assets] binding = \"ASSETS\" — worker.js hands unclaimed paths back through it."; exit 1; }
+            # Inside [assets] specifically: a `binding` under some other table
+            # would satisfy a bare grep and bind nothing the Worker can reach.
+            sed -n '/^\[assets\]/,/^\[/p' "$f" | grep -q '^binding = "ASSETS"' \
+              || { echo "::error file=$f::$f must set binding = \"ASSETS\" inside [assets] — worker.js hands unclaimed paths back through it."; exit 1; }
           done
           echo "Both configs run worker.js with the ASSETS binding."

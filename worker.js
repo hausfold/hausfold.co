@@ -6,9 +6,12 @@
 //   /download/<app>     → 302 to the latest GitHub release's macOS artifact,
 //                         so the product pages (and curl) get a stable URL while
 //                         GitHub keeps hosting bytes and counting downloads
-//   /api/release/<app>  → tiny JSON (tag, asset, size, publishedAt) the product
-//                         pages use to label the download button with the real
-//                         version — nothing hardcoded to go stale between deploys
+//   /api/release/<app>  → tiny JSON (tag, asset, size, publishedAt) for
+//                         labelling a download button with the real version
+//                         instead of one hardcoded to go stale. ⚠️ Nothing on
+//                         this site calls it yet — the pages that did are the
+//                         nebelhaus.com ones, and it is here so the landing
+//                         pages have it when they become Next routes.
 //   everything else     → the static export in ./out (the [assets] binding)
 //
 // Ported from the workshop's `web/worker.js`, which serves the same three
@@ -19,9 +22,9 @@
 //   - `/init.sh` became `/<desktop>.sh`. hausfold.co is the platform's door,
 //     not one desktop's, so the installer is named after the desktop you are
 //     installing — `hausfold.co/nebelhaus.sh`. There is deliberately no
-//     `/init.sh` here: the redirect that keeps the old URL alive lives on
-//     nebelhaus.com and points straight at `/nebelhaus.sh`, so a shell history
-//     from 2026 still resolves in one hop.
+//     `/init.sh` here: nebelhaus.com still answers that URL with the script
+//     today, and when it becomes the 301 map (§5.2) its redirect should point
+//     straight at `/nebelhaus.sh`, so a shell history from 2026 costs one hop.
 //   - The resolution table is data. Today it holds one name; a second desktop
 //     is a row, not a route. What happens when a desktop lives in a repo we
 //     don't own is deliberately deferred (§5.2) — ship the one-name version.
@@ -47,6 +50,27 @@ const DESKTOPS = {
 
 const BOOTSTRAP = "bootstrap.sh";
 const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path traversal
+
+// 🚨 What a VISITOR may pin with `?ref=`, and it is deliberately much narrower
+// than SAFE_REF: a release tag, `v<date>` or `v<date>-N`, which is the only
+// form the docs have ever shown.
+//
+// SAFE_REF alone is not enough here, and the reason is not path traversal —
+// that one it does stop. It is that a 40-hex commit SHA passes it, and
+// raw.githubusercontent.com serves any object in a public repo's **fork
+// network**, including commits on no branch at all (measured: the head commit
+// of a merged PR whose branch GitHub deleted still returns 200). haus is
+// public, so anyone can put an object in that network with a fork PR and then
+// hand out `curl -fsSL 'https://hausfold.co/nebelhaus.sh?ref=<sha>' | bash` —
+// our domain, our TLS, no visible redirect, their script. A tag is the one
+// ref shape only the repo's own maintainers can create.
+//
+// The deploy-time REF var stays on SAFE_REF on purpose: that one is set by
+// whoever deploys the Worker, not by whoever clicks a link, and pinning a
+// branch during an incident is exactly what it is for. A desktop repo that
+// versions differently one day wants its own pattern in the table row, not a
+// loosening of this.
+const RELEASE_TAG = /^v\d{4}\.\d{2}\.\d{2}(-\d+)?$/;
 
 // The apps with signed + notarized release artifacts on GitHub. Keys are the
 // URL slugs; each repo lives at github.com/hausfold/<app>.
@@ -105,10 +129,14 @@ async function latestAppRelease(app) {
     });
     if (r.ok) {
       const release = await r.json();
+      // Only a macOS artifact counts. The port this came from fell back to
+      // `assets[0]`, which on a release that shipped no `-macos.*` would hand
+      // a human `checksums.txt` and call it the download. No release is shaped
+      // that way today; falling through to the releases page is the answer
+      // that stays right if one ever is.
       const asset =
         release.assets?.find((a) => MACOS_DMG.test(a.name)) ??
-        release.assets?.find((a) => MACOS_ASSET.test(a.name)) ??
-        release.assets?.[0];
+        release.assets?.find((a) => MACOS_ASSET.test(a.name));
       if (release.tag_name && asset) {
         const meta = {
           tag: release.tag_name,
@@ -155,7 +183,15 @@ async function serveReleaseMeta(app) {
 
 async function serveInstaller(desktop, url, env) {
   const repo = DESKTOPS[desktop];
-  const ref = url.searchParams.get("ref") || (await latestRef(repo, env));
+  const pinned = url.searchParams.get("ref");
+  // A visitor's pin is held to the tag shape (see RELEASE_TAG); a resolved or
+  // deploy-pinned ref is re-checked against SAFE_REF because neither is
+  // trusted to have stayed sane either — a garbage `tag_name` from the API
+  // reaches here too.
+  if (pinned && !RELEASE_TAG.test(pinned)) {
+    return text("# ref must be a release tag, e.g. ?ref=v2026.07.18\n", 400);
+  }
+  const ref = pinned || (await latestRef(repo, env));
   if (!SAFE_REF.test(ref) || ref.includes("..")) {
     return text("# invalid ref\n", 400);
   }
@@ -183,7 +219,10 @@ const hausfold = {
     if (installer && Object.hasOwn(DESKTOPS, installer[1])) {
       return serveInstaller(installer[1], url, env);
     }
-    const appRoute = url.pathname.match(/^\/(download|api\/release)\/([a-z]+)$/);
+    // The trailing slash is optional because `trailingSlash: true` canonicalizes
+    // every *page* on this site to one — a hand-typed /download/pounce/ that
+    // 404s is a trap laid by the site's own convention.
+    const appRoute = url.pathname.match(/^\/(download|api\/release)\/([a-z]+)\/?$/);
     if (appRoute && DOWNLOADABLE.has(appRoute[2])) {
       return appRoute[1] === "download" ? serveDownload(appRoute[2]) : serveReleaseMeta(appRoute[2]);
     }
