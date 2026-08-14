@@ -18,9 +18,17 @@ rather than beside it — the pane it replaces is only suspended, so quitting th
 agent brings your shell back with its scrollback. **⌃⌥⇧A** is the resident
 variant: the one agent per tab allowed to edit the checkout you're looking at.
 
-holt calls one of these a **lane** — one agent's branch, checkout and pane, as a
-single thing you can name — and that's the word its output uses. It works on
-**any git repo**, and it isn't really a haus feature: it's
+holt calls what the first two make a **lane** — one agent's branch, checkout and
+terminal, as a single thing you can name — and that's the word its output uses.
+Two words it deliberately isn't: not a *worktree*, because a parked lane has no
+checkout on disk and is still a lane you can resume; and not a *session*, which
+belongs to your multiplexer and to each client's own transcript. (⌃⌥⇧A makes no
+lane at all — it's an agent in the checkout you already have.) Where a lane's
+terminal actually lives is the [Development](/docs/haus/rooms/development)
+room's call, not holt's: `haus.hearth.lanes.backend` puts it in a zellij pane by
+default, or in a window of its own.
+
+It works on **any git repo**, and it isn't really a haus feature: it's
 [its own tool](https://github.com/hausfold/holt), which haus takes as an input
 and puts on your `PATH`. You don't have to be a haus user to run it.
 
@@ -92,20 +100,20 @@ in the first prompt.
 ## Which client gets spawned
 
 ```nix
-# both defaults, and only while haus.developer.agents.enable is on
-haus.agents.clients = [ "claude" "opencode" ];  # what's installed
-haus.agents.default = "claude";                 # what ⌘A spawns
+haus.ai.clients = [ "claude" "opencode" ];  # what's installed — defaults to [ ]
+haus.ai.default = "claude";                 # what ⌘A spawns
 ```
 
-`agents.default` must be one of `agents.clients`, and the rebuild says so by name
-if it isn't rather than failing later, inside the pane, after the checkout
-already exists.
+`ai.default` must be one of `ai.clients`, and the rebuild says so by name if it
+isn't rather than failing later, inside the pane, after the checkout already
+exists.
 
-All of it hangs off one master switch, `haus.developer.agents.enable`, which
-follows `haus.developer.enable`: holt on your `PATH`, the ⌘A keybinds, the tab
-marks, the statusline, the client wiring. Turn it off and `agents.clients` empties
-with it — and setting clients anyway is a build error rather than a half-wired
-machine.
+All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
+⌘A keybinds, the tab marks, the statusline, the client wiring. Rooms are
+independent, so the switch is yours (or your desktop's) to set — nebelhaus turns
+it on and names both options above. Turn the room off and `ai.clients` is ignored
+whole rather than half-wiring the machine, so a host can drop the room without
+having to blank the list its desktop set.
 
 holt records the client **with the lane**, so changing the option only affects new
 spawns: a parked Codex task still reopens through `codex resume --last`, and an
@@ -226,12 +234,12 @@ dot in front of the name of any tab holding agent panes:
 | **`○` green** | it finished its turn; nothing is waiting |
 | *(nothing)* | no agent panes in that tab |
 
-A tab holding more than one agent also gets a small trailing chip with the count;
-one agent needs no number. The dot shows the most urgent state in the tab, so
-peach always wins and the tab that needs you never hides behind one that's merely
-busy. (The peach wash is dropped on the tab you're already looking at.) The
-the [bar](/docs/haus/rooms/bar) is the same signal for when you're
-out in the GUI rather than in the terminal.
+The dot shows the most urgent state in the tab, so peach always wins and the tab
+that needs you never hides behind one that's merely busy. (The peach wash is
+dropped on the tab you're already looking at.) It's the shape that carries the
+state, not the colour — and there's no count: how many agents a tab holds is the
+[bar](/docs/haus/rooms/bar)'s popup to answer, and the bar is the same signal for
+when you're out in the GUI rather than in the terminal.
 
 Both are reported by each client's own lifecycle hooks — the agent says what it's
 doing; nothing scrapes the screen for it. haus wires OpenCode's plugin and

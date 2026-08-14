@@ -19,7 +19,7 @@ The safety was always there; the missing half was knowledge. So haus ships it.
 ## The skill haus writes
 
 Every rebuild writes a **skill** called `haus` into the skills directory of each
-client in `haus.agents.clients` — `~/.claude/skills/haus` for Claude Code,
+client in `haus.ai.clients` — `~/.claude/skills/haus` for Claude Code,
 `~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode.
 Name no clients at all and all three get a copy, so the skill is never the
 missing piece. One body, one copy per client:
@@ -162,13 +162,13 @@ else. Copy one and you orient some of your tools and not others.
 
 ## Your own instructions, in every client
 
-`haus.agents.instructions` is the other half of what haus writes into an agent's
+`haus.ai.instructions` is the other half of what haus writes into an agent's
 home: your always-on operating context, rendered once per installed client at
 the path that client reads — `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
 `~/.config/opencode/AGENTS.md` — under a short generated preamble.
 
 ```nix
-haus.agents.instructions = ''
+haus.ai.instructions = ''
   # Global instructions
 
   Ship small, verified changes. Ask before anything hard to reverse…
@@ -179,7 +179,7 @@ Write it **client-neutrally**: the same text reaches whichever agent your ⌘A p
 spawned, so a line about one client's flags is noise in the other two. Empty (the
 default) writes nothing at all, so a hand-managed instructions file is never
 touched — but *setting* it on a machine that already has one moves yours aside to
-`<file>.backup`. And `haus.agents.skill = false;` stops the skill being written
+`<file>.backup`. And `haus.ai.skill = false;` stops the skill being written
 at all, for when you'd rather own each client's skills directory yourself.
 
 (Both were `haus.claude.globalMd` and `haus.claude.skill` until August 2026; the
