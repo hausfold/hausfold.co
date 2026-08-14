@@ -1,7 +1,7 @@
 # Deploy hausfold.co to Cloudflare.
 #
-# Fires when the pages, the docs, the Worker config, or this workflow change on
-# main, or on demand. Since 2026-08-12 there IS a build step: `npm run build`
+# Fires when the pages, the docs, the Worker (or its config), or this workflow
+# change on main, or on demand. Since 2026-08-12 there IS a build step: `npm run build`
 # writes ./out (the Next/Fumadocs static export, with ./public copied into it),
 # and that is what `wrangler deploy` uploads. ./out is gitignored, so a deploy
 # that skips the build uploads nothing.
@@ -31,6 +31,7 @@ on:
       - 'public/**'
       - 'content/**'
       - 'src/**'
+      - 'worker.js'
       - 'package.json'
       - 'package-lock.json'
       - 'next.config.mjs'
@@ -59,6 +60,12 @@ jobs:
         run: |
           npm ci
           npm run build
+
+      # The Worker carries the `curl | bash` install URL, so its tests run on
+      # the way to the live site as well as on the PR — a merge queue that
+      # skipped them once is all it takes for a red suite to become an install.
+      - name: Test the Worker
+        run: npm test
 
       - name: Deploy to Cloudflare
         run: npx --yes wrangler@4 deploy

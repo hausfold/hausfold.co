@@ -170,7 +170,10 @@ async function serveInstaller(desktop, url, env) {
   });
 }
 
-export default {
+// Named rather than exported anonymously: `import/no-anonymous-default-export`
+// is on here (it comes with eslint-config-next), and a named handler is what
+// shows up in a stack trace anyway.
+const hausfold = {
   async fetch(request, env) {
     const url = new URL(request.url);
     // A desktop installer. The match is deliberately narrow — an unknown name
@@ -191,3 +194,5 @@ export default {
     return text("hausfold — https://hausfold.co\n", 404);
   },
 };
+
+export default hausfold;

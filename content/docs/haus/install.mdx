@@ -5,7 +5,7 @@ icon: install
 ---
 
 ```sh
-curl -fsSL https://nebelhaus.com/init.sh | bash
+curl -fsSL https://hausfold.co/nebelhaus.sh | bash
 ```
 
 That installs Nix if you don't have it, asks you a few questions, and writes
@@ -39,10 +39,10 @@ The URL only proxies
 the public repo — it's boring on purpose.
 
 ```sh
-curl -fsSL https://nebelhaus.com/init.sh | less
+curl -fsSL https://hausfold.co/nebelhaus.sh | less
 
 # or pin an exact release and diff it against GitHub
-curl -fsSL 'https://nebelhaus.com/init.sh?ref=v2026.07.18' | less
+curl -fsSL 'https://hausfold.co/nebelhaus.sh?ref=v2026.07.18' | less
 ```
 
 By default you get the latest release tag. Releases are date-tagged, so
@@ -124,7 +124,7 @@ NEBELHAUS_NONINTERACTIVE=1 \
 NEBELHAUS_GIT_NAME="Ada Lovelace" \
 NEBELHAUS_GIT_EMAIL="ada@example.com" \
 NEBELHAUS_ACCENT="mauve" \
-bash -c "$(curl -fsSL https://nebelhaus.com/init.sh)"
+bash -c "$(curl -fsSL https://hausfold.co/nebelhaus.sh)"
 ```
 
 | Variable | Effect |

@@ -69,7 +69,8 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
 | anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
 | **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. The old tree still lives on nebelhaus.com until the 301s land, so a fact fixed in one tree and not the other will disagree |
-| the install one-liner, product pages | `web/` in the workshop **today** — consolidating *into this repo*, plan §5.2 |
+| the install one-liner — the URL, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/nebelhaus.sh \| bash`. A second desktop is a row in `DESKTOPS`, not a new route |
+| the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
 **The change in flight is half-landed** (plan §5.2) — know exactly which half
@@ -81,14 +82,23 @@ that was the user's call on 2026-08-09. **All twenty-nine source decisions are
 now closed:** twenty-eight became Fumadocs pages, and `start/the-family` was
 deliberately retired. This repo therefore **has a build step** now: `npm run
 build` writes `out/`, Next copies `public/` into it verbatim, and `out/` is what
-deploys. It is still a static-assets Worker with no `main`.
+deploys.
+
+✅ **`worker.js` has arrived too** (2026-08-14), so this is no longer an
+assets-only Worker: `wrangler.toml` has a `main`, and three routes run code —
+`/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`. Assets still
+short-circuit first, so no page on the site touches it. **The install one-liner
+is `curl -fsSL https://hausfold.co/nebelhaus.sh | bash`** and every page that
+prints it says so; `nebelhaus.com/init.sh` keeps working meanwhile, and becomes
+a redirect to this one when the 301s land. There is deliberately **no
+`/init.sh` here** — the desktop's name is the point of the route.
 
 ❌ **Not yet, and each is its own piece of work:** the landing pages becoming
 Next routes (decided, not done — they are still the hand-written HTML in
-`public/`); and `worker.js`, which carries `/init.sh`,
-`/download/<app>`, `/api/release/<app>`, the `hausfold.co/<rice>.sh` installer
-route and the `nebelhaus.com/*` 301s. **Until that last one lands the docs print
-`nebelhaus.com/init.sh`**, because that is the URL that resolves.
+`public/`); and the `nebelhaus.com/*` 301s, which live in the workshop's `web/`
+and are what finally retires the old tree. **Until they land there are two live
+copies of every docs page**, so a fact fixed in one tree and not the other will
+disagree.
 
 *(§5.1's other prerequisite — "this repo goes public" — was settled on
 2026-08-08 by creating this repo public rather than flipping the old one. The
@@ -690,10 +700,10 @@ The third is not thin, and it is a decision rather than a class:
 ## Deploying
 
 Pushing to `main` deploys — the workflow fires on any change under `public/`,
-`content/`, `src/`, or the build config. It runs `npm ci && npm run build`
-first; `out/` is gitignored, so the build is not optional. There is no staging
-environment: **main is the live site.** Look at your change in a browser first,
-and check both themes.
+`content/`, `src/`, `worker.js`, or the build config. It runs `npm ci && npm
+run build` first; `out/` is gitignored, so the build is not optional. There is
+no staging environment: **main is the live site.** Look at your change in a
+browser first, and check both themes.
 
 **Use a server, not `file://`.** Every page links `/hausfold.css` and navigates
 by absolute path, so `open public/index.html` renders unstyled and its links go
@@ -701,8 +711,14 @@ nowhere.
 
 - Editing **docs**: `npm run dev`. Hot reload; the only sane MDX loop.
 - Editing **pages**, or checking the site as deployed: `npm run build && npx
-  wrangler dev` — same asset server, and it exercises `not_found_handling` and
-  `_headers`.
+  wrangler dev` — same asset server, and it exercises `not_found_handling`,
+  `_headers`, `_redirects` **and `worker.js`**.
+- Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
+  `wrangler dev` loop above for the routing, because the one thing the unit
+  tests can't prove is that a request reaches the Worker at all:
+  `curl -sI localhost:8787/nebelhaus.sh` must answer 200 with an
+  `x-hausfold-ref`, and `curl -sI localhost:8787/api/search` must still be the
+  built docs index rather than anything the Worker claimed by accident.
 
 A PR that touches the docs or the build also runs **Docs**
 (`.github/workflows/docs.yml`): type-check, lint, then **two cold builds diffed
@@ -712,6 +728,14 @@ identical), `generateBuildId` in `next.config.mjs` is what makes it so, and
 without a check the day a Next or Fumadocs release introduces a timestamp is a
 day nothing tells you about. It also asserts `out/api/search` isn't empty: a
 search index that loads and answers nothing fails no build step.
+
+A PR that touches `worker.js`, `test/`, either wrangler config or the package
+files runs **Worker** (`.github/workflows/worker.yml`): `npm test`, plus a
+check that both wrangler configs name the same `main` and the same `ASSETS`
+binding. That second one exists because the failure it catches is invisible —
+a `main` in `wrangler.toml` and none in `wrangler.preview.toml` means a PR's
+installer change looks fine on the preview URL precisely *because* the route
+isn't running there.
 
 A PR that touches `public/hausfold.css`, any `public/**.html`, or `scripts/`
 also runs **Palette** (`.github/workflows/palette.yml`), which is `node

@@ -1,0 +1,58 @@
+# The Worker's own tests. `worker.js` is the one file on this site that isn't a
+# page: it carries the `curl | bash` installer, so its ref validation is the
+# only place here where a bug is a security bug rather than a typo.
+#
+# Deliberately separate from Docs (build + type-check + lint) — that job is
+# minutes of Next build to say nothing about the Worker, and this one is
+# seconds. Ported from the workshop's web/ suite along with the Worker itself.
+name: Worker
+
+on:
+  pull_request:
+    paths:
+      - 'worker.js'
+      - 'test/**'
+      - 'wrangler.toml'
+      - 'wrangler.preview.toml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/worker.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'worker.js'
+      - 'test/**'
+      - 'wrangler.toml'
+      - 'wrangler.preview.toml'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/worker.yml'
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - run: npm test
+
+      # The two configs have to agree about the Worker or the preview stops
+      # being a preview: a `main` here and none there means a PR's installer
+      # change looks fine on workers.dev because the route isn't running at all.
+      - name: Both wrangler configs run the same Worker
+        run: |
+          for f in wrangler.toml wrangler.preview.toml; do
+            grep -q '^main = "worker.js"' "$f" \
+              || { echo "::error file=$f::$f must set main = \"worker.js\" — the live config and the preview config have to run the same Worker."; exit 1; }
+            grep -q '^binding = "ASSETS"' "$f" \
+              || { echo "::error file=$f::$f must set [assets] binding = \"ASSETS\" — worker.js hands unclaimed paths back through it."; exit 1; }
+          done
+          echo "Both configs run worker.js with the ASSETS binding."
