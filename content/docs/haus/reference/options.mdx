@@ -389,7 +389,9 @@ Honest scope, in two parts.
 
 What follows it: every tool the rice injects colours into or points at a
 rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
-lazygit, helix, zellij, opencode, the bar, Zen and Obsidian.
+lazygit, zellij, opencode, the bar, Zen and Obsidian, plus helix
+whenever it is the editor `haus.hearth.editorName` selects (Nebelung
+has a port for helix and none for the alternatives).
 These are genuinely re-rendered for the flavor, not recoloured in place:
 whiskers takes different branches for a light flavor (terminal ANSI
 0/7/8/15 swap, Zen switches its prefers-color-scheme block, delta sets
@@ -1523,24 +1525,51 @@ The shell and terminal experience.
 
 #### `haus.hearth.editor`
 
-`string` · default `"hx"`
+`string` · default `the command for haus.hearth.editorName — hx for helix`
 
-The ONE editor the rice uses everywhere. It's the shell command for
-$EDITOR / $VISUAL (git, etc.) AND what every "open in an editor" action
-launches — the "Nix Config" palette command, the bar's nix-open item,
-and the file-association hijack. Those open the target in a new zellij
-tab running this command, so a terminal editor (hx, nvim, vim, nano) is
-the natural fit for the rice; a GUI editor's CLI works too (e.g. "code"
-or "code -w" to block).
+The ONE editor command the rice uses everywhere. It's the shell command
+for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
+action launches — the "Nix Config" palette command, the bar's nix-open
+item, and the file-association hijack. Those open the target in a new
+zellij tab running this command, so a terminal editor is the natural
+fit for the rice; a GUI editor's CLI works too (e.g. "code" or
+"code -w" to block).
 
-The rice installs helix, which is why the default is `hx`. Naming
-anything else here assumes that editor is already on the machine — this
-option points at an editor, it does not install one.
+It defaults to the command for `haus.hearth.editorName`, so choosing an
+editor there is enough. Set this only for the case that option cannot
+express: pointing the rice at something it does not install. Naming a
+command here does NOT install it — that machine has to already have it.
 
 Example:
 
 ```nix
-"nvim"
+"code -w"
+```
+
+<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+
+#### `haus.hearth.editorName`
+
+`one of "helix", "nano", "neovim", "vim"` · default `"helix"`
+
+Which editor this room installs. `helix` (the default) is the one the
+rice is themed around; `neovim`, `vim` and `nano` are installed as-is,
+with no Nebelung theme — Nebelung has a port for helix and not for
+them.
+
+Setting this also moves `haus.hearth.editor`, since that defaults to
+whatever the chosen editor answers to on PATH (`hx`, `nvim`, `vim`,
+`nano`). Choosing here is the whole gesture: the editor is installed
+AND every "open in an editor" action follows it.
+
+A desktop may set this. To point the rice at an editor it does not
+install — a GUI one, or something from your own host file — leave this
+alone and set `haus.hearth.editor` instead.
+
+Example:
+
+```nix
+"neovim"
 ```
 
 <small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
