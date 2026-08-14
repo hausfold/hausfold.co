@@ -1084,6 +1084,142 @@ Example:
 
 macOS accessibility keys haus can actually apply. These write to a TCC-protected domain, so they take effect only when the app you run the rebuild from holds Full Disk Access — otherwise haus warns and moves on.
 
+#### `haus.accessibility.closeViewScrollWheelToggle`
+
+`null or boolean` · default `null`
+
+Hold ⌃ (Control) and scroll to magnify the whole display.
+macOS calls it "Use scroll gesture with modifier keys to zoom";
+scroll the other way to come back.
+
+The fastest zoom on the Mac and the one people forget exists. Worth
+having on a machine you demo, present or pair from, where the
+alternative is asking everyone to lean in.
+
+
+null (the default) leaves whatever you have alone — this is a
+personal setting, so haus never picks a value for you.
+
+HOW THIS ONE WAS VERIFIED — by a person looking at the screen on
+real hardware (macOS 26.6.1, 2026-08-14), because no API reports
+it: `NSWorkspace` exposes no pointer size and no zoom state, so
+`hausax` cannot read it back and `haus diff` will tell you it
+compared the plist and nothing more. haus's other
+accessibility options are checked against macOS's own answer on
+YOUR Mac; this one carries evidence from one Mac. That is a real
+difference and it is worth knowing which kind you are getting —
+it is written here rather than in a changelog because the option
+is where you will be standing when it matters.
+
+NEEDS A DAEMON RESTART, which the rebuild does for you: the write
+alone changes nothing on screen until `universalaccessd`
+restarts, which is exactly why this key spent three weeks
+looking dead. `haus rebuild` kills it whenever this option
+family is set, so you should never meet the stale state; set the
+key by hand with `defaults write` and you will, with
+`killall universalaccessd` as the fix.
+
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant haus warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service haus installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+
+#### `haus.accessibility.closeViewZoomFollowsFocus`
+
+`null or boolean` · default `null`
+
+Keep a zoomed display on whatever has keyboard focus.
+⇥ into a field outside the magnified area and the view goes to it —
+KEYBOARD focus specifically, not the pointer.
+
+Needs a zoom to follow, so it does nothing on its own: pair it with
+`closeViewScrollWheelToggle` (or turn on Zoom in System Settings ▸
+Accessibility). nix-darwin's own option says the same, and it is the
+first thing to check if this appears to do nothing.
+
+Expect it to SNAP rather than glide — the view jumps to the focused
+control in one step. That is the feature behaving, not a rendering
+fault, and it is the first thing anyone reports as one. Note also
+that pushing the POINTER at a screen edge pans the zoomed view
+whether or not this is set: that behaviour is not this option, which
+matters if you are trying to tell whether it took.
+
+
+null (the default) leaves whatever you have alone — this is a
+personal setting, so haus never picks a value for you.
+
+HOW THIS ONE WAS VERIFIED — by a person looking at the screen on
+real hardware (macOS 26.6.1, 2026-08-14), because no API reports
+it: `NSWorkspace` exposes no pointer size and no zoom state, so
+`hausax` cannot read it back and `haus diff` will tell you it
+compared the plist and nothing more. haus's other
+accessibility options are checked against macOS's own answer on
+YOUR Mac; this one carries evidence from one Mac. That is a real
+difference and it is worth knowing which kind you are getting —
+it is written here rather than in a changelog because the option
+is where you will be standing when it matters.
+
+NEEDS A DAEMON RESTART, which the rebuild does for you: the write
+alone changes nothing on screen until `universalaccessd`
+restarts, which is exactly why this key spent three weeks
+looking dead. `haus rebuild` kills it whenever this option
+family is set, so you should never meet the stale state; set the
+key by hand with `defaults write` and you will, with
+`killall universalaccessd` as the fix.
+
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant haus warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service haus installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+
 #### `haus.accessibility.differentiateWithoutColor`
 
 `null or boolean` · default `null`
@@ -1163,6 +1299,81 @@ Example:
 
 ```nix
 true
+```
+
+<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+
+#### `haus.accessibility.mouseDriverCursorSize`
+
+`null or integer or floating point number between 1.0 and 4.0 (both inclusive)` · default `null`
+
+How big the mouse pointer is — 1.0 normal, 4.0 the biggest.
+That range is macOS's own, and the scale is linear: 2.0 is twice
+the normal pointer, 4.0 is the largest System Settings offers.
+
+The one accessibility key here that is useful with no accessibility
+need at all: on a 5K display, or from across a desk, or in a
+screen recording someone else has to follow, the default pointer is
+simply too small to find. Set it to 1.5 and you keep noticing you
+can see it.
+
+Deliberately NOT wired to `haus.ui.scale`, which would be the
+obvious thing and is the wrong thing. `ui.scale` is the foundation
+every machine gets; this domain needs Full Disk Access. Deriving
+one from the other would make `ui.scale = 1.4` start warning about
+a TCC grant on machines that never asked for a bigger pointer, for
+a write that would then be skipped. Reach for this key when you
+want it — it sharpens a large-text desktop, it does not underpin
+one.
+
+
+null (the default) leaves whatever you have alone — this is a
+personal setting, so haus never picks a value for you.
+
+HOW THIS ONE WAS VERIFIED — by a person looking at the screen on
+real hardware (macOS 26.6.1, 2026-08-14), because no API reports
+it: `NSWorkspace` exposes no pointer size and no zoom state, so
+`hausax` cannot read it back and `haus diff` will tell you it
+compared the plist and nothing more. haus's other
+accessibility options are checked against macOS's own answer on
+YOUR Mac; this one carries evidence from one Mac. That is a real
+difference and it is worth knowing which kind you are getting —
+it is written here rather than in a changelog because the option
+is where you will be standing when it matters.
+
+NEEDS A DAEMON RESTART, which the rebuild does for you: the write
+alone changes nothing on screen until `universalaccessd`
+restarts, which is exactly why this key spent three weeks
+looking dead. `haus rebuild` kills it whenever this option
+family is set, so you should never meet the stale state; set the
+key by hand with `defaults write` and you will, with
+`killall universalaccessd` as the fix.
+
+REACHABILITY — `com.apple.universalaccess` is TCC-protected, and this is
+the one property in the whole option surface that can differ
+between two machines running byte-identical config, so it is worth
+reading once. The write lands only when the app that runs the
+rebuild holds Full Disk Access (System Settings ▸ Privacy &
+Security ▸ Full Disk Access; on macOS 26 a stale grant often needs
+removing and re-adding with (+), then restarting the terminal).
+The grant follows the APP, not you and not root — so an
+agent-driven rebuild in a pane of a terminal that has it works
+fine, and the same agent under a different app does not.
+
+Without the grant haus warns and carries on: you lose this
+setting and nothing else. That containment is the whole reason
+`com.apple.universalaccess` has options here at all — written the
+other way, through `system.defaults.universalaccess.*`, a missing
+grant aborts the rest of activation and takes every background
+service haus installs with it.
+
+`haus plan` says up front when a rebuild needs the grant, and
+`haus doctor`'s Permissions section says whether this app has it.
+
+Example:
+
+```nix
+4.0
 ```
 
 <small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
