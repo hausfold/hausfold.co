@@ -53,15 +53,18 @@
  *     is the one failure re-running this script cannot fix — it would leave a
  *     dangling var() and a dark page with no background);
  *   - --ink and --well stay literal, and agree between the two dark blocks;
- *   - every page under public/ HAS a dark `theme-color`, and it equals crust.
- *     That <meta> is a hand-typed copy of the palette, it lives in markup this
- *     script does not generate, and there are ten of them;
+ *   - the dark `theme-color` equals crust. It is a hand-typed copy of the
+ *     palette that this script does not generate — but there is exactly one of
+ *     it now: `themeColor.dark` in src/lib/shared.ts, which `viewport` in
+ *     src/app/layout.tsx spends on every route. This walked ten <meta>s across
+ *     `public/**.html` until the landing pages became Next routes and stopped
+ *     carrying heads of their own;
  *   - public/favicon.svg's ground is crust, and its fan matches what this
  *     script would write.
  *
  * The last two are why palette.yml's paths filter has to include
- * `public/**.html` and `public/favicon.svg` as well as the stylesheet — a
- * filter on `public/hausfold.css` + `scripts/**` alone let a markup- or
+ * `src/lib/shared.ts` and `public/favicon.svg` as well as the stylesheet — a
+ * filter on `public/hausfold.css` + `scripts/**` alone let a theme-colour- or
  * icon-only PR skip the check covering it, and a check that can't see the file
  * it checks reports "matches" about a file it never read.
  *
@@ -72,8 +75,8 @@
  * the file's own comment, and AGENTS.md's greyscale-at-rest rule). SVG has no
  * conic gradient, so the sweep is a fan of flat-coloured wedges — and a fan is
  * ninety hardcoded hexes, i.e. exactly the frozen snapshot of the palette this
- * script exists to prevent. Bumping PIN would move the stylesheet and the ten
- * theme-colours and silently leave the icon a release behind.
+ * script exists to prevent. Bumping PIN would move the stylesheet and the
+ * theme-colour and silently leave the icon a release behind.
  *
  * So the fan is generated too, from the same port, between markers in the SVG.
  * The ring below is the same six accents in the same order hausfold.css sweeps
@@ -113,7 +116,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
@@ -585,37 +588,29 @@ function decls(body) {
   return out;
 }
 
-/* Every page's dark `theme-color` is a hand-typed copy of --ground, which is
- * crust. It's the one place the palette still lives outside hausfold.css, and
- * an upstream move that this script fixes in the CSS would otherwise leave
- * ten <meta>s behind — browser chrome a different grey from the page, with
- * the tool reporting "matches". So it's checked here too, though it can't be
- * generated: there is no template, and the head is markup. */
-function htmlPages(dir = PUBLIC, out = []) {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, e.name);
-    if (e.isDirectory()) htmlPages(p, out);
-    else if (e.name.endsWith(".html")) out.push(p);
-  }
-  return out;
-}
+/* The dark `theme-color` is a hand-typed copy of --ground, which is crust.
+ * It's the one place the palette still lives outside hausfold.css, and an
+ * upstream move that this script fixes in the CSS would otherwise leave the
+ * browser chrome a different grey from the page, with the tool reporting
+ * "matches".
+ *
+ * It used to be ten <meta>s, hand-copied into ten `public/**.html` heads,
+ * walked here because there was no template to check instead. There is one
+ * now: the eight hand-written pages became Next routes, `src/app/layout.tsx`
+ * declares `viewport.themeColor` once, and Next writes both <meta>s into
+ * every page in the build. So this reads the one remaining copy —
+ * `themeColor.dark` in `src/lib/shared.ts` — and the "a new page owes a
+ * theme-color" hazard is gone with the hand-copying: a new page cannot ship
+ * without one, because no page declares its own. */
+const SHARED = join(ROOT, "src", "lib", "shared.ts");
 
-function darkThemeColours() {
-  const found = [];
-  for (const page of htmlPages()) {
-    const html = readFileSync(page, "utf8");
-    const before = found.length;
-    for (const [, tag] of html.matchAll(/<meta\b([^>]*name="theme-color"[^>]*)>/g)) {
-      if (!/media="\(prefers-color-scheme:\s*dark\)"/.test(tag)) continue;
-      found.push({ page: relative(ROOT, page), value: tag.match(/content="([^"]*)"/)?.[1] });
-    }
-    /* A page with NO dark <meta> is the case this used to miss entirely: it
-     * contributed nothing, so nothing was compared, so it passed. Every page
-     * under public/ owes one, and a new page is exactly where it gets
-     * forgotten — so record the absence and let the comparison below fail it. */
-    if (found.length === before) found.push({ page: relative(ROOT, page), value: undefined });
-  }
-  return found;
+function darkThemeColour() {
+  const src = readFileSync(SHARED, "utf8");
+  const block = src.match(/export const themeColor\s*=\s*\{([\s\S]*?)\}/)?.[1];
+  return {
+    where: relative(ROOT, SHARED),
+    value: block?.match(/\bdark\s*:\s*['"]([^'"]+)['"]/)?.[1],
+  };
 }
 
 function audit(text, block) {
@@ -664,13 +659,12 @@ function audit(text, block) {
   }
 
   const crust = port["--nebelung-crust"];
-  for (const { page, value } of darkThemeColours()) {
-    if (value?.toLowerCase() !== crust?.toLowerCase()) {
-      problems.push(
-        `${page}: dark theme-color is ${value ?? "missing"}, but --ground is ${crust} — ` +
-          `the <meta> is a hand-typed copy of the palette and nothing generates it`,
-      );
-    }
+  const { where, value } = darkThemeColour();
+  if (value?.toLowerCase() !== crust?.toLowerCase()) {
+    problems.push(
+      `${where}: themeColor.dark is ${value ?? "missing"}, but --ground is ${crust} — ` +
+        `it is a hand-typed copy of the palette and nothing generates it`,
+    );
   }
 
   /* Everything except the generated block and the two dark blocks must be free

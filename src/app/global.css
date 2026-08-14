@@ -68,11 +68,14 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
-/* The site's own tokens and type. Inlined by PostCSS at build time — it is
-   the same file `public/` serves to the hand-written pages, so there is one
-   copy of the palette in the repo and not two. Its layout classes (.sheet,
-   .index, .catalogue…) go unused here; they are what the landing pages will
-   bring with them when they become Next routes in turn. */
+/* The site's own tokens and type. Inlined by PostCSS at build time, which is
+   now the ONLY way it reaches a browser: the landing pages became Next routes
+   on 2026-08-14 and nothing `<link>`s `/hausfold.css` any more. It stays under
+   `public/` because that is where `scripts/sync-nebelung.mjs` writes it.
+
+   Its layout classes (.sheet, .index, .catalogue…) are no longer unused here —
+   they are what the nine landing routes are built out of, which is what makes
+   this one import the single copy of the palette in the repo. */
 @import '../../public/hausfold.css';
 
 @theme {
@@ -240,13 +243,19 @@ body {
   --color-fd-error: var(--a-nebelhaus);
 }
 
-/* The 404 is the one route under this layout that is NOT a docs page: it is
-   `public/404.html`'s markup, moved into `src/app/not-found.tsx` because
-   Next's export overwrites a same-named file (see AGENTS.md). It belongs to
-   the hand-written half and reads in the hand-written half's face, so the
-   body rules above are handed back for it — otherwise the 404 became the
-   one landing page set in SF, which is exactly the drift the type split is
-   supposed to be a considered exception to rather than an accident. */
+/* The landing half, handed its own face back. Every one of the nine routes
+   that is NOT a docs page puts `.sheet` on its `<main>`, so this one selector
+   covers all of them and the body rules above apply to `/docs` alone.
+
+   It was written on 2026-08-12 for `src/app/not-found.tsx` — then the only
+   landing-half page under this layout, because Next's export overwrites a
+   same-named `public/404.html` — and it carried the other eight for free when
+   they became routes on 2026-08-14. Without it they would read in SF, which is
+   exactly the drift the type split is supposed to be a considered exception to
+   rather than an accident.
+
+   🚨 The corollary: a new landing page whose `<main>` is not a `.sheet` comes
+   out in the docs' face, silently. */
 body:has(.sheet) {
   font-family: var(--font-display);
   font-size: var(--step);

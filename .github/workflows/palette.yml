@@ -20,13 +20,13 @@
 #     refuses to write; re-point the token by hand.
 #   - --ink or --well drifting apart between the two dark blocks, or stopping
 #     being literals. They are deliberately not nebelung's.
-#   - a page whose dark `theme-color` no longer equals crust, or hasn't got one.
-#     That <meta> is a hand-typed copy of the palette, and no template
-#     generates it. It used to live on nine pages; `public/404.html` became
-#     `src/app/not-found.tsx` on 2026-08-12, and every /docs page now takes its
-#     pair from `src/lib/shared.ts` instead. This job walks `public/**.html`
-#     only, so that third copy is unchecked — change a ground colour and change
-#     it there too.
+#   - `themeColor.dark` in `src/lib/shared.ts` no longer equalling crust. It is
+#     a hand-typed copy of the palette and no template generates it — but there
+#     is exactly one of it, and `viewport` in `src/app/layout.tsx` spends it on
+#     every route. It used to be ten <meta>s hand-copied across
+#     `public/**.html`, walked here because there was nothing else to read;
+#     the landing pages became Next routes and stopped carrying heads of their
+#     own, so the copies and the "a new page owes one" hazard went with them.
 #   - public/favicon.svg's ground drifting off crust — the tile is hand-drawn
 #     and only its wedge fan is generated — or two hyphens in a row appearing
 #     in its comment, which is an XML parse error that no browser reports: the
@@ -39,13 +39,15 @@
 #     produces for the same pixels isn't promised stable across zlib versions,
 #     and this job's runner doesn't always match a contributor's local Node.
 #
-# **`public/**.html`, `public/favicon.svg` and `public/favicon.ico` are in the
-# paths filter for those, and they have to be.** Those checks read markup, an
-# SVG and a binary icon, not CSS, so filtering on `public/hausfold.css` +
-# `scripts/**` alone meant an HTML- or icon-only PR — a new page, a hand-edited
-# <meta>, a stale favicon.ico — never ran the check watching it. A check that
-# can't see the file it checks is a check that reports "matches" about a file
-# it never read.
+# **`src/lib/shared.ts`, `public/favicon.svg` and `public/favicon.ico` are in
+# the paths filter for those, and they have to be.** Those checks read a TS
+# module, an SVG and a binary icon, not CSS, so filtering on
+# `public/hausfold.css` + `scripts/**` alone meant a theme-colour- or icon-only
+# PR — a hand-edited `themeColor`, a stale favicon.ico — never ran the check
+# watching it. A check that can't see the file it checks is a check that
+# reports "matches" about a file it never read. (`public/**.html` was in this
+# list until the landing pages became Next routes; there are no HTML files
+# under `public/` any more.)
 #
 # It builds a **pinned** revision of nebelung (PIN in the script), not `main`.
 # So this job is deterministic: it goes red for things the PR did, never for
@@ -62,7 +64,7 @@ on:
   pull_request:
     paths:
       - 'public/hausfold.css'
-      - 'public/**.html'
+      - 'src/lib/shared.ts'
       - 'public/favicon.svg'
       - 'public/favicon.ico'
       - 'scripts/**'
@@ -71,7 +73,7 @@ on:
     branches: [main]
     paths:
       - 'public/hausfold.css'
-      - 'public/**.html'
+      - 'src/lib/shared.ts'
       - 'public/favicon.svg'
       - 'public/favicon.ico'
       - 'scripts/**'
