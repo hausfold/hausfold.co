@@ -484,20 +484,22 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   margin-inline-start: auto;
 }
 
-/* Fumadocs ships both of these as `buttonVariants({color: 'secondary'})` —
-   a bordered, filled, 13px sans button. Undone here rather than replaced:
-   they become two lines of the same mono chrome the nav, the sidebar and
-   the TOC are set in, quiet at rest and ink on hover, like a TOC row.
+/* The two controls, set as two lines of the same mono chrome the nav, the
+   sidebar and the TOC are in: quiet at rest, ink on hover, like a TOC row.
+
+   The class does two different jobs, which is why it declares even the
+   obvious properties. On the copy button it *undoes* fumadocs'
+   `buttonVariants({color: 'secondary'})` — a bordered, filled, 13px sans
+   button — and everything below has a Tailwind utility to beat. On the
+   "Open in…" trigger, which is our own component
+   (`src/components/page-actions.tsx`) and carries this class alone, there
+   is nothing to undo and the same declarations are the whole style.
 
    No accent on hover, deliberately. The eyebrow beside them is the one
    coloured thing in this row and it is coloured because it answers "where
    am I"; a utility that answers "what can I do with this file" is not
    orientation, and two hues in a six-word row is how a leash becomes a
-   gradient.
-
-   The layout properties are declared here rather than inherited: the copy
-   button gets `inline-flex` from fumadocs' own class list, but the "Open
-   in…" trigger is our component and carries this class alone. */
+   gradient. */
 .hf-action {
   display: inline-flex;
   align-items: center;
@@ -524,10 +526,10 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   color: var(--ink);
 }
 
-/* Fumadocs' button ships a 2px focus ring that this rule's `border: 0` and
-   flat background leave floating around nothing much. A keyboard reader
-   still has to see where they are, so the focus state is the hover state
-   plus an outline the site draws elsewhere. */
+/* The copy button's own 2px focus ring is left floating around nothing once
+   the border and the fill are gone, and the trigger beside it has no ring at
+   all. A keyboard reader still has to see where they are, so both get the
+   hover state plus a hairline in the site's own rule colour. */
 .hf-action:focus-visible {
   background: none;
   color: var(--ink);
@@ -535,9 +537,10 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   outline-offset: 3px;
 }
 
-/* Both the copy glyph and the popover's chevron are shipped at
-   `text-fd-muted-foreground`, which would leave them grey while the label
-   goes ink on hover — two colours inside one control. */
+/* The copy glyph is shipped at `text-fd-muted-foreground`, which would leave
+   it grey while the label goes ink on hover — two colours inside one
+   control. `inherit` also sizes and colours our own chevron, which is a bare
+   Lucide icon with nothing else to take its dimensions from. */
 .hf-action svg {
   width: 0.85rem;
   height: 0.85rem;

@@ -91,9 +91,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           </p>
         )}
         <div className="hf-actions">
-          <MarkdownCopyButton className="hf-action" markdownUrl={markdownUrl}>
-            Copy Markdown
-          </MarkdownCopyButton>
+          {/* No children: fumadocs' own default label is "Copy Markdown",
+              and passing the same words as a child would step over its
+              translation of them. */}
+          <MarkdownCopyButton className="hf-action" markdownUrl={markdownUrl} />
           <ViewOptions
             className="hf-action"
             markdownUrl={markdownUrl}
