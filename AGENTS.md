@@ -642,16 +642,32 @@ Rules that are easy to break by accident:
     that can slip:
     `privacy.module.css` restates several of `.sheet`'s own properties on the
     same `<main>` and wins on source order, so anything it restates it keeps
-    forever. It deliberately does **not** restate `margin` — see the note
-    there, and note that this is exactly what let the reversal from right to
-    left cost that file no edit at all.
-  - ⚠️ **`body` is `flex flex-col`, so `.sheet` is a flex item**, which gives
-    it `min-width: auto` — it will not shrink below its content's min-content
-    width. (That is not what makes the lean work: an `auto` margin pushes a
-    `max-width`ed block in normal flow too.) The separate reason `.cmd code`
-    carries `min-width: 0` is that `.cmd` is itself a flex container and the
-    `<code>` is its item; without it a long command widens the page on a
-    phone.
+    forever. It deliberately does **not** restate `margin`, and since
+    2026-08-15 not `width` either — see the note there, and note that the
+    `margin` half is exactly what let the reversal from right to left cost
+    that file no edit at all.
+  - 🚨 **`.sheet` carries `width: 100%`, and it is not redundant beside the
+    `max-width`.** `body` is `flex flex-col`, so `.sheet` is a flex item — and
+    a flex item with an `auto` margin in the cross axis is **not stretched**.
+    The lean's own auto inline margin therefore turned the column
+    shrink-to-fit, so its width followed its widest unbreakable content rather
+    than the viewport — and that is true whichever side the `auto` sits on, so
+    the reversal from right to left neither caused nor fixed it. On the landing
+    page that content is `<code>` inside `.cmd` (`white-space: pre`, one line
+    measuring 545px), which is under the 41rem measure and so invisible on a
+    desktop; on a 390px phone the document came out **624px wide** and scrolled
+    sideways, with the right of every paragraph past the glass. Shipped broken
+    2026-08-14, found and fixed 2026-08-15. ⚠️ **`min-width: 0` on `.cmd code`
+    is a red herring twice over, and this bullet used to point at it.** It
+    could not have prevented the break: *nothing* lowers an element's
+    min-content contribution, and what a definite ancestor width does is stop
+    the ancestor's width being derived from it at all. And it is not what lets
+    the code shrink either — measured, removing it changes nothing, because
+    `overflow-x: auto` on the same element already zeroes a flex item's
+    automatic minimum size (Flexbox §4.5). It stays as insurance for the day
+    someone takes the overflow off. `width: 100%` on `.sheet` is the whole fix.
+    Measured, it moved desktop layout on exactly one route: the 404, which was
+    11–30px narrower than its siblings and is now the same 41rem.
 - **Nothing on this site scrolls sideways** — and the rule that made that true
   is kept here as a *test*, not as a description of anything shipping. Both
   layouts it decided between existed on 2026-08-14 and both are gone: a

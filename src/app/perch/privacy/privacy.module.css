@@ -26,15 +26,19 @@
    the shared sheet, exactly as they did after 2026-08-08. This page has not
    carried its own copy of the palette since then and must not start again. */
 
-/* ⚠️ No `margin` here, deliberately, and it is the one property this block
-   must NOT restate. `.sheet` stopped being centred on 2026-08-14 —
-   `margin-inline: var(--sheet-inset) auto` leans the column left — and
-   because `.policy` is on the same `<main>` and loads after, a `margin: 0
-   auto` here would leave this one page centred while every other one leaned.
+/* ⚠️ No `margin` and no `width` here, deliberately: they are the two
+   properties this block must NOT restate. `.sheet` stopped being centred on
+   2026-08-14 — `margin-inline: var(--sheet-inset) auto` leans the column
+   left — and because `.policy` is on the same `<main>` and loads after, a
+   `margin: 0 auto` here would leave this one page centred while every other
+   one leaned. `width` joined it on 2026-08-15: that same auto margin makes the
+   sheet a non-stretched flex item, so `.sheet`'s `width: 100%` is the only
+   thing keeping the column off its own min-content, and a `width: auto` here
+   would re-break this one page on a phone while every other one stayed fixed.
    `--sheet-inset` is declared by the `.sheet` rule on this very element, so
-   letting the shared value through is both correct and self-maintaining —
-   which it proved on the same day, when the lean reversed from right to left
-   and this file needed no edit but this comment. */
+   letting the shared values through is both correct and self-maintaining —
+   which `margin` proved on the same day, when the lean reversed from right to
+   left and this file needed no edit but this comment. */
 .policy {
   max-width: var(--measure);
   padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem) clamp(2.5rem, 6vw, 4rem);

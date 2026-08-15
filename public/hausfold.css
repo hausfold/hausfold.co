@@ -272,9 +272,37 @@ body {
    sheet's midpoint sat, and both were deleted on 2026-08-14 with the pages
    that used them. If a plate comes back, note that the sheet's midpoint is
    NOT the window's: the direction with room in it is whichever way the
-   column is NOT leaning, which is now the right. */
+   column is NOT leaning, which is now the right.
+
+   🚨 `width: 100%` is load-bearing and is not the same thing as the max-width
+   below. `body` is a column flex container, and a flex item with an `auto`
+   margin in the cross axis is NOT stretched — so the moment the lean landed,
+   whichever side the `auto` was on, `.sheet` stopped being viewport-wide and
+   became shrink-to-fit, which means its width follows its own min-content.
+   That is the widest unbreakable thing on the page, and on the landing page
+   that is `<code>` inside `.cmd` (`white-space: pre`, one line that measured
+   545px the day this was written). On a desktop nobody saw it, because that is
+   under the 41rem measure. On a 390px phone the document came out 624px wide:
+   free space is negative, so the auto margin resolves to zero, the column
+   sits at the left edge and the page scrolls sideways with the right of every
+   paragraph past the glass. Nothing on the code could have prevented that —
+   nothing *lowers* an element's min-content contribution; what a definite
+   width on the ancestor does is stop the ancestor's own width from being
+   derived from it in the first place. (The `min-width: 0` down at .cmd code
+   was long described as the thing standing between this page and that, which
+   is where this session looked first. See the note there.)
+   `width: 100%` gives the sheet one, so the column is the viewport again, the
+   max-width clamps it, the start inset holds the lean, and the auto end margin
+   still absorbs whatever is left over.
+
+   Measured across every sheet route, this changed desktop layout on exactly
+   one of them: `src/app/not-found.tsx`, whose max-content was under the
+   measure, so it was 11–30px narrower than its siblings and is now the same
+   41rem as all of them. Its left edge — the axis the whole page hangs
+   from — did not move. */
 .sheet {
   --sheet-inset: max(0px, calc((100cqw - var(--page-max)) / 2));
+  width: 100%;
   max-width: var(--measure);
   margin-block: 0;
   margin-inline: var(--sheet-inset) auto;
@@ -690,11 +718,22 @@ body {
   color: var(--ink);
   overflow-x: auto;
   white-space: pre;
-  /* The command is long and a phone is narrow. `min-width: 0` is the
-     load-bearing half: without it a flex item refuses to shrink below its
-     content, the box pushes the sheet wider than the viewport, and every
-     paragraph on the page runs off the right edge. With it, the command
-     scrolls inside its own frame and the page doesn't move. */
+  /* The command is long and a phone is narrow, and what lets it scroll inside
+     its own frame rather than set the width of the box around it is
+     `overflow-x: auto` above: a flex item whose main-axis overflow is not
+     `visible` has an automatic minimum size of zero (Flexbox §4.5).
+     `min-width: 0` below spells the same thing out and, measured, changes
+     nothing on its own — it is insurance for the day someone takes the
+     overflow off, not the thing doing the work.
+
+     ⚠️ This comment claimed the opposite twice. It called `min-width: 0`
+     "the load-bearing half", which is where the session that found the phone
+     break looked first; the actual cause was `.sheet` going shrink-to-fit
+     (an auto inline margin on a flex item suppresses stretch), which let this
+     545px line set the width of the whole document — 624px on a 390px phone.
+     Nothing here could have prevented that: nothing *lowers* an element's
+     min-content contribution. The fix is `width: 100%` on `.sheet`; see the
+     note there. */
   flex: 1 1 12rem;
   min-width: 0;
   -webkit-overflow-scrolling: touch;
