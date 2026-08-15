@@ -24,7 +24,7 @@ Every desktop has its own URL, and typing it answers the question before it's
 asked:
 
 ```sh
-curl -fsSL https://hausfold.co/nebelhaus.sh | bash   # the full desktop
+curl -fsSL https://hausfold.co/hacker.sh    | bash   # the full desktop
 curl -fsSL https://hausfold.co/everyday.sh  | bash   # for someone who doesn't write code
 curl -fsSL https://hausfold.co/minimal.sh   | bash   # just the themed shell
 ```
@@ -98,7 +98,7 @@ rewind point. Non-fatal if Time Machine is off.
 <Step>
 ### Asks you a few things
 
-Your git name and email, a desktop (nebelhaus / everyday / minimal / custom), an
+Your git name and email, a desktop (hacker / everyday / minimal / custom), an
 accent colour, a wallpaper, and an editor — helix, neovim, vim or nano, and haus
 installs the one you name. It also asks whether to keep your current Dock,
 keyboard and Finder settings, and whether to adopt the Homebrew casks you
@@ -157,23 +157,31 @@ Every question has an environment variable, so the whole thing can run without
 a prompt:
 
 ```sh
-NEBELHAUS_NONINTERACTIVE=1 \
-NEBELHAUS_GIT_NAME="Ada Lovelace" \
-NEBELHAUS_GIT_EMAIL="ada@example.com" \
-NEBELHAUS_ACCENT="mauve" \
+HAUS_NONINTERACTIVE=1 \
+HAUS_GIT_NAME="Ada Lovelace" \
+HAUS_GIT_EMAIL="ada@example.com" \
+HAUS_ACCENT="mauve" \
 bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 ```
 
 | Variable | Effect |
 |---|---|
-| `NEBELHAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
-| `NEBELHAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal — pair it with `--defaults` for a silent run |
-| `HAUS_DESKTOP` | Which desktop to select — `nebelhaus`, `everyday`, `minimal`, `blank` — or `--desktop=<name>` on the command line. Setting it skips that question even in an interactive run, which is what a desktop's own URL does for you. `NEBELHAUS_DESKTOP` is the older spelling and still read; so is the pre-desktops `NEBELHAUS_PRESET`, with `full` meaning `nebelhaus` |
-| `NEBELHAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
-| `NEBELHAUS_ACCENT` / `NEBELHAUS_WALLPAPER` / `NEBELHAUS_EDITOR` | The look and the editor |
-| `NEBELHAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
-| `NEBELHAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
-| `NEBELHAUS_FROM` | Restore an existing config instead of scaffolding |
+| `HAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults |
+| `HAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal — pair it with `--defaults` for a silent run |
+| `HAUS_DESKTOP` | Which desktop to select — `hacker`, `everyday`, `minimal`, `blank` — or `--desktop=<name>` on the command line. Setting it skips that question even in an interactive run, which is what a desktop's own URL does for you |
+| `HAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
+| `HAUS_ACCENT` / `HAUS_WALLPAPER` / `HAUS_EDITOR` | The look and the editor |
+| `HAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
+| `HAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
+| `HAUS_FROM` | Restore an existing config instead of scaffolding |
+
+<Callout title="If you already scripted this with the old names">
+Every variable above was spelled `NEBELHAUS_*` until 2026-08-14, and **the old
+spelling is still read** — the installer promotes it before anything else runs,
+with the new name winning if both are set. Same for the desktop names it
+accepts: `hacker` was `nebelhaus`, and the pre-desktops `HAUS_PRESET=full` still
+selects it. Nothing you already automated needs changing.
+</Callout>
 
 These are also what you want if you hand the install to a coding agent: the
 questions are a terminal UI, and a tool driving it blind is how someone else's
@@ -186,7 +194,7 @@ build; the two `sudo` steps are yours.
   <Card
     icon={<Icon name="steps" />}
     title="First run"
-    href="/docs/haus/desktops/nebelhaus#first-moves"
+    href="/docs/haus/desktops/hacker#first-moves"
     description="The four moves that make the desktop click, and the first tweak you'll want."
   />
   <Card

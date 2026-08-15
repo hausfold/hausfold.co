@@ -153,7 +153,7 @@ const FROM_NEBELUNG = {
   "--ink-2": "subtext1",
   "--ink-3": "overlay2",
   "--rule": "surface1",
-  "--a-nebelhaus": "pink",
+  "--a-hacker": "pink",
   "--a-pounce": "peach",
   "--a-holt": "teal",
   "--a-perch": "green",
@@ -170,7 +170,7 @@ const RING = [
   "green", /* perch     */
   "yellow", /* trill    */
   "peach", /*  pounce   */
-  "pink", /*   nebelhaus */
+  "pink", /*   hacker */
 ];
 
 /* The fan's geometry. Everything here is in the SVG's 100x100 user space.

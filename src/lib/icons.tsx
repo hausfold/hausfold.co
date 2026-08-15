@@ -111,12 +111,12 @@ const icons = {
   // them, unlike the tree glyphs above: they are page rows inside the haus
   // tree and take its mauve like every other row, and a desktop owns no
   // accent anywhere on this site in the first place (AGENTS.md's closed
-  // vocabulary — nebelhaus is a named thing with an upstream hue, `everyday`
-  // and `minimal` are selections of the same options). `nebelhaus` was called
-  // `desktop` and carried nebelhaus's hue while it pointed OUT of the docs at
+  // vocabulary — hacker is a named thing with an upstream hue, `everyday`
+  // and `minimal` are selections of the same options). `hacker` was called
+  // `desktop` and carried the desktop's hue while it pointed OUT of the docs at
   // /desktops/nebelhaus; that page was deleted on 2026-08-14 and the link
   // turned inward, which is exactly the condition for dropping a hue.
-  nebelhaus: { icon: Cat },
+  hacker: { icon: Cat },
   everyday: { icon: Armchair },
   minimal: { icon: Feather },
   blank: { icon: SquareDashed },

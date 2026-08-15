@@ -9,11 +9,11 @@ it exists so that "I'll build my own" stays inside the one-desktop model instead
 of being a second mode with its own rules.
 
 ```nix
-darwinConfigurations.lovelace = nebelhaus.mkNebelhaus {
+darwinConfigurations.lovelace = haus.mkHaus {
   username = "ada";
   hostname = "lovelace";
   host = ./hosts/lovelace;
-  desktop = nebelhaus.desktops.blank;
+  desktop = haus.desktops.blank;
 };
 ```
 
@@ -49,7 +49,7 @@ global hotkey is claimed — Caps Lock stays Caps Lock and ⌘Space stays
 Spotlight's. The wallpaper is left alone, the tour doesn't run, and no theme
 files are written into apps you already had.
 
-That last one is the point of Blank rather than a stripped nebelhaus: nothing
+That last one is the point of Blank rather than a stripped hacker: nothing
 here reaches outside haus and changes something you didn't ask for.
 
 ## Adding a room

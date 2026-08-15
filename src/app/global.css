@@ -244,7 +244,7 @@ body {
   --color-fd-idea: var(--accent);
   --color-fd-success: var(--a-perch);
   --color-fd-warning: var(--a-trill);
-  --color-fd-error: var(--a-nebelhaus);
+  --color-fd-error: var(--a-hacker);
 }
 
 /* The landing half, handed its own face back. Every route that is NOT a docs
@@ -303,7 +303,7 @@ body:has([data-tree='trill']) {
 }
 
 /* A page's own declaration, last, so it beats the tree it sits in. */
-body:has([data-accent='nebelhaus']) { --accent: var(--a-nebelhaus); }
+body:has([data-accent='hacker']) { --accent: var(--a-hacker); }
 body:has([data-accent='pounce']) { --accent: var(--a-pounce); }
 body:has([data-accent='holt']) { --accent: var(--a-holt); }
 body:has([data-accent='perch']) { --accent: var(--a-perch); }
@@ -316,7 +316,7 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
    The two tree glyphs need this: they sit side by side in that popover, and
    "the current page's accent" would paint them both the same. See
    `src/lib/icons.tsx` for which icons carry one. */
-[data-hue='nebelhaus'] { color: var(--a-nebelhaus); }
+[data-hue='hacker'] { color: var(--a-hacker); }
 [data-hue='pounce'] { color: var(--a-pounce); }
 [data-hue='holt'] { color: var(--a-holt); }
 [data-hue='perch'] { color: var(--a-perch); }
@@ -863,7 +863,7 @@ article h1,
 /* The first column is nearly always the name of the thing — a room, a pill,
    a key, a command — so it takes the ink and the rest of the row explains
    it. Deliberately not `nowrap`: some of these names are
-   `NEBELHAUS_NONINTERACTIVE`, and a column that refuses to wrap pushes the
+   `HAUS_NONINTERACTIVE`, and a column that refuses to wrap pushes the
    table into a horizontal scroll on a phone. */
 .prose tbody td:first-child {
   color: var(--ink);

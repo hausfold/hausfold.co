@@ -57,14 +57,14 @@ not a bug report.
 
 **The screenshot frames are empty**, drawn in CSS and labelled `[ shot not taken
 yet ]` — and `/perch` is the only page that still draws any, the desktop pages
-having been retired into the docs. There is no real capture of the nebelhaus
+having been retired into the docs. There is no real capture of the hacker
 desktop yet, and a picture
 that lies about what the desktop looks like today is worse than a grey box that
 admits it hasn't got one. Drop an image in when one exists — note
 `images: { unoptimized: true }`, since `next/image`'s optimizer is a server and
 there isn't one.
 
-There's a nice tension here worth naming: a real capture of nebelhaus is
+There's a nice tension here worth naming: a real capture of hacker is
 wall-to-wall nebelung, so the day one lands is the day the site stops being
 greyscale at rest. Worth doing on purpose rather than by accident.
 

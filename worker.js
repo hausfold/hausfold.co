@@ -43,6 +43,21 @@
 //     lose the nebelhaus name eventually; when it does, the new name is a new
 //     row and this one stays as an alias. A published install command is the
 //     last thing on this site that should ever 404.
+//
+//     ✅ **That day came on 2026-08-14** (the rename note's §11, decision 10):
+//     the desktop is `hacker`. The paragraph above is the instruction this
+//     followed — `hacker` is a new row, `nebelhaus` stays, neither 404s.
+//
+//     🚨 **`hacker`'s PIN is deliberately still `nebelhaus`, and it is not a
+//     leftover.** This Worker serves `bootstrap.sh` from the desktop repo's
+//     latest RELEASE TAG, not from main. The released bootstrap only knows the
+//     old desktop name, so pinning `hacker` here would hand it a name it
+//     rejects: the URL would resolve, download, and then die with "unknown
+//     desktop" — the worst shape of failure an install command has. The pin
+//     names what the SERVED script understands, not what the repo currently
+//     calls it. Flip it, and the test that asserts it, after the first haus
+//     release carrying the rename; both spellings work from then on, because
+//     bootstrap resolves `nebelhaus` to `hacker` itself.
 //   - `/haus.sh` is the new front door, and it pins nothing on purpose. The
 //     old comment here said "the desktop's name is the point of the route",
 //     which was true when one desktop existed and is now half true: the name
@@ -78,7 +93,8 @@
 // this site presents, and a key here is a promise to keep serving it.
 const DESKTOPS = {
   haus: { repo: "hausfold/haus", pin: null },
-  nebelhaus: { repo: "hausfold/haus", pin: "nebelhaus" },
+  hacker: { repo: "hausfold/haus", pin: "nebelhaus" }, // pin lags the rename — see above
+  nebelhaus: { repo: "hausfold/haus", pin: "nebelhaus" }, // the old name, kept forever
   everyday: { repo: "hausfold/haus", pin: "everyday" },
   minimal: { repo: "hausfold/haus", pin: "minimal" },
 };

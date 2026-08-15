@@ -13,7 +13,7 @@ npm run types:check && npm run lint  # what CI runs first
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
 `worker.js` behave. `/desktops` should 301 to `/#desktops`,
-`/desktops/nebelhaus` to `/docs/haus/desktops/nebelhaus/`, `/haus` to
+`/desktops/nebelhaus` to `/docs/haus/desktops/hacker/`, `/haus` to
 `/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
 rather than answer 200.
 

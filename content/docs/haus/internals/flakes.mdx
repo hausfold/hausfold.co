@@ -16,10 +16,10 @@ and calls its builder:
 
 ```nix
 {
-  inputs.nebelhaus.url = "github:hausfold/haus";
+  inputs.haus.url = "github:hausfold/haus";
 
-  outputs = { nebelhaus, ... }: {
-    darwinConfigurations.<hostname> = nebelhaus.mkNebelhaus {
+  outputs = { haus, ... }: {
+    darwinConfigurations.<hostname> = haus.mkHaus {
       username = "<user>";
       hostname = "<hostname>";
       host = ./hosts/<hostname>;
@@ -28,9 +28,10 @@ and calls its builder:
 }
 ```
 
-(The input is named `nebelhaus` because it names the desktop you installed rather
-than the layer under it. It's a local handle; nothing outside your flake reads
-it.)
+(The input's name is yours to choose — it is a local handle and nothing outside
+your flake reads it. `haus` is what the installer scaffolds; configs written
+before 2026-08-14 say `nebelhaus`, after the desktop rather than the layer, and
+keep working. Rename it only together with every use of it in the same file.)
 
 Your choices live in `hosts/<hostname>/default.nix` — [the one file you
 edit](/docs/haus/desktops/customizing). haus stays upstream, and you never
@@ -38,11 +39,11 @@ edit it.
 
 ## The builder
 
-`mkNebelhaus` is the entry point. Given a user, a hostname and a host file it
+`mkHaus` is the entry point. Given a user, a hostname and a host file it
 returns a whole nix-darwin system with every room wired up:
 
 ```nix
-nebelhaus.mkNebelhaus {
+haus.mkHaus {
   username = "ada";
   hostname = "fog";
   host = ./hosts/fog;          # your identity and your choices
@@ -58,7 +59,7 @@ nix-darwin module, an app pack included. Eight of haus's modules — `den`,
 `hearth`, `prowl`, `sill`, `collar`, `pounce`, `hush`, `secrets` — are also
 exported on their own under `darwinModules`, alongside a `default` holding the
 lot. Reach for one of those only with the builder still around it: a module
-declares no options of its own and takes the username from `mkNebelhaus`, so on
+declares no options of its own and takes the username from `mkHaus`, so on
 its own it doesn't evaluate.
 
 ## The inputs

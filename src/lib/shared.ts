@@ -32,7 +32,7 @@ export const themeColor = {
 // list only says which names are spendable, so a typo in frontmatter is a
 // page with no accent rather than a page with an invented colour.
 export const accents = [
-  'nebelhaus',
+  'hacker',
   'pounce',
   'holt',
   'perch',
