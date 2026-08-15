@@ -1,12 +1,12 @@
 ---
 title: Development
-description: The terminal, the shell, the multiplexer and the editor, plus Git tooling, the CLI toolbelt and language runtimes — the command line haus sets up, and the keys that drive it.
+description: The terminal, the shell, the multiplexer and the editor, plus Git tooling, the CLI toolbelt and language runtimes. The command line haus sets up, and the keys that drive it.
 icon: shell
 ---
 
-**hearth** is the terminal room. It sets up the whole command line — emulator,
+**hearth** is the terminal room. It sets up the whole command line (emulator,
 multiplexer, shell, prompt, file manager, editor, and a toolbelt of modern
-replacements for the usual commands — painted from the same
+replacements for the usual commands), painted from the same
 [palette](/docs/haus/rooms/appearance), down to the default editor.
 
 | | | |
@@ -16,11 +16,11 @@ replacements for the usual commands — painted from the same
 | Shell | zsh | no framework, fzf-tab, sensible history, git aliases |
 | Prompt | [starship](https://starship.rs) | |
 | Files | [yazi](https://yazi-rs.github.io) | markdown, code and image previews |
-| Editor | [helix](https://helix-editor.com) | the default `$EDITOR` — or neovim, vim, nano ([below](#choosing-your-editor)) |
+| Editor | [helix](https://helix-editor.com) | the default `$EDITOR`, or neovim, vim, nano ([below](#choosing-your-editor)) |
 | Jumper | [zoxide](https://github.com/ajeetdsouza/zoxide) | `cd` learns your habits; `cdi` opens a picker |
 
 Plus `bat` over `cat`, `lsd` over `ls`, `lazygit` (`lg`), `delta` for git diffs,
-and `fzf`, `fd`, `jq`, `gh`, `glow`, `fastfetch` — with `nix-index` and `comma`
+and `fzf`, `fd`, `jq`, `gh`, `glow`, `fastfetch`, with `nix-index` and `comma`
 so you can run anything else in nixpkgs without installing it.
 
 ## Enable it
@@ -30,7 +30,7 @@ haus.developer.enable = true;
 haus.developer.languages = [ "node" ];
 ```
 
-The terminal stack itself — Ghostty, zellij, zsh, the prompt, the editor — is
+The terminal stack itself (Ghostty, zellij, zsh, the prompt, the editor) is
 part of the foundation and always there. `haus.developer.*` is what brings the
 *tools*: the CLI toolbelt, the Git tooling and the language runtimes, each with
 a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
@@ -40,7 +40,7 @@ a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
 Launching the terminal drops you into a persistent session called `main`; new
 panes and tabs inherit your working directory. Ghostty's own `⌘T`, `⌘P`, `⌘Y`,
 `⌘W` and friends are **unbound** on purpose, so those keys mean the same thing
-whether or not you're multiplexed. (`⌘C` is not one of them — it stayed with
+whether or not you're multiplexed. (`⌘C` is not one of them; it stayed with
 Ghostty, as copy. Day to day you won't press it, since zellij copies a mouse
 selection the moment you release it, but a `⇧`-drag makes a Ghostty-level
 selection and `⌘C` takes it.)
@@ -51,36 +51,36 @@ Two of the unbindings are fixes rather than hand-offs:
   confirmation off a stray `⌘W` silently took the window and the session in it.
   Now it closes one pane; `⌘⇧W` still closes the window.
 - **`⌘D` / `⌘⇧D` do nothing**, on purpose. Their Ghostty defaults nest a second
-  terminal *inside* the one zellij is driving — invisible to the multiplexer, so
+  terminal *inside* the one zellij is driving: invisible to the multiplexer, so
   its layout and pane keys would apply to half the window. Use `⌘P`.
 
 | Keys | What happens |
 |---|---|
 | `⌘P` / `⌘⇧P` | New pane. The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
 | `⌘T` / `⌘⇧T` | New tab at `$HOME` / at the focused pane's directory. Fresh tabs are born named `~`, never `Tab #N`. |
-| `⌘W` | Close the focused pane — and the tab with it, when it was the last one |
+| `⌘W` | Close the focused pane (and the tab with it, when it was the last one) |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
-| `⌘⏎` | Fullscreen the focused pane — or Ctrl-click the pane body |
+| `⌘⏎` | Fullscreen the focused pane, or Ctrl-click the pane body |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
-| `⌘L` | Links picker — every URL in the pane's transcript or scrollback |
-| `⌘A` / `⌘⇧A` | Spawn a coding agent in its own worktree — beside the focused pane, or in place of it |
+| `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
+| `⌘A` / `⌘⇧A` | Spawn a coding agent in its own worktree, beside the focused pane or in place of it |
 | `⌃⌥⇧A` | Spawn one in **this** checkout instead of its own worktree |
 | `Ctrl Tab` | Walk tabs in most-recently-used order, browser-style |
 | `Alt [` / `Alt ]` | Cycle layouts: grid → spiral → columns |
 
-**An agent worktree** is the throwaway checkout `⌘A` puts a coding agent in — its
+**An agent worktree** is the throwaway checkout `⌘A` puts a coding agent in: its
 own copy of the repo on its own branch, so several agents can work at once
 without fighting over one set of files. Half the rows above have a `⇧` variant
 because of it: the plain key assumes you want the *real* repo, and `⇧` says stay
 in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
-lifecycle — resuming one, setting work aside, cleaning up.
+lifecycle: resuming one, setting work aside, cleaning up.
 
 **Where that agent's terminal lives is this room's call**, though, and
 `haus.hearth.lanes.backend` is the switch. `"zellij"`, the default, is what the
 rows above describe: the lane is a pane in the `main` session. `"zmx"` makes it
 its own [zmx](https://github.com/neurosnap/zmx) session in its own Ghostty
-window, tiled by prowl — the session outlives every client attached to it, so
+window, tiled by prowl. The session outlives every client attached to it, so
 `⌘W` detaches and the agent keeps thinking, and reopening the lane rejoins the
 live conversation instead of replaying a transcript. The trade is splits: zmx
 has none by design, so prowl tiles real windows rather than a second window
@@ -92,12 +92,12 @@ in the table above works regardless. `haus.hearth.zellijStartLocked` flips it.
 
 There is **no reload chord**, because there is nothing to reload: zellij watches
 its own config and applies a change to the running server within a second. A
-`haus rebuild` lands on the session you already have — same tabs, same panes,
+`haus rebuild` lands on the session you already have: same tabs, same panes,
 same directories, live agent conversations uninterrupted.
 
 <Callout title="Click a path">
-A plain click on a file path opens it **in your editor, at its line number** —
-`src/main.rs:42` lands on line 42 — and a click on a directory opens a new tab
+A plain click on a file path opens it **in your editor, at its line number**
+(`src/main.rs:42` lands on line 42), and a click on a directory opens a new tab
 already `cd`'d there. Handy for whatever a build tool just printed. Links work
 in every pane, including ones running a TUI that has taken the mouse; paths work
 in any pane no program is tracking the mouse in.
@@ -112,7 +112,7 @@ each hit beside them. `⏎` jumps to the pane a hit came from, `^y` copies the
 line, `^s` flips between this-pane and every-pane without losing your query.
 
 **In an agent pane it searches the conversation, not the terminal.** Claude Code
-and Opencode panes render in the alt-screen, which has no scrollback at all — so
+and Opencode panes render in the alt-screen, which has no scrollback at all, so
 searching the grid would only ever find what's on screen this second. Searching
 the stored conversation finds all of it, including text inside collapsed tool
 output. Codex panes fall back to scrollback; they report their pane state like
@@ -133,14 +133,14 @@ haus.hearth.ghDash.enable = true;
 haus.git.org = "your-org";     # or your own account
 ```
 
-The first line gets you the tabs that are about *you* — issues you opened, ones
+The first line gets you the tabs that are about *you*: issues you opened, ones
 assigned to you, unread notifications, threads you're in. The second is what a
 PR tab needs, because a PR tab is a GitHub search and a search needs a scope.
 Set it and four more appear: **open**, **green** and **red** (the same queue
-split by whether CI passed — together they *are* the merge decision, and a
+split by whether CI passed; together they *are* the merge decision, and a
 branch still building shows in neither), and **shipped**.
 
-Leave `haus.git.org` empty — right if you read several owners at once — and
+Leave `haus.git.org` empty (right if you read several owners at once) and
 those four simply aren't written.
 
 ## yazi peek
@@ -166,7 +166,7 @@ haus.hearth.floatBorder = "accent";  # the default; also "grey", any accent name
 
 Plain zsh, no framework, and a finite set of shortcuts. The names follow the
 widely-used Oh-My-Zsh vocabulary where conventions agree, and deliberately skip
-the ambiguous ones — `gl`, `gr`, `gs` — whose meanings differ between alias
+the ambiguous ones (`gl`, `gr`, `gs`) whose meanings differ between alias
 sets. `g` itself is `git`.
 
 | | |
@@ -194,7 +194,7 @@ haus.git.shellAliases = {
 ## Choosing your editor
 
 Name one and the room installs it. `haus.hearth.editorName` takes **helix** (the
-default), **neovim**, **vim** or **nano** — one choice that installs the editor,
+default), **neovim**, **vim** or **nano**: one choice that installs the editor,
 sets your `$EDITOR`, and points every "open in an editor" action at it. Those
 open in a new zellij tab, which is why the list is terminal editors.
 
@@ -204,11 +204,11 @@ haus.hearth.hijackFileAssociations = true;      # off by default: make it the
                                                 # opener for .json, .md, .nix, …
 ```
 
-helix is the one haus paints from the palette — Nebelung has a theme for it and
+helix is the one haus paints from the palette: Nebelung has a theme for it and
 none for the others, so the alternatives arrive in their own default colours.
 
-To point haus at an editor it does **not** install — a GUI one, or something
-your host installs itself — set `haus.hearth.editor` instead. That one is a
+To point haus at an editor it does **not** install (a GUI one, or something
+your host installs itself), set `haus.hearth.editor` instead. That one is a
 shell command haus runs, so it belongs in your host file rather than in a shared
 desktop, and it wins over whatever `editorName` chose:
 
@@ -228,11 +228,11 @@ haus.hearth.editor = "code -w";                 # points at it; installs nothing
 
 ## Works with
 
-- **[AI](/docs/haus/rooms/ai)** — with both rooms on, agent panes get their
+- **[AI](/docs/haus/rooms/ai)**: with both rooms on, agent panes get their
   zellij bindings and the worktree lifecycle around them.
-- **[Appearance](/docs/haus/rooms/appearance)** — the whole stack is painted
+- **[Appearance](/docs/haus/rooms/appearance)**: the whole stack is painted
   from the same palette.
-- **[Launcher](/docs/haus/rooms/launcher)** — commands that open a terminal land
+- **[Launcher](/docs/haus/rooms/launcher)**: commands that open a terminal land
   in the same multiplexer you already live in.
 
 ## Remove it

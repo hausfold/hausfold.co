@@ -6,9 +6,9 @@ icon: keys
 
 ## Summon it
 
-- **⌘Space** — the default hotkey, registered in-process by the daemon so it
+- **⌘Space**: the default hotkey, registered in-process by the daemon so it
   opens instantly.
-- **Fn/Globe** — a lone tap opens the emoji and symbols grid. Fn combinations
+- **Fn/Globe**: a lone tap opens the emoji and symbols grid. Fn combinations
   keep working; this reuses Pounce's Accessibility grant and only replaces
   Globe's stock action while armed. (On by default inside haus;
   `"mode:emoji": { "hotkey": "fn" }` elsewhere.)
@@ -25,7 +25,7 @@ the ⌘Space collision with Spotlight, which fails silently.
 | Type | Fuzzy-search in real time |
 | `↑` / `↓` | Move the selection |
 | `Return` | Run the default action |
-| `⇧Return` | Insert a newline — the query field is multi-line |
+| `⇧Return` | Insert a newline; the query field is multi-line |
 | `⌘Return` | The modifier action (often "Reveal in Finder" for apps) |
 | `⌥Return` / `⌃Return` | Alternate actions, when shown |
 | `Esc` | Dismiss |
@@ -38,21 +38,21 @@ selected row.
 Three signals decide the order, so the thing you want is usually already on
 top:
 
-- **Fuzzy match quality** — consecutive runs, word-boundary hits, and titles
+- **Fuzzy match quality**: consecutive runs, word-boundary hits, and titles
   counting double subtitles.
-- **Frecency** — frequency × recency, on a 72-hour half-life.
+- **Frecency**: frequency × recency, on a 72-hour half-life.
 - **A freshly-installed boost** for anything installed in the last week,
   halving every two days.
 
 An app you'd rather never see can be hidden or sunk with `apps.hideBundleIds` /
-`apps.demoteBundleIds`, and any row can take a search shorthand — see
+`apps.demoteBundleIds`, and any row can take a search shorthand; see
 [per-item settings](/docs/pounce/config#per-item-settings-items).
 
 ## Quick answers
 
 Some queries are answered **in the palette** instead of being fuzzy-matched
 against apps and commands. The answer pins to the top as its own row, and
-`Return` copies it — no trigger prefix needed:
+`Return` copies it (no trigger prefix needed):
 
 | Type | Get |
 |---|---|
@@ -63,11 +63,11 @@ against apps and commands. The answer pins to the top as its own row, and
 | `14:00 utc in pst`, `2pm utc in tokyo` | Time-zone conversion |
 
 A query no engine can parse just falls through to normal results, and anything
-without a digit skips the engines entirely — `safari` stays a search.
+without a digit skips the engines entirely: `safari` stays a search.
 
 Currency uses the European Central Bank's daily reference rates, cached locally
 so it keeps answering offline. It is one of only two things that touch the
-network — the other is the hourly release check — and
+network (the other is the hourly release check), and
 `quickAnswers.currency` in [config](/docs/pounce/config#config-file) turns it
 off.
 
@@ -79,7 +79,7 @@ can run from the palette, bind to a key of its own, or launch from a script:
 | Mode | What it is |
 |---|---|
 | `mode:clipboard` | Clipboard history, two-pane, searchable, with optional auto-paste |
-| `mode:emoji` | Emoji *and* plain-text symbols in one grid — `command` → ⌘, `not equal` → ≠ |
+| `mode:emoji` | Emoji *and* plain-text symbols in one grid: `command` → ⌘, `not equal` → ≠ |
 | `mode:filesearch` | Files and folders by name, over Spotlight's index |
 | `mode:screenshots` | A browser for the shots you've taken |
 | `mode:camera` | A live camera peek |

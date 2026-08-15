@@ -983,9 +983,34 @@ article h1,
   --nb-token-link: var(--nebelung-teal);
 }
 
+/* The landing half never carries the `.dark` class and never sets
+   `data-theme` — its dark mode is the media query alone (only /docs has the
+   toggle). So the fork above never fires there, and the landing page's one
+   code block (the haus example on /, Shiki-highlighted at build time) needs
+   the same nebelung values under `prefers-color-scheme`. Scoped to
+   `body:has(.sheet)` so it can only ever match the landing half: a docs page
+   toggled to light keeps its class-keyed fork, untouched by this block. */
+@media (prefers-color-scheme: dark) {
+  body:has(.sheet) {
+    --nb-foreground: var(--nebelung-text);
+    --nb-token-keyword: var(--nebelung-mauve);
+    --nb-token-string: var(--nebelung-green);
+    --nb-token-string-expression: var(--nebelung-green);
+    --nb-token-function: var(--nebelung-blue);
+    --nb-token-constant: var(--nebelung-peach);
+    --nb-token-parameter: var(--nebelung-maroon);
+    --nb-token-comment: var(--nebelung-overlay0);
+    --nb-token-punctuation: var(--nebelung-overlay2);
+    --nb-token-link: var(--nebelung-teal);
+  }
+}
+
 /* A comment is the one token that carries an italic, and nebelung's ramp is
-   where the grey comes from — dim enough to skip, legible enough to read. */
-code .line span[style*='--nb-token-comment'] {
+   where the grey comes from — dim enough to skip, legible enough to read.
+   No `.line` in the selector: the docs' blocks wrap lines in one, the landing
+   example is `structure: 'inline'` and doesn't, and the italic belongs to the
+   token either way. */
+code span[style*='--nb-token-comment'] {
   font-style: italic;
 }
 

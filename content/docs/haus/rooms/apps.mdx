@@ -1,11 +1,11 @@
 ---
 title: Apps
-description: Every app, font and CLI tool on the machine in one list — where each one installs from, what key launches it, and the packs that bring a whole set at once.
+description: "Every app, font and CLI tool on the machine in one list: where each one installs from, what key launches it, and the packs that bring a whole set at once."
 icon: apps
 ---
 
 Sooner or later you want Slack, or Discord, or `ripgrep`. Everything the machine
-has goes in **one list** — `haus.roster` — and you never choose an *option*, only
+has goes in **one list**, `haus.roster`, and you never choose an *option*, only
 which **fields** to set. A field says where the app comes from; another says what
 key launches it; an entry with neither is still a declaration.
 
@@ -13,7 +13,7 @@ The quickest route doesn't involve editing anything: open pounce, run **Install
 App**, and pick from the curated shelf or search Homebrew, the Mac App Store, or
 your flake's pinned nixpkgs. It writes a small Nix module under
 `hosts/<hostname>/packages/`, rebuilds, and commits that one file. There is no
-`roster.json` behind it — the same options you'd have written by hand.
+`roster.json` behind it, just the same options you'd have written by hand.
 
 By hand:
 
@@ -24,7 +24,7 @@ haus rebuild    # build, then switch
 
 ## Enable it
 
-The Apps room is always present — the roster is a list, and an empty one is a
+The Apps room is always present: the roster is a list, and an empty one is a
 machine with nothing extra on it. What you switch on are the curated extras:
 
 ```nix
@@ -35,7 +35,7 @@ haus.appStore.install = true;          # let a rebuild install appStoreId entrie
 
 ## Where it comes from
 
-Four source fields, one per package manager. Set **the one** that applies —
+Four source fields, one per package manager. Set **the one** that applies;
 setting two is a build error:
 
 | Field | Installs from | Example |
@@ -45,7 +45,7 @@ setting two is a build error:
 | `package` | your flake's pinned nixpkgs | `package = pkgs.ripgrep;` |
 | `appStoreId` | the Mac App Store | `appStoreId = 497799835;` |
 
-Set none of them and the entry is pure metadata — right for something already on
+Set none of them and the entry is pure metadata: right for something already on
 the machine (Safari, Music) that you still want a launcher key for.
 
 Don't know a name? `brew search --cask obsidian`, or
@@ -78,18 +78,18 @@ Rebuild, and <kbd>⇪</kbd> then <kbd>S</kbd> lands you on Slack, on workspace
 
 Two fields everybody looks up:
 
-- **`appId`** — the bundle id, which is how windows get sent to the right
+- **`appId`** is the bundle id, which is how windows get sent to the right
   workspace. `osascript -e 'id of app "Slack"'` prints it.
-- **`icon`** — on the *workspace*, not the app: a ligature from the
+- **`icon`** goes on the *workspace*, not the app: a ligature from the
   [SketchyBar app font](https://github.com/kvndrsslr/sketchybar-app-font), like
   `:slack:`. Leave it out and the pill shows the workspace id.
 
-Keeping them apart is what lets one workspace hold several apps — a `comms`
-space with Slack, Mail and Messages — instead of one app per workspace.
+Keeping them apart is what lets one workspace hold several apps (a `comms`
+space with Slack, Mail and Messages) instead of one app per workspace.
 
 ## An app you just want installed
 
-Omit the launcher fields. No letter, no cheatsheet row, no pill — but still
+Omit the launcher fields. No letter, no cheatsheet row, no pill, but still
 **declared**, which is what keeps a later Homebrew cleanup from removing it:
 
 ```nix
@@ -102,7 +102,7 @@ haus.roster = {
 <Callout type="warn" title="Homebrew apps sit outside Nix's time machine">
 Casks are installed *by* the rebuild but aren't in Nix generations, so `haus
 rollback` neither uninstalls an app you added nor restores one you removed.
-Deleting the line doesn't delete the app either — `haus.homebrew.cleanup` is
+Deleting the line doesn't delete the app either; `haus.homebrew.cleanup` is
 `"none"` on purpose. To actually remove one: `brew uninstall --zap <cask>`.
 </Callout>
 
@@ -120,7 +120,7 @@ haus.roster.xcode = {
 haus.appStore.install = true;
 ```
 
-Three limits worth knowing before you rely on it. `mas` **cannot sign in** — do
+Three limits worth knowing before you rely on it. `mas` **cannot sign in**; do
 that once in App Store.app. It **can never buy a paid app**; buy it once, then
 any machine can install it. It **can** fetch a free app you've never had. An
 unpurchased paid app is reported and skipped during a rebuild, never fatal.
@@ -143,8 +143,8 @@ haus.roster = {
 
 `scope` applies to `package` only, and it is about **reach**, not privileges:
 
-- **`"user"`** (default) — your profile. Right for anything you run as yourself.
-- **`"system"`** — machine-wide, so it's on `PATH` for root, launchd jobs and
+- **`"user"`** (default): your profile. Right for anything you run as yourself.
+- **`"system"`**: machine-wide, so it's on `PATH` for root, launchd jobs and
   non-login shells. What a tool called by a daemon actually needs.
 
 To *try* something without installing it, hearth wires up `comma`:
@@ -160,16 +160,16 @@ Reach for it twice and it has earned a roster entry.
 | Field | What it's for |
 |---|---|
 | `key` | The launcher letter, unique across the roster, and not one of launch mode's own: `V` `E` `Z` `,` `` ` `` `-` `=` `/` `1`–`4` `Esc` and the arrows are taken, and a rebuild refuses them. `null` (default) makes the entry install-only. |
-| `name` | The macOS app name — what `open -a` uses. Required when `key` is set. |
+| `name` | The macOS app name, which is what `open -a` uses. Required when `key` is set. |
 | `appId` | The bundle id: auto-assigns windows to a workspace, and matches `float`. |
 | `label` | The cheatsheet caption. `null` uses `name`. |
-| `float` | Keep this app's windows floating instead of tiled — for a picker or status window that would reflow the workspace every time it opens. Needs `appId`. |
+| `float` | Keep this app's windows floating instead of tiled, for a picker or status window that would reflow the workspace every time it opens. Needs `appId`. |
 | `titleRegex` | Scopes `float` to matching window titles instead of every window. |
 | `cask` · `brew` · `package` · `appStoreId` | Where it comes from. One of them, or none. |
 | `scope` | `"user"` (default) or `"system"`, for `package` only. |
 | `order` | Lower numbers appear earlier. |
 | `enable` | `false` disables a default or imported entry by id. |
-| `installedBy` | Set by haus, not by you — for an app copied in by its own activation step, which no source field can describe. |
+| `installedBy` | Set by haus, not by you: for an app copied in by its own activation step, which no source field can describe. |
 
 ## haus's own apps are entries too
 
@@ -187,7 +187,7 @@ gives it a key owns its launcher fields. Two modules never fight over one field,
 and your host file never restates what haus is doing.
 
 A handful of apps arrive because haus *chose* them for you rather than because a
-room needs them — those live in `haus.apps`, each behind one switch:
+room needs them; those live in `haus.apps`, each behind one switch:
 
 ```nix
 haus.apps.videoPlayer.enable = false;          # don't install IINA
@@ -196,13 +196,13 @@ haus.apps.videoPlayer.claimFileTypes = false;  # install it, rebind nothing
 
 What it installs is an ordinary roster entry, so you can key it like any other.
 File-type claims are the same user default Finder's *Get Info ▸ Change All*
-writes, so nothing there is hard to undo — but **only one haus-owned app may
+writes, so nothing there is hard to undo. But **only one haus-owned app may
 claim a type**, or macOS asks you to pick a winner on every rebuild. If you add
 an extension to one list, check it against the other by UTI, not by spelling.
 
 <Callout title="It may theme itself on the way in">
-If the id you key the entry under matches a tool nebelung has a port for — `zed`,
-`warp`, `xcode`, `gitui`, `kitty` and a few dozen more — its theme lands where
+If the id you key the entry under matches a tool nebelung has a port for (`zed`,
+`warp`, `xcode`, `gitui`, `kitty` and a few dozen more), its theme lands where
 that app looks for one on the next rebuild, in your flavor, contrast and accent.
 See [the Appearance room](/docs/haus/rooms/appearance#apps-you-added-yourself).
 </Callout>
@@ -214,24 +214,24 @@ casks install, new tools land on `PATH`, and a new roster app gets its letter,
 workspace and pill together. If it doesn't tile on first launch, tap
 <kbd>⇪</kbd> then <kbd>`</kbd> to re-sort everything.
 
-Your host file is a plain nix-darwin module — anything nix-darwin or
+Your host file is a plain nix-darwin module: anything nix-darwin or
 home-manager accepts works there and merges with haus. The roster is the common
 case, not the only door; [Making it
 yours](/docs/haus/desktops/customizing) is the rest of what that file can say.
 
 ## Works with
 
-- **[Windows](/docs/haus/rooms/windows)** — a roster id named in a workspace
+- **[Windows](/docs/haus/rooms/windows)**: a roster id named in a workspace
   gets that workspace's pill and the rule that sends its windows there.
-- **[Launcher](/docs/haus/rooms/launcher)** — **Install App** writes a roster
+- **[Launcher](/docs/haus/rooms/launcher)**: **Install App** writes a roster
   entry for you and rebuilds, so the common case needs no editor.
-- **[Appearance](/docs/haus/rooms/appearance)** — an app whose id nebelung has a
+- **[Appearance](/docs/haus/rooms/appearance)**: an app whose id nebelung has a
   port for is themed on the next rebuild.
 
 ## Permissions and side effects
 
 `haus.appStore.install` is off by default: it reaches the network and acts on
-your Apple Account, and it can never be complete — `mas` cannot sign in and
+your Apple Account, and it can never be complete: `mas` cannot sign in and
 cannot buy a paid app.
 
 What a rebuild does to apps you *didn't* declare is
@@ -241,7 +241,7 @@ What a rebuild does to apps you *didn't* declare is
 ## Remove it
 
 Delete the roster entry and rebuild. Whether the app itself goes depends on that
-same `cleanup` policy — with the default `"none"` it stays installed and simply
+same `cleanup` policy: with the default `"none"` it stays installed and simply
 stops being declared. A pack switches off as one line.
 
 ## Options
@@ -260,6 +260,6 @@ Every setting, with types and defaults:
     icon={<Icon name="palette" />}
     title="Appearance"
     href="/docs/haus/rooms/appearance"
-    description="One palette across every tool that can take one — including the app you just added."
+    description="One palette across every tool that can take one, including the app you just added."
   />
 </Cards>

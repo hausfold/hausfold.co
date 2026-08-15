@@ -1,6 +1,6 @@
 ---
 title: Displays
-description: Per-screen scaling, said as an intent rather than a pixel count — and addressed by which screen you mean, never by a serial number you'd have to look up twice.
+description: Per-screen scaling, said as an intent rather than a pixel count, and addressed by which screen you mean, never by a serial number you'd have to look up twice.
 icon: display
 ---
 
@@ -29,7 +29,7 @@ Name the screen by what it **is**, not by what it's called today:
 |---|---|
 | `internal` | the built-in panel |
 | `main` | whichever display is currently main |
-| `<uuid>` | one specific external monitor — `hausdisp list` prints the UUIDs of what's attached |
+| `<uuid>` | one specific external monitor; `hausdisp list` prints the UUIDs of what's attached |
 
 ```nix
 haus.displays = {
@@ -56,7 +56,7 @@ rebuild never fails because you left a monitor behind.
 
 ## Works with
 
-- **[the Appearance room](/docs/haus/rooms/appearance)** — `haus.appearance.largePrint`
+- **[the Appearance room](/docs/haus/rooms/appearance)**: `haus.appearance.largePrint`
   sets `displays.main.uiScale` as one of the four levers it pulls, alongside the
   interface scale and the high-contrast palette. Naming a display yourself wins
   over it.
@@ -73,7 +73,7 @@ refused by name.
 
 ## Remove it
 
-Delete the entry and rebuild. The display keeps whatever mode it last had — a
+Delete the entry and rebuild. The display keeps whatever mode it last had: a
 removed entry stops *managing* the screen rather than restoring an earlier
 resolution, so set the position you want explicitly if you want it back.
 

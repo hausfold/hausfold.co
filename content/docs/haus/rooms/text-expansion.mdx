@@ -1,6 +1,6 @@
 ---
 title: Text expansion
-description: Type a short trigger, get the long thing — in any app, terminals and Electron included, from a table you keep in your host file.
+description: Type a short trigger, get the long thing, in any app, terminals and Electron included, from a table you keep in your host file.
 icon: expand
 ---
 
@@ -8,9 +8,9 @@ Type `@@` and get your email address. Type `;addr` and get your postal address.
 The Text expansion room wires up [espanso](https://espanso.org) and keeps the
 table of snippets in the same file as the rest of your machine.
 
-It works where macOS's own text replacement doesn't — terminals and many Electron
-apps — because espanso injects keystrokes rather than relying on the system text
-engine.
+It works where macOS's own text replacement doesn't (terminals and many
+Electron apps), because espanso injects keystrokes rather than relying on the
+system text engine.
 
 ## Enable it
 
@@ -38,15 +38,15 @@ haus.snippets = {
 ```
 
 They're written to `~/.config/espanso/match/default.yml`. Only the plain
-trigger→replace form is exposed here; for **dynamic** matches — dates, shell
-output, forms — drop a hand-written `.yml` beside it in
+trigger→replace form is exposed here; for **dynamic** matches (dates, shell
+output, forms), drop a hand-written `.yml` beside it in
 `~/.config/espanso/match/`. espanso loads every file in that directory, so the
 two live together happily.
 
 <Callout type="warn" title="Your table replaces the desktop's, it doesn't extend it">
 `matches` is one value, not an accumulator: naming it in your host discards
 whatever the desktop set rather than appending to it. If you want the desktop's
-snippets plus your own, restate both — or put yours in a hand-written `.yml`
+snippets plus your own, restate both, or put yours in a hand-written `.yml`
 beside the generated one, where nothing overwrites anything.
 </Callout>
 
@@ -62,7 +62,7 @@ espanso needs a one-time macOS **Accessibility** grant: System Settings ▸ Priv
 
 haus installs the **signed Espanso.app cask** and runs that, rather than a
 nix-store binary, on purpose: the grant is keyed to a stable identity, so it
-survives reboots and nixpkgs bumps. You grant it once, not on every rebuild —
+survives reboots and nixpkgs bumps. You grant it once, not on every rebuild,
 and espanso's own "something is wrong" window stops appearing at login, since
 that window only ever meant the grant went missing.
 
@@ -74,7 +74,7 @@ haus.snippets.enable = false;
 
 The cask is no longer declared and the generated match file stops being written.
 Revoke the Accessibility grant yourself if you want it gone, and remove any
-hand-written `.yml` files you added — haus never wrote those, so it doesn't take
+hand-written `.yml` files you added; haus never wrote those, so it doesn't take
 them away.
 
 ## Options

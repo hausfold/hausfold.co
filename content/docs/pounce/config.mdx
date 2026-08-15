@@ -6,8 +6,8 @@ icon: dials
 
 ## Config file
 
-Pounce reads `~/.config/pounce/config.json`, re-read on every open — no restart
-needed, except for the three things the daemon sets up **at startup**:
+Pounce reads `~/.config/pounce/config.json`, re-read on every open. No restart
+is needed, except for the three things the daemon sets up **at startup**:
 `windows`, `autoQuit`, and the `items` hotkeys. Those are captured when armed
 and need a restart to change:
 
@@ -23,7 +23,7 @@ pounce config print     # …or just look at it, touching nothing
 ```
 
 `init` writes **every** setting at its default, one commented-out line each
-with a sentence above it — nothing changes until you uncomment a line, and you
+with a sentence above it. Nothing changes until you uncomment a line, and you
 make the file minimal by deleting the lines you never touched. It never
 overwrites an existing config (it writes `config.json.new` beside it instead;
 `--force` replaces).
@@ -31,7 +31,7 @@ overwrites an existing config (it writes `config.json.new` beside it instead;
 <Callout type="warn" title="Inside haus, `config init` refuses">
 Your `config.json` is generated from `haus.pounce.*`, and the next rebuild
 would put the generated one straight back. Change it in your host file
-instead — see [the Launcher room](/docs/haus/rooms/launcher).
+instead; see [the Launcher room](/docs/haus/rooms/launcher).
 </Callout>
 
 Comments and trailing commas are fine (JSON5); unknown keys are ignored, so an
@@ -43,7 +43,7 @@ older Pounce never chokes on a config written by a newer one.
   "themeLight": "nebelung-latte",  // used in macOS Light Mode
   "themeDark": "nebelung",         // used in macOS Dark Mode
   "windowMode": "default",   // "default" (720px) or "compact" (600px, tighter)
-  "scale": 1.0,              // 0.8-2.0 — how big the whole UI is drawn
+  "scale": 1.0,              // 0.8-2.0: how big the whole UI is drawn
   "hotkey": {
     "enabled": true,
     "key": "space",          // "space", "return", "tab", "escape", "a"–"z", "0"–"9"
@@ -63,7 +63,7 @@ older Pounce never chokes on a config written by a newer one.
     "maxResults": 60
   },
   "apps": {
-    "demoteBundleIds": [],   // sink these below everything else — REPLACES a built-in list of Apple utilities (Feedback Assistant, Audio MIDI Setup, …)
+    "demoteBundleIds": [],   // sink these below everything else; REPLACES a built-in list of Apple utilities (Feedback Assistant, Audio MIDI Setup, …)
     "hideBundleIds": []      // drop these from the list entirely
   },
   "windows": {
@@ -76,20 +76,20 @@ older Pounce never chokes on a config written by a newer one.
     "delay": 2,
     "exclude": ["com.apple.finder"]  // REPLACES the default, doesn't extend it
   },
-  "items": {                 // per-item enable / alias / hotkey — see below
+  "items": {                 // per-item enable / alias / hotkey, see below
     "cmd:emoji": { "alias": "emo", "hotkey": "opt+space e" }
   }
 }
 ```
 
 `quickAnswers.currency` and `updates.check` are the only two settings that
-touch the network — set both `false` for a fully offline Pounce.
+touch the network; set both `false` for a fully offline Pounce.
 `autoQuit.enabled` and `windows.enabled` turn on [the two opt-in
 behaviours](/docs/pounce/beyond-launching); both blocks are startup-only, so
 **any** edit inside them needs the daemon restart above, not just flipping
 `enabled`.
 
-`windowMode` and `scale` are independent knobs — proportions vs. size — and
+`windowMode` and `scale` are independent knobs (proportions vs. size) and
 they compose: a compact launcher at `1.4` is still the compact layout, just
 bigger. Values outside 0.8–2.0 clamp rather than reject. On haus, `scale` is
 written for you from `haus.ui.scale`.
@@ -101,7 +101,7 @@ shows on the next summon; either falls back to `theme`, and `theme` alone pins
 one palette for both modes.
 
 Any `theme` value that isn't built-in resolves to
-`~/.config/pounce/themes/<name>.json` — a flat catppuccin-style `name → "#hex"`
+`~/.config/pounce/themes/<name>.json`: a flat catppuccin-style `name → "#hex"`
 map ([nebelung's](https://github.com/hausfold/nebelung) `palette/*.hex.json`
 files verbatim), which is how a desktop's `theme.flavor` / `theme.contrast`
 reach Pounce without a rebuild:
@@ -115,14 +115,14 @@ curl -fsSLo ~/.config/pounce/themes/nebelung-latte.json \
 
 ## Per-item settings (`items`)
 
-One map for what you'd otherwise want three keys — hide a row, give it a search
+One map for what you'd otherwise want three keys: hide a row, give it a search
 shorthand, give it a global key. Each entry is keyed by an **item key**:
 
 | Item key | Addresses |
 |---|---|
 | `cmd:<id>` | a command script, by filename without `.sh` |
 | `app:/Applications/Foo.app` | an application, by path |
-| `mode:<name>` | a built-in window — `launcher`, `clipboard`, `emoji`, `screenshots`, `camera`, `filesearch` |
+| `mode:<name>` | a built-in window: `launcher`, `clipboard`, `emoji`, `screenshots`, `camera`, `filesearch` |
 
 ```jsonc
 {
@@ -135,14 +135,14 @@ shorthand, give it a global key. Each entry is keyed by an **item key**:
 }
 ```
 
-`enabled: false` drops the row without disarming a hotkey bound to it — keeping
+`enabled: false` drops the row without disarming a hotkey bound to it; keeping
 an item off the list but on a key is a legitimate setup. `alias` is a search
 shorthand that wins over whatever app fuzzy-matches the same letters. `hotkey`
 runs the item directly, skipping the palette: the last segment is the key, the
 rest modifiers, and the object form `{"key": …, "modifiers": …}` works too.
 
-The laptop **Fn/Globe key** is a one-step special case —
-`"mode:emoji": { "hotkey": "fn" }` — using a keyboard event tap that needs
+The laptop **Fn/Globe key** is a one-step special case
+(`"mode:emoji": { "hotkey": "fn" }`), using a keyboard event tap that needs
 Accessibility, firing only on a lone tap so Fn combinations keep working.
 `"globe"` / `"function"` are accepted aliases; haus binds emoji to it by
 default, and `haus.pounce.items."mode:emoji".hotkey = null` leaves Globe
@@ -150,12 +150,12 @@ native.
 
 ### Leader sequences
 
-Add a space for a two-step key — `"opt+space e"` is ⌥Space then E, the
+Add a space for a two-step key: `"opt+space e"` is ⌥Space then E, the
 Emacs/VS Code notation. Sequences sharing a leader share it (⌥Space registers
 once), and can run longer than two steps.
 
 The payoff on a tiling setup: a leader can't collide with the ⌥/⌘ chords a
-window manager already owns, and it needs **no Accessibility grant** — pressing
+window manager already owns, and it needs **no Accessibility grant**: pressing
 it grabs the next-step keys as ordinary global hotkeys for ~2s and releases
 them the instant one fires. Escape cancels; hesitate ~0.45s and a which-key
 overlay lists the next keys. `pounce doctor` reports every binding it actually

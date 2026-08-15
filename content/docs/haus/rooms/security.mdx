@@ -1,11 +1,11 @@
 ---
 title: Security
-description: Touch ID for sudo — even inside a multiplexer — plus lock behaviour, the firewall, and where this machine gets its secrets.
+description: Touch ID for sudo, even inside a multiplexer, plus lock behaviour, the firewall, and where this machine gets its secrets.
 icon: shield
 ---
 
-**collar** is the small auth room: it turns on **Touch ID for `sudo`**, and —
-the part stock Touch-ID-for-sudo gets wrong — makes that work **inside a
+**collar** is the small auth room: it turns on **Touch ID for `sudo`**, and
+(the part stock Touch-ID-for-sudo gets wrong) makes that work **inside a
 terminal multiplexer** like zellij or tmux, where it would otherwise silently
 fail.
 
@@ -24,7 +24,7 @@ security.pam.services.sudo_local.reattach   = true;    # make it work in tmux/ze
 ```
 
 `reattach` pulls in [`pam_reattach`](https://github.com/fabianishere/pam_reattach),
-which reattaches the sudo process to your GUI login session — without it,
+which reattaches the sudo process to your GUI login session. Without it,
 `sudo` inside a multiplexer detaches from Aqua and the Touch ID prompt just
 beachballs. Cancel the prompt and it falls back to a typed password.
 
@@ -37,17 +37,17 @@ from authentication entirely:
 ```
 
 Activating a build is the one privileged thing this desktop does constantly,
-and a prompt per rebuild buys nothing — you already authenticated to *build*
+and a prompt per rebuild buys nothing: you already authenticated to *build*
 it. `darwin-rebuild` is the classic route (and the only one for `haus
 rollback`); `haus-activate` is the faster path `haus rebuild` and `bench try
 switch` take, building as you and handing the result to root without a
 second evaluation. Neither is a wider grant than `darwin-rebuild switch
---flake <anything>` already was — `haus.collar.passwordlessRebuild = false`
+--flake <anything>` already was; `haus.collar.passwordlessRebuild = false`
 drops both.
 
 <Callout type="warn" title="Why the stable path, not the store path">
 macOS 26.6 shipped sudo 1.9.17, which stopped dereferencing a command's
-symlink before matching sudoers — a rule against a `/nix/store/…` path only
+symlink before matching sudoers: a rule against a `/nix/store/…` path only
 matches if you type that literal path, which nobody does. Matching
 `/run/current-system/sw/bin/darwin-rebuild` is what survives a rebuild.
 </Callout>
@@ -55,13 +55,13 @@ matches if you type that literal path, which nobody does. Matching
 <Callout title="Yes, it works inside zellij">
 Type `sudo -v` in a zellij pane and the Touch ID dialog floats up right over
 the multiplexer. Touch the sensor, no password typed. (`darwin-rebuild` is
-the happy exception — it doesn't even ask.)
+the happy exception; it doesn't even ask.)
 </Callout>
 
 ## What it does *not* do
 
 collar stays out of key management. **YubiKey and GPG** live outside Nix
-entirely — key material, smartcard setup, and `pinentry` are handled by
+entirely: key material, smartcard setup, and `pinentry` are handled by
 `gpg-agent` + `pinentry-mac` at runtime, keeping secrets off the Nix store.
 Commit signing itself is wired up in [the Development room](/docs/haus/rooms/development)
 from `haus.git.signingKey`; collar only handles `sudo` authentication.
@@ -89,14 +89,14 @@ haus.secrets.provider = "keychain";      # where secret values come from
 ```
 
 The firewall is off on a fresh Mac; it is the setting to turn on for a laptop
-that joins networks you don't own. Secrets themselves never live in your config —
-haus declares which exist and fetches them at runtime.
+that joins networks you don't own. Secrets themselves never live in your
+config; haus declares which exist and fetches them at runtime.
 
 ## Works with
 
-- **[Development](/docs/haus/rooms/development)** — commit signing is configured
+- **[Development](/docs/haus/rooms/development)**: commit signing is configured
   there; this room is what stops `sudo` asking for a password.
-- **[AI](/docs/haus/rooms/ai)** — `passwordlessRebuild` is what lets an agent
+- **[AI](/docs/haus/rooms/ai)**: `passwordlessRebuild` is what lets an agent
   run `haus rebuild` end to end without a prompt it can't answer.
 
 ## Remove it
@@ -106,7 +106,7 @@ haus.collar.enable = false;
 ```
 
 `sudo` goes back to the password prompt. The firewall and lock settings stop
-being written but keep whatever value they last had — unsetting an option stops
+being written but keep whatever value they last had: unsetting an option stops
 managing a macOS setting rather than restoring the one before it.
 
 `haus.secrets.provider` is host-only: where a machine keeps its secrets is a

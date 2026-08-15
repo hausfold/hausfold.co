@@ -19,11 +19,11 @@ import { pageMetadata } from '@/lib/page-meta';
 // neither. Anything that is only ever *read* rather than *pitched* belongs in
 // the tree alone.
 export const metadata = pageMetadata({
-  title: 'perch — hausfold',
+  title: 'perch · hausfold',
   description:
     "A shelf that drops out of the notch to catch whatever you're dragging. Pile things in, carry them out in one motion. Native, quiet, and it never touches your originals.",
   path: '/perch/',
-  ogTitle: 'perch — A shelf in the notch.',
+  ogTitle: 'perch · A shelf in the notch.',
   ogDescription:
     'Start dragging, flick up to the notch, and a shelf drops down to catch it. Pile in as much as you like, then carry the lot somewhere else in one motion.',
 });
@@ -44,7 +44,7 @@ export default function Perch() {
           <p>
             Perch ends it. Start dragging <strong>anything</strong>, flick up to the notch, and a
             small shelf drops down to catch it. Pile in as much as you like, from as many places as
-            you like — then grab any tile and carry the whole group to its real home in one motion.
+            you like. Then grab any tile and carry the whole group to its real home in one motion.
           </p>
           <p>
             It has no Dock icon and asks for no permissions. It sees what you drop on it, and
@@ -63,7 +63,7 @@ export default function Perch() {
               next/link would try to client-navigate to a page the router has
               never heard of. Internal-but-not-a-route is the one case where
               the <Link> rule doesn't apply. */}
-          The <a href="/download/perch">latest release</a> is the same build — signed with our Apple
+          The <a href="/download/perch">latest release</a> is the same build, signed with our Apple
           Developer ID and notarized, so it opens straight away with no Gatekeeper prompt and no
           quarantine hack.
         </p>
@@ -73,8 +73,8 @@ export default function Perch() {
         <h2>One setting to turn off</h2>
         <p>
           In System Settings ▸ Desktop &amp; Dock, turn <em>off</em> “Drag windows to top of screen
-          to enter Mission Control”. macOS arms that top-edge trigger for the whole of any drag —
-          files included — and it fires over the same band the shelf lives in. Leave it on and the
+          to enter Mission Control”. macOS arms that top-edge trigger for the whole of any drag,
+          files included, and it fires over the same band the shelf lives in. Leave it on and the
           Dock steals the drop. It&apos;s the only thing perch asks of your Mac.
         </p>
       </section>
@@ -124,7 +124,7 @@ export default function Perch() {
           <dt>copies</dt>
           <dd>
             perch stages its own copy and hands out copies. It never moves, renames, edits or
-            deletes the thing you dropped in — an interrupted drag cannot lose data
+            deletes the thing you dropped in, so an interrupted drag cannot lose data
           </dd>
 
           <dt>patience</dt>
@@ -143,7 +143,7 @@ export default function Perch() {
           <dd>
             the only thing perch sends to the internet is an hourly look at its own release tag, and
             Settings turns that off. It also listens on your own network for an iPhone you paired
-            yourself — encrypted end to end, and off in Settings if you don&apos;t want it
+            yourself: encrypted end to end, and off in Settings if you don&apos;t want it
           </dd>
         </dl>
       </section>
@@ -153,13 +153,13 @@ export default function Perch() {
         <dl className="facts">
           <dt>macOS 14</dt>
           <dd>
-            or newer. A notch is nice, not required — the shelf works on any Mac and on any display
+            or newer. A notch is nice, not required: the shelf works on any Mac and on any display
           </dd>
 
           <dt>nothing else</dt>
           <dd>
             no account and no sign-in. Perch asks for none of the permissions that make a Mac app
-            feel invasive — no Accessibility, no Input Monitoring, no Screen Recording
+            feel invasive: no Accessibility, no Input Monitoring, no Screen Recording
           </dd>
         </dl>
         <p className="aside">
@@ -176,7 +176,7 @@ export default function Perch() {
           <dd>
             every line of perch is public and readable on GitHub, and each release becomes
             Apache-2.0 two years after it ships. Until then you may read it, change it and build it
-            for yourself — what you may not do is turn it into a competing product or hand out your
+            for yourself. What you may not do is turn it into a competing product or hand out your
             own builds of it. That&apos;s <a href="https://fsl.software">fair source</a>, and
             it&apos;s the honest version of “mostly open”
           </dd>
@@ -205,20 +205,20 @@ export default function Perch() {
           <li>
             <Link className="index-name" href="/docs/perch">
               the perch docs
-            </Link>{' '}
-            — the shelf in full: what it catches, what it keeps, every setting.
+            </Link>
+            , the shelf in full: what it catches, what it keeps, every setting.
           </li>
           <li>
             <a className="index-name" href="https://github.com/hausfold/perch">
               github.com/hausfold/perch
-            </a>{' '}
-            — the source, the changelog, and where to file a bug.
+            </a>
+            , the source, the changelog, and where to file a bug.
           </li>
           <li>
             <Link className="index-name" href="/perch/privacy">
               privacy
-            </Link>{' '}
-            — the whole policy, which is shorter than this page.
+            </Link>
+            , the whole policy, which is shorter than this page.
           </li>
         </ul>
       </section>
@@ -227,7 +227,7 @@ export default function Perch() {
           retention off by default and made Clear ask first, so this page can
           say what the shelf does instead of the general promise every other
           colophon makes. */}
-      <Colophon note="Your originals are never moved, renamed or touched, and nothing leaves the shelf on its own — clearing it asks first, and the expiry timer is off unless you turn it on. That's the intent, not a warranty.">
+      <Colophon note="Your originals are never moved, renamed or touched, and nothing leaves the shelf on its own: clearing it asks first, and the expiry timer is off unless you turn it on. That's the intent, not a warranty.">
         <Link href="/terms">terms</Link>
         <Link href="/refunds">refunds</Link>
       </Colophon>

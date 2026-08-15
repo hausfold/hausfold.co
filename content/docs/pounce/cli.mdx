@@ -1,6 +1,6 @@
 ---
 title: CLI reference
-description: Every pounce flag and subcommand — the palette, the built-in windows, pickers, drafts, transforms and housekeeping.
+description: "Every pounce flag and subcommand: the palette, the built-in windows, pickers, drafts, transforms and housekeeping."
 icon: terminal
 ---
 
@@ -12,7 +12,7 @@ pounce -i "sf.symbol.name"        # icon for the picker
 pounce -p "Search:" --chain       # picker whose free-text Enter feeds another pounce step
 pounce run cmd:emoji              # run one item by its key (for external binders)
 
-# built-in windows — items, not flags
+# built-in windows (items, not flags)
 pounce run mode:clipboard         # clipboard history
 pounce run mode:emoji             # emoji + symbols picker
 pounce run mode:screenshots       # screenshot browser
@@ -56,7 +56,7 @@ pounce --help / --version
 | `config print` / `config init` | Print the annotated config, or write one |
 | `doctor` | Report the daemon, the grant, and every binding actually armed |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
-| `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear` — files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
+| `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear`. Files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
 
 ## Homebrew binaries
 
@@ -64,7 +64,7 @@ pounce --help / --version
 launcher wrapper, for binding a hotkey externally), and one `pounce-<command>`
 wrapper per built-in on your `PATH`.
 
-Inside haus, set the palette up via `haus.pounce` instead — the module handles
+Inside haus, set the palette up via `haus.pounce` instead; the module handles
 the daemon, the hotkey, and permission survival for you.
 
 <Cards>
@@ -78,6 +78,6 @@ the daemon, the hotkey, and permission survival for you.
     icon={<Icon name="dials" />}
     title="Config reference"
     href="/docs/pounce/config"
-    description="The file side of the same surface — every key, and the three blocks that need a restart."
+    description="The file side of the same surface: every key, and the three blocks that need a restart."
   />
 </Cards>

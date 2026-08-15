@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: `%s · ${appName}`,
     default: `${appName} docs`,
   },
-  description: 'Documentation for haus — the macOS layer — and the desktops built on it.',
+  description: 'Documentation for haus, the macOS layer, and the desktops built on it.',
   // `en_US`, not `en`: `og:locale` wants language_TERRITORY, which is what all
   // eight hand-written pages sent and what `src/lib/page-meta.ts` keeps
   // sending. This said `en` while the two halves were separate documents; one

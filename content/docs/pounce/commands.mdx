@@ -4,7 +4,7 @@ description: What ships in the palette out of the box, the plugin shelf that's o
 icon: launcher
 ---
 
-A command is a shell script, and everything in this page is one — including
+A command is a shell script, and everything in this page is one, including
 every built-in. There is no privileged tier: read any of them, copy one, or
 replace it with your own.
 
@@ -14,18 +14,18 @@ Out of the box: **Activity Monitor**, **Brew Services**, **Camera**,
 **Capitalize** / **Lowercase** (rewrite the text selected in *any* app),
 **Clipboard History**, **Emoji & Symbols**, **Find Files**, **Force Quit**,
 **Lock Screen**, **Ports**, **Report Pounce Issue**, **Screenshots**, and
-**System Settings** — where every pane is its own command, so "Displays" goes
+**System Settings**, where every pane is its own command, so "Displays" goes
 to Displays rather than to the Settings window.
 
 On a Homebrew install there is one more: **Update Pounce**, which self-updates
 in place. `brew upgrade pounce` on Homebrew, an in-place swap when the app was
-dragged to `/Applications`, or a nudge to `haus update` on Nix and haus — since
+dragged to `/Applications`, or a nudge to `haus update` on Nix and haus, since
 the next rebuild would revert an in-place update anyway.
 
 ## Two-step commands
 
-Some commands open a second picker instead of acting immediately — **Brew
-Services** lists services, **Force Quit** lists processes — and Pounce swaps the
+Some commands open a second picker instead of acting immediately (**Brew
+Services** lists services, **Force Quit** lists processes), and Pounce swaps the
 list **in place**, with no window flicker. That is not a special capability;
 it's a script calling `pounce` again. See [writing your own
 command](/docs/pounce/writing-commands#submenus-and-chaining).
@@ -53,7 +53,7 @@ On Nix, enable by id:
 pounce-commands.override { plugins = [ "docker" "ssh" ]; }
 ```
 
-Off Nix, every plugin is still just one script — copy it from
+Off Nix, every plugin is still just one script: copy it from
 [`pkgs/pounce-commands/optional/`](https://github.com/hausfold/pounce/tree/main/pkgs/pounce-commands/optional)
 into `~/.config/pounce/commands/` and it is live on the next ⌘Space.
 
@@ -61,14 +61,14 @@ into `~/.config/pounce/commands/` and it is live on the next ⌘Space.
 
 Later sources **shadow** earlier ones by filename, so yours always win:
 
-1. `$POUNCE_BUILTIN_DIR` — the built-ins that ship with the package
-2. `$POUNCE_EXTRA_COMMAND_DIRS` (colon-separated) — layers added by Nix consumers like haus
-3. `$POUNCE_COMMAND_PATH` (colon-separated) — ad-hoc extra directories
-4. `~/.config/pounce/commands` — **yours**, highest precedence
+1. `$POUNCE_BUILTIN_DIR`: the built-ins that ship with the package
+2. `$POUNCE_EXTRA_COMMAND_DIRS` (colon-separated): layers added by Nix consumers like haus
+3. `$POUNCE_COMMAND_PATH` (colon-separated): ad-hoc extra directories
+4. `~/.config/pounce/commands`: **yours**, highest precedence
 
 <Callout type="info" title="Override a built-in">
 Want to change what "Lock Screen" does? Drop your own `lock.sh` in
-`~/.config/pounce/commands/` with the same filename — yours takes over.
+`~/.config/pounce/commands/` with the same filename, and yours takes over.
 </Callout>
 
 A non-`.sh` file (a `.tsv` or `.json` data catalog) is ignored wherever it
@@ -78,7 +78,7 @@ subdirectory (e.g. `data/`), which Pounce doesn't descend into.
 ## Hiding, renaming and binding a row
 
 Any command, app or built-in mode can be dropped from the list, given a search
-shorthand, or given a global key of its own — one map, in
+shorthand, or given a global key of its own, all in one map, in
 [config](/docs/pounce/config#per-item-settings-items):
 
 ```jsonc
@@ -101,6 +101,6 @@ shorthand, or given a global key of its own — one map, in
     icon={<Icon name="dials" />}
     title="Config reference"
     href="/docs/pounce/config"
-    description="Every key in config.json — including the per-item map that hides, aliases and binds any row."
+    description="Every key in config.json, including the per-item map that hides, aliases and binds any row."
   />
 </Cards>

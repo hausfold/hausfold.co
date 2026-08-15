@@ -13,9 +13,9 @@ import styles from './privacy.module.css';
 //
 // The layout is this page's own; see `privacy.module.css`.
 export const metadata = pageMetadata({
-  title: 'perch — privacy',
+  title: 'perch · privacy',
   description:
-    "Perch's privacy policy: no account, no analytics, no data collected — nothing leaves your Mac except to a device you paired yourself.",
+    "Perch's privacy policy: no account, no analytics, no data collected. Nothing leaves your Mac except to a device you paired yourself.",
   path: '/perch/privacy/',
 });
 
@@ -28,7 +28,7 @@ export default function Privacy() {
         </div>
         <h1>Privacy</h1>
         <p className="standfirst">
-          Perch does not collect data. Not some, not anonymized, not aggregated — none.
+          Perch does not collect data. Not some, not anonymized, not aggregated. None.
         </p>
       </header>
 
@@ -50,7 +50,7 @@ export default function Privacy() {
           <li>No account, no email, no sign-in of any kind.</li>
           <li>No analytics SDK and no crash reporter.</li>
           <li>
-            No network destination other than a device you paired by hand — Perch never talks to a
+            No network destination other than a device you paired by hand. Perch never talks to a
             server we run, because we don&apos;t run one.
           </li>
           <li>
@@ -65,7 +65,7 @@ export default function Privacy() {
         <p>
           Nothing, unless you pair a phone to a Mac yourself. From that point on, files you place on
           the shelf travel directly between that Mac and that phone, encrypted end to end (X25519
-          key agreement, ChaCha20-Poly1305). We — hausfold — never see them, never hold a copy, and
+          key agreement, ChaCha20-Poly1305). We (hausfold) never see them, never hold a copy, and
           have no way to.
         </p>
       </section>
@@ -73,8 +73,8 @@ export default function Privacy() {
       <section>
         <h2>Changes</h2>
         <p>
-          If this ever stops being true — if a future version adds a server, an account, or any form
-          of collection — this page will say so before that version ships, not after.
+          If this ever stops being true, because a future version adds a server, an account, or any
+          form of collection, this page will say so before that version ships, not after.
         </p>
       </section>
 
