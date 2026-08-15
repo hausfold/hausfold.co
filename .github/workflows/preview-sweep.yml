@@ -1,0 +1,216 @@
+# Reap preview Workers whose PR is closed.
+#
+# `preview.yml`'s own `cleanup` job is the first line and stays the fast one —
+# it deletes within seconds of a close. It is not, however, reliable. Two of
+# its three failure modes were found live on 2026-08-15, with four leaked
+# Workers on the account across this repo and hausfold/workshop (that repo's
+# rename plan, §5.3, carries the write-up):
+#
+#   1. The `paths:` filter is evaluated against the PR's whole diff, so a PR
+#      that touched a matching path in an early push and not in its final diff
+#      *deploys* a preview and then never fires the `closed` event that would
+#      delete it.
+#   2. A PR closed in the same operation that deletes its head branch gets no
+#      `closed` run at all — there is no ref left to run the workflow from.
+#      `hausfold-pr-22` leaked that way, closed 2026-08-12T19:52:08Z.
+#   3. The third is the one `preview.yml`'s own comment already names: a closed
+#      PR never re-fires the event, so a transient delete failure leaks the
+#      Worker until someone re-runs the job by hand. Nobody re-runs a job on a
+#      closed PR.
+#
+# None of the three is fixable inside a `pull_request`-triggered workflow: two
+# are the trigger not firing, and the third is it firing exactly once. So this
+# one asks the other question — "which Workers exist, and is their PR still
+# open?" — on a schedule, from state rather than from an event.
+#
+# Why it matters beyond tidiness: a preview Worker is public. Every one is
+# `workers_dev = true` by design, so a leaked preview keeps serving whatever
+# that PR's build did, forever, on a URL nobody is watching. `hausfold-pr-16`
+# and `-22` were still serving the site as it stood on 2026-08-12; over on
+# nebelhaus.com the same leak was worse, because those previews predated the
+# 301 map and were still honouring an arbitrary `?ref=` against
+# raw.githubusercontent.
+#
+# Scope: this repo's own preview prefix and nothing else. `hausfold-pr-<n>` is
+# the only name shape it will delete — the production `hausfold` Worker cannot
+# match, and neither can the workshop's `nebelhaus-pr-<n>` previews, which that
+# repo sweeps itself.
+name: Sweep stale hausfold.co previews
+
+on:
+  schedule:
+    - cron: '47 4 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List what would be deleted without deleting it'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: preview-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    # A fork with Actions on would run this cron with empty secrets and go red
+    # daily. Both of preview.yml's jobs carry the same shape of guard.
+    if: github.repository == 'hausfold/hausfold.co'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Reap previews whose PR is closed
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PREFIX: hausfold-pr-
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          summarise() { printf '%s\n' "$1" >> "$GITHUB_STEP_SUMMARY"; }
+
+          api='https://api.cloudflare.com/client/v4/accounts'
+          scripts=$(curl -sS --retry 3 --retry-connrefused --max-time 30 \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "${api}/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts?per_page=100")
+
+          # ⚠️ The list is the one call nothing else in this repo makes. The
+          # shared token is provisioned for Workers Scripts:Edit and DNS:Edit;
+          # Read comes with Edit on Cloudflare's own scope table, but that is
+          # inference until the first run, which is why this fails loudly and
+          # names the scope rather than treating an error envelope as "clean".
+          if [ "$(printf '%s' "$scripts" | jq -r '.success')" != "true" ]; then
+            printf '%s\n' "$scripts"
+            echo "::error::Could not list Workers — the token needs Workers Scripts:Read."
+            exit 1
+          fi
+
+          # A truncated list is the one failure this job could not survive: the
+          # leaks past the end are invisible and it still reports clean, which
+          # is precisely the "reports clean forever" shape it exists to end.
+          # The account held six scripts on 2026-08-15 and this endpoint
+          # answered in one page — so rather than page it speculatively, refuse
+          # to run the day that stops being true.
+          total=$(printf '%s' "$scripts" | jq -r '.result_info.total_count // (.result | length)')
+          got=$(printf '%s' "$scripts" | jq -r '.result | length')
+          if [ "$total" != "$got" ]; then
+            echo "::error::Workers list is paginated ($got of $total) — this job would sweep only the first page. Add a cursor."
+            exit 1
+          fi
+
+          # Anchored at both ends, and built without interpolating $PREFIX into
+          # a regex: the prefix is meant to be swapped per repo, and a `.` in a
+          # future one would silently become a wildcard. An unanchored match
+          # would put the production Worker one careless rename away from being
+          # swept.
+          names=$(printf '%s' "$scripts" | jq -r --arg p "$PREFIX" '
+            .result[].id
+            | select(startswith($p))
+            | select(.[($p | length):] | test("^[0-9]+$"))')
+
+          if [ -z "$names" ]; then
+            echo "No ${PREFIX}* Workers on the account — nothing to sweep."
+            # Write it even here: a job that summarises nothing reads the same
+            # as a job that never ran.
+            summarise '### hausfold.co preview sweep'
+            summarise ''
+            summarise 'No previews on the account at all.'
+            exit 0
+          fi
+
+          leaked=0
+          failed=0
+          err=$(mktemp)
+          for name in $names; do
+            pr=${name#"$PREFIX"}
+            # `|| echo missing` would be the short spelling and it is the
+            # dangerous one: it collapses a 502, a rate limit or a token blip
+            # into the same answer as a real 404, and `missing` falls straight
+            # through to the delete. One transient GitHub error would then take
+            # out an *open* PR's preview, which a plain push does not rebuild
+            # (the paths filter may no longer match). So only a genuine 404
+            # counts as gone; anything else fails this Worker and leaves it be.
+            if ! state=$(gh api "repos/${REPO}/pulls/${pr}" --jq '.state' 2>"$err"); then
+              if grep -q '(HTTP 404)' "$err"; then
+                # The Worker outlived the PR record itself.
+                state=missing
+              else
+                cat "$err"
+                echo "::error::Could not read PR #$pr — leaving $name alone."
+                failed=$((failed + 1))
+                continue
+              fi
+            fi
+            if [ "$state" = "open" ]; then
+              echo "  keep   $name (PR #$pr is open)"
+              continue
+            fi
+            leaked=$((leaked + 1))
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "  would delete $name (PR #$pr is $state)"
+              continue
+            fi
+            set +e
+            resp=$(curl -sS --retry 3 --retry-connrefused --max-time 30 \
+              -w '\n%{http_code}' -X DELETE \
+              "${api}/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${name}?force=true" \
+              -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+            curl_status=$?
+            set -e
+            if [ "$curl_status" -ne 0 ]; then
+              echo "::error::curl exited $curl_status deleting $name — it may still exist."
+              failed=$((failed + 1))
+              continue
+            fi
+            code=$(printf '%s' "$resp" | tail -n1)
+            body=$(printf '%s' "$resp" | sed '$d')
+            # Same envelope-or-status-code reading as preview.yml's cleanup:
+            # Cloudflare documents this endpoint as returning no body on
+            # success while also showing an envelope example, so trusting
+            # either alone gets a green delete wrong.
+            #
+            # `grep -q … && ok=1` would be shorter and would exit the job under
+            # `set -e` on the first non-match, so each test gets an `if`.
+            ok=0
+            if printf '%s' "$body" | grep -q '"success": *true'; then ok=1; fi
+            # 10007 = no such Worker. Something else won the race; that is the
+            # outcome this job wanted.
+            if printf '%s' "$body" | grep -q '"code": *10007'; then ok=1; fi
+            if [ -z "$(printf '%s' "$body" | tr -d '[:space:]')" ]; then
+              case "$code" in 2*|404) ok=1 ;; esac
+            fi
+            if [ "$ok" -eq 1 ]; then
+              echo "  DELETED $name (PR #$pr is $state)"
+            else
+              printf '%s\n' "$body"
+              echo "::error::Could not delete $name (HTTP $code)."
+              failed=$((failed + 1))
+            fi
+          done
+
+          summarise '### hausfold.co preview sweep'
+          summarise ''
+          if [ "$leaked" -eq 0 ]; then
+            summarise 'No stale previews — every one belongs to an open PR.'
+          elif [ "$DRY_RUN" = "true" ]; then
+            summarise "$leaked stale preview(s) found; dry run, nothing deleted."
+          else
+            summarise "$leaked stale preview(s) reaped."
+          fi
+          if [ "$failed" -ne 0 ]; then
+            summarise ''
+            summarise "$failed Worker(s) could not be judged or deleted — see the log."
+          fi
+
+          # A leak found here is a `closed` cleanup that did not run, which is
+          # worth seeing rather than silently absorbing — but it is not a
+          # failure, since the sweep just fixed it. Only a failed delete, or a
+          # PR whose state could not be read, is.
+          [ "$failed" -eq 0 ]

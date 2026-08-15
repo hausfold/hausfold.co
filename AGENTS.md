@@ -1258,6 +1258,19 @@ repo is public, so the preview URL is no longer the *first* place a draft
 leaks); and it is *not* a staging environment — nothing about the preview
 existing makes the merge safe, it just lets you look.
 
+⚠️ **"Deleted when it closes" is the intent, and it misses.** Two ways, both of
+them the `pull_request` trigger not firing rather than `preview.yml`'s cleanup
+job failing: a PR whose final diff no longer touches a `paths:` entry never
+fires `closed` at all, and a PR closed in the same operation that deletes its
+head branch leaves no ref to run the job from. Four leaked previews were found
+across this repo and the workshop on 2026-08-15, still serving copy from
+2026-08-12. **`.github/workflows/preview-sweep.yml`** is the backstop: a daily
+cron (plus `gh workflow run preview-sweep.yml -f dry_run=true`) that lists the
+account's Workers, asks GitHub whether each `hausfold-pr-<n>`'s PR is still
+open, and deletes the ones that aren't. So a preview URL you handed someone
+lives at most a day past the close, not forever — but it is still public until
+the sweep runs.
+
 `npm ci && npm run build && npx wrangler deploy` by hand uses your own OAuth
 session and is fine for a fix that can't wait. **The build half is not
 optional**: `[assets] directory` is `./out`, which is generated and gitignored,
