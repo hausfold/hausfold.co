@@ -1,0 +1,82 @@
+---
+title: What perch is
+description: A shelf that drops out of the notch mid-drag to catch whatever you're carrying. Native, quiet, and it never touches your originals.
+icon: compass
+---
+
+You know the dance: drag a file, realise the window you wanted is buried under
+four others, let go, dig it out, drag again.
+
+**perch** ends it. Start dragging **anything**, flick up to the notch, and a
+small shelf drops down to catch it. Pile in as much as you like, from as many
+places as you like — then grab any tile and carry the whole group to its real
+home in one motion.
+
+It has no Dock icon and asks for no permissions. It sees what you drop on it,
+and nothing else.
+
+These pages are the manual. [The perch page](/perch) is the short version — one
+screen, the dance, and the install command.
+
+## What it holds
+
+Files, folders, Photos exports, images dragged out of Safari, links and plain
+text all land in the same shelf. Take one tile or grab the stack and take the
+lot; whatever the destination accepts leaves the shelf, and a refused drop
+springs back.
+
+**It hands out copies.** perch stages its own copy of whatever you drop and
+hands out copies of that — it never moves, renames, edits or deletes the thing
+you dragged in, so an interrupted drag cannot lose data. A tile only appears
+once its copy has finished, so nothing on the shelf is half-written and quitting
+doesn't lose it.
+
+## What it doesn't do
+
+- **No permissions.** No Accessibility, no Input Monitoring, no Screen
+  Recording, no Dock icon.
+- **No telemetry.** Nothing about your files is ever written to a log.
+- **Nearly offline.** The only thing perch sends to the internet is an hourly
+  look at its own release tag, and Settings turns that off. It also listens on
+  your own network for an iPhone you paired yourself — encrypted end to end, and
+  off in Settings if you don't want it.
+
+## Questions
+
+**Where do my files live?** Where they already were. perch keeps its copies
+inside its own sandbox container, and it only ever knows about the things you
+dragged onto it. The [privacy policy](/perch/privacy) is the whole story, and
+it's shorter than this page.
+
+**What licence?** Every line of perch is public and readable on GitHub, and each
+release becomes Apache-2.0 two years after it ships. Until then you may read it,
+change it and build it for yourself; what you may not do is turn it into a
+competing product or hand out your own builds of it. That's [fair
+source](https://fsl.software), and it's the honest version of "mostly open".
+
+**Another shelf app?** There are others, and they're good. perch's angle is
+dependability and restraint: copies rather than moves, no permissions to grant,
+no telemetry, and a shelf that lives where your hand already is.
+
+## Inside a haus machine
+
+perch runs perfectly well on its own, and that is how most people meet it. It is
+also a **room** in [haus](/docs/haus) — the macOS layer — where it is installed
+and kept current with the rest of the machine, and where it can hand its
+light/dark polarity to macOS. Standalone and in-the-house are the same app; only
+the wiring differs. See [the Shelf room](/docs/haus/rooms/shelf).
+
+<Cards>
+  <Card
+    icon={<Icon name="install" />}
+    title="Install"
+    href="/docs/perch/install"
+    description="One brew command — and the one macOS setting that fights the shelf if you leave it on."
+  />
+  <Card
+    icon={<Icon name="shelf" />}
+    title="Using the shelf"
+    href="/docs/perch/using"
+    description="Catching a drag, carrying the stack out, and what the shelf does when you close it."
+  />
+</Cards>

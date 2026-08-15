@@ -20,7 +20,7 @@
    value. 🚨 The same mechanism is a trap for anything `.sheet` changes
    *later*: whatever this block restates, this page keeps, silently. That is
    how `margin` nearly left this one page centred when the column started
-   leaning right — see the note on `.policy` below.
+   leaning — see the note on `.policy` below.
 
    The tokens — --measure, --ink, --ink-2, --ink-3, --rule — still come from
    the shared sheet, exactly as they did after 2026-08-08. This page has not
@@ -28,11 +28,13 @@
 
 /* ⚠️ No `margin` here, deliberately, and it is the one property this block
    must NOT restate. `.sheet` stopped being centred on 2026-08-14 —
-   `margin-inline: auto var(--sheet-inset)` leans the column right — and
+   `margin-inline: var(--sheet-inset) auto` leans the column left — and
    because `.policy` is on the same `<main>` and loads after, a `margin: 0
-   auto` here would leave this one page centred while the other eight leaned.
+   auto` here would leave this one page centred while every other one leaned.
    `--sheet-inset` is declared by the `.sheet` rule on this very element, so
-   letting the shared value through is both correct and self-maintaining. */
+   letting the shared value through is both correct and self-maintaining —
+   which it proved on the same day, when the lean reversed from right to left
+   and this file needed no edit but this comment. */
 .policy {
   max-width: var(--measure);
   padding: clamp(3.5rem, 9vw, 7.5rem) clamp(1.4rem, 5vw, 2rem) clamp(2.5rem, 6vw, 4rem);

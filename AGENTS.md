@@ -63,14 +63,14 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | Want to change… | Where |
 |---|---|
 | the hausfold.co landing page — copy, design, the products it lists | here, `src/app/page.tsx` (it was `public/index.html` until 2026-08-14) |
-| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one sentence, the three names, and a link. What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
-| a **desktop's own page** | here, `src/app/desktops/<name>/page.tsx` — that half didn't move, only its file extension did |
+| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one sentence and one link. What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
+| a **desktop's own page** | **the docs**, `content/docs/haus/desktops/<name>.mdx` (2026-08-14). It was `src/app/desktops/<name>/page.tsx` for six hours of that day and `public/desktops/<name>/index.html` before that; those routes are **deleted**, with six 301s in `public/_redirects` |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
-| a product's **documentation** | **here** — and since 2026-08-14 pounce's is a **docs tree of its own**, `content/docs/pounce/`, the second tab in the switcher. The source of truth for a *fact* is still the product's repo; what lives here is the manual written against it. See [Two trees](#two-trees-not-one) |
+| a product's **documentation** | **here** — and since 2026-08-14 pounce, perch and trill each have a **docs tree of their own** (`content/docs/<product>/`), beside `haus` in the switcher. The source of truth for a *fact* is still the product's repo; what lives here is the manual written against it. See [The trees](#the-trees-four-of-them) |
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **nebelhaus rice** — its opinions and defaults | the platform repo too, for now; it becomes a rice file of its own later (plan §7). The rice keeps the name nebelhaus, forever — only the org, the repo and the option namespace moved |
-| anything about **trill**, the notification compositor | [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here |
+| anything about **trill**, the notification compositor | the *code*, [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here. Its one docs page is `content/docs/trill/index.mdx`, and 🚨 **it ships nothing** — see the tree rules below before adding a second page to it |
 | **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. The old tree still lives on nebelhaus.com until the 301s land, so a fact fixed in one tree and not the other will disagree |
 | the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/nebelhaus.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
@@ -144,33 +144,42 @@ you are in the wrong repo.
 Added 2026-08-08, in the same hours as the repositioning above and by a
 different session, so read the two together:
 
-- 🚨 **The catalogue is gone, and `#desktops` is a signpost now.** It was a
-  page at `/desktops` from 2026-08-08 to 2026-08-12, then the landing page's
-  first section, then — on 2026-08-14, the user's call — one sentence, the
-  three desktop names, and a link to
-  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). **No
-  screenshot frames at all**, explicitly "until velocity slows"; the catalogue
-  may come back, and `git log -- public/hausfold.css` still has the seven
-  classes (`.catalogue`, `.entry*`, `.meta`) it was built out of. Two things
-  do not move whatever that section becomes: the **`#desktops` id**, because
-  the 301, the 404 and the docs sidebar's way-out row all land on it, and the
-  three names' links, because `/desktops/<name>` is where the install command
-  is. **The deep pages did not move**:
-  `/desktops/nebelhaus/` is untouched, and the `/desktops/` URL segment stays
-  because it is the namespace the other desktops land in — which they did on
-  2026-08-14, `everyday` and `minimal`, exactly there. So: edit
-  the signpost in `src/app/page.tsx`, edit a desktop in
-  `src/app/desktops/<name>/page.tsx`. **There are still only three, so there is
-  still no `src/app/desktops/page.tsx`** — add one only
-  when there are enough entries to need a list of their own — and if you do,
-  drop the two `_redirects` lines in the same commit, or the new page will 301
-  away from itself. (Cloudflare evaluates `_redirects` ahead of the assets, so
-  a route existing does not beat a redirect pointing away from it.)
-- **It is the gallery, in substance** — the *deep pages* are, and still are.
-  A desktop per page carrying what it is, what's in it, what it needs, and the
-  command that installs it. Under the old rule that was forbidden; under the
-  new one it's §5.1 arriving ahead of schedule. What 2026-08-14 removed is the
-  *index* in front of them, not the gallery itself.
+- 🚨 **There is no `/desktops` anything any more — the whole namespace is
+  redirects.** The catalogue was a page at `/desktops` from 2026-08-08 to
+  2026-08-12, then the landing page's first section, then on 2026-08-14 one
+  sentence and three names, and by the end of that same day **one sentence and
+  one link** to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx).
+  The three deep pages went in the last of those steps: `/desktops/nebelhaus`,
+  `/desktops/everyday` and `/desktops/minimal` are **deleted**, and a desktop is
+  documented at `content/docs/haus/desktops/<name>.mdx`. **No screenshot frames
+  anywhere**, explicitly "until velocity slows".
+  - **What must not move**: the **`#desktops` id** on `/`, because the 301, the
+    404 and the docs sidebar's way-out row all land on it; and the six new
+    301s in `public/_redirects`, because `/desktops/nebelhaus` had been the
+    canonical for a desktop since 2026-08-08 and the other two shipped that
+    morning.
+  - **Exact paths, never a `/desktops/*` wildcard.** The three deep URLs need
+    three *different* targets, so a wildcard cannot serve them even now that
+    they are all redirects — and the day one comes back as a page, a wildcard
+    would 301 it away from itself. (Cloudflare evaluates `_redirects` ahead of
+    the assets, so a route existing does not beat a redirect pointing away
+    from it.)
+  - ⚠️ **Not affected, and never affected by a page decision**: `/haus.sh`,
+    `/nebelhaus.sh`, `/everyday.sh` and `/minimal.sh`. Those are `worker.js`
+    routes and they are what a `curl | bash` in someone's shell history calls.
+    Deleting a page has nothing to do with them.
+  - `git log -- public/hausfold.css` has the classes both layouts were built
+    out of — the catalogue's seven (`.catalogue`, `.entry*`, `.meta`) and the
+    deep pages' `.gallery` — if either comes back.
+- **A desktop is documented, not sold.** The deep pages were the gallery in
+  substance: one desktop per page, carrying what it is, what's in it, what it
+  needs, and the command that installs it. All of that survives in
+  `content/docs/haus/desktops/`, where `blank` already lived — so the four
+  desktops finally have one shape between them instead of three sheets and a
+  docs page. The editorial bar for those pages is the docs' own (verify,
+  consolidate, point rather than repeat), which is why the ports are about
+  half the length of the sheets they replace and why nebelhaus's keybinding
+  tables did **not** come across: `rooms/windows` already has them in full.
 - ✅ **The name is `/desktops`, and the plan was amended to match.** For a few
   hours on 2026-08-08 the plan said `/market` and the page said `/desktops` —
   two sessions deciding in parallel, both with the user. The user resolved it in
@@ -181,25 +190,31 @@ different session, so read the two together:
 - ~~**It is plain HTML, not Astro.** §5.1 replaces this markup wholesale when
   the build lands.~~ **Done, 2026-08-14** — and it went the way this bullet
   asked: the structure was replaced, the copy was carried across word for word.
-  The instruction that outlives it is the second half: the copy was written
-  against the real sources, so keep it.
+  Hours later the pages were deleted and the copy carried across *again*, into
+  MDX. The instruction that outlived both moves is the same one: the copy was
+  written against the real sources, so keep it when the container changes.
 - **Every fact on a desktop's page is a copy, and copies rot** — especially the
-  install one-liner and the requirements, the two that hurt. ✅ **The source
-  changed on 2026-08-14, and it's now inside this repo**: check the page against
+  install one-liner and the requirements, the two that hurt. ✅ **The source is
+  inside this repo**: check a desktop's page against
   `content/docs/haus/install.mdx` and `content/docs/haus/desktops/choosing.mdx`,
-  not against a README in another org. Those pages were verified against haus
+  and against `hausfold/haus`'s own `desktops/<name>.nix`, not against a README
+  in another org. Those pages were verified against haus
   when they were ported, `reference/options.mdx` is *generated* from haus's
   module system with CI re-rendering it, and a drift you fix there fixes the
-  docs at the same time.
-  The old source is what let this page drift for six days: it listed haus's
-  internal module names (`den`, `prowl`, `sill`, `hearth`, `collar`) at readers
-  who will only ever meet the **rooms** those modules implement, and claimed the
-  installer runs on any Mac when it stops on Intel. **The reader-facing
-  vocabulary is rooms** — the same ones the docs sidebar is organised around,
-  and `/desktops/nebelhaus` names the eight nebelhaus turns on (windows, the
-  bar, the launcher, the shelf, the terminal, focus, security, agents), per
-  `desktops/choosing.mdx`. A `haus.*` namespace is a thing you type, not a
-  thing a landing page names. ⚠️ Don't put a *count* of the rooms on a page:
+  docs at the same time. ⚠️ Now that the desktop pages *are* docs pages, this
+  rule cuts one way it didn't before: the neighbouring page is one click away,
+  so **point at it rather than restating it** — which is why `desktops/nebelhaus`
+  links `rooms/windows` for the keys and `desktops/customizing` for the dials
+  instead of reprinting either.
+  The old source is what let the nebelhaus page drift for six days: it listed
+  haus's internal module names (`den`, `prowl`, `sill`, `hearth`, `collar`) at
+  readers who will only ever meet the **rooms** those modules implement, and
+  claimed the installer runs on any Mac when it stops on Intel. **The
+  reader-facing vocabulary is rooms** — the same ones the docs sidebar is
+  organised around, and `desktops/nebelhaus.mdx` names the ones nebelhaus turns
+  on (Windows, Bar, Launcher, Shelf, Development, Focus, Security, AI,
+  Appearance), per `desktops/choosing.mdx`. A `haus.*` namespace is a thing you
+  type, not a thing a page's prose names. ⚠️ Don't put a *count* of the rooms on a page:
   `content/docs/haus/index.mdx` says twelve and `content/docs/haus/meta.json`
   lists thirteen entries under `---Rooms---` (`rooms/agent-rebuilds` is the
   odd one), so any number you write here is wrong somewhere.
@@ -267,38 +282,51 @@ things to know before editing them:
 Next copies into `out/` untouched. The hand-written *half* still exists — it is
 just spelled in TSX and lives under `src/app/` beside the docs.
 
-**There are nine landing routes, and the number has been wrong three times in
-one day.** Nine became Next routes on 2026-08-14; hours later `/haus` was
-retired into `/docs/haus` and `/pounce` into `/docs/pounce`, taking it to
-seven; hours after that `/desktops/everyday` and `/desktops/minimal` landed and
-took it back to nine. If you meet "the eight" or "the seven" anywhere, it's
-stale — and the lesson has now been paid for three times over: **a count in a
-comment rots faster than the thing it counts.** Prefer "every `.sheet` route"
-to a number; where a number is genuinely clearer, expect to be the one who
-fixes it next.
+🚨 **Don't write down how many landing routes there are.** The count was wrong
+four times on 2026-08-14 alone: nine hand-written pages became Next routes,
+`/haus` and `/pounce` were retired into docs trees (seven), `/desktops/everyday`
+and `/desktops/minimal` landed (nine), and all three `/desktops/<name>` pages
+were deleted (six). If you meet "the eight", "the seven" or "the nine" anywhere,
+it's stale. **A count in a comment rots faster than the thing it counts** — say
+"every `.sheet` route".
 
-**Both retirements were the same judgement**, arrived at independently by two
-sessions on the same day, which is worth taking as a rule rather than a
+**Every retirement so far has been the same judgement**, reached by three
+different sessions on one day, which is worth taking as a rule rather than a
 coincidence: **a page that a docs tree also covers does not stay in step with
 it.** `/haus` had become a shorter, staler account of `/docs/haus`; `/pounce`
-was a sheet beside a manual. The corollary, and the reason `/perch` is not
-next: perch's sheet is a *sales* page with a policy URL and, later, a price —
-things a manual is the wrong shape for, and things `/docs` does not carry.
+was a sheet beside a manual; the three desktop pages were sheets about a subject
+the haus tree already had a section on. The corollary, and the reason `/perch`
+is not next even though perch now has a tree of its own: perch's sheet is a
+*sales* page with a policy URL and, later, a price — things a manual is the
+wrong shape for, and things `/docs` does not carry. ⚠️ That exemption is not
+free. It leaves exactly one product with two surfaces in this repo, so the
+duplicate-fact rule binds: a behaviour fixed on `/perch` is fixed in
+`/docs/perch` in the same commit, or in neither.
 
 The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then four short sections: `#desktops` (one sentence and four links), `Apps`, `haus` (one line and the one-file example, inherited from `/haus`), `Also from hausfold` (holt, nebelung). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
-| `/desktops/nebelhaus` | `src/app/desktops/nebelhaus/page.tsx` | a desktop's page: install, what you get, requirements — **plus `#first-moves`, a "Making it yours" section and `#keys`**, which are what the retired `/docs/nebelhaus` tree left behind (2026-08-14, and explicitly "for now"). ⚠️ Those three reprint material that `/docs/haus/desktops/customizing` and `/docs/haus/reference/haus` also carry; that duplication is the price of the retirement and is the first thing to reconcile if desktops get a tree back. There is deliberately **no** `src/app/desktops/page.tsx` — see the catalogue note above |
-| `/desktops/everyday` | `src/app/desktops/everyday/page.tsx` | added 2026-08-14. **The one page here written for a reader who doesn't write code** — the sudo requirement is stated plainly rather than buried, and nothing assumes the reader knows what a flake or a rebuild is. Its facts come from `hausfold/haus/desktops/everyday.nix`, whose header argues its own judgement calls; that argument is carried across rather than summarised away |
-| `/desktops/minimal` | `src/app/desktops/minimal/page.tsx` | added 2026-08-14. Facts from `desktops/minimal.nix`. Carries a **"What it deliberately leaves out"** section, which is the shape a subtractive desktop needs — the absences are the product |
-| `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves |
+| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then four short sections: `#desktops` (**one sentence and one link**, and it names no desktop), `Apps`, `haus` (one line and the one-file example, inherited from `/haus`), `Also from hausfold` (holt, nebelung). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
 | `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
 | `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
+
+🚨 **`/desktops/{nebelhaus,everyday,minimal}` are gone, as of 2026-08-14 —
+don't rebuild them.** They were the last sheets about a subject the docs also
+covered, and the reasoning is `/haus`'s below, applied one more time by the
+user: the docs and the landing page are the only two surfaces this site keeps.
+Every one of them became `content/docs/haus/desktops/<name>.mdx`, beside
+`blank`, which had been documented that way all along. What did **not** come
+across is nebelhaus's `#keys` section — a shortened copy of
+[`rooms/windows`](content/docs/haus/rooms/windows.mdx), which is why
+`/docs/nebelhaus/keybindings` now 301s *there* rather than to the port.
+`#first-moves` did come across and keeps its anchor, because
+[`install`](content/docs/haus/install.mdx)'s "First run" card and two
+`_redirects` lines point at it.
 
 🚨 **`/haus` is gone, as of 2026-08-14 — don't rebuild it.** It was written
 before the docs existed, and once `/docs/haus` landed it was a second, shorter,
@@ -335,7 +363,7 @@ And what is left under `public/`:
 
 | File | What it is |
 |---|---|
-| `_redirects` | static redirects, exact paths only. Cloudflare consumes the file rather than serving it, and it is evaluated ahead of the assets — never put a `/desktops/*` wildcard in it, or `/desktops/nebelhaus/` goes with it. **A route existing does not beat a redirect pointing away from it**, which is why adding a `/desktops` page means deleting two lines here in the same commit |
+| `_redirects` | static redirects, exact paths only. Cloudflare consumes the file rather than serving it, and it is evaluated ahead of the assets — never put a `/desktops/*` wildcard in it: the four `/desktops` URLs need four *different* targets, and a wildcard could not serve them even now that all four are redirects. **A route existing does not beat a redirect pointing away from it**, which is why adding any page back under `/desktops` means deleting its two lines here in the same commit |
 | `favicon.svg` | the mark as geometry, on a dark tile, swept through all six accents. Linked from every page; its wedge fan is generated by `scripts/sync-nebelung.mjs` like the stylesheet's block. **The one thing on this site that holds colour with no hover** — see the greyscale rule below |
 | `favicon.ico` | the same mark, monochrome, for Safari — WebKit doesn't resolve the SVG one and falls back to this path. Generated by the same script, from the SVG's own cover path, `--ink` on crust, no accent sweep. **The site's first binary file under `public/`**, added 2026-08-12 — see the script's "the ico fallback" comment for the trade |
 | `robots.txt` | allows everything; no `Sitemap:` line, and its comment says why |
@@ -439,16 +467,21 @@ Rules that are easy to break by accident:
   owns an accent, in either theme. Two exceptions, both added 2026-08-08, both
   requiring a hover to happen at all: a product's name in the index takes **that product's
   own accent**, and the `⌂` mark takes **all six at once**, as stripes.
-  🚨 **A desktop is not a product, and does not get an accent.** Of the three
-  names in the landing page's desktops line only `nebelhaus` carries a
-  `data-accent`, because the rice is a
-  named thing with a hue assigned upstream; `everyday` and `minimal` are
-  selections of the same options and their names hover to plain ink. Two names
-  looking plainer than the third is the rule working, not a gap to fill —
-  inventing a seventh and an eighth hue to make the line uniform is
-  exactly what the closed vocabulary exists to prevent. Both
-  read the same `--a-*` tokens, so the house cannot show a colour no product
-  owns and a product cannot be one colour in the index and another in the mark.
+  🚨 **A desktop is not a product, and does not get an accent.** No desktop is
+  named on `/` any more — the desktops line is one sentence and one link since
+  2026-08-14 — so nothing there carries a `data-accent` at all, and the rule
+  is written here rather than demonstrated there. It bound the landing page for
+  the hours when three names sat in that line: only `nebelhaus` carried one,
+  because the rice is a named thing with a hue assigned upstream, while
+  `everyday` and `minimal` are selections of the same options and hovered to
+  plain ink. Two names looking plainer than the third was the rule working, not
+  a gap to fill — inventing a seventh and an eighth hue to make the line uniform
+  is exactly what the closed vocabulary exists to prevent. The same rule is why
+  none of the four `desktops/<name>` **docs** pages carries an `accent:` in
+  frontmatter: they wear the haus tree's mauve like every other page in it, and
+  their sidebar glyphs are un-hued. Every surface reads the same `--a-*` tokens,
+  so the house cannot show a colour no product owns and a product cannot be one
+  colour in the index and another in the mark.
   A hue hausfold keeps *at rest* is the thing to avoid: that would put it in
   competition with nebelung's palette, which is the one brand asset the family
   actually shares. The dark accents no longer *match* nebelung — they **are**
@@ -489,13 +522,13 @@ Rules that are easy to break by accident:
   to suppress. A second animation on this site needs the same bar:
   hover-scoped, reduced-motion-aware, and asked for.
 
-  **`scroll-snap-type: x proximity` on `.gallery` (2026-08-14) is not that
-  second animation, and is deliberately not consulted by either
-  `prefers-reduced-motion` block.** A snap point is a landing *position* for
-  a scroll the reader started, not something that moves on its own — and
-  nothing here sets `scroll-behavior: smooth`, which is the property that
-  setting exists to suppress. `proximity` rather than `mandatory` for the same
-  reason: mandatory takes the scroll away from the hand that started it.
+  `.gallery` carried a `scroll-snap-type: x proximity` for a few hours on
+  2026-08-14 and the argument is worth keeping even though the class is gone:
+  **a snap point is not an animation.** It is a landing *position* for a scroll
+  the reader started, nothing here sets `scroll-behavior: smooth` (the property
+  `prefers-reduced-motion` exists to suppress), and `proximity` rather than
+  `mandatory` because mandatory takes the scroll away from the hand that
+  started it. So a snap point needs no exception; a new `@keyframes` does.
 - **Almost no JavaScript of our own on the landing pages, and none of it
   load-bearing.** ⚠️ **Restated 2026-08-14, because the old wording said "and
   no framework" and there is a framework now.** The pages are Next routes, so
@@ -513,20 +546,20 @@ Rules that are easy to break by accident:
   `prefers-color-scheme` exactly as they did when they were hand-written HTML
   and shipped no toggle at all. What the rule still governs is *our* script,
   and there is exactly one piece: `<Command>`
-  (`src/components/command.tsx`), used on `/`, `/perch` and all three
-  `/desktops/<name>` pages, which was four identical twelve-line `<script>` blocks
-  until the port (`/haus` and `/pounce` were two of the four, and are docs
-  trees now — the landing page inherited `/haus`'s example file). Its bar is
+  (`src/components/command.tsx`), used on `/` and `/perch`, which was four
+  identical twelve-line `<script>` blocks
+  until the port. (Three of those four pages no longer exist: `/haus` and
+  `/pounce` became docs trees — the landing page inherited `/haus`'s example
+  file — and `/desktops/nebelhaus` was deleted.) Its bar is
   unchanged and is the bar for a second one: the
   button renders `hidden` in the exported HTML and unhides only where
   `navigator.clipboard` exists, so the command is plain selectable text with JS
   off — **pure enhancement, nothing lost without it**. A page may hold more
-  than one; `/desktops/nebelhaus` does, since it absorbed the first-run page's
-  `haus edit` snippet. (`/docs` is React through and through and is a different
+  than one. (`/docs` is React through and through and is a different
   animal — a fenced block there is MDX, with fumadocs' own copy button.)
-- **Placeholder frames, never a stale screenshot.** `/desktops/{nebelhaus,everyday,minimal}`
-  and `/perch` draw their shot slots in CSS and label them
-  `[ shot not taken yet ]`. The family's only rice
+- **Placeholder frames, never a stale screenshot.** `/perch` is the only page
+  left that draws one — shot slots in CSS, labelled
+  `[ shot not taken yet ]`, no image files. The family's only rice
   capture is `hausfold/assets/hero.png`, which the workshop's own
   `assets/SHOTLIST.md` still calls a placeholder. When a real capture exists,
   drop a `<Image>` into the frame and delete the `.shot span` label — note
@@ -534,81 +567,84 @@ Rules that are easy to break by accident:
   optimizer is a server and there isn't one — a picture
   that lies about what the desktop looks like today is worse than a grey box
   that admits it doesn't have one. **One frame is a reserved slot; three are a
-  gallery that failed to load** — `/desktops/nebelhaus` drew three until
-  2026-08-14 and now draws the wide one alone, which is the same rule read for
-  quantity rather than for honesty. That is why each of the three desktop
-  pages holds one frame, and why `.gallery`'s
-  `:only-child` rule exists: the scroller's container is in place from today,
-  and a lone frame renders exactly as the old single `.shots` one did, so the
-  day a second capture lands is a content change and not a markup decision.
+  gallery that failed to load**, which is the same rule read for quantity
+  rather than for honesty; `/desktops/nebelhaus` drew three, then one, then
+  none of them, because the page went.
 
-  🚨 **The landing page holds no frame at all, and this bullet has now argued
-  it three ways in one day.** It began as "the one exception, no frame at
-  all"; the user reversed that and every catalogue row got one; then the user
-  cut the catalogue itself, and the instruction with it was explicit — **no
-  images on `/` until the site's velocity slows.** So the current rule is the
-  simplest of the three: a shot frame belongs on a page that is *about* one
-  machine or one app, and the front page is about neither. If the catalogue
+  🚨 **Neither `/` nor a docs page holds a frame, and this bullet argued the
+  first of those three ways in one day.** It began as "the one exception, no
+  frame at all"; the user reversed that and every catalogue row got one; then
+  the user cut the catalogue itself, and the instruction with it was explicit
+  — **no images on `/` until the site's velocity slows.** Hours later the three
+  desktop pages were deleted and their frames with them, so the current rule is
+  the simplest of all of them: **a shot frame belongs on a landing page that is
+  *about* one app**, which is `/perch` and nothing else today. The docs
+  deliberately did not inherit them — a docs page that reserves a slot for a
+  picture nobody has taken is a docs page with a hole in it, and the ported
+  desktop pages say what a desktop is instead of showing it. If any of this
   comes back, the frame question comes back with it and is the user's to
   answer, not a detail to restore from `git log`.
   The scene, the checklist and a
   ready-to-apply patch are in the workshop's `assets/SHOT-nebelhaus-desktop.md`
-  and `assets/desktops-hero.patch` — but the patch is now **three times**
+  and `assets/desktops-hero.patch` — but the patch is now **four times**
   overtaken: it targets `public/desktops/index.html`, which the 2026-08-12
   catalogue move deleted, in a file format the 2026-08-14 port replaced, for a
-  section the same day removed. Read it for the scene
-  and the crop; don't try to apply it.
-- **The column leans right, and the measure is still 41rem.** Both 2026-08-14,
-  the second half added when the user asked for a page that isn't centred.
+  section the same day removed, on a page the same day deleted. Read it for the
+  scene and the crop; don't try to apply it.
+- **The column leans LEFT, and the measure is still 41rem.** Both 2026-08-14,
+  the second half added when the user asked for a page that isn't centred —
+  and 🚨 **it leaned right for a few hours first, so anything you meet saying
+  "right" is stale by hours, not by weeks.** The user reversed it the same day.
   `.sheet` is the same reading column it always was; what moved is where it
-  sits — `margin-inline: auto var(--sheet-inset)`, so it hangs off the right
-  of an implied `--page-max` (78rem) page and the left of a wide screen is
+  sits — `margin-inline: var(--sheet-inset) auto`, so it hangs off the left
+  of an implied `--page-max` (78rem) page and the right of a wide screen is
   margin. Text inside stays left-aligned: **the column leans, the paragraph
   does not**, and nothing on this site is ever set ragged-left.
+  - **Why left and not right**: it puts every line of type on one axis — the
+    masthead, the `.topnav`, each paragraph's first character, the ⌂ — at the
+    page's own left edge. Leaning right left that axis floating inward as the
+    window grew, and the two-word nav pinned to the column's right edge was
+    the one object on the page that read as adrift.
   - `--sheet-inset` is `max(0px, (100cqw - var(--page-max)) / 2)` and has two
-    regimes: **up to ~1250px** it is 0 and the column is flush right less its
+    regimes: **up to ~1250px** it is 0 and the column is flush left less its
     own `--gutter` of padding, so a phone and a laptop lose nothing; **above
     that** it grows at half the surplus, holding the column exactly where a
-    centred 78rem page would have put its right edge. That ceiling is the
-    whole reason "right-leaning" doesn't become "against the glass" on a
+    centred 78rem page would have put its left edge. That ceiling is the
+    whole reason "left-leaning" doesn't become "against the glass" on a
     27-inch display — don't remove it to lean harder.
-  - 🚨 **The lean is why the break-out plate grows LEFT.** `margin-inline:
-    calc(50% - plate/2)` used to centre a plate on the page *because* the
-    sheet's midpoint was the window's. It isn't any more, and that expression
-    now pushes a 64rem plate off the right edge. `.gallery` hangs off the
-    column's right edge and bleeds into the empty field instead — which is
-    also the only direction with room in it.
   - `--measure` is a *reading* measure and widening it would move almost
     nothing anyway: every text block inside `.sheet` is separately capped at
-    58/62ch, so a wider sheet just unmoors the column from the masthead. One
-    thing breaks out of it, and it is a frame rather than prose: `.gallery` on
-    `/desktops/<name>`. (`.catalogue` was the other until the landing page's
-    catalogue was cut the same day; its seven classes are deleted, not
-    orphaned.) Its width is
-    `clamp(100%, var(--plate-max), calc(100cqw - var(--sheet-inset) - 2 * var(--gutter)))`
-    — the floor pins its edges to the paragraph's on a phone, the ceiling
-    (64rem) stops it, and the middle term is everything between the page's
-    left gutter and the column's right edge.
+    58/62ch, so a wider sheet just unmoors the column from the masthead.
+    **Nothing breaks out of it any more.** `.catalogue` and `.gallery` both
+    did; both were deleted on 2026-08-14 with the pages that used them, and
+    `--plate-max` went with them. If a plate ever comes back, the thing to
+    know is that the sheet's midpoint is **not** the window's, so
+    `margin-inline: calc(50% - plate/2)` does not centre anything — the
+    direction with room in it is whichever way the column is *not* leaning,
+    which is now the right.
   - 🚨 **`100cqw`, not `100vw`, and this is the part that will get
     "simplified" back.** `html` sets `scrollbar-gutter: stable`, so `100vw`
     is wider than the page by the scrollbar's reserved strip wherever a
-    classic scrollbar is drawn — a plate or an inset sized off it sits ~7.5px
-    proud of the column, which is precisely the misalignment the clamp
-    exists to remove, and it is **invisible on macOS overlay scrollbars**.
+    classic scrollbar is drawn — an inset sized off it sits ~7.5px
+    proud of where a centred page's edge would be, which is precisely the
+    misalignment the clamp exists to remove, and it is **invisible on macOS
+    overlay scrollbars**.
     The container is declared on `body:has(.sheet)` in `src/app/global.css`;
     it is scoped to the landing half because `container-type` implies
     `contain: layout`, which would make `<body>` a containing block for
     fixed-position descendants and `/docs` portals fumadocs' chrome there.
-  - `--gutter` exists so `.sheet`'s padding and the plate's ceiling cannot
-    drift apart; change the side padding there, not in `.sheet`.
+  - `--gutter` exists so `.sheet`'s padding and anything measuring itself
+    against the page's margin cannot drift apart; change the side padding
+    there, not in `.sheet`.
   - **It applies to every `.sheet` route, not only `/`** — the landing page,
-    `/perch`, `/perch/privacy`, `/terms`, `/refunds`, the three
-    `/desktops/<name>` pages and the 404. One rule, one axis, no page centred
-    beside eight that aren't. ⚠️ `/perch/privacy` is the one that can slip:
+    `/perch`, `/perch/privacy`, `/terms`, `/refunds` and the 404. One rule,
+    one axis, no page centred beside the rest. ⚠️ `/perch/privacy` is the one
+    that can slip:
     `privacy.module.css` restates several of `.sheet`'s own properties on the
     same `<main>` and wins on source order, so anything it restates it keeps
     forever. It deliberately does **not** restate `margin` — see the note
-    there.
+    there, and note that this is exactly what let the reversal from right to
+    left cost that file no edit at all.
   - ⚠️ **`body` is `flex flex-col`, so `.sheet` is a flex item**, which gives
     it `min-width: auto` — it will not shrink below its content's min-content
     width. (That is not what makes the lean work: an `auto` margin pushes a
@@ -616,28 +652,24 @@ Rules that are easy to break by accident:
     carries `min-width: 0` is that `.cmd` is itself a flex container and the
     `<code>` is its item; without it a long command widens the page on a
     phone.
-- **A gallery scrolls sideways; nothing else on this site does.** Also
-  2026-08-14, and the distinction is the reason `.gallery` is a class of its
-  own rather than a redefinition of `.shots`. A gallery is **one subject from
-  several angles**, already chosen, unordered, where reaching the end is
-  optional — that is `/desktops/<name>`. A **catalogue** is the other kind, a
-  set of commitments a reader compares, where every item has to be visible at
-  once on a shared left edge and nothing may hide behind an edge; the landing
-  page had one and it stacked for exactly that reason. That catalogue is gone,
-  so the rule is kept here as the *test* rather than as a description of
-  anything shipping: **if a row hides behind an edge, ask whether the reader is
-  comparing or looking.** ⚠️ **The line is not
-  a frame count** — an earlier draft of this rule said "three frames is not a
-  gallery", which condemned the page it was defending, since
-  `/desktops/nebelhaus` holds exactly three. `/perch` keeps the
-  stacked grid because its frames sit *inside an argument*: the reader is
-  mid-paragraph and shouldn't be asked to operate anything.
-  🚨 **A horizontal scroller owes `tabIndex={0}` and a
-  label** — a scroll container is only keyboard-operable if it can take focus,
-  and Safari, unlike Chrome, does not make one focusable on its own. Without
-  it everything past the right edge is mouse-only, which is a WCAG 2.1.1
-  failure rather than a rough edge. `.gallery:focus-visible` is the ring that
-  owes.
+- **Nothing on this site scrolls sideways** — and the rule that made that true
+  is kept here as a *test*, not as a description of anything shipping. Both
+  layouts it decided between existed on 2026-08-14 and both are gone: a
+  **gallery** is one subject from several angles, already chosen, unordered,
+  where reaching the end is optional, so it may hide a frame behind an edge; a
+  **catalogue** is a set of commitments a reader compares, where every item has
+  to be visible at once on a shared left edge, so it stacks. **If a row would
+  hide behind an edge, ask whether the reader is comparing or looking.** ⚠️
+  **The line is not a frame count** — an earlier draft said "three frames is
+  not a gallery", which condemned the very page it was defending.
+  `/perch` keeps the stacked `.shots` grid because its frames sit *inside an
+  argument*: the reader is mid-paragraph and shouldn't be asked to operate
+  anything.
+  🚨 If a horizontal scroller ever comes back, **it owes `tabIndex={0}`, a
+  label and a focus ring** — a scroll container is only keyboard-operable if it
+  can take focus, and Safari, unlike Chrome, does not make one focusable on its
+  own. Without it everything past the edge is mouse-only, which is a WCAG 2.1.1
+  failure rather than a rough edge.
 - **Both themes, every time.** Colours are tokens on `:root`, redefined under
   `@media (prefers-color-scheme: dark)` and again under `:root[data-theme=…]`
   so a viewer's explicit toggle wins in both directions. Style through the
@@ -700,11 +732,12 @@ Rules that are easy to break by accident:
   become *internal* and nebelhaus.com 301s here. Don't rewrite them ahead of the
   move — a link to a page that doesn't exist yet is worse than one extra hop —
   but stop treating "outward" as a principle. It was a consequence of having one
-  sheet. `/desktops/nebelhaus` is the first place the inversion is already
-  visible: it holds you long enough to run the command, then links out. (The
+  sheet. `/desktops/nebelhaus` was the first place the inversion became
+  visible: it held you long enough to run the command, then linked out. (The
   front door briefly held some of that traffic itself, while the catalogue was
   its first section — 2026-08-12 to 2026-08-14. It routes rather than holds
-  again now, on purpose.) **`/perch` is the
+  again now, on purpose, and the desktop pages themselves are docs pages.)
+  **`/perch` is the
   second, and the first one to take a link off the landing page** — the index's
   perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
   is the pattern for the rest: a link moves inward on the day the inward page
@@ -712,8 +745,11 @@ Rules that are easy to break by accident:
   pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
   and onto `/pounce`, in the same commit. (That line points at `/docs/pounce`
   since 2026-08-14, when the sheet was retired into the docs tree — still
-  inward, one door further in.) What's left pointing out of the index is `holt`
-  and `nebelung`, which have no page here yet.
+  inward, one door further in.) **`trill` is the fourth and the smallest**: its
+  name on the index was inert text, with nothing to point at, until it got a
+  docs tree on 2026-08-14 and became a link in the same commit. What's left
+  pointing out of the index is `holt` and `nebelung`, which have no page here
+  yet.
 
   ✅ **The inversion is complete.** `/perch/privacy`'s footer was the
   second-to-last holdout — it said `nebelhaus.com/perch` for six days after
@@ -770,15 +806,15 @@ Added 2026-08-12 (rename plan §5.2). [Fumadocs](https://fumadocs.dev) on Next,
 `output: 'export'` — static, no runtime, no adapter. Content is MDX in
 `content/docs/`; everything else is a thin shell in `src/`.
 
-### Two trees, not one
+### The trees, four of them
 
-`content/docs/haus/` and `content/docs/pounce/` are both **root folders**
+`content/docs/haus/`, `pounce/`, `perch/` and `trill/` are all **root folders**
 (`"root": true` in their `meta.json`), which Fumadocs renders as the switcher at
 the head of the sidebar — the same shape Vercel uses for app-router vs
 pages-router. That is deliberate and it is the site's positioning made
-navigable: **`haus` is the layer, `pounce` is an app that runs on it — and
-without it.** A page about the machinery goes in the first; a page about the
-app goes in the second.
+navigable: **`haus` is the layer, and the rest are apps that run on it — and
+without it.** A page about the machinery goes in the first; a page about an app
+goes in that app's own.
 
 If you can't tell which tree a page belongs in, that's the useful signal: it
 usually means the page is two pages.
@@ -790,28 +826,61 @@ usually means the page is two pages.
 > structure (`#desktops`, `Apps`, then haus), so it is an alignment rather than
 > a new claim. Two consequences:
 >
-> - **`content/docs/nebelhaus/` is gone**, retired into
->   `/desktops/nebelhaus` (`#first-moves`, `#keys`) with six 301s in
->   `public/_redirects`. A desktop is a set of values for haus's own options
->   rather than a subject of its own, and choosing between desktops is already
->   documented at `content/docs/haus/desktops/`. **This is explicitly "for
->   now"** — the user's word. If desktops earn a tree again, they earn it as
->   *desktops*, not as one of them.
+> - **`content/docs/nebelhaus/` is gone**, retired first into
+>   `/desktops/nebelhaus` and — when that page was deleted hours later — into
+>   `content/docs/haus/desktops/nebelhaus.mdx`, which keeps the `#first-moves`
+>   anchor. Six 301s in `public/_redirects`. A desktop is a set of values for
+>   haus's own options rather than a subject of its own, and choosing between
+>   desktops was already documented at `content/docs/haus/desktops/` — which is
+>   where all four desktops now live, one page each, beside `blank`. **The
+>   retirement was explicitly "for now"** — the user's word. If desktops earn a
+>   tree again, they earn it as *desktops*, not as one of them.
 > - **A product's docs may be a tree.** The rule that follows: a **room page
 >   documents the room** — the haus wiring, the options, what turns on — and
 >   everything about the app itself lives in the app's own tree.
 >   `rooms/launcher` was 268 lines documenting pounce end to end and is ~90
->   documenting the module; `rooms/shelf` was already that shape at 88 lines,
->   though perch has no tree behind it yet, so it demonstrates only the thin
->   half. `rooms/ai` is still 339 lines mostly about holt, and is the next one
->   to shrink when holt gets a tree.
+>   documenting the module; `rooms/shelf` was already that shape at 88 lines
+>   and now has perch's tree behind it. `rooms/ai` is still 339 lines mostly
+>   about holt, and is the next one to shrink when holt gets a tree.
 
 Adding a tab is still a positioning change, not a file. It needs the same
 backing as any other claim on this site — and the test the pounce tab passed
 is **can a stranger install this without haus?** pounce is MIT and one `brew
 install`, so a URL under `/docs/haus/` was telling most of its readers
-something untrue. perch and holt clear the same bar; nebelung (a palette) and
-a desktop do not.
+something untrue. **perch passed the same test on 2026-08-14**: `brew install
+--cask hausfold/tap/perch`, macOS 14, no Nix anywhere. holt clears the bar and
+has no tree yet; nebelung (a palette) and a desktop do not clear it at all.
+
+> 🚨 **`trill` is a tab that does NOT clear that bar, and it is there on the
+> user's explicit instruction (2026-08-14). Record it as the exception it is,
+> don't cite it as precedent.** trill is in the incubator: no release, no
+> download, no `haus.trill.*` options, nothing a stranger can install. Its tree
+> is **one page** whose first paragraph is a `warn` callout saying exactly
+> that, which is the condition on the exception — a tab that promises a product
+> is the thing AGENTS.md's naming rule forbids, and a tab that says "this does
+> not exist yet" promises nothing anyone can click. Two consequences:
+>
+> - **Don't grow it past that page** without something to install. An
+>   `install` page for a thing with no release is the failure mode this
+>   exception is one inch away from.
+> - **It does not lower the bar for a fifth tab.** The install test still
+>   stands for anything that claims to ship; trill is the one tab whose whole
+>   content is the admission that it doesn't.
+
+⚠️ **A tree is a real cost even when it clears the bar**, and perch is where
+you can see it: perch keeps `/perch`, its sales sheet, *and* gains a manual, so
+it is the one product on this site with two surfaces. That was allowed because
+a sheet with a policy URL and a price is a shape a manual can't take — see the
+retirement rule under [The site](#the-site) — and the price of it is that the
+behaviour lists on both must be fixed together or not at all.
+
+**A new tree owes four things**, all of them easy to forget separately: an
+entry in `content/docs/meta.json`'s `pages`; a `meta.json` of its own with
+`"root": true`; a **hued** icon in `src/lib/icons.tsx` (a tree glyph must hold
+its own colour — see [Icons](#icons)); and a `body:has([data-tree='<name>'])`
+rule in `src/app/global.css` pointing at one of the six `--a-*`. Miss the last
+and the whole tree renders in `--ink`, silently, which reads as a bug in the
+page rather than a missing rule.
 
 ### The editorial bar — this is a rewrite, not a move
 
@@ -930,7 +999,7 @@ Two things this constrains:
   step. Three rules spend `--font-display` — `h1`, `h2/h3/h4`, and the landing
   half's `body:has(.sheet)` — and nothing else should name it or re-type the
   stack.
-- **The eight landing pages are exempt**, via `body:has(.sheet)`. It was written
+- **Every `.sheet` route is exempt**, via `body:has(.sheet)`. It was written
   on 2026-08-12 for `src/app/not-found.tsx` alone, the only landing-half page
   under this layout at the time, and it carried the rest for free when
   they arrived two days later — because the thing it keys on is the `.sheet`
@@ -956,9 +1025,17 @@ deliberately not used.
 
 **A hued icon holds its colour anywhere**, including inside the tree switcher's
 popover, which React portals to the end of `<body>` where no `#nd-sidebar`
-selector reaches. That is why the two tree glyphs have hues and the page glyphs
-don't: page glyphs are tinted by their tree, and the two trees have to stay
+selector reaches. That is why the four tree glyphs have hues and the page glyphs
+don't: page glyphs are tinted by their tree, and the trees have to stay
 distinguishable while sitting side by side in one menu.
+
+🚨 **The corollary, and it bit on 2026-08-14: dropping a hue is part of turning
+a link inward.** `desktop` (a cat, nebelhaus's pink) was hued because it named
+an outward link to `/desktops/nebelhaus`. When that page was deleted and
+nebelhaus became a page *inside* the haus tree, the glyph was renamed
+`nebelhaus` and un-hued — a hued page row in a mauve tree reads as an error,
+and a desktop owns no accent in the first place. Ask which side of the docs an
+icon points at before giving it a colour.
 
 **A new page owes an icon**, the same way a new HTML page owes a
 `theme-color` — a row with no glyph in a column of glyphs reads as broken.
@@ -979,19 +1056,34 @@ would not be an exception.
 that hides the prose from search and from `llms-full.txt`. Adding one is a
 decision.
 
-Three components are ours. Two are thin, and exist to give the stylesheet a
+Four components are ours. Two are thin, and exist to give the stylesheet a
 class rather than a guess:
 
 - **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
   box in the prose" puts a doorway's rule on a callout.
 - **`Separator`** (`src/components/sidebar-parts.tsx`) renders the sidebar's
   group label with `.hf-group`. It used to be styled as `#nd-sidebar p` — which
-  also matched the tree switcher's two `<p>`s, and is why the dropdown once
+  also matched the tree switcher's `<p>`s, and is why the dropdown once
   announced "H A U S" with a rule struck under it. **Don't reach for a bare
   element selector inside fumadocs' chrome**; the same element is three
   different things in three places.
 
-The third is not thin, and it is a decision rather than a class:
+The third is a shape change rather than a class, and it exists because of one
+page:
+
+- **`Folder`** (same file, added 2026-08-14 at the user's request) renders a
+  page-tree folder as a **link**, never fumadocs' collapsible. The only
+  folders in this tree are the four roots — every tree's `meta.json` lists its
+  pages as explicit paths, so nothing below a root is ever a folder node — and
+  they are visible in exactly one place, `/docs` itself, which sits outside all
+  four. Fumadocs' default there is an accordion over a title that isn't a link;
+  `/docs` is a doorway with four `<Cards>` on it and the sidebar beside them
+  should answer the same question the same way. 🚨 **The href comes from
+  `$id`, not from `node.index`** — a root folder's index page is lifted out of
+  the tree before the layout sees it, which is the same trap the eyebrow in
+  `src/app/docs/[[...slug]]/page.tsx` documents.
+
+The fourth is not thin either, and it is a decision rather than a class:
 
 - **`ViewOptions`** (`src/components/page-actions.tsx`) is the "Open in…" menu
   in the page's meta row, and it **replaces** fumadocs' `ViewOptionsPopover`
@@ -1187,10 +1279,12 @@ Three things are **not** small, because they're positioning and not code:
   placeholder *entry*, which promises a specific thing that doesn't exist; a
   sentence about the shape of the list promises nothing anyone can click.
   ("One entry, no apology" was this rule's shape until 2026-08-14 — read it as
-  history, not as a cap.) ⚠️ **The rows themselves moved off this site the same
-  day**: the landing page lists three *names*, and what a reader compares is
-  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table. The
-  bar is unchanged and now has to be cleared in the docs as well.
+  history, not as a cap.) ⚠️ **The rows left this site entirely the same day**:
+  `/` names no desktop at all, and everything a reader compares is
+  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table plus
+  the four pages beside it. **The bar is unchanged and is now cleared in the
+  docs** — which is a lower-ceremony place to add a page, so it is the place
+  where a coming-soon entry could slip in unnoticed. It may not.
 
   ✅ **The gate that blocked a second entry is closed, by construction rather
   than by waiver — `minimal` and `everyday` landed 2026-08-14.** The rule used
@@ -1207,16 +1301,21 @@ Three things are **not** small, because they're positioning and not code:
   nothing else**: the "exists, and a stranger can install it" bar above is
   untouched and is still the one a fourth row has to clear.
 
-  What each of the three cleared, for the next row to match: a file in
+  What each of the three cleared, for the next one to match: a file in
   `hausfold/haus/desktops/<name>.nix`; a row in `worker.js`'s `DESKTOPS`, so
-  `hausfold.co/<name>.sh` installs it; a page under `src/app/desktops/<name>/`
-  whose every fact is read off that `.nix` file rather than off another page;
-  a row in [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s
-  table; and its name in the desktops line on `/`. 🚨 **`blank` deliberately
-  has none of these** —
-  it is a real desktop in the repo and is the null selection for someone
-  assembling rooms by hand, so a row for it would promise a machine it does
-  not produce.
+  `hausfold.co/<name>.sh` installs it; a page at
+  `content/docs/haus/desktops/<name>.mdx` whose every fact is read off that
+  `.nix` file rather than off another page, with an un-hued icon in
+  `src/lib/icons.tsx` and an entry in `content/docs/haus/meta.json` under
+  `---Desktops---`; and a row in
+  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
+  ⚠️ **Nothing on `/` any more** — the landing page named the three for a few
+  hours on 2026-08-14 and stopped, so a new desktop does not touch it. 🚨
+  **`blank` deliberately has neither the `.nix` row in `DESKTOPS` nor an
+  installer URL** — it is a real desktop in the repo and is the null selection
+  for someone assembling rooms by hand, so `hausfold.co/blank.sh` would promise
+  a machine it does not produce. It does have a docs page, which is the right
+  shape for it: a page can explain a null selection, a `curl | bash` cannot.
 - **Adding a product name that isn't real yet.** Anything named on this site
   should have a row in `PRESENCE.md` — in [`hausfold/ops`](https://github.com/hausfold/ops),
   private — first: the domain, the org and the handles checked. Naming is the
@@ -1230,6 +1329,14 @@ Three things are **not** small, because they're positioning and not code:
   written down is the failure; a name the register has an answer for is a
   decision. Two such lines at once would not be an exception, it would be a
   habit.
+
+  ⚠️ **That exception grew a page on 2026-08-14, at the user's instruction.**
+  `trill` is the name it has always covered, and it now has a one-page docs
+  tree and a link from the index rather than inert text. The condition rides
+  along unchanged and gets stricter, not looser: the page's first paragraph is
+  a callout saying there is nothing to install, and the tree may not grow past
+  it until there is. See [The trees](#the-trees-four-of-them) for why that tab
+  is an exception rather than a precedent.
 
   ⚠️ **The check now costs a second repo, and it can't be short-circuited here.**
   The register moved out on 2026-08-08, so you can't confirm this from a file in

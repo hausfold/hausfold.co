@@ -1,0 +1,7 @@
+{
+  "title": "perch",
+  "description": "A shelf in the notch",
+  "icon": "perch",
+  "root": true,
+  "pages": ["---Start---", "index", "install", "using"]
+}

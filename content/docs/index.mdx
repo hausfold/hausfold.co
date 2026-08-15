@@ -1,11 +1,11 @@
 ---
 title: Documentation
-description: Two trees — the haus layer your Mac is built on, and pounce, the launcher that runs with or without it.
+description: Four trees — the haus layer your Mac is built on, and the small native apps that live inside it and mostly run fine without it.
 ---
 
 A Mac you can describe in one file, and rebuild from it on any machine you own —
-and the small native tools that live inside it. Two things are documented here:
-the layer, and the app.
+and the small native tools that live inside it. Two kinds of thing are
+documented here: **the layer**, and **the apps**.
 
 <Cards>
   <Card
@@ -20,20 +20,37 @@ the layer, and the app.
     href="/docs/pounce"
     description="The launcher you teach. One keypress, your apps and your own commands in one list — and a command is just a shell script in a folder. Free, MIT, no Nix required."
   />
+  <Card
+    icon={<Icon name="perch" />}
+    title="perch"
+    href="/docs/perch"
+    description="The shelf in the notch. Start dragging, flick up, and a shelf drops down to catch it — then carry the lot somewhere else in one motion. One brew command, no permissions."
+  />
+  <Card
+    icon={<Icon name="trill" />}
+    title="trill"
+    href="/docs/trill"
+    description="Notifications, filtered. In the incubator — nothing to install yet, and this page says what it is rather than what it does."
+  />
 </Cards>
 
-**haus** is the machinery; **pounce** is one of the things that runs on it — and
-runs perfectly well on a Mac that has never heard of it. Installing haus can
-install pounce for you; installing pounce needs nothing but Homebrew.
+**haus** is the machinery; the rest are things that run on it — and run
+perfectly well on a Mac that has never heard of it. **pounce** and **perch**
+install from Homebrew with no Nix anywhere, and haus can install either for you
+instead. **trill** installs from nowhere yet: it is in the incubator, and its
+page says so before it says anything else.
 
-The switcher at the top of the sidebar moves between the two, and its glyph
-tells you which one you're reading at a glance: <Icon name="layer" /> the
-layer, <Icon name="pounce" /> the launcher.
+The switcher at the top of the sidebar moves between the trees, and its glyph
+tells you which one you're reading at a glance: <Icon name="layer" /> the layer,
+<Icon name="pounce" /> the launcher, <Icon name="perch" /> the shelf,
+<Icon name="trill" /> the compositor.
 
-Looking for a **desktop** — nebelhaus and the rest? A desktop is a set of
-values for haus's own options rather than a project of its own, so it is
-documented with the layer: [choosing one](/docs/haus/desktops/choosing) covers
-what each turns on, and [nebelhaus](/desktops/nebelhaus) has a page of its own.
+Looking for a **desktop** — nebelhaus and the rest? A desktop is a set of values
+for haus's own options rather than a project of its own, so it is documented
+with the layer: [choosing one](/docs/haus/desktops/choosing) compares the four,
+and each has a page of its own — [nebelhaus](/docs/haus/desktops/nebelhaus),
+[everyday](/docs/haus/desktops/everyday),
+[minimal](/docs/haus/desktops/minimal).
 
 Reading this with an AI tool? These docs publish themselves in machine-readable
 form: [`/llms.txt`](/llms.txt) is a table of contents with one-line

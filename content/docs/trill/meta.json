@@ -1,0 +1,7 @@
+{
+  "title": "trill",
+  "description": "Notifications, filtered — in the incubator",
+  "icon": "trill",
+  "root": true,
+  "pages": ["index"]
+}

@@ -12,7 +12,8 @@ npm run types:check && npm run lint  # what CI runs first
 `npm run dev` is the loop for everything with a URL. Reach for `wrangler dev`
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
-`worker.js` behave. `/desktops` should 301 to `/#desktops`, `/haus` to
+`worker.js` behave. `/desktops` should 301 to `/#desktops`,
+`/desktops/nebelhaus` to `/docs/haus/desktops/nebelhaus/`, `/haus` to
 `/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
 rather than answer 200.
 
@@ -20,10 +21,10 @@ rather than answer 200.
 
 ```
 src/app/                          the routes
-  page.tsx                        landing page — nav, masthead, #desktops (a sentence + links), apps, haus
+  page.tsx                        landing page — nav, masthead, #desktops (a sentence + one link), apps, haus
   perch/,                         one page each; perch/privacy/ is linked from the App Store
-  desktops/nebelhaus/,            — don't move or rename that URL. The desktop page also
-  terms/, refunds/                carries #first-moves and #keys, from the retired docs tree
+  terms/, refunds/                — don't move or rename that URL. (desktops/ used to be here;
+                                  every desktop is a docs page now, with 301s in _redirects)
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
   docs/                           the Fumadocs shell
@@ -36,7 +37,7 @@ src/lib/
   page-meta.ts                    a page's canonical + og: tags, in one call
   shared.ts                       the strings the build repeats, theme-color included
   icons.tsx                       the docs' whole icon vocabulary, by name
-content/docs/                     the docs, as MDX — haus/ and pounce/ are both root folders
+content/docs/                     the docs, as MDX — haus/, pounce/, perch/ and trill/ are root folders
 public/                           assets only; no HTML lives here
   hausfold.css                    tokens, type, and the design decisions in its header
   _redirects  _headers            consumed by Cloudflare, never served

@@ -4,17 +4,42 @@
 # why none of them do).
 #
 # /desktops was a page until 2026-08-12, then the landing page's first
-# section; since 2026-08-14 that section is one sentence and four links, and
+# section; since 2026-08-14 that section is one sentence and one link, and
 # the comparison lives at /docs/haus/desktops/choosing. The target is
 # unchanged and stays that way whatever #desktops becomes — this URL has been
 # shared since 2026-08-08. Both spellings are listed because the
 # no-slash form only 307s to the slash form while an index.html exists at
 # that path, and it no longer does.
 #
-# Exact paths only, never `/desktops/*` — the deep page /desktops/nebelhaus/
-# did NOT move, and a wildcard here would swallow it.
+# 🚨 Exact paths only, never `/desktops/*`. The three deep pages below need
+# three DIFFERENT targets, so a wildcard could not serve them even now that
+# they are all redirects — and the day one of them comes back as a page, a
+# wildcard would 301 it away from itself.
 /desktops     /#desktops   301
 /desktops/    /#desktops   301
+
+# The three desktop pages, deleted 2026-08-14 — hours after `everyday` and
+# `minimal` landed, and the same day the catalogue in front of them was cut.
+# The user's call, and the reasoning is the one that retired /haus and
+# /pounce before them: the docs and the landing page are the only surfaces
+# this site keeps, and a desktop is a set of values for haus's own options,
+# which is a subject the haus tree already carries a section on. Each page's
+# copy went to its own page under /docs/haus/desktops/ rather than into one
+# shared table, so each URL has an exact destination.
+#
+# These were published, canonical and shared from 2026-08-08 (nebelhaus) and
+# 2026-08-14 (the other two). They keep resolving forever.
+#
+# ⚠️ NOT affected, and must not be: /nebelhaus.sh, /everyday.sh and
+# /minimal.sh, which are worker.js routes and are what a `curl | bash` in
+# someone's shell history actually calls. Deleting a page never touches an
+# installer URL.
+/desktops/nebelhaus   /docs/haus/desktops/nebelhaus/   301
+/desktops/nebelhaus/  /docs/haus/desktops/nebelhaus/   301
+/desktops/everyday    /docs/haus/desktops/everyday/    301
+/desktops/everyday/   /docs/haus/desktops/everyday/    301
+/desktops/minimal     /docs/haus/desktops/minimal/     301
+/desktops/minimal/    /docs/haus/desktops/minimal/     301
 
 # /haus was a sheet of its own until 2026-08-14, written before the docs
 # existed. It now says less about haus than /docs/haus does, in more words, so
@@ -72,17 +97,23 @@
 /pounce                               /docs/pounce/                       301
 /pounce/                              /docs/pounce/                       301
 
-# The nebelhaus docs tree was retired the same day, into the desktop's own page
-# — "for now", explicitly a holding position. A desktop is a set of values for
-# haus's options rather than a subject of its own, so the switcher's axis is
-# the layer and the apps. Both deep pages land on the section that carries what
-# they carried; the anchors are in public/hausfold.css's scroll-margin rule.
+# The nebelhaus docs tree was retired the same day, first into the desktop's
+# own page and — when that page went too, hours later — into the haus tree's
+# Desktops section, which is where a desktop was always going to end up: it is
+# a set of values for haus's options rather than a subject of its own, and the
+# switcher's axis is the layer and the apps.
+#
+# Two of these are re-pointed rather than new. `first-run` still lands on a
+# section that carries what it carried. `keybindings` does NOT: the keys were
+# a copy of what /docs/haus/rooms/windows already documents in full, and the
+# port deliberately did not make a second copy of them — so this URL now lands
+# on the page that has them rather than on a shortened reprint.
 #
 # Exact paths, as everywhere in this file — a /docs/nebelhaus/* wildcard would
 # be fine today and wrong the moment the tree comes back.
-/docs/nebelhaus                       /desktops/nebelhaus/                301
-/docs/nebelhaus/                      /desktops/nebelhaus/                301
-/docs/nebelhaus/first-run             /desktops/nebelhaus/#first-moves    301
-/docs/nebelhaus/first-run/            /desktops/nebelhaus/#first-moves    301
-/docs/nebelhaus/keybindings           /desktops/nebelhaus/#keys           301
-/docs/nebelhaus/keybindings/          /desktops/nebelhaus/#keys           301
+/docs/nebelhaus              /docs/haus/desktops/nebelhaus/               301
+/docs/nebelhaus/             /docs/haus/desktops/nebelhaus/               301
+/docs/nebelhaus/first-run    /docs/haus/desktops/nebelhaus/#first-moves   301
+/docs/nebelhaus/first-run/   /docs/haus/desktops/nebelhaus/#first-moves   301
+/docs/nebelhaus/keybindings  /docs/haus/rooms/windows/                    301
+/docs/nebelhaus/keybindings/ /docs/haus/rooms/windows/                    301

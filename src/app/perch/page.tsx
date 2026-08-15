@@ -8,6 +8,16 @@ import { pageMetadata } from '@/lib/page-meta';
 // ⚠️ `workshop/web/src/pages/perch.astro` is still what `nebelhaus.com/perch`
 // serves. Two pages about one product will not agree for long — fix a fact in
 // both or in neither until the 301s land.
+//
+// 🚨 Since 2026-08-14 perch also has a docs tree, `content/docs/perch/`, and
+// this page did NOT get retired into it the way /pounce did. The split is by
+// shape, not by subject: this is a **sales sheet** — a policy URL, a download,
+// and later a price — and a manual is the wrong container for any of those.
+// The cost is the duplicate-fact risk the warning above describes, one repo
+// closer to home: the behaviour list below and `/docs/perch/using` say the
+// same things, so a fact fixed here is fixed there in the same commit or in
+// neither. Anything that is only ever *read* rather than *pitched* belongs in
+// the tree alone.
 export const metadata = pageMetadata({
   title: 'perch — hausfold',
   description:
@@ -153,9 +163,9 @@ export default function Perch() {
           </dd>
         </dl>
         <p className="aside">
-          Perch also has a room in the <Link href="/desktops/nebelhaus">nebelhaus</Link> desktop,
-          where it&apos;s installed and kept up to date with the rest of the house. Standalone and
-          in-the-house are the same app.
+          Perch also has a <Link href="/docs/haus/rooms/shelf">room in haus</Link>, where it&apos;s
+          installed and kept up to date with the rest of the house. Standalone and in-the-house are
+          the same app.
         </p>
       </section>
 
@@ -189,6 +199,15 @@ export default function Perch() {
       <section className="block">
         <h2>Elsewhere</h2>
         <ul className="plain" role="list">
+          {/* Inward the day the inward page existed, which is the rule this
+              site applies to every link: perch got a docs tree of its own on
+              2026-08-14 and this row landed with it. */}
+          <li>
+            <Link className="index-name" href="/docs/perch">
+              the perch docs
+            </Link>{' '}
+            — the shelf in full: what it catches, what it keeps, every setting.
+          </li>
           <li>
             <a className="index-name" href="https://github.com/hausfold/perch">
               github.com/hausfold/perch

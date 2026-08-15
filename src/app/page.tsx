@@ -12,7 +12,7 @@ import { pageMetadata } from '@/lib/page-meta';
 //
 // Two structural decisions from that second cut, both the user's:
 //
-//   the desktop catalogue is gone — one sentence and a link to
+//   the desktop catalogue is gone — one sentence and ONE link, to
 //     /docs/haus/desktops/choosing, no screenshot frames at all. It is
 //     explicitly a holding position ("we'll reconsider once velocity slows"),
 //     not a claim that desktops matter less. The #desktops anchor STAYS: the
@@ -20,6 +20,12 @@ import { pageMetadata } from '@/lib/page-meta';
 //   sections are lists, not paragraphs — a short line saying what the tier is,
 //     then names. The page is read in ten seconds by someone deciding where to
 //     click, and a paragraph is the wrong shape for that.
+//
+// A third followed hours later, also the user's: /desktops/{nebelhaus,
+// everyday,minimal} were deleted outright and every desktop is documented at
+// /docs/haus/desktops/<name>. So this page names no desktop at all — the one
+// link goes to the page that compares them, which is the question a front
+// door can actually answer.
 //
 // The head is `pageMetadata` and the `theme-color`/favicon pair comes from
 // `src/app/layout.tsx`.
@@ -83,8 +89,10 @@ export default function Home() {
               the docs, which is where every explanation this page used to make
               now lives, and the org. It sits above the mark rather than beside
               it because the mark is 5rem tall and a row would have to pick a
-              baseline between them; and it is right-aligned onto the column's
-              own right edge, which is the axis the whole page hangs from now.
+              baseline between them; and it is flush LEFT, onto the column's
+              own left edge, which is the axis the whole page hangs from since
+              the lean reversed. (It was flush right for the few hours the
+              column leaned right — same rule, mirrored with the geometry.)
 
               Inner pages keep `.crumbs` instead — they are already inside the
               site and their question is "how do I get back up", not "where
@@ -93,7 +101,7 @@ export default function Home() {
               Two judgement calls worth having written down. It is inside
               `<main>`, which nests a nav landmark under main: the alternative
               is a sibling of `.sheet` re-deriving the column's whole
-              right-leaning inset to line up with it, and one landmark inside
+              leaning inset to line up with it, and one landmark inside
               another is the cheaper of the two costs. And it takes `.crumbs`'s
               ink and size — the quietest on the site — even though this is the
               page's only exit, because the page is 40 lines long and the exits
@@ -109,11 +117,20 @@ export default function Home() {
           </div>
           <h1 className="wordmark">hausfold</h1>
           <p className="standfirst">We rebuild the Mac.</p>
+          {/* Rewritten 2026-08-14, the user's call, and the note is the brief
+              rather than the copy: the version before it opened "a new Mac
+              takes a weekend to make yours", which reads as one person ricing
+              one laptop over a wet Sunday. That undersells what is actually
+              here — a layer that rebuilds macOS itself and hands you the
+              result as text, on any number of machines. So: general before
+              personal, and the same facts (what it covers, that it is one
+              file, that it is one command) in the same number of words. */}
           <div className="lede">
             <p>
-              A new Mac takes a weekend to make yours, and by the next one you can&apos;t remember
-              how you did it. hausfold turns that weekend into <strong>a file</strong> — the windows,
-              the bar, the shell, the keys, the apps, the settings — and one command puts it back.
+              A Mac out of the box is somebody else&apos;s idea of a Mac. hausfold rebuilds it into
+              yours — the windows, the bar, the shell, the keys, the apps, the settings you always
+              change by hand — and writes the whole arrangement down as <strong>one file</strong>.
+              One command puts that Mac on any machine you own, and puts it back after you wipe one.
             </p>
           </div>
         </header>
@@ -123,15 +140,23 @@ export default function Home() {
             docs sidebar's way-out row all point at /#desktops. It was a
             catalogue of three plates with a screenshot frame each until
             2026-08-14; the user cut it to a sentence the same day, on the
-            grounds that the deep pages and /docs/haus/desktops/choosing both
-            say it better and a front page should route rather than sell.
+            grounds that /docs/haus/desktops/choosing says it better and a
+            front page should route rather than sell.
 
-            The three names stay linked even though the prose is one line —
-            /desktops/<name> is where the install command is, and the docs page
-            beside them is where the comparison is. Only nebelhaus carries a
-            data-accent: the rice is a named thing with a hue assigned
-            upstream, and everyday and minimal are selections of the same
-            options rather than products (AGENTS.md's closed vocabulary). */}
+            ONE link, and deliberately not the desktops' names. It listed
+            three of them for a few hours, on the reasoning that each name led
+            to its own install command — then those pages were deleted too,
+            and naming three things a reader cannot yet tell apart, in a
+            section whose whole job is to send them one click on, is three
+            decisions asked before the one that matters. `choosing` is the
+            page that answers "which of these is mine?"; every desktop's own
+            page is one further click from there.
+
+            Nothing here carries a data-accent any more, and that follows from
+            the same cut rather than from a change of rule: a desktop is not a
+            product and never had one, except `nebelhaus`, which is a named
+            thing with a hue assigned upstream — and its name is no longer on
+            this page to carry it. (AGENTS.md's closed vocabulary.) */}
         <section className="block" id="desktops">
           <h2>Desktops</h2>
           <p>
@@ -139,18 +164,7 @@ export default function Home() {
             installs — and a Mac runs exactly one.
           </p>
           <p className="aside">
-            <Link className="index-name" data-accent="nebelhaus" href="/desktops/nebelhaus">
-              nebelhaus
-            </Link>
-            ,{' '}
-            <Link className="index-name" href="/desktops/everyday">
-              everyday
-            </Link>
-            ,{' '}
-            <Link className="index-name" href="/desktops/minimal">
-              minimal
-            </Link>{' '}
-            — <Link href="/docs/haus/desktops/choosing">how to choose between them</Link>.
+            <Link href="/docs/haus/desktops/choosing">The four that ship, and how to choose</Link>.
           </p>
         </section>
 
@@ -159,10 +173,19 @@ export default function Home() {
           {/* "made to sit inside the desktop", not "come with the desktop":
               trill is in the incubator and ships with nothing yet, and a
               blanket claim over a list whose last row says "In incubator"
-              is a claim the products don't back. */}
+              is a claim the products don't back.
+
+              The agent clause is the user's, restored 2026-08-14 — the cut
+              earlier that day shortened this to "Settings in a plain file —
+              no account, no subscription", which drops the half of the
+              sentence that says WHY a plain file is the point. Read, diff and
+              hand to an agent is the same argument the haus section below
+              makes about the whole machine, one tier down, and it is the one
+              thing here a settings pane cannot do. */}
           <p>
-            Small Mac apps, made to sit inside the desktop and to work fine without it. Settings in a
-            plain file — no account, no subscription.
+            Small native Mac apps, made to sit inside the desktop and to work fine without it. Each
+            keeps its settings in a plain file you can read, diff and hand to an agent — no account,
+            no subscription, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
             {/* pounce points at its docs, not at a product page: it had one
@@ -182,9 +205,18 @@ export default function Home() {
               </Link>
               , a place for files to park on their way somewhere else.
             </li>
+            {/* trill's name became a link on 2026-08-14, when it got a tree
+                of its own — the "inward on the day the inward page exists"
+                rule, applied to the one row that had nowhere to point. It is
+                still the workshop-stage name AGENTS.md allows here on the
+                condition the register accounts for it, and the page it lands
+                on opens by saying there is nothing to install, so the link
+                makes no claim the row didn't. */}
             <li data-accent="trill">
-              <span className="index-name">trill</span>, your notifications without the noise. In
-              incubator.
+              <Link className="index-name" href="/docs/trill">
+                trill
+              </Link>
+              , your notifications without the noise. In incubator.
             </li>
           </ul>
         </section>
@@ -204,17 +236,31 @@ export default function Home() {
             its own: the house borrows every colour and owns none. */}
         <section className="block">
           <h2>haus</h2>
+          {/* `haus` is the link rather than a <strong>, changed 2026-08-14 at
+              the user's request. It was the one place on this page where the
+              name of the thing the whole section is about was emphasised and
+              inert, with the door to it two paragraphs below in an .aside.
+              The name IS the door now; the .aside still carries the deeper
+              pair (every option, and what the install does) because those are
+              different questions. */}
           <p>
-            Underneath all of it is <strong>haus</strong> — macOS itself, turned into options you set
-            in a file.
+            Underneath all of it is{' '}
+            <Link className="index-name" href="/docs/haus">
+              haus
+            </Link>{' '}
+            — macOS itself, turned into options you set in a file.
           </p>
           <Command>{example}</Command>
+          {/* Two links, and neither repeats the one in the sentence above —
+              which it did until `haus` itself became that link. A section
+              with the same href on it twice spends a reader's attention
+              twice to move them once. */}
           <p className="aside">
             <code>haus rebuild</code> applies it; <code>haus rollback</code> takes it back.{' '}
-            <Link className="index-name" href="/docs/haus">
-              The docs
+            <Link className="index-name" href="/docs/haus/reference/options">
+              Every option
             </Link>{' '}
-            have every room and every option, and{' '}
+            is written down, and so is{' '}
             <Link className="index-name" href="/docs/haus/install">
               what the install does
             </Link>{' '}

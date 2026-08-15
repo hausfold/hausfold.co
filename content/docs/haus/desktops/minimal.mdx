@@ -1,0 +1,71 @@
+---
+title: minimal
+description: Just the themed shell — the prompt, the toolbelt and the colours, on an otherwise stock macOS. Few rooms, not few tools.
+icon: minimal
+---
+
+**minimal** is the terminal, finished — a tinted prompt, a themed toolbelt, and
+the colours to match — on an otherwise **stock macOS**. No bar, no tiling, no
+launcher, no shelf. Nothing that changes how the Mac behaves outside the window
+you type in.
+
+It is still a developer machine. Minimal here means **few rooms, not few
+tools**: the toolbelt is the same one nebelhaus ships. If what you want is a Mac
+with no developer tooling on it at all, that one is
+[everyday](/docs/haus/desktops/everyday).
+
+```sh
+curl -fsSL https://hausfold.co/minimal.sh | bash
+```
+
+The URL picks the desktop, so the installer won't ask which one you want — or
+`nix run github:hausfold/haus#bootstrap` straight from the flake once Nix is
+installed. [Install](/docs/haus/install) has the rest.
+
+## What's in it
+
+Two rooms, plus the shell every desktop starts with — that one has no switch and
+ships with every desktop, `blank` included, so it isn't counted here. Nothing
+reaches past the terminal window. Each room is the same module nebelhaus uses:
+this desktop selects fewer of them, it doesn't use lesser ones.
+
+| | |
+|---|---|
+| **[Development](/docs/haus/rooms/development)** | zsh, a tinted starship prompt, git, helix, the toolbelt with Node wired up — and zellij opens locked, so the multiplexer's own keys stay out of your way until you ask for them |
+| **[Security](/docs/haus/rooms/security)** | Touch ID for `sudo`, and rebuilds that don't stop to ask twice |
+| **[the theme](/docs/haus/rooms/appearance)** | The accent the palette is built from — mauve, until you say otherwise. Tuning, not a room |
+
+Mono is set to 19pt, up from the room's 13 — a deliberate default rather than a
+leftover. This desktop *is* a terminal, and a terminal you read all day is worth
+the size.
+
+## What it deliberately leaves out
+
+Every one of these is absent for the same reason: it would reach outside the
+terminal, which is the one promise this desktop makes. All of them are a line in
+your own host file away if you disagree.
+
+| | |
+|---|---|
+| **coding agents** | A room of their own; `haus.ai.enable = true` brings them here |
+| **theme ports** | They write theme files into apps this desktop never installed |
+| **the wallpaper** | The desktop picture is not the shell |
+| **a video player** | An editorial app pick, and the one thing here you may miss from nebelhaus — `haus.apps.videoPlayer.enable = true` brings IINA back in one line |
+| **Focus, and the tour** | A quiet switch and a tutor both teach moves this selection doesn't ship |
+
+## Where to go next
+
+<Cards>
+  <Card
+    icon={<Icon name="choose" />}
+    title="Choose a desktop"
+    href="/docs/haus/desktops/choosing"
+    description="The four that ship, side by side — and how to switch to another one in a single line."
+  />
+  <Card
+    icon={<Icon name="blank" />}
+    title="Start blank"
+    href="/docs/haus/desktops/blank"
+    description="One step further down: a desktop that selects nothing, and how to add rooms one at a time."
+  />
+</Cards>

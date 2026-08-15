@@ -1,6 +1,7 @@
-# Cloudflare Worker for hausfold.co — the landing page (which carries the
-# desktop catalogue itself since 2026-08-12), /desktops/<name>, /haus,
-# /pounce, /perch, and the seller's pages (/terms, /refunds).
+# Cloudflare Worker for hausfold.co — the landing page, /perch (and
+# /perch/privacy), the seller's pages (/terms, /refunds), and the docs tree at
+# /docs. Every other page this file used to name — /desktops/<name>, /haus,
+# /pounce — is a 301 now; see public/_redirects.
 #
 # Since 2026-08-14 there IS a `main`: `worker.js` carries the three routes that
 # can't be files — `/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`
@@ -24,7 +25,8 @@
 # ./out/404.html — generated at build time from `src/app/not-found.tsx`, not
 # copied from `public/` — with a real 404 instead. Real paths still resolve
 # first, and `html_handling` stays at its default (`auto-trailing-slash`),
-# which is what maps /desktops/nebelhaus to ./out/desktops/nebelhaus/index.html.
+# which is what maps /docs/haus/desktops/nebelhaus to
+# ./out/docs/haus/desktops/nebelhaus/index.html.
 # That directory-with-index shape is why `trailingSlash: true` is set in
 # next.config.mjs — Next only exports it that way with the flag on, and this
 # default is what serves it.

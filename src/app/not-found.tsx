@@ -14,8 +14,8 @@ import { Colophon, GithubMark } from '@/components/sheet';
 // and `/#desktops` were files in `public/` rather than Next routes, and
 // `next/link` would have prefetched a route that didn't exist. The landing
 // pages became routes, so that reason is gone — and this page is no longer the
-// odd one out under the layout, either: it is one hand-written-half page
-// among eight.
+// odd one out under the layout, either: it is one `.sheet` route among the
+// rest.
 //
 // `noindex` is added by Next for this route; the original page set it by
 // hand for the same reason — the document is served under whatever wrong URL
