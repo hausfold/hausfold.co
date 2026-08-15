@@ -34,12 +34,24 @@
 # /minimal.sh, which are worker.js routes and are what a `curl | bash` in
 # someone's shell history actually calls. Deleting a page never touches an
 # installer URL.
-/desktops/nebelhaus   /docs/haus/desktops/nebelhaus/   301
-/desktops/nebelhaus/  /docs/haus/desktops/nebelhaus/   301
+#
+# ⚠️ The nebelhaus rows' DESTINATION moved again hours later, when the desktop
+# itself was renamed to `hacker` (the rename note's §11). Re-pointed rather than
+# left to chain onto the row below: a 301 landing on a 301 is exactly the second
+# hop this file exists to avoid.
+/desktops/nebelhaus   /docs/haus/desktops/hacker/      301
+/desktops/nebelhaus/  /docs/haus/desktops/hacker/      301
 /desktops/everyday    /docs/haus/desktops/everyday/    301
 /desktops/everyday/   /docs/haus/desktops/everyday/    301
 /desktops/minimal     /docs/haus/desktops/minimal/     301
 /desktops/minimal/    /docs/haus/desktops/minimal/     301
+
+# The desktop was renamed `nebelhaus` → `hacker` on 2026-08-14 (rename note §11,
+# decision 10), so the docs page it had lived on for a few hours needs its own
+# pair. Short-lived as a canonical URL, but it was linked from /docs/haus and
+# from the desktops index in that window, and the cost of a row is one line.
+/docs/haus/desktops/nebelhaus   /docs/haus/desktops/hacker/   301
+/docs/haus/desktops/nebelhaus/  /docs/haus/desktops/hacker/   301
 
 # /haus was a sheet of its own until 2026-08-14, written before the docs
 # existed. It now says less about haus than /docs/haus does, in more words, so
@@ -111,9 +123,9 @@
 #
 # Exact paths, as everywhere in this file — a /docs/nebelhaus/* wildcard would
 # be fine today and wrong the moment the tree comes back.
-/docs/nebelhaus              /docs/haus/desktops/nebelhaus/               301
-/docs/nebelhaus/             /docs/haus/desktops/nebelhaus/               301
-/docs/nebelhaus/first-run    /docs/haus/desktops/nebelhaus/#first-moves   301
-/docs/nebelhaus/first-run/   /docs/haus/desktops/nebelhaus/#first-moves   301
+/docs/nebelhaus              /docs/haus/desktops/hacker/                  301
+/docs/nebelhaus/             /docs/haus/desktops/hacker/                  301
+/docs/nebelhaus/first-run    /docs/haus/desktops/hacker/#first-moves      301
+/docs/nebelhaus/first-run/   /docs/haus/desktops/hacker/#first-moves      301
 /docs/nebelhaus/keybindings  /docs/haus/rooms/windows/                    301
 /docs/nebelhaus/keybindings/ /docs/haus/rooms/windows/                    301

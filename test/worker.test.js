@@ -246,6 +246,35 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
     expect(res.status).toBe(200);
     expect(res.headers.get('x-hausfold-desktop')).toBe('nebelhaus');
   });
+
+  // The desktop was renamed to `hacker` on 2026-08-14 (the rename note's §11).
+  it('/hacker.sh resolves — the desktop under its current name', async () => {
+    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
+    const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
+    expect(res.status).toBe(200);
+  });
+
+  // 🚨 The one thing about that rename a reader will want to "fix". `hacker`'s
+  // pin is still the OLD desktop name, because this Worker serves bootstrap.sh
+  // from the latest RELEASE TAG and the released bootstrap only answers to
+  // `nebelhaus`. Pinning `hacker` before that release ships would resolve, then
+  // die inside the script with "unknown desktop" — the worst shape of failure
+  // an install command has. Flip the pin and this assertion together, after a
+  // haus release carries the rename.
+  it('/hacker.sh pins a desktop name the RELEASED bootstrap understands', async () => {
+    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
+    const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
+    expect(res.headers.get('x-hausfold-desktop')).toBe('nebelhaus');
+  });
+
+  // Both spellings of the env var reach the script, so a bootstrap from either
+  // side of the rename reads the answer the URL already gave.
+  it('/hacker.sh sets both the new and the old desktop env var', async () => {
+    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
+    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
+    expect(body).toContain('HAUS_DESKTOP=nebelhaus');
+    expect(body).toContain('NEBELHAUS_DESKTOP=nebelhaus');
+  });
 });
 
 describe('latestRef() fallback chain', () => {

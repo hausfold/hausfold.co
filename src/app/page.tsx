@@ -154,7 +154,7 @@ export default function Home() {
 
             Nothing here carries a data-accent any more, and that follows from
             the same cut rather than from a change of rule: a desktop is not a
-            product and never had one, except `nebelhaus`, which is a named
+            product and never had one, except `hacker`, which is a named
             thing with a hue assigned upstream — and its name is no longer on
             this page to carry it. (AGENTS.md's closed vocabulary.) */}
         <section className="block" id="desktops">

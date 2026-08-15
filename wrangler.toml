@@ -25,8 +25,8 @@
 # ./out/404.html — generated at build time from `src/app/not-found.tsx`, not
 # copied from `public/` — with a real 404 instead. Real paths still resolve
 # first, and `html_handling` stays at its default (`auto-trailing-slash`),
-# which is what maps /docs/haus/desktops/nebelhaus to
-# ./out/docs/haus/desktops/nebelhaus/index.html.
+# which is what maps /docs/haus/desktops/hacker to
+# ./out/docs/haus/desktops/hacker/index.html.
 # That directory-with-index shape is why `trailingSlash: true` is set in
 # next.config.mjs — Next only exports it that way with the flag on, and this
 # default is what serves it.

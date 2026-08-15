@@ -146,7 +146,7 @@
   --well: #f2f0ed;
 
   /* borrowed accents, light ground */
-  --a-nebelhaus: #a83a8b;
+  --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
   --a-holt: #0f7268;
   --a-perch: #2e7a37;
@@ -180,7 +180,7 @@
     --rule: var(--nebelung-surface1);
     --well: #1a1a1a;
 
-    --a-nebelhaus: var(--nebelung-pink);
+    --a-hacker: var(--nebelung-pink);
     --a-pounce: var(--nebelung-peach);
     --a-holt: var(--nebelung-teal);
     --a-perch: var(--nebelung-green);
@@ -198,7 +198,7 @@
   --rule: var(--nebelung-surface1);
   --well: #1a1a1a;
 
-  --a-nebelhaus: var(--nebelung-pink);
+  --a-hacker: var(--nebelung-pink);
   --a-pounce: var(--nebelung-peach);
   --a-holt: var(--nebelung-teal);
   --a-perch: var(--nebelung-green);
@@ -215,7 +215,7 @@
   --rule: #c4c0bb;
   --well: #f2f0ed;
 
-  --a-nebelhaus: #a83a8b;
+  --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
   --a-holt: #0f7268;
   --a-perch: #2e7a37;
@@ -407,7 +407,7 @@ body {
       var(--a-perch),
       var(--a-trill),
       var(--a-pounce),
-      var(--a-nebelhaus),
+      var(--a-hacker),
       var(--a-nebelung)
     );
     -webkit-background-clip: text;
@@ -523,7 +523,7 @@ body {
   text-decoration-color: var(--accent, var(--ink));
 }
 
-[data-accent="nebelhaus"] { --accent: var(--a-nebelhaus); }
+[data-accent="hacker"] { --accent: var(--a-hacker); }
 [data-accent="pounce"] { --accent: var(--a-pounce); }
 [data-accent="holt"] { --accent: var(--a-holt); }
 [data-accent="perch"] { --accent: var(--a-perch); }
@@ -692,7 +692,7 @@ body {
 
    It used to have two neighbours here, #first-moves and #keys on
    /desktops/nebelhaus. That page is gone and the anchors went with it — the
-   first-moves half is /docs/haus/desktops/nebelhaus#first-moves now, which is
+   first-moves half is /docs/haus/desktops/hacker#first-moves now, which is
    the docs half of the site and scrolls under fumadocs' own rules. */
 #desktops {
   scroll-margin-top: clamp(1.5rem, 4vw, 2.5rem);

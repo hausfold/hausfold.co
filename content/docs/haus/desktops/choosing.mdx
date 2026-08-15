@@ -15,7 +15,7 @@ live.
 ```text
 haus foundation          the rooms, their options, safe defaults
       ↓
-one desktop              nebelhaus, everyday, minimal, blank, or yours
+one desktop              hacker, everyday, minimal, blank, or yours
       ↓
 your host file           identity, secrets, hardware, and any override
       ↓
@@ -40,7 +40,7 @@ rather than a second mode.
 
 | Desktop | For | Rooms it turns on |
 |---|---|---|
-| **[nebelhaus](/docs/haus/desktops/nebelhaus)** | the full thing — keyboard-first, developer, tiled | Development, AI, Windows, Bar, Launcher, Shelf, Focus, Security, plus the theme and generated wallpaper |
+| **[hacker](/docs/haus/desktops/hacker)** | the full thing — keyboard-first, developer, tiled | Development, AI, Windows, Bar, Launcher, Shelf, Focus, Security, plus the theme and generated wallpaper |
 | **[everyday](/docs/haus/desktops/everyday)** | a Mac for someone who doesn't write code | Launcher, Bar, Shelf, Focus, Security, the theme and the generated wallpaper — no tiling, no leader key, no coding tools |
 | **[minimal](/docs/haus/desktops/minimal)** | just the themed shell, on otherwise stock macOS | Development, Security and the palette. No bar, no tiling, no launcher, no wallpaper |
 | **[blank](/docs/haus/desktops/blank)** | build your own from the foundation | none |
@@ -55,11 +55,11 @@ tooling is `everyday`.
 Your `~/.config/nix/flake.nix` names it in one line:
 
 ```nix
-darwinConfigurations.lovelace = nebelhaus.mkNebelhaus {
+darwinConfigurations.lovelace = haus.mkHaus {
   username = "ada";
   hostname = "lovelace";
   host = ./hosts/lovelace;
-  desktop = nebelhaus.desktops.everyday;
+  desktop = haus.desktops.everyday;
 };
 ```
 
@@ -69,9 +69,9 @@ Then apply it:
 haus rebuild
 ```
 
-Leave the `desktop` line out and you get **nebelhaus**, which is what every
+Leave the `desktop` line out and you get **hacker**, which is what every
 machine installed before desktops existed is still running. The installer writes
-the line for you; `NEBELHAUS_DESKTOP=minimal` picks a different one on an
+the line for you; `HAUS_DESKTOP=minimal` picks a different one on an
 [unattended install](/docs/haus/install#unattended-installs).
 
 <Callout title="A desktop you found online is selected the same way">
