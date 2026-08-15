@@ -4,7 +4,7 @@ description: Homebrew or a DMG, the one macOS permission pounce asks for, and ho
 icon: install
 ---
 
-Pounce is a prebuilt, Developer-ID-signed and notarized `Pounce.app` — no
+Pounce is a prebuilt, Developer-ID-signed and notarized `Pounce.app`: no
 compile step, no Xcode command-line tools to fetch, no Gatekeeper prompt.
 
 ## Homebrew
@@ -17,13 +17,13 @@ pounce --request-accessibility    # one-time, approve the dialog
 ```
 
 Because that signing identity is stable, the Accessibility grant **survives
-`brew upgrade`** — approve it once, not once per release.
+`brew upgrade`**: approve it once, not once per release.
 
 ## Or a download
 
 The [latest release](https://hausfold.co/download/pounce) is the same build as
 a DMG: drag it to Applications and open it. First launch registers a login item
-and starts the daemon — approve the login item in System Settings if macOS
+and starts the daemon; approve the login item in System Settings if macOS
 asks.
 
 With Nix, without installing anything:
@@ -34,7 +34,7 @@ With Nix, without installing anything:
 | | |
 |---|---|
 | **macOS 14** | Sonoma or newer, on Apple Silicon |
-| **Accessibility** | One permission — see below |
+| **Accessibility** | One permission (see below) |
 | **Nothing else** | No account, no key, no sign-in, no Xcode, no Nix |
 
 ## One key to free up
@@ -42,7 +42,7 @@ With Nix, without installing anything:
 Pounce wants **⌘Space**, and on a stock Mac that key belongs to Spotlight.
 
 <Callout type="warn" title="If ⌘Space does nothing on a stock Mac">
-Spotlight wins **silently** — registration *succeeds*, so Pounce can't tell,
+Spotlight wins **silently**: registration *succeeds*, so Pounce can't tell,
 and macOS just routes the key elsewhere. The daemon checks for this at startup
 and names the shortcut that beat it in its log.
 
@@ -51,7 +51,7 @@ Spotlight**, then restart the daemon.
 </Callout>
 
 Would you rather keep Spotlight where it is? The hotkey is a line of
-[config](/docs/pounce/config#config-file) — the `hotkey` block takes a `key`
+[config](/docs/pounce/config#config-file); the `hotkey` block takes a `key`
 and a list of `modifiers`:
 
 ```jsonc
@@ -77,7 +77,7 @@ pounce --check-accessibility      # prints true when granted
 
 Pounce is honest about why it asks: a global hotkey that works over every app
 can't be had without it. Two features ask for their own the first time you use
-them — the camera peek, and the Bluetooth plugin. Nothing else: no Input
+them: the camera peek, and the Bluetooth plugin. Nothing else: no Input
 Monitoring, no Screen Recording, no Full Disk Access.
 
 <Callout title="Nix rebuilds and Accessibility">
@@ -94,7 +94,7 @@ pounce doctor
 ```
 
 It reports whether the daemon is up, whether Accessibility is granted, every
-binding it actually armed — and what beat it to a hotkey if something did.
+binding it actually armed, and what beat it to a hotkey if something did.
 
 <Cards>
   <Card

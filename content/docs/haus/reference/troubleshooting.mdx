@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: The handful of things that go sideways on macOS — a wedged agent, a missing grant, a stubborn cask — and the exact command that unsticks each one.
+description: The handful of things that go sideways on macOS (a wedged agent, a missing grant, a stubborn cask), and the exact command that unsticks each one.
 icon: lifebuoy
 ---
 
@@ -10,10 +10,10 @@ Start here, whatever the symptom:
 ```sh
 haus doctor    # Nix, the Xcode tools, every GUI agent, cask drift, the
                # launcher's Accessibility grant, the theme ports and your
-               # secrets — in one pass
+               # secrets, in one pass
 ```
 
-Every agent also keeps a log in `/tmp` — `aerospace`, `sketchybar`,
+Every agent also keeps a log in `/tmp`: `aerospace`, `sketchybar`,
 `sill-bottom` and `pounce` each write `<name>.out.log` and `<name>.err.log`
 there. Reading the error log is usually faster than restarting blind, and an
 agent that dies again ten seconds after a kick is telling you something that
@@ -21,7 +21,7 @@ only shows up in it.
 
 ## ⌘Space does nothing
 
-Pounce is a launchd **user agent**. If it isn't answering, kick it — this is the
+Pounce is a launchd **user agent**. If it isn't answering, kick it. This is the
 clean recovery for *any* wedged agent, and the rest of this page reuses it with
 a different label:
 
@@ -38,13 +38,13 @@ pounce --request-accessibility   # approve the system dialog
 pounce --check-accessibility     # prints true once granted
 ```
 
-Set `haus.pounce.signingIdentity` so that grant survives rebuilds — see
+Set `haus.pounce.signingIdentity` so that grant survives rebuilds; see
 [Granting Accessibility](/docs/pounce/install#grant-accessibility). If
 ⌘Space still opens **Spotlight**, log out and back in once so the
 symbolic-hotkey reassignment takes.
 
 <Callout title="Palette opens, but slowly?">
-Another hotkey tool — skhd, AeroSpace, Raycast — bound to the same key grabs it
+Another hotkey tool (skhd, AeroSpace, Raycast) bound to the same key grabs it
 with an event tap *ahead* of Pounce, so every summon spawns a fresh client
 instead of hitting the daemon's fast path. Registration still reports success
 and the palette still opens, which is what makes it hard to spot. `pounce
@@ -52,7 +52,7 @@ doctor` names the culprit and tells you what to unbind.
 
 One line of its output is wrong on a haus machine: if the daemon isn't running
 it suggests `brew services start pounce`, which is the advice for a standalone
-Homebrew install. Here the daemon is the launchd agent above — kick that
+Homebrew install. Here the daemon is the launchd agent above; kick that
 instead.
 </Callout>
 
@@ -84,8 +84,8 @@ If `/tmp/sketchybar.err.log` says `could not acquire lock-file … already
 running?`, a stray `brew services` copy of SketchyBar is holding the lock. Every
 rebuild evicts it, so `haus rebuild` is the fix.
 
-**Running, but stale** — a pill you added isn't there, or a colour change didn't
-land? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or from the
+**Running, but stale** (a pill you added isn't there, or a colour change didn't
+land)? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or from the
 haus menu on a left-click of the logo pill. By hand:
 
 ```sh
@@ -94,7 +94,7 @@ sill-bottom --reload ~/.config/sketchybar/sill-bottomrc   # the bottom bar, if e
 ```
 
 <Callout type="warn" title="Always name the rc, and reload each bar">
-`--reload` on its own doesn't mean "re-read your config" — it means *re-run the
+`--reload` on its own doesn't mean "re-read your config"; it means *re-run the
 path you resolved at startup*, and that path is a symlink into `/nix/store`
 resolved once. So a bare reload can quietly replay the config from the
 generation the bar booted on while exiting 0 and logging success. Naming the
@@ -110,7 +110,7 @@ the native macOS menu bar back.
 If the bar, tiling and ⌘Space all come up dead at once right after upgrading to
 **macOS 26 Tahoe or later**, the culprit is **Background Task Management**.
 Tahoe gates login items whose executable isn't Apple-signed, and every Nix agent
-launches through `/bin/sh -c "…"` — which BTM files under "unidentified
+launches through `/bin/sh -c "…"`, which BTM files under "unidentified
 developer" and can silently refuse to start. They register fine; they just never
 run.
 
@@ -118,7 +118,7 @@ run.
 haus btm    # no-op before Tahoe; on Tahoe+ it reads the BTM store and instructs
 ```
 
-There is **no declarative fix** — the toggle lives in macOS's own BTM store,
+There is **no declarative fix**: the toggle lives in macOS's own BTM store,
 which has no CLI to set it. So it's a one-time manual step: in **System Settings
 ▸ General ▸ Login Items & Extensions**, scroll to **Allow in the Background**,
 find the entries named **`sh`** (subtitled *Item from unidentified developer*),
@@ -131,7 +131,7 @@ You can read the store yourself at any time:
 sudo sfltool dumpbtm | grep -B2 -A8 -iE "nixos|hausfold|darwin-store"
 ```
 
-Look for `disallowed`, and search all three names — the launcher registers under
+Look for `disallowed`, and search all three names: the launcher registers under
 `com.hausfold.pounce` while tiling and the bar are still `org.nixos.*`, so a
 grep for `nixos` alone reports a clean store while the launcher is the thing
 that's blocked.
@@ -141,23 +141,23 @@ that's blocked.
 Same symptom, different cause, and this one needs no upgrade: **a rebuild that
 aborted before it got to them.** If your host file writes
 `system.defaults.universalaccess.*`, activation writes those keys two thirds of
-the way through — and without Full Disk Access that write fails, takes the rest
+the way through, and without Full Disk Access that write fails, takes the rest
 of activation with it, and never reaches the launchd agents. The failure is
 nowhere near the symptom.
 
 `haus doctor`'s **Permissions** section reports the grant, `haus plan` says
 whether this rebuild needs it before you run one, and `haus rebuild` refuses up
-front whenever the app it runs under lacks it — agent pane or plain terminal
+front whenever the app it runs under lacks it, agent pane or plain terminal
 alike, since the grant follows the app. Better still, sidestep the domain:
-`haus.accessibility.*` reaches every key in it that macOS actually honours —
-all seven, which is every key nix-darwin types there — with a guarded write,
+`haus.accessibility.*` reaches every key in it that macOS actually honours
+(all seven, which is every key nix-darwin types there) with a guarded write,
 which costs you the setting and nothing else when the grant is missing. [Changing your Mac with an
 agent](/docs/haus/rooms/agent-rebuilds) has the detail.
 
 ## Touch ID for sudo beachballs inside a multiplexer
 
 The `pam_reattach` shim isn't loading. It ships with the **collar** room and is
-on by default; check the order in `/etc/pam.d/sudo_local` — reattach must come
+on by default; check the order in `/etc/pam.d/sudo_local`: reattach must come
 *before* the Touch ID line. Outside tmux or zellij, Touch ID should just work;
 cancel the prompt to fall back to your password. [Touch
 ID](/docs/haus/rooms/security) has the rest.
@@ -167,13 +167,13 @@ ID](/docs/haus/rooms/security) has the rest.
 Third-party taps fail Homebrew's trust check under a sudo-driven activation.
 haus turns that requirement off globally
 (`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in `/etc/homebrew/brew.env`), so seeing this
-means the file didn't land — re-run `haus rebuild`, or export the variable in
+means the file didn't land. Re-run `haus rebuild`, or export the variable in
 your shell for a one-off.
 
 ## An app I removed from my config is still installed
 
 By design. `haus.homebrew.cleanup` is `"none"`, so nothing you installed is ever
-auto-deleted — and **`haus rollback` doesn't rewind Homebrew apps**, because
+auto-deleted, and **`haus rollback` doesn't rewind Homebrew apps**, because
 they aren't in Nix generations. Remove one by hand:
 
 ```sh
@@ -191,23 +191,23 @@ haus generations    # what you can roll back to
 ```
 
 `haus rebuild` always builds *before* it switches, so a config with an error in
-it can't activate — you get a build failure and a machine exactly as it was. For
+it can't activate: you get a build failure and a machine exactly as it was. For
 macOS **settings** rather than packages, `haus revert-settings` puts back the
 snapshot `haus capture` took, and the APFS snapshot from install time is the
 coarser rewind.
 
-Want to go further than one generation — switch a room off, or remove haus
-entirely? [Leaving](/docs/haus/leaving) walks each exit, smallest first.
+Want to go further than one generation (switch a room off, or remove haus
+entirely)? [Leaving](/docs/haus/leaving) walks each exit, smallest first.
 
 ## "Found a Nix at /nix that isn't Determinate"
 
 haus is built on [Determinate Nix](https://docs.determinate.systems/), and the
-installer stops on any `/nix` that Determinate didn't create — single-user or
-multi-user daemon install alike, it's the *flavour* it checks — rather than risk
+installer stops on any `/nix` that Determinate didn't create (single-user or
+multi-user daemon install alike, it's the *flavour* it checks) rather than risk
 breaking the Nix you already have. If you
 have a Nix you don't need, uninstall it and re-run the one-liner; if you want to
 keep it, migrating to Determinate is the supported path. A fresh Mac needs none
-of this — the bootstrap installs Determinate for you.
+of this; the bootstrap installs Determinate for you.
 
 ## Still stuck?
 
@@ -216,7 +216,7 @@ of this — the bootstrap installs Determinate for you.
     icon={<Icon name="wrench" />}
     title="The haus CLI"
     href="/docs/haus/reference/haus"
-    description="doctor, plan, diff, capture — the read-only commands that show you what a change would do before it does it."
+    description="doctor, plan, diff, capture: the read-only commands that show you what a change would do before it does it."
   />
   <Card
     icon={<Icon name="dials" />}

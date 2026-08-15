@@ -9,11 +9,11 @@ import { pageMetadata } from '@/lib/page-meta';
 // deliberate, not a leak. It names no price, and that is AGENTS.md's rule
 // rather than an omission: when a price lands it lands on `/perch` alone.
 export const metadata = pageMetadata({
-  title: 'Terms — hausfold',
+  title: 'Terms · hausfold',
   description:
     "The terms that apply to hausfold software and to a hausfold licence: what a licence grants, how long updates are covered, and what we don't promise.",
   path: '/terms/',
-  ogTitle: 'Terms — hausfold',
+  ogTitle: 'Terms · hausfold',
   ogDescription:
     "What a hausfold licence grants, how long updates are covered, and what we don't promise.",
 });
@@ -66,7 +66,7 @@ export default function Terms() {
           <dt>updates</dt>
           <dd>
             a licence covers every build released in the year following the purchase date. Nothing
-            stops you installing a later one — the app simply runs it unlicensed, and says so,
+            stops you installing a later one; the app simply runs it unlicensed, and says so,
             telling you which builds your licence does cover. Renewing extends that by another year
             and reactivates it.
           </dd>
@@ -78,7 +78,7 @@ export default function Terms() {
           </dd>
         </dl>
         <p className="aside">
-          Please don&apos;t publish your licence file or share it beyond its seats — it&apos;s
+          Please don&apos;t publish your licence file or share it beyond its seats: it&apos;s
           signed and it carries your email, which makes a leaked one easy to trace and awkward for
           you.
         </p>
@@ -93,9 +93,9 @@ export default function Terms() {
           offer it to other people as a competing product, or hand out your own builds of it. Two
           years after a release ships, that release converts to Apache-2.0 and every restriction
           lifts; tags cut before the relicence stay MIT forever. Everything else hausfold publishes
-          has a licence of its own —{' '}
+          has a licence of its own.{' '}
           <strong>
-            each repository&apos;s <code>LICENSE</code> file is the authority, not this paragraph.
+            Each repository&apos;s <code>LICENSE</code> file is the authority, not this paragraph.
           </strong>
         </p>
       </section>
@@ -130,7 +130,7 @@ export default function Terms() {
           live.
         </p>
         <p className="aside">
-          Perch stages copies and never moves, renames or deletes your originals — deliberately, so
+          Perch stages copies and never moves, renames or deletes your originals, deliberately, so
           an interrupted drag can&apos;t lose data. Keep backups anyway. Everyone should.
         </p>
       </section>
@@ -146,7 +146,7 @@ export default function Terms() {
       <section className="block">
         <h2>Reaching us</h2>
         <p>
-          <a href="mailto:hi@hausfold.co">hi@hausfold.co</a> — a person reads it. For anything about
+          <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>. A person reads it. For anything about
           a payment, quoting the order number from your Paddle receipt gets you an answer fastest.
         </p>
       </section>

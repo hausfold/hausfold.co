@@ -5,8 +5,8 @@ icon: compass
 ---
 
 **haus** is a layer for macOS. You describe the machine you want in one text
-file — apps, window management, the bar, the shell, the colours, the macOS
-settings you always change by hand — and one command makes the Mac match it.
+file: apps, window management, the bar, the shell, the colours, the macOS
+settings you always change by hand. Then one command makes the Mac match it.
 
 ```nix
 haus.theme.accent = "sapphire";
@@ -26,7 +26,7 @@ That is the whole idea. The rest of these pages are the detail.
 ## Why bother
 
 - **It survives the machine.** A new Mac, or a wiped one, is one command away
-  from being the old one — because the old one was text.
+  from being the old one, because the old one was text.
 - **It undoes.** A failed build never activates. A regretted change is
   `haus rollback`, atomic, in seconds.
 - **It's one setting, not forty.** The accent colour lands in the terminal,
@@ -41,7 +41,7 @@ it up over time, and that's the whole curve.
 
 ## What's in the box
 
-haus is organised into twelve **rooms** — each one a capability you can turn on,
+haus is organised into twelve **rooms**, each one a capability you can turn on,
 off, or leave alone. Turn on the ones you want; the rest cost you nothing.
 
 | Room | What it does |
@@ -70,7 +70,7 @@ thing, or just [pounce](/docs/pounce), or just the palette.
 
 ## The shape of a haus machine
 
-Your config lives at `~/.config/nix` and it is **yours** — your name, your keys,
+Your config lives at `~/.config/nix` and it is **yours**: your name, your keys,
 your app list. It imports haus; it never edits it. haus stays upstream, pinned
 to an exact commit, and nothing about your machine changes until you run
 `haus update`.
@@ -91,12 +91,12 @@ and their improvements are never a surprise on your machine.
     icon={<Icon name="choose" />}
     title="Choose a desktop"
     href="/docs/haus/desktops/choosing"
-    description="Which rooms this Mac runs, and what the visible choices are — hacker, everyday, minimal, blank, or one of your own."
+    description="Which rooms this Mac runs, and what the visible choices are: hacker, everyday, minimal, blank, or one of your own."
   />
   <Card
     icon={<Icon name="hacker" />}
     title="hacker"
     href="/docs/haus/desktops/hacker"
-    description="The desktop most people install haus by installing — what it turns on, and the first moves that make it click."
+    description="The desktop most people install haus by installing: what it turns on, and the first moves that make it click."
   />
 </Cards>

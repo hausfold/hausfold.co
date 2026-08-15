@@ -1,11 +1,11 @@
 ---
 title: Focus
-description: One quiet switch — bar pill, palette command and CLI — for macOS Do Not Disturb, your Slack status, and your own hooks on both edges.
+description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges.
 icon: bellOff
 ---
 
-**hush** is the quiet room. One switch — the bell pill in the bar, "Toggle
-Hush" in the palette, or `hush` in a terminal — turns macOS **Do Not
+**hush** is the quiet room. One switch (the bell pill in the bar, "Toggle
+Hush" in the palette, or `hush` in a terminal) turns macOS **Do Not
 Disturb** on or off, optionally sets your **Slack status** (and silences
 Slack on your phone), and runs any **hooks** you add. All three surfaces
 call the same engine, so they can never disagree.
@@ -23,10 +23,10 @@ haus.hush.enable = true;
 
 ## How the toggle works
 
-Apple ships no public API or CLI to set a Focus — every "focus CLI" on
+Apple ships no public API or CLI to set a Focus; every "focus CLI" on
 GitHub is secretly a Shortcuts wrapper. haus takes a different path: macOS
-has a hidden keyboard shortcut slot — *"Turn Do Not Disturb On/Off,"*
-symbolic hotkey **175**, disabled by default — and every rebuild binds it
+has a hidden keyboard shortcut slot (*"Turn Do Not Disturb On/Off,"*
+symbolic hotkey **175**, disabled by default), and every rebuild binds it
 declaratively to **⌃⌥⇧⌘ F13**, a chord nothing else uses. `hush` synthesizes
 that keypress; nothing to author by hand, and the binding heals itself on
 every rebuild.
@@ -39,11 +39,11 @@ falls back to remembering its own last toggle.
 ## The one-time grants
 
 Synthesizing a keypress needs **Accessibility**; exact state reads need
-**Full Disk Access** — both granted once, per app, in System Settings →
+**Full Disk Access**. Both are granted once, per app, in System Settings →
 Privacy & Security. Run `hush doctor` any time to check each piece and print
 the fix for whatever's missing.
 
-- **Palette toggles work out of the box** — they run under the Pounce
+- **Palette toggles work out of the box**: they run under the Pounce
   daemon, which already holds Accessibility.
 - **For the bar pill**, add **sketchybar** to Accessibility.
 - **For the CLI**, add your terminal.
@@ -53,7 +53,7 @@ the fix for whatever's missing.
 
 <Callout type="tip" title="Why grants stick">
 macOS keys TCC grants to a code-signing identity. haus re-signs Pounce with
-your stable identity precisely so these checkboxes survive rebuilds — tick
+your stable identity precisely so these checkboxes survive rebuilds: tick
 them once, forget them.
 </Callout>
 
@@ -75,7 +75,7 @@ It's off by default because it needs a personal Slack token:
    `users.profile:write` and `dnd:write`, then **Install to Workspace** and
    copy the **User OAuth Token** (`xoxp-…`).
 
-3. Stash it in your Keychain — no secret ever touches your config or the
+3. Stash it in your Keychain; no secret ever touches your config or the
    Nix store:
 
    ```bash
@@ -98,7 +98,7 @@ It's off by default because it needs a personal Slack token:
 
 `hush doctor` verifies the token against Slack's API once it's wired.
 
-## Hooks — make hush yours
+## Hooks: make hush yours
 
 Every hush/unhush also runs your own scripts, called with `on` or `off`.
 Failures are logged, never fatal:
@@ -115,30 +115,30 @@ chatty apps to a parking workspace with `aerospace`.
 
 ## Honest scope
 
-- hush flips the built-in **Do Not Disturb**, not named Focus modes — those
+- hush flips the built-in **Do Not Disturb**, not named Focus modes; those
   have no symbolic hotkey to bind.
 - It doesn't manage **which apps or people break through**; that's your
   Focus allowlist, curated once in System Settings → Focus.
 - Without Full Disk Access, `hush status` is hush's own memory and can
-  drift if you toggle Focus elsewhere — it self-corrects on the next real
+  drift if you toggle Focus elsewhere; it self-corrects on the next real
   toggle either way.
 
 ## Troubleshooting
 
-**Run `hush doctor` first** — it checks the hotkey binding, the state-read
+**Run `hush doctor` first**: it checks the hotkey binding, the state-read
 grant, and the Slack token, and prints the fix for each.
 
-- **Click the pill, nothing happens** — sketchybar has no Accessibility
+- **Click the pill, nothing happens**: sketchybar has no Accessibility
   grant yet; toggle from the palette instead, which needs nothing.
-- **Pill shows the wrong state after toggling from Control Center** — grant
+- **Pill shows the wrong state after toggling from Control Center**: grant
   Full Disk Access for exact reads.
-- **The chord stopped working** — a rebuild re-binds hotkey 175 on every
+- **The chord stopped working**: a rebuild re-binds hotkey 175 on every
   activation and heals it.
 
 ## Works with
 
-- **[Bar](/docs/haus/rooms/bar)** — the pill that shows the state and toggles it.
-- **[Launcher](/docs/haus/rooms/launcher)** — the same toggle as a command.
+- **[Bar](/docs/haus/rooms/bar)**: the pill that shows the state and toggles it.
+- **[Launcher](/docs/haus/rooms/launcher)**: the same toggle as a command.
 
 Neither is required: with both rooms off, `hush` is still a CLI.
 
@@ -150,7 +150,7 @@ haus.hush.enable = false;
 
 The pill, the command and the CLI go. The Do Not Disturb chord this room adds is
 one macOS ships disabled, so switching the room off leaves a spare binding
-rather than taking one away — the opposite of the launcher's ⌘Space.
+rather than taking one away, the opposite of the launcher's ⌘Space.
 
 `haus.hush.slack.tokenCommand` is host-only: it names a secret on one machine.
 

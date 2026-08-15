@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { codeToHtml } from 'shiki';
 import { Command } from '@/components/command';
 import { Colophon, GithubMark } from '@/components/sheet';
 import { pageMetadata } from '@/lib/page-meta';
+import { nebelungCssVars } from '@/lib/shiki-theme';
 
 // The landing page. Cut hard on 2026-08-14, twice in one day: first the prose
 // carried across from `public/index.html` lost its second and third paragraphs,
@@ -34,7 +36,7 @@ export const metadata = pageMetadata({
   description:
     'hausfold makes the software that turns a Mac into a workspace someone actually designed.',
   path: '/',
-  ogTitle: 'hausfold — We rebuild the Mac.',
+  ogTitle: 'hausfold · We rebuild the Mac.',
 });
 
 // Says "hausfold is one organisation, and these accounts are it" to anything
@@ -61,28 +63,56 @@ const organization = {
 // The one file, in the form it's actually written. Every option here is real
 // and spelled as `content/docs/haus/reference/options.mdx` spells it — that
 // page is generated from haus's own module system, so it is the thing to check
-// this against when it drifts.
+// this against when it drifts. (`name` is required whenever `key` is set, per
+// the roster options, so the slack entry can't shed it.)
 //
 // It is the one thing on this page that survived the cut by being a
 // demonstration rather than an explanation: four lines of it say what three
 // paragraphs about "declarative configuration" would not.
+//
+// Line length is a layout constraint, not a style choice: `.cmd code` is
+// 0.82rem mono inside a 41rem sheet, and anything much past ~58 characters
+// puts a horizontal scrollbar on the box at ordinary zoom. The roster entry
+// is written multi-line for exactly that reason. Keep new lines under that.
 const example = `{
   haus.theme.accent = "sapphire";
 
-  haus.prowl.enable = true;   # tiling, Caps Lock as the leader key
-  haus.pounce.enable = true;  # the launcher, on ⌘Space
+  haus.prowl.enable = true;  # tiling, Caps Lock as leader
+  haus.pounce.enable = true; # the launcher, on ⌘Space
 
   # installed, and on Caps Lock + s
-  haus.roster.slack = { cask = "slack"; name = "Slack"; key = "s"; };
+  haus.roster.slack = {
+    cask = "slack";
+    name = "Slack";
+    key = "s";
+  };
 }`;
 
-export default function Home() {
+export default async function Home() {
+  // Highlighted at build time — this is a server component and the site is
+  // `output: 'export'`, so Shiki runs once during `next build` and the colour
+  // is in the static HTML. No client JS, no flash of plain text. The theme is
+  // the same css-variables one the docs' code blocks use (src/lib/shiki-theme.ts):
+  // Shiki emits `var(--nb-token-*)` and the stylesheet decides the hues, so
+  // the landing example and every docs block fork light/dark in one place.
+  // `structure: 'inline'` drops the pre/code wrapper so the output slots into
+  // `.cmd`'s existing `<code>` untouched.
+  const exampleHtml = await codeToHtml(example, {
+    lang: 'nix',
+    theme: nebelungCssVars,
+    structure: 'inline',
+  });
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
       />
+      {/* Sections, in order: Rooms (added 2026-08-15), #desktops, Apps, haus,
+          Also from hausfold. Rooms sits first so that "which rooms are on" in
+          the desktops line isn't a forward reference; haus still comes after
+          the products, per the 2026-08-12 decision. */}
       <main className="sheet">
         <header className="masthead">
           {/* The site's only forward navigation, added 2026-08-14. Two words:
@@ -128,12 +158,39 @@ export default function Home() {
           <div className="lede">
             <p>
               A Mac out of the box is somebody else&apos;s idea of a Mac. hausfold rebuilds it into
-              yours — the windows, the bar, the shell, the keys, the apps, the settings you always
-              change by hand — and writes the whole arrangement down as <strong>one file</strong>.
-              One command puts that Mac on any machine you own, and puts it back after you wipe one.
+              yours: the windows, the bar, the shell, the keys, the apps, the settings you always
+              change by hand. The whole arrangement is written down in <strong>one file</strong>.
+              One command puts that Mac on any machine you own, and puts it back after a wipe.
             </p>
           </div>
         </header>
+
+        {/* Added 2026-08-15 at the user's request, above Desktops so "which
+            rooms are on" two sections down isn't a forward reference. It is
+            NOT a merge candidate with `Apps`, and the distinction is the
+            site's own axis (the docs switcher: the layer, and the apps): a
+            room is a unit of haus, an app is a product that installs from
+            brew and runs with no haus at all. Some rooms are built around
+            our apps; the Apps section says so in one clause.
+
+            The app-store comparison is the section's one claim, and it is
+            the mechanism as /docs/haus states it (the accent lands in the
+            terminal, the bar and the browser at once; Slack arrives
+            installed AND bound). Don't count the rooms here: AGENTS.md
+            records that any number written down is wrong somewhere. */}
+        <section className="block" id="rooms">
+          <h2>Rooms</h2>
+          <p>
+            The rebuild happens in rooms: Windows, Launcher, Bar, Focus, and the rest, each a
+            single concern handled all the way down. An app store stops at the app; a room also
+            wires the
+            keys, the theme, and the macOS settings around it, so the pieces already know each
+            other.
+          </p>
+          <p className="aside">
+            <Link href="/docs/haus">Every room, and what it covers</Link>.
+          </p>
+        </section>
 
         {/* 🚨 The id is load-bearing and outlives whatever is under it: the
             /desktops 301 in public/_redirects, src/app/not-found.tsx and the
@@ -160,8 +217,8 @@ export default function Home() {
         <section className="block" id="desktops">
           <h2>Desktops</h2>
           <p>
-            A desktop is a whole Mac written down — which rooms are on, how it looks, what it
-            installs — and a Mac runs exactly one.
+            A desktop is a complete setup, written down: which rooms are on, how it looks, what it
+            installs. A Mac runs exactly one.
           </p>
           <p className="aside">
             <Link href="/docs/haus/desktops/choosing">The four that ship, and how to choose</Link>.
@@ -170,21 +227,23 @@ export default function Home() {
 
         <section className="block">
           <h2>Apps</h2>
-          {/* "made to sit inside the desktop", not "come with the desktop":
+          {/* "made to sit at the centre of a room", not "come with a room":
               trill is in the incubator and ships with nothing yet, and a
               blanket claim over a list whose last row says "In incubator"
-              is a claim the products don't back.
+              is a claim the products don't back. ("a room" rather than "the
+              desktop" since 2026-08-15, when Rooms became a section above:
+              it is the same fact one tier more precisely, and it is the one
+              clause that says how Apps and Rooms relate.)
 
-              The agent clause is the user's, restored 2026-08-14 — the cut
-              earlier that day shortened this to "Settings in a plain file —
-              no account, no subscription", which drops the half of the
-              sentence that says WHY a plain file is the point. Read, diff and
-              hand to an agent is the same argument the haus section below
-              makes about the whole machine, one tier down, and it is the one
-              thing here a settings pane cannot do. */}
+              The agent clause is the user's, restored 2026-08-14 — an earlier
+              cut dropped the half of the sentence that says WHY a plain file
+              is the point. Read, diff and hand to an agent is the same
+              argument the haus section below makes about the whole machine,
+              one tier down, and it is the one thing here a settings pane
+              cannot do. */}
           <p>
-            Small native Mac apps, made to sit inside the desktop and to work fine without it. Each
-            keeps its settings in a plain file you can read, diff and hand to an agent — no account,
+            Small native Mac apps, made to sit at the centre of a room and to stand alone without
+            one. Settings live in a plain file you can read, diff and hand to an agent. No account,
             no subscription, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
@@ -247,24 +306,25 @@ export default function Home() {
             Underneath all of it is{' '}
             <Link className="index-name" href="/docs/haus">
               haus
-            </Link>{' '}
-            — macOS itself, turned into options you set in a file.
+            </Link>
+            : macOS itself, turned into options you set in a file.
           </p>
-          <Command>{example}</Command>
+          <Command html={exampleHtml}>{example}</Command>
           {/* Two links, and neither repeats the one in the sentence above —
               which it did until `haus` itself became that link. A section
               with the same href on it twice spends a reader's attention
               twice to move them once. */}
           <p className="aside">
-            <code>haus rebuild</code> applies it; <code>haus rollback</code> takes it back.{' '}
+            <code>haus rebuild</code> applies the file. <code>haus rollback</code> puts it back.
+            There are no surprises:{' '}
             <Link className="index-name" href="/docs/haus/reference/options">
-              Every option
+              every option
             </Link>{' '}
-            is written down, and so is{' '}
+            is documented, and{' '}
             <Link className="index-name" href="/docs/haus/install">
-              what the install does
+              the install
             </Link>{' '}
-            before you run it.
+            tells you what it will do before you run it.
           </p>
         </section>
 

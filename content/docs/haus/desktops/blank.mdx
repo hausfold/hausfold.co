@@ -1,6 +1,6 @@
 ---
 title: Start blank
-description: The from-scratch desktop — no optional rooms, no claimed hotkeys, nothing that changes how the Mac behaves. Then add rooms one at a time.
+description: "The from-scratch desktop: no optional rooms, no claimed hotkeys, nothing that changes how the Mac behaves. Then add rooms one at a time."
 icon: blank
 ---
 
@@ -31,12 +31,12 @@ Everything else is the room catalogue's own neutral defaults doing the work.
 
 The foundation, and only that:
 
-- **the `haus` CLI** — `rebuild`, `plan`, `diff`, `set`, `rollback`, `update`;
-- **the app roster** — the one list that drives what's installed and from where,
+- **the `haus` CLI**: `rebuild`, `plan`, `diff`, `set`, `rollback`, `update`;
+- **the app roster**: the one list that drives what's installed and from where,
   ready for entries you add;
-- **the Nix and rebuild plumbing** — pinned inputs, generations, garbage
+- **the Nix and rebuild plumbing**: pinned inputs, generations, garbage
   collection;
-- **haus's safe macOS defaults** — the conservative ones the foundation writes
+- **haus's safe macOS defaults**: the conservative ones the foundation writes
   on every machine, and nearly all of them soft, so your host outranks them
   with a plain assignment. ([Two menu-bar keys are
   not](/docs/haus/desktops/customizing#beating-a-default-haus-set), and say so.)
@@ -45,7 +45,7 @@ The foundation, and only that:
 
 No optional room is on: no bar, no tiling, no launcher, no shelf, no Focus
 switch, no coding agents, no developer toolbelt, no Touch ID for `sudo`. No
-global hotkey is claimed — Caps Lock stays Caps Lock and ⌘Space stays
+global hotkey is claimed: Caps Lock stays Caps Lock and ⌘Space stays
 Spotlight's. The wallpaper is left alone, the tour doesn't run, and no theme
 files are written into apps you already had.
 
@@ -67,21 +67,21 @@ haus.keys.palette = "cmd-space";
 haus rebuild
 ```
 
-A room enabled is a room that works — each one ships a neutral, useful
+A room enabled is a room that works: each one ships a neutral, useful
 configuration, so you get a drawn bar and a working launcher without tuning
 anything. Tune it afterwards from that room's page, or leave it.
 
 <Callout title="Rooms don't switch each other on">
 Turning on the Bar doesn't bring the launcher, and turning on Development
-doesn't bring coding agents. Where two rooms cooperate — agent pills on the bar,
-agent commands in the launcher — the extra appears only when *both* are on, and
+doesn't bring coding agents. Where two rooms cooperate (agent pills on the bar,
+agent commands in the launcher), the extra appears only when *both* are on, and
 its absence never disables the room that offered it.
 </Callout>
 
 ## Growing out of blank
 
 If you find yourself turning on most of the catalogue, you are describing a
-desktop that already exists — try
+desktop that already exists. Try
 [selecting one](/docs/haus/desktops/choosing) and overriding the two or three
 things you disagree with. If what you have is genuinely yours, and you want it
 on a second Mac or in someone else's hands, that's a

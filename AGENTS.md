@@ -326,7 +326,7 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then four short sections: `#desktops` (**one sentence and one link**, and it names no desktop), `Apps`, `haus` (one line and the one-file example, inherited from `/haus`), `Also from hausfold` (holt, nebelung). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (**one sentence and one link**, and it names no desktop), `Apps`, `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (holt, nebelung). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
 | `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
@@ -476,6 +476,13 @@ be careful; the care can go somewhere more useful now.
 
 Rules that are easy to break by accident:
 
+- **No em dashes in reader-facing copy, anywhere on the site.** The user's
+  call, 2026-08-15, swept the same day: landing pages, docs prose, frontmatter
+  descriptions, `<title>`s and `og:` titles (the separator there is `·`).
+  Rewrite the sentence with a period, colon, semicolon, comma or parentheses;
+  never substitute a bare hyphen. Two carve-outs: code comments and this file
+  are not copy, and `reference/options.mdx` is generated from haus's own
+  option descriptions, so its em dashes are fixed upstream or not at all.
 - **Greyscale at rest, and every colour is borrowed.** ⚠️ **This bullet is
   about the landing pages only** — every `.sheet` route, which were
   `public/**.html` until 2026-08-14 and which this file called "`public/`" for
@@ -530,6 +537,18 @@ Rules that are easy to break by accident:
   rather than extending it: it's `--ink` on crust, no accent sweep, so the
   house still shows no colour of its own to the one browser that can't render
   the file that does.
+
+  **A fourth exception, added 2026-08-15 at the user's request: the code
+  block.** The haus example on `/` is Shiki-highlighted at build time
+  ("uncoloured code, never" was the instruction) with the same css-variables
+  ramp the docs' blocks spend — `--nb-token-*`, which resolves to the site's
+  own light accents on paper and to nebelung's ramp in dark, so it holds
+  colour at rest on a landing page. Same spirit as the favicon: nothing new is
+  owned, the vocabulary is unchanged, and it is one block. The dark fork for
+  the landing half lives in `src/app/global.css` under
+  `prefers-color-scheme` + `body:has(.sheet)`, because those pages never
+  carry `data-theme` or the docs' `.dark` class. A code block anywhere on the
+  landing half inherits this; prose and chrome still don't.
 - **No motion, with one hover-only exception.** No load animation, no
   transitions, nothing that moves while you read. The exception, added
   2026-08-08 at the user's request (reshaped the same day, same request): the

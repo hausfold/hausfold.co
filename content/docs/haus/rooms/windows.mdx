@@ -1,18 +1,18 @@
 ---
 title: Windows
-description: Tiling, named workspaces and window navigation from the keyboard — how prowl arranges the Mac, and how to keep the arranging without the key claims.
+description: Tiling, named workspaces and window navigation from the keyboard. How prowl arranges the Mac, and how to keep the arranging without the key claims.
 icon: tiling
 ---
 
 **prowl** is the tiling room. Windows arrange themselves into a tree instead of
-piling up, and the keyboard moves them around it — launch, focus, resize, throw
+piling up, and the keyboard moves them around it: launch, focus, resize, throw
 one to another workspace, without reaching for the mouse. It feels like a tiling
 Linux rig; underneath it is still native macOS windows, driven by
 [AeroSpace](https://github.com/nikitabobko/AeroSpace).
 
 Two keys carry almost all of it:
 
-- **⇪ Caps-Lock is the leader.** Tap it and the bar turns into letter hints —
+- **⇪ Caps-Lock is the leader.** Tap it and the bar turns into letter hints;
   press an app's letter to launch or focus it. It is also the door to moving
   focus, resizing, and jumping workspaces.
 - **⌥ Option is the everyday modifier**, for layouts and workspace moves.
@@ -34,14 +34,14 @@ haus.keys.windowNav = "alt";
 
 | Key | What happens |
 |---|---|
-| `<app-key>` | Launch or focus that app — `T` terminal, `B` browser, and whatever else you add |
+| `<app-key>` | Launch or focus that app: `T` terminal, `B` browser, and whatever else you add |
 | `1`–`4` | Go to workspace 1–4 |
 | `⇧` + any of the above | **Throw** the focused window there and follow it |
-| `←↓↑→` | Move focus — and stay in navigate mode, so arrows keep working |
+| `←↓↑→` | Move focus, and stay in navigate mode so arrows keep working |
 | `-` / `=` | Shrink / grow, repeatably |
 | `V` / `E` | Clipboard history / emoji picker, via pounce |
 | `Z` | Reopen the last closed app |
-| `,` | macOS System Settings — the `⌘,` convention, one level up |
+| `,` | macOS System Settings: the `⌘,` convention, one level up |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -54,11 +54,11 @@ throw it and `⌘Tab` back.
 
 | Keys | What happens |
 |---|---|
-| `⌥/` | Tiles layout — toggles the split horizontal ↔ vertical |
+| `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
 | `⌥,` | Accordion layout |
 | `⌥F` | Fullscreen |
 | `⌥⇧Tab` | Move this workspace to the next monitor |
-| `⌥⇧;` | **Service mode** — `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧H/J/K/L` joins a neighbour |
+| `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧H/J/K/L` joins a neighbour |
 
 `⌥Tab` is deliberately unbound:
 [pounce](/docs/pounce/beyond-launching#a-window-switcher-not-an-app-switcher)'s `⌘Tab` answers the same question
@@ -67,7 +67,7 @@ like and gathers its rows by workspace.
 
 <Callout title="Windows untangle after sleep">
 macOS scrambles window positions when the machine wakes. prowl watches for that
-and re-sorts them to their workspaces on its own — and <kbd>⇪</kbd> then
+and re-sorts them to their workspaces on its own; <kbd>⇪</kbd> then
 <kbd>`</kbd> does it on demand.
 </Callout>
 
@@ -87,17 +87,17 @@ The three reasons people change them:
   without remapping the key.
 - **A non-US layout.** On many layouts `⌥`+letter is how you type an accented
   character, so a window manager owning `⌥` makes the keyboard unusable.
-  `windowNav = "ctrl-alt"` moves every chord in one go — and the cheatsheet
+  `windowNav = "ctrl-alt"` moves every chord in one go, and the cheatsheet
   moves with it, because both are generated from the same table.
 - **Mouse-first.** `leader = "none"` with `windowNav = "none"` leaves the
   keyboard entirely alone: prowl still tiles, but claims no chords.
 
-`palette = "none"` stops haus taking ⌘Space from Spotlight — it's the only value
+`palette = "none"` stops haus taking ⌘Space from Spotlight; it's the only value
 that takes it. On a machine that already ran with it, re-enable Spotlight's
 shortcut yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts; nothing in
 haus gives it back.
 
-Whatever you pick, the in-system cheatsheet — tap the leader, then `/` —
+Whatever you pick, the in-system cheatsheet (tap the leader, then `/`)
 describes the keys you actually have, not the defaults above.
 
 ## Workspaces, and what lives on them
@@ -113,25 +113,25 @@ haus.workspaces.comms = {
 };
 ```
 
-The attribute name **is** the workspace id — a letter like `T`, or a word like
+The attribute name **is** the workspace id: a letter like `T`, or a word like
 `comms`. Three fields:
 
-- **`apps`** — [roster](/docs/haus/rooms/apps) ids that live here.
+- **`apps`**: [roster](/docs/haus/rooms/apps) ids that live here.
   Launching any of them from the leader lands you here. An app belongs to at
   most one workspace, and naming an id that isn't in the roster warns rather
   than failing quietly.
-- **`key`** — the `⇪ ⇧`-throw key. There is no bare-key binding for a
+- **`key`**: the `⇪ ⇧`-throw key. There is no bare-key binding for a
   workspace: that namespace belongs to the launcher letters, one of which
   usually doubles as "open something here". `null` means the workspace is
   reachable only by launching an app that belongs to it.
-- **`icon`** — a [SketchyBar app-font](https://github.com/kvndrsslr/sketchybar-app-font)
+- **`icon`**: a [SketchyBar app-font](https://github.com/kvndrsslr/sketchybar-app-font)
   ligature like `:slack:` for the bar's pill; any other string is drawn in the
   bar's own font.
 
 Workspaces `1`–`4` always exist, whatever any app claims.
 
 The launcher letters themselves come from `haus.roster`, the one list that also
-says where each app is installed from — that's [the Apps room](/docs/haus/rooms/apps).
+says where each app is installed from; that's [the Apps room](/docs/haus/rooms/apps).
 Out of the box the only letters taken are `T` for the terminal and `B` for the
 browser.
 
@@ -142,17 +142,17 @@ haus.prowl.enable = false;
 ```
 
 The Caps-Lock remap, the launcher and AeroSpace all stay out of the way. Nothing
-else in haus depends on it — [Leaving](/docs/haus/leaving#switch-off-a-room)
+else in haus depends on it; [Leaving](/docs/haus/leaving#switch-off-a-room)
 does the same for the other rooms.
 
 ## Works with
 
-- **[Bar](/docs/haus/rooms/bar)** — the workspace pills, and the letter hints
+- **[Bar](/docs/haus/rooms/bar)**: the workspace pills, and the letter hints
   the leader draws, are this room's contribution to the bar. No bar, no hints;
   the tiling itself is unaffected.
-- **[Apps](/docs/haus/rooms/apps)** — a roster entry's `key` is what the leader
+- **[Apps](/docs/haus/rooms/apps)**: a roster entry's `key` is what the leader
   launches, and its workspace is where its windows land.
-- **[Launcher](/docs/haus/rooms/launcher)** — its opt-in `⌘Tab` window switcher
+- **[Launcher](/docs/haus/rooms/launcher)**: its opt-in `⌘Tab` window switcher
   answers the same question from the other side.
 
 ## Options
@@ -171,6 +171,6 @@ Every setting, with types and defaults:
     icon={<Icon name="bar" />}
     title="Bar"
     href="/docs/haus/rooms/bar"
-    description="The workspace pills on the left of the bar are the other half of this page — plus weather, media and a light that goes red."
+    description="The workspace pills on the left of the bar are the other half of this page, plus weather, media and a light that goes red."
   />
 </Cards>

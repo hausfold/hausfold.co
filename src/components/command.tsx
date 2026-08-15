@@ -36,7 +36,13 @@ const serverSnapshot = () => false;
 // deleted. Each is its own component instance now
 // rather than a loop over `document.querySelectorAll('.copy')`, which is the
 // one behavioural difference and it is invisible.
-export function Command({ children }: { children: string }) {
+// `html`, when given, is Shiki output rendered at build time by the server
+// component that owns the code (see `src/app/page.tsx`) — highlighted with
+// `structure: 'inline'`, so it is spans and `<br>`s that drop straight into
+// the same `<code>` the plain string would fill. `children` stays the raw
+// text either way: it is what the copy button writes, and what a reader with
+// JS off selects. Never pass anything here that didn't come from Shiki.
+export function Command({ children, html }: { children: string; html?: string }) {
   const ready = useSyncExternalStore(subscribe, hasClipboard, serverSnapshot);
   const [label, setLabel] = useState('Copy');
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -64,7 +70,7 @@ export function Command({ children }: { children: string }) {
 
   return (
     <div className="cmd">
-      <code>{children}</code>
+      {html ? <code dangerouslySetInnerHTML={{ __html: html }} /> : <code>{children}</code>}
       <button className="copy" type="button" hidden={!ready} onClick={copy}>
         {label}
       </button>

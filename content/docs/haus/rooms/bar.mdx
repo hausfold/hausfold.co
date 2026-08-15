@@ -1,12 +1,12 @@
 ---
 title: Bar
-description: Workspace pills, weather, media and a status light — what the bar carries, what each pill does, and how to turn any of it off.
+description: Workspace pills, weather, media and a status light. What the bar carries, what each pill does, and how to turn any of it off.
 icon: bar
 ---
 
 **sill** replaces the macOS menu bar with a scriptable status bar, painted in
 your palette and wired to your tiling. While it's on, the native menu bar is
-hidden — the bar is the one place to glance.
+hidden; the bar is the one place to glance.
 
 ## Enable it
 
@@ -16,22 +16,22 @@ haus.sill.enable = true;
 
 ## What's on it
 
-**Far left — the house.** Where macOS puts the Apple menu. It opens a menu,
+**Far left: the house.** Where macOS puts the Apple menu. It opens a menu,
 and its colour tells you whether the machine is fine. See
 [the logo pill](#the-logo-pill).
 
-**Left — your workspaces.** One pill each, showing the workspace's id or its
+**Left: your workspaces.** One pill each, showing the workspace's id or its
 icon, with the focused one highlighted and the front app's title alongside.
 Switch workspaces and the highlight follows; tap the Caps-Lock leader and the
 whole left side flips into launcher letters.
 
-**Right — the status cluster.** Clock, battery, Wi-Fi, weather and media, all
+**Right: the status cluster.** Clock, battery, Wi-Fi, weather and media, all
 on by default and each one hideable. More readouts are available and off by
 default; see [toggling pills](#toggling-pills).
 
 ## Dropdowns
 
-Several pills open a dropdown on click — weather, the calendar's timeline, the
+Several pills open a dropdown on click: weather, the calendar's timeline, the
 coffee pill's durations, the cpu and memory breakdowns. They behave like every
 other menu on the Mac: click elsewhere and it closes, click the pill again and
 it closes, open a second one and the first closes.
@@ -47,7 +47,7 @@ is on **right**-click.
 |---|---|
 | **Click** | System Settings, Activity Monitor, Lock Screen, your config, Rebuild System |
 | **⌘ click** | `haus rebuild`, in a floating terminal |
-| **Right click** | The full palette — the same thing ⌘Space opens |
+| **Right click** | The full palette, the same thing ⌘Space opens |
 
 Every row of that menu *is* a palette command, so anything you can click you
 can also type. `haus.sill.logo.gestures = false` turns all three off, so the
@@ -58,7 +58,7 @@ pill is plainly not a button rather than a button that does nothing.
 | Colour | Meaning |
 |---|---|
 | Your accent | Everything is running |
-| Yellow | A newer version is available — `haus update` |
+| Yellow | A newer version is available: `haus update` |
 | Red | Something is enabled but **not running** |
 
 Red is the one worth having. A wedged background agent is otherwise invisible:
@@ -66,8 +66,8 @@ tiling stops but leaves every window where it was, and a dead bar keeps the
 last frame it drew on screen. The check is local, free, and runs every five
 minutes.
 
-The **yellow** half asks GitHub whether a new version exists — the only thing
-this pill does that leaves your machine — so it's **off by default**. Turn it
+The **yellow** half asks GitHub whether a new version exists (the only thing
+this pill does that leaves your machine), so it's **off by default**. Turn it
 on with `haus.sill.logo.updateCheck = true`.
 
 <Callout title="Hover it">
@@ -81,20 +81,20 @@ if you'd rather it sat still.
 
 ```nix
 haus.sill.logo.icon = "⌂";
-haus.sill.logo.size = 25;    # ⌂ is drawn thin — it needs the extra points
+haus.sill.logo.size = 25;    # ⌂ is drawn thin; it needs the extra points
 haus.sill.logo.color = "teal";
 ```
 
 Left alone, the colour follows `haus.theme.accent`. The default is a solid
 Nerd Font house at 20pt. Whatever you pick has to hold up in a 28pt pill, which rules out more than
-you'd expect — the options reference lists six that work. You can't point it at
+you'd expect; the options reference lists six that work. You can't point it at
 an image file: a picture couldn't follow your accent or show any of the states
 above.
 
 ## The media pill
 
 It reads the same system-wide session Control Center does, so it follows a
-browser tab as readily as Apple Music — and it hides itself entirely when
+browser tab as readily as Apple Music, and it hides itself entirely when
 nothing is playing.
 
 | Gesture | What it does |
@@ -110,7 +110,7 @@ nothing is playing.
 That ⌘ click is the one to remember: it's the answer to *something is making
 noise and I can't find the tab*.
 
-Two habits. A long title never scrolls on its own — only on hover, and a sweep
+Two habits. A long title never scrolls on its own, only on hover, and a sweep
 always finishes once started. And anything over twenty minutes counts **down**
 (`-38m`) instead of scrolling a name you already know.
 
@@ -118,7 +118,7 @@ The dropdown carries cover art, title, artist, album, and a position slider you
 can click to scrub.
 
 ```nix
-haus.sill.media.collapse = true;   # glyph only until you hover — good on a notched Mac
+haus.sill.media.collapse = true;   # glyph only until you hover, good on a notched Mac
 haus.sill.media.width = 16;        # characters of title before it sweeps. 25 by default.
 ```
 
@@ -126,8 +126,8 @@ haus.sill.media.width = 16;        # characters of title before it sweeps. 25 by
 
 ## Toggling pills
 
-Every right-side pill is one boolean. The five core pills — `clock`, `weather`,
-`media`, `battery`, `wifi` — default **on**; everything else defaults off. Set
+Every right-side pill is one boolean. The five core pills (`clock`, `weather`,
+`media`, `battery`, `wifi`) default **on**; everything else defaults off. Set
 only what you want to change:
 
 ```nix
@@ -138,18 +138,18 @@ haus.sill.items = {
 };
 ```
 
-A pill set `false` is never created — its update script doesn't even run.
+A pill set `false` is never created; its update script doesn't even run.
 
 ### The extra readouts
 
 | Pill | What it is |
 |---|---|
 | `cpu` | Load, drawn as a graph of the last two minutes. Hover splits user vs system; click lists what's responsible, per app; right-click opens Activity Monitor. |
-| `memory` | Memory in use, as a graph. Coloured by the kernel's own pressure level, not the percentage — 60% in use is a Mac working correctly. |
+| `memory` | Memory in use, as a graph. Coloured by the kernel's own pressure level, not the percentage: 60% in use is a Mac working correctly. |
 | `volume` | Output volume and mute state. |
 | `calendar` | Your next meeting and one gesture to join it. Reads `in 12m · Design review`; the whole pill fills five minutes either side of the start. **Right-click joins** the conferencing link; left-click opens the day as a timeline. |
 | `caffeinate` | A coffee pill: click for 1, 2, 4, 8 hours or until stopped; right-click stops. Survives a bar reload. |
-| `agents` | Tracks your [agent](/docs/haus/rooms/ai) panes — amber when one is waiting on you, click to jump to it. |
+| `agents` | Tracks your [agent](/docs/haus/rooms/ai) panes: amber when one is waiting on you, click to jump to it. |
 | `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. |
 | `elgato` | Toggles an Elgato Key Light on your network. |
 | `harvest` | Harvest time tracking. Reads credentials from a file you provide. |
@@ -164,7 +164,7 @@ awake off
 
 The **hush** (Do Not Disturb) pill is separate: whether it exists is
 `haus.hush.enable`, not `haus.sill.items`. Where it goes is still a bar
-setting — which is why it can appear in `haus.sill.bottom.items` below.
+setting, which is why it can appear in `haus.sill.bottom.items` below.
 
 <Callout type="info" title="Secrets stay out of Nix">
 sill never bakes a token into the build. The Harvest pill sources your own
@@ -174,8 +174,8 @@ way. Keep those files out of git.
 
 ## A second bar along the bottom
 
-If you want more room — or you'd rather keep the readouts off the menu bar
-entirely — sill can draw a second bar along the bottom of the screen at the
+If you want more room, or you'd rather keep the readouts off the menu bar
+entirely, sill can draw a second bar along the bottom of the screen at the
 same time:
 
 ```nix
@@ -188,7 +188,7 @@ haus.sill.bottom = {
 A pill named here **moves**: it's drawn on the bottom bar and not the top one,
 whatever `haus.sill.items` says. Never two copies racing each other.
 
-The value is where it goes — `"left"`, `"center"` or `"right"`; `true` means
+The value is where it goes: `"left"`, `"center"` or `"right"`; `true` means
 `"right"`. The menu bar only has one usable group (its left is the workspaces,
 its middle is under the notch on a MacBook), so the bottom strip is where all
 three are yours.
@@ -196,7 +196,7 @@ three are yours.
 Three things before you turn it on:
 
 - **macOS reserves nothing at the bottom of the screen.** Tiling carves the
-  room out instead — so with tiling off, windows will run underneath it.
+  room out instead, so with tiling off, windows will run underneath it.
 - **The Dock shares that edge.** Move it to a side, or hide it.
 - **Don't put both bars on the same edge.** `haus.sill.position = "bottom"`
   plus a second bar is two bars in one place; you'll get a warning on rebuild.
@@ -215,12 +215,12 @@ everything else are unaffected.
 Every pill that isn't the bar's own comes from another room, and appears only
 when that room is on:
 
-- **[Windows](/docs/haus/rooms/windows)** — the workspace pills and the leader's
+- **[Windows](/docs/haus/rooms/windows)**: the workspace pills and the leader's
   letter hints;
-- **[Focus](/docs/haus/rooms/focus)** — the quiet switch's pill;
-- **[AI](/docs/haus/rooms/ai)** — the agents readout, amber when a session is
+- **[Focus](/docs/haus/rooms/focus)**: the quiet switch's pill;
+- **[AI](/docs/haus/rooms/ai)**: the agents readout, amber when a session is
   waiting on you;
-- **[Launcher](/docs/haus/rooms/launcher)** — what a click on the logo pill can
+- **[Launcher](/docs/haus/rooms/launcher)**: what a click on the logo pill can
   reach.
 
 A missing room removes its pill and nothing else.
@@ -235,7 +235,7 @@ Every setting, with types and defaults:
     icon={<Icon name="tiling" />}
     title="Windows"
     href="/docs/haus/rooms/windows"
-    description="The workspace pills on the left of the bar belong to the tiling room — this is where you say what lives on each one."
+    description="The workspace pills on the left of the bar belong to the tiling room; this is where you say what lives on each one."
   />
   <Card
     icon={<Icon name="palette" />}

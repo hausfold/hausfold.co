@@ -1,6 +1,6 @@
 ---
 title: hacker
-description: An opinionated macOS, raised in the fog — tiling windows, a bar, a themed terminal. The desktop most people install haus by installing.
+description: "An opinionated macOS, raised in the fog: tiling windows, a bar, a themed terminal. The desktop most people install haus by installing."
 icon: hacker
 ---
 
@@ -18,7 +18,7 @@ curl -fsSL https://hausfold.co/nebelhaus.sh | bash
 ```
 
 That URL picks this desktop, so the installer skips the question.
-[Install](/docs/haus/install) has the rest — what the script does, how to read
+[Install](/docs/haus/install) has the rest: what the script does, how to read
 it first, and the one command that actually changes the Mac.
 
 ## What it turns on
@@ -29,7 +29,7 @@ switch. hacker turns nearly all of them on.
 | Room | What you get |
 |---|---|
 | **[Windows](/docs/haus/rooms/windows)** | Tiling launched at boot, and Caps-Lock as the leader key instead of a chord |
-| **[Bar](/docs/haus/rooms/bar)** | Workspaces, weather, media, battery, clock — and a light that reddens when something has stopped |
+| **[Bar](/docs/haus/rooms/bar)** | Workspaces, weather, media, battery, clock, and a light that reddens when something has stopped |
 | **[Launcher](/docs/haus/rooms/launcher)** | [pounce](/docs/pounce) on ⌘Space, where every command is a file you can write |
 | **[Shelf](/docs/haus/rooms/shelf)** | [perch](/docs/perch), dropping out of the notch to catch a drag on its way somewhere else |
 | **[Development](/docs/haus/rooms/development)** | Ghostty, zellij, zsh, a tinted prompt, helix and a toolbelt that all matches |
@@ -38,7 +38,7 @@ switch. hacker turns nearly all of them on.
 | **[AI](/docs/haus/rooms/ai)** | Coding agents, each in its own checkout of the repo, so they never collide |
 | **[Appearance](/docs/haus/rooms/appearance)** | The nebelung palette and a generated wallpaper, rendered onto twenty-odd tools at once |
 
-Anything it chose, your own file overrides in a line — see [Customize a
+Anything it chose, your own file overrides in a line; see [Customize a
 desktop](/docs/haus/desktops/customizing).
 
 ## First moves
@@ -53,7 +53,7 @@ palette, and `haus` is on your `PATH`. Here's the muscle memory.
 | **Tap ⇪, then a letter** | Launch or focus that app. `T` is the terminal, `B` the browser |
 | **Tap ⇪, then an arrow** | Move focus between tiled windows. Keep arrowing; hold ⇧ to *move* the window instead |
 | **Tap ⇪, then a digit** | Jump to that workspace. Add ⇧ to throw the current window there |
-| **Tap ⇪, then /** | The cheatsheet, generated from *your* app list — so it is never out of date |
+| **Tap ⇪, then /** | The cheatsheet, generated from *your* app list, so it is never out of date |
 
 <Callout title="Tap Caps-Lock, don't hold it">
 It's a leader key now, not a modifier. Tap and release, then press the letter.
@@ -64,7 +64,7 @@ Try these in order: tap **⇪ T** and the terminal opens and tiles itself;
 between the two; **⌥/** flips the split between horizontal and vertical;
 **⌘Space**, type `emoji`, Return turns the palette into an emoji grid.
 
-One permission to grant — a few palette features use a keyboard path macOS gates
+One permission to grant: a few palette features use a keyboard path macOS gates
 behind Accessibility. Everything else works without it.
 
 ```sh
@@ -74,10 +74,10 @@ pounce --request-accessibility
 The rest of the keys are the rooms' own, and they are written out in full where
 they're configured rather than copied here:
 [Windows](/docs/haus/rooms/windows) has tiling, the leader and every workspace
-throw — including how to move all of it onto keys you'd rather use;
+throw, including how to move all of it onto keys you'd rather use;
 [Development](/docs/haus/rooms/development) has the terminal's chord set;
 [pounce](/docs/pounce/using) has the palette. There is also a live copy on your
-own machine — tap **⇪ /** — generated from your own tables, so use that one when
+own machine (tap **⇪ /**), generated from your own tables, so use that one when
 they disagree.
 
 ## Making it yours
@@ -115,7 +115,7 @@ has.
     icon={<Icon name="choose" />}
     title="Choose a desktop"
     href="/docs/haus/desktops/choosing"
-    description="The four that ship, side by side — and how to switch to another one in a single line."
+    description="The four that ship, side by side, and how to switch to another one in a single line."
   />
   <Card
     icon={<Icon name="dials" />}
@@ -127,6 +127,6 @@ has.
     icon={<Icon name="tiling" />}
     title="Windows"
     href="/docs/haus/rooms/windows"
-    description="Tiling, workspaces and the leader key in full — every default binding, and how to move them."
+    description="Tiling, workspaces and the leader key in full: every default binding, and how to move them."
   />
 </Cards>

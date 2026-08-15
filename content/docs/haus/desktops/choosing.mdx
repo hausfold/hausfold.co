@@ -1,12 +1,12 @@
 ---
 title: Choose a desktop
-description: haus supplies rooms; a desktop curates them; your host file makes one yours. Exactly one desktop per Mac — here are the four that ship, and how to switch.
+description: haus supplies rooms; a desktop curates them; your host file makes one yours. Exactly one desktop per Mac. Here are the four that ship, and how to switch.
 icon: choose
 ---
 
 **haus supplies rooms. A desktop curates them. Your host file makes one yours.**
 
-A **room** is one capability — the bar, the launcher, window management — with
+A **room** is one capability (the bar, the launcher, window management) with
 its own options and its own switch. A **desktop** is a complete answer to *what
 should this Mac feel like?*: which rooms are on, and what the visible choices
 are. Your **host file** is where your name, your keys and your own overrides
@@ -23,31 +23,31 @@ your host file           identity, secrets, hardware, and any override
 ```
 
 Later layers win, deliberately. Anything a desktop chooses, you change with a
-plain assignment in your host file — no `lib.mkForce` anywhere.
+plain assignment in your host file: no `lib.mkForce` anywhere.
 
 ## Exactly one
 
 A Mac runs **one** desktop. They don't stack, and the build says so: selecting
-two is refused whether they disagree or not — and so is selecting the same one
+two is refused whether they disagree or not, and so is selecting the same one
 twice, with a message of its own. Choosing again means changing one line, not
 unpicking a pile.
 
 If nothing you can name fits, that's what [Start blank](/docs/haus/desktops/blank) is
-for — a desktop that selects nothing, so "build my own" is still one desktop
+for: a desktop that selects nothing, so "build my own" is still one desktop
 rather than a second mode.
 
 ## The four that ship
 
 | Desktop | For | Rooms it turns on |
 |---|---|---|
-| **[hacker](/docs/haus/desktops/hacker)** | the full thing — keyboard-first, developer, tiled | Development, AI, Windows, Bar, Launcher, Shelf, Focus, Security, plus the theme and generated wallpaper |
-| **[everyday](/docs/haus/desktops/everyday)** | a Mac for someone who doesn't write code | Launcher, Bar, Shelf, Focus, Security, the theme and the generated wallpaper — no tiling, no leader key, no coding tools |
+| **[hacker](/docs/haus/desktops/hacker)** | the full thing: keyboard-first, developer, tiled | Development, AI, Windows, Bar, Launcher, Shelf, Focus, Security, plus the theme and generated wallpaper |
+| **[everyday](/docs/haus/desktops/everyday)** | a Mac for someone who doesn't write code | Launcher, Bar, Shelf, Focus, Security, the theme and the generated wallpaper; no tiling, no leader key, no coding tools |
 | **[minimal](/docs/haus/desktops/minimal)** | just the themed shell, on otherwise stock macOS | Development, Security and the palette. No bar, no tiling, no launcher, no wallpaper |
 | **[blank](/docs/haus/desktops/blank)** | build your own from the foundation | none |
 
 `everyday` deliberately leaves **Windows** off: tiling is good, but remapping
 Caps Lock on the Mac of someone who didn't ask for it is not. `minimal` is still
-a *developer* machine — few rooms, not few tools; a Mac with no developer
+a *developer* machine: few rooms, not few tools. A Mac with no developer
 tooling is `everyday`.
 
 ## Selecting one
@@ -77,7 +77,7 @@ the line for you; `HAUS_DESKTOP=minimal` picks a different one on an
 <Callout title="A desktop you found online is selected the same way">
 Vendor the `.nix` file into your config and point `desktop` at the path:
 `desktop = ./desktops/writer.nix;`. There is no separate import mechanism for
-someone else's desktop — that's the point of the format being closed.
+someone else's desktop; that's the point of the format being closed.
 </Callout>
 
 ## Changing your mind
@@ -86,7 +86,7 @@ Switch the line, rebuild, and if you don't like it, `haus rollback`. Nothing
 about a desktop is one-way: it sets options, and options are what a rebuild
 computes from scratch every time.
 
-What a switch does **not** touch is anything outside haus — files you made, apps
+What a switch does **not** touch is anything outside haus: files you made, apps
 you installed by hand, and the macOS settings haus never claimed. Turning a room
 off removes what that room installed; it doesn't tidy up after you.
 

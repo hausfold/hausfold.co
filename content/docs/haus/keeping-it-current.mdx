@@ -1,6 +1,6 @@
 ---
 title: Keeping it current
-description: The everyday loop — edit, rebuild, update, roll back — and the payoff it buys, a new Mac that becomes the old one in two commands.
+description: The everyday loop (edit, rebuild, update, roll back) and the payoff it buys, a new Mac that becomes the old one in two commands.
 icon: sync
 ---
 
@@ -18,13 +18,13 @@ haus rebuild    # build first, then switch
 
 `haus rebuild` **builds before it switches**, so a config with a mistake in it
 never reaches the running system: you get a build error and a machine still
-exactly as it was. For a one-line change, skip the editor —
+exactly as it was. For a one-line change, skip the editor:
 `haus set theme.accent teal` writes the setting, type-checks it and rebuilds in
 one go. The [`haus` reference](/docs/haus/reference/haus) has the rest.
 
 <Callout title="From the launcher, too">
 haus ships a **Rebuild System** command into
-the [launcher](/docs/haus/rooms/launcher) — ⌘Space, type "rebuild" — which runs `haus
+the [launcher](/docs/haus/rooms/launcher) (⌘Space, type "rebuild"), which runs `haus
 rebuild` in a floating terminal, and a **Nix Config** command that opens your
 host file.
 </Callout>
@@ -36,15 +36,15 @@ haus update
 ```
 
 haus lives upstream, pinned to an exact commit in your config's `flake.lock`.
-**Nothing about your machine changes until you run this** — no background
+**Nothing about your machine changes until you run this**: no background
 updater, no surprise on a Monday. `haus update` moves that one pin to the latest
 haus, upgrades the family's Homebrew apps alongside it, prints what changed
 upstream, and rebuilds.
 
 `haus status` says where you stand: your current generation, the revision you're
 pinned to, and whether upstream has moved past it. If you want the machinery
-behind that pin — what a flake input actually is, and why a pushed commit
-reaches you only when a lock moves — that's
+behind that pin (what a flake input actually is, and why a pushed commit
+reaches you only when a lock moves), that's
 [How the flakes fit together](/docs/haus/internals/flakes).
 
 ## When a change goes wrong
@@ -56,12 +56,12 @@ haus doctor        # health check, when it isn't obvious what broke
 ```
 
 Every switch creates a generation, and `rollback` steps back to the last one in
-seconds. When it's a symptom rather than a change — a dead bar, a launcher that
-won't answer — [Troubleshooting](/docs/haus/reference/troubleshooting) has the
+seconds. When it's a symptom rather than a change (a dead bar, a launcher that
+won't answer), [Troubleshooting](/docs/haus/reference/troubleshooting) has the
 known quirks and the command for each.
 
 <Callout type="warn" title="Rollback doesn't rewind macOS's own settings">
-A generation holds everything Nix wrote — packages, services, login agents — but
+A generation holds everything Nix wrote (packages, services, login agents), but
 **not** the macOS preferences a rebuild set imperatively: the Dock, Finder, the
 keyboard. `haus capture` before a risky change snapshots those, and `haus
 revert-settings` puts the snapshot back.
@@ -70,7 +70,7 @@ revert-settings` puts the snapshot back.
 ## A second Mac
 
 Your config is a git repo, so a machine you already set up catches up the way
-any checkout does — assuming you pushed it somewhere both machines can reach:
+any checkout does, assuming you pushed it somewhere both machines can reach:
 
 ```sh
 cd ~/.config/nix && git pull
@@ -83,7 +83,7 @@ same system rather than on roughly the same one.
 ## A new Mac, or a wiped one
 
 This is the payoff for describing a machine as text: a restore, not a weekend of
-clicking through System Settings. It assumes one thing — that
+clicking through System Settings. It assumes one thing: that
 `~/.config/nix` is **pushed somewhere you can clone it from**. If it isn't, that
 is today's five-minute job, not next month's.
 
@@ -100,7 +100,7 @@ curl -fsSL https://hausfold.co/haus.sh | bash -s -- --from <your-config-remote>
 ```
 
 On a brand-new Mac the Xcode Command Line Tools are missing, so the first run
-opens Apple's installer dialog and stops — approve it, then run the line again.
+opens Apple's installer dialog and stops. Approve it, then run the line again.
 Determinate Nix it installs for you. (By hand, `--from` is nothing more than
 `xcode-select --install`, [Determinate
 Nix](https://docs.determinate.systems/), and `git clone`.)
@@ -117,7 +117,7 @@ nix build .#darwinConfigurations.$(scutil --get LocalHostName).system \
 
 The installer prints this pair for you, with your hostname already filled in.
 The first build downloads the world and takes a while; when it lands, `haus` is
-on your `PATH` and the machine is yours again — `haus doctor` is the check that
+on your `PATH` and the machine is yours again; `haus doctor` is the check that
 it all came back.
 </Step>
 
@@ -125,7 +125,7 @@ it all came back.
 
 <Callout title="New hostname? Name the host you want.">
 Your config declares each machine by hostname, and a new one isn't picked up on
-its own. Either build the old host by name — `--flake .#<oldhostname>` — or copy
+its own. Either build the old host by name (`--flake .#<oldhostname>`) or copy
 `hosts/<old>/` to `hosts/<new>/` and add it to `flake.nix` beside the first.
 Your identity and app choices come along either way.
 
@@ -145,7 +145,7 @@ them on a fresh machine**, and `haus btm` prints the one thing to click.
 
 App Store entries are the exception: installing from an `appStoreId` is opt-in
 (`haus.appStore.install`), and even switched on it can only fetch apps your
-Apple account already owns — a paid app has to be bought in App Store.app once,
+Apple account already owns; a paid app has to be bought in App Store.app once,
 by you.
 
 ### The bits Nix doesn't carry
@@ -163,12 +163,12 @@ machine:
 - **Pounce's Accessibility grant.** macOS ties it to the machine, so run
   `pounce --request-accessibility` once more. If you set
   `haus.pounce.signingIdentity`, import that certificate into the new keychain
-  too — that's what makes the grant survive later rebuilds
+  too; that's what makes the grant survive later rebuilds
   ([Pounce config](/docs/pounce/config)).
 - **Apps you installed by hand.** They won't reappear. Reinstall the ones you
   want, and consider moving them into a
   [roster entry](/docs/haus/rooms/apps) so next time they do.
-- **Logins and licences.** Nix restores the app, not your session — sign back
+- **Logins and licences.** Nix restores the app, not your session; sign back
   into the handful that need it, the App Store among them.
 
 Every app you move off that list and into `haus.roster` is one less thing to
@@ -179,7 +179,7 @@ flinching.
 That's not a restore, and the [install](/docs/haus/install) flow handles it
 deliberately: your existing Homebrew casks are kept, dotfiles are backed up
 rather than clobbered, your current macOS settings can be captured into the new
-host file, and nothing activates until you say so — run from a terminal it
+host file, and nothing activates until you say so. Run from a terminal, it
 *offers* to build and switch at the end; piped, it just prints the command.
 </Callout>
 
@@ -188,7 +188,7 @@ host file, and nothing activates until you say so — run from a terminal it
     icon={<Icon name="wrench" />}
     title="The haus CLI"
     href="/docs/haus/reference/haus"
-    description="Every command in full: set, plan, diff, capture, doctor — and the one rebuild it refuses."
+    description="Every command in full: set, plan, diff, capture, doctor, plus the one rebuild it refuses."
   />
   <Card
     icon={<Icon name="apps" />}

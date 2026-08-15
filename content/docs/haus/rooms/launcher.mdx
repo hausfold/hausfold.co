@@ -1,13 +1,13 @@
 ---
 title: Launcher
-description: Pounce on ⌘Space — the room that installs the palette, hands it the key Spotlight was holding, and keeps its Accessibility grant alive across rebuilds.
+description: Pounce on ⌘Space. The room that installs the palette, hands it the key Spotlight was holding, and keeps its Accessibility grant alive across rebuilds.
 icon: launcher
 accent: pounce
 ---
 
 The Launcher room installs **[pounce](/docs/pounce)**, a native command palette
 where every command is a shell script in a folder. Hit **⌘Space**, fuzzy-type,
-hit **Return** — apps, your own commands, clipboard history, an emoji grid and
+hit **Return**: apps, your own commands, clipboard history, an emoji grid and
 inline answers, all in one list.
 
 Pounce is free, MIT and installs standalone from Homebrew without any of this.
@@ -25,14 +25,14 @@ haus.keys.palette = "cmd-space";   # or alt-space, ctrl-space, "none"
 haus rebuild
 ```
 
-Only `cmd-space` displaces Spotlight — moving the palette elsewhere is how you
+Only `cmd-space` displaces Spotlight; moving the palette elsewhere is how you
 keep both. haus frees ⌘Space from Spotlight so pounce can own it, which is the
 step a standalone install has to do by hand.
 
 ## Configure it
 
 `config.json` is **generated** from `haus.pounce.*`, so `pounce config init`
-refuses inside haus — the next rebuild would put the generated file straight
+refuses inside haus; the next rebuild would put the generated file straight
 back. Change it in your host file instead, and the rebuild bounces the daemon
 for you when one of the startup-only keys moves.
 
@@ -43,7 +43,7 @@ haus.pounce.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 ```
 
 `haus.ui.scale` writes pounce's `scale` for you, and your `haus.theme.flavor` /
-`haus.theme.contrast` reach it as a palette file — so the palette matches the
+`haus.theme.contrast` reach it as a palette file, so the palette matches the
 rest of the house without a second theme setting.
 
 <Callout title="Keeping the Accessibility grant">
@@ -52,7 +52,7 @@ haus.pounce.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
 ```
 
 A plain Nix rebuild is ad-hoc signed, and macOS ties an Accessibility grant to
-a signature — so without this you re-approve the dialog after every rebuild.
+a signature, so without this you re-approve the dialog after every rebuild.
 Set it and the room re-signs a stable copy of the app with your identity, and
 the grant persists.
 
@@ -62,12 +62,12 @@ may not set it.
 
 ## Works with
 
-- **[Apps](/docs/haus/rooms/apps)** — **Install App** writes a roster entry and
+- **[Apps](/docs/haus/rooms/apps)**: **Install App** writes a roster entry and
   rebuilds.
-- **[AI](/docs/haus/rooms/ai)** — **Spawn Agent** creates a named worktree and
+- **[AI](/docs/haus/rooms/ai)**: **Spawn Agent** creates a named worktree and
   opens a session in it.
-- **[Focus](/docs/haus/rooms/focus)** — the quiet switch is a command here too.
-- **[Windows](/docs/haus/rooms/windows)** — the opt-in `⌘Tab` window switcher,
+- **[Focus](/docs/haus/rooms/focus)**: the quiet switch is a command here too.
+- **[Windows](/docs/haus/rooms/windows)**: the opt-in `⌘Tab` window switcher,
   which groups its rows by AeroSpace workspace.
 
 Each command appears only when its room is on.
