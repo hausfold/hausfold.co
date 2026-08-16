@@ -133,12 +133,18 @@ room the docs cannot see.
 
 ## Rooms talk, but never reach
 
-The rule is: a room may **contribute** a feature to another room, but may never
-read the other room's config and may never switch it on.
+Rooms sometimes need each other. The Kettle room wants a pill in the bar, and
+the Bar is a separate room, with its own switch, that this Mac may not have
+turned on at all.
 
-The seam is an **extension point**. The receiving room declares one, the source
-room writes to it, and the receiver renders whatever it finds inside its own
-enable gate:
+The rule is one sentence: **a room may offer something to another room, and may
+never reach into one.** No room reads another room's settings, and no room
+switches another room on.
+
+What makes that possible is a slot, called an *extension point* in the code.
+The receiving room declares one and says what may go in it. Any other room may
+fill it. The receiving room draws whatever it finds, inside its own enable
+gate, so a room that is switched off draws nothing:
 
 ```nix
 # in the RECEIVING room's options.nix, here the Bar's
@@ -148,22 +154,26 @@ haus._contrib.bar.kettle = contrib.mkExtensionPoint {
 };
 ```
 
-The middle segment is the receiving **room**, not the module that implements it:
-`bar`, not `bar`. Same distinction the registry makes two sections up, and the
-reason `haus._contrib.bar.agents` is declared inside `modules/bar/options.nix`
-rather than being called `_contrib.bar.*`. Nothing enforces it, because the
-whole tree is internal and never rendered.
+Read the path as an address: `bar` is who receives, `kettle` is who is asking.
 
-Two things follow, and both are the point: a bar that is switched off removes
-the pill without disabling the kettle, and a kettle that is switched off leaves
-the bar's own pills untouched. The alternative (reading
-`config.haus.kettle.something` from inside the bar) makes every renamed kettle
-option break the bar, and leaves nothing in the tree recording that the
-connection exists at all.
+Two things follow, and they are the whole point:
 
-`haus._contrib` is internal. The leading underscore is the layer's convention
-for wiring between rooms rather than a setting anyone may write, and the doc
-renderer prunes those before anything is published.
+- Switch the Bar off and the pill goes with it. The Kettle keeps boiling.
+- Switch the Kettle off and the Bar's own pills are untouched.
+
+The alternative is the Bar reading `config.haus.kettle.something` for itself.
+Then renaming any Kettle option breaks the Bar, and nothing anywhere records
+that the two were ever connected.
+
+One naming trap. The middle segment names the receiving **room**, not the
+namespace someone happens to write in a host file. The Bar answers to two of
+those, `haus.bar` and `haus.menuBar` (the same distinction the registry makes
+two sections up), and the slot is `_contrib.bar.*` either way. Nothing enforces
+it, because the whole tree is internal and never rendered.
+
+That is also what the underscore in `haus._contrib` means: wiring between
+rooms, not a setting anyone writes. The doc renderer prunes those before
+anything is published.
 
 ## Default to off, and mean it
 
