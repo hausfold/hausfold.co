@@ -188,7 +188,10 @@ different session, so read the two together:
     2026-08-16 — see the docs section); and the six new
     301s in `public/_redirects`, because `/desktops/nebelhaus` had been the
     canonical for a desktop since 2026-08-08 and the other two shipped that
-    morning.
+    morning. ⚠️ **`/` now has a second load-bearing id: `#apps`**, on the
+    "Also from hausfold" section, where the four `/terms` and `/refunds` 301s
+    land (2026-08-16). Same rule, same reason — rename it and a published URL
+    starts scrolling to the masthead instead of to its answer.
   - **Exact paths, never a `/desktops/*` wildcard.** The three deep URLs need
     three *different* targets, so a wildcard cannot serve them even now that
     they are all redirects — and the day one comes back as a page, a wildcard
@@ -392,7 +395,7 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (since 2026-08-16 the whole index in one list: pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `#apps` (`Also from hausfold`: since 2026-08-16 the whole index in one list — pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows. That paragraph is also **the site's only statement that everything is free and open source**, and the `/terms` and `/refunds` 301s land on the id). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
 | ~~`/terms`~~, ~~`/refunds`~~ | deleted 2026-08-16 | 🚨 **retired, not moved.** hausfold sells nothing, ever, so a licence page and a refund policy describe a transaction that will never happen. Four 301s in `public/_redirects` land both on `/`; rebuilding either is a positioning reversal. See the seller's-surface section |
