@@ -1,6 +1,6 @@
 ---
 title: Focus
-description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges.
+description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges — plus the named states around it.
 icon: bellOff
 related:
   - title: "Bar"
@@ -14,6 +14,9 @@ Focus" in the palette, or `focus` in a terminal) turns macOS **Do Not
 Disturb** on or off, optionally sets your **Slack status** (and silences
 Slack on your phone), and runs any **hooks** you add. All three surfaces
 call the same engine, so they can never disagree.
+
+Quiet is one **scene** — the built-in one. [Declare others](#scenes) and
+`focus scene recording` puts the whole Mac into that state at once.
 
 Because focus drives the *real* macOS Focus, everything Focus already does
 comes along free: with **Share Across Devices** on, your iPhone and iPad
@@ -118,6 +121,88 @@ haus.focus.hooks = [
 Ideas: pause the music, flip an on-air light, start a Harvest timer, shove
 chatty apps to a parking workspace with `aerospace`.
 
+## Scenes
+
+Quiet is a state your Mac can be in. So is *recording*, *presenting*,
+*reading on the sofa* — each one a handful of settings you'd otherwise flip by
+hand, in the same order, every time. A **scene** is that handful, named:
+
+```nix
+haus.focus.scenes.recording = {
+  description = "camera on, nothing interrupts";
+  dnd = true;                       # the default
+  preventSleep = true;              # no screensaver mid-take
+  audio.input = "Studio Mic";       # exact device name
+  apps.open = [ "OBS" ];
+  hooks = [ ./key-light-on.sh ];    # called with "on" / "off"
+};
+```
+
+Then:
+
+```bash
+focus scene recording     # enter it
+focus scene list          # what's declared, and which one is on
+focus scene status        # the active scene, or "quiet", or "off"
+focus scene off           # leave — and go back to normal
+```
+
+**One at a time.** Entering a scene leaves whichever one was running, so your
+Mac is only ever in one of them. Leaving puts back what the scene displaced:
+Do Not Disturb goes back to what it was (set `restorePreviousState = false` if
+you'd rather leaving always end quiet-off), the input device is restored, and
+the `caffeinate` hold is released.
+
+A scene only ever reverses what it actually changed. Start a quiet scene while
+you're *already* quiet and it doesn't touch Do Not Disturb at all — so leaving
+it doesn't un-quiet you, and your Slack status isn't disturbed on the way in or
+out.
+
+**The pill releases a scene too.** Clicking the bell (or running `focus off`,
+or the palette command) while a scene is on leaves the scene properly — hold
+released, microphone back — rather than only un-quieting and leaving the rest
+behind.
+
+`quiet` is the built-in scene — it's what the pill, the palette command and
+`focus on` already enter, so it's a name you can't redeclare. Everything you'd
+want to change about it lives in `haus.focus.slack` and `haus.focus.hooks`.
+(`off`, `list` and `status` are taken for the same reason: they're the words
+after `focus scene`. A scene named for one of them is refused at build time
+rather than being unreachable at runtime.)
+
+<Callout type="tip" title="Give a scene a key">
+A scene has no pill of its own. The quickest way to reach one is a leader
+chord — any free letter, since an assertion catches a clash with a roster app
+or a built-in launch key:
+
+```nix
+haus.keys.leaderExtras = [
+  {
+    key = "r";
+    command = "$HOME/.local/bin/focus scene recording";
+    caption = "recording scene";
+  }
+];
+```
+</Callout>
+
+### What a scene doesn't do
+
+- **It never closes the apps it opened.** Quitting something you were
+  mid-sentence in isn't a decision a config file should make, so that half
+  stays yours.
+- **Nothing enters a scene for you.** There's no timer, no Wi-Fi rule, no
+  "when the camera turns on" — you enter it, from a chord, a palette item or a
+  terminal. That's deliberate: declaring the states is cheap and a daemon that
+  decides *when* is not.
+- **`audio.input` wants the exact device name**, as `SwitchAudioSource -a -t
+  input` prints it. Naming one that isn't plugged in logs a line and moves on —
+  the rest of the scene still applies.
+- **Its hooks are host-only.** A scene is data a shared desktop may ship, but
+  the arbitrary script one runs belongs to a person, so `hooks` is a line you
+  write in your own host file. Everything else about a scene a desktop can
+  publish.
+
 ## Honest scope
 
 - focus flips the built-in **Do Not Disturb**, not named Focus modes; those
@@ -153,7 +238,7 @@ Neither is required: with both rooms off, `focus` is still a CLI.
 haus.focus.enable = false;
 ```
 
-The pill, the command and the CLI go. The Do Not Disturb chord this room adds is
+The pill, the command, the CLI and any scenes go. The Do Not Disturb chord this room adds is
 one macOS ships disabled, so switching the room off leaves a spare binding
 rather than taking one away, the opposite of the launcher's ⌘Space.
 
