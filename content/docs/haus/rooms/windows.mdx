@@ -19,8 +19,27 @@ Two keys carry almost all of it:
 
 Focus-by-arrow deliberately sits *behind* the leader rather than on a bare `⌥`
 chord: `⌥`, `⌘` and `⌃` with the arrow keys are all macOS text navigation, and a
-window manager that took them would break typing everywhere. `⌥H/J/K/L` is there
-too, for hands that want Vim keys.
+window manager that took them would break typing everywhere. It is also the
+better motion of the two, because the first arrow latches into navigate mode and
+the ones after it keep moving without re-tapping anything.
+
+<Callout title="No Vim keys, by default">
+`⌥H/J/K/L` used to focus by direction as well, and no longer does. haus binds no
+`h`/`j`/`k`/`l` direction anywhere out of the box: the arrows already do it
+better, and four chords that duplicated them were four chords not reaching your
+terminal. If you want them, `haus.keys.leaderExtras` puts them behind the
+leader:
+
+```nix
+haus.keys.leaderExtras = [
+  { key = "h"; command = "aerospace focus left";  caption = "Focus left"; }
+  { key = "l"; command = "aerospace focus right"; caption = "Focus right"; }
+];
+```
+
+Pick letters no app in your roster has claimed; a rebuild refuses a collision
+rather than letting one binding shadow the other.
+</Callout>
 
 ## Enable it
 
@@ -35,8 +54,9 @@ haus.keys.windowNav = "alt";
 | Key | What happens |
 |---|---|
 | `<app-key>` | Launch or focus that app: `T` terminal, `B` browser, and whatever else you add |
-| `1`–`4` | Go to workspace 1–4 |
+| `1`–`4` | Go to that numbered workspace. Four out of the box; see [Workspaces](#workspaces-and-what-lives-on-them) for more |
 | `⇧` + any of the above | **Throw** the focused window there and follow it |
+| `⌥⇧` + any of the above | Throw it there and **stay** where you are |
 | `←↓↑→` | Move focus, and stay in navigate mode so arrows keep working |
 | `-` / `=` | Shrink / grow, repeatably |
 | `V` / `E` | Clipboard history / emoji picker, via pounce |
@@ -47,8 +67,13 @@ haus.keys.windowNav = "alt";
 | `Esc` | Out |
 
 The `⇧` row is the one worth learning: going somewhere and taking the window
-with you is the same motion one `⇧` apart. To send a window away and *stay*,
-throw it and `⌘Tab` back.
+with you is the same motion one `⇧` apart. Adding `⌥` is the third verb, sending
+something away without going with it, which is the move for clearing a workspace
+you are still working on.
+
+`⌥⇧` rather than the `⇧⌘` you might expect: `⇧⌘3`, `⇧⌘4` and `⇧⌘5` are macOS's
+own screenshot shortcuts and win over anything a window manager binds, so that
+chord would have worked on some digits and not others.
 
 ## Without the leader
 
@@ -58,7 +83,7 @@ throw it and `⌘Tab` back.
 | `⌥,` | Accordion layout |
 | `⌥F` | Fullscreen |
 | `⌥⇧Tab` | Move this workspace to the next monitor |
-| `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧H/J/K/L` joins a neighbour |
+| `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧←↓↑→` joins a neighbour |
 
 `⌥Tab` is deliberately unbound:
 [pounce](/docs/pounce/beyond-launching#a-window-switcher-not-an-app-switcher)'s `⌘Tab` answers the same question
@@ -120,7 +145,8 @@ The attribute name **is** the workspace id: a letter like `T`, or a word like
   Launching any of them from the leader lands you here. An app belongs to at
   most one workspace, and naming an id that isn't in the roster warns rather
   than failing quietly.
-- **`key`**: the `⇪ ⇧`-throw key. There is no bare-key binding for a
+- **`key`**: the throw key: `⇪ ⇧` to throw and follow, `⇪ ⌥⇧` to throw and stay.
+  There is no bare-key binding for a
   workspace: that namespace belongs to the launcher letters, one of which
   usually doubles as "open something here". `null` means the workspace is
   reachable only by launching an app that belongs to it.
@@ -128,12 +154,58 @@ The attribute name **is** the workspace id: a letter like `T`, or a word like
   ligature like `:slack:` for the bar's pill; any other string is drawn in the
   bar's own font.
 
-Workspaces `1`–`4` always exist, whatever any app claims.
-
 The launcher letters themselves come from `haus.roster`, the one list that also
 says where each app is installed from; that's [the Apps room](/docs/haus/rooms/apps).
 Out of the box the only letters taken are `T` for the terminal and `B` for the
 browser.
+
+### The numbered ones
+
+Four numbered workspaces exist alongside whatever you name, whatever any app
+claims. If four isn't your number:
+
+```nix
+haus.prowl.numberedWorkspaces = 6;   # 0 to 10
+```
+
+Ten is the ceiling because the leader reaches a workspace by pressing a **digit**
+and there are ten of those: `1` through `9` in order, then `0` for the tenth, the
+same wrap a browser's tab shortcuts use. `0` is a legal count and means no
+numbered workspaces at all, for a machine where every workspace is one you named.
+
+Each one you add takes its digit in launch mode, so a `haus.workspaces` key that
+collides with a newly claimed digit is refused at rebuild rather than silently
+losing one of the two bindings. Raising the count never renames an existing
+workspace, so nothing moves.
+
+## Tiles or accordion
+
+A fresh workspace splits the space between its windows. The other layout stacks
+them and gives the focused one the room, leaving a sliver of its neighbours
+showing, which reads more like a browser's tabs and survives better on a laptop
+display where a third split stops being readable:
+
+```nix
+haus.prowl.defaultLayout      = "accordion";  # or "tiles"
+haus.prowl.accordionPadding   = 80;           # points left for the neighbours
+haus.prowl.defaultOrientation = "auto";       # auto | horizontal | vertical
+```
+
+These are defaults, not locks: `⌥/` and `⌥,` still switch the workspace you are
+on. `defaultOrientation = "auto"` picks per monitor from its shape, side by side
+on a wide screen and stacked on a tall one, which is right almost always; the
+other two are for a machine that should split the same way whatever display it
+wakes up on.
+
+One more, off by default because it moves something you didn't:
+
+```nix
+haus.prowl.mouseFollowsFocus = true;
+```
+
+The pointer re-centres on a monitor when keyboard focus lands there. It fires
+only on a *monitor* change, so focusing another window on the screen the pointer
+is already on leaves it alone.
 
 ## Turning it off
 

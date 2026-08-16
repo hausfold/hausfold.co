@@ -87,8 +87,15 @@
 /docs/haus/guides/coding-agents/      /docs/haus/rooms/ai/                301
 /docs/haus/guides/touch-id            /docs/haus/rooms/security/          301
 /docs/haus/guides/touch-id/           /docs/haus/rooms/security/          301
-/docs/haus/guides/agent-rebuilds      /docs/haus/rooms/agent-rebuilds/    301
-/docs/haus/guides/agent-rebuilds/     /docs/haus/rooms/agent-rebuilds/    301
+/docs/haus/guides/agent-rebuilds      /docs/haus/agent-rebuilds/          301
+/docs/haus/guides/agent-rebuilds/     /docs/haus/agent-rebuilds/          301
+# ...and the same page's second address. It sat under `rooms/` from the port
+# until 2026-08-16, which was always wrong: every other page there documents a
+# `haus.*` room you switch on, and this one documents a way of working. The
+# sidebar's Rooms group listing thirteen entries against a twelve-room layer was
+# the visible symptom.
+/docs/haus/rooms/agent-rebuilds       /docs/haus/agent-rebuilds/          301
+/docs/haus/rooms/agent-rebuilds/      /docs/haus/agent-rebuilds/          301
 /docs/haus/guides/making-it-yours     /docs/haus/desktops/customizing/    301
 /docs/haus/guides/making-it-yours/    /docs/haus/desktops/customizing/    301
 /docs/haus/guides/sharing-a-desktop   /docs/haus/desktops/creating/       301
