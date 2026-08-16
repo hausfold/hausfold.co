@@ -5,9 +5,15 @@ import { pageMetadata } from '@/lib/page-meta';
 // Ported from `public/terms/index.html`.
 //
 // This page exists because Paddle's account review wants policy URLs on the
-// seller's own domain, and it describes a licence nobody can buy yet — that is
-// deliberate, not a leak. It names no price, and that is AGENTS.md's rule
-// rather than an omission: when a price lands it lands on `/perch` alone.
+// seller's own domain, and it described a licence nobody could buy *yet* — a
+// gap that was deliberate while a sale was coming.
+//
+// 🚨 It isn't. perch went back to MIT with no paid tier on 2026-08-15
+// (hausfold/perch#67), and perch was the only thing that was ever going to be
+// sold — so the seats, renewals and refund sections below describe a licence
+// that will never exist. The source section was corrected the next day; the
+// rest is untouched because deleting two published policy URLs is the user's
+// call, not a cleanup. See AGENTS.md's seller's-surface section.
 export const metadata = pageMetadata({
   title: 'Terms · hausfold',
   description:
@@ -87,13 +93,10 @@ export default function Terms() {
       <section className="block">
         <h2>The source</h2>
         <p>
-          Perch is <strong>fair source</strong>, under the{' '}
-          <a href="https://fsl.software">Functional Source Licence</a> (FSL-1.1-ALv2). The code is
-          public: you may read it, modify it, and build it for your own use. What you may not do is
-          offer it to other people as a competing product, or hand out your own builds of it. Two
-          years after a release ships, that release converts to Apache-2.0 and every restriction
-          lifts; tags cut before the relicence stay MIT forever. Everything else hausfold publishes
-          has a licence of its own.{' '}
+          Perch is <strong>MIT</strong>, and there is nothing to buy: you may read it, modify it,
+          build it and ship it. It spent ten days under a fair source licence in August 2026 and was
+          relicensed back to MIT, retroactively, for those releases too. Everything else hausfold
+          publishes has a licence of its own.{' '}
           <strong>
             Each repository&apos;s <code>LICENSE</code> file is the authority, not this paragraph.
           </strong>

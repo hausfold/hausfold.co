@@ -273,17 +273,31 @@ things to know before editing them:
   serves `nebelhaus.com/pounce` and is on its way out with the rest of that
   tree. **Don't rebuild `/pounce` as a landing page** — put the words in the
   docs tree.
-- **`/terms` and `/refunds` exist because Paddle asks for them.** Paddle's
-  account review sits in front of every other step of Phase 2, and it wants
-  policy URLs on the seller's own domain. They describe a licence nobody can buy
-  yet; that's deliberate, not a leak. The app's licence layer is inert until a
-  public key is baked in (`perch/docs/going-paid.md` is that runbook), so these
-  pages are ahead of the software on purpose.
-- **None of the three names a price**, and that was the user's call on
-  2026-08-08: no price goes up before there's a checkout to click, because a
-  price with no button reads as a rug-pull warning to people using perch free
-  today. The price and the Paddle overlay land together, on `/perch`, in one
-  commit on flip day.
+- 🚨 **The monetization plan is OFF as of 2026-08-15, and `/terms` and
+  `/refunds` outlived their reason.** They exist because Paddle's account review
+  wanted policy URLs on the seller's own domain, in front of every other step of
+  Phase 2 — and perch, the only thing that was ever going to be sold, **went
+  back to MIT with no paid tier** that day
+  ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67), ADR 0009
+  superseding ADR 0004; the FSL window `v2026.08.04` … `v2026.08.14-1` is
+  relicensed retroactively, and `docs/going-paid.md` is deleted along with
+  `License.swift` and the Settings pane). Nobody paid: the production signing
+  key was never minted and `canSell` was false in every shipped build. So the
+  two pages now describe seats, renewals and refunds for a licence that does not
+  and will not exist. **Whether they stay is the user's call, not a tidy-up** —
+  they are published URLs and one of them was a stated obligation. Until it is
+  answered, don't extend them and don't cite them as evidence that a sale is
+  coming.
+- **The licence sentences on `/perch`, `/docs/perch`, `/terms` and
+  `internals/contributing` say MIT**, swept 2026-08-16 in one commit for the
+  reason every sweep here happens together: a per-page correction is how the
+  site ends up claiming two licences at once. ⚠️ If you meet *fair source*,
+  `fsl.software` or "converts to Apache-2.0 two years after" anywhere on this
+  site, it is stale by that sweep — `rg -i 'fair source|fsl'` finds it.
+- **No page names a price**, the user's call on 2026-08-08 and now moot for
+  perch. The reasoning survives for anything hausfold does sell later: a price
+  with no button to click reads as a rug-pull warning to the people using the
+  thing free today, so the price and the checkout land in one commit.
 - 🚨 **The contact address is `hi@hausfold.co`, and that is deliberate — do not
   "upgrade" it to `support@`.** It reads informal for a legal page and a later
   session will want to fix it. Settled 2026-08-09
@@ -324,7 +338,11 @@ was a sheet beside a manual; the three desktop pages were sheets about a subject
 the haus tree already had a section on. The corollary, and the reason `/perch`
 is not next even though perch now has a tree of its own: perch's sheet is a
 *sales* page with a policy URL and, later, a price — things a manual is the
-wrong shape for, and things `/docs` does not carry. ⚠️ That exemption is not
+wrong shape for, and things `/docs` does not carry. 🚨 **Half of that reason
+expired on 2026-08-15**, when perch went back to MIT with no paid tier: there is
+no price coming, so what holds the exemption up is the policy URL and the
+one-read pitch alone. Whether that is still enough is the user's call, and it is
+the same call as `/terms` and `/refunds` above. ⚠️ That exemption is not
 free. It leaves exactly one product with two surfaces in this repo, so the
 duplicate-fact rule binds: a behaviour fixed on `/perch` is fixed in
 `/docs/perch` in the same commit, or in neither.
@@ -786,16 +804,17 @@ Rules that are easy to break by accident:
   `public/favicon.svg` are in `palette.yml`'s paths filter. Change a ground
   colour and change them with it. (It was ten copies, one per page, until the
   landing pages became routes.)
-- **No prices, anywhere on the site — still true, and now narrower.** No page
-  names a figure, `/perch`, `/terms` and `/refunds` included. The original
-  reason holds: a price here is a second place for perch's terms to drift from
-  `notes/perch-monetization.md` in the workshop, which is the source of truth
-  for what perch costs and what a licence covers. What changed on 2026-08-08 is
-  the *licences* half of this rule: `/terms` and `/refunds` now describe what a
-  licence grants, because Paddle's account review asks for exactly that on the
-  seller's own domain. **The rule to keep is one page, one place**: when a price
-  does land it lands on `/perch` alone, sourced from the monetization note, and
-  every other page keeps linking rather than repeating it.
+- **No prices, anywhere on the site — and as of 2026-08-15 there is nothing to
+  price.** No page names a figure, `/perch`, `/terms` and `/refunds` included.
+  perch went back to MIT with no paid tier
+  ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67)), which was
+  the one product `notes/perch-monetization.md` was written for, so that note is
+  history rather than a source of truth. **The rule to keep is one page, one
+  place**: if a price ever does land it lands on that product's own page alone,
+  in the same commit as the checkout, and every other page links rather than
+  repeats it. What the reversal leaves behind is two pages describing a licence
+  nobody can buy — see the seller's-surface section above, and don't answer that
+  question by editing this bullet.
 - **Links go outward** — *for now.* The landing page indexes the products; it
   doesn't try to hold traffic, and nebelhaus.com and GitHub are where each one
   actually lives. ⚠️ **Plan §5.1 inverts this**: once `/docs`, the gallery,
@@ -950,7 +969,8 @@ has no tree yet; nebelung (a palette) and a desktop do not clear it at all.
 you can see it: perch keeps `/perch`, its sales sheet, *and* gains a manual, so
 it is the one product on this site with two surfaces. That was allowed because
 a sheet with a policy URL and a price is a shape a manual can't take — see the
-retirement rule under [The site](#the-site) — and the price of it is that the
+retirement rule under [The site](#the-site), and note the price half of that
+argument expired on 2026-08-15 — and the price of it is that the
 behaviour lists on both must be fixed together or not at all.
 
 **A new tree owes four things**, all of them easy to forget separately: an
