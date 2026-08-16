@@ -686,9 +686,10 @@ body {
 
    #desktops is the landing page's desktops section — one sentence and one
    link since 2026-08-14, a catalogue of plates before that — and it is where
-   every /desktops link already in the wild lands: the 301 in _redirects, the
-   404, the docs sidebar's way-out row. Whatever that section becomes next,
-   the id stays.
+   every /desktops link already in the wild lands: the 301 in _redirects and
+   the 404. (The docs sidebar's way-out row was a third caller until
+   2026-08-16, when that row was removed; the other two are enough.) Whatever
+   that section becomes next, the id stays.
 
    It used to have two neighbours here, #first-moves and #keys on
    /desktops/nebelhaus. That page is gone and the anchors went with it — the
