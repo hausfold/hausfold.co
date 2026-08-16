@@ -84,7 +84,7 @@ export default function Privacy() {
       <footer>
         <p>
           Questions: <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>. Perch itself lives at{' '}
-          {/* Moved inward 2026-08-14. It said `nebelhaus.com/perch` — the last
+          {/* Moved inward 2026-08-14. It pointed off-site — the last
               outward link on the site to a page that has existed here since
               2026-08-08, which is AGENTS.md's "a link moves inward on the day
               the inward page exists" left unpaid for six days. The port

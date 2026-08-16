@@ -37,10 +37,8 @@ repos and belong to the workshop. If this repo grows one of its own it goes in
 ## Caveats
 
 - **A push here is a deploy.** `main` is the live site — no staging, no build to
-  fail first (the workshop's `web/` deploys the same way for nebelhaus.com, so
-  this shape isn't unique, but it *is* the property that makes instructions
-  load-bearing here). A bad merge is public immediately; the recovery is a revert
-  plus a CI run.
+  fail first, which is the property that makes instructions load-bearing here.
+  A bad merge is public immediately; the recovery is a revert plus a CI run.
 - **The Nix bootstrap is for one script, not for the build.** This repo has no
   flake, and its build (`npm run build` — Next, since the docs landed on
   2026-08-12) never touches Nix; `scripts/sync-nebelung.mjs` shells out to `nix

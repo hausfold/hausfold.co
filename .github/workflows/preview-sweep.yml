@@ -26,15 +26,14 @@
 # Why it matters beyond tidiness: a preview Worker is public. Every one is
 # `workers_dev = true` by design, so a leaked preview keeps serving whatever
 # that PR's build did, forever, on a URL nobody is watching. `hausfold-pr-16`
-# and `-22` were still serving the site as it stood on 2026-08-12; over on
-# nebelhaus.com the same leak was worse, because those previews predated the
-# 301 map and were still honouring an arbitrary `?ref=` against
+# and `-22` were still serving the site as it stood on 2026-08-12, and an old
+# enough preview would still honour an arbitrary `?ref=` against
 # raw.githubusercontent.
 #
 # Scope: this repo's own preview prefix and nothing else. `hausfold-pr-<n>` is
 # the only name shape it will delete — the production `hausfold` Worker cannot
-# match, and neither can the workshop's `nebelhaus-pr-<n>` previews, which that
-# repo sweeps itself.
+# match, and neither can any other repo's previews, which those repos sweep
+# themselves.
 name: Sweep stale hausfold.co previews
 
 on:

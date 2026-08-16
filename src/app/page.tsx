@@ -24,7 +24,7 @@ import { nebelungCssVars } from '@/lib/shiki-theme';
 //     then names. The page is read in ten seconds by someone deciding where to
 //     click, and a paragraph is the wrong shape for that.
 //
-// A third followed hours later, also the user's: /desktops/{nebelhaus,
+// A third followed hours later, also the user's: /desktops/{hacker,
 // everyday,minimal} were deleted outright and every desktop is documented at
 // /docs/haus/desktops/<name>. So this page names no desktop at all — the one
 // link goes to the page that compares them, which is the question a front
@@ -44,12 +44,9 @@ export const metadata = pageMetadata({
 // resolving the name. No claim here that the page doesn't already make in
 // prose.
 //
-// Both GitHub orgs, in that order: `hausfold` is where everything ships from
-// as of 2026-08-08 (the rename plan), and `nebelhaus` stays alive forever
-// holding the redirects, so it is a true alias rather than a stale one.
-// sameAs edges get cached for a long time — listing only the org being
-// emptied would leave the machine-readable identity pointing at a redirect
-// shell once the repos transfer.
+// One GitHub org: `hausfold`, where everything ships from. sameAs edges get
+// cached for a long time, so this lists only the identity meant to outlive
+// the cache.
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -58,7 +55,7 @@ const organization = {
   description:
     'hausfold makes the software that turns a Mac into a workspace someone actually designed.',
   email: 'hi@hausfold.co',
-  sameAs: ['https://github.com/hausfold', 'https://github.com/nebelhaus'],
+  sameAs: ['https://github.com/hausfold'],
 };
 
 // The one file, in the form it's actually written. Every option here is real

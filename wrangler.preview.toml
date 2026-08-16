@@ -14,7 +14,7 @@
 # runs `npm ci && npm run build` before uploading, so a PR preview shows the
 # docs as they would actually deploy rather than the raw ./public tree.
 #
-# `main` tracks it too, so a preview URL answers `/nebelhaus.sh`,
+# `main` tracks it too, so a preview URL answers `/hacker.sh`,
 # `/download/<app>` and `/api/release/<app>` — the only way to *feel* an
 # installer change before it becomes the install command, since those three are
 # the part of this site no local file shows.

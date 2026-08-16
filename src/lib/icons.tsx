@@ -125,7 +125,7 @@ const icons = {
   // its mauve like every other row, and a desktop owns no accent anywhere on
   // this site in the first place (AGENTS.md's closed vocabulary). `hacker`
   // was called `desktop` and carried the desktop's hue while it pointed OUT
-  // of the docs at /desktops/nebelhaus; that page was deleted on 2026-08-14
+  // of the docs at /desktops/hacker; that page was deleted on 2026-08-14
   // and the link turned inward, which is exactly the condition for dropping
   // a hue.
   hacker: { icon: Monitor },

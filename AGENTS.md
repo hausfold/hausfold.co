@@ -39,32 +39,18 @@ on, the apps, the tools — *and* the name on the licences and on press.
 > for. See the seller's-surface section below before writing "seller" into new
 > copy.
 
-> 🔄 **The desktop was called `nebelhaus` until 2026-08-14** — decision 10, and
-> the rename note's **§11** is the walkthrough. The word survives all over this
-> file and almost every occurrence is deliberate; read the hit before touching
-> it:
->
-> | it says | what to do |
-> |---|---|
-> | `/docs/haus/desktops/hacker`, the page, the accent token, `icon: hacker` | already renamed — the current spelling |
-> | `hausfold.co/nebelhaus.sh` | **leave it.** A published install command is the last thing on this site that should ever 404. `/hacker.sh` was *added* beside it |
-> | `/desktops/nebelhaus`, `/docs/nebelhaus/*`, `/docs/haus/desktops/nebelhaus` in `_redirects` | **leave them.** Redirect *sources* — real URLs people hold, re-pointed at the new page |
-> | `nebelhaus.com` | the domain and its 301 map (§5), nothing to do with the desktop |
-> | `github.com/nebelhaus/*` | the dead org, alive forever: shipped pounce and perch poll it for updates |
->
-> 🚨 **One trap, now pointing the other way.** `hacker`'s row in `worker.js`'s
-> `DESKTOPS` pinned **`nebelhaus`** until 2026-08-16, because the Worker serves
-> `bootstrap.sh` from the latest *release tag* and the released script only
-> answered to the old name. **haus v2026.08.16 carries the rename**, so the pin
-> and its test were flipped together — `hacker` pins `hacker`. What did **not**
-> flip, and must not be "finished": **`/nebelhaus.sh` still pins `nebelhaus`**.
-> `?ref=<pre-rename tag>` serves a script that rejects `hacker`, and the old URL
-> is the one carrying old refs out of shell histories. A test pins each side.
+> 🚨 **`?ref=` and a desktop name have to agree.** `worker.js` serves
+> `bootstrap.sh` from haus's latest *release tag*, not from main, so
+> `/hacker.sh?ref=<pre-2026-08-16 tag>` hands `hacker` to a release that
+> predates the name and dies with "unknown desktop". `?ref=` is an unpublished
+> escape hatch, so that is accepted — but a **yanked release** would drag
+> `releases/latest` back behind the rename and break every `/hacker.sh`
+> install. Don't yank; supersede.
 
 > ⚠️ **This section used to say the opposite, in a way that will actively fight
 > you.** It read *hausfold is the commercial umbrella … deliberately not a
-> product brand and not the rice gallery*, and **"Nothing in the nebelhaus
-> family may move into this org."** That rule is **repealed**: all ten repos
+> product brand and not the desktop gallery*, and forbade the family repos from
+> moving into this org. That rule is **repealed**: all ten repos
 > migrate in, and the gallery is **`hausfold.co/#desktops`** (it was
 > `/desktops`, its own page, until 2026-08-12 — written `/market`
 > here and in the rename plan until later the same day; see the desktops
@@ -99,13 +85,13 @@ on, the apps, the tools — *and* the name on the licences and on press.
 | the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one short paragraph and one link (it gained a making-and-sharing sentence on 2026-08-16; it still names no desktop). What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
 | a **desktop's own page** | **the docs**, `content/docs/haus/desktops/<name>.mdx` (2026-08-14). It was `src/app/desktops/<name>/page.tsx` for six hours of that day and `public/desktops/<name>/index.html` before that; those routes are **deleted**, with six 301s in `public/_redirects` |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
+| a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold` |
 | a product's **documentation** | **here** — and since 2026-08-14 pounce, perch and trill each have a **docs tree of their own** (`content/docs/<product>/`), beside `haus` in the switcher. The source of truth for a *fact* is still the product's repo; what lives here is the manual written against it. See [The trees](#the-trees-four-of-them) |
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
-| the **hacker desktop** — its opinions and defaults | the platform repo too, for now; it becomes a desktop file of its own later (plan §7). 🔄 It was called `nebelhaus` until 2026-08-14 — decision 10, the rename note's §11 — which reverses the "keeps the name forever" clause that stood here |
+| the **hacker desktop** — its opinions and defaults | the platform repo too, for now; it becomes a desktop file of its own later (plan §7) |
 | anything about **trill**, the notification compositor | the *code*, [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here. Its one docs page is `content/docs/trill/index.mdx`, and 🚨 **it ships nothing** — see the tree rules below before adding a second page to it |
-| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. The old tree still lives on nebelhaus.com until the 301s land, so a fact fixed in one tree and not the other will disagree |
-| the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL, and `/nebelhaus.sh` is `/hacker.sh` under its pre-2026-08-14 name. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
+| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired |
+| the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
@@ -123,31 +109,19 @@ deploys.
 ✅ **`worker.js` has arrived too** (2026-08-14), so this is no longer an
 assets-only Worker: `wrangler.toml` has a `main`, and three routes run code —
 `/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`. Assets still
-short-circuit first, so no page on the site touches it. **There are five
-installer URLs as of 2026-08-14**: `/haus.sh` asks which desktop you want, and
-`/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer that question by being
-typed — plus `/nebelhaus.sh`, which is `/hacker.sh` under the name that desktop
-carried until 2026-08-14 and keeps resolving forever. They serve the same `bootstrap.sh`; a pinned one has two lines written
+short-circuit first, so no page on the site touches it. **There are four
+installer URLs**: `/haus.sh` asks which desktop you want, and `/hacker.sh`,
+`/everyday.sh` and `/minimal.sh` answer that question by being typed. They
+serve the same `bootstrap.sh`; a pinned one has one line written
 into it naming the desktop, which is **the only thing this Worker ever changes
 about what it proxies**. There is deliberately **no `/init.sh` here** — the
 desktop's name is the point of the route when you know it, and `/haus.sh` is
-the point when you don't. ✅ **`nebelhaus.com/init.sh` already 301s here, and
-it lands on `/nebelhaus.sh`** — `web/worker.js` in the workshop, with a test
-on it. Leave that target alone: `/init.sh` *was* nebelhaus's installer, so
-resolving it to the URL that now pins nebelhaus preserves what the person who
-saved that link actually wanted. Pointing it at `/haus.sh` would ask a
-question they already answered. (An earlier draft of this paragraph said the
-301s hadn't landed and should point at `/haus.sh`. Both halves were wrong.)
+the point when you don't.
 
-> 🚨 **`/nebelhaus.sh` was not renamed, and must not be.** When `minimal` and
-> `everyday` landed it stopped being *the* installer and became *an*
-> installer — same URL, same behaviour, narrower meaning. The desktop was
-> expected to lose that name eventually; **it did, on 2026-08-14** (it is
-> `hacker`), and the rule this paragraph wrote in advance is what happened:
-> **the new name got a new row and this one stayed as an alias**. A published
-> `curl | bash` URL is the last thing on this site that may ever 404: it is in
-> shell histories, in the docs, and in print. ⚠️ The two rows do **not** carry
-> the same pin — see the `DESKTOPS` block in `worker.js`.
+> 🚨 **A published `curl | bash` URL is the last thing on this site that may
+> ever 404** — it is in shell histories, in the docs, and in print. A desktop
+> that ships a route ships a promise; see the `DESKTOPS` block in `worker.js`
+> for what the pin means and where `?ref=` can still bite.
 
 ✅ **The landing pages arrived on 2026-08-14** — all eight became Next routes
 under `src/app/`, and `public/` holds no HTML at all any more. Same markup, same
@@ -158,10 +132,6 @@ hand-copied is the head (`src/lib/page-meta.ts`), the copy-button script
 not" note below has now cashed in**: the markup was replaced, the copy was
 carried across unchanged.
 
-❌ **Not yet:** the `nebelhaus.com/*` 301s, which live in the workshop's `web/`
-and are what finally retires the old tree. **Until they land there are two live
-copies of every docs page**, so a fact fixed in one tree and not the other will
-disagree.
 
 *(§5.1's other prerequisite — "this repo goes public" — was settled on
 2026-08-08 by creating this repo public rather than flipping the old one. The
@@ -185,16 +155,15 @@ different session, so read the two together:
   2026-08-12, then the landing page's first section, then on 2026-08-14 one
   sentence and three names, and by the end of that same day **one sentence and
   one link** to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx).
-  The three deep pages went in the last of those steps: `/desktops/nebelhaus`,
+  The three deep pages went in the last of those steps: `/desktops/hacker`,
   `/desktops/everyday` and `/desktops/minimal` are **deleted**, and a desktop is
   documented at `content/docs/haus/desktops/<name>.mdx`. **No screenshot frames
   anywhere**, explicitly "until velocity slows".
   - **What must not move**: the **`#desktops` id** on `/`, because the 301 and
     the 404 both land on it (the docs sidebar's way-out row did too, until
     2026-08-16 — see the docs section); and the six new
-    301s in `public/_redirects`, because `/desktops/nebelhaus` had been the
-    canonical for a desktop since 2026-08-08 and the other two shipped that
-    morning. ⚠️ **`/` now has a second load-bearing id: `#apps`**, on the
+    301s in `public/_redirects`, because a desktop has had a canonical URL
+    under `/desktops/` since 2026-08-08. ⚠️ **`/` now has a second load-bearing id: `#apps`**, on the
     "Also from hausfold" section, where the four `/terms` and `/refunds` 301s
     land (2026-08-16). Same rule, same reason — rename it and a published URL
     starts scrolling to the masthead instead of to its answer.
@@ -205,7 +174,7 @@ different session, so read the two together:
     the assets, so a route existing does not beat a redirect pointing away
     from it.)
   - ⚠️ **Not affected, and never affected by a page decision**: `/haus.sh`,
-    `/nebelhaus.sh`, `/everyday.sh` and `/minimal.sh`. Those are `worker.js`
+    `/hacker.sh`, `/everyday.sh` and `/minimal.sh`. Those are `worker.js`
     routes and they are what a `curl | bash` in someone's shell history calls.
     Deleting a page has nothing to do with them.
   - `git log -- public/hausfold.css` has the classes both layouts were built
@@ -290,20 +259,14 @@ unchanged.
   [`notes/perch-monetization.md`](https://github.com/hausfold/workshop/blob/main/notes/perch-monetization.md)
   Phase 3 asked for (that note is now history: the plan it describes was
   cancelled on 2026-08-15, and the page outlived it because a free app still
-  wants one page that pitches it), and the landing page links it internally now
-  instead of pointing at `nebelhaus.com/perch`. ⚠️ **The Astro page in `workshop/web` is
-  still live and still what `nebelhaus.com/perch` serves.** Two pages about one
-  product will not agree for long — when §5.1 lands, delete the Astro one rather
-  than reconciling them, and until then fix a fact in *both* or in neither.
-  ✅ **`/pounce` used to inherit every word of that warning, and no longer
+  wants one page that pitches it), and the landing page links it internally.
+  ✅ **`/pounce` used to inherit a duplicate-page warning, and no longer
   exists.** It was added 2026-08-09 and **retired on 2026-08-14** into
   `content/docs/pounce/` — pounce's docs tree — with `/pounce` 301ing to
   `/docs/pounce/`. The reasoning: pounce installs from Homebrew with no Nix, is
   read about far more than it is pitched, and one product does not need a sheet
   *and* a manual on the same domain. The duplicate-pair rule therefore now binds
-  for **perch alone** on this site; `workshop/web/src/pages/pounce.astro` still
-  serves `nebelhaus.com/pounce` and is on its way out with the rest of that
-  tree. **Don't rebuild `/pounce` as a landing page** — put the words in the
+  for **perch alone** on this site. **Don't rebuild `/pounce` as a landing page** — put the words in the
   docs tree.
 - 🚨 **`/terms` and `/refunds` are deleted (2026-08-16), and rebuilding either
   is a positioning reversal, not a restoration.** They existed for one reason:
@@ -408,16 +371,15 @@ The pages, and the one rule each carries that isn't obvious:
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
-🚨 **`/desktops/{nebelhaus,everyday,minimal}` are gone, as of 2026-08-14 —
+🚨 **`/desktops/{hacker,everyday,minimal}` are gone, as of 2026-08-14 —
 don't rebuild them.** They were the last sheets about a subject the docs also
 covered, and the reasoning is `/haus`'s below, applied one more time by the
 user: the docs and the landing page are the only two surfaces this site keeps.
 Every one of them became `content/docs/haus/desktops/<name>.mdx`, beside
 `blank`, which had been documented that way all along. What did **not** come
 across is the desktop page's `#keys` section — a shortened copy of
-[`rooms/windows`](content/docs/haus/rooms/windows.mdx), which is why
-`/docs/nebelhaus/keybindings` now 301s *there* rather than to the port.
-`#first-moves` did come across and keeps its anchor, because
+[`rooms/windows`](content/docs/haus/rooms/windows.mdx), which is the page a
+reader after keys wants. `#first-moves` did come across and keeps its anchor, because
 [`install`](content/docs/haus/install.mdx)'s "First run" card and two
 `_redirects` lines point at it.
 
@@ -427,8 +389,8 @@ staler account of the same subject: its commands list was a subset of
 [`reference/haus`](content/docs/haus/reference/haus.mdx), its "what it covers"
 a subset of the rooms table, its four-desktops paragraph a subset of
 [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). Two pages about
-one thing do not stay in step — the same rule this file applies to
-`nebelhaus.com/perch`. `/haus` and `/haus/` now 301 to `/docs/haus/` in
+one thing do not stay in step — the same rule this file applies to a product's
+sheet and its manual. `/haus` and `/haus/` now 301 to `/docs/haus/` in
 `public/_redirects`, and the docs sidebar lost its `haus` way-out row for the
 same reason (a link out of the docs that lands in the docs is the tree
 switcher). 🔄 **The whole way-out list is gone as of 2026-08-16** — see
@@ -672,7 +634,7 @@ Rules that are easy to break by accident:
   identical twelve-line `<script>` blocks
   until the port. (Three of those four pages no longer exist: `/haus` and
   `/pounce` became docs trees — the landing page inherited `/haus`'s example
-  file — and `/desktops/nebelhaus` was deleted.) Its bar is
+  file — and `/desktops/hacker` was deleted.) Its bar is
   unchanged and is the bar for a second one: the
   button renders `hidden` in the exported HTML and unhides only where
   `navigator.clipboard` exists, so the command is plain selectable text with JS
@@ -690,7 +652,7 @@ Rules that are easy to break by accident:
   that lies about what the desktop looks like today is worse than a grey box
   that admits it doesn't have one. **One frame is a reserved slot; three are a
   gallery that failed to load**, which is the same rule read for quantity
-  rather than for honesty; `/desktops/nebelhaus` drew three, then one, then
+  rather than for honesty; `/desktops/hacker` drew three, then one, then
   none of them, because the page went.
 
   🚨 **Neither `/` nor a docs page holds a frame, and this bullet argued the
@@ -707,7 +669,7 @@ Rules that are easy to break by accident:
   comes back, the frame question comes back with it and is the user's to
   answer, not a detail to restore from `git log`.
   The scene, the checklist and a
-  ready-to-apply patch are in the workshop's `assets/SHOT-nebelhaus-desktop.md`
+  ready-to-apply patch are in the workshop's `assets/SHOT-hacker-desktop.md`
   and `assets/desktops-hero.patch` — but the patch is now **four times**
   overtaken: it targets `public/desktops/index.html`, which the 2026-08-12
   catalogue move deleted, in a file format the 2026-08-14 port replaced, for a
@@ -863,25 +825,22 @@ Rules that are easy to break by accident:
   of truth, and this bullet is no longer a "not yet" — it is the position. The
   landing page says the free-and-open-source half out loud, once, in
   `Also from hausfold`; everything else is silence rather than a promise.
-- **Links go outward** — *for now.* The landing page indexes the products; it
-  doesn't try to hold traffic, and nebelhaus.com and GitHub are where each one
-  actually lives. ⚠️ **Plan §5.1 inverts this**: once `/docs`, the gallery,
-  `/holt`, `/pounce` and `/perch` are served from this repo, most of those links
-  become *internal* and nebelhaus.com 301s here. Don't rewrite them ahead of the
-  move — a link to a page that doesn't exist yet is worse than one extra hop —
-  but stop treating "outward" as a principle. It was a consequence of having one
-  sheet. `/desktops/nebelhaus` was the first place the inversion became
+- **Links go inward.** The landing page used to index the products and point
+  out; once `/docs`, `/holt`, `/pounce` and `/perch` were served from this repo
+  most of those links became *internal*. "Outward" was never a principle — it
+  was a consequence of having one
+  sheet. `/desktops/hacker` was the first place the inversion became
   visible: it held you long enough to run the command, then linked out. (The
   front door briefly held some of that traffic itself, while the catalogue was
   its first section — 2026-08-12 to 2026-08-14. It routes rather than holds
   again now, on purpose, and the desktop pages themselves are docs pages.)
   **`/perch` is the
   second, and the first one to take a link off the landing page** — the index's
-  perch line pointed at `nebelhaus.com/perch` and now points at `/perch`. That
+  perch line pointed off-site and now points at `/perch`. That
   is the pattern for the rest: a link moves inward on the day the inward page
   exists, not before. **`/pounce` is the third, and it followed exactly that
-  pattern** — page first, then the index's pounce line off `nebelhaus.com/pounce`
-  and onto `/pounce`, in the same commit. (That line points at `/docs/pounce`
+  pattern** — page first, then the index's pounce line moved onto `/pounce`,
+  in the same commit. (That line points at `/docs/pounce`
   since 2026-08-14, when the sheet was retired into the docs tree — still
   inward, one door further in.) **`trill` is the fourth and the smallest**: its
   name on the index was inert text, with nothing to point at, until it got a
@@ -889,19 +848,11 @@ Rules that are easy to break by accident:
   pointing out of the index is `holt` and `nebelung`, which have no page here
   yet.
 
-  ✅ **The inversion is complete.** `/perch/privacy`'s footer was the
-  second-to-last holdout — it said `nebelhaus.com/perch` for six days after
-  `/perch` landed here — and `/desktops/nebelhaus`'s whole *Elsewhere* list was
-  the last, pointing at `nebelhaus.com` and `nebelhaus.com/start/first-run/` two
-  days after `/docs` had both. Both moved inward on 2026-08-14. Every link with
-  an inward destination now takes it; what still points out is `holt` and
-  `nebelung`, which have no page here yet, and GitHub.
-
-  🚨 **The docs are the trap in this rule.** `/docs` has been here since
-  2026-08-12, but the old tree is still live on `nebelhaus.com` and every URL
-  under it still resolves — so a stale outward link doesn't 404 and nothing
-  tells you it's stale; it just serves the older of two copies. `rg
-  'nebelhaus\.com' src/ content/` before you believe there are none left.
+  ✅ **The inversion is complete.** `/perch/privacy`'s footer and
+  `/desktops/hacker`'s *Elsewhere* list were the last two holdouts; both moved
+  inward on 2026-08-14. Every link with an inward destination now takes it;
+  what still points out is `holt` and `nebelung`, which have no page here yet,
+  and GitHub.
 
   **Three mechanical consequences of the 2026-08-14 port, all easy to get
   wrong.** An internal link is a `<Link>` from `next/link` and an external one
@@ -910,7 +861,7 @@ Rules that are easy to break by accident:
   finds later. `trailingSlash: true` means `<Link href="/perch">` renders
   `/perch/`, so an inward link costs one fewer redirect than the hand-written
   `href="/perch"` did. And 🚨 **a `worker.js` route is internal but NOT a Next
-  route**: `/download/<app>`, `/nebelhaus.sh` and `/api/release/<app>` take a
+  route**: `/download/<app>`, `/hacker.sh` and `/api/release/<app>` take a
   plain `<a>`, because `next/link` would client-navigate to a page the router
   has never heard of. `/perch` links one. ⚠️ **In MDX the same trap is worse**,
   because `a: createRelativeLink(source, page)` in
@@ -921,8 +872,8 @@ Rules that are easy to break by accident:
 - **Every page now spells the org `hausfold`. ✅ Swept 2026-08-10, together, as
   the rule required.** Rename plan §3.2 transferred all nine repos on
   2026-08-08, so `hausfold/tap/<app>` and `github.com/hausfold/<repo>` are the
-  canonical forms; `/pounce` shipped with them and the rest of the site said
-  `nebelhaus` for two days, deliberately — **"sweep them together or not at
+  canonical forms; `/pounce` shipped with them and the rest of the site lagged
+  for two days, deliberately — **"sweep them together or not at
   all"**, because a per-page correction is how the family ends up with three
   spellings instead of two. `workshop/web` ×4 and the READMEs went first; this
   repo was the last holdout, and it went in one commit with
@@ -930,20 +881,10 @@ Rules that are easy to break by accident:
   the sweep waited for a build to verify against). What's left is a **new**
   spelling landing on one page — that's still the mistake, and the rule still
   binds.
-  - **Three `nebelhaus` spellings on these pages are deliberate and must not be
-    swept.** The landing page's JSON-LD `sameAs` lists **both** orgs on
-    purpose — the dead org holds the redirects forever, so it's a true alias,
-    and its own comment says so. `nebelhaus.com/*` links are the domain and its
-    301 map. And **`/desktops/nebelhaus`, `/docs/nebelhaus/*` and
-    `/docs/haus/desktops/nebelhaus` in `public/_redirects` are redirect
-    SOURCES** — real URLs people hold, pointed at `/docs/haus/desktops/hacker/`.
-    Sweeping a source is how you delete the redirect you meant to keep.
-    > 🔄 **Updated 2026-08-14.** This bullet used to end "the `/desktops/…` URL
-    > and the word in prose are the **rice**, which keeps its name forever
-    > (rename plan §6)". Decision 10 reversed exactly that. Kept as a worked
-    > example of the failure mode this list exists to prevent: a sweep found
-    > this list and swept an entry *out of* it, leaving a rule that named the
-    > wrong string.
+  - 🚨 **A redirect SOURCE in `public/_redirects` is never swept.** Those are
+    real URLs people hold; rewriting one to the current spelling deletes the
+    redirect you meant to keep. The destination is the half that follows a
+    rename.
 
 ## The docs
 
@@ -965,15 +906,15 @@ If you can't tell which tree a page belongs in, that's the useful signal: it
 usually means the page is two pages.
 
 > 🚨 **The axis changed on 2026-08-14 and this section says the opposite of
-> what it used to.** It read *`haus` is the layer, `nebelhaus` is one desktop
-> built on it*, with `content/docs/nebelhaus/` as the second tab. The switcher
+> what it used to.** It read *`haus` is the layer, and one desktop built on
+> it*, with that desktop's own tree as the second tab. The switcher
 > is now **the layer, and the apps** — which was the landing page's own
 > structure at the time (`#desktops`, `Apps`, then haus; the `Apps` section
 > dissolved into the closing index on 2026-08-16, but the axis is unchanged),
 > so it is an alignment rather than a new claim. Two consequences:
 >
-> - **`content/docs/nebelhaus/` is gone**, retired first into
->   `/desktops/nebelhaus` and — when that page was deleted hours later — into
+> - **The desktop's own docs tree is gone**, retired first into
+>   `/desktops/hacker` and — when that page was deleted hours later — into
 >   `content/docs/haus/desktops/hacker.mdx`, which keeps the `#first-moves`
 >   anchor. Six 301s in `public/_redirects`. A desktop is a set of values for
 >   haus's own options rather than a subject of its own, and choosing between
@@ -1179,7 +1120,7 @@ distinguishable while sitting side by side in one menu.
 
 🚨 **The corollary, and it bit on 2026-08-14: dropping a hue is part of turning
 a link inward.** `desktop` (a cat, the developer desktop's pink) was hued because it named
-an outward link to `/desktops/nebelhaus`. When that page was deleted and
+an outward link to `/desktops/hacker`. When that page was deleted and
 the desktop became a page *inside* the haus tree, the glyph was renamed
 `hacker` and un-hued — a hued page row in a mauve tree reads as an error,
 and a desktop owns no accent in the first place. Ask which side of the docs an
@@ -1349,7 +1290,7 @@ nothing under `public/` to `open` and no `file://` trap left to fall into.
 - Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
   `wrangler dev` loop above for the routing, because the one thing the unit
   tests can't prove is that a request reaches the Worker at all:
-  `curl -sI localhost:8787/nebelhaus.sh` must answer 200 with an
+  `curl -sI localhost:8787/hacker.sh` must answer 200 with an
   `x-hausfold-ref`, and `curl -sI localhost:8787/api/search` must still be the
   built docs index rather than anything the Worker claimed by accident.
 
@@ -1442,7 +1383,7 @@ claim** not backed by
 [`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md);
 and a claim on the page the products don't actually back.
 
-*(This clause used to say the reviewer should catch "any part of the nebelhaus family
+*(This clause used to say the reviewer should catch "any part of the family
 migrating into this org, which `PRESENCE.md`'s GitHub row forbids". That rule was
 repealed on 2026-08-08 — see the top of this file — and it survived here for a while
 afterwards, which meant this file's own standing instruction told every future reviewer

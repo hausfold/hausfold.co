@@ -158,11 +158,9 @@ If you installed the launcher through Homebrew rather than as a haus room
 brew services stop pounce
 brew uninstall pounce
 brew untap hausfold/tap
-brew untap nebelhaus/tap   # only if you installed before the org was renamed
 ```
 
-Homebrew keys a tap by its directory, so an install that predates the rename
-leaves the old one behind unless you untap it by its old name. Your own commands
+Your own commands
 and config live in `~/.config/pounce`; keep or archive that separately, and
 remove Pounce from **System Settings ▸ Privacy & Security ▸ Accessibility** if
 it's still listed.
@@ -217,7 +215,7 @@ Then confirm what's actually gone:
 ```sh
 command -v haus || echo "haus is no longer on PATH"
 command -v darwin-rebuild || echo "darwin-rebuild is no longer on PATH"
-launchctl list | grep -Ei 'hausfold|nebelhaus|pounce|aerospace|sketchybar|bar|focus|sleepwatcher'
+launchctl list | grep -Ei 'hausfold|pounce|aerospace|sketchybar|bar|focus|sleepwatcher'
 ```
 
 That pattern matters: haus runs more agents than the obvious three, under three
@@ -231,7 +229,7 @@ activation step copied the shelf app into place, and state directories are
 written as the machine runs, so no uninstaller takes either away:
 
 ```sh
-ls ~/.local/state/haus ~/.local/state/nebelhaus ~/.local/state/pounce ~/.config/perch /Applications/Perch.app
+ls ~/.local/state/haus ~/.local/state/pounce ~/.config/perch /Applications/Perch.app
 ```
 
 ## If something stays behind

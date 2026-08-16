@@ -54,9 +54,8 @@ haus reset theme.accent     # inherit the desktop's value again
 ```
 
 **Only `haus.*` paths are writable this way.** The prefix itself is optional:
-`theme.accent` and `haus.theme.accent` are the same path, and so is the old
-`nebelhaus.` spelling, which still resolves everywhere with a warning on
-rebuild. But a raw `system.defaults.*` or `homebrew.*` path, or an option that
+`theme.accent` and `haus.theme.accent` are the same path.
+But a raw `system.defaults.*` or `homebrew.*` path, or an option that
 doesn't exist, fails before any file is written. Those belong in your host file,
 via `haus edit`. Values take the obvious shell form for strings and JSON for
 booleans, numbers, lists and attribute sets.

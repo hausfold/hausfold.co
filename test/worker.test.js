@@ -7,8 +7,8 @@
 // (GitHub API + raw content) and `caches` (the ~1h latest-release cache). We
 // stub both per-test so the suite is fast and offline.
 //
-// Ported from the workshop's web/test/worker.test.js with the route rename —
-// `/init.sh` is `/nebelhaus.sh` here, resolved through a table rather than
+// The route is table-driven —
+// `/init.sh` is `/hacker.sh` here, resolved through a table rather than
 // hardcoded, so the table itself is now part of what these tests protect.
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -71,7 +71,7 @@ describe('/<desktop>.sh ref validation (path-traversal guard)', () => {
   for (const [label, ref] of BAD_REFS) {
     it(`rejects ${label} with 400`, async () => {
       globalThis.fetch = makeFetch([{ match: 'raw.githubusercontent.com', body: 'BOOT' }]);
-      const res = await worker.fetch(req(`/nebelhaus.sh?ref=${encodeURIComponent(ref)}`), {});
+      const res = await worker.fetch(req(`/hacker.sh?ref=${encodeURIComponent(ref)}`), {});
       expect(res.status).toBe(400);
       expect(globalThis.fetch).not.toHaveBeenCalled();
     });
@@ -81,7 +81,7 @@ describe('/<desktop>.sh ref validation (path-traversal guard)', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com/hausfold/haus/v2026.07.18/bootstrap.sh', body: '#!/bin/bash\n' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.07.18'), {});
+    const res = await worker.fetch(req('/hacker.sh?ref=v2026.07.18'), {});
     expect(res.status).toBe(200);
     expect(res.headers.get('x-hausfold-ref')).toBe('v2026.07.18');
     // The body is the upstream script with the desktop pinned into it — see
@@ -93,7 +93,7 @@ describe('/<desktop>.sh ref validation (path-traversal guard)', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com/hausfold/haus/v2026.08.14-1/bootstrap.sh', body: 'OK' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.08.14-1'), {});
+    const res = await worker.fetch(req('/hacker.sh?ref=v2026.08.14-1'), {});
     expect(res.status).toBe(200);
   });
 });
@@ -103,7 +103,7 @@ describe('?ref= is a release tag, not any ref (fork-network guard)', () => {
   // SAFE_REF, and raw.githubusercontent.com serves any object in a public
   // repo's FORK NETWORK — including commits on no branch — so a SHA anyone can
   // get in there via a fork PR would otherwise be servable as
-  // `hausfold.co/nebelhaus.sh?ref=<sha>`: our domain, our TLS, their script.
+  // `hausfold.co/hacker.sh?ref=<sha>`: our domain, our TLS, their script.
   // Only the repo's own maintainers can create a tag.
   const NOT_TAGS = [
     ['a commit SHA', '0a3f9c1d2e4b5a6f7089abcdef0123456789abcd'],
@@ -116,7 +116,7 @@ describe('?ref= is a release tag, not any ref (fork-network guard)', () => {
   for (const [label, ref] of NOT_TAGS) {
     it(`refuses ${label} with 400 and no fetch`, async () => {
       globalThis.fetch = makeFetch([{ match: 'raw.githubusercontent.com', body: 'BOOT' }]);
-      const res = await worker.fetch(req(`/nebelhaus.sh?ref=${encodeURIComponent(ref)}`), {});
+      const res = await worker.fetch(req(`/hacker.sh?ref=${encodeURIComponent(ref)}`), {});
       expect(res.status).toBe(400);
       expect(await res.text()).toContain('release tag');
       expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('?ref= is a release tag, not any ref (fork-network guard)', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body: 'MAIN' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), { REF: 'main' });
+    const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
     expect(res.status).toBe(200);
     expect(res.headers.get('x-hausfold-ref')).toBe('main');
   });
@@ -165,7 +165,7 @@ describe('the desktop table', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('has no /init.sh — that URL lives on nebelhaus.com and redirects here', async () => {
+  it('has no /init.sh — the installer is named after the desktop', async () => {
     globalThis.fetch = makeFetch([]);
     const res = await worker.fetch(req('/init.sh'), {});
     expect(res.status).toBe(404);
@@ -186,17 +186,16 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
     const res = await worker.fetch(req('/minimal.sh'), { REF: 'main' });
     expect(res.status).toBe(200);
     expect(res.headers.get('x-hausfold-desktop')).toBe('minimal');
-    expect(await res.text()).toContain('export HAUS_DESKTOP=minimal NEBELHAUS_DESKTOP=minimal');
+    expect(await res.text()).toContain('export HAUS_DESKTOP=minimal\n');
   });
 
-  // Both spellings, because this Worker serves whatever the latest RELEASE of
-  // haus contains and that may predate either name. Dropping the old one is
-  // safe only once no supported release reads it alone.
-  it('exports both the new and the legacy spelling', async () => {
+  // One variable, and only one. A bootstrap old enough not to read it asks the
+  // question the URL already answered — a degradation, not a break.
+  it('exports the desktop under exactly one name', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const body = await (await worker.fetch(req('/everyday.sh'), { REF: 'main' })).text();
     expect(body).toContain('HAUS_DESKTOP=everyday');
-    expect(body).toContain('NEBELHAUS_DESKTOP=everyday');
+    expect(body).not.toMatch(/DESKTOP=\S+ /);
   });
 
   // The shebang has to stay on line 1. Under `curl | bash` it is an inert
@@ -238,54 +237,20 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
     expect(await res.text()).toBe(script);
   });
 
-  // /nebelhaus.sh is in shell histories and in print. It keeps working, and it
-  // now means the hacker desktop under its old name rather than "the installer".
+  // The desktop's route, and the pin it hands the served script.
   //
-  // 🚨 Its pin stays `nebelhaus` even though `/hacker.sh`'s was flipped on
-  // 2026-08-16, and this assertion is what stops the two being "fixed"
-  // together. `?ref=<pre-rename tag>` serves a script that knows `nebelhaus`
-  // and rejects `hacker` — and the old URL is the one most likely to be
-  // carrying an old ref out of somebody's shell history.
-  it('/nebelhaus.sh still resolves, and keeps the OLD pin', async () => {
-    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
-    const res = await worker.fetch(req('/nebelhaus.sh'), { REF: 'main' });
-    expect(res.status).toBe(200);
-    expect(res.headers.get('x-hausfold-desktop')).toBe('nebelhaus');
-  });
-
-  // The desktop was renamed to `hacker` on 2026-08-14 (the rename note's §11).
-  it('/hacker.sh resolves — the desktop under its current name', async () => {
+  // 🚨 The pin names what the SERVED script understands. This Worker serves
+  // bootstrap.sh from the latest RELEASE TAG, not from main, so
+  // `/hacker.sh?ref=<pre-2026-08-16 tag>` hands `hacker` to a release that
+  // predates the name and dies with "unknown desktop". That is a real hole,
+  // accepted on purpose — `?ref=` is a tag-level escape hatch we don't publish
+  // — and the case to remember is a yanked release dragging `releases/latest`
+  // back behind it.
+  it('/hacker.sh resolves and pins the desktop', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
     expect(res.status).toBe(200);
-  });
-
-  // The pin lagged the rename on purpose until 2026-08-16: this Worker serves
-  // bootstrap.sh from the latest RELEASE TAG, and until haus v2026.08.16 the
-  // released script only answered to `nebelhaus`, so pinning `hacker` would
-  // have resolved, downloaded, and then died with "unknown desktop". That
-  // release accepts `hacker` outright (its `bootstrap.sh:367`), so the pin now
-  // names the current spelling. The rule it followed is unchanged: the pin
-  // names what the SERVED script understands.
-  it('/hacker.sh pins a desktop name the RELEASED bootstrap understands', async () => {
-    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
-    const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
     expect(res.headers.get('x-hausfold-desktop')).toBe('hacker');
-  });
-
-  // Both spellings of the env var reach the script, so a bootstrap that reads
-  // only `NEBELHAUS_DESKTOP` still gets the answer the URL already gave.
-  //
-  // ⚠️ That is a statement about the VARIABLE NAME, not about the value. Since
-  // the pin flipped, a pre-2026-08-16 script rejects `hacker` whichever
-  // variable carries it — `/hacker.sh?ref=<old tag>` is a real hole, accepted
-  // on purpose (see `worker.js`'s DESKTOPS block). The old spelling stays
-  // because dropping it is a separate question with its own condition.
-  it('/hacker.sh sets both the new and the old desktop env var', async () => {
-    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
-    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
-    expect(body).toContain('HAUS_DESKTOP=hacker');
-    expect(body).toContain('NEBELHAUS_DESKTOP=hacker');
   });
 });
 
@@ -294,7 +259,7 @@ describe('latestRef() fallback chain', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com/hausfold/haus/v9.9.9/bootstrap.sh', body: 'PINNED' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), { REF: 'v9.9.9' });
+    const res = await worker.fetch(req('/hacker.sh'), { REF: 'v9.9.9' });
     expect(res.headers.get('x-hausfold-ref')).toBe('v9.9.9');
     // API was never consulted.
     expect(globalThis.fetch.mock.calls.every(([u]) => !String(u).includes('api.github.com'))).toBe(true);
@@ -305,7 +270,7 @@ describe('latestRef() fallback chain', () => {
       { match: 'api.github.com', json: { tag_name: 'v2.0.0' } },
       { match: 'raw.githubusercontent.com/hausfold/haus/v2.0.0/bootstrap.sh', body: 'LATEST' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), {});
+    const res = await worker.fetch(req('/hacker.sh'), {});
     expect(res.headers.get('x-hausfold-ref')).toBe('v2.0.0');
     expect(globalThis.caches._store.get(RELEASE_KEY)).toBe('v2.0.0');
   });
@@ -315,7 +280,7 @@ describe('latestRef() fallback chain', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com/hausfold/haus/v1.5.0/bootstrap.sh', body: 'CACHED' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), {});
+    const res = await worker.fetch(req('/hacker.sh'), {});
     expect(res.headers.get('x-hausfold-ref')).toBe('v1.5.0');
     expect(globalThis.fetch.mock.calls.some(([u]) => String(u).includes('api.github.com'))).toBe(false);
   });
@@ -325,7 +290,7 @@ describe('latestRef() fallback chain', () => {
       { match: 'api.github.com', status: 403, body: 'rate limited' },
       { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body: 'MAIN' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), {});
+    const res = await worker.fetch(req('/hacker.sh'), {});
     expect(res.headers.get('x-hausfold-ref')).toBe('main');
   });
 
@@ -334,7 +299,7 @@ describe('latestRef() fallback chain', () => {
       { match: 'api.github.com', throws: true },
       { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body: 'MAIN' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), {});
+    const res = await worker.fetch(req('/hacker.sh'), {});
     expect(res.headers.get('x-hausfold-ref')).toBe('main');
   });
 
@@ -344,7 +309,7 @@ describe('latestRef() fallback chain', () => {
       { match: 'api.github.com', json: { tag_name: '../../evil' } },
       { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body: 'MAIN' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh'), {});
+    const res = await worker.fetch(req('/hacker.sh'), {});
     expect(res.headers.get('x-hausfold-ref')).toBe('main');
     expect(globalThis.caches._store.has(RELEASE_KEY)).toBe(false);
   });
@@ -355,14 +320,14 @@ describe('serveInstaller upstream handling', () => {
     globalThis.fetch = makeFetch([
       { match: 'raw.githubusercontent.com', status: 404, body: 'not found' },
     ]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.01.02'), {});
+    const res = await worker.fetch(req('/hacker.sh?ref=v2026.01.02'), {});
     expect(res.status).toBe(502);
     expect(await res.text()).toContain('v2026.01.02');
   });
 
   it('sets caching headers on a successful proxy', async () => {
     globalThis.fetch = makeFetch([{ match: 'raw.githubusercontent.com', body: 'OK' }]);
-    const res = await worker.fetch(req('/nebelhaus.sh?ref=v2026.01.02'), {});
+    const res = await worker.fetch(req('/hacker.sh?ref=v2026.01.02'), {});
     expect(res.headers.get('cache-control')).toBe('public, max-age=300');
     expect(res.headers.get('content-type')).toContain('text/plain');
   });
@@ -484,7 +449,7 @@ describe('/download and /api/release', () => {
 
   it('does not treat unknown apps as downloadable', async () => {
     globalThis.fetch = makeFetch([]);
-    const res = await worker.fetch(req('/download/nebelhaus'), {});
+    const res = await worker.fetch(req('/download/desktop'), {});
     expect(res.status).toBe(404); // falls through to the assets/404 path
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
