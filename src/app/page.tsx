@@ -64,27 +64,36 @@ const organization = {
 // and spelled as `content/docs/haus/reference/options.mdx` spells it — that
 // page is generated from haus's own module system, so it is the thing to check
 // this against when it drifts. (`name` is required whenever `key` is set, per
-// the roster options, so the slack entry can't shed it.)
+// the roster options, so the claude entry can't shed it.)
 //
 // It is the one thing on this page that survived the cut by being a
 // demonstration rather than an explanation: four lines of it say what three
 // paragraphs about "declarative configuration" would not.
+//
+// The lines are picked so each lands with a different reader (the user's
+// brief, 2026-08-16): the accent for someone who cares how it looks, tiling
+// for someone who lives in windows, focus for someone guarding their
+// attention, animations for someone who wants macOS out of the way, and the
+// roster entry — Claude, deliberately — for someone who'd hand this very file
+// to an agent. The comments stay one clause each; they are the explainers.
 //
 // Line length is a layout constraint, not a style choice: `.cmd code` is
 // 0.82rem mono inside a 41rem sheet, and anything much past ~58 characters
 // puts a horizontal scrollbar on the box at ordinary zoom. The roster entry
 // is written multi-line for exactly that reason. Keep new lines under that.
 const example = `{
-  haus.theme.accent = "sapphire";
+  haus.theme.accent = "sapphire"; # one hue, everywhere
 
   haus.windows.enable = true;  # tiling, Caps Lock as leader
   haus.launcher.enable = true; # the launcher, on ⌘Space
+  haus.focus.enable = true;    # Do Not Disturb, one switch
+  haus.animations = "fast";    # no bounce, no genie
 
-  # installed, and on Caps Lock + s
-  haus.roster.slack = {
-    cask = "slack";
-    name = "Slack";
-    key = "s";
+  # installed, and on Caps Lock + c
+  haus.roster.claude = {
+    cask = "claude";
+    name = "Claude";
+    key = "c";
   };
 }`;
 
@@ -97,11 +106,17 @@ export default async function Home() {
   // the landing example and every docs block fork light/dark in one place.
   // `structure: 'inline'` drops the pre/code wrapper so the output slots into
   // `.cmd`'s existing `<code>` untouched.
-  const exampleHtml = await codeToHtml(example, {
-    lang: 'nix',
-    theme: nebelungCssVars,
-    structure: 'inline',
-  });
+  const highlight = (code: string, lang: string) =>
+    codeToHtml(code, { lang, theme: nebelungCssVars, structure: 'inline' });
+  // The two inline commands in the aside go through the same pipeline as the
+  // block (the user's ask, 2026-08-16): same theme, same build-time cost of
+  // zero at runtime. `children` on those <code>s stays out — Shiki's spans ARE
+  // the content, and the raw string never needs copying.
+  const [exampleHtml, rebuildHtml, rollbackHtml] = await Promise.all([
+    highlight(example, 'nix'),
+    highlight('haus rebuild', 'sh'),
+    highlight('haus rollback', 'sh'),
+  ]);
 
   return (
     <>
@@ -109,10 +124,11 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
       />
-      {/* Sections, in order: Rooms (added 2026-08-15), #desktops, Apps, haus,
-          Also from hausfold. Rooms sits first so that "which rooms are on" in
-          the desktops line isn't a forward reference; haus still comes after
-          the products, per the 2026-08-12 decision. */}
+      {/* Sections, in order: Rooms (added 2026-08-15), #desktops, haus, Also
+          from hausfold. Rooms sits first so that "which rooms are on" in the
+          desktops line isn't a forward reference. Apps stopped being a
+          section on 2026-08-16, the user's call — its three rows live in the
+          closing index now. */}
       <main className="sheet">
         <header className="masthead">
           {/* The site's only forward navigation, added 2026-08-14. Two words:
@@ -166,12 +182,12 @@ export default async function Home() {
         </header>
 
         {/* Added 2026-08-15 at the user's request, above Desktops so "which
-            rooms are on" two sections down isn't a forward reference. It is
-            NOT a merge candidate with `Apps`, and the distinction is the
-            site's own axis (the docs switcher: the layer, and the apps): a
-            room is a unit of haus, an app is a product that installs from
-            brew and runs with no haus at all. Some rooms are built around
-            our apps; the Apps section says so in one clause.
+            rooms are on" two sections down isn't a forward reference. Rooms
+            and the apps stay distinct tiers even now that Apps has no section
+            of its own (2026-08-16) — the distinction is the site's own axis
+            (the docs switcher: the layer, and the apps): a room is a unit of
+            haus, an app is a product that installs from brew and runs with
+            no haus at all.
 
             The app-store comparison is the section's one claim, and it is
             the mechanism as /docs/haus states it (the accent lands in the
@@ -183,9 +199,8 @@ export default async function Home() {
           <p>
             The rebuild happens in rooms: Windows, Launcher, Bar, Focus, and the rest, each a
             single concern handled all the way down. An app store stops at the app; a room also
-            wires the
-            keys, the theme, and the macOS settings around it, so the pieces already know each
-            other.
+            wires the keys, the theme, and the macOS settings around it, so the pieces already know
+            each other.
           </p>
           <p className="aside">
             <Link href="/docs/haus">Every room, and what it covers</Link>.
@@ -216,73 +231,26 @@ export default async function Home() {
             this page to carry it. (AGENTS.md's closed vocabulary.) */}
         <section className="block" id="desktops">
           <h2>Desktops</h2>
+          {/* The making-and-sharing sentence, added 2026-08-16 at the user's
+              request. Both halves are backed pages, not aspiration:
+              /docs/haus/desktops/creating and /docs/haus/desktops/sharing.
+              It stays linkless on purpose — the aside's ONE link is still the
+              rule, and `choosing` links onward to both. */}
           <p>
             A desktop is a complete setup, written down: which rooms are on, how it looks, what it
-            installs. A Mac runs exactly one.
+            installs. A Mac runs exactly one. And a desktop is just a file, so it travels: make
+            your own, or run one a friend swears by.
           </p>
           <p className="aside">
             <Link href="/docs/haus/desktops/choosing">The four that ship, and how to choose</Link>.
           </p>
         </section>
 
-        <section className="block">
-          <h2>Apps</h2>
-          {/* "made to sit at the centre of a room", not "come with a room":
-              trill is in the incubator and ships with nothing yet, and a
-              blanket claim over a list whose last row says "In incubator"
-              is a claim the products don't back. ("a room" rather than "the
-              desktop" since 2026-08-15, when Rooms became a section above:
-              it is the same fact one tier more precisely, and it is the one
-              clause that says how Apps and Rooms relate.)
-
-              The agent clause is the user's, restored 2026-08-14 — an earlier
-              cut dropped the half of the sentence that says WHY a plain file
-              is the point. Read, diff and hand to an agent is the same
-              argument the haus section below makes about the whole machine,
-              one tier down, and it is the one thing here a settings pane
-              cannot do. */}
-          <p>
-            Small native Mac apps, made to sit at the centre of a room and to stand alone without
-            one. Settings live in a plain file you can read, diff and hand to an agent. No account,
-            no subscription, nothing you can&apos;t take with you.
-          </p>
-          <ul className="index" role="list">
-            {/* pounce points at its docs, not at a product page: it had one
-                at /pounce until 2026-08-14, and it was retired into the docs
-                tree rather than kept beside it. perch still has a sheet of its
-                own — it is an App Store app with a policy URL and, later, a
-                price. */}
-            <li data-accent="pounce">
-              <Link className="index-name" href="/docs/pounce">
-                pounce
-              </Link>
-              , a launcher you teach your own commands.
-            </li>
-            <li data-accent="perch">
-              <Link className="index-name" href="/perch">
-                perch
-              </Link>
-              , a place for files to park on their way somewhere else.
-            </li>
-            {/* trill's name became a link on 2026-08-14, when it got a tree
-                of its own — the "inward on the day the inward page exists"
-                rule, applied to the one row that had nowhere to point. It is
-                still the workshop-stage name AGENTS.md allows here on the
-                condition the register accounts for it, and the page it lands
-                on opens by saying there is nothing to install, so the link
-                makes no claim the row didn't. */}
-            <li data-accent="trill">
-              <Link className="index-name" href="/docs/trill">
-                trill
-              </Link>
-              , your notifications without the noise. In incubator.
-            </li>
-          </ul>
-        </section>
-
-        {/* haus closes the page, and that ordering is deliberate: it used to
-            open the index, in a tier above the products, which answered "how"
-            before anyone had asked "what".
+        {/* haus sits between Desktops and the index, and the ordering moved
+            on 2026-08-16, the user's call: the Apps section dissolved into
+            "Also from hausfold" below, so haus is no longer last. The
+            2026-08-12 reasoning (don't answer "how" before "what") still
+            shapes the top of the page — Rooms and Desktops come first.
 
             It carries the example file and almost nothing else. The two
             paragraphs that used to explain `haus rebuild`, `haus plan` and
@@ -315,7 +283,8 @@ export default async function Home() {
               with the same href on it twice spends a reader's attention
               twice to move them once. */}
           <p className="aside">
-            <code>haus rebuild</code> applies the file. <code>haus rollback</code> puts it back.
+            <code dangerouslySetInnerHTML={{ __html: rebuildHtml }} /> applies the file.{' '}
+            <code dangerouslySetInnerHTML={{ __html: rollbackHtml }} /> puts it back.
             There are no surprises:{' '}
             <Link className="index-name" href="/docs/haus/reference/options">
               every option
@@ -328,14 +297,48 @@ export default async function Home() {
           </p>
         </section>
 
-        {/* holt runs anywhere and nebelung is a palette, so neither is a
-            desktop and neither is an app — but a trailing sentence naming both
-            was the one place on this page a reader had to parse a clause to
-            find a link. It is the same list shape as `Apps` now, one tier
-            down, which is what the user asked for: a label and two lines. */}
+        {/* The whole index, in one list — the user folded `Apps` into this
+            section on 2026-08-16, so it holds the three apps and then the two
+            things that are neither desktop nor app. The intro line is the old
+            Apps paragraph compressed: the plain-file clause is the user's
+            (restored 2026-08-14, kept through the move), because read, diff
+            and hand to an agent is the same argument the haus section makes
+            about the whole machine, one tier down. "The apps" scopes the
+            settings claim to the rows it backs; the no-account clause holds
+            for all five.
+
+            pounce points at its docs, not a product page (its sheet was
+            retired 2026-08-14); perch keeps a sheet of its own. trill is
+            still the workshop-stage name AGENTS.md allows on the condition
+            the register accounts for it — the page it lands on opens by
+            saying there is nothing to install, so the link makes no claim
+            the row doesn't. */}
         <section className="block">
           <h2>Also from hausfold</h2>
+          <p>
+            The apps are small, native, and keep their settings in a plain file you can read, diff
+            and hand to an agent. No account, no subscription, nothing you can&apos;t take with
+            you.
+          </p>
           <ul className="index" role="list">
+            <li data-accent="pounce">
+              <Link className="index-name" href="/docs/pounce">
+                pounce
+              </Link>
+              , a launcher you teach your own commands.
+            </li>
+            <li data-accent="perch">
+              <Link className="index-name" href="/perch">
+                perch
+              </Link>
+              , a place for files to park on their way somewhere else.
+            </li>
+            <li data-accent="trill">
+              <Link className="index-name" href="/docs/trill">
+                trill
+              </Link>
+              , your notifications without the noise. In incubator.
+            </li>
             <li data-accent="holt">
               <a className="index-name" href="https://github.com/hausfold/holt">
                 holt
