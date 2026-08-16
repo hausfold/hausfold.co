@@ -9,14 +9,8 @@ export const docsContentRoute = '/llms.mdx/docs';
 
 export const gitConfig = {
   user: 'hausfold',
-  // This repo — what the per-page "source on GitHub" row edits, because the
-  // MDX lives here.
   repo: 'hausfold.co',
   branch: 'main',
-  // The platform repo, and NOT the same thing: it is what the docs sidebar's
-  // GitHub mark points at. See `src/lib/layout.shared.tsx` for why the two
-  // differ.
-  platformRepo: 'haus',
 };
 
 // Two `theme-color`s, one per scheme, for the whole site — spent by `viewport`
