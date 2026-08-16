@@ -29,7 +29,7 @@ overwrites an existing config (it writes `config.json.new` beside it instead;
 `--force` replaces).
 
 <Callout type="warn" title="Inside haus, `config init` refuses">
-Your `config.json` is generated from `haus.pounce.*`, and the next rebuild
+Your `config.json` is generated from `haus.launcher.*`, and the next rebuild
 would put the generated one straight back. Change it in your host file
 instead; see [the Launcher room](/docs/haus/rooms/launcher).
 </Callout>
@@ -145,7 +145,7 @@ The laptop **Fn/Globe key** is a one-step special case
 (`"mode:emoji": { "hotkey": "fn" }`), using a keyboard event tap that needs
 Accessibility, firing only on a lone tap so Fn combinations keep working.
 `"globe"` / `"function"` are accepted aliases; haus binds emoji to it by
-default, and `haus.pounce.items."mode:emoji".hotkey = null` leaves Globe
+default, and `haus.launcher.items."mode:emoji".hotkey = null` leaves Globe
 native.
 
 ### Leader sequences

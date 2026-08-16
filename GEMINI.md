@@ -226,7 +226,7 @@ different session, so read the two together:
   links `rooms/windows` for the keys and `desktops/customizing` for the dials
   instead of reprinting either.
   The old source is what let the desktop page drift for six days: it listed
-  haus's internal module names (`den`, `prowl`, `sill`, `hearth`, `collar`) at
+  haus's internal module names (`core`, `windows`, `bar`, `terminal`, `security`) at
   readers who will only ever meet the **rooms** those modules implement, and
   claimed the installer runs on any Mac when it stops on Intel. **The
   reader-facing vocabulary is rooms** — the same ones the docs sidebar is

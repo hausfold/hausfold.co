@@ -62,12 +62,12 @@ Every room comes out independently, and the rest of the machine keeps working:
 
 ```nix
 {
-  haus.prowl.enable = false;   # AeroSpace tiling, the Caps-Lock leader, window bindings
-  haus.sill.enable = false;    # SketchyBar: the top bar, and the bottom one if you run it
-  haus.pounce.enable = false;  # the launcher daemon, ⌘Space, its Accessibility features
-  haus.perch.enable = false;   # the notch file shelf, see the residue note below
-  haus.hush.enable = false;    # the quiet switch: its bar pill, palette command and CLI
-  haus.collar.enable = false;  # Touch ID for sudo, back to the password prompt
+  haus.windows.enable = false;   # AeroSpace tiling, the Caps-Lock leader, window bindings
+  haus.bar.enable = false;    # SketchyBar: the top bar, and the bottom one if you run it
+  haus.launcher.enable = false;  # the launcher daemon, ⌘Space, its Accessibility features
+  haus.shelf.enable = false;   # the notch file shelf, see the residue note below
+  haus.focus.enable = false;    # the quiet switch: its bar pill, palette command and CLI
+  haus.security.touchId.enable = false;  # Touch ID for sudo, back to the password prompt
 }
 ```
 
@@ -77,16 +77,16 @@ haus rebuild
 ```
 
 The native menu bar comes back on its own: haus rewrites that key at every
-activation, so switching sill off is enough. Caps Lock comes back too, but on
+activation, so switching bar off is enough. Caps Lock comes back too, but on
 the next **restart**: the remap is a `hidutil` property that lasts until you
 reboot, so the session you rebuilt in keeps it. **Spotlight's
 ⌘Space** doesn't: pounce disables that shortcut with a one-way write and nothing
 turns it back on, so re-enable it in System Settings ▸ Keyboard ▸ Keyboard
-Shortcuts. hush leaves the reverse kind of trace: a Do Not Disturb chord bound
+Shortcuts. The Focus room leaves the reverse kind of trace: a Do Not Disturb chord bound
 onto a shortcut macOS ships disabled, which stays bound until you clear it.
 
 [Customize a desktop](/docs/haus/desktops/customizing#turning-rooms-off) has the
-full table, plus the middle ground where prowl keeps tiling but gives your keys
+full table, plus the middle ground where the tiler keeps working but gives your keys
 back.
 
 ## Take down the system layer
@@ -143,7 +143,7 @@ brew uninstall --cask <cask>          # add --zap to take its data too
 ### Pounce installed on its own
 
 If you installed the launcher through Homebrew rather than as a haus room
-(removing the *room* is just `haus.pounce.enable = false` above):
+(removing the *room* is just `haus.launcher.enable = false` above):
 
 ```sh
 brew services stop pounce
@@ -187,14 +187,14 @@ snapshot**; this list is for when you didn't:
 - hot corners
 - the native menu bar and its clock, and Caps Lock
 - Spotlight's ⌘Space, which never comes back on its own, and the Do Not Disturb
-  chord hush bound, which stays bound
+  chord focus bound, which stays bound
 - the wallpaper
 - where screenshots land and in what format, and the screen-lock delay
 - alert volume and the startup chime (that one is firmware, and survives a reinstall)
 - your keyboard input sources: haus declares them exhaustively, so layouts you
   never listed were switched off
 - the application firewall
-- file associations, if `haus.hearth.hijackFileAssociations` was on
+- file associations, if `haus.terminal.hijackFileAssociations` was on
 - the launcher's Accessibility grant, and Touch ID for `sudo`, including the
   passwordless-`sudo` rule for rebuilds, which is the one with a security
   consequence
@@ -208,12 +208,12 @@ Then confirm what's actually gone:
 ```sh
 command -v haus || echo "haus is no longer on PATH"
 command -v darwin-rebuild || echo "darwin-rebuild is no longer on PATH"
-launchctl list | grep -Ei 'hausfold|nebelhaus|pounce|aerospace|sketchybar|sill|hush|sleepwatcher'
+launchctl list | grep -Ei 'hausfold|nebelhaus|pounce|aerospace|sketchybar|bar|focus|sleepwatcher'
 ```
 
 That pattern matters: haus runs more agents than the obvious three, under three
 different label prefixes, and a narrower grep reports a clean machine while the
-bottom bar and the hush watcher are still loaded.
+bottom bar and the focus watcher are still loaded.
 
 A surviving AeroSpace or SketchyBar process isn't automatically residue: both
 are Homebrew installs that haus only *launches*, so `brew uninstall` is what

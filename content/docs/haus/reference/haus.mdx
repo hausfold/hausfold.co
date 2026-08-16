@@ -96,12 +96,12 @@ you have pinned, and `haus update` moves them with it.
 A path may go *inside* an option rather than merely up to it:
 
 ```sh
-haus set sill.items.aiUsage true              # one pill, not the whole bar
+haus set bar.items.aiUsage true              # one pill, not the whole bar
 haus set displays.internal.uiScale larger-text
 ```
 
 **Prefer the leaf.** Overrides are written with `lib.mkForce`, so naming the
-enclosing set (`haus set sill.items '{"aiUsage":true}'`) forces the *whole*
+enclosing set (`haus set bar.items '{"aiUsage":true}'`) forces the *whole*
 set, and every pill you didn't name falls back to its own default.
 
 A misspelled sub-option is refused before anything is written. Keys you invent

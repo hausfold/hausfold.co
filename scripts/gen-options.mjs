@@ -56,7 +56,7 @@ const raw = hausFile('options.json', 'That file is what this page is rendered fr
 // The room registry: which room owns each namespace, the order a person should
 // meet them in, and a sentence about each. The module system cannot produce any
 // of it — it has no notion of "identity first, policy last", no place for a
-// sentence about a whole namespace, and no idea that `haus.sill` and
+// sentence about a whole namespace, and no idea that `haus.bar` and
 // `haus.menuBar` are one room with two addresses. haus publishes it beside
 // options.json so every consumer groups the surface the same way.
 const GROUPS = hausFile(
@@ -220,7 +220,7 @@ unless noted; the defaults are a complete, working system.
 
 The page is grouped by **room** — the same rooms the sidebar is organised
 around — and each room lists the \`${PREFIX}.*\` namespaces it owns. A room
-can own more than one: the Bar room is \`${PREFIX}.sill\` (its own bar) *and*
+can own more than one: the Bar room is \`${PREFIX}.bar\` (its own bar) *and*
 \`${PREFIX}.menuBar\` (macOS's).
 
 Apply changes with \`haus rebuild\`. Each option lists its **type** and

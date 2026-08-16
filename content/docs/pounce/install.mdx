@@ -82,7 +82,7 @@ Monitoring, no Screen Recording, no Full Disk Access.
 
 <Callout title="Nix rebuilds and Accessibility">
 A plain Nix rebuild is ad-hoc signed, which would drop the grant every time.
-Inside haus, set `haus.pounce.signingIdentity` and the desktop re-signs a
+Inside haus, set `haus.launcher.signingIdentity` and the desktop re-signs a
 stable copy of the app with your identity, so the grant persists across
 rebuilds. See [the Launcher room](/docs/haus/rooms/launcher).
 </Callout>

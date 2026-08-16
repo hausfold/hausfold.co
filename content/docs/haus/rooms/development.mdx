@@ -4,7 +4,7 @@ description: The terminal, the shell, the multiplexer and the editor, plus Git t
 icon: shell
 ---
 
-**hearth** is the terminal room. It sets up the whole command line (emulator,
+**Terminal** is the room the command line lives in. It sets up the whole command line (emulator,
 multiplexer, shell, prompt, file manager, editor, and a toolbelt of modern
 replacements for the usual commands), painted from the same
 [palette](/docs/haus/rooms/appearance), down to the default editor.
@@ -77,18 +77,18 @@ in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle: resuming one, setting work aside, cleaning up.
 
 **Where that agent's terminal lives is this room's call**, though, and
-`haus.hearth.lanes.backend` is the switch. `"zellij"`, the default, is what the
+`haus.terminal.lanes.backend` is the switch. `"zellij"`, the default, is what the
 rows above describe: the lane is a pane in the `main` session. `"zmx"` makes it
 its own [zmx](https://github.com/neurosnap/zmx) session in its own Ghostty
-window, tiled by prowl. The session outlives every client attached to it, so
+window, tiled by windows. The session outlives every client attached to it, so
 `⌘W` detaches and the agent keeps thinking, and reopening the lane rejoins the
 live conversation instead of replaying a transcript. The trade is splits: zmx
-has none by design, so prowl tiles real windows rather than a second window
+has none by design, so windows tiles real windows rather than a second window
 manager nested inside a terminal.
 
 **zellij boots Locked.** Its single-key submode leaders stay inert until you
 press `Ctrl g`, so a stray keystroke can't drop you into resize mode. Everything
-in the table above works regardless. `haus.hearth.zellijStartLocked` flips it.
+in the table above works regardless. `haus.terminal.zellijStartLocked` flips it.
 
 There is **no reload chord**, because there is nothing to reload: zellij watches
 its own config and applies a change to the running server within a second. A
@@ -129,7 +129,7 @@ highlighted in the real pane and `n`/`p` to walk them: `Ctrl g` to unlock, then
 themed like everything else and gone again on `q`. It's off unless you ask:
 
 ```nix
-haus.hearth.ghDash.enable = true;
+haus.terminal.ghDash.enable = true;
 haus.git.org = "your-org";     # or your own account
 ```
 
@@ -159,7 +159,7 @@ Every floating terminal haus summons wears a thin outline that follows the
 window's corner curve, so a dark terminal on a dark window still has an edge:
 
 ```nix
-haus.hearth.floatBorder = "accent";  # the default; also "grey", any accent name, or "off"
+haus.terminal.floatBorder = "accent";  # the default; also "grey", any accent name, or "off"
 ```
 
 ## Git aliases
@@ -193,14 +193,14 @@ haus.git.shellAliases = {
 
 ## Choosing your editor
 
-Name one and the room installs it. `haus.hearth.editorName` takes **helix** (the
+Name one and the room installs it. `haus.terminal.editorName` takes **helix** (the
 default), **neovim**, **vim** or **nano**: one choice that installs the editor,
 sets your `$EDITOR`, and points every "open in an editor" action at it. Those
 open in a new zellij tab, which is why the list is terminal editors.
 
 ```nix
-haus.hearth.editorName = "neovim";              # installed, and $EDITOR
-haus.hearth.hijackFileAssociations = true;      # off by default: make it the
+haus.terminal.editorName = "neovim";              # installed, and $EDITOR
+haus.terminal.hijackFileAssociations = true;      # off by default: make it the
                                                 # opener for .json, .md, .nix, …
 ```
 
@@ -208,12 +208,12 @@ helix is the one haus paints from the palette: Nebelung has a theme for it and
 none for the others, so the alternatives arrive in their own default colours.
 
 To point haus at an editor it does **not** install (a GUI one, or something
-your host installs itself), set `haus.hearth.editor` instead. That one is a
+your host installs itself), set `haus.terminal.editor` instead. That one is a
 shell command haus runs, so it belongs in your host file rather than in a shared
 desktop, and it wins over whatever `editorName` chose:
 
 ```nix
-haus.hearth.editor = "code -w";                 # points at it; installs nothing
+haus.terminal.editor = "code -w";                 # points at it; installs nothing
 ```
 
 ## Smaller things you'll notice

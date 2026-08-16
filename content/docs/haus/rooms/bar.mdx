@@ -4,14 +4,14 @@ description: Workspace pills, weather, media and a status light. What the bar ca
 icon: bar
 ---
 
-**sill** replaces the macOS menu bar with a scriptable status bar, painted in
+**The bar** replaces the macOS menu bar with a scriptable status bar, painted in
 your palette and wired to your tiling. While it's on, the native menu bar is
 hidden; the bar is the one place to glance.
 
 ## Enable it
 
 ```nix
-haus.sill.enable = true;
+haus.bar.enable = true;
 ```
 
 ## What's on it
@@ -47,7 +47,7 @@ and it closes, open a second one and the first closes.
 | **Right click** | The full palette, the same thing ⌘Space opens |
 
 Every row of that menu *is* a palette command, so anything you can click you
-can also type. `haus.sill.logo.gestures = false` turns all three off, so the
+can also type. `haus.bar.logo.gestures = false` turns all three off, so the
 pill is plainly not a button rather than a button that does nothing.
 
 ### It tells you the machine is fine
@@ -65,21 +65,21 @@ minutes.
 
 The **yellow** half asks GitHub whether a new version exists (the only thing
 this pill does that leaves your machine), so it's **off by default**. Turn it
-on with `haus.sill.logo.updateCheck = true`.
+on with `haus.bar.logo.updateCheck = true`.
 
 <Callout title="Hover it">
 Resting the pointer on the pill sweeps it through the six hausfold accents. It
 only runs at the pill's resting colour: a pill that has gone yellow or red has
-something to say and doesn't also get a rainbow. `haus.sill.logo.sweep = false`
+something to say and doesn't also get a rainbow. `haus.bar.logo.sweep = false`
 if you'd rather it sat still.
 </Callout>
 
 ### Changing the glyph
 
 ```nix
-haus.sill.logo.icon = "⌂";
-haus.sill.logo.size = 25;    # ⌂ is drawn thin; it needs the extra points
-haus.sill.logo.color = "teal";
+haus.bar.logo.icon = "⌂";
+haus.bar.logo.size = 25;    # ⌂ is drawn thin; it needs the extra points
+haus.bar.logo.color = "teal";
 ```
 
 Left alone, the colour follows `haus.theme.accent`. The default is a solid
@@ -115,8 +115,8 @@ The dropdown carries cover art, title, artist, album, and a position slider you
 can click to scrub.
 
 ```nix
-haus.sill.media.collapse = true;   # glyph only until you hover, good on a notched Mac
-haus.sill.media.width = 16;        # characters of title before it sweeps. 25 by default.
+haus.bar.media.collapse = true;   # glyph only until you hover, good on a notched Mac
+haus.bar.media.width = 16;        # characters of title before it sweeps. 25 by default.
 ```
 
 `width` is a maximum, not a fixed size: a short title still draws a short pill.
@@ -128,7 +128,7 @@ Every right-side pill is one boolean. The five core pills (`clock`, `weather`,
 only what you want to change:
 
 ```nix
-haus.sill.items = {
+haus.bar.items = {
   weather = false;      # drop a core pill
   cpu = true;           # add an off-by-default readout
   caffeinate = true;
@@ -159,12 +159,12 @@ awake indefinitely
 awake off
 ```
 
-The **hush** (Do Not Disturb) pill is separate: whether it exists is
-`haus.hush.enable`, not `haus.sill.items`. Where it goes is still a bar
-setting, which is why it can appear in `haus.sill.bottom.items` below.
+The **focus** (Do Not Disturb) pill is separate: whether it exists is
+`haus.focus.enable`, not `haus.bar.items`. Where it goes is still a bar
+setting, which is why it can appear in `haus.bar.bottom.items` below.
 
 <Callout type="info" title="Secrets stay out of Nix">
-sill never bakes a token into the build. The Harvest pill sources your own
+The bar never bakes a token into the build. The Harvest pill sources your own
 credentials file at runtime; `aiUsage` reads your existing Codex login the same
 way. Keep those files out of git.
 </Callout>
@@ -172,18 +172,18 @@ way. Keep those files out of git.
 ## A second bar along the bottom
 
 If you want more room, or you'd rather keep the readouts off the menu bar
-entirely, sill can draw a second bar along the bottom of the screen at the
+entirely, the room can draw a second bar along the bottom of the screen at the
 same time:
 
 ```nix
-haus.sill.bottom = {
+haus.bar.bottom = {
   enable = true;
-  items = { weather = "left"; media = "center"; hush = "right"; };
+  items = { weather = "left"; media = "center"; focus = "right"; };
 };
 ```
 
 A pill named here **moves**: it's drawn on the bottom bar and not the top one,
-whatever `haus.sill.items` says. Never two copies racing each other.
+whatever `haus.bar.items` says. Never two copies racing each other.
 
 The value is where it goes: `"left"`, `"center"` or `"right"`; `true` means
 `"right"`. The menu bar only has one usable group (its left is the workspaces,
@@ -195,13 +195,13 @@ Three things before you turn it on:
 - **macOS reserves nothing at the bottom of the screen.** Tiling carves the
   room out instead, so with tiling off, windows will run underneath it.
 - **The Dock shares that edge.** Move it to a side, or hide it.
-- **Don't put both bars on the same edge.** `haus.sill.position = "bottom"`
+- **Don't put both bars on the same edge.** `haus.bar.position = "bottom"`
   plus a second bar is two bars in one place; you'll get a warning on rebuild.
 
 ## Turning it off
 
 ```nix
-haus.sill.enable = false;
+haus.bar.enable = false;
 ```
 
 The native menu bar comes back, and the bottom bar goes with it. Tiling and

@@ -4,21 +4,21 @@ description: One quiet switch (bar pill, palette command and CLI) for macOS Do N
 icon: bellOff
 ---
 
-**hush** is the quiet room. One switch (the bell pill in the bar, "Toggle
-Hush" in the palette, or `hush` in a terminal) turns macOS **Do Not
+**Focus** is the quiet room. One switch (the bell pill in the bar, "Toggle
+Focus" in the palette, or `focus` in a terminal) turns macOS **Do Not
 Disturb** on or off, optionally sets your **Slack status** (and silences
 Slack on your phone), and runs any **hooks** you add. All three surfaces
 call the same engine, so they can never disagree.
 
-Because hush drives the *real* macOS Focus, everything Focus already does
+Because focus drives the *real* macOS Focus, everything Focus already does
 comes along free: with **Share Across Devices** on, your iPhone and iPad
-hush too, and the "allowed to break through" list is whatever you've curated
+focus too, and the "allowed to break through" list is whatever you've curated
 in System Settings.
 
 ## Enable it
 
 ```nix
-haus.hush.enable = true;
+haus.focus.enable = true;
 ```
 
 ## How the toggle works
@@ -27,20 +27,20 @@ Apple ships no public API or CLI to set a Focus; every "focus CLI" on
 GitHub is secretly a Shortcuts wrapper. haus takes a different path: macOS
 has a hidden keyboard shortcut slot (*"Turn Do Not Disturb On/Off,"*
 symbolic hotkey **175**, disabled by default), and every rebuild binds it
-declaratively to **⌃⌥⇧⌘ F13**, a chord nothing else uses. `hush` synthesizes
+declaratively to **⌃⌥⇧⌘ F13**, a chord nothing else uses. `focus` synthesizes
 that keypress; nothing to author by hand, and the binding heals itself on
 every rebuild.
 
 State is read from the Focus database (`~/Library/DoNotDisturb/DB`) when the
 calling app has Full Disk Access, so the pill stays truthful even when you
-toggle Focus from Control Center or your phone; without that grant, hush
+toggle Focus from Control Center or your phone; without that grant, focus
 falls back to remembering its own last toggle.
 
 ## The one-time grants
 
 Synthesizing a keypress needs **Accessibility**; exact state reads need
 **Full Disk Access**. Both are granted once, per app, in System Settings →
-Privacy & Security. Run `hush doctor` any time to check each piece and print
+Privacy & Security. Run `focus doctor` any time to check each piece and print
 the fix for whatever's missing.
 
 - **Palette toggles work out of the box**: they run under the Pounce
@@ -48,7 +48,7 @@ the fix for whatever's missing.
 - **For the bar pill**, add **sketchybar** to Accessibility.
 - **For the CLI**, add your terminal.
 - **Optional but recommended**: add the signed **Pounce.app** (or your
-  terminal + sketchybar) to **Full Disk Access** so `hush status` reads the
+  terminal + sketchybar) to **Full Disk Access** so `focus status` reads the
   real Focus state instead of guessing.
 
 <Callout type="tip" title="Why grants stick">
@@ -62,7 +62,7 @@ them once, forget them.
 macOS Focus already silences Slack banners *on your Mac*. The Slack leg does
 what Focus can't: tells your **teammates** (status + 🔕) and silences your
 **phone** (Slack's own DND, all devices). Your previous status is stashed
-and restored on unhush.
+and restored on unquiet.
 
 It's off by default because it needs a personal Slack token:
 
@@ -79,15 +79,15 @@ It's off by default because it needs a personal Slack token:
    Nix store:
 
    ```bash
-   security add-generic-password -s hush-slack -a "$USER" -w 'xoxp-…'
+   security add-generic-password -s focus-slack -a "$USER" -w 'xoxp-…'
    ```
 
-4. Point hush at it in your host file:
+4. Point focus at it in your host file:
 
    ```nix
-   haus.hush.slack = {
+   haus.focus.slack = {
      enable = true;
-     tokenCommand = "security find-generic-password -s hush-slack -w";
+     tokenCommand = "security find-generic-password -s focus-slack -w";
      statusText = "heads down";
      statusEmoji = ":no_bell:";
      snooze = true;                 # silence Slack push on all devices
@@ -96,16 +96,16 @@ It's off by default because it needs a personal Slack token:
 
 </Steps>
 
-`hush doctor` verifies the token against Slack's API once it's wired.
+`focus doctor` verifies the token against Slack's API once it's wired.
 
-## Hooks: make hush yours
+## Hooks: make focus yours
 
-Every hush/unhush also runs your own scripts, called with `on` or `off`.
+Every focus/unquiet also runs your own scripts, called with `on` or `off`.
 Failures are logged, never fatal:
 
 ```nix
-haus.hush.hooks = [
-  ./onair-light.sh              # turn the Elgato red while hushed
+haus.focus.hooks = [
+  ./onair-light.sh              # turn the Elgato red while quiet
   "/Users/ada/bin/pause-music"  # strings run as-is, so $HOME paths work
 ];
 ```
@@ -115,17 +115,17 @@ chatty apps to a parking workspace with `aerospace`.
 
 ## Honest scope
 
-- hush flips the built-in **Do Not Disturb**, not named Focus modes; those
+- focus flips the built-in **Do Not Disturb**, not named Focus modes; those
   have no symbolic hotkey to bind.
 - It doesn't manage **which apps or people break through**; that's your
   Focus allowlist, curated once in System Settings → Focus.
-- Without Full Disk Access, `hush status` is hush's own memory and can
+- Without Full Disk Access, `focus status` is focus's own memory and can
   drift if you toggle Focus elsewhere; it self-corrects on the next real
   toggle either way.
 
 ## Troubleshooting
 
-**Run `hush doctor` first**: it checks the hotkey binding, the state-read
+**Run `focus doctor` first**: it checks the hotkey binding, the state-read
 grant, and the Slack token, and prints the fix for each.
 
 - **Click the pill, nothing happens**: sketchybar has no Accessibility
@@ -140,19 +140,19 @@ grant, and the Slack token, and prints the fix for each.
 - **[Bar](/docs/haus/rooms/bar)**: the pill that shows the state and toggles it.
 - **[Launcher](/docs/haus/rooms/launcher)**: the same toggle as a command.
 
-Neither is required: with both rooms off, `hush` is still a CLI.
+Neither is required: with both rooms off, `focus` is still a CLI.
 
 ## Remove it
 
 ```nix
-haus.hush.enable = false;
+haus.focus.enable = false;
 ```
 
 The pill, the command and the CLI go. The Do Not Disturb chord this room adds is
 one macOS ships disabled, so switching the room off leaves a spare binding
 rather than taking one away, the opposite of the launcher's ⌘Space.
 
-`haus.hush.slack.tokenCommand` is host-only: it names a secret on one machine.
+`haus.focus.slack.tokenCommand` is host-only: it names a secret on one machine.
 
 ## Options
 
@@ -164,6 +164,6 @@ Every setting, with types and defaults:
     icon={<Icon name="bar" />}
     title="Bar"
     href="/docs/haus/rooms/bar"
-    description="Where the hush pill sits, and the rest of what the bar shows."
+    description="Where the focus pill sits, and the rest of what the bar shows."
   />
 </Cards>

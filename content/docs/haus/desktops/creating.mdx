@@ -20,7 +20,7 @@ write yours.
 {
   haus = {
     developer.enable = false;
-    prowl.enable = false;
+    windows.enable = false;
     keys.leader = "none";
 
     theme = {
@@ -28,7 +28,7 @@ write yours.
       accent = "rosewater";
     };
 
-    sill.items.weather = false;
+    bar.items.weather = false;
   };
 }
 ```
@@ -54,7 +54,7 @@ decide, which for every optional room means **off**.
 That is the one thing to check twice when you port something that used to be a
 layer stacked on another desktop: the values it silently inherited are now
 values it has to state. haus's own `everyday` is the worked example: it names
-`collar.passwordlessRebuild` and `hush.enable` explicitly, because inheriting
+`security.passwordlessRebuild` and `focus.enable` explicitly, because inheriting
 them quietly was how the old preset worked and losing them quietly is how the
 port would have failed.
 
@@ -84,7 +84,7 @@ haus.tour.steps = [
 
 Steps run in order and advance on signals haus already emits, never on
 keystrokes. `detect` takes one of `launch`, `workspace`, `navigate`, `resize` or
-`palette`; the first four need prowl, and `palette` needs the launcher *and* a
+`palette`; the first four need windows, and `palette` needs the launcher *and* a
 palette key bound. A left click skips a step. Left at its default `null`,
 `tour.steps` keeps the built-in lap; an **empty** list is a type error, and the
 off switch is `tour.enable = false`.
@@ -97,7 +97,7 @@ misspelled placeholder renders as typed, and the rebuild warns and names it.
 
 <Callout type="warn" title="The tour is drawn by the bar">
 A rebuild warns when a step needs a room the desktop switched off, but those
-warnings live inside sill's own module, so a desktop that turns the bar off gets
+warnings live inside bar's own module, so a desktop that turns the bar off gets
 none of them. Check that pairing by eye.
 </Callout>
 

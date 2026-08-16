@@ -23,7 +23,7 @@ cheaper in that order:
 - **An app.** [`haus.roster`](/docs/haus/rooms/apps) installs it, gives it a
   launcher letter and puts its windows on a workspace, in one entry.
 - **A command on a key.** `haus.keys.leaderExtras` binds the leader plus a key
-  to any command; `haus.pounce.items` puts one in the palette.
+  to any command; `haus.launcher.items` puts one in the palette.
 - **A macOS setting haus doesn't expose.** Your host file is a nix-darwin
   module. Write `system.defaults.…` in it directly and move on; nothing about
   haus stops you, and [Customizing](/docs/haus/desktops/customizing) is that
@@ -112,7 +112,7 @@ A new room owes it three things:
    rather than a glob, which is what makes an added option fail loudly instead
    of inheriting whatever safety its namespace happened to have.
 2. **An owner**, in `roomOwners`: which room a namespace belongs to. Two
-   namespaces can share one room (`haus.sill` and `haus.menuBar` are both the
+   namespaces can share one room (`haus.bar` and `haus.menuBar` are both the
    Bar), which is why this table exists separately from the namespace list.
 3. **A blurb**, in `groups`: the one sentence a renderer lays its catalogue out
    from, and an `order` so people meet the rooms in a sensible sequence rather
@@ -149,9 +149,9 @@ haus._contrib.bar.kettle = contrib.mkExtensionPoint {
 ```
 
 The middle segment is the receiving **room**, not the module that implements it:
-`bar`, not `sill`. Same distinction the registry makes two sections up, and the
-reason `haus._contrib.bar.agents` is declared inside `modules/sill/options.nix`
-rather than being called `_contrib.sill.*`. Nothing enforces it, because the
+`bar`, not `bar`. Same distinction the registry makes two sections up, and the
+reason `haus._contrib.bar.agents` is declared inside `modules/bar/options.nix`
+rather than being called `_contrib.bar.*`. Nothing enforces it, because the
 whole tree is internal and never rendered.
 
 Two things follow, and both are the point: a bar that is switched off removes
@@ -173,7 +173,7 @@ should feel like, not a diff, so whatever a desktop doesn't name is decided by
 your room's own neutral default. If that default is `true`, every desktop that
 never heard of your room silently grows it.
 
-Two rooms have no switch on purpose: `den` (macOS itself) and `hearth` (the
+Two rooms have no switch on purpose: `core` (macOS itself) and `terminal` (the
 shell) are the floor rather than furniture. If you are reaching for that
 exemption, you are probably not writing a room.
 

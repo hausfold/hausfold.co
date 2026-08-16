@@ -147,7 +147,7 @@ haus.roster = {
 - **`"system"`**: machine-wide, so it's on `PATH` for root, launchd jobs and
   non-login shells. What a tool called by a daemon actually needs.
 
-To *try* something without installing it, hearth wires up `comma`:
+To *try* something without installing it, terminal wires up `comma`:
 
 ```sh
 , cowsay "hello fog"     # fetches it, runs it, keeps nothing
@@ -174,11 +174,11 @@ Reach for it twice and it has earned a roster entry.
 ## haus's own apps are entries too
 
 You don't have to know what haus already installs. Each room declares its own:
-prowl brings AeroSpace, sill brings SketchyBar, den brings Ghostty. So giving one
+windows brings AeroSpace, bar brings SketchyBar, core brings Ghostty. So giving one
 of them a launcher key means writing only the launcher half:
 
 ```nix
-# perch's name, bundle id and installer come from haus.perch.
+# perch's name, bundle id and installer come from haus.shelf.
 haus.roster.perch.key = "p";
 ```
 
