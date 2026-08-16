@@ -51,11 +51,13 @@ import type { Accent } from './shared';
 // file.
 //
 // `hue` is for the icons that must hold their own colour wherever they are
-// drawn: the four tree icons appear side by side in the switcher, so they
-// cannot all be "the current page's accent", and the outward product links
-// are the products' own. Everything else has no hue and is tinted by the
-// page's accent in `global.css` — which is what makes a whole tree read as
-// one colour without any page saying so.
+// drawn, which since 2026-08-16 is the four tree icons and nothing else: they
+// appear side by side in the switcher's popover, where "the current page's
+// accent" would paint them the same. (It used to cover the sidebar's outward
+// product rows too; that list is empty now — see `src/lib/layout.shared.tsx`.)
+// Everything else has no hue and is tinted by the page's accent in
+// `global.css` — which is what makes a whole tree read as one colour without
+// any page saying so.
 type IconSpec = {
   icon: typeof Layers;
   hue?: Accent;
@@ -126,9 +128,11 @@ const icons = {
   minimal: { icon: Feather },
   blank: { icon: SquareDashed },
 
-  // The one outward link left at the head of the sidebar. `desktops` names a
-  // kind of thing rather than a product, owns no accent anywhere on this
-  // site, and so takes the current page's tint like any other row.
+  // "Desktops, as a kind of thing" — the glyph a card uses when it points at
+  // the group rather than at one of them (`rooms/creating`'s way onward to
+  // `desktops/creating`). ⚠️ It was the sidebar's last way-out row until
+  // 2026-08-16; that row is gone and this entry is NOT, because content names
+  // it. No hue: a desktop owns no accent anywhere on this site.
   desktops: { icon: Monitor },
 } satisfies Record<string, IconSpec>;
 

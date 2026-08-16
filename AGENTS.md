@@ -172,8 +172,9 @@ different session, so read the two together:
   `/desktops/everyday` and `/desktops/minimal` are **deleted**, and a desktop is
   documented at `content/docs/haus/desktops/<name>.mdx`. **No screenshot frames
   anywhere**, explicitly "until velocity slows".
-  - **What must not move**: the **`#desktops` id** on `/`, because the 301, the
-    404 and the docs sidebar's way-out row all land on it; and the six new
+  - **What must not move**: the **`#desktops` id** on `/`, because the 301 and
+    the 404 both land on it (the docs sidebar's way-out row did too, until
+    2026-08-16 — see the docs section); and the six new
     301s in `public/_redirects`, because `/desktops/nebelhaus` had been the
     canonical for a desktop since 2026-08-08 and the other two shipped that
     morning.
@@ -362,7 +363,9 @@ a subset of the rooms table, its four-desktops paragraph a subset of
 one thing do not stay in step — the same rule this file applies to
 `nebelhaus.com/perch`. `/haus` and `/haus/` now 301 to `/docs/haus/` in
 `public/_redirects`, and the docs sidebar lost its `haus` way-out row for the
-same reason (a link out of the docs that lands in the docs is the tree switcher).
+same reason (a link out of the docs that lands in the docs is the tree
+switcher). 🔄 **The whole way-out list is gone as of 2026-08-16** — see
+[The docs](#the-docs).
 **The one piece that was worth keeping is the example file**, which is a sales
 argument rather than a reference and so belongs on a sheet someone reads once:
 it moved to the landing page's `haus` section, which gained a heading
@@ -1115,6 +1118,36 @@ the only SVG paths in `src/` that are neither Lucide's nor ours; they live
 beside the one menu that draws them, and they are `currentColor`, so they take
 the row's ink like every other glyph in that chrome. A second such exception
 would not be an exception.
+
+### The sidebar's way out — 🚨 there isn't one any more
+
+`baseOptions()` in `src/lib/layout.shared.tsx` has **no `links` list**, as of
+2026-08-16, and putting one back is a positioning decision rather than a
+tidy-up. The list held rows that pointed from the docs at the rest of
+hausfold.co, and it emptied in two steps:
+
+- **Three went on 2026-08-14**, for one reason: *a link out of the docs that
+  lands back in the docs is not a way out, it is the tree switcher at the top
+  of the same sidebar.* `haus` → `/haus` and `pounce` → `/pounce` were retired
+  into trees; `perch` → `/perch` was not retired, but perch gained a tree that
+  day and a sidebar naming one product twice spends two rows to offer one
+  thing. `/perch` is still linked, from the head of `/docs/perch`.
+- **`desktops` → `/#desktops` went on 2026-08-16**, at the user's instruction,
+  and its reason is the one the other three left behind: **a list of one row
+  reads as a leftover, not as a section.** What it pointed at is one sentence
+  handing over to
+  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), which the
+  haus tree already lists under `---Desktops---`. The way back to the site is
+  the `⌂` in the nav, which is where a reader looks for it.
+
+Two things did **not** go with the row. The `desktops` glyph stays in
+`src/lib/icons.tsx`, because content names it —
+[`rooms/creating`](content/docs/haus/rooms/creating.mdx)'s way-onward card
+points at `desktops/creating` with it, and removing the entry costs that card
+its glyph and prints `[icons] unknown icon` at build time rather than failing.
+And ⚠️ **the `#desktops` anchor on `/` is still load-bearing**: the
+`/desktops` 301 and `src/app/not-found.tsx` both land on it. This row going
+does not free it.
 
 ### Components
 
