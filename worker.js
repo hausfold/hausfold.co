@@ -48,16 +48,34 @@
 //     the desktop is `hacker`. The paragraph above is the instruction this
 //     followed — `hacker` is a new row, `nebelhaus` stays, neither 404s.
 //
-//     🚨 **`hacker`'s PIN is deliberately still `nebelhaus`, and it is not a
-//     leftover.** This Worker serves `bootstrap.sh` from the desktop repo's
-//     latest RELEASE TAG, not from main. The released bootstrap only knows the
-//     old desktop name, so pinning `hacker` here would hand it a name it
-//     rejects: the URL would resolve, download, and then die with "unknown
-//     desktop" — the worst shape of failure an install command has. The pin
-//     names what the SERVED script understands, not what the repo currently
-//     calls it. Flip it, and the test that asserts it, after the first haus
-//     release carrying the rename; both spellings work from then on, because
-//     bootstrap resolves `nebelhaus` to `hacker` itself.
+//     `hacker`'s PIN lagged the rename until 2026-08-16, deliberately: this
+//     Worker serves `bootstrap.sh` from the desktop repo's latest RELEASE TAG,
+//     not from main, and the released bootstrap only knew the old desktop
+//     name — pinning `hacker` before that would have resolved, downloaded, and
+//     then died with "unknown desktop", the worst shape of failure an install
+//     command has. **haus v2026.08.16 carries the rename** (`bootstrap.sh:357`
+//     resolves `nebelhaus` → `hacker`, and `hacker` is a name it accepts
+//     outright), so the pin is flipped and the test that asserts it with it.
+//
+//     ⚠️ **`/nebelhaus.sh`'s pin stays `nebelhaus` — that is not the same
+//     question, and it is not drift.** §11.1 of the rename note proposed
+//     re-pointing it to `hacker` too; the reason it gave was that `nebelhaus`
+//     would stop being a name bootstrap answers to, and bootstrap kept it
+//     forever instead. What the old pin still buys is the `?ref=<old tag>`
+//     path: someone with `hausfold.co/nebelhaus.sh?ref=v2026.08.10` in a shell
+//     history gets a pre-rename script, which knows `nebelhaus` and would
+//     reject `hacker`. The pin names what the SERVED script understands, and
+//     the old URL is the one most likely to be served an old script.
+//
+//     🚨 **`?ref=` is not safe in both directions, and the flip is what made
+//     that true.** `/hacker.sh?ref=<pre-2026-08-16 tag>` now hands `hacker` to
+//     a script that rejects it — the same failure, pointing the other way. It
+//     is accepted rather than overlooked: `/hacker.sh` is two days old, `?ref=`
+//     is a tag-level escape hatch we don't publish for it, and the alternative
+//     is pinning the old name forever on the route named for the new one. The
+//     one case to remember is a **yanked release** — if `v2026.08.16` were
+//     deleted, `releases/latest` falls back to a pre-rename tag and every
+//     `/hacker.sh` install breaks. Don't yank it; supersede it.
 //   - `/haus.sh` is the new front door, and it pins nothing on purpose. The
 //     old comment here said "the desktop's name is the point of the route",
 //     which was true when one desktop existed and is now half true: the name
@@ -93,8 +111,8 @@
 // this site presents, and a key here is a promise to keep serving it.
 const DESKTOPS = {
   haus: { repo: "hausfold/haus", pin: null },
-  hacker: { repo: "hausfold/haus", pin: "nebelhaus" }, // pin lags the rename — see above
-  nebelhaus: { repo: "hausfold/haus", pin: "nebelhaus" }, // the old name, kept forever
+  hacker: { repo: "hausfold/haus", pin: "hacker" },
+  nebelhaus: { repo: "hausfold/haus", pin: "nebelhaus" }, // the old name, kept forever — see above
   everyday: { repo: "hausfold/haus", pin: "everyday" },
   minimal: { repo: "hausfold/haus", pin: "minimal" },
 };

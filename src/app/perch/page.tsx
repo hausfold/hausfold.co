@@ -5,9 +5,11 @@ import { pageMetadata } from '@/lib/page-meta';
 
 // perch's product page, ported from `public/perch/index.html`.
 //
-// ⚠️ `workshop/web/src/pages/perch.astro` is still what `nebelhaus.com/perch`
-// serves. Two pages about one product will not agree for long — fix a fact in
-// both or in neither until the 301s land.
+// ✅ The duplicate this warning used to name is gone. `nebelhaus.com/perch` was
+// served by `workshop/web/src/pages/perch.astro` until 2026-08-14, when the 301s
+// landed (rename note §5.2) and that Astro tree was deleted; the old URL now
+// 301s onto this page. There is one page about this product again — but see the
+// 🚨 below, which is a different duplicate and is still live.
 //
 // 🚨 Since 2026-08-14 perch also has a docs tree, `content/docs/perch/`, and
 // this page did NOT get retired into it the way /pounce did. The split is by

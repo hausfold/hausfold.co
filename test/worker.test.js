@@ -239,8 +239,14 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
   });
 
   // /nebelhaus.sh is in shell histories and in print. It keeps working, and it
-  // now means the nebelhaus desktop specifically rather than "the installer".
-  it('/nebelhaus.sh still resolves, and now pins nebelhaus', async () => {
+  // now means the hacker desktop under its old name rather than "the installer".
+  //
+  // 🚨 Its pin stays `nebelhaus` even though `/hacker.sh`'s was flipped on
+  // 2026-08-16, and this assertion is what stops the two being "fixed"
+  // together. `?ref=<pre-rename tag>` serves a script that knows `nebelhaus`
+  // and rejects `hacker` — and the old URL is the one most likely to be
+  // carrying an old ref out of somebody's shell history.
+  it('/nebelhaus.sh still resolves, and keeps the OLD pin', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const res = await worker.fetch(req('/nebelhaus.sh'), { REF: 'main' });
     expect(res.status).toBe(200);
@@ -254,26 +260,32 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
     expect(res.status).toBe(200);
   });
 
-  // 🚨 The one thing about that rename a reader will want to "fix". `hacker`'s
-  // pin is still the OLD desktop name, because this Worker serves bootstrap.sh
-  // from the latest RELEASE TAG and the released bootstrap only answers to
-  // `nebelhaus`. Pinning `hacker` before that release ships would resolve, then
-  // die inside the script with "unknown desktop" — the worst shape of failure
-  // an install command has. Flip the pin and this assertion together, after a
-  // haus release carries the rename.
+  // The pin lagged the rename on purpose until 2026-08-16: this Worker serves
+  // bootstrap.sh from the latest RELEASE TAG, and until haus v2026.08.16 the
+  // released script only answered to `nebelhaus`, so pinning `hacker` would
+  // have resolved, downloaded, and then died with "unknown desktop". That
+  // release accepts `hacker` outright (its `bootstrap.sh:367`), so the pin now
+  // names the current spelling. The rule it followed is unchanged: the pin
+  // names what the SERVED script understands.
   it('/hacker.sh pins a desktop name the RELEASED bootstrap understands', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
-    expect(res.headers.get('x-hausfold-desktop')).toBe('nebelhaus');
+    expect(res.headers.get('x-hausfold-desktop')).toBe('hacker');
   });
 
-  // Both spellings of the env var reach the script, so a bootstrap from either
-  // side of the rename reads the answer the URL already gave.
+  // Both spellings of the env var reach the script, so a bootstrap that reads
+  // only `NEBELHAUS_DESKTOP` still gets the answer the URL already gave.
+  //
+  // ⚠️ That is a statement about the VARIABLE NAME, not about the value. Since
+  // the pin flipped, a pre-2026-08-16 script rejects `hacker` whichever
+  // variable carries it — `/hacker.sh?ref=<old tag>` is a real hole, accepted
+  // on purpose (see `worker.js`'s DESKTOPS block). The old spelling stays
+  // because dropping it is a separate question with its own condition.
   it('/hacker.sh sets both the new and the old desktop env var', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
-    expect(body).toContain('HAUS_DESKTOP=nebelhaus');
-    expect(body).toContain('NEBELHAUS_DESKTOP=nebelhaus');
+    expect(body).toContain('HAUS_DESKTOP=hacker');
+    expect(body).toContain('NEBELHAUS_DESKTOP=hacker');
   });
 });
 
