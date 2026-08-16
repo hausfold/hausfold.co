@@ -273,8 +273,14 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
     expect(res.headers.get('x-hausfold-desktop')).toBe('hacker');
   });
 
-  // Both spellings of the env var reach the script, so a bootstrap from either
-  // side of the rename reads the answer the URL already gave.
+  // Both spellings of the env var reach the script, so a bootstrap that reads
+  // only `NEBELHAUS_DESKTOP` still gets the answer the URL already gave.
+  //
+  // ⚠️ That is a statement about the VARIABLE NAME, not about the value. Since
+  // the pin flipped, a pre-2026-08-16 script rejects `hacker` whichever
+  // variable carries it — `/hacker.sh?ref=<old tag>` is a real hole, accepted
+  // on purpose (see `worker.js`'s DESKTOPS block). The old spelling stays
+  // because dropping it is a separate question with its own condition.
   it('/hacker.sh sets both the new and the old desktop env var', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
     const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();

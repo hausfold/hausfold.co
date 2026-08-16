@@ -66,6 +66,16 @@
 //     history gets a pre-rename script, which knows `nebelhaus` and would
 //     reject `hacker`. The pin names what the SERVED script understands, and
 //     the old URL is the one most likely to be served an old script.
+//
+//     🚨 **`?ref=` is not safe in both directions, and the flip is what made
+//     that true.** `/hacker.sh?ref=<pre-2026-08-16 tag>` now hands `hacker` to
+//     a script that rejects it — the same failure, pointing the other way. It
+//     is accepted rather than overlooked: `/hacker.sh` is two days old, `?ref=`
+//     is a tag-level escape hatch we don't publish for it, and the alternative
+//     is pinning the old name forever on the route named for the new one. The
+//     one case to remember is a **yanked release** — if `v2026.08.16` were
+//     deleted, `releases/latest` falls back to a pre-rename tag and every
+//     `/hacker.sh` install breaks. Don't yank it; supersede it.
 //   - `/haus.sh` is the new front door, and it pins nothing on purpose. The
 //     old comment here said "the desktop's name is the point of the route",
 //     which was true when one desktop existed and is now half true: the name

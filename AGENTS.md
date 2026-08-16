@@ -94,7 +94,7 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | the **hacker desktop** — its opinions and defaults | the platform repo too, for now; it becomes a desktop file of its own later (plan §7). 🔄 It was called `nebelhaus` until 2026-08-14 — decision 10, the rename note's §11 — which reverses the "keeps the name forever" clause that stood here |
 | anything about **trill**, the notification compositor | the *code*, [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here. Its one docs page is `content/docs/trill/index.mdx`, and 🚨 **it ships nothing** — see the tree rules below before adding a second page to it |
 | **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. The old tree still lives on nebelhaus.com until the 301s land, so a fact fixed in one tree and not the other will disagree |
-| the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/nebelhaus.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
+| the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL, and `/nebelhaus.sh` is `/hacker.sh` under its pre-2026-08-14 name. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
 
@@ -112,10 +112,11 @@ deploys.
 ✅ **`worker.js` has arrived too** (2026-08-14), so this is no longer an
 assets-only Worker: `wrangler.toml` has a `main`, and three routes run code —
 `/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`. Assets still
-short-circuit first, so no page on the site touches it. **There are four
+short-circuit first, so no page on the site touches it. **There are five
 installer URLs as of 2026-08-14**: `/haus.sh` asks which desktop you want, and
-`/nebelhaus.sh`, `/everyday.sh` and `/minimal.sh` answer that question by being
-typed. They serve the same `bootstrap.sh`; a pinned one has two lines written
+`/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer that question by being
+typed — plus `/nebelhaus.sh`, which is `/hacker.sh` under the name that desktop
+carried until 2026-08-14 and keeps resolving forever. They serve the same `bootstrap.sh`; a pinned one has two lines written
 into it naming the desktop, which is **the only thing this Worker ever changes
 about what it proxies**. There is deliberately **no `/init.sh` here** — the
 desktop's name is the point of the route when you know it, and `/haus.sh` is
@@ -129,11 +130,13 @@ question they already answered. (An earlier draft of this paragraph said the
 
 > 🚨 **`/nebelhaus.sh` was not renamed, and must not be.** When `minimal` and
 > `everyday` landed it stopped being *the* installer and became *an*
-> installer — same URL, same behaviour, narrower meaning. The nebelhaus
-> desktop is expected to lose that name eventually; when it does, **the new
-> name is a new row and this one stays as an alias**. A published `curl | bash`
-> URL is the last thing on this site that may ever 404: it is in shell
-> histories, in the docs, and in print.
+> installer — same URL, same behaviour, narrower meaning. The desktop was
+> expected to lose that name eventually; **it did, on 2026-08-14** (it is
+> `hacker`), and the rule this paragraph wrote in advance is what happened:
+> **the new name got a new row and this one stayed as an alias**. A published
+> `curl | bash` URL is the last thing on this site that may ever 404: it is in
+> shell histories, in the docs, and in print. ⚠️ The two rows do **not** carry
+> the same pin — see the `DESKTOPS` block in `worker.js`.
 
 ✅ **The landing pages arrived on 2026-08-14** — all eight became Next routes
 under `src/app/`, and `public/` holds no HTML at all any more. Same markup, same
