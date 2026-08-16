@@ -38,6 +38,12 @@ export default function Terms() {
             to be read in one sitting; where a sentence here and a sentence in the software
             disagree, tell us and we&apos;ll fix the wrong one.
           </p>
+          <p className="aside">
+            <strong>Nothing hausfold publishes is for sale today.</strong> Every app is free and
+            open source, so the licence described below is one nobody currently holds. The page
+            stays because the URL is published and because this is where the terms will be if that
+            ever changes.
+          </p>
         </div>
       </header>
 

@@ -28,6 +28,11 @@ export default function Refunds() {
             <strong>We won&apos;t ask why</strong>, and you don&apos;t have to explain what went
             wrong. If you do feel like telling us, though, it&apos;s the most useful mail we get.
           </p>
+          <p className="aside">
+            <strong>Nothing hausfold publishes is for sale today</strong>, so nobody has anything to
+            claim back. Every app is free and open source. This policy stands for the day that
+            changes.
+          </p>
         </div>
       </header>
 
@@ -54,10 +59,9 @@ export default function Refunds() {
       <section className="block">
         <h2>Afterwards</h2>
         <p>
-          A refunded licence is no longer one you may use, so please remove it from the app. In
-          Perch that&apos;s Settings ▸ License ▸ Remove. The app itself keeps working: you&apos;re
-          back to using it exactly as someone who never bought a licence does, and nothing you made
-          or stored with it is touched.
+          A refunded licence is no longer one you may use, so please remove it from the app. The app
+          itself keeps working: you&apos;re back to using it exactly as someone who never bought a
+          licence does, and nothing you made or stored with it is touched.
         </p>
       </section>
 

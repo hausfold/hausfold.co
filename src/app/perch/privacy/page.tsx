@@ -54,8 +54,8 @@ export default function Privacy() {
             server we run, because we don&apos;t run one.
           </li>
           <li>
-            Licensing is checked entirely on your Mac: no network call, no file leaves the
-            app&apos;s own container to verify it.
+            No licence check of any kind. Perch is free and MIT, so there is nothing to verify and
+            no key to carry your name.
           </li>
         </ul>
       </section>

@@ -249,7 +249,7 @@ The desktops aren't the only product surface here. `/perch/privacy` predates the
 App Store listing needs a policy URL on a domain the seller owns, and hausfold
 is the seller. That one is a legal obligation, not a shop window.
 
-### `/perch`, `/terms`, `/refunds` — the seller's surface, arriving before the sale
+### `/perch`, `/terms`, `/refunds` — the seller's surface, and the sale that was called off
 
 Added 2026-08-08, the same §5.1-early move `/desktops` was: treat the markup as
 temporary and the copy as not. **The markup half of that came due on
@@ -286,8 +286,13 @@ things to know before editing them:
   two pages now describe seats, renewals and refunds for a licence that does not
   and will not exist. **Whether they stay is the user's call, not a tidy-up** —
   they are published URLs and one of them was a stated obligation. Until it is
-  answered, don't extend them and don't cite them as evidence that a sale is
-  coming.
+  answered each page opens with one `.aside` saying nothing is for sale, so it
+  is at least internally consistent; don't extend them past that and don't cite
+  them as evidence that a sale is coming. ⚠️ **The stale-licence sweep does not
+  find these pages by grepping for `fsl`** — `/perch/privacy` said *Licensing is
+  checked entirely on your Mac* and `/refunds` walked the reader to a Settings
+  pane perch#67 deleted, neither of which contains the word. Grep for `licen`
+  and for a UI path, not for the licence's name.
 - **The licence sentences on `/perch`, `/docs/perch`, `/terms` and
   `internals/contributing` say MIT**, swept 2026-08-16 in one commit for the
   reason every sweep here happens together: a per-page correction is how the
@@ -354,7 +359,7 @@ The pages, and the one rule each carries that isn't obvious:
 | `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (since 2026-08-16 the whole index in one list: pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
-| `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
+| `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the MIT note, what we don't promise. ⚠️ Opens with a standfirst saying nothing is for sale, because the rest of the page describes a licence nobody can buy — see the seller's-surface section |
 | `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
