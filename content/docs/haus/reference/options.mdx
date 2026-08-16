@@ -3117,7 +3117,7 @@ The Focus (Do-Not-Disturb) pill. Needs `haus.focus.enable`; setting this moves t
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a red logo, rather than as five red things or as nothing wrong. The logo stays the number's own colour while everything is fine; green is a row colour, not a resting state. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3583,9 +3583,22 @@ Example:
 `null or string` · default `null`
 
 A GitHub issue/PR search filter, exactly as you would type it into
-github.com's search box. The count is the search's own `total_count`,
-which can be larger than the rows shown — the dropdown says how many it
-left out rather than letting a truncated list read as a complete one.
+github.com's search box. The count is the search's own hit total, which
+can be larger than the rows shown — the dropdown says how many it left
+out rather than letting a truncated list read as a complete one.
+
+Each row it draws carries its own MERGE VERDICT, from the same request
+that counted them: whether the pull request conflicts, what its head
+commit's checks came back as, and what the review landed on, folded into
+the one state GitHub's own merge box answers with. That is the row's
+glyph and colour, and the worst of them across every source is what
+tints the pill's logo. In precedence order: a draft is muted (its author
+already said "not ready", so its red checks are not news), then a
+conflict, then failed checks, then checks still running, then changes
+requested, then approved-and-green — which gets a glyph of its own,
+being the one row that means you can press the button. A mergeability
+GitHub has not computed yet reads as no verdict and resolves itself on
+the next refresh.
 
 The string is literal: nothing interpolates `haus.git.org` into it for
 you, because a machine that reads several owners is the reason that
@@ -3753,7 +3766,7 @@ Toggles an Elgato Key Light on the local network. The light is found over mDNS (
 
 `boolean` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a red logo, rather than as five red things or as nothing wrong. The logo stays the number's own colour while everything is fine; green is a row colour, not a resting state. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4587,11 +4600,11 @@ colors.
 
 ## Focus
 
-One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges.
+One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges — plus the named states (`scenes`) around it, of which quiet is the built-in one.
 
 ### haus.focus
 
-One quiet switch: Do Not Disturb, optional Slack status, and your hooks.
+One quiet switch: Do Not Disturb, optional Slack status, and your hooks — plus the named scenes around it.
 
 #### `haus.focus.enable`
 
@@ -4601,6 +4614,11 @@ The focus room: one quiet switch — bar pill, palette command, and a
 `focus` CLI — that turns macOS Do Not Disturb on/off (via the
 declaratively-bound symbolic hotkey 175, pressed synthetically),
 optionally sets your Slack status, and runs your hooks.
+
+The same switch generalises: `haus.focus.scenes.<name>` declares other
+named states (stay awake, this microphone, these apps, these hooks) and
+`focus scene <name>` enters one. Quiet is the built-in scene, and the
+one every surface above already means.
 
 Honest scope: focus flips the built-in Do Not Disturb, not named Focus
 modes, and it doesn't manage which apps break through — curate that
@@ -4624,6 +4642,157 @@ Example:
 ```nix
 [ ./onair-light.sh "/Users/ada/bin/pause-music" ]
 ```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes`
+
+`attribute set of (submodule)` · default `{ }`
+
+Named machine states, entered with `focus scene <name>` and left with
+`focus scene off`. One at a time: entering a scene leaves whichever was
+running, so the Mac is only ever in one.
+
+`quiet` is the built-in — it is what `focus on`, the bar pill and the
+palette command already enter — so the name is reserved and defining it
+here is an error. Shape quiet through `haus.focus.slack` and
+`haus.focus.hooks` instead.
+
+Scope, and both halves are deliberate. **A scene has no surface but the
+CLI** — quiet has a bar pill and a palette row, a scene has `focus scene
+&lt;name>` and whatever `haus.keys.leaderExtras` chord you give it. And
+**nothing enters a scene for you**: no clock, no Wi-Fi network, no
+display appearing. Declaring the states is the cheap half and this is
+it; a daemon that decides *when* is a separate piece of work, and not
+one to pay for before a single scene has proved useful.
+
+Example:
+
+```nix
+{
+  recording = {
+    description = "camera on, nothing interrupts";
+    preventSleep = true;
+    audio.input = "Studio Mic";
+    apps.open = [ "OBS" ];
+  };
+}
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.apps.open`
+
+`list of string` · default `[ ]`
+
+Apps to launch on entry, by the name or bundle id `open -a`
+takes. Honest scope: exiting a scene never closes them. Quitting
+an app you were mid-sentence in is not a decision a config file
+should make, so that reversal stays yours.
+
+Example:
+
+```nix
+[
+  "OBS"
+  "Reminders"
+]
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.audio.input`
+
+`string` · default `""`
+
+Switch the system input device on entry, by the exact name
+`SwitchAudioSource -a -t input` prints. Put back by `focus scene
+off` when the scene is what changed it — unlike DND there is no
+"off" for an input device, so `restorePreviousState` doesn't
+govern it. Naming a device that isn't plugged in logs and moves
+on; the rest of the scene still applies.
+
+Example:
+
+```nix
+"Studio Mic"
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.description`
+
+`string` · default `""`
+
+One line, shown by `focus scene list`. The scene's own name is the address.
+
+Example:
+
+```nix
+"camera on, nothing interrupts"
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.dnd`
+
+`boolean` · default `true`
+
+Turn Do Not Disturb on while this scene is. `false` means the
+scene leaves DND exactly as it found it — not that it turns it
+off.
+
+Entering a DND scene runs the Slack leg and `haus.focus.hooks`
+too, because it is the same quiet the bar pill and `focus on`
+mean — but only when the scene is what makes the Mac quiet.
+Entering one while already quiet changes nothing, so nothing
+fires, and leaving it fires nothing either: the two edges stay
+paired.
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.hooks`
+
+`list of (absolute path or string)` · default `[ ]`
+
+Scripts run on entry and exit, each called with "on" or "off" —
+the same contract as `haus.focus.hooks`, scoped to this scene.
+Failures are logged, never fatal.
+
+Example:
+
+```nix
+[ ./key-light.sh ]
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.preventSleep`
+
+`boolean` · default `false`
+
+Hold a `caffeinate` assertion (display, disk, idle and system)
+for as long as the scene is on. Released on exit. A reboot kills
+the assertion and leaves only a stale pid file behind, which the
+next entry clears — and the release checks the pid is still a
+caffeinate before signalling it, so a reused pid is never the
+one that gets killed.
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.restorePreviousState`
+
+`boolean` · default `true`
+
+On exit, put Do Not Disturb back the way it was before the scene
+started rather than always turning it off. It has exactly one
+case: you were **already quiet** when you entered. Left true,
+leaving the scene keeps you quiet, because nothing asked to be
+un-quieted. Set false, leaving always ends quiet-off.
+
+It doesn't govern anything else — a scene only ever reverses a
+lever it actually moved, so there is nothing else for "restore"
+and "off" to disagree about.
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
