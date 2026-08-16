@@ -82,7 +82,7 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 | Want to change… | Where |
 |---|---|
 | the hausfold.co landing page — copy, design, the products it lists | here, `src/app/page.tsx` (it was `public/index.html` until 2026-08-14) |
-| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one sentence and one link. What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
+| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one short paragraph and one link (it gained a making-and-sharing sentence on 2026-08-16; it still names no desktop). What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
 | a **desktop's own page** | **the docs**, `content/docs/haus/desktops/<name>.mdx` (2026-08-14). It was `src/app/desktops/<name>/page.tsx` for six hours of that day and `public/desktops/<name>/index.html` before that; those routes are **deleted**, with six 301s in `public/_redirects` |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold`. Plan §3.2 transferred the nine on 2026-08-08, so `nebelhaus/pounce` and friends are redirects rather than addresses. 🚨 **`trill` is the exception**: it was *created* at `hausfold/trill` on 2026-08-09, and `nebelhaus/trill` now resolves to `nebelhaus/messages` — the archived iMessage client, a different project (§3.4). Typing the old spelling for trill lands you on a tombstone, silently |
@@ -332,7 +332,7 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (**one sentence and one link**, and it names no desktop), `Apps`, `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (holt, nebelung). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (since 2026-08-16 the whole index in one list: pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
 | `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the fair-source note, what we don't promise |
@@ -366,13 +366,15 @@ same reason (a link out of the docs that lands in the docs is the tree switcher)
 **The one piece that was worth keeping is the example file**, which is a sales
 argument rather than a reference and so belongs on a sheet someone reads once:
 it moved to the landing page's `haus` section, which gained a heading
-in the same commit. The **2026-08-12 decision that haus comes after the
-products rather than before them stands**, and the reason still holds: opening
-with haus answers "how" before anyone has asked "what". ⚠️ It is no longer
-*last* — the cut later the same day turned the trailing "Also from hausfold"
-line into a headed two-row list, which now closes the page. That is a change to
-what the postscript is, not to where haus sits: haus is still after `Apps`, and
-what follows it is a colophon-weight list of two things the page isn't about.
+in the same commit. The **2026-08-12 reasoning — don't open
+with haus, because that answers "how" before anyone has asked "what" — still
+shapes the top of the page**: Rooms and Desktops come first. ⚠️ But the letter
+of that decision ("haus comes after the products") was superseded on
+2026-08-16, the user's call: `Apps` stopped being a section, its three rows
+joined holt and nebelung in "Also from hausfold", and that five-row index is
+what closes the page now, after haus. The section-order history: haus opened
+the page, then trailed it (2026-08-12), then sat after `Apps` (2026-08-14),
+and now sits between `#desktops` and the closing index.
 
 The three things every page above shares, and where they live now — this is the
 part that used to be hand-copied nine times:
@@ -500,8 +502,8 @@ Rules that are easy to break by accident:
   requiring a hover to happen at all: a product's name in the index takes **that product's
   own accent**, and the `⌂` mark takes **all six at once**, as stripes.
   🚨 **A desktop is not a product, and does not get an accent.** No desktop is
-  named on `/` any more — the desktops line is one sentence and one link since
-  2026-08-14 — so nothing there carries a `data-accent` at all, and the rule
+  named on `/` any more — the desktops section is one short paragraph and one
+  link since 2026-08-14 — so nothing there carries a `data-accent` at all, and the rule
   is written here rather than demonstrated there. It bound the landing page for
   the hours when three names sat in that line: only the developer desktop carried one,
   because the rice is a named thing with a hue assigned upstream, while
@@ -554,7 +556,13 @@ Rules that are easy to break by accident:
   the landing half lives in `src/app/global.css` under
   `prefers-color-scheme` + `body:has(.sheet)`, because those pages never
   carry `data-theme` or the docs' `.dark` class. A code block anywhere on the
-  landing half inherits this; prose and chrome still don't.
+  landing half inherits this; prose and chrome still don't. ⚠️ **Widened
+  2026-08-16, at the user's request, from "one block" to "code, wherever it
+  is code"**: the two inline commands in the haus section's aside (`haus
+  rebuild`, `haus rollback`) go through the same build-time Shiki pipeline
+  and hold the same ramp at rest. The line that matters is unchanged — the
+  exception covers `<code>`, never prose or chrome, and everything it
+  spends still resolves out of the same `--nb-token-*` vocabulary.
 - **No motion, with one hover-only exception.** No load animation, no
   transitions, nothing that moves while you read. The exception, added
   2026-08-08 at the user's request (reshaped the same day, same request): the
@@ -889,9 +897,10 @@ usually means the page is two pages.
 > 🚨 **The axis changed on 2026-08-14 and this section says the opposite of
 > what it used to.** It read *`haus` is the layer, `nebelhaus` is one desktop
 > built on it*, with `content/docs/nebelhaus/` as the second tab. The switcher
-> is now **the layer, and the apps** — which is the landing page's own
-> structure (`#desktops`, `Apps`, then haus), so it is an alignment rather than
-> a new claim. Two consequences:
+> is now **the layer, and the apps** — which was the landing page's own
+> structure at the time (`#desktops`, `Apps`, then haus; the `Apps` section
+> dissolved into the closing index on 2026-08-16, but the axis is unchanged),
+> so it is an alignment rather than a new claim. Two consequences:
 >
 > - **`content/docs/nebelhaus/` is gone**, retired first into
 >   `/desktops/nebelhaus` and — when that page was deleted hours later — into

@@ -235,7 +235,8 @@ export default async function Home() {
               request. Both halves are backed pages, not aspiration:
               /docs/haus/desktops/creating and /docs/haus/desktops/sharing.
               It stays linkless on purpose — the aside's ONE link is still the
-              rule, and `choosing` links onward to both. */}
+              rule; `choosing` links onward to `creating`, which links
+              `sharing`. */}
           <p>
             A desktop is a complete setup, written down: which rooms are on, how it looks, what it
             installs. A Mac runs exactly one. And a desktop is just a file, so it travels: make

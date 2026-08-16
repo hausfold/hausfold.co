@@ -985,8 +985,9 @@ article h1,
 
 /* The landing half never carries the `.dark` class and never sets
    `data-theme` — its dark mode is the media query alone (only /docs has the
-   toggle). So the fork above never fires there, and the landing page's one
-   code block (the haus example on /, Shiki-highlighted at build time) needs
+   toggle). So the fork above never fires there, and the landing page's Shiki
+   output (the haus example block on / and the two inline commands in its
+   aside, all highlighted at build time) needs
    the same nebelung values under `prefers-color-scheme`. Scoped to
    `body:has(.sheet)` so it can only ever match the landing half: a docs page
    toggled to light keeps its class-keyed fork, untouched by this block. */

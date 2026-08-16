@@ -745,8 +745,11 @@ body {
    `align-self: flex-start` opts it out of `.cmd`'s centered cross axis:
    beside the multi-line example it floated at mid-height, and a copy
    button's place is the top-right corner (the user's call, 2026-08-16).
-   Beside a one-line command the button is the tallest thing in the row,
-   so this moves nothing there. */
+   Beside a one-line command the button is usually the tallest thing in
+   the row, so this moves nothing there — except under classic scrollbars
+   (Windows, or macOS "always show"), where an overflowing one-line
+   command grows a scrollbar strip and the button pins to the top of the
+   slightly taller row. Accepted: top-aligned is the point. */
 .copy {
   align-self: flex-start;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
