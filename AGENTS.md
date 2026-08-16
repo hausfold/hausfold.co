@@ -24,9 +24,7 @@ built, run and deployed, and this file covers what you may change.
 
 **hausfold is the platform, the org and the seller** (decided 2026-08-08 — the
 header of `PRESENCE.md` in the private
-[`hausfold/ops`](https://github.com/hausfold/ops), and
-[`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
-in the workshop). The nix-darwin ricing platform every rice sets `haus.*` options
+[`hausfold/ops`](https://github.com/hausfold/ops)). The nix-darwin ricing platform every rice sets `haus.*` options
 on, the apps, the tools — *and* the name on the licences and on press.
 **hacker is one desktop built on it.**
 
@@ -66,9 +64,7 @@ on, the apps, the tools — *and* the name on the licences and on press.
 > above still holds with one word swapped: hausfold *makes* the platform and is
 > still the name on the licences and on press — but the platform itself is what
 > the site calls `haus`, which is also its CLI and its option namespace.
-> Recorded as decision 8 in
-> [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md),
-> which explains at length why this refines the 2026-08-08 reversal rather than
+> Recorded as decision 8, which refines the 2026-08-08 reversal rather than
 > becoming a third position on it.
 >
 > 🚨 **This is not a licence to sweep `hausfold` → `haus`.** Nothing in code
@@ -192,7 +188,7 @@ different session, so read the two together:
 - ✅ **The name is `/desktops`, and the plan was amended to match.** For a few
   hours on 2026-08-08 the plan said `/market` and the page said `/desktops` —
   two sessions deciding in parallel, both with the user. The user resolved it in
-  favour of the page, so `hausfold-rename.md` decision 7, `go-to-market.md` §5
+  favour of the page, so decision 7, `go-to-market.md` §5
   and `options-roadmap.md` now all read `/desktops`
   ([workshop#258](https://github.com/hausfold/workshop/pull/258)). ⚠️ If you
   meet `hausfold.co/market` anywhere, it's stale — fix it rather than obey it.
@@ -308,9 +304,8 @@ unchanged.
   be made whole.
 - 🚨 **The contact address is `hi@hausfold.co`, and that is deliberate — do not
   "upgrade" it to `support@`.** It reads informal for a legal page and a later
-  session will want to fix it. Settled 2026-08-09
-  ([`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
-  §5.4): `hi@` is the address that actually routes, `support@hausfold.co` never
+  session will want to fix it. Settled 2026-08-09: `hi@` is the address that
+  actually routes, `support@hausfold.co` never
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
@@ -1379,9 +1374,8 @@ transcript, not your summary of it. The full checklist is the workshop ship skil
 **Step 2.5**; in this repo it hunts the things that only bite after merge:
 
 anything product-specific that belongs in that product's own repo; a **new positioning
-claim** not backed by
-[`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md);
-and a claim on the page the products don't actually back.
+claim** with no decision behind it; and a claim on the page the products don't
+actually back.
 
 *(This clause used to say the reviewer should catch "any part of the family
 migrating into this org, which `PRESENCE.md`'s GitHub row forbids". That rule was
@@ -1411,9 +1405,8 @@ Three things are **not** small, because they're positioning and not code:
 - **Changing what the site claims hausfold is.** Three reversals are on record
   now — `go-to-market.md` §6's placeholder, the 2026-08-06 maker's voice, and
   2026-08-08's platform repositioning — and each was the user's, not a copy
-  edit. A new positioning claim needs backing in
-  [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
-  or it isn't a decision, it's a session's opinion.
+  edit. A new positioning claim needs a decision behind it, or it isn't a
+  decision — it's a session's opinion.
 - **Adding a row to the gallery.** A second entry means a second thing someone
   can install, so it needs to actually exist and be installable by a stranger
   before it gets a page: a repo and a command that works on a machine that isn't
