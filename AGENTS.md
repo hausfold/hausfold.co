@@ -1358,6 +1358,19 @@ without a check the day a Next or Fumadocs release introduces a timestamp is a
 day nothing tells you about. It also asserts `out/api/search` isn't empty: a
 search index that loads and answers nothing fails no build step.
 
+⚠️ **That gate went red once, intermittently, on 2026-08-16**, on
+`out/docs/haus/reference/options/index.html` — the largest page in the export
+at ~2 MB, and the only file that differed. A re-run of the same commit passed,
+and six cold builds locally were identical, so it is a flake rather than a
+regression, and nobody has yet named its cause. **Don't "fix" it by loosening
+the comparison.** The step now prints, per differing file, the sizes and 320
+bytes around the first differing byte, so the *next* occurrence names the thing
+instead of pointing at a file. If it turns out to be where the RSC flight
+stream flushed (that page serialises into eleven `self.__next_f.push` chunks,
+and a boundary is a timing artefact rather than content), the fix is to
+normalise those boundaries before diffing, not to skip the file. Get the
+evidence first.
+
 A PR that touches `worker.js`, `test/`, either wrangler config or the package
 files runs **Worker** (`.github/workflows/worker.yml`): `npm test`, plus a
 check that both wrangler configs name the same `main` and the same `ASSETS`
