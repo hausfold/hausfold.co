@@ -14,7 +14,7 @@ const config = {
   // (`auto-trailing-slash`) is what maps `/desktops` to
   // `desktops/index.html`, and Next only emits that directory-with-index
   // layout when this is on. Turn it off and every docs URL changes shape,
-  // which doubles the redirect map from nebelhaus.com for no reason.
+  // which doubles the redirect map for no reason.
   trailingSlash: true,
 
   // Next mints a random build id per build and embeds it in

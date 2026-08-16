@@ -13,7 +13,7 @@ npm run types:check && npm run lint  # what CI runs first
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
 `worker.js` behave. `/desktops` should 301 to `/#desktops`,
-`/desktops/nebelhaus` to `/docs/haus/desktops/hacker/`, `/haus` to
+`/desktops/hacker` to `/docs/haus/desktops/hacker/`, `/haus` to
 `/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
 rather than answer 200.
 
@@ -50,7 +50,7 @@ scripts/                          generators — not deployed
 
 Two conventions the linter enforces and one it can't: an internal link is
 `<Link>`, an external one a plain `<a>` — and a `worker.js` route
-(`/nebelhaus.sh`, `/download/<app>`) is internal but *not* a Next route, so it
+(`/hacker.sh`, `/download/<app>`) is internal but *not* a Next route, so it
 takes a plain `<a>` too, or the router client-navigates to a page it has never
 heard of.
 

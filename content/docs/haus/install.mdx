@@ -188,12 +188,9 @@ bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 | `HAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
 | `HAUS_FROM` | Restore an existing config instead of scaffolding |
 
-<Callout title="If you already scripted this with the old names">
-Every variable above was spelled `NEBELHAUS_*` until 2026-08-14, and **the old
-spelling is still read**: the installer promotes it before anything else runs,
-with the new name winning if both are set. Same for the desktop names it
-accepts: `hacker` was `nebelhaus`, and the pre-desktops `HAUS_PRESET=full` still
-selects it. Nothing you already automated needs changing.
+<Callout title="If you scripted this before the desktops landed">
+`HAUS_PRESET=full` still selects the hacker desktop, so a script written
+against the pre-desktops spelling keeps working.
 </Callout>
 
 These are also what you want if you hand the install to a coding agent: the

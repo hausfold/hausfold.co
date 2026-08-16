@@ -19,9 +19,9 @@
 #                            Without it the purge step warns and the deploy
 #                            still succeeds.
 #
-# Do NOT reuse the nebelhaus.com token: it's scoped to that zone, and pointing
-# it at this one is exactly the setup cost that kept this repo on hand-deploys
-# while it lived in the workshop.
+# A token scoped to another zone will not work here — pointing one at this
+# zone is exactly the setup cost that kept this repo on hand-deploys while it
+# lived in the workshop.
 name: Deploy hausfold.co
 
 on:

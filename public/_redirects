@@ -27,31 +27,18 @@
 # copy went to its own page under /docs/haus/desktops/ rather than into one
 # shared table, so each URL has an exact destination.
 #
-# These were published, canonical and shared from 2026-08-08 (nebelhaus) and
-# 2026-08-14 (the other two). They keep resolving forever.
+# These were published, canonical and shared from 2026-08-14. They keep
+# resolving forever.
 #
-# ⚠️ NOT affected, and must not be: /nebelhaus.sh, /everyday.sh and
-# /minimal.sh, which are worker.js routes and are what a `curl | bash` in
-# someone's shell history actually calls. Deleting a page never touches an
-# installer URL.
-#
-# ⚠️ The nebelhaus rows' DESTINATION moved again hours later, when the desktop
-# itself was renamed to `hacker` (the rename note's §11). Re-pointed rather than
-# left to chain onto the row below: a 301 landing on a 301 is exactly the second
-# hop this file exists to avoid.
-/desktops/nebelhaus   /docs/haus/desktops/hacker/      301
-/desktops/nebelhaus/  /docs/haus/desktops/hacker/      301
+# ⚠️ NOT affected, and must not be: /hacker.sh, /everyday.sh and /minimal.sh,
+# which are worker.js routes and are what a `curl | bash` in someone's shell
+# history actually calls. Deleting a page never touches an installer URL.
+/desktops/hacker      /docs/haus/desktops/hacker/      301
+/desktops/hacker/     /docs/haus/desktops/hacker/      301
 /desktops/everyday    /docs/haus/desktops/everyday/    301
 /desktops/everyday/   /docs/haus/desktops/everyday/    301
 /desktops/minimal     /docs/haus/desktops/minimal/     301
 /desktops/minimal/    /docs/haus/desktops/minimal/     301
-
-# The desktop was renamed `nebelhaus` → `hacker` on 2026-08-14 (rename note §11,
-# decision 10), so the docs page it had lived on for a few hours needs its own
-# pair. Short-lived as a canonical URL, but it was linked from /docs/haus and
-# from the desktops index in that window, and the cost of a row is one line.
-/docs/haus/desktops/nebelhaus   /docs/haus/desktops/hacker/   301
-/docs/haus/desktops/nebelhaus/  /docs/haus/desktops/hacker/   301
 
 # /haus was a sheet of its own until 2026-08-14, written before the docs
 # existed. It now says less about haus than /docs/haus does, in more words, so
@@ -138,24 +125,3 @@
 /terms/     /#apps  301
 /refunds    /#apps  301
 /refunds/   /#apps  301
-
-# The nebelhaus docs tree was retired the same day, first into the desktop's
-# own page and — when that page went too, hours later — into the haus tree's
-# Desktops section, which is where a desktop was always going to end up: it is
-# a set of values for haus's options rather than a subject of its own, and the
-# switcher's axis is the layer and the apps.
-#
-# Two of these are re-pointed rather than new. `first-run` still lands on a
-# section that carries what it carried. `keybindings` does NOT: the keys were
-# a copy of what /docs/haus/rooms/windows already documents in full, and the
-# port deliberately did not make a second copy of them — so this URL now lands
-# on the page that has them rather than on a shortened reprint.
-#
-# Exact paths, as everywhere in this file — a /docs/nebelhaus/* wildcard would
-# be fine today and wrong the moment the tree comes back.
-/docs/nebelhaus              /docs/haus/desktops/hacker/                  301
-/docs/nebelhaus/             /docs/haus/desktops/hacker/                  301
-/docs/nebelhaus/first-run    /docs/haus/desktops/hacker/#first-moves      301
-/docs/nebelhaus/first-run/   /docs/haus/desktops/hacker/#first-moves      301
-/docs/nebelhaus/keybindings  /docs/haus/rooms/windows/                    301
-/docs/nebelhaus/keybindings/ /docs/haus/rooms/windows/                    301

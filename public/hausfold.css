@@ -657,7 +657,7 @@ body {
 /* A block's own subdivisions. `h2` above is the mono rule that opens a
    section; `h3` sits inside one, in the page's own face and with no rule of
    its own, so it divides rather than announces. Added 2026-08-14 with the key
-   groups on /desktops/nebelhaus — the first place a .sheet section wanted a
+   groups on /desktops/hacker — the first place a .sheet section wanted a
    second level — and that page was deleted hours later.
 
    It stays anyway, unlike `.catalogue` and `.gallery` above, and the
@@ -692,7 +692,7 @@ body {
    that section becomes next, the id stays.
 
    It used to have two neighbours here, #first-moves and #keys on
-   /desktops/nebelhaus. That page is gone and the anchors went with it — the
+   /desktops/hacker. That page is gone and the anchors went with it — the
    first-moves half is /docs/haus/desktops/hacker#first-moves now, which is
    the docs half of the site and scrolls under fumadocs' own rules. */
 #desktops {
@@ -877,8 +877,8 @@ body {
 /* An `.aside a.index-name[data-accent]` hover rule sat here: a product's name
    can be named in an .aside rather than in the index, and the accent rule
    above is scoped to `.index li[data-accent]`, so it never reaches there.
-   `nebelhaus` in the desktops line was its only user, and that line stopped
-   naming desktops on 2026-08-14. Deleted rather than kept warm, like
+   The desktops line was its only user, and that line stopped naming desktops
+   on 2026-08-14. Deleted rather than kept warm, like
    `.catalogue` and `.gallery` — and unlike `.block h3`, because an accent
    that doesn't arrive is invisible rather than a trap. `git log` has it if a
    product's name lands in an .aside again. */
