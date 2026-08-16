@@ -2,6 +2,15 @@
 title: The haus CLI
 description: Every haus command. Apply, update, undo, and the read-only ones that show you a change before you make it.
 icon: wrench
+related:
+  - title: "Keeping it current"
+    description: "The same commands in the order you actually reach for them, plus restoring the whole machine on new hardware."
+    href: "/docs/haus/keeping-it-current"
+    icon: "sync"
+  - title: "Changing your Mac with an agent"
+    description: "Why a declarative machine is the rare one an AI agent can reconfigure safely."
+    href: "/docs/haus/agent-rebuilds"
+    icon: "wand"
 ---
 
 `haus` is the command that drives your machine after install: it wraps the Nix
@@ -189,18 +198,3 @@ want them: `haus.ai.enable` brings **`holt`**
 ([the AI room](/docs/haus/rooms/ai)), agent worktrees for any repo, and
 `haus.developer.enable` brings **`zscratch`**, for feel-testing a zellij edit
 without a rebuild.
-
-<Cards>
-  <Card
-    icon={<Icon name="sync" />}
-    title="Keeping it current"
-    href="/docs/haus/keeping-it-current"
-    description="The same commands in the order you actually reach for them, plus restoring the whole machine on new hardware."
-  />
-  <Card
-    icon={<Icon name="wand" />}
-    title="Changing your Mac with an agent"
-    href="/docs/haus/agent-rebuilds"
-    description="Why a declarative machine is the rare one an AI agent can reconfigure safely."
-  />
-</Cards>

@@ -1108,6 +1108,24 @@ figure.shiki button:hover {
   color: var(--accent);
 }
 
+/* The page's way-onward cards (frontmatter `related:`), rendered by the
+   footer slot BELOW the prev/next pair — see the footer prop in
+   src/app/docs/[[...slug]]/page.tsx. Prev/next answers "keep reading in
+   order"; these answer "or sideways, to the pages this one leans on", and
+   the order says which question comes first.
+
+   The label borrows `.hf-group`'s small-caps-over-a-hairline so the section
+   reads as chrome rather than as a stub of prose the body forgot — the same
+   words the in-body "Where to go next" headings carried before the move. */
+.hf-related {
+  margin-top: 1.75rem;
+}
+
+.hf-related .hf-related-label {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
 /* --- housekeeping ---------------------------------------------------- */
 
 /* The site's "no motion" rule, enforced rather than asserted. Fumadocs ships

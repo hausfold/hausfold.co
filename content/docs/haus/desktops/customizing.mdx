@@ -2,6 +2,15 @@
 title: Customize a desktop
 description: "One file holds every choice you make: the dials worth knowing, the rooms you can switch off, and how to beat anything your desktop set."
 icon: dials
+related:
+  - title: "Apps"
+    description: "The most common change of all, in depth: one list holds every app, font and CLI tool on the machine."
+    href: "/docs/haus/rooms/apps"
+    icon: "apps"
+  - title: "Troubleshooting"
+    description: "When a dial you turned doesn't take, or an agent comes up dead: the known quirks and the command for each."
+    href: "/docs/haus/reference/troubleshooting"
+    icon: "lifebuoy"
 ---
 
 A desktop ships a whole opinion, already wired. So customising it isn't
@@ -300,18 +309,3 @@ printf '#!/bin/sh\nexec gitleaks git --pre-commit --staged --redact --verbose\n'
 chmod +x .git/hooks/pre-commit
 ```
 </Callout>
-
-<Cards>
-  <Card
-    icon={<Icon name="apps" />}
-    title="Apps"
-    href="/docs/haus/rooms/apps"
-    description="The most common change of all, in depth: one list holds every app, font and CLI tool on the machine."
-  />
-  <Card
-    icon={<Icon name="lifebuoy" />}
-    title="Troubleshooting"
-    href="/docs/haus/reference/troubleshooting"
-    description="When a dial you turned doesn't take, or an agent comes up dead: the known quirks and the command for each."
-  />
-</Cards>

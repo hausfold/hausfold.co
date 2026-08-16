@@ -2,6 +2,15 @@
 title: CLI reference
 description: "Every pounce flag and subcommand: the palette, the built-in windows, pickers, drafts, transforms and housekeeping."
 icon: terminal
+related:
+  - title: "Writing your own command"
+    description: "Where most of these flags are actually spent: a script that asks a question and acts on the answer."
+    href: "/docs/pounce/writing-commands"
+    icon: "shell"
+  - title: "Config reference"
+    description: "The file side of the same surface: every key, and the three blocks that need a restart."
+    href: "/docs/pounce/config"
+    icon: "dials"
 ---
 
 ```sh
@@ -66,18 +75,3 @@ wrapper per built-in on your `PATH`.
 
 Inside haus, set the palette up via `haus.launcher` instead; the module handles
 the daemon, the hotkey, and permission survival for you.
-
-<Cards>
-  <Card
-    icon={<Icon name="shell" />}
-    title="Writing your own command"
-    href="/docs/pounce/writing-commands"
-    description="Where most of these flags are actually spent: a script that asks a question and acts on the answer."
-  />
-  <Card
-    icon={<Icon name="dials" />}
-    title="Config reference"
-    href="/docs/pounce/config"
-    description="The file side of the same surface: every key, and the three blocks that need a restart."
-  />
-</Cards>

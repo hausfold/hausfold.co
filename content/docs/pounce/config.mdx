@@ -2,6 +2,15 @@
 title: Config reference
 description: Every key in ~/.config/pounce/config.json, what it defaults to, the three blocks that need a restart, and where every file lives.
 icon: dials
+related:
+  - title: "CLI reference"
+    description: "Every flag and subcommand, including the ones a script reaches for."
+    href: "/docs/pounce/cli"
+    icon: "terminal"
+  - title: "The Launcher room"
+    description: "On a haus machine this file is generated. The options that write it, and why."
+    href: "/docs/haus/rooms/launcher"
+    icon: "dials"
 ---
 
 ## Config file
@@ -190,18 +199,3 @@ malformed target exits non-zero with a reason.
 Set by packagers (haus), rarely by hand: `POUNCE_BUILTIN_DIR`,
 `POUNCE_EXTRA_COMMAND_DIRS` (colon-separated Nix layers),
 `POUNCE_COMMAND_PATH` (colon-separated ad-hoc dirs).
-
-<Cards>
-  <Card
-    icon={<Icon name="terminal" />}
-    title="CLI reference"
-    href="/docs/pounce/cli"
-    description="Every flag and subcommand, including the ones a script reaches for."
-  />
-  <Card
-    icon={<Icon name="dials" />}
-    title="The Launcher room"
-    href="/docs/haus/rooms/launcher"
-    description="On a haus machine this file is generated. The options that write it, and why."
-  />
-</Cards>

@@ -2,6 +2,19 @@
 title: Choose a desktop
 description: haus supplies rooms; a desktop curates them; your host file makes one yours. Exactly one desktop per Mac. Here are the four that ship, and how to switch.
 icon: choose
+related:
+  - title: "Start blank"
+    description: "The from-scratch desktop: what you get with no rooms selected, and how to add them one at a time."
+    href: "/docs/haus/desktops/blank"
+    icon: "blank"
+  - title: "Customize a desktop"
+    description: "The one file you edit, the dials worth knowing, and how to beat anything a desktop set."
+    href: "/docs/haus/desktops/customizing"
+    icon: "dials"
+  - title: "Create a desktop"
+    description: "Write your own: the closed format, what it may and may not set, and how to prove it before anyone else runs it."
+    href: "/docs/haus/desktops/creating"
+    icon: "hammer"
 ---
 
 **haus supplies rooms. A desktop curates them. Your host file makes one yours.**
@@ -38,17 +51,29 @@ rather than a second mode.
 
 ## The four that ship
 
-| Desktop | For | Rooms it turns on |
-|---|---|---|
-| **[hacker](/docs/haus/desktops/hacker)** | the full thing: keyboard-first, developer, tiled | Development, AI, Windows, Bar, Launcher, Shelf, Focus, Security, plus the theme and generated wallpaper |
-| **[everyday](/docs/haus/desktops/everyday)** | a Mac for someone who doesn't write code | Launcher, Bar, Shelf, Focus, Security, the theme and the generated wallpaper; no tiling, no leader key, no coding tools |
-| **[minimal](/docs/haus/desktops/minimal)** | just the themed shell, on otherwise stock macOS | Development, Security and the palette. No bar, no tiling, no launcher, no wallpaper |
-| **[blank](/docs/haus/desktops/blank)** | build your own from the foundation | none |
+Each name is a page; each room is one too. The desktops are not a ladder
+where each contains the last: `minimal` keeps the developer tooling that
+`everyday` deliberately drops, so read the columns, not a tier list.
+
+| | [hacker](/docs/haus/desktops/hacker) | [everyday](/docs/haus/desktops/everyday) | [minimal](/docs/haus/desktops/minimal) | [blank](/docs/haus/desktops/blank) |
+|---|:-:|:-:|:-:|:-:|
+| **For** | keyboard-first, developer, tiled | someone who doesn't write code | the themed shell, stock macOS | building your own |
+| [Development](/docs/haus/rooms/development) | ✓ | · | ✓ | · |
+| [AI](/docs/haus/rooms/ai) | ✓ | · | · | · |
+| [Windows](/docs/haus/rooms/windows) | ✓ | · | · | · |
+| [Bar](/docs/haus/rooms/bar) | ✓ | ✓ | · | · |
+| [Launcher](/docs/haus/rooms/launcher) | ✓ | ✓ | · | · |
+| [Shelf](/docs/haus/rooms/shelf) | ✓ | ✓ | · | · |
+| [Focus](/docs/haus/rooms/focus) | ✓ | ✓ | · | · |
+| [Security](/docs/haus/rooms/security) | ✓ | ✓ | ✓ | · |
+| Theme | ✓ | ✓ | ✓ | · |
+| Generated wallpaper | ✓ | ✓ | · | · |
 
 `everyday` deliberately leaves **Windows** off: tiling is good, but remapping
 Caps Lock on the Mac of someone who didn't ask for it is not. `minimal` is still
 a *developer* machine: few rooms, not few tools. A Mac with no developer
-tooling is `everyday`.
+tooling is `everyday`. And `minimal`'s Theme is the palette alone: it skips
+`theme.ports`, which writes theme files into apps this desktop never installs.
 
 ## Selecting one
 
@@ -89,26 +114,3 @@ computes from scratch every time.
 What a switch does **not** touch is anything outside haus: files you made, apps
 you installed by hand, and the macOS settings haus never claimed. Turning a room
 off removes what that room installed; it doesn't tidy up after you.
-
-## Where to go next
-
-<Cards>
-  <Card
-    icon={<Icon name="blank" />}
-    title="Start blank"
-    href="/docs/haus/desktops/blank"
-    description="The from-scratch desktop: what you get with no rooms selected, and how to add them one at a time."
-  />
-  <Card
-    icon={<Icon name="dials" />}
-    title="Customize a desktop"
-    href="/docs/haus/desktops/customizing"
-    description="The one file you edit, the dials worth knowing, and how to beat anything a desktop set."
-  />
-  <Card
-    icon={<Icon name="hammer" />}
-    title="Create a desktop"
-    href="/docs/haus/desktops/creating"
-    description="Write your own: the closed format, what it may and may not set, and how to prove it before anyone else runs it."
-  />
-</Cards>

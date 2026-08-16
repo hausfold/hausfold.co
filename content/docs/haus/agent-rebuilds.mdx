@@ -2,6 +2,15 @@
 title: Changing your Mac with an agent
 description: "Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely: the skill haus ships, the loop it follows, and the one rebuild it refuses."
 icon: wand
+related:
+  - title: "AI"
+    description: "The other half: holt, and running several agents at once without them fighting over one checkout."
+    href: "/docs/haus/rooms/ai"
+    icon: "agent"
+  - title: "Install"
+    description: "Not on a haus machine yet? The one-liner, and what it does before it changes anything."
+    href: "/docs/haus/install"
+    icon: "install"
 ---
 
 Point an AI agent at a normal Mac and it `brew install`s things, writes
@@ -192,18 +201,3 @@ here is real, but it is *recovery*, not prevention: the build gates the switch
 and the rollback is atomic, so mistakes are cheap, not impossible. Read the diff
 before you say yes, exactly as you would for any other change to your config.
 </Callout>
-
-<Cards>
-  <Card
-    icon={<Icon name="agent" />}
-    title="AI"
-    href="/docs/haus/rooms/ai"
-    description="The other half: holt, and running several agents at once without them fighting over one checkout."
-  />
-  <Card
-    icon={<Icon name="install" />}
-    title="Install"
-    href="/docs/haus/install"
-    description="Not on a haus machine yet? The one-liner, and what it does before it changes anything."
-  />
-</Cards>

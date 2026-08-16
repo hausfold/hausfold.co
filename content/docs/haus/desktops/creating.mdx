@@ -2,6 +2,15 @@
 title: Create a desktop
 description: A desktop is one file whose only top-level key is haus. The closed format, what it may and may not set, and how to prove it before anyone else runs it.
 icon: hammer
+related:
+  - title: "Share a desktop"
+    description: "Publishing something inspectable: what the repository holds, what the README owes a reader, and the checklist before you hand it out."
+    href: "/docs/haus/desktops/sharing"
+    icon: "share"
+  - title: "How the flakes fit together"
+    description: "Where a desktop sits in the priority ladder, and why a pinned input means nothing on your Mac changes until you say so."
+    href: "/docs/haus/internals/flakes"
+    icon: "flake"
 ---
 
 A **desktop** is a single `.nix` file whose only top-level key is `haus`. That is
@@ -178,18 +187,3 @@ Naming a *package* is fine and doesn't need `pkgs`: options that take one have a
 change the mono font or add a tool without leaving the data-only surface. A
 configuration that genuinely needs `pkgs`, scripts, or arbitrary nix-darwin
 options is a **power module**, and carries a different trust model.
-
-<Cards>
-  <Card
-    icon={<Icon name="share" />}
-    title="Share a desktop"
-    href="/docs/haus/desktops/sharing"
-    description="Publishing something inspectable: what the repository holds, what the README owes a reader, and the checklist before you hand it out."
-  />
-  <Card
-    icon={<Icon name="flake" />}
-    title="How the flakes fit together"
-    href="/docs/haus/internals/flakes"
-    description="Where a desktop sits in the priority ladder, and why a pinned input means nothing on your Mac changes until you say so."
-  />
-</Cards>

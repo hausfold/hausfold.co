@@ -2,6 +2,15 @@
 title: Keeping it current
 description: The everyday loop (edit, rebuild, update, roll back) and the payoff it buys, a new Mac that becomes the old one in two commands.
 icon: sync
+related:
+  - title: "The haus CLI"
+    description: "Every command in full: set, plan, diff, capture, doctor, plus the one rebuild it refuses."
+    href: "/docs/haus/reference/haus"
+    icon: "wrench"
+  - title: "Apps"
+    description: "Put an app in the roster once, and it reinstalls itself on every machine you own."
+    href: "/docs/haus/rooms/apps"
+    icon: "apps"
 ---
 
 Every change to a haus machine is the same two beats: **edit the file, run one
@@ -182,18 +191,3 @@ rather than clobbered, your current macOS settings can be captured into the new
 host file, and nothing activates until you say so. Run from a terminal, it
 *offers* to build and switch at the end; piped, it just prints the command.
 </Callout>
-
-<Cards>
-  <Card
-    icon={<Icon name="wrench" />}
-    title="The haus CLI"
-    href="/docs/haus/reference/haus"
-    description="Every command in full: set, plan, diff, capture, doctor, plus the one rebuild it refuses."
-  />
-  <Card
-    icon={<Icon name="apps" />}
-    title="Apps"
-    href="/docs/haus/rooms/apps"
-    description="Put an app in the roster once, and it reinstalls itself on every machine you own."
-  />
-</Cards>

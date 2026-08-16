@@ -90,7 +90,7 @@ const example = `{
   haus.focus.enable = true;    # Do Not Disturb, one switch
   haus.animations = "fast";    # no bounce, no genie
 
-  # installed, and on Caps Lock + c
+  # the Claude macOS app, installed, on Caps Lock + c
   haus.roster.claude = {
     cask = "claude";
     name = "Claude";
@@ -299,15 +299,33 @@ export default async function Home() {
             </Link>{' '}
             tells you what it will do before you run it.
           </p>
+          {/* The agent note closes the section, at the user's request
+              (2026-08-16): the one consequence of "the machine is one file"
+              worth its own line, weighted above an .aside but still
+              greyscale — the .note class is a heavier left rule and body
+              ink, no colour, per the landing half's at-rest rule. "The rare
+              Mac", not "the only Mac": it is the docs' own claim
+              (agent-rebuilds' lede says "the rare machine"), and the
+              stronger word is a positioning claim nothing backs. The link
+              is the door to the page that explains the how. */}
+          <p className="note">
+            The whole machine in one file, every rebuild reversible: a haus Mac is the rare Mac an
+            agent can reconfigure{' '}
+            <Link className="index-name" href="/docs/haus/agent-rebuilds">
+              quickly, confidently, and safely
+            </Link>
+            .
+          </p>
         </section>
 
         {/* The whole index, in one list — the user folded `Apps` into this
             section on 2026-08-16, so it holds the three apps and then the two
             things that are neither desktop nor app. The intro line is the old
             Apps paragraph compressed: the plain-file clause is the user's
-            (restored 2026-08-14, kept through the move), because read, diff
-            and hand to an agent is the same argument the haus section makes
-            about the whole machine, one tier down. "The apps" scopes the
+            (restored 2026-08-14, kept through the move, "diff" dropped from
+            it 2026-08-16), because read and hand to an agent is the same
+            argument the haus section makes about the whole machine, one
+            tier down. "The apps" scopes the
             settings claim to the rows it backs; the no-account clause holds
             for all five.
 
@@ -320,8 +338,8 @@ export default async function Home() {
         <section className="block">
           <h2>Also from hausfold</h2>
           <p>
-            The apps are small, native, and keep their settings in a plain file you can read, diff
-            and hand to an agent. No account, no subscription, nothing you can&apos;t take with
+            The apps are small, native, and keep their settings in a plain file you can read and
+            hand to an agent. No account, no subscription, nothing you can&apos;t take with
             you.
           </p>
           <ul className="index" role="list">
