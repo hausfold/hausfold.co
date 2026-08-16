@@ -18,7 +18,8 @@ import { nebelungCssVars } from '@/lib/shiki-theme';
 //     /docs/haus/desktops/choosing, no screenshot frames at all. It is
 //     explicitly a holding position ("we'll reconsider once velocity slows"),
 //     not a claim that desktops matter less. The #desktops anchor STAYS: the
-//     /desktops 301, the 404 and the docs sidebar's way-out row all land on it.
+//     /desktops 301 and the 404 both land on it. (The docs sidebar's way-out
+//     row did too, until it was removed on 2026-08-16.)
 //   sections are lists, not paragraphs — a short line saying what the tier is,
 //     then names. The page is read in ten seconds by someone deciding where to
 //     click, and a paragraph is the wrong shape for that.
@@ -193,8 +194,10 @@ export default async function Home() {
         </section>
 
         {/* 🚨 The id is load-bearing and outlives whatever is under it: the
-            /desktops 301 in public/_redirects, src/app/not-found.tsx and the
-            docs sidebar's way-out row all point at /#desktops. It was a
+            /desktops 301 in public/_redirects and src/app/not-found.tsx both
+            point at /#desktops. The docs sidebar's way-out row was a third,
+            until it was removed on 2026-08-16 — the anchor's two remaining
+            callers are enough to keep it. It was a
             catalogue of three plates with a screenshot frame each until
             2026-08-14; the user cut it to a sentence the same day, on the
             grounds that /docs/haus/desktops/choosing says it better and a
