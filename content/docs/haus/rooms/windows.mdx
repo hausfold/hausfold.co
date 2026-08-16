@@ -1,10 +1,10 @@
 ---
 title: Windows
-description: Tiling, named workspaces and window navigation from the keyboard. How prowl arranges the Mac, and how to keep the arranging without the key claims.
+description: Tiling, named workspaces and window navigation from the keyboard. How windows arranges the Mac, and how to keep the arranging without the key claims.
 icon: tiling
 ---
 
-**prowl** is the tiling room. Windows arrange themselves into a tree instead of
+**Windows** is the tiling room. Windows arrange themselves into a tree instead of
 piling up, and the keyboard moves them around it: launch, focus, resize, throw
 one to another workspace, without reaching for the mouse. It feels like a tiling
 Linux rig; underneath it is still native macOS windows, driven by
@@ -44,7 +44,7 @@ rather than letting one binding shadow the other.
 ## Enable it
 
 ```nix
-haus.prowl.enable = true;
+haus.windows.enable = true;
 haus.keys.leader = "caps";     # or "none" to keep Caps Lock as Caps Lock
 haus.keys.windowNav = "alt";
 ```
@@ -96,7 +96,7 @@ better, with a most-recently-used list of *windows* that goes as far back as you
 like and gathers its rows by workspace.
 
 <Callout title="Windows untangle after sleep">
-macOS scrambles window positions when the machine wakes. prowl watches for that
+macOS scrambles window positions when the machine wakes. windows watches for that
 and re-sorts them to their workspaces on its own; <kbd>⇪</kbd> then
 <kbd>`</kbd> does it on demand.
 </Callout>
@@ -120,7 +120,7 @@ The three reasons people change them:
   `windowNav = "ctrl-alt"` moves every chord in one go, and the cheatsheet
   moves with it, because both are generated from the same table.
 - **Mouse-first.** `leader = "none"` with `windowNav = "none"` leaves the
-  keyboard entirely alone: prowl still tiles, but claims no chords.
+  keyboard entirely alone: windows still tiles, but claims no chords.
 
 `palette = "none"` stops haus taking ⌘Space from Spotlight; it's the only value
 that takes it. On a machine that already ran with it, re-enable Spotlight's
@@ -170,7 +170,7 @@ Four numbered workspaces exist alongside whatever you name, whatever any app
 claims. If four isn't your number:
 
 ```nix
-haus.prowl.numberedWorkspaces = 6;   # 0 to 10
+haus.windows.numberedWorkspaces = 6;   # 0 to 10
 ```
 
 Ten is the ceiling because the leader reaches a workspace by pressing a **digit**
@@ -191,9 +191,9 @@ showing, which reads more like a browser's tabs and survives better on a laptop
 display where a third split stops being readable:
 
 ```nix
-haus.prowl.defaultLayout      = "accordion";  # or "tiles"
-haus.prowl.accordionPadding   = 80;           # points left for the neighbours
-haus.prowl.defaultOrientation = "auto";       # auto | horizontal | vertical
+haus.windows.defaultLayout      = "accordion";  # or "tiles"
+haus.windows.accordionPadding   = 80;           # points left for the neighbours
+haus.windows.defaultOrientation = "auto";       # auto | horizontal | vertical
 ```
 
 These are defaults, not locks: `⌥/` and `⌥,` still switch the workspace you are
@@ -205,7 +205,7 @@ wakes up on.
 One more, off by default because it moves something you didn't:
 
 ```nix
-haus.prowl.mouseFollowsFocus = true;
+haus.windows.mouseFollowsFocus = true;
 ```
 
 The pointer follows keyboard focus, between windows as well as between screens.
@@ -216,7 +216,7 @@ sits still on the ones that wouldn't.
 ## Turning it off
 
 ```nix
-haus.prowl.enable = false;
+haus.windows.enable = false;
 ```
 
 The Caps-Lock remap, the launcher and AeroSpace all stay out of the way. Nothing

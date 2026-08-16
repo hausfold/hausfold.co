@@ -77,8 +77,8 @@ const organization = {
 const example = `{
   haus.theme.accent = "sapphire";
 
-  haus.prowl.enable = true;  # tiling, Caps Lock as leader
-  haus.pounce.enable = true; # the launcher, on ⌘Space
+  haus.windows.enable = true;  # tiling, Caps Lock as leader
+  haus.launcher.enable = true; # the launcher, on ⌘Space
 
   # installed, and on Caps Lock + s
   haus.roster.slack = {

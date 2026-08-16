@@ -4,7 +4,7 @@ description: Touch ID for sudo, even inside a multiplexer, plus lock behaviour, 
 icon: shield
 ---
 
-**collar** is the small auth room: it turns on **Touch ID for `sudo`**, and
+**Security** is the small auth room: it turns on **Touch ID for `sudo`**, and
 (the part stock Touch-ID-for-sudo gets wrong) makes that work **inside a
 terminal multiplexer** like zellij or tmux, where it would otherwise silently
 fail.
@@ -12,8 +12,8 @@ fail.
 ## Enable it
 
 ```nix
-haus.collar.enable = true;
-haus.collar.passwordlessRebuild = true;
+haus.security.touchId.enable = true;
+haus.security.touchId.passwordlessRebuild = true;
 ```
 
 ## What it turns on
@@ -28,7 +28,7 @@ which reattaches the sudo process to your GUI login session. Without it,
 `sudo` inside a multiplexer detaches from Aqua and the Touch ID prompt just
 beachballs. Cancel the prompt and it falls back to a typed password.
 
-collar also installs `/etc/sudoers.d/darwin-rebuild`, exempting activation
+The room also installs `/etc/sudoers.d/darwin-rebuild`, exempting activation
 from authentication entirely:
 
 ```
@@ -42,7 +42,7 @@ it. `darwin-rebuild` is the classic route (and the only one for `haus
 rollback`); `haus-activate` is the faster path `haus rebuild` and `bench try
 switch` take, building as you and handing the result to root without a
 second evaluation. Neither is a wider grant than `darwin-rebuild switch
---flake <anything>` already was; `haus.collar.passwordlessRebuild = false`
+--flake <anything>` already was; `haus.security.touchId.passwordlessRebuild = false`
 drops both.
 
 <Callout type="warn" title="Why the stable path, not the store path">
@@ -60,17 +60,17 @@ the happy exception; it doesn't even ask.)
 
 ## What it does *not* do
 
-collar stays out of key management. **YubiKey and GPG** live outside Nix
+The room stays out of key management. **YubiKey and GPG** live outside Nix
 entirely: key material, smartcard setup, and `pinentry` are handled by
 `gpg-agent` + `pinentry-mac` at runtime, keeping secrets off the Nix store.
 Commit signing itself is wired up in [the Development room](/docs/haus/rooms/development)
-from `haus.git.signingKey`; collar only handles `sudo` authentication.
+from `haus.git.signingKey`; security only handles `sudo` authentication.
 
 ## Two switches
 
 ```nix
-haus.collar.enable = true;              # Touch ID for sudo, reattach and all
-haus.collar.passwordlessRebuild = true; # activation never authenticates
+haus.security.touchId.enable = true;              # Touch ID for sudo, reattach and all
+haus.security.touchId.passwordlessRebuild = true; # activation never authenticates
 ```
 
 Both default on. Turn `passwordlessRebuild` off on a machine you don't
@@ -102,7 +102,7 @@ config; haus declares which exist and fetches them at runtime.
 ## Remove it
 
 ```nix
-haus.collar.enable = false;
+haus.security.touchId.enable = false;
 ```
 
 `sudo` goes back to the password prompt. The firewall and lock settings stop

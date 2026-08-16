@@ -129,7 +129,7 @@ doesn't fight it afterwards.
 **pounce and perch** are the exception in the other direction: both read their
 palette at runtime and follow macOS's Light/Dark themselves, so on a dark Mac
 they stay dark under `flavor = "latte"`. Pin them with
-`haus.pounce.followSystemAppearance = false`, needed only while macOS stays
+`haus.launcher.followSystemAppearance = false`, needed only while macOS stays
 unmanaged.
 </Callout>
 
@@ -207,7 +207,7 @@ Obsidian keeps its theme *inside each vault*, so haus doesn't guess which
 folders are yours. List them as home-relative paths:
 
 ```nix
-haus.hearth.obsidianVaults = [
+haus.terminal.obsidianVaults = [
   "Library/Mobile Documents/iCloud~md~obsidian/Documents/notes"
 ];
 ```

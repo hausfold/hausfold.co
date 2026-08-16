@@ -71,7 +71,7 @@ haus.git.org = "analytical-engine";        # the GitHub owner your work lives un
 `org` is the odd one out: not who you are, but where you work. gh-dash reads it
 to fill `⌘G`'s PR tabs with that owner's open, green, red and just-shipped work,
 so an org rename is one word rather than one per tab. On its own it does
-nothing: set `haus.hearth.ghDash.enable = true` alongside it, and keep the Git
+nothing: set `haus.terminal.ghDash.enable = true` alongside it, and keep the Git
 pack on (`haus.developer.git.enable`); that's what installs `gh`, and turning
 it off while the overlay is on stops the build.
 
@@ -95,8 +95,8 @@ whole palette and the desktop's own dials.
 ### The terminal
 
 ```nix
-haus.hearth.editorName = "neovim";          # the ONE editor: installed, and $EDITOR
-haus.hearth.hijackFileAssociations = false; # make that editor the default file opener
+haus.terminal.editorName = "neovim";          # the ONE editor: installed, and $EDITOR
+haus.terminal.hijackFileAssociations = false; # make that editor the default file opener
 ```
 
 More in [the Development room](/docs/haus/rooms/development).
@@ -105,9 +105,9 @@ More in [the Development room](/docs/haus/rooms/development).
 
 ```nix
 haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
-haus.prowl.enable = true;          # false: no tiling, no Caps-Lock remap
-haus.pounce.enable = true;         # false: ⌘Space stays Spotlight
-haus.pounce.signingIdentity =      # sign it, and its Accessibility grant survives rebuilds
+haus.windows.enable = true;          # false: no tiling, no Caps-Lock remap
+haus.launcher.enable = true;         # false: ⌘Space stays Spotlight
+haus.launcher.signingIdentity =      # sign it, and its Accessibility grant survives rebuilds
   "Developer ID Application: Ada Lovelace (ABCDE12345)";
 ```
 
@@ -117,8 +117,8 @@ own](/docs/haus/rooms/apps).
 ### The bar
 
 ```nix
-haus.sill.enable = true;        # false: the native macOS menu bar stays
-haus.sill.items.elgato = true;  # opt-in extras, see The bar
+haus.bar.enable = true;        # false: the native macOS menu bar stays
+haus.bar.items.elgato = true;  # opt-in extras, see The bar
 ```
 
 The optional pills are personal (an Elgato key-light toggle, a Harvest timer,
@@ -152,12 +152,12 @@ working:
 
 | Set this to `false` | And you lose |
 |---|---|
-| `haus.prowl.enable` | Tiling, the leader key; Caps Lock stays Caps Lock |
-| `haus.sill.enable` | The custom bar; the native macOS menu bar comes back |
-| `haus.pounce.enable` | The ⌘Space launcher |
-| `haus.perch.enable` | The notch file shelf; the copied `/Applications/Perch.app` stays until you delete it |
-| `haus.hush.enable` | The quiet switch: bar pill, palette command and `hush` CLI |
-| `haus.collar.enable` | Touch ID for `sudo`, and back to the password prompt |
+| `haus.windows.enable` | Tiling, the leader key; Caps Lock stays Caps Lock |
+| `haus.bar.enable` | The custom bar; the native macOS menu bar comes back |
+| `haus.launcher.enable` | The ⌘Space launcher |
+| `haus.shelf.enable` | The notch file shelf; the copied `/Applications/Perch.app` stays until you delete it |
+| `haus.focus.enable` | The quiet switch: bar pill, palette command and `focus` CLI |
+| `haus.security.touchId.enable` | Touch ID for `sudo`, and back to the password prompt |
 | `haus.developer.enable` | The Development room: language toolchains, the Git tooling, the CLI toolbelt. Sub-switches (`.git`, `.toolbelt`, `.languages`) take out one piece at a time |
 | `haus.ai.enable` | The AI room: the agent clients, holt, and the lifecycle wiring around them |
 | `haus.snippets.enable` | Text expansion |
@@ -172,14 +172,14 @@ desktop asked for plus whatever you did.
 <Callout type="warn" title="pounce doesn't hand ⌘Space back">
 Turning **pounce** off later doesn't return ⌘Space to Spotlight: haus disables
 Spotlight's shortcut with a one-way write, and nothing re-enables it. Put it
-back yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts. (**hush** is
+back yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts. (**focus** is
 the opposite case: it *adds* a Do Not Disturb chord macOS ships disabled, so
 switching the room off leaves a spare binding rather than taking one away.)
 </Callout>
 
 If what you want is tiling **without** its keyboard claims, don't switch the
 room off: set `haus.keys.leader = "none"` and `haus.keys.windowNav = "none"`
-instead, and prowl keeps arranging windows while Caps Lock stays Caps Lock. The
+instead, and the tiler keeps arranging windows while Caps Lock stays Caps Lock. The
 launcher has the same escape: `haus.keys.palette` takes `alt-space`,
 `ctrl-space` or `"none"`, and since only `cmd-space` displaces Spotlight, moving
 it is how you keep both. See
@@ -193,7 +193,7 @@ assignment** (no `lib.mkForce`, no import order to reason about):
 ```nix
 # the desktop set theme.accent = "mauve"; you'd rather have teal
 haus.theme.accent = "teal";
-haus.sill.enable = false;      # and no bar, thanks
+haus.bar.enable = false;      # and no bar, thanks
 ```
 
 That's the ladder doing its job: rooms declare defaults, a desktop states its

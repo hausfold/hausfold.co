@@ -23,7 +23,7 @@ unless noted; the defaults are a complete, working system.
 
 The page is grouped by **room** — the same rooms the sidebar is organised
 around — and each room lists the `haus.*` namespaces it owns. A room
-can own more than one: the Bar room is `haus.sill` (its own bar) *and*
+can own more than one: the Bar room is `haus.bar` (its own bar) *and*
 `haus.menuBar` (macOS's).
 
 Apply changes with `haus rebuild`. Each option lists its **type** and
@@ -113,7 +113,7 @@ keep whatever owns them today, since "open videos in IINA" rarely
 means "and my music library too". The transport-stream extensions
 `.ts`, `.mts` and `.m2ts` are excluded too: on a developer's machine
 they are TypeScript far more often than video, and
-`haus.hearth.hijackFileAssociations` claims them for the editor.
+`haus.terminal.hijackFileAssociations` claims them for the editor.
 Claiming them here as well made macOS stop and ask which app should
 win on every single rebuild, because `.mts` and `.m2ts` share one
 UTI.
@@ -158,7 +158,7 @@ Run `brew update` before activating the Homebrew step on every
 rebuild. Off by default — reproducible rebuilds shouldn't silently
 pull newer formulae. Turn on if you want brew to track upstream.
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.homebrew.cleanup`
 
@@ -175,7 +175,7 @@ installed but NOT declared anywhere in your config.
   no backup — on the very next rebuild. Only choose this once every
   app you keep is declared (bootstrap can adopt your current casks).
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.homebrew.upgrade`
 
@@ -184,7 +184,7 @@ installed but NOT declared anywhere in your config.
 Upgrade outdated Homebrew packages on every rebuild. Off by default
 for the same reproducibility reason as autoUpdate.
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ## Appearance
 
@@ -211,7 +211,7 @@ priority ladder. Set the value itself in your host to settle it:
   haus.ui.scale = 1.4              the terminal font (19 → 27 pt), the whole
                                    command palette, the bar's type (to its
                                    ceiling, see below), Dock icons 48 → 67,
-                                   Finder's large sidebar rows, prowl's gaps
+                                   Finder's large sidebar rows, windows's gaps
   haus.theme.contrast = "high"     body text 11.3:1 → 19.9:1 against the
                                    background, across every tool haus
                                    colours. Measured in nebelung's CI.
@@ -296,11 +296,11 @@ theme file after the accent, so changing the accent renames the file the
 app's own `theme` key points at — re-pick it in the app, or it falls
 back to stock.
 
-The bar is the newest and the narrowest of the three: `haus.sill.logo`
+The bar is the newest and the narrowest of the three: `haus.bar.logo`
 is the ONLY pill that follows this option. Every other colour on the bar
 is a fixed palette key, and the palette itself doesn't move — so a
 machine that changes its accent sees exactly one pill change hue, unless
-`haus.sill.logo.color` names one of its own.
+`haus.bar.logo.color` names one of its own.
 
 Honest scope: this moves the accent on those tools, NOT literally
 everything. Single-file dotfiles that bake the palette at their own
@@ -390,7 +390,7 @@ Honest scope, in two parts.
 What follows it: every tool haus injects colours into or points at a
 rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
 lazygit, zellij, opencode, the bar, Zen and Obsidian, plus helix
-whenever it is the editor `haus.hearth.editorName` selects (Nebelung
+whenever it is the editor `haus.terminal.editorName` selects (Nebelung
 has a port for helix and none for the alternatives).
 These are genuinely re-rendered for the flavor, not recoloured in place:
 whiskers takes different branches for a light flavor (terminal ANSI
@@ -400,8 +400,8 @@ whiskers takes different branches for a light flavor (terminal ANSI
 What does NOT follow it:
 
   - pounce and perch, by default. Both read their palette at runtime and
-    can pick per polarity, so haus.pounce.followSystemAppearance
-    and haus.perch.followSystemAppearance (default true) hand that
+    can pick per polarity, so haus.launcher.followSystemAppearance
+    and haus.shelf.followSystemAppearance (default true) hand that
     choice to macOS Light/Dark instead: haus installs every rendered
     variant into ~/.config/&#123;pounce,perch&#125;/themes/ and writes the
     dark/light PAIR at your `contrast`. Set either option false to pin
@@ -589,7 +589,7 @@ How far in from the bottom-left corner the band sits, in PICTURE
 PIXELS.
 
 Null derives it from the tiling gaps — the widest outer reservation any
-attached display could be using (../lib/gaps.nix, the same numbers prowl
+attached display could be using (../lib/gaps.nix, the same numbers windows
 writes into aerospace.toml), doubled for a Retina display's two pixels
 per point. That lands the band exactly at a tiled window's bottom-left
 corner, which is the whole trick: the text is under the windows, not
@@ -979,7 +979,7 @@ Example:
 19
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.fonts.mono.name`
 
@@ -988,9 +988,9 @@ Example:
 haus's type family, as Ghostty's `font-family` names it.
 
 It reaches the terminal AND the menu bar: every pill label and icon
-sill draws is in this family, at sizes of its own (see
+the bar draws is in this family, at sizes of its own (see
 `haus.ui.scale`). The workspace-logo glyphs are the one exception
-— those are sketchybar-app-font, which sill installs itself.
+— those are sketchybar-app-font, which the bar installs itself.
 
 This should be a NERD FONT patched build: starship's prompt, lsd's
 icons, yazi previews and half the bar's icons draw with glyphs a stock
@@ -1008,7 +1008,7 @@ Example:
 "Berkeley Mono"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.fonts.mono.package`
 
@@ -1030,7 +1030,7 @@ Example:
 pkgs.nerd-fonts.fira-code
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.fonts.mono.packageName`
 
@@ -1055,7 +1055,7 @@ Example:
 "nerd-fonts.fira-code"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.fonts.mono.size`
 
@@ -1066,7 +1066,7 @@ larger-text machine, since it moves everything haus actually
 lives in.
 
 hacker's 19pt baseline exists for a reason worth knowing: the Ghostty window is
-tiled to a fixed pixel height by prowl, and sizes that don't divide
+tiled to a fixed pixel height by windows, and sizes that don't divide
 that height evenly used to leave a gap under zellij's status bar.
 That's since been fixed properly (window-padding-balance +
 `extend-always`), so any size is safe now — 19 is simply the tuned
@@ -1078,14 +1078,14 @@ Example:
 24
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.fonts.sans.name`
 
 `string` · default `".AppleSystemUIFont"`
 
 The proportional family the clock pill draws its date and time in.
-It applies only when `haus.sill.clock.monoFont` is false, and that pill
+It applies only when `haus.bar.clock.monoFont` is false, and that pill
 is the whole of this layer's proportional type: everything else it
 draws — the terminal, every other pill, the wallpaper — is mono, and
 names `haus.fonts.mono` instead.
@@ -1109,7 +1109,7 @@ Example:
 "Atkinson Hyperlegible"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.accessibility
 
@@ -1177,7 +1177,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.closeViewZoomFollowsFocus`
 
@@ -1249,7 +1249,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.differentiateWithoutColor`
 
@@ -1290,7 +1290,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.increaseContrast`
 
@@ -1332,7 +1332,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.mouseDriverCursorSize`
 
@@ -1407,7 +1407,7 @@ Example:
 4.0
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.reduceMotion`
 
@@ -1461,7 +1461,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.accessibility.reduceTransparency`
 
@@ -1472,7 +1472,7 @@ and sidebars stop sampling what is behind them and go opaque. The
 setting to reach for if Liquid Glass costs you more legibility than
 it buys, and it pairs naturally with `increaseContrast`.
 
-Worth knowing if you run the bar: sill paints its own background, so
+Worth knowing if you run the bar: bar paints its own background, so
 its pills look the same either way — what changes is the macOS menu
 bar band behind them, which stops being translucent.
 
@@ -1507,7 +1507,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.animations
 
@@ -1581,7 +1581,7 @@ Example:
 "fast"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.screenshots
 
@@ -1605,7 +1605,7 @@ Example:
 "png"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.screenshots.includeDate`
 
@@ -1621,7 +1621,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.screenshots.location`
 
@@ -1643,7 +1643,7 @@ Example:
 "~/Pictures/Screenshots"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.screenshots.shadow`
 
@@ -1664,7 +1664,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.screenshots.thumbnail`
 
@@ -1685,7 +1685,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.sound
 
@@ -1717,7 +1717,7 @@ Example:
 "Submarine"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.sound.alertVolume`
 
@@ -1742,7 +1742,7 @@ Example:
 50
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.sound.startupChime`
 
@@ -1761,7 +1761,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.sound.uiSounds`
 
@@ -1777,7 +1777,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.sound.volumeFeedback`
 
@@ -1792,7 +1792,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ## Displays
 
@@ -1888,13 +1888,13 @@ Example:
 
 The terminal stack — terminal, shell, multiplexer, editor — plus the browser, the CLI toolbelt, Git tooling and language runtimes. Your commit identity itself is a fact about you rather than this room's, and stays in your host. The terminal lives here because a terminal with no tools in it is not a separate thing anyone wants.
 
-### haus.hearth
+### haus.terminal
 
 The shell and terminal experience.
 
-#### `haus.hearth.editor`
+#### `haus.terminal.editor`
 
-`string` · default `the command for haus.hearth.editorName — hx for helix`
+`string` · default `the command for haus.terminal.editorName — hx for helix`
 
 The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
@@ -1904,7 +1904,7 @@ zellij tab running this command, so a terminal editor is the natural
 fit for haus; a GUI editor's CLI works too (e.g. "code" or
 "code -w" to block).
 
-It defaults to the command for `haus.hearth.editorName`, so choosing an
+It defaults to the command for `haus.terminal.editorName`, so choosing an
 editor there is enough. Set this only for the case that option cannot
 express: pointing haus at something it does not install. Naming a
 command here does NOT install it — that machine has to already have it.
@@ -1915,9 +1915,9 @@ Example:
 "code -w"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.editorName`
+#### `haus.terminal.editorName`
 
 `one of "helix", "nano", "neovim", "vim"` · default `"helix"`
 
@@ -1926,14 +1926,14 @@ is themed around; `neovim`, `vim` and `nano` are installed as-is,
 with no Nebelung theme — Nebelung has a port for helix and not for
 them.
 
-Setting this also moves `haus.hearth.editor`, since that defaults to
+Setting this also moves `haus.terminal.editor`, since that defaults to
 whatever the chosen editor answers to on PATH (`hx`, `nvim`, `vim`,
 `nano`). Choosing here is the whole gesture: the editor is installed
 AND every "open in an editor" action follows it.
 
 A desktop may set this. To point haus at an editor it does not
 install — a GUI one, or something from your own host file — leave this
-alone and set `haus.hearth.editor` instead.
+alone and set `haus.terminal.editor` instead.
 
 Example:
 
@@ -1941,9 +1941,9 @@ Example:
 "neovim"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.floatBorder`
+#### `haus.terminal.floatBorder`
 
 `one of "accent", "grey", "off", "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender"` · default `"accent"`
 
@@ -1957,20 +1957,20 @@ behind it has no edge at all.
   announces itself and the whole desktop keeps one accent.
 - `grey` — Nebelung's `surface0`, one step off the terminal's own
   background: the same relationship the bar's dropdowns wear
-  (`popup.background.border_color` in modules/sill), for an edge that
+  (`popup.background.border_color` in modules/bar), for an edge that
   defines the window without drawing the eye.
 - `off` — no outline; the look before this option existed. It also keeps
   floatring out of the closure entirely, so nothing is compiled for it.
 - any Nebelung accent name (`lavender`, `sapphire`, …) — one colour for
   these popups that ISN'T `haus.theme.accent`, the same escape hatch
-  `haus.sill.logo.color` offers.
+  `haus.bar.logo.color` offers.
 
 2pt, following the window's own corner curve. Drawn by a tiny overlay
-window (modules/hearth/floatring.swift) that lives and dies with the
+window (modules/terminal/floatring.swift) that lives and dies with the
 popup, because Ghostty has no border setting of its own and aerospace
 draws none — that file's header has the rest, including why it isn't
 JankyBorders. Switch it with
-`haus set hearth.floatBorder grey && haus rebuild`; to compare colours
+`haus set terminal.floatBorder grey && haus rebuild`; to compare colours
 first, without a rebuild, outline any window by hand (the process name is
 lower-case — `pgrep -x Ghostty` matches nothing and rings nothing):
 `~/.config/zellij/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
@@ -1981,9 +1981,9 @@ Example:
 "grey"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.ghDash.enable`
+#### `haus.terminal.ghDash.enable`
 
 `boolean` · default `false`
 
@@ -1995,7 +1995,7 @@ unread, participating). The four PR tabs — open / green / red /
 shipped — need `haus.git.org` as well, since a PR section is a search
 filter scoped to an owner. A host can compose or replace any of it
 through home-manager's `programs.gh-dash.settings`: every section list
-Hearth writes is a `mkDefault`, per list.
+Terminal writes is a `mkDefault`, per list.
 
 Needs `haus.developer.git.enable` (an assertion enforces it): gh-dash
 authenticates out of `gh`'s own credentials, so the Git pack is where
@@ -2007,15 +2007,15 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.hijackFileAssociations`
+#### `haus.terminal.hijackFileAssociations`
 
 `boolean` · default `false`
 
 When true, build a small opener app and make it the default handler
 for ~80 text/code extensions (json, md, ts, nix, rs, go, kdl, …), so
-opening or clicking those files opens them in haus.hearth.editor in
+opening or clicking those files opens them in haus.terminal.editor in
 a terminal tab. The app declares the types itself (not just `duti`) so
 extensions nothing else on the machine declares still bind. Off by
 default: silently rewriting your file associations is a jarring,
@@ -2024,9 +2024,9 @@ like `bench` are NOT covered — macOS gates the public.unix-executable
 handler behind an interactive dialog; set it by hand once if wanted:
 `duti -s org.nebelhaus.editoropen public.unix-executable all`.)
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.lanes.backend`
+#### `haus.terminal.lanes.backend`
 
 `one of "zellij", "zmx"` · default `"zellij"`
 
@@ -2040,7 +2040,7 @@ understands — which is why the bar keeps a state file per pane and
 joins it back to a checkout path to work out which window to raise.
 
 `zmx` makes the lane its own zmx session, viewed through its own
-Ghostty window, tiled by prowl — all three named
+Ghostty window, tiled by windows — all three named
 `holt.<repo>.<lane>`. Three consequences, in the order you'd feel
 them:
 
@@ -2051,7 +2051,7 @@ them:
 - **The name is the join.** `zmx ls --where state=waiting`,
   AeroSpace's `window-title-regex`, and the lane in `holt --json`
   all key off one string.
-- **Splits are gone**, because zmx has none by design. Prowl tiles
+- **Splits are gone**, because zmx has none by design. Windows tiles
   the windows instead, which is the trade: a real window manager
   rather than a second one nested inside a terminal.
 
@@ -2061,14 +2061,14 @@ Both backends can be installed at once — this only picks which one
 the hook defers (exit 3) and holt falls back to its built-in, so the
 worst case is the zellij behaviour you already had.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.obsidianVaults`
+#### `haus.terminal.obsidianVaults`
 
 `list of string` · default `[ ]`
 
 Home-relative paths to existing Obsidian vaults that should use the
-Nebelung theme. On each activation, Hearth copies the rendered
+Nebelung theme. On each activation, Terminal copies the rendered
 theme.css + manifest.json into each vault's .obsidian/themes/Nebelung/
 directory, selects Nebelung's dark appearance in appearance.json, and
 removes the obsolete "nebelung" CSS snippet from the enabled list.
@@ -2085,9 +2085,9 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.rightClickFullscreen`
+#### `haus.terminal.rightClickFullscreen`
 
 `boolean` · default `true`
 
@@ -2103,9 +2103,9 @@ right-click context menu (lazygit, vim, mc, …) goes with it. Set
 false to leave right-click alone and keep zooming with Ctrl+Click or
 Super Enter.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.hearth.zellijStartLocked`
+#### `haus.terminal.zellijStartLocked`
 
 `boolean` · default `true`
 
@@ -2120,7 +2120,7 @@ readline/vim word motions the pane's app wants. The bar's bottom-right
 quick-hint block only shows in Locked mode. Set false to start in Normal
 mode (zellij's own default).
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 ### haus.zen
 
@@ -2176,7 +2176,7 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extensions.<name>.enable`
 
@@ -2184,7 +2184,7 @@ Example:
 
 Whether to deploy this extension. Set false to remove one an imported desktop added.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extensions.<name>.id`
 
@@ -2206,7 +2206,7 @@ Example:
 "{7a7a4a92-a2a0-41d1-9fd7-1e92480d612d}"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extensions.<name>.mode`
 
@@ -2217,7 +2217,7 @@ and stops the user removing it (the point, for a desktop that
 wants an extension present); `normal_installed` installs it
 but leaves it removable.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extensions.<name>.slug`
 
@@ -2233,7 +2233,7 @@ Example:
 "styl-us"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extensions.<name>.url`
 
@@ -2253,7 +2253,7 @@ same switch `haus.zen.tabBridge.enable` documents, since the
 bridge is haus's own `file://` install. An `https://` AMO
 url never turns it on.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.extraPolicies`
 
@@ -2291,7 +2291,7 @@ Example:
 { DisableTelemetry = true; }
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.zen.tabBridge.enable`
 
@@ -2335,7 +2335,7 @@ something asked. That is the second reason this is off by default.
 Firefox support would mean an AMO account and unlisted self-distribution
 signing — packaging, not a code change — and would drop the pref.
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 ### haus.developer
 
@@ -2456,8 +2456,8 @@ nothing happens, because you weren't holding the key nobody told you
 about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
-macOS's own window and Space management, which prowl replaces. They still
-work, they just show you a view of the windows prowl is arranging.
+macOS's own window and Space management, which the tiler replaces. They still
+work, they just show you a view of the windows the tiler is arranging.
 
 Example:
 
@@ -2465,7 +2465,7 @@ Example:
 "mission-control"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.hotCorners.bottomRight`
 
@@ -2500,8 +2500,8 @@ nothing happens, because you weren't holding the key nobody told you
 about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
-macOS's own window and Space management, which prowl replaces. They still
-work, they just show you a view of the windows prowl is arranging.
+macOS's own window and Space management, which the tiler replaces. They still
+work, they just show you a view of the windows the tiler is arranging.
 
 Example:
 
@@ -2509,7 +2509,7 @@ Example:
 "mission-control"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.hotCorners.topLeft`
 
@@ -2544,8 +2544,8 @@ nothing happens, because you weren't holding the key nobody told you
 about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
-macOS's own window and Space management, which prowl replaces. They still
-work, they just show you a view of the windows prowl is arranging.
+macOS's own window and Space management, which the tiler replaces. They still
+work, they just show you a view of the windows the tiler is arranging.
 
 Example:
 
@@ -2553,7 +2553,7 @@ Example:
 "mission-control"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.hotCorners.topRight`
 
@@ -2588,8 +2588,8 @@ nothing happens, because you weren't holding the key nobody told you
 about. Corners left at null keep whatever modifier they have.
 
 Worth knowing if you also run tiling: `mission-control` and `desktop` are
-macOS's own window and Space management, which prowl replaces. They still
-work, they just show you a view of the windows prowl is arranging.
+macOS's own window and Space management, which the tiler replaces. They still
+work, they just show you a view of the windows the tiler is arranging.
 
 Example:
 
@@ -2597,13 +2597,13 @@ Example:
 "mission-control"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
-### haus.prowl
+### haus.windows
 
 Tiling window management and the Caps-Lock leader launcher.
 
-#### `haus.prowl.accordionPadding`
+#### `haus.windows.accordionPadding`
 
 `unsigned integer, meaning >=0` · default `80`
 
@@ -2614,9 +2614,9 @@ completely, which makes an accordion workspace look like a fullscreen
 one.
 
 Only read while a workspace is in the accordion layout, whether it got
-there from haus.prowl.defaultLayout or from the layout chord.
+there from haus.windows.defaultLayout or from the layout chord.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
 Example:
 
@@ -2624,9 +2624,9 @@ Example:
 30
 ```
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
-#### `haus.prowl.defaultLayout`
+#### `haus.windows.defaultLayout`
 
 `one of "tiles", "accordion"` · default `"tiles"`
 
@@ -2642,11 +2642,11 @@ A default, not a lock. The layout chords still switch the current
 workspace either way, whichever modifier haus.keys.windowNav puts them
 on.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
-#### `haus.prowl.defaultOrientation`
+#### `haus.windows.defaultOrientation`
 
 `one of "auto", "horizontal", "vertical"` · default `"auto"`
 
@@ -2657,11 +2657,11 @@ screen, stacked on a tall one — which is right almost always and is
 why it is the default. The other two are for a machine that should
 split the same way whatever display it wakes up on.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
-#### `haus.prowl.enable`
+#### `haus.windows.enable`
 
 `boolean` · default `false`
 
@@ -2672,9 +2672,9 @@ wake-time window re-sort and the key remap entirely. To keep the tiler but
 leave the keyboard alone, use haus.keys.leader = "none" and
 haus.keys.windowNav = "none" instead of turning the room off.
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
-#### `haus.prowl.mouseFollowsFocus`
+#### `haus.windows.mouseFollowsFocus`
 
 `boolean` · default `false`
 
@@ -2688,11 +2688,11 @@ Both halves are lazy: the pointer is left alone whenever it is already
 inside the window (or on the monitor) that took focus, so it moves on
 the jumps that lose it and not on the ones that don't.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
-#### `haus.prowl.numberedWorkspaces`
+#### `haus.windows.numberedWorkspaces`
 
 `integer between 0 and 10 (both inclusive)` · default `4`
 
@@ -2718,7 +2718,7 @@ The digits are reserved in launch mode, so a haus.workspaces key or a
 haus.keys.leaderExtras key that collides with one is refused at eval.
 This count decides which digits that means.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
 Example:
 
@@ -2726,7 +2726,7 @@ Example:
 6
 ```
 
-<small>Declared in [`modules/prowl/options.nix`](https://github.com/hausfold/haus/blob/main/modules/prowl/options.nix).</small>
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
 ## Bar
 
@@ -2734,7 +2734,7 @@ The menu bar: where it draws, which pills it carries, and what each one reads.
 
 ### haus.menuBar
 
-The stock menu bar: what the clock shows, and which Control Center glyphs sit beside it. (The hacker bar itself is `sill`.)
+The stock menu bar: what the clock shows, and which Control Center glyphs sit beside it. (The hacker bar itself is `bar`.)
 
 #### `haus.menuBar.clock.analog`
 
@@ -2749,7 +2749,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.clock.format`
 
@@ -2764,7 +2764,7 @@ Example:
 "24h"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.clock.showDate`
 
@@ -2779,7 +2779,7 @@ Example:
 "always"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.clock.showDayOfWeek`
 
@@ -2794,7 +2794,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.clock.showSeconds`
 
@@ -2809,7 +2809,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.airdrop`
 
@@ -2823,7 +2823,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.batteryPercentage`
 
@@ -2838,7 +2838,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.bluetooth`
 
@@ -2852,7 +2852,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.displayBrightness`
 
@@ -2866,7 +2866,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.focus`
 
@@ -2880,7 +2880,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.nowPlaying`
 
@@ -2894,7 +2894,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.menuBar.controlCenter.sound`
 
@@ -2908,13 +2908,13 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
-### haus.sill
+### haus.bar
 
 The menu bar, and which pills it draws.
 
-#### `haus.sill.aiUsage.provider`
+#### `haus.bar.aiUsage.provider`
 
 `one of "latest", "claude", "codex", "opencode"` · default `"latest"`
 
@@ -2934,9 +2934,9 @@ Example:
 "claude"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.battery.hideOver`
+#### `haus.bar.battery.hideOver`
 
 `null or signed integer` · default `null`
 
@@ -2949,28 +2949,28 @@ Example:
 80
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.enable`
+#### `haus.bar.bottom.enable`
 
 `boolean` · default `false`
 
 Draw a SECOND bar along the bottom of the screen, at the same time as
-the menu bar one. `haus.sill.bottom.items` picks what goes on it and
+the menu bar one. `haus.bar.bottom.items` picks what goes on it and
 which of its three groups — left, center, right — each pill lands in; an
 empty set draws an empty strip, which the module warns about.
 
 SketchyBar has no two-bars-in-one-process mode — an instance is named
 after `basename(argv[0])` and keys both its lock file and its mach
 service on that name — so this is a second launchd agent running the
-SAME binary under a second name, `sill-bottom`. That name is also the
-CLI for it: `sill-bottom --set cpu label=…` talks to the bottom bar the
+SAME binary under a second name, `bar-bottom`. That name is also the
+CLI for it: `bar-bottom --set cpu label=…` talks to the bottom bar the
 way `sketchybar --set` talks to the menu bar one.
 
 Two things macOS does not do for you here. It reserves the top strip of
 every display for the menu bar but reserves NOTHING at the bottom, so
-windows would sit under this bar: prowl carves the room out of its
-outer-bottom gap whenever this is on (with `haus.prowl.enable = false`,
+windows would sit under this bar: windows carves the room out of its
+outer-bottom gap whenever this is on (with `haus.windows.enable = false`,
 nothing reserves it and your windows will run underneath). And the Dock,
 if you keep it at the bottom, shares that edge — move it to a side, or
 leave it hidden.
@@ -2981,22 +2981,22 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items`
+#### `haus.bar.bottom.items`
 
 `submodule` · default `{ }`
 
 Which pills the bottom bar draws, and WHERE along it — one value each,
 all default false. A pill named here MOVES: it is drawn on the bottom
-bar and not on the menu bar, whatever `haus.sill.items` says about it —
+bar and not on the menu bar, whatever `haus.bar.items` says about it —
 so there is one switch per pill per bar and never two copies of the
 same readout.
 
 Each value is `false` (not on this bar), one of `"left"`, `"center"`,
 `"right"` — the bar's three groups — or `true`, which is `"right"`:
 
-  haus.sill.bottom.items = &#123;
+  haus.bar.bottom.items = &#123;
     agents = "left";
     media = "center";
     clock = "right";
@@ -3012,13 +3012,13 @@ offered on the menu bar, because this strip has nothing else on it:
 no workspace pills, no front-app slot, and no notch across its middle.
 
 The set is the five core pills (`clock`, `weather`, `media`, `battery`,
-`wifi`) plus the `haus.sill.items` extras (`cpu`, `memory`, `volume`,
+`wifi`) plus the `haus.bar.items` extras (`cpu`, `memory`, `volume`,
 `calendar`, `caffeinate`, `agents`, `aiUsage`, `elgato`, `harvest`), plus
-the Hush pill when `haus.hush.enable` is on. The whole left side
+the Focus pill when `haus.focus.enable` is on. The whole left side
 (workspace pills, front app, the leader picker) and the tour stay on the
 menu bar.
 
-Needs `haus.sill.bottom.enable`; without it nothing here is drawn.
+Needs `haus.bar.bottom.enable`; without it nothing here is drawn.
 
 Example:
 
@@ -3030,137 +3030,137 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.agents`
+#### `haus.bar.bottom.items.agents`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.aiUsage`
+#### `haus.bar.bottom.items.aiUsage`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.battery`
+#### `haus.bar.bottom.items.battery`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 The battery pill.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.caffeinate`
+#### `haus.bar.bottom.items.caffeinate`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 A coffee pill that prevents idle system sleep for 1/2/4/8 hours, a custom whole-hour duration, or indefinitely. The display may still turn off; closing a MacBook lid still sleeps it. Uses macOS's built-in `caffeinate`, so there is no extra package.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.calendar`
+#### `haus.bar.bottom.items.calendar`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-The one meeting you have to be at next, and one gesture to join it. It reads "in 12m · Design review" — countdown first, because a label is clipped from the END and the number is the part you must never lose; below `haus.sill.calendar.preciseUnder` hours it carries minutes, above it just "in 14h" or "in 2d", and while an event is running it says "now · …" instead of going blank. For `haus.sill.calendar.imminent` minutes either side of the start the whole pill FILLS with the accent — a shape change rather than a colour change, so it catches the eye you aren't pointing at it. RIGHT-CLICK joins: it opens the event's conferencing link, found in the invite's url, location or notes (Meet, Zoom, Teams, Webex, Jitsi, Whereby and friends out of the box; `haus.sill.calendar.joinHosts` adds your own). LEFT-CLICK opens the day as a timeline — what's DONE in the last `haus.sill.calendar.past` hours, what's on NOW, and what's NEXT — each event carrying its day, clock time, length and who it's with, the next one boxed, and a `Join` affordance on every row that has a link. Your own address is dropped from the "with" line automatically: a CalDAV calendar is named for the account it syncs, so the pill can work out which attendee is you with no configuration (`haus.sill.calendar.me` for the cases where it can't). A name too long for the pill sweeps past only while you HOVER it — nothing here starts a marquee on its own — and `haus.sill.calendar.width` sets how much room it gets before that applies. Pulls in `ical-buddy` automatically and reads Calendar, so macOS prompts for Calendar access on first run.
+The one meeting you have to be at next, and one gesture to join it. It reads "in 12m · Design review" — countdown first, because a label is clipped from the END and the number is the part you must never lose; below `haus.bar.calendar.preciseUnder` hours it carries minutes, above it just "in 14h" or "in 2d", and while an event is running it says "now · …" instead of going blank. For `haus.bar.calendar.imminent` minutes either side of the start the whole pill FILLS with the accent — a shape change rather than a colour change, so it catches the eye you aren't pointing at it. RIGHT-CLICK joins: it opens the event's conferencing link, found in the invite's url, location or notes (Meet, Zoom, Teams, Webex, Jitsi, Whereby and friends out of the box; `haus.bar.calendar.joinHosts` adds your own). LEFT-CLICK opens the day as a timeline — what's DONE in the last `haus.bar.calendar.past` hours, what's on NOW, and what's NEXT — each event carrying its day, clock time, length and who it's with, the next one boxed, and a `Join` affordance on every row that has a link. Your own address is dropped from the "with" line automatically: a CalDAV calendar is named for the account it syncs, so the pill can work out which attendee is you with no configuration (`haus.bar.calendar.me` for the cases where it can't). A name too long for the pill sweeps past only while you HOVER it — nothing here starts a marquee on its own — and `haus.bar.calendar.width` sets how much room it gets before that applies. Pulls in `ical-buddy` automatically and reads Calendar, so macOS prompts for Calendar access on first run.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.clock`
+#### `haus.bar.bottom.items.clock`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 The clock pill, pinned to the far right.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.cpu`
+#### `haus.bar.bottom.items.cpu`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 Total CPU load, drawn as a graph pill: the last two minutes of it behind the number, because a percentage on its own can't tell a spike settling from a climb that started five minutes ago. The reading is a DELTA between samples — the `ps` sum this used to print is each process's average over its whole lifetime, which on a machine that has been up a week barely moves while every core is pinned. LEFT-CLICK opens a dropdown: the user/system split, the load average, then what's responsible, biggest first and aggregated per app so a browser's twenty helpers are one row; clicking a row focuses that app's window. RIGHT-CLICK opens Activity Monitor on its CPU tab. The rows can only cover processes you own, so anything root runs — `kernel_task`, `WindowServer` — lands in `everything else` rather than going quietly missing from the sum.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.elgato`
-
-`boolean or one of "left", "center", "right"` · default `false`
-
-Toggles an Elgato Key Light on the local network. The light is found over mDNS (or pinned with `haus.sill.elgato.host`), and the pill draws dim when it can't be reached at all — a light that dropped off the wifi is not the same thing as a light that's switched off.
-
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
-
-#### `haus.sill.bottom.items.github`
+#### `haus.bar.bottom.items.elgato`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.sill.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+Toggles an Elgato Key Light on the local network. The light is found over mDNS (or pinned with `haus.bar.elgato.host`), and the pill draws dim when it can't be reached at all — a light that dropped off the wifi is not the same thing as a light that's switched off.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.harvest`
+#### `haus.bar.bottom.items.focus`
+
+`boolean or one of "left", "center", "right"` · default `false`
+
+The Focus (Do-Not-Disturb) pill. Needs `haus.focus.enable`; setting this moves the pill but does not enable the Focus room by itself.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.bottom.items.github`
+
+`boolean or one of "left", "center", "right"` · default `false`
+
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.bottom.items.harvest`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.hush`
-
-`boolean or one of "left", "center", "right"` · default `false`
-
-The Hush (Do-Not-Disturb) pill. Needs `haus.hush.enable`; setting this moves the pill but does not enable the Hush room by itself.
-
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
-
-#### `haus.sill.bottom.items.media`
+#### `haus.bar.bottom.items.media`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-The now-playing track — auto-hides when nothing plays, dims when paused, and counts DOWN instead of scrolling a title once the thing playing is longer than twenty minutes (a podcast or a video is one you already know the name of; what you keep glancing at the bar for is how much is left). The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.sill.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
+The now-playing track — auto-hides when nothing plays, dims when paused, and counts DOWN instead of scrolling a title once the thing playing is longer than twenty minutes (a podcast or a video is one you already know the name of; what you keep glancing at the bar for is how much is left). The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.bar.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.memory`
+#### `haus.bar.bottom.items.memory`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 Memory in use, drawn as a graph pill. It counts what Activity Monitor counts — app memory + wired + compressed — and deliberately NOT the file cache: macOS fills idle RAM with cache on purpose, and the old reading counted that as used, which is why it sat near 90% on a machine doing nothing. The pill's COLOUR is the kernel's own pressure level (green normal, amber warning, red critical) rather than the percentage, because 60% of RAM in use is a Mac working correctly and a pill that goes amber for it is a pill you learn to ignore. LEFT-CLICK opens a dropdown with used/total, the cache, compressed and swap figures and then the biggest footprints per app, each row clicking through to that app's window. RIGHT-CLICK opens Activity Monitor on its Memory tab.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.volume`
+#### `haus.bar.bottom.items.volume`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 Output volume / mute state.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.weather`
+#### `haus.bar.bottom.items.weather`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 The weather pill and its click-to-open forecast popover.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.bottom.items.wifi`
+#### `haus.bar.bottom.items.wifi`
 
 `boolean or one of "left", "center", "right"` · default `false`
 
 The Wi-Fi status pill.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.horizon`
+#### `haus.bar.calendar.horizon`
 
 `positive integer, meaning >0` · default `24`
 
@@ -3177,9 +3177,9 @@ Example:
 12
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.imminent`
+#### `haus.bar.calendar.imminent`
 
 `positive integer, meaning >0` · default `5`
 
@@ -3198,9 +3198,9 @@ Example:
 2
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.joinHosts`
+#### `haus.bar.calendar.joinHosts`
 
 `list of string` · default `[ ]`
 
@@ -3223,9 +3223,9 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.me`
+#### `haus.bar.calendar.me`
 
 `list of string` · default `[ ]`
 
@@ -3248,9 +3248,9 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.past`
+#### `haus.bar.calendar.past`
 
 `positive integer, meaning >0` · default `24`
 
@@ -3266,9 +3266,9 @@ Example:
 8
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.preciseUnder`
+#### `haus.bar.calendar.preciseUnder`
 
 `positive integer, meaning >0` · default `12`
 
@@ -3284,9 +3284,9 @@ Example:
 3
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.refresh`
+#### `haus.bar.calendar.refresh`
 
 `positive integer, meaning >0` · default `15`
 
@@ -3308,9 +3308,9 @@ Example:
 60
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.upcoming`
+#### `haus.bar.calendar.upcoming`
 
 `positive integer, meaning >0` · default `5`
 
@@ -3323,9 +3323,9 @@ Example:
 3
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.calendar.width`
+#### `haus.bar.calendar.width`
 
 `positive integer, meaning >0` · default `32`
 
@@ -3346,9 +3346,9 @@ Example:
 16
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.clock.mode`
+#### `haus.bar.clock.mode`
 
 `one of "full", "compact"` · default `"full"`
 
@@ -3361,14 +3361,14 @@ Example:
 "compact"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.clock.monoFont`
+#### `haus.bar.clock.monoFont`
 
 `boolean` · default `true`
 
 Whether the clock pill's date and time use `haus.fonts.mono.name`, like
-the rest of Sill. Disable this to draw them in `haus.fonts.sans.name`
+the rest of Bar. Disable this to draw them in `haus.fonts.sans.name`
 instead — macOS's system UI font by default, whose zero has no dot and
 is easier to distinguish from an 8 at a glance. The calendar icon
 remains in the Nerd Font either way.
@@ -3383,9 +3383,9 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.elgato.host`
+#### `haus.bar.elgato.host`
 
 `string` · default `""`
 
@@ -3406,18 +3406,18 @@ Example:
 "elgato-key-light-mini-57a3.local"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.enable`
+#### `haus.bar.enable`
 
 `boolean` · default `false`
 
 The SketchyBar menu bar. When off, the native macOS menu bar is kept
 (hacker stops hiding it) and no bar is drawn.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.refresh`
+#### `haus.bar.github.refresh`
 
 `integer between 60 and 3600 (both inclusive)` · default `300`
 
@@ -3437,9 +3437,9 @@ Example:
 900
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources`
+#### `haus.bar.github.sources`
 
 `list of (submodule)` · see below
 
@@ -3475,9 +3475,9 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.ci`
+#### `haus.bar.github.sources.*.ci`
 
 `boolean` · default `false`
 
@@ -3496,9 +3496,9 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.command`
+#### `haus.bar.github.sources.*.command`
 
 `null or string` · default `null`
 
@@ -3518,9 +3518,9 @@ Example:
 "gh api /notifications --jq '.[] | \"warn\\t\" + .subject.title'"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.icon`
+#### `haus.bar.github.sources.*.icon`
 
 `string` · default `""`
 
@@ -3533,9 +3533,9 @@ Example:
 ""
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.limit`
+#### `haus.bar.github.sources.*.limit`
 
 `integer between 1 and 100 (both inclusive)` · default `8`
 
@@ -3550,9 +3550,9 @@ Example:
 5
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.org`
+#### `haus.bar.github.sources.*.org`
 
 `string` · default `""`
 
@@ -3567,9 +3567,9 @@ Example:
 "hausfold"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.search`
+#### `haus.bar.github.sources.*.search`
 
 `null or string` · default `null`
 
@@ -3588,9 +3588,9 @@ Example:
 "org:hausfold is:pr is:open"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.severity`
+#### `haus.bar.github.sources.*.severity`
 
 `null or one of "info", "warn", "bad"` · default ``bad` for a `ci` source, `info` for the others`
 
@@ -3609,9 +3609,9 @@ Example:
 "bad"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.github.sources.*.title`
+#### `haus.bar.github.sources.*.title`
 
 `string` · default `""`
 
@@ -3624,9 +3624,9 @@ Example:
 "red on main"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items`
+#### `haus.bar.items`
 
 `submodule` · default `{ }`
 
@@ -3637,23 +3637,23 @@ and the personal `agents`, `aiUsage`, `elgato`, `harvest` —
 default false. Set
 only what you want to change:
 
-  haus.sill.items = &#123;
+  haus.bar.items = &#123;
     weather = false;   # drop a default-on core pill
     cpu = true;        # add an off-by-default readout
     caffeinate = true; # add the keep-awake controller
   &#125;;
 
 A pill set false is never created (its update script doesn't run either).
-The hush (Do-Not-Disturb) pill is separate — it rides
-haus.hush.enable, not this set. It can still be moved to the second bar
-with `haus.sill.bottom.items.hush`.
+The focus (Do-Not-Disturb) pill is separate — it rides
+haus.focus.enable, not this set. It can still be moved to the second bar
+with `haus.bar.bottom.items.focus`.
 
 This is the MENU BAR's set, and it is one group: the movable pills all
 sit on the right, because its left is the workspace pills, the front app
 and the leader picker, and its center is kept clear — that is the one
 span a MacBook's notch covers when the bar is at the top, which is where
-it is by default. `haus.sill.bottom.items` mirrors these pills
-for the optional second bar, also accepts `hush`, and takes a side
+it is by default. `haus.bar.bottom.items` mirrors these pills
+for the optional second bar, also accepts `focus`, and takes a side
 (`"left"` / `"center"` / `"right"`) rather than a bare bool; a pill named
 there moves down rather than being drawn twice.
 
@@ -3666,137 +3666,137 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.agents`
+#### `haus.bar.items.agents`
 
 `boolean` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in hearth: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.aiUsage`
+#### `haus.bar.items.aiUsage`
 
 `boolean` · default `false`
 
 A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.battery`
+#### `haus.bar.items.battery`
 
 `boolean` · default `true`
 
 The battery pill.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.caffeinate`
+#### `haus.bar.items.caffeinate`
 
 `boolean` · default `false`
 
 A coffee pill that prevents idle system sleep for 1/2/4/8 hours, a custom whole-hour duration, or indefinitely. The display may still turn off; closing a MacBook lid still sleeps it. Uses macOS's built-in `caffeinate`, so there is no extra package.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.calendar`
+#### `haus.bar.items.calendar`
 
 `boolean` · default `false`
 
-The one meeting you have to be at next, and one gesture to join it. It reads "in 12m · Design review" — countdown first, because a label is clipped from the END and the number is the part you must never lose; below `haus.sill.calendar.preciseUnder` hours it carries minutes, above it just "in 14h" or "in 2d", and while an event is running it says "now · …" instead of going blank. For `haus.sill.calendar.imminent` minutes either side of the start the whole pill FILLS with the accent — a shape change rather than a colour change, so it catches the eye you aren't pointing at it. RIGHT-CLICK joins: it opens the event's conferencing link, found in the invite's url, location or notes (Meet, Zoom, Teams, Webex, Jitsi, Whereby and friends out of the box; `haus.sill.calendar.joinHosts` adds your own). LEFT-CLICK opens the day as a timeline — what's DONE in the last `haus.sill.calendar.past` hours, what's on NOW, and what's NEXT — each event carrying its day, clock time, length and who it's with, the next one boxed, and a `Join` affordance on every row that has a link. Your own address is dropped from the "with" line automatically: a CalDAV calendar is named for the account it syncs, so the pill can work out which attendee is you with no configuration (`haus.sill.calendar.me` for the cases where it can't). A name too long for the pill sweeps past only while you HOVER it — nothing here starts a marquee on its own — and `haus.sill.calendar.width` sets how much room it gets before that applies. Pulls in `ical-buddy` automatically and reads Calendar, so macOS prompts for Calendar access on first run.
+The one meeting you have to be at next, and one gesture to join it. It reads "in 12m · Design review" — countdown first, because a label is clipped from the END and the number is the part you must never lose; below `haus.bar.calendar.preciseUnder` hours it carries minutes, above it just "in 14h" or "in 2d", and while an event is running it says "now · …" instead of going blank. For `haus.bar.calendar.imminent` minutes either side of the start the whole pill FILLS with the accent — a shape change rather than a colour change, so it catches the eye you aren't pointing at it. RIGHT-CLICK joins: it opens the event's conferencing link, found in the invite's url, location or notes (Meet, Zoom, Teams, Webex, Jitsi, Whereby and friends out of the box; `haus.bar.calendar.joinHosts` adds your own). LEFT-CLICK opens the day as a timeline — what's DONE in the last `haus.bar.calendar.past` hours, what's on NOW, and what's NEXT — each event carrying its day, clock time, length and who it's with, the next one boxed, and a `Join` affordance on every row that has a link. Your own address is dropped from the "with" line automatically: a CalDAV calendar is named for the account it syncs, so the pill can work out which attendee is you with no configuration (`haus.bar.calendar.me` for the cases where it can't). A name too long for the pill sweeps past only while you HOVER it — nothing here starts a marquee on its own — and `haus.bar.calendar.width` sets how much room it gets before that applies. Pulls in `ical-buddy` automatically and reads Calendar, so macOS prompts for Calendar access on first run.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.claudeUsage`
+#### `haus.bar.items.claudeUsage`
 
 `boolean` · default `false`
 
 Deprecated alias for `aiUsage`.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.clock`
+#### `haus.bar.items.clock`
 
 `boolean` · default `true`
 
 The clock pill, pinned to the far right.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.cpu`
+#### `haus.bar.items.cpu`
 
 `boolean` · default `false`
 
 Total CPU load, drawn as a graph pill: the last two minutes of it behind the number, because a percentage on its own can't tell a spike settling from a climb that started five minutes ago. The reading is a DELTA between samples — the `ps` sum this used to print is each process's average over its whole lifetime, which on a machine that has been up a week barely moves while every core is pinned. LEFT-CLICK opens a dropdown: the user/system split, the load average, then what's responsible, biggest first and aggregated per app so a browser's twenty helpers are one row; clicking a row focuses that app's window. RIGHT-CLICK opens Activity Monitor on its CPU tab. The rows can only cover processes you own, so anything root runs — `kernel_task`, `WindowServer` — lands in `everything else` rather than going quietly missing from the sum.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.elgato`
-
-`boolean` · default `false`
-
-Toggles an Elgato Key Light on the local network. The light is found over mDNS (or pinned with `haus.sill.elgato.host`), and the pill draws dim when it can't be reached at all — a light that dropped off the wifi is not the same thing as a light that's switched off.
-
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
-
-#### `haus.sill.items.github`
+#### `haus.bar.items.elgato`
 
 `boolean` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.sill.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+Toggles an Elgato Key Light on the local network. The light is found over mDNS (or pinned with `haus.bar.elgato.host`), and the pill draws dim when it can't be reached at all — a light that dropped off the wifi is not the same thing as a light that's switched off.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.harvest`
+#### `haus.bar.items.github`
+
+`boolean` · default `false`
+
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.items.harvest`
 
 `boolean` · default `false`
 
 A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.media`
+#### `haus.bar.items.media`
 
 `boolean` · default `true`
 
-The now-playing track — auto-hides when nothing plays, dims when paused, and counts DOWN instead of scrolling a title once the thing playing is longer than twenty minutes (a podcast or a video is one you already know the name of; what you keep glancing at the bar for is how much is left). The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.sill.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
+The now-playing track — auto-hides when nothing plays, dims when paused, and counts DOWN instead of scrolling a title once the thing playing is longer than twenty minutes (a podcast or a video is one you already know the name of; what you keep glancing at the bar for is how much is left). The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.bar.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.memory`
+#### `haus.bar.items.memory`
 
 `boolean` · default `false`
 
 Memory in use, drawn as a graph pill. It counts what Activity Monitor counts — app memory + wired + compressed — and deliberately NOT the file cache: macOS fills idle RAM with cache on purpose, and the old reading counted that as used, which is why it sat near 90% on a machine doing nothing. The pill's COLOUR is the kernel's own pressure level (green normal, amber warning, red critical) rather than the percentage, because 60% of RAM in use is a Mac working correctly and a pill that goes amber for it is a pill you learn to ignore. LEFT-CLICK opens a dropdown with used/total, the cache, compressed and swap figures and then the biggest footprints per app, each row clicking through to that app's window. RIGHT-CLICK opens Activity Monitor on its Memory tab.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.volume`
+#### `haus.bar.items.volume`
 
 `boolean` · default `false`
 
 Output volume / mute state.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.weather`
+#### `haus.bar.items.weather`
 
 `boolean` · default `true`
 
 The weather pill and its click-to-open forecast popover.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.items.wifi`
+#### `haus.bar.items.wifi`
 
 `boolean` · default `true`
 
 The Wi-Fi status pill.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.color`
+#### `haus.bar.logo.color`
 
 `null or one of "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender"` · default `null`
 
@@ -3805,7 +3805,7 @@ follows `haus.theme.accent`, which is almost always what you want — the
 pill is haus's own mark, so it wearing haus's own accent is the
 point.
 
-This is only the RESTING colour. `haus.sill.logo.status` paints over it
+This is only the RESTING colour. `haus.bar.logo.status` paints over it
 while something needs attention, and the hover sweep runs from it and
 returns to it.
 
@@ -3815,9 +3815,9 @@ Example:
 "teal"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.gestures`
+#### `haus.bar.logo.gestures`
 
 `boolean` · default `true`
 
@@ -3830,7 +3830,7 @@ What the logo pill does when clicked:
 | right click | the full pounce palette (⌘Space), which is what a bare click on this pill used to do |
 
 All three are drawn by **pounce**, so all three need
-`haus.pounce.enable` (which the hacker desktop turns on). With pounce
+`haus.launcher.enable` (which the hacker desktop turns on). With pounce
 off they are silent no-ops and this option is the switch that says so out
 loud — turn it off and the pill stops responding to clicks entirely,
 rather than looking like an affordance that does nothing.
@@ -3841,9 +3841,9 @@ whole reason the popup dropdown this replaces is gone — it was a second
 copy of five of these rows, and (having never been openable at all) a
 second copy nobody could check.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.icon`
+#### `haus.bar.logo.icon`
 
 `string` · default `""`
 
@@ -3858,7 +3858,7 @@ the hausfold mark itself, is drawn hairline-thin in JetBrains Mono and
 does not gain weight at Bold or ExtraBold** — it is in the font, it is
 on the list below, and beside the workspace pills it reads as a much
 lighter object than everything around it. A taste call, not a bug: if
-you want the literal mark, take it and raise `haus.sill.logo.size`.
+you want the literal mark, take it and raise `haus.bar.logo.size`.
 
 Six that hold up at bar size, most to least solid:
 
@@ -3884,9 +3884,9 @@ Example:
 "⌂"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.size`
+#### `haus.bar.logo.size`
 
 `positive integer, meaning >0` · default `20`
 
@@ -3901,9 +3901,9 @@ Example:
 25
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.status`
+#### `haus.bar.logo.status`
 
 `boolean` · default `true`
 
@@ -3913,7 +3913,7 @@ something without being clicked:
 | colour | meaning |
 |---|---|
 | accent | everything haus runs is up |
-| `yellow` | a newer haus is pinned upstream (needs `haus.sill.logo.updateCheck`) |
+| `yellow` | a newer haus is pinned upstream (needs `haus.bar.logo.updateCheck`) |
 | `red` | something haus runs is enabled but not running |
 
 Red is the one that matters. It is the same check `haus doctor` opens
@@ -3927,9 +3927,9 @@ makes no network call.
 Yellow ranks below red and both outrank the accent, so the pill always
 shows the worst thing true about the machine.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.sweep`
+#### `haus.bar.logo.sweep`
 
 `boolean` · default `true`
 
@@ -3947,9 +3947,9 @@ has something to say, and a rainbow running over that is a pill saying
 two things at once — so hover does nothing until the state clears.
 Leader mode suppresses it for the same reason.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.logo.updateCheck`
+#### `haus.bar.logo.updateCheck`
 
 `boolean` · default `false`
 
@@ -3959,7 +3959,7 @@ machine: it asks GitHub for haus's current head (the same
 `git ls-remote` behind `haus status`) once every half hour, and a bar
 that phones home should be something you turned on.
 
-No effect unless `haus.sill.logo.status` is on.
+No effect unless `haus.bar.logo.status` is on.
 
 Example:
 
@@ -3967,9 +3967,9 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.media.artworkTint`
+#### `haus.bar.media.artworkTint`
 
 `boolean` · default `false`
 
@@ -3992,9 +3992,9 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.media.collapse`
+#### `haus.bar.media.collapse`
 
 `boolean` · default `false`
 
@@ -4013,9 +4013,9 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.media.icons`
+#### `haus.bar.media.icons`
 
 `attribute set of string` · default `{ }`
 
@@ -4034,7 +4034,7 @@ for a browser rather than guessing YouTube and being wrong on Netflix.
 
 If you know that on YOUR machine browser video means YouTube, say so:
 
-  haus.sill.media.icons."browser.video" = "󰗃";
+  haus.bar.media.icons."browser.video" = "󰗃";
 
 Example:
 
@@ -4045,9 +4045,9 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.media.width`
+#### `haus.bar.media.width`
 
 `positive integer, meaning >0` · default `32`
 
@@ -4057,7 +4057,7 @@ this is the knob for how much of the bar the now-playing title may rent.
 
 Narrow it on a MacBook, where the bar's centre span sits under the notch
 and every character of title is paid for out of the room the workspace
-pills and the front-app name need. `haus.sill.media.collapse` is the
+pills and the front-app name need. `haus.bar.media.collapse` is the
 harder version of the same trade: no title at all until you hover.
 
 It is a MAXIMUM, not a fixed size — the pill still shrinks to fit a
@@ -4069,9 +4069,9 @@ Example:
 16
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.sill.position`
+#### `haus.bar.position`
 
 `one of "top", "bottom", "auto"` · default `"top"`
 
@@ -4092,17 +4092,17 @@ Example:
 "auto"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
 ## Launcher
 
 Pounce — the command palette, its daemon, its commands, and every Pounce setting haus exposes.
 
-### haus.pounce
+### haus.launcher
 
-The ⌘Space command palette.
+The ⌘Space command palette. Pounce is the app behind it.
 
-#### `haus.pounce.autoQuit.delay`
+#### `haus.launcher.autoQuit.delay`
 
 `integer or floating point number between 0.25 and 3600 (both inclusive)` · default `2`
 
@@ -4115,7 +4115,7 @@ wouldn't list, calls the quit off.
 
 Two seconds is the responsive end of that trade. It is deliberately not
 enough for a cold IDE reopening a project — that is a case for
-haus.pounce.autoQuit.exclude rather than for a delay you would feel on
+haus.launcher.autoQuit.exclude rather than for a delay you would feel on
 every app.
 
 Read once, when auto-quit arms — changing it bounces the pounce daemon
@@ -4127,9 +4127,9 @@ Example:
 5
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.autoQuit.enable`
+#### `haus.launcher.autoQuit.enable`
 
 `boolean` · default `false`
 
@@ -4144,10 +4144,10 @@ work that ⌘Q wouldn't. What it CAN do is stop background work you were
 keeping a window open for: close Docker Desktop's dashboard and Docker
 is asked to quit, which stops your containers. Media players, torrent
 clients and chat apps have the same shape — that class of app is what
-haus.pounce.autoQuit.exclude is for.
+haus.launcher.autoQuit.exclude is for.
 
 Reads the same window snapshot as the ⌘Tab switcher, so it wants the
-same Accessibility grant (set haus.pounce.signingIdentity so it
+same Accessibility grant (set haus.launcher.signingIdentity so it
 survives rebuilds) and shares the observers rather than taking its own.
 Without the grant it stays off and says so in the log rather than
 guessing.
@@ -4160,9 +4160,9 @@ Unlike the rest of pounce's config, the auto-quit settings are read once
 touches any of the three restarts the pounce daemon, which haus does
 for you; nothing here needs a log-out to land.
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.autoQuit.exclude`
+#### `haus.launcher.autoQuit.exclude`
 
 `null or (list of string)` · default `pounce's own list — `[ "com.apple.finder" ]``
 
@@ -4192,17 +4192,17 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.enable`
+#### `haus.launcher.enable`
 
 `boolean` · default `false`
 
 The pounce command palette daemon (⌘Space) + the palette commands haus ships.
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.followSystemAppearance`
+#### `haus.launcher.followSystemAppearance`
 
 `boolean` · default `true`
 
@@ -4220,9 +4220,9 @@ whatever flavor pins.
 false pins pounce to the flavor like every other port, which is exactly
 what it did before this option existed.
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.items`
+#### `haus.launcher.items`
 
 `attribute set of (submodule)` · default `{ }`
 
@@ -4253,7 +4253,7 @@ haus uses it for mode:emoji by default; set that item's hotkey to
 null to leave the Globe key to macOS.
 
 Sequences are worth knowing about on a tiling desktop: they open a namespace
-that structurally can't collide with the ⌥/⌘ chords prowl already claims,
+that structurally can't collide with the ⌥/⌘ chords windows already claims,
 and they need no Accessibility grant (pounce grabs the second step as an
 ordinary global hotkey for a couple of seconds rather than tapping events).
 
@@ -4289,9 +4289,9 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.items.<name>.alias`
+#### `haus.launcher.items.<name>.alias`
 
 `null or string` · default `null`
 
@@ -4304,9 +4304,9 @@ Example:
 "emo"
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.items.<name>.caption`
+#### `haus.launcher.items.<name>.caption`
 
 `null or string` · default `null`
 
@@ -4332,9 +4332,9 @@ Example:
 "Clipboard history"
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.items.<name>.hotkey`
+#### `haus.launcher.items.<name>.hotkey`
 
 `null or string or list of string` · default `null`
 
@@ -4357,9 +4357,9 @@ Example:
 "opt+space e"
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.items.<name>.listed`
+#### `haus.launcher.items.<name>.listed`
 
 `boolean` · default `true`
 
@@ -4372,9 +4372,9 @@ reach by key — or clear the launcher of tools someone else on this
 Mac has no use for, which is the closest thing to a "pack" the
 surface has today. (It writes pounce's own `enabled` key.)
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.scale`
+#### `haus.launcher.scale`
 
 `integer or floating point number between 0.8 and 2.0 (both inclusive)` · default `haus.ui.scale, held inside pounce's 0.8-2.0`
 
@@ -4404,9 +4404,9 @@ Example:
 1.4
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.signingIdentity`
+#### `haus.launcher.signingIdentity`
 
 `string` · default `""`
 
@@ -4436,9 +4436,9 @@ Example:
 "Developer ID Application: Jane Doe (ABCDE12345)"
 ```
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.windowMode`
+#### `haus.launcher.windowMode`
 
 `one of "default", "compact"` · default `"compact"`
 
@@ -4448,12 +4448,12 @@ shipped before this option existed. `default` is pounce's roomier layout,
 which shows the top results the moment it opens.
 
 This is shape, not size: how BIG the palette is drawn is
-haus.pounce.scale. The two compose — a compact palette at scale 1.4
+haus.launcher.scale. The two compose — a compact palette at scale 1.4
 is still the compact layout, just readable from further away.
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.pounce.windowSwitcher`
+#### `haus.launcher.windowSwitcher`
 
 `boolean` · default `true`
 
@@ -4464,7 +4464,7 @@ tapping ⇥ to walk older ones, type while holding to fuzzy-filter
 header each, and focusing goes through `aerospace focus --window-id` so
 a window parked on another workspace surfaces correctly.
 
-Because prowl is tiling here, a bare tap deliberately looks past the
+Because the tiler is running here, a bare tap deliberately looks past the
 workspace you're on and takes the most recent window on a different
 one — with two panes tiled side by side the most recent window is one
 you're already looking at, so landing there wouldn't be a switch.
@@ -4472,30 +4472,30 @@ Moving between visible tiles stays windowNav's focus keys; the skipped
 siblings are still the rows just below you in the list.
 
 Needs the daemon to hold an Accessibility grant — in practice, set
-haus.pounce.signingIdentity so the grant survives rebuilds. Without
+haus.launcher.signingIdentity so the grant survives rebuilds. Without
 the grant the event tap can't install and stock ⌘Tab keeps working, so
 this default is safe on a fresh, not-yet-granted install. false leaves
 ⌘Tab native even when the grant is there.
 
-<small>Declared in [`modules/pounce/options.nix`](https://github.com/hausfold/haus/blob/main/modules/pounce/options.nix).</small>
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
 ## Shelf
 
 Perch — the file shelf that grows out of the notch to catch what you drag at it.
 
-### haus.perch
+### haus.shelf
 
-The notch file shelf.
+The notch file shelf. Perch is the app behind it.
 
-#### `haus.perch.enable`
+#### `haus.shelf.enable`
 
 `boolean` · default `false`
 
 The perch notch file shelf, installed via the perch flake (copied to /Applications).
 
-<small>Declared in [`modules/perch/options.nix`](https://github.com/hausfold/haus/blob/main/modules/perch/options.nix).</small>
+<small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
 
-#### `haus.perch.followSystemAppearance`
+#### `haus.shelf.followSystemAppearance`
 
 `boolean` · default `true`
 
@@ -4514,38 +4514,38 @@ Perch has no theme picker of its own — the shelf is a five-second
 surface with nowhere to put one — so this is the only word on its
 colors.
 
-<small>Declared in [`modules/perch/options.nix`](https://github.com/hausfold/haus/blob/main/modules/perch/options.nix).</small>
+<small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
 
 ## Focus
 
 One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges.
 
-### haus.hush
+### haus.focus
 
 One quiet switch: Do Not Disturb, optional Slack status, and your hooks.
 
-#### `haus.hush.enable`
+#### `haus.focus.enable`
 
 `boolean` · default `false`
 
-The hush room: one quiet switch — bar pill, palette command, and a
-`hush` CLI — that turns macOS Do Not Disturb on/off (via the
+The focus room: one quiet switch — bar pill, palette command, and a
+`focus` CLI — that turns macOS Do Not Disturb on/off (via the
 declaratively-bound symbolic hotkey 175, pressed synthetically),
 optionally sets your Slack status, and runs your hooks.
 
-Honest scope: hush flips the built-in Do Not Disturb, not named Focus
+Honest scope: focus flips the built-in Do Not Disturb, not named Focus
 modes, and it doesn't manage which apps break through — curate that
 once in System Settings. The keypress needs an Accessibility grant on
-whatever app invokes hush (palette runs inherit pounce's; grant
-sketchybar once for the pill). `hush doctor` walks the one-time steps.
+whatever app invokes focus (palette runs inherit pounce's; grant
+sketchybar once for the pill). `focus doctor` walks the one-time steps.
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.hooks`
+#### `haus.focus.hooks`
 
 `list of (absolute path or string)` · default `[ ]`
 
-Extra scripts run on every hush/unhush, each called with a single
+Extra scripts run on every switch, both ways, each called with a single
 argument "on" or "off". Paths are copied into the store; strings are
 run as-is (so $HOME paths work). Failures are logged, never fatal —
 a broken hook can't wedge the toggle.
@@ -4556,61 +4556,61 @@ Example:
 [ ./onair-light.sh "/Users/ada/bin/pause-music" ]
 ```
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.slack.enable`
+#### `haus.focus.slack.enable`
 
 `boolean` · default `false`
 
 Also set a Slack status and snooze Slack notifications (all devices,
-phone included) while hushed. Off by default: it needs a personal
+phone included) while quiet. Off by default: it needs a personal
 Slack user token (scopes users.profile:write + dnd:write) provided
 via tokenCommand. The previous status is saved and restored on
-unhush.
+turning it off.
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.slack.snooze`
+#### `haus.focus.slack.snooze`
 
 `boolean` · default `true`
 
-Also pause Slack's own notifications (dnd.setSnooze) while hushed —
-this is what silences the phone. Ended on unhush; capped at 24h as
+Also pause Slack's own notifications (dnd.setSnooze) while quiet —
+this is what silences the phone. Ended when it turns off; capped at 24h as
 a failsafe if you forget.
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.slack.statusEmoji`
+#### `haus.focus.slack.statusEmoji`
 
 `string` · default `":no_bell:"`
 
-Slack status emoji while hushed.
+Slack status emoji while quiet.
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.slack.statusText`
+#### `haus.focus.slack.statusText`
 
 `string` · default `"heads down"`
 
-Slack status text while hushed.
+Slack status text while quiet.
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
-#### `haus.hush.slack.tokenCommand`
+#### `haus.focus.slack.tokenCommand`
 
 `string` · default `""`
 
 Shell command that prints the Slack user token (xoxp-…) to stdout.
 Keychain-first so no secret ever lands in the store or a dotfile:
-  security add-generic-password -s hush-slack -a $USER -w 'xoxp-…'
+  security add-generic-password -s focus-slack -a $USER -w 'xoxp-…'
 
 Example:
 
 ```nix
-"security find-generic-password -s hush-slack -w"
+"security find-generic-password -s focus-slack -w"
 ```
 
-<small>Declared in [`modules/hush/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hush/options.nix).</small>
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
 ## AI
 
@@ -4685,7 +4685,7 @@ session for that cwd. All three share one `holt` branch/parking/reap
 lifecycle, and all three light up the `agents` bar pill and the zellij
 tab-bar badge — the opencode plugin and the codex hooks are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
-settings.json (see `haus.sill.items.agents`).
+settings.json (see `haus.bar.items.agents`).
 
 Example:
 
@@ -4702,7 +4702,7 @@ Example:
 The AI room: coding-agent *tooling*. `holt` (agent worktrees),
 `agent-state` (the pane-status writer behind the `agents` bar pill and
 the zellij tab badge), the agent-worktree statusline, and the client
-config hearth writes (Claude Code's settings.json keys, opencode's
+config the Terminal room writes (Claude Code's settings.json keys, opencode's
 agent-state plugin). Which clients get installed is `ai.clients`.
 
 On, this room brings its clients, `holt` and the lifecycle wiring on its
@@ -4897,7 +4897,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.lock.requirePasswordDelay`
 
@@ -4916,11 +4916,11 @@ Example:
 5
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.security
 
-Security posture: the built-in application firewall and how strict it is. Off on a fresh Mac; the setting to turn on for a laptop that joins networks you don't own.
+Security posture: the built-in application firewall and how strict it is (off on a fresh Mac — the setting to turn on for a laptop that joins networks you don't own), plus Touch ID for `sudo`, including inside a terminal multiplexer, and the passwordless-rebuild rule.
 
 #### `haus.security.firewall.allowSigned`
 
@@ -4936,7 +4936,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.security.firewall.allowSignedApp`
 
@@ -4952,7 +4952,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.security.firewall.blockAllIncoming`
 
@@ -4969,7 +4969,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.security.firewall.enable`
 
@@ -4987,7 +4987,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.security.firewall.stealthMode`
 
@@ -5004,26 +5004,22 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
-### haus.collar
-
-Touch ID for sudo — including inside a terminal multiplexer — and the passwordless-rebuild rule.
-
-#### `haus.collar.enable`
+#### `haus.security.touchId.enable`
 
 `boolean` · default `false`
 
-The collar room: Touch ID for `sudo`, with `reattach` — the PAM shim
+The security room: Touch ID for `sudo`, with `reattach` — the PAM shim
 that keeps the prompt working when sudo runs inside a terminal
 multiplexer (tmux/zellij/screen), where it otherwise beachballs.
 
 Off means macOS's stock password prompt everywhere, including for the
 rebuild below. Nothing else in haus depends on it.
 
-<small>Declared in [`modules/collar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/collar/options.nix).</small>
+<small>Declared in [`modules/security/options.nix`](https://github.com/hausfold/haus/blob/main/modules/security/options.nix).</small>
 
-#### `haus.collar.passwordlessRebuild`
+#### `haus.security.touchId.passwordlessRebuild`
 
 `boolean` · default `false`
 
@@ -5040,7 +5036,7 @@ authenticated to build it), but on a shared or managed machine it's the
 knob to turn off. With it off, activation prompts via Touch ID (or a
 password when `enable` is false) and nothing else changes.
 
-<small>Declared in [`modules/collar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/collar/options.nix).</small>
+<small>Declared in [`modules/security/options.nix`](https://github.com/hausfold/haus/blob/main/modules/security/options.nix).</small>
 
 ### haus.secrets
 
@@ -5249,7 +5245,7 @@ the hole. This is that comment, as data.
 Example:
 
 ```nix
-"haus.perch"
+"haus.shelf"
 ```
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
@@ -5262,7 +5258,7 @@ The leader letter for this app: tap Caps Lock then this key to
 launch/focus it. Must be unique across the roster, and not one of
 launch mode's own: `v` `e` `z` `,` `` ` `` `-` `=` `/` `esc`, the
 arrows and one digit per numbered workspace (`1`-`4` out of the box;
-see haus.prowl.numberedWorkspaces) are taken, and a rebuild refuses
+see haus.windows.numberedWorkspaces) are taken, and a rebuild refuses
 them.
 
 null (the default) means the entry is INSTALL-ONLY: it still
@@ -5425,7 +5421,7 @@ members instead.
 
 The numbered workspaces (leader + a digit) are not part of this
 option — they always exist, independent of what any app claims, and
-how many there are is haus.prowl.numberedWorkspaces. This option is
+how many there are is haus.windows.numberedWorkspaces. This option is
 for the NAMED workspaces app windows get herded onto.
 
 An entry with no `key` and no `apps` does nothing (a warning says
@@ -5514,7 +5510,7 @@ workspace is reachable only by launching an app that belongs to
 it (or not by keyboard at all). Must be unique across workspaces,
 and ⇧&lt;key> must not collide with a built-in launch-mode binding
 (the numbered workspaces take one digit each — how many is
-haus.prowl.numberedWorkspaces). ⌥⇧&lt;key> throws the window here
+haus.windows.numberedWorkspaces). ⌥⇧&lt;key> throws the window here
 WITHOUT following it, and is bound alongside.
 
 Example:
@@ -5545,17 +5541,17 @@ still wins:
 What it currently moves:
 
   - the terminal font size (haus.fonts.mono.size)
-  - the command palette, whole (haus.pounce.scale) — its rows,
+  - the command palette, whole (haus.launcher.scale) — its rows,
     text and icons, and the emoji / clipboard / screenshots / camera /
     Find Files / cheatsheet panels behind it
-  - the type in Sill's menu bar — pill labels, icons and popup rows —
+  - the type in Bar's menu bar — pill labels, icons and popup rows —
     up to a ceiling; see below
   - the Dock icon size (system.defaults.dock.tilesize)
   - Finder's sidebar rows (NSTableViewDefaultSizeMode) — a threshold
     rather than a multiplier, and it is set at every scale: at or below
     1.0 haus picks SMALL rows (more fits in a tiled window), above
     1.0 it picks Apple's large ones
-  - prowl's window gaps
+  - windows's window gaps
 
 That list is pinned by `nix flake check`'s `scale-reach`, which
 fingerprints every surface it names at four scales — so a wire dropped
@@ -5563,7 +5559,7 @@ in a refactor fails a check instead of quietly ceasing to arrive.
 
 Where it stops, and why it isn't a gap waiting to be filled:
 
-  - Sill's bar HEIGHT. The bar is 36pt with 28pt pills so the pills sit
+  - Bar's bar HEIGHT. The bar is 36pt with 28pt pills so the pills sit
     inside the 32pt menu-bar band that macOS's own hover-reveal covers;
     taller pills poke out below it. That band is macOS's, fixed, and has
     no setting behind it — measured, not assumed. So the bar's type
@@ -5622,7 +5618,7 @@ resizes.
 The remap is re-applied at every activation and does not survive a
 reboot, so moving off "caps" ends it — at the latest, at next boot.
 
-Only meaningful with haus.prowl.enable (AeroSpace owns the modes).
+Only meaningful with haus.windows.enable (AeroSpace owns the modes).
 
 Example:
 
@@ -5640,7 +5636,7 @@ Extra launch-mode (leader) bindings beyond the app roster: tap the leader,
 then `key`, to run `command`. Use it for leader actions that aren't
 "launch an app" — a script, an AppleScript, opening a URL.
 
-Only meaningful with haus.prowl.enable and keys.leader != "none"
+Only meaningful with haus.windows.enable and keys.leader != "none"
 (with no leader there is no launch mode to bind into).
 
 Example:
@@ -5697,11 +5693,11 @@ Example:
 The AeroSpace key name pressed after the leader (e.g. "enter",
 "space", "period", or a letter). Must not collide with a roster
 app's key or a built-in launch-mode key (one digit per
-numbered workspace — see haus.prowl.numberedWorkspaces — plus
+numbered workspace — see haus.windows.numberedWorkspaces — plus
 the arrows, `-`/`=`, `v`/`e`/`z`, `,`, `` ` ``, `/`, esc) —
 nor with the workspace throws, which are ⇧ (follow) or ⌥⇧
 (stay) + any of those digits or a roster letter ("shift-1",
-"alt-shift-b", …). An assertion in modules/prowl catches a
+"alt-shift-b", …). An assertion in modules/windows catches a
 clash rather than letting one binding silently shadow
 another.
 
@@ -5727,7 +5723,7 @@ to Spotlight entirely. That's a fix as much as an option: haus used
 to take Spotlight's ⌘Space away unconditionally, even where nothing
 claimed it.
 
-Only meaningful with haus.pounce.enable.
+Only meaningful with haus.launcher.enable.
 
 Example:
 
@@ -5741,7 +5737,7 @@ Example:
 
 `one of "alt", "ctrl-alt", "cmd-alt", "none"` · default `"none"`
 
-The modifier vocabulary for prowl's window chords — one setting rather
+The modifier vocabulary for windows's window chords — one setting rather
 than a bind-per-action, because what people need to move is the
 modifier, not the letters. It drives layouts (`<mod>` + `/` `,`),
 fullscreen, moving a workspace to the next monitor (`<mod>⇧⇥`),
@@ -5764,7 +5760,7 @@ hjkl focus chords were dropped: only `/` `,`, `f`, `⇧⇥`, `⇧;` and
 on — and `<mod>⇥` is free again, since workspace back-and-forth
 retired in favour of pounce's cross-workspace ⌘⇥ switcher. (Under
 "ctrl-alt" that used to bite — the throws were `⌃⌥⇧` + an app's roster
-letter, so an app on `a` silently ate hearth's zellij
+letter, so an app on `a` silently ate terminal's zellij
 `Ctrl Alt Shift a` in-place-agent bind. That collision is gone.)
 Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
@@ -5774,7 +5770,7 @@ service mode. Combined with `leader = "none"` that's a machine where the
 tiler tiles and the keyboard is left alone — mouse-first. The cheatsheet
 follows, so it never advertises a key that does nothing.
 
-Only meaningful with haus.prowl.enable.
+Only meaningful with haus.windows.enable.
 
 Example:
 
@@ -5800,11 +5796,11 @@ it (or `haus tour`, or ⌘Space → tour) starts the lap, right-click
 hides it forever. Detection reuses signals haus already fires (the
 leader-mode scripts) — no key logging, no Accessibility.
 
-Needs prowl + sill (it silently stays out of the bar without them);
+Needs windows + bar (it silently stays out of the bar without them);
 the ⌘Space step is dropped when pounce is off. Progress lives in
 ~/.local/state/haus — `haus tour reset` re-arms a finished tour.
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
 #### `haus.tour.steps`
 
@@ -5816,12 +5812,12 @@ can teach its own workflow without shipping scripts or reaching outside the
 `haus.*` option surface.
 
 Detection reuses signals haus already emits. `launch`, `workspace`,
-`navigate` and `resize` need prowl; `palette` needs Pounce and its palette
+`navigate` and `resize` need windows; `palette` needs Pounce and its palette
 binding. The module warns when a chosen detector's room is disabled.
 
-Authoring a tour is also the ONLY way to have one without prowl: the
+Authoring a tour is also the ONLY way to have one without windows: the
 built-in lap is three leader moves plus the palette, so `tour.enable` on a
-machine with `prowl.enable = false` draws nothing at all.
+machine with `windows.enable = false` draws nothing at all.
 `desktops/everyday.nix` is the worked example — one step, the launcher.
 
 Example:
@@ -5835,7 +5831,7 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
 #### `haus.tour.steps.*.detect`
 
@@ -5853,7 +5849,7 @@ Example:
 "palette"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
 #### `haus.tour.steps.*.hint`
 
@@ -5874,7 +5870,7 @@ Example:
 "Press {palette}, type calendar, then hit ↵"
 ```
 
-<small>Declared in [`modules/sill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/sill/options.nix).</small>
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
 ## Your machine
 
@@ -5896,13 +5892,13 @@ Example:
 "ada@example.com"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.git.name`
 
 `string` · default `""`
 
-Git user.name for commits (hearth wires it into home-manager).
+Git user.name for commits (terminal wires it into home-manager).
 
 Example:
 
@@ -5910,7 +5906,7 @@ Example:
 "Ada Lovelace"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.git.org`
 
@@ -5922,12 +5918,12 @@ same as `user:<user>`, so one option covers both (measured against
 both qualifiers, 2026-08-08 — the counts match).
 
 It exists because a gh-dash PR section is a GitHub search filter
-scoped by `org:`. Set this **and** `haus.hearth.ghDash.enable` and
-Hearth renders four PR tabs for that owner — the open / green / red /
+scoped by `org:`. Set this **and** `haus.terminal.ghDash.enable` and
+Terminal renders four PR tabs for that owner — the open / green / red /
 just-shipped work. On its own it does nothing: it is the dashboard's
 scope, not a feature of its own.
 
-Leave it empty (the default) and Hearth writes no PR tabs at all, so
+Leave it empty (the default) and Terminal writes no PR tabs at all, so
 gh-dash keeps its own and a host composing a queue in
 `programs.gh-dash.settings` never fights one. Empty is the right
 answer for a machine that reads several owners at once: there is no
@@ -5949,15 +5945,15 @@ Example:
 "hausfold"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.git.shellAliases`
 
 `attribute set of (null or string)` · default `{ }`
 
-Per-host additions and overrides for Hearth's built-in Git shell
+Per-host additions and overrides for Terminal's built-in Git shell
 aliases. Values are shell command strings; null removes a built-in.
-Hearth deliberately owns a compact, framework-independent default
+Terminal deliberately owns a compact, framework-independent default
 set, so this changes only Git shortcuts and does not require a shell
 plugin manager.
 
@@ -5971,7 +5967,7 @@ Example:
 }
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 #### `haus.git.signingKey`
 
@@ -5987,7 +5983,7 @@ Example:
 "6F7BD6F43A7C1420"
 ```
 
-<small>Declared in [`modules/hearth/options.nix`](https://github.com/hausfold/haus/blob/main/modules/hearth/options.nix).</small>
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
 ### haus.locale
 
@@ -6011,7 +6007,7 @@ Example:
 "24h"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.locale.inputSources`
 
@@ -6047,7 +6043,7 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.locale.language`
 
@@ -6074,7 +6070,7 @@ Example:
 ]
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.locale.metric`
 
@@ -6095,7 +6091,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.locale.region`
 
@@ -6120,7 +6116,7 @@ Example:
 "de_DE"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.locale.temperature`
 
@@ -6137,7 +6133,7 @@ Example:
 "celsius"
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 ### haus.power
 
@@ -6159,7 +6155,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.computerSleep.charger`
 
@@ -6177,7 +6173,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.diskSleep.battery`
 
@@ -6195,7 +6191,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.diskSleep.charger`
 
@@ -6213,7 +6209,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.displaySleep.battery`
 
@@ -6231,7 +6227,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.displaySleep.charger`
 
@@ -6249,7 +6245,7 @@ Example:
 10
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.lowPowerMode.battery`
 
@@ -6268,7 +6264,7 @@ Example:
 true
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.power.lowPowerMode.charger`
 
@@ -6283,7 +6279,7 @@ Example:
 false
 ```
 
-<small>Declared in [`modules/den/options.nix`](https://github.com/hausfold/haus/blob/main/modules/den/options.nix).</small>
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 
 <Cards>

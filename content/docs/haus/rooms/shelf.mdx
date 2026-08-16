@@ -17,7 +17,7 @@ The app itself is documented in [its own tree](/docs/perch).
 ## Enable it
 
 ```nix
-haus.perch.enable = true;
+haus.shelf.enable = true;
 ```
 
 ```sh
@@ -34,7 +34,7 @@ upgrade.
 There is one setting, and it's about colour:
 
 ```nix
-haus.perch.followSystemAppearance = true;
+haus.shelf.followSystemAppearance = true;
 ```
 
 With it on, the shelf follows macOS Light/Dark itself (no rebuild, no relaunch)
@@ -65,7 +65,7 @@ the drop. [Install](/docs/perch/install) has it too, for a Mac without haus.
 ## Remove it
 
 ```nix
-haus.perch.enable = false;
+haus.shelf.enable = false;
 ```
 
 The room stops installing and updating it. The copy already at
@@ -75,7 +75,7 @@ app from your Applications folder behind your back.
 ## Options
 
 Every setting, with types and defaults:
-[`haus.perch`](/docs/haus/reference/options#shelf).
+[`haus.shelf`](/docs/haus/reference/options#shelf).
 
 <Cards>
   <Card

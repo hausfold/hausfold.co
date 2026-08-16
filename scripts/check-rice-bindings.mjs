@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Keybinding drift tripwire.
 //
-// haus generates its live cheatsheet from modules/prowl/wm-bindings.nix, so a
+// haus generates its live cheatsheet from modules/windows/wm-bindings.nix, so a
 // binding and its caption cannot disagree inside an install. The site's
 // keybinding pages are prose, though. This script snapshots haus's binding
 // surface and fails when it moves past what those pages were checked against.
@@ -51,9 +51,9 @@ const wmBindings = hausData('wm-bindings.json');
 // Launch mode's own keys — the leader actions that exist before any roster
 // letter, plus three chords per numbered workspace.
 //
-// Published data rather than a parse of `modules/prowl/aerospace.toml`, which
+// Published data rather than a parse of `modules/windows/aerospace.toml`, which
 // is what this used to be. That worked while the numbered workspaces were
-// literal `1 = [...]` rows in the template; `haus.prowl.numberedWorkspaces`
+// literal `1 = [...]` rows in the template; `haus.windows.numberedWorkspaces`
 // turned them into a generated block, and a parser looking for a key found a
 // substitution token instead, went on passing, and stopped covering exactly
 // the half of launch mode that had just changed. A tripwire that narrows
@@ -77,7 +77,7 @@ function modeKeys(toml, mode) {
   }
   return keys;
 }
-const toml = readFileSync(join(haus, 'modules/prowl/aerospace.toml'), 'utf8');
+const toml = readFileSync(join(haus, 'modules/windows/aerospace.toml'), 'utf8');
 
 const current =
   JSON.stringify(

@@ -17,7 +17,7 @@ free, and the one macOS permission surviving a rebuild.
 ## Enable it
 
 ```nix
-haus.pounce.enable = true;
+haus.launcher.enable = true;
 haus.keys.palette = "cmd-space";   # or alt-space, ctrl-space, "none"
 ```
 
@@ -31,15 +31,15 @@ step a standalone install has to do by hand.
 
 ## Configure it
 
-`config.json` is **generated** from `haus.pounce.*`, so `pounce config init`
+`config.json` is **generated** from `haus.launcher.*`, so `pounce config init`
 refuses inside haus; the next rebuild would put the generated file straight
 back. Change it in your host file instead, and the rebuild bounces the daemon
 for you when one of the startup-only keys moves.
 
 ```nix
-haus.pounce.windowSwitcher = true;          # ⌘Tab by window; defaults on here
-haus.pounce.autoQuit.enable = false;        # quit an app when its last window closes
-haus.pounce.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
+haus.launcher.windowSwitcher = true;          # ⌘Tab by window; defaults on here
+haus.launcher.autoQuit.enable = false;        # quit an app when its last window closes
+haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 ```
 
 `haus.ui.scale` writes pounce's `scale` for you, and your `haus.theme.flavor` /
@@ -48,7 +48,7 @@ rest of the house without a second theme setting.
 
 <Callout title="Keeping the Accessibility grant">
 ```nix
-haus.pounce.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
+haus.launcher.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
 ```
 
 A plain Nix rebuild is ad-hoc signed, and macOS ties an Accessibility grant to
@@ -75,7 +75,7 @@ Each command appears only when its room is on.
 ## Remove it
 
 ```nix
-haus.pounce.enable = false;
+haus.launcher.enable = false;
 ```
 
 <Callout type="warn" title="⌘Space doesn't go back on its own">
