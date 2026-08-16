@@ -55,6 +55,13 @@ export function baseOptions(): BaseLayoutProps {
     // and this repo is the website. (The per-page "source on GitHub" row in
     // `src/components/page-actions.tsx` is the other one, and it correctly
     // stays on `gitConfig.repo` — that link edits the MDX, which lives here.)
-    githubUrl: `https://github.com/${gitConfig.user}/haus`,
+    // ⚠️ It is one link for all four trees, because `baseOptions()` is called
+    // once from `src/app/docs/layout.tsx` and a layout at that segment never
+    // sees the slug. A pounce or perch reader therefore also lands on the
+    // platform repo. Accepted: the haus tree is most of the docs, and the
+    // app trees each link their own repo from their own pages. If this ever
+    // wants to vary, it varies off `data-tree` the way the accents do — not
+    // from here.
+    githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.platformRepo}`,
   };
 }
