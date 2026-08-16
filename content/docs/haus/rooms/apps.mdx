@@ -159,7 +159,7 @@ Reach for it twice and it has earned a roster entry.
 
 | Field | What it's for |
 |---|---|
-| `key` | The launcher letter, unique across the roster, and not one of launch mode's own: `V` `E` `Z` `,` `` ` `` `-` `=` `/` `1`–`4` `Esc` and the arrows are taken, and a rebuild refuses them. `null` (default) makes the entry install-only. |
+| `key` | The launcher letter, unique across the roster, and not one of launch mode's own: `V` `E` `Z` `,` `` ` `` `-` `=` `/` `Esc`, the arrows and one digit per [numbered workspace](/docs/haus/rooms/windows#the-numbered-ones) (`1`–`4` out of the box) are taken, and a rebuild refuses them. `null` (default) makes the entry install-only. |
 | `name` | The macOS app name, which is what `open -a` uses. Required when `key` is set. |
 | `appId` | The bundle id: auto-assigns windows to a workspace, and matches `float`. |
 | `label` | The cheatsheet caption. `null` uses `name`. |

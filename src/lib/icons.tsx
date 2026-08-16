@@ -4,6 +4,7 @@ import {
   Armchair,
   Bell,
   BellOff,
+  Blocks,
   Bot,
   Boxes,
   Cat,
@@ -106,6 +107,10 @@ const icons = {
   expand: { icon: TextCursorInput },
   shield: { icon: ShieldCheck },
   choose: { icon: ListChecks },
+  // The last row in the Rooms group: how to write one. `hammer` would have
+  // done, but it is already what "Create a desktop" and "Contributing" wear,
+  // and three identical glyphs in one sidebar stop saying anything.
+  blocks: { icon: Blocks },
 
   // The four desktops, one page each under `haus/desktops/`. No hue on any of
   // them, unlike the tree glyphs above: they are page rows inside the haus

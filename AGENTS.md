@@ -233,10 +233,16 @@ different session, so read the two together:
   organised around, and `desktops/hacker.mdx` names the ones hacker turns
   on (Windows, Bar, Launcher, Shelf, Development, Focus, Security, AI,
   Appearance), per `desktops/choosing.mdx`. A `haus.*` namespace is a thing you
-  type, not a thing a page's prose names. ⚠️ Don't put a *count* of the rooms on a page:
-  `content/docs/haus/index.mdx` says twelve and `content/docs/haus/meta.json`
-  lists thirteen entries under `---Rooms---` (`rooms/agent-rebuilds` is the
-  odd one), so any number you write here is wrong somewhere.
+  type, not a thing a page's prose names. ⚠️ **Don't put a *count* of the rooms
+  on a page.** `content/docs/haus/index.mdx` says twelve and lists twelve;
+  `content/docs/haus/meta.json`'s `---Rooms---` group holds **thirteen entries**
+  and always will hold more than the rooms, because the last one is
+  `rooms/creating` — how to write a room, which is not one. That is the group's
+  closing door rather than a mis-file, and it is the second thing to sit there:
+  `rooms/agent-rebuilds` was the odd entry until 2026-08-16, when it moved to
+  `---Start---` as `haus/agent-rebuilds` (two 301s) because it documents a way
+  of working rather than a `haus.*` switch. **Count the twelve in `index.mdx`'s
+  table, never the sidebar group.**
 
 The desktops aren't the only product surface here. `/perch/privacy` predates them: an
 App Store listing needs a policy URL on a domain the seller owns, and hausfold

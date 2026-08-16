@@ -4,16 +4,6 @@
     {
       "items": [
         {
-          "action": "Focus direction",
-          "binds": {
-            "alt-h": "focus left",
-            "alt-j": "focus down",
-            "alt-k": "focus up",
-            "alt-l": "focus right"
-          },
-          "keys": "⌥ hjkl"
-        },
-        {
           "action": "Tiles layout",
           "binds": {
             "alt-slash": "layout tiles horizontal vertical"
@@ -79,24 +69,24 @@
         {
           "action": "Join with",
           "binds": {
-            "alt-shift-h": [
-              "join-with left",
-              "mode main"
-            ],
-            "alt-shift-j": [
+            "alt-shift-down": [
               "join-with down",
               "mode main"
             ],
-            "alt-shift-k": [
-              "join-with up",
+            "alt-shift-left": [
+              "join-with left",
               "mode main"
             ],
-            "alt-shift-l": [
+            "alt-shift-right": [
               "join-with right",
+              "mode main"
+            ],
+            "alt-shift-up": [
+              "join-with up",
               "mode main"
             ]
           },
-          "keys": "⌥ ⇧ hjkl"
+          "keys": "⌥ ⇧ ←↓↑→"
         },
         {
           "action": "Volume up / down",
@@ -143,14 +133,6 @@
   "launchModeKeys": [
     "esc",
     "slash",
-    "1",
-    "2",
-    "3",
-    "4",
-    "shift-1",
-    "shift-2",
-    "shift-3",
-    "shift-4",
     "v",
     "e",
     "z",
@@ -165,7 +147,19 @@
     "shift-left",
     "shift-down",
     "shift-up",
-    "shift-right"
+    "shift-right",
+    "1",
+    "shift-1",
+    "alt-shift-1",
+    "2",
+    "shift-2",
+    "alt-shift-2",
+    "3",
+    "shift-3",
+    "alt-shift-3",
+    "4",
+    "shift-4",
+    "alt-shift-4"
   ],
   "resizeModeKeys": [
     "minus",
