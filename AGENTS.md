@@ -43,11 +43,14 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 > | `nebelhaus.com` | the domain and its 301 map (§5), nothing to do with the desktop |
 > | `github.com/nebelhaus/*` | the dead org, alive forever: shipped pounce and perch poll it for updates |
 >
-> 🚨 **One trap:** `hacker`'s row in `worker.js`'s `DESKTOPS` pins **`nebelhaus`**,
-> on purpose. The Worker serves `bootstrap.sh` from the latest *release tag*, and
-> the released bootstrap only answers to the old name — so pinning `hacker`
-> before a haus release carries the rename gives a URL that resolves and then
-> dies inside the script. Flip the pin and its test together, after that release.
+> 🚨 **One trap, now pointing the other way.** `hacker`'s row in `worker.js`'s
+> `DESKTOPS` pinned **`nebelhaus`** until 2026-08-16, because the Worker serves
+> `bootstrap.sh` from the latest *release tag* and the released script only
+> answered to the old name. **haus v2026.08.16 carries the rename**, so the pin
+> and its test were flipped together — `hacker` pins `hacker`. What did **not**
+> flip, and must not be "finished": **`/nebelhaus.sh` still pins `nebelhaus`**.
+> `?ref=<pre-rename tag>` serves a script that rejects `hacker`, and the old URL
+> is the one carrying old refs out of shell histories. A test pins each side.
 
 > ⚠️ **This section used to say the opposite, in a way that will actively fight
 > you.** It read *hausfold is the commercial umbrella … deliberately not a
