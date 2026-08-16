@@ -49,6 +49,12 @@ export function baseOptions(): BaseLayoutProps {
     links: [
       { text: 'desktops', url: '/#desktops', external: true, icon: <Icon name="desktops" /> },
     ],
-    githubUrl: `https://github.com/${gitConfig.user}`,
+    // The sidebar's GitHub row points at the **platform repo**, not the org
+    // and not this one. A reader in the docs who reaches for the mark wants
+    // the code the pages describe; the org landing page is a list of repos
+    // and this repo is the website. (The per-page "source on GitHub" row in
+    // `src/components/page-actions.tsx` is the other one, and it correctly
+    // stays on `gitConfig.repo` — that link edits the MDX, which lives here.)
+    githubUrl: `https://github.com/${gitConfig.user}/haus`,
   };
 }
