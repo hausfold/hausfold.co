@@ -108,13 +108,45 @@ jobs:
       # `diff -rq` and not a hash of the tree: when this fails, the useful
       # output is WHICH files moved, because that names the thing that started
       # embedding a clock.
+      #
+      # ...and, since 2026-08-16, WHERE each one moved. A failure used to print
+      # one line naming a file and nothing else, which for a 2 MB rendered page
+      # is not enough to tell a clock from a re-ordered map from a stream that
+      # flushed in a different place. The loop below prints the first differing
+      # byte and the bytes either side of it, per file, which is the difference
+      # between "something changed" and a diagnosis. It runs only on failure,
+      # so it costs nothing on a green run.
       - name: The two builds must be byte-identical
         run: |
-          if ! diff -rq "$RUNNER_TEMP/out-first" out; then
-            echo "::error::The export is no longer reproducible. Something in the build now embeds a clock, a random id, or an absolute path — see the differing files above. generateBuildId in next.config.mjs is the usual suspect."
-            exit 1
+          if diff -rq "$RUNNER_TEMP/out-first" out > "$RUNNER_TEMP/differs.txt"; then
+            echo "Two builds, identical output."
+            exit 0
           fi
-          echo "Two builds, identical output."
+          cat "$RUNNER_TEMP/differs.txt"
+          while read -r line; do
+            case "$line" in
+              Files\ *\ and\ *\ differ)
+                a=${line#Files }; a=${a%% and *}
+                b=${line#* and }; b=${b% differ}
+                echo "::group::$b"
+                echo "sizes: $(wc -c < "$a") vs $(wc -c < "$b")"
+                off=$(cmp "$a" "$b" 2>/dev/null | sed -nE 's/.*byte ([0-9]+).*/\1/p')
+                if [ -n "$off" ]; then
+                  from=$(( off > 160 ? off - 160 : 0 ))
+                  echo "first difference at byte $off; 320 bytes from $from:"
+                  echo "--- first build"
+                  dd if="$a" bs=1 skip="$from" count=320 status=none | cat -v
+                  echo
+                  echo "--- second build"
+                  dd if="$b" bs=1 skip="$from" count=320 status=none | cat -v
+                  echo
+                fi
+                echo "::endgroup::"
+                ;;
+            esac
+          done < "$RUNNER_TEMP/differs.txt"
+          echo "::error::The export is no longer reproducible. Something in the build now embeds a clock, a random id, or an absolute path — see the per-file byte context above. generateBuildId in next.config.mjs is the usual suspect."
+          exit 1
 
       # A search index that exists but answers nothing is the classic silent
       # failure here — the page loads, the dialog opens, every query returns
