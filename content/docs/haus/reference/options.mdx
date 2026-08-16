@@ -2925,11 +2925,11 @@ The menu bar, and which pills it draws.
 
 #### `haus.bar.aiUsage.provider`
 
-`one of "latest", "claude", "codex", "opencode"` · default `"latest"`
+`one of "latest", "claude", "codex", "opencode", "jcode"` · default `"latest"`
 
 Which AI provider to display in the main pill: `latest` (default, automatically
 shows whichever provider reported most recently), or one of
-`claude`, `codex`, `opencode`.
+`claude`, `codex`, `opencode`, `jcode`.
 Clicking the pill always displays the full dropdown with all reporting providers.
 
 Note this is about *usage readouts*, not about which client `holt` can
@@ -3053,7 +3053,7 @@ A paw pill tracking your agent-worktree panes. The label always names the state 
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
+A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. jcode is the easy one: it answers `jcode usage --json` with the same 5-hour/7-day percentages for whichever account its own `default_provider` names, so its row is one CLI call — and on a machine signed into the same Anthropic account twice, its row and Claude's move together, because they are two clients spending one budget. Claude's row is pushed by its statusline; the Codex, Opencode and jcode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3702,7 +3702,7 @@ A paw pill tracking your agent-worktree panes. The label always names the state 
 
 `boolean` · default `false`
 
-A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
+A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. jcode is the easy one: it answers `jcode usage --json` with the same 5-hour/7-day percentages for whichever account its own `default_provider` names, so its row is one CLI call — and on a machine signed into the same Anthropic account twice, its row and Claude's move together, because they are two clients spending one budget. Claude's row is pushed by its statusline; the Codex, Opencode and jcode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4860,15 +4860,26 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 #### `haus.ai.clients`
 
-`list of (one of "claude", "codex", "opencode")` · default `[ ]`
+`list of (one of "claude", "codex", "opencode", "jcode")` · default `[ ]`
 
 Which coding-agent clients to install. `claude` is Claude Code, `codex`
-is OpenAI Codex, `opencode` is OpenCode. The ⌘A terminal binding starts
+is OpenAI Codex, `opencode` is OpenCode, `jcode` is
+[jcode](https://jcode.sh). The ⌘A terminal binding starts
 whichever one `ai.default` names — Claude Code through its own
 `--worktree` hook, the others through `holt new`.
 
 A list rather than one bool per client, matching `developer.languages`
-— a fourth client later doesn't change this option's shape.
+— the fourth client, when it came, didn't change this option's shape.
+
+`jcode` is the one that does NOT come from nixpkgs: there is no
+derivation for it, so this room installs it from its own Homebrew tap as
+a roster entry (`1jehuang/jcode/jcode`) instead — the same way bar
+installs SketchyBar. From here that is invisible (it is on PATH in a
+pane either way), and core enables the Homebrew framework on every
+machine, so nothing else has to be switched on for it. What it does
+change is WHO updates it: `haus update` moves a nixpkgs client, `brew
+upgrade` moves this one — and jcode's own in-app updater will too unless
+you set `features.check_updates = false` in `~/.jcode/config.toml`.
 
 This is the option that makes `ai.default` honest. Naming a client
 you have not installed used to fail *at spawn time*, inside the pane,
@@ -4877,10 +4888,12 @@ after the worktree already existed: a flash of
 be a member of this list, so the same mistake fails the rebuild
 instead, with both values named.
 
-Override the package for a client the usual Nix way — an overlay on
-`claude-code`, `codex` or `opencode` — rather than dropping the client
+Override the package for a nixpkgs client the usual Nix way — an overlay
+on `claude-code`, `codex` or `opencode` — rather than dropping the client
 here and installing your own copy alongside; two derivations shipping
-the same `bin/` name collide in one profile.
+the same `bin/` name collide in one profile. For `jcode` the same job is
+a roster override: set `haus.roster.jcode.brew` (or `.package`, if you
+package it yourself) and this room's `mkDefault` steps aside.
 
 Ignored entirely when `ai.enable` is off — see `haus._ai.clients`, the
 resolved list every room actually installs from. Before step 4 this was
@@ -4904,7 +4917,7 @@ Example:
 
 #### `haus.ai.default`
 
-`one of "claude", "codex", "opencode"` · default `"claude"`
+`one of "claude", "codex", "opencode", "jcode"` · default `"claude"`
 
 The coding agent started by Pounce's **Spawn Agent** command, by the
 ⌘A / Super-a zellij binds and the `c` shell alias, and used to reopen
@@ -4915,15 +4928,23 @@ existing Codex or OpenCode task in Claude.
 Must be one of `ai.clients` — see there.
 
 Only `claude` can make its own worktree (its native `--worktree` flag,
-which fires `holt hook create`); for `codex` and `opencode` ⌘A runs
+which fires `holt hook create`); for the others ⌘A runs
 `holt new` instead, producing the same checkout, branch and registry
 entry from the outside. Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
-session for that cwd. All three share one `holt` branch/parking/reap
-lifecycle, and all three light up the `agents` bar pill and the zellij
-tab-bar badge — the opencode plugin and the codex hooks are written for
+session for that cwd, `jcode` opens its own session picker. They share one
+`holt` branch/parking/reap
+lifecycle, and they all light up the `agents` bar pill and the zellij
+tab-bar badge — the opencode plugin, the codex hooks and jcode's
+`JCODE_HOOK_*` environment are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
 settings.json (see `haus.bar.items.agents`).
+
+One caveat, and it is `jcode`'s alone: it has no way to be launched with
+a first message — no positional prompt, no `--prompt`, no stdin — so the
+task typed into Pounce's **Spawn Agent** box cannot be handed to it. That
+command says so and opens the lane empty rather than dropping the text
+silently. ⌘A, which never carries a prompt, is unaffected.
 
 Example:
 
@@ -4968,11 +4989,16 @@ Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
 in `ai.clients`, to the path that client actually reads:
 `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md`.
+`~/.config/opencode/AGENTS.md`, `~/.jcode/prompt-overlay.md`.
+
+That last one is jcode's system-prompt APPENDIX rather than an
+instructions file, which is the closest thing it has to the slot and
+the only one that is jcode's alone: the `~/AGENTS.md` it also reads is
+a shared convention other clients read too, so haus leaves it to you.
 
 Write it client-neutrally: the same text reaches whichever agent the ⌘A
 pane spawns, so a line about a Claude-only skill or file path is noise
-to the other two. When set, haus prepends two short sections of its
+to the others. When set, haus prepends two short sections of its
 own — a note that the file is generated and where to actually edit it
 (with THAT client's path), and the `holt` worktree etiquette, since
 haus ships `holt` and that rule is what keeps it working — then your
@@ -4987,7 +5013,9 @@ after setting this.
 
 With `ai.clients` empty (a machine haus installs no client on)
 every known client's path is written instead of none: the list being
-empty means haus installs none, not that no agent runs here.
+empty means haus installs none, not that no agent runs here. jcode is
+the one exception — creating `~/.jcode/` there would cancel its
+first-run skill import for a client haus never installed.
 
 Example:
 
@@ -5011,10 +5039,14 @@ host file and runs `haus rebuild` instead of guessing at dotfiles and
 
 One copy per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,
-`~/.config/opencode/skills/haus`. OpenCode also scans `~/.claude/skills`
+`~/.config/opencode/skills/haus`, `~/.jcode/skills/haus`. OpenCode also
+scans `~/.claude/skills`
 for Claude Code compatibility, and prefers its own copy when both
 exist — so a machine running both clients sees the skill once, not
-twice.
+twice. jcode scans the same shared directories, and its own copy is
+also what stops it copying `~/.claude/skills` into `~/.jcode/skills` on
+first run — a copy that would freeze this skill at the revision it was
+taken on, where `haus update` could never move it again.
 
 The skill's option reference is GENERATED from the haus revision this
 machine is pinned to, so it can only ever describe options that
