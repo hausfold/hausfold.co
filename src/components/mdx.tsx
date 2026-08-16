@@ -10,8 +10,10 @@ import { cn } from '@/lib/cn';
 // One class, so the stylesheet has something to hold onto: fumadocs' Card
 // renders a `div.rounded-xl.border` with no hook of its own, and styling
 // "every bordered box in the prose" is how a rule meant for a doorway ends
-// up on a callout. See `.hf-card` in `app/global.css`.
-function Card({ className, ...props }: ComponentProps<typeof FumaCard>) {
+// up on a callout. See `.hf-card` in `app/global.css`. Exported because the
+// docs page's footer draws the same doorways for frontmatter `related:`
+// entries — one card, one look, wherever it renders.
+export function Card({ className, ...props }: ComponentProps<typeof FumaCard>) {
   return <FumaCard className={cn('hf-card', className)} {...props} />;
 }
 

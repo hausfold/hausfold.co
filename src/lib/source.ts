@@ -22,6 +22,24 @@ const docs = defineDocs({
     // already colours. See "the borrowed accent" in `src/app/global.css`.
     schema: pageSchema.extend({
       accent: z.enum(accents).optional(),
+      // The page's way-onward cards, moved out of the MDX body on 2026-08-16
+      // (the user's call) so they can render BELOW the prev/next pair, which
+      // the layout draws after the body. They are navigation rather than
+      // prose — every entry duplicates its target page's own title and
+      // description — so leaving the search index and llms-full.txt costs
+      // nothing a reader could have found only here. Rendered by the footer
+      // slot in `src/app/docs/[[...slug]]/page.tsx`; `icon` names a row in
+      // `src/lib/icons.tsx`, exactly as frontmatter's own `icon` does.
+      related: z
+        .array(
+          z.object({
+            title: z.string(),
+            description: z.string(),
+            href: z.string(),
+            icon: z.string().optional(),
+          }),
+        )
+        .optional(),
     }),
     mdxOptions: applyMdxPreset({
       rehypeCodeOptions: {

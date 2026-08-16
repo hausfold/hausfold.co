@@ -2,6 +2,15 @@
 title: Contributing
 description: The workshop checkout, the bench CLI, and the loop that takes a change from an edit to a release. Try it without pushing, feel the whole PR queue at once, then ripple it down the chain.
 icon: hammer
+related:
+  - title: "How the flakes fit together"
+    description: "The pin chain bench ship walks for you, and why a pushed commit changes nothing downstream until a lock moves."
+    href: "/docs/haus/internals/flakes"
+    icon: "flake"
+  - title: "AI"
+    description: "holt in full: a worktree per agent, parking work instead of losing it, and resuming a parked session."
+    href: "/docs/haus/rooms/ai"
+    icon: "agent"
 ---
 
 haus is one repo in a family of them, and a change usually has to travel between
@@ -196,18 +205,3 @@ haus, nebelung and pounce are MIT. **holt** is Apache-2.0, and **perch** is *fai
 source*: [FSL-1.1-ALv2](https://fsl.software), which turns into Apache-2.0 two
 years after each release ships. Read it, build it, change it for yourself, but
 don't sell it as a competing product.
-
-<Cards>
-  <Card
-    icon={<Icon name="flake" />}
-    title="How the flakes fit together"
-    href="/docs/haus/internals/flakes"
-    description="The pin chain bench ship walks for you, and why a pushed commit changes nothing downstream until a lock moves."
-  />
-  <Card
-    icon={<Icon name="agent" />}
-    title="AI"
-    href="/docs/haus/rooms/ai"
-    description="holt in full: a worktree per agent, parking work instead of losing it, and resuming a parked session."
-  />
-</Cards>

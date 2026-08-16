@@ -1,18 +1,15 @@
 import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
-  Armchair,
   Bell,
   BellOff,
   Blocks,
   Bot,
   Boxes,
-  Cat,
   Command,
   Compass,
   DoorOpen,
   Download,
-  Feather,
   Fingerprint,
   Footprints,
   Hammer,
@@ -31,7 +28,6 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Snowflake,
-  SquareDashed,
   SquareTerminal,
   Terminal,
   TextCursorInput,
@@ -114,25 +110,36 @@ const icons = {
   // and three identical glyphs in one sidebar stop saying anything.
   blocks: { icon: Blocks },
 
-  // The four desktops, one page each under `haus/desktops/`. No hue on any of
-  // them, unlike the tree glyphs above: they are page rows inside the haus
-  // tree and take its mauve like every other row, and a desktop owns no
-  // accent anywhere on this site in the first place (AGENTS.md's closed
-  // vocabulary — hacker is a named thing with an upstream hue, `everyday`
-  // and `minimal` are selections of the same options). `hacker` was called
-  // `desktop` and carried the desktop's hue while it pointed OUT of the docs at
-  // /desktops/nebelhaus; that page was deleted on 2026-08-14 and the link
-  // turned inward, which is exactly the condition for dropping a hue.
-  hacker: { icon: Cat },
-  everyday: { icon: Armchair },
-  minimal: { icon: Feather },
-  blank: { icon: SquareDashed },
+  // The four desktops, one page each under `haus/desktops/`. All four are the
+  // SAME glyph, on purpose (2026-08-16, the user's call): they sit in one
+  // contiguous run inside the ---Desktops--- group, between pages that are
+  // *about* desktops (choosing, customizing, creating, sharing), and four
+  // identical marks in a row is what makes "these are the items, the rest is
+  // the manual" legible at a glance. The rule that three identical glyphs
+  // "stop saying anything" (see `blocks` above) is about strangers sharing a
+  // glyph by accident; a band of siblings sharing one is that rule's other
+  // half. The price is hacker's cat, which was a good glyph for a page and a
+  // wrong one for a set.
+  //
+  // No hue on any of them: they are page rows inside the haus tree and take
+  // its mauve like every other row, and a desktop owns no accent anywhere on
+  // this site in the first place (AGENTS.md's closed vocabulary). `hacker`
+  // was called `desktop` and carried the desktop's hue while it pointed OUT
+  // of the docs at /desktops/nebelhaus; that page was deleted on 2026-08-14
+  // and the link turned inward, which is exactly the condition for dropping
+  // a hue.
+  hacker: { icon: Monitor },
+  everyday: { icon: Monitor },
+  minimal: { icon: Monitor },
+  blank: { icon: Monitor },
 
   // "Desktops, as a kind of thing" — the glyph a card uses when it points at
   // the group rather than at one of them (`rooms/creating`'s way onward to
   // `desktops/creating`). ⚠️ It was the sidebar's last way-out row until
   // 2026-08-16; that row is gone and this entry is NOT, because content names
-  // it. No hue: a desktop owns no accent anywhere on this site.
+  // it. The same Monitor the four members wear, which is now the point rather
+  // than a coincidence. No hue: a desktop owns no accent anywhere on this
+  // site.
   desktops: { icon: Monitor },
 } satisfies Record<string, IconSpec>;
 

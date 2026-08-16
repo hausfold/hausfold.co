@@ -7,11 +7,13 @@ import {
   MarkdownCopyButton,
 } from 'fumadocs-ui/layouts/docs/page';
 import { notFound } from 'next/navigation';
-import { getMDXComponents } from '@/components/mdx';
+import { Card, getMDXComponents } from '@/components/mdx';
+import { Cards } from 'fumadocs-ui/components/card';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { ViewOptions } from '@/components/page-actions';
 import { gitConfig, siteUrl } from '@/lib/shared';
+import { resolveIcon } from '@/lib/icons';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
@@ -61,7 +63,32 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       // class so it can be styled as two doorways rather than two grey
       // boxes. It is the strongest "keep reading" affordance the layout
       // has, and it costs nothing to make it look like one.
-      footer={{ className: 'hf-next' }}
+      //
+      // The footer slot renders its children AFTER the prev/next grid,
+      // which is what puts a page's way-onward cards (frontmatter
+      // `related:`, see src/lib/source.ts) below the pair rather than
+      // above it — the one position the MDX body cannot reach, since
+      // everything in it renders before the footer. The label keeps the
+      // words the in-body headings used, so the move reads as a move.
+      footer={{
+        className: 'hf-next',
+        children: page.data.related && page.data.related.length > 0 && (
+          <section className="hf-related" aria-label="Where to go next">
+            <p className="hf-group hf-related-label">Where to go next</p>
+            <Cards>
+              {page.data.related.map((item) => (
+                <Card
+                  key={item.href}
+                  icon={resolveIcon(item.icon)}
+                  title={item.title}
+                  href={item.href}
+                  description={item.description}
+                />
+              ))}
+            </Cards>
+          </section>
+        ),
+      }}
     >
       {/* The page's meta row — everything *about* this page, on one line
           above the title, and nothing between the description and the

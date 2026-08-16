@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wrangler",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "npm run build && npx wrangler dev"],
+      "port": 8787
+    }
+  ]
+}

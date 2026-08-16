@@ -783,6 +783,24 @@ body {
   max-width: 62ch;
 }
 
+/* A sidenote with weight: full ink where a .block paragraph sits at --ink-2,
+   and a heavier left rule so the eye stops on it. Added 2026-08-16 for the
+   haus section's agent line, and greyscale at rest like everything else on
+   the landing half — the emphasis is structure, not colour. (`.block .note`
+   rather than `.note`: `.block p` outranks a bare class, and this rule
+   exists to beat exactly that one.) */
+.block .note {
+  font-size: 0.92rem;
+  color: var(--ink);
+  /* A step more than the block's 1.05rem gap: the rule makes the note read
+     as its own object, and an object flush against the paragraph above it
+     read as glued to it (the user's read, 2026-08-16). */
+  margin: 0.5rem 0 0;
+  max-width: 58ch;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--ink-2);
+}
+
 .aside code,
 .block p code,
 .facts code {

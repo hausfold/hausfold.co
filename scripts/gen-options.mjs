@@ -201,6 +201,15 @@ description: Every option you can set in your host file — types, defaults, and
 icon: options
 tableOfContents:
   maxHeadingLevel: 2
+related:
+  - title: "Customize a desktop"
+    description: "The practical guide to choosing settings, switching rooms off, and overriding a desktop from your host file."
+    href: "/docs/haus/desktops/customizing"
+    icon: "dials"
+  - title: "The haus CLI"
+    description: "Apply, inspect, change, and undo those options from the command line."
+    href: "/docs/haus/reference/haus"
+    icon: "wrench"
 ---
 
 {/* GENERATED FILE — do not edit by hand.
@@ -227,21 +236,6 @@ Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
 ${body}
-
-<Cards>
-  <Card
-    icon={<Icon name="dials" />}
-    title="Customize a desktop"
-    href="/docs/haus/desktops/customizing"
-    description="The practical guide to choosing settings, switching rooms off, and overriding a desktop from your host file."
-  />
-  <Card
-    icon={<Icon name="wrench" />}
-    title="The haus CLI"
-    href="/docs/haus/reference/haus"
-    description="Apply, inspect, change, and undo those options from the command line."
-  />
-</Cards>
 `;
 
 const current = existsSync(PAGE) ? readFileSync(PAGE, 'utf8') : '';

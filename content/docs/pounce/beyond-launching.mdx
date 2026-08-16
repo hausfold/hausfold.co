@@ -2,6 +2,15 @@
 title: Beyond launching
 description: "Two opt-in behaviours that aren't a palette: an MRU window switcher, and asking an app to quit when its last window closes."
 icon: tiling
+related:
+  - title: "Config reference"
+    description: "Every key in config.json, what it defaults to, and which three blocks need a restart."
+    href: "/docs/pounce/config"
+    icon: "dials"
+  - title: "Windows, in haus"
+    description: "Where the AeroSpace pairing comes from, and the rest of the tiling vocabulary it slots into."
+    href: "/docs/haus/rooms/windows"
+    icon: "tiling"
 ---
 
 Both of these are **off by default**, and both need the [Accessibility
@@ -81,18 +90,3 @@ keep open for notifications. That's what `exclude` is for.
 
 The whole `autoQuit` block is startup-only too, so **any** edit inside it needs
 the daemon restart above, not just flipping `enabled`.
-
-<Cards>
-  <Card
-    icon={<Icon name="dials" />}
-    title="Config reference"
-    href="/docs/pounce/config"
-    description="Every key in config.json, what it defaults to, and which three blocks need a restart."
-  />
-  <Card
-    icon={<Icon name="tiling" />}
-    title="Windows, in haus"
-    href="/docs/haus/rooms/windows"
-    description="Where the AeroSpace pairing comes from, and the rest of the tiling vocabulary it slots into."
-  />
-</Cards>

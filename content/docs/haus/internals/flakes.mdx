@@ -2,6 +2,15 @@
 title: How the flakes fit together
 description: Nothing on your Mac changes until you say so. This is the machinery behind that, from the config the installer scaffolds to the exact commit every input is pinned at.
 icon: flake
+related:
+  - title: "Keeping it current"
+    description: "The everyday consequence of all this: update, rebuild, roll back, and rebuild the whole machine on new hardware."
+    href: "/docs/haus/keeping-it-current"
+    icon: "sync"
+  - title: "Contributing"
+    description: "The workshop, the bench CLI, and how a change is moved down that chain rather than by hand."
+    href: "/docs/haus/internals/contributing"
+    icon: "hammer"
 ---
 
 Nothing about your machine changes until you ask for it, and no two machines
@@ -108,18 +117,3 @@ is mounted. haus wraps those three in a shim that waits for the Dock, Finder and
 SystemUIServer first, then gives up after a minute and launches anyway. That is
 why your bar and your tiling come back after a reboot rather than racing the
 login.
-
-<Cards>
-  <Card
-    icon={<Icon name="sync" />}
-    title="Keeping it current"
-    href="/docs/haus/keeping-it-current"
-    description="The everyday consequence of all this: update, rebuild, roll back, and rebuild the whole machine on new hardware."
-  />
-  <Card
-    icon={<Icon name="hammer" />}
-    title="Contributing"
-    href="/docs/haus/internals/contributing"
-    description="The workshop, the bench CLI, and how a change is moved down that chain rather than by hand."
-  />
-</Cards>
