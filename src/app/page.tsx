@@ -308,13 +308,14 @@ export default async function Home() {
               (agent-rebuilds' lede says "the rare machine"), and the
               stronger word is a positioning claim nothing backs. The link
               is the door to the page that explains the how. */}
+          {/* A plain prose link, not an .index-name: the mono face is for a
+              product's NAME in an index row, and five mono words mid-serif
+              sentence read as a different voice butting in (the user's read,
+              2026-08-16). */}
           <p className="note">
             The whole machine in one file, every rebuild reversible: a haus Mac is the rare Mac an
             agent can reconfigure{' '}
-            <Link className="index-name" href="/docs/haus/agent-rebuilds">
-              quickly, confidently, and safely
-            </Link>
-            .
+            <Link href="/docs/haus/agent-rebuilds">quickly, confidently, and safely</Link>.
           </p>
         </section>
 

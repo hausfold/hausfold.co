@@ -792,7 +792,10 @@ body {
 .block .note {
   font-size: 0.92rem;
   color: var(--ink);
-  margin: 0;
+  /* A step more than the block's 1.05rem gap: the rule makes the note read
+     as its own object, and an object flush against the paragraph above it
+     read as glued to it (the user's read, 2026-08-16). */
+  margin: 0.5rem 0 0;
   max-width: 58ch;
   padding-left: 0.9rem;
   border-left: 2px solid var(--ink-2);
