@@ -38,10 +38,12 @@ export function GithubMark() {
 const PRE_RELEASE_NOTE =
   "Every path that could lose your work is either reversible by design, or stops to ask you first. That's the intent, not a warranty.";
 
-/** The foot of every sheet. `hi@hausfold.co` first, then the issue line and
- *  the pre-release mark — AGENTS.md is explicit that the address is `hi@`,
+/** The foot of every sheet. `hi@hausfold.co` first, then the pre-release mark
+ *  at the right-hand end — AGENTS.md is explicit that the address is `hi@`,
  *  deliberately, and that it is not to be "upgraded" to `support@`. Whatever a
- *  page puts between them is its own.
+ *  page puts between them is its own. (An "Issue YYYY.MM" line sat beside the
+ *  mark until 2026-08-16, when the user cut it — the broadsheet conceit ends
+ *  at the masthead now, and the stage mark pushes itself right.)
  *
  *  `note` overrides the pre-release sentence for a page that can make a more
  *  specific promise; `/perch` is the only one that does, because perch#57 let
@@ -62,7 +64,6 @@ export function Colophon({
     <footer className="colophon">
       <a href="mailto:hi@hausfold.co">hi@hausfold.co</a>
       {children}
-      <span className="issue">Issue 2026.08</span>
       <span
         className="stage"
         tabIndex={0}
