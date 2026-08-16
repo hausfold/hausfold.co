@@ -21,7 +21,7 @@ The table below is only what's wired in *this* repo.
 |---|---|---|
 | `AGENTS.md` | Codex, OpenCode, Cursor, Zed, Amp, Copilot-in-editor, and anything else that speaks [agents.md](https://agents.md) | **The source of truth.** Every project rule — including what may and may not be said on a public page. |
 | `CLAUDE.md` | Claude Code (CLI, desktop, web) | `@AGENTS.md` import + a table of Claude-only wiring. Claude Code reads only `CLAUDE.md`, so the import is how it gets the real file. |
-| `GEMINI.md` | Gemini CLI | Symlink → `AGENTS.md`. |
+| `GEMINI.md` | Gemini CLI | Symlink → `AGENTS.md`. ⚠️ **It was a hand-mirrored copy from #4 until 2026-08-16**, while this row claimed otherwise, so Gemini was reading a rulebook three commits stale: it was missing the em-dash ban outright. Restored to an actual symlink. If a harness genuinely can't follow one, it gets the Copilot treatment below (a short pointer, not a mirror) — a full copy of this file drifts and nothing checks. |
 | `opencode.json` | OpenCode | Names `AGENTS.md` explicitly. Belt and braces — OpenCode finds it anyway. |
 | `.github/copilot-instructions.md` | GitHub Copilot coding agent + code review | A **real file**, not a symlink: Copilot reads through the GitHub API, where a symlink is just a path string. Short pointer + the invariants a drive-by reviewer needs. |
 | `.agents/setup.sh` | all of them, via the hooks below | Installs Determinate Nix in a bare cloud container, persists `PATH` + `NIX_SSL_CERT_FILE`. No-ops on macOS and where Nix already exists. |

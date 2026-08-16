@@ -5,8 +5,11 @@ import styles from './privacy.module.css';
 // perch's privacy policy, ported from `public/perch/privacy/index.html`.
 //
 // 🚨 **Linked from the App Store — don't move or rename this URL.** An App
-// Store listing needs a policy URL on a domain the seller owns, and hausfold
-// is the seller; this one is a legal obligation rather than a shop window.
+// Store listing needs a policy URL on a domain the publisher owns, and
+// hausfold is the publisher; this one is a legal obligation rather than a shop
+// window, which is why it outlived `/terms` and `/refunds` when those were
+// retired on 2026-08-16. A free app owes a privacy policy exactly as much as a
+// paid one.
 // The trailing slash is what `/perch/privacy` 307s to, so it is the form
 // crawlers and the listing should settle on — `trailingSlash: true` in
 // `next.config.mjs` keeps that true of the exported route.
@@ -54,8 +57,8 @@ export default function Privacy() {
             server we run, because we don&apos;t run one.
           </li>
           <li>
-            Licensing is checked entirely on your Mac: no network call, no file leaves the
-            app&apos;s own container to verify it.
+            No licence check of any kind. Perch is free and MIT, so there is nothing to verify and
+            no key to carry your name.
           </li>
         </ul>
       </section>

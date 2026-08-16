@@ -336,12 +336,21 @@ export default async function Home() {
             the register accounts for it — the page it lands on opens by
             saying there is nothing to install, so the link makes no claim
             the row doesn't. */}
-        <section className="block">
+        {/* 🚨 `#apps` is load-bearing, like `#desktops` above it: the four
+            /terms and /refunds 301s land on it, because this paragraph is
+            where "nothing to buy" is said. Renaming the id turns those into
+            a scroll to the masthead. */}
+        <section className="block" id="apps">
           <h2>Also from hausfold</h2>
+          {/* The free-and-open-source clause landed 2026-08-16, with the
+              retirement of `/terms` and `/refunds`: nothing hausfold publishes
+              is for sale, and both of those URLs now 301 here, so this
+              paragraph is what a reader who typed `/refunds` gets as an
+              answer. It is the site's only statement of the fact. */}
           <p>
             The apps are small, native, and keep their settings in a plain file you can read and
-            hand to an agent. No account, no subscription, nothing you can&apos;t take with
-            you.
+            hand to an agent. Every one of them is free and open source: no account, no
+            subscription, nothing to buy, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
             <li data-accent="pounce">

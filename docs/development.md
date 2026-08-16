@@ -22,9 +22,11 @@ rather than answer 200.
 ```
 src/app/                          the routes
   page.tsx                        landing page — nav, masthead, #desktops (a sentence + one link), apps, haus
-  perch/,                         one page each; perch/privacy/ is linked from the App Store
-  terms/, refunds/                — don't move or rename that URL. (desktops/ used to be here;
-                                  every desktop is a docs page now, with 301s in _redirects)
+  perch/                          the product page; perch/privacy/ is linked from the App
+                                  Store, so don't move or rename that URL. (desktops/,
+                                  terms/ and refunds/ used to be here; every desktop is a
+                                  docs page now and the seller's pages are gone, with
+                                  301s in _redirects for all of them)
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
   docs/                           the Fumadocs shell

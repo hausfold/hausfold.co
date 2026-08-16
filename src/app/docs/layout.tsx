@@ -8,7 +8,7 @@ import { Folder, Separator } from '@/components/sidebar-parts';
 // the whole of what keeps the landing pages quiet. It carries fumadocs' search
 // context — including the ⌘K binding and the fetch of the ~457 KB Orama index —
 // plus `next-themes`, and `DocsLayout` requires all of it. At the root it
-// reached `/`, `/terms` and the rest for nothing; here it reaches exactly the
+// reached `/`, `/perch` and the rest for nothing; here it reaches exactly the
 // pages that spend it.
 //
 // Consequence worth knowing: the light/dark toggle is a `/docs` affordance

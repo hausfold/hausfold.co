@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Command } from '@/components/command';
-import { Colophon, Crumbs } from '@/components/sheet';
+import { Colophon, Crumbs, GithubMark } from '@/components/sheet';
 import { pageMetadata } from '@/lib/page-meta';
 
 // perch's product page, ported from `public/perch/index.html`.
@@ -12,7 +12,11 @@ import { pageMetadata } from '@/lib/page-meta';
 // 🚨 Since 2026-08-14 perch also has a docs tree, `content/docs/perch/`, and
 // this page did NOT get retired into it the way /pounce did. The split is by
 // shape, not by subject: this is a **sales sheet** — a policy URL, a download,
-// and later a price — and a manual is the wrong container for any of those.
+// and a one-read pitch — and a manual is the wrong container for any of those.
+// 🚨 It used to say "and later a price". perch went back to MIT with no paid
+// tier on 2026-08-15 (hausfold/perch#67), so there is no price coming and half
+// the reason this page wasn't retired went with it. Whether it stays is the
+// user's call; see AGENTS.md's seller's-surface section.
 // The cost is the duplicate-fact risk the warning above describes, one repo
 // closer to home: the behaviour list below and `/docs/perch/using` say the
 // same things, so a fact fixed here is fixed there in the same commit or in
@@ -172,13 +176,12 @@ export default function Perch() {
       <section className="block">
         <h2>Questions</h2>
         <dl className="facts">
-          <dt>fair source</dt>
+          <dt>the licence</dt>
           <dd>
-            every line of perch is public and readable on GitHub, and each release becomes
-            Apache-2.0 two years after it ships. Until then you may read it, change it and build it
-            for yourself. What you may not do is turn it into a competing product or hand out your
-            own builds of it. That&apos;s <a href="https://fsl.software">fair source</a>, and
-            it&apos;s the honest version of “mostly open”
+            <a href="https://github.com/hausfold/perch/blob/main/LICENSE">MIT</a>. Every line of
+            perch is public and readable on GitHub, and you may read it, change it, build it and
+            ship it. There is no paid tier and no feature held back: the app on this page is the
+            whole app
           </dd>
 
           <dt>my files</dt>
@@ -227,9 +230,12 @@ export default function Perch() {
           retention off by default and made Clear ask first, so this page can
           say what the shelf does instead of the general promise every other
           colophon makes. */}
+      {/* It held `terms` and `refunds` until 2026-08-16, which was the whole
+          reason this page's colophon differed from every other one. Both pages
+          were retired that day (nothing hausfold publishes is for sale, ever),
+          so this takes the house mark like `/` and the 404 do. */}
       <Colophon note="Your originals are never moved, renamed or touched, and nothing leaves the shelf on its own: clearing it asks first, and the expiry timer is off unless you turn it on. That's the intent, not a warranty.">
-        <Link href="/terms">terms</Link>
-        <Link href="/refunds">refunds</Link>
+        <GithubMark />
       </Colophon>
     </main>
   );

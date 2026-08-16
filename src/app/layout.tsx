@@ -62,7 +62,7 @@ export const viewport: Viewport = {
 // `src/app/docs/layout.tsx`. It sat at the root for the two days when `/docs`
 // was the only thing under this layout, and when the landing pages arrived on
 // 2026-08-14 that quietly gave every one of them fumadocs' search context and
-// its ⌘K binding: pressing it on `/terms` opened the docs search and fetched
+// its ⌘K binding: pressing it on `/perch` opened the docs search and fetched
 // the ~457 KB index. Moving it down is what makes "almost no JavaScript on the
 // landing pages" true again rather than aspirational.
 //
