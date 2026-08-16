@@ -148,13 +148,15 @@ gate, so a room that is switched off draws nothing:
 
 ```nix
 # in the RECEIVING room's options.nix, here the Bar's
-haus._contrib.bar.kettle = contrib.mkExtensionPoint {
+haus._contrib.bar.brewStatus = contrib.mkExtensionPoint {
   description = "A pill the Kettle room asks the bar to draw.";
   options = { … };
 };
 ```
 
-Read the path as an address: `bar` is who receives, `kettle` is who is asking.
+Read the path as an address: `bar` is who receives, `brewStatus` is what is
+being offered. The room doing the asking is not in the path at all, which is
+the point. The Bar draws the pill without knowing who wanted it.
 
 Two things follow, and they are the whole point:
 
@@ -167,9 +169,10 @@ that the two were ever connected.
 
 One naming trap. The middle segment names the receiving **room**, not the
 namespace someone happens to write in a host file. The Bar answers to two of
-those, `haus.bar` and `haus.menuBar` (the same distinction the registry makes
-two sections up), and the slot is `_contrib.bar.*` either way. Nothing enforces
-it, because the whole tree is internal and never rendered.
+those, `haus.bar` and `haus.menuBar` (the same pair the registry section above
+turns on, and `menuBar` is not even implemented in `modules/bar/`), and the
+slot is `_contrib.bar.*` either way. Nothing enforces it, because the whole
+tree is internal and never rendered.
 
 That is also what the underscore in `haus._contrib` means: wiring between
 rooms, not a setting anyone writes. The doc renderer prunes those before
