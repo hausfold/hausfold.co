@@ -238,7 +238,7 @@ body {
      `info` and `idea` take the page's accent, so a note reads as part of
      the page it is on. `warning` and `error` keep a real signal — a warning
      you can't tell from a note isn't one — and borrow it from trill's
-     yellow and the rice's pink, both of which already fork correctly
+     yellow and hacker's pink, both of which already fork correctly
      between paper and crust. */
   --color-fd-info: var(--accent);
   --color-fd-idea: var(--accent);
