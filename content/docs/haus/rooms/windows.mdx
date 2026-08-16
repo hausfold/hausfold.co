@@ -54,9 +54,9 @@ haus.keys.windowNav = "alt";
 | Key | What happens |
 |---|---|
 | `<app-key>` | Launch or focus that app: `T` terminal, `B` browser, and whatever else you add |
-| `1`–`4` | Go to that numbered workspace. Four out of the box; see [Workspaces](#workspaces-and-what-lives-on-them) for more |
-| `⇧` + any of the above | **Throw** the focused window there and follow it |
-| `⌥⇧` + any of the above | Throw it there and **stay** where you are |
+| `1`–`4` | Go to that numbered workspace. Four out of the box; [more of them](#the-numbered-ones) if you want them |
+| `⇧` + a workspace key | **Throw** the focused window there and follow it |
+| `⌥⇧` + a workspace key | Throw it there and **stay** where you are |
 | `←↓↑→` | Move focus, and stay in navigate mode so arrows keep working |
 | `-` / `=` | Shrink / grow, repeatably |
 | `V` / `E` | Clipboard history / emoji picker, via pounce |
@@ -65,6 +65,11 @@ haus.keys.windowNav = "alt";
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
+
+A **workspace key** is a digit, or the letter a
+[named workspace](#workspaces-and-what-lives-on-them) claimed. Out of the box
+those letters are `T` and `B`, which is why the throw usually looks like it hangs
+off the app you were going to open.
 
 The `⇧` row is the one worth learning: going somewhere and taking the window
 with you is the same motion one `⇧` apart. Adding `⌥` is the third verb, sending
@@ -203,9 +208,10 @@ One more, off by default because it moves something you didn't:
 haus.prowl.mouseFollowsFocus = true;
 ```
 
-The pointer re-centres on a monitor when keyboard focus lands there. It fires
-only on a *monitor* change, so focusing another window on the screen the pointer
-is already on leaves it alone.
+The pointer follows keyboard focus, between windows as well as between screens.
+Both halves are *lazy*: nothing moves while the pointer is already inside
+whatever took focus, so it re-centres on the jumps that would have lost it and
+sits still on the ones that wouldn't.
 
 ## Turning it off
 

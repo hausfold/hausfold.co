@@ -141,17 +141,23 @@ room writes to it, and the receiver renders whatever it finds inside its own
 enable gate:
 
 ```nix
-# in the receiving room's options.nix
-haus._contrib.sill.kettle = contrib.mkExtensionPoint {
+# in the RECEIVING room's options.nix, here the Bar's
+haus._contrib.bar.kettle = contrib.mkExtensionPoint {
   description = "A pill the Kettle room asks the bar to draw.";
   options = { … };
 };
 ```
 
+The middle segment is the receiving **room**, not the module that implements it:
+`bar`, not `sill`. Same distinction the registry makes two sections up, and the
+reason `haus._contrib.bar.agents` is declared inside `modules/sill/options.nix`
+rather than being called `_contrib.sill.*`. Nothing enforces it, because the
+whole tree is internal and never rendered.
+
 Two things follow, and both are the point: a bar that is switched off removes
 the pill without disabling the kettle, and a kettle that is switched off leaves
 the bar's own pills untouched. The alternative (reading
-`config.haus.kettle.something` from inside sill) makes every renamed kettle
+`config.haus.kettle.something` from inside the bar) makes every renamed kettle
 option break the bar, and leaves nothing in the tree recording that the
 connection exists at all.
 
