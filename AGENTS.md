@@ -27,8 +27,17 @@ header of `PRESENCE.md` in the private
 [`hausfold/ops`](https://github.com/hausfold/ops), and
 [`notes/hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md)
 in the workshop). The nix-darwin ricing platform every rice sets `haus.*` options
-on, the apps, the tools — *and* still the name on terms, refunds and press.
+on, the apps, the tools — *and* the name on the licences and on press.
 **hacker is one desktop built on it.**
+
+> 🔄 **"the seller" stopped being literal on 2026-08-16.** That clause read
+> *and still the name on terms, refunds and press*, from a moment when a paid
+> perch was Phase 2. perch went back to MIT with no paid tier on 2026-08-15 and
+> the user settled the next day that **hausfold sells nothing, ever**; `/terms`
+> and `/refunds` are deleted. hausfold is still the org, the publisher and the
+> name a licence is granted under, which is what the rest of that sentence was
+> for. See the seller's-surface section below before writing "seller" into new
+> copy.
 
 > 🔄 **The desktop was called `nebelhaus` until 2026-08-14** — decision 10, and
 > the rename note's **§11** is the walkthrough. The word survives all over this
@@ -62,9 +71,11 @@ on, the apps, the tools — *and* still the name on terms, refunds and press.
 
 > ✅ **Decided 2026-08-10 — the layer is `haus`, the house is `hausfold`.**
 > Say **`haus`** for the nix-darwin layer a user installs and writes options
-> for; say **`hausfold`** for the org, the maker and the seller. So the section
+> for; say **`hausfold`** for the org, the maker and the publisher ("the seller"
+> as written, before 2026-08-16 settled that there is nothing to sell). So the
+> section
 > above still holds with one word swapped: hausfold *makes* the platform and is
-> still the name on terms, refunds and press — but the platform itself is what
+> still the name on the licences and on press — but the platform itself is what
 > the site calls `haus`, which is also its CLI and its option namespace.
 > Recorded as decision 8 in
 > [`hausfold-rename.md`](https://github.com/hausfold/workshop/blob/main/notes/hausfold-rename.md),
@@ -246,20 +257,32 @@ different session, so read the two together:
   table, never the sidebar group.**
 
 The desktops aren't the only product surface here. `/perch/privacy` predates them: an
-App Store listing needs a policy URL on a domain the seller owns, and hausfold
-is the seller. That one is a legal obligation, not a shop window.
+App Store listing needs a policy URL on a domain the publisher owns, and
+hausfold is the publisher. That one is a legal obligation, not a shop window,
+which is why it outlived `/terms` and `/refunds` (retired 2026-08-16) without
+the question ever arising: a free app owes a privacy policy exactly as much as a
+paid one.
 
-### `/perch`, `/terms`, `/refunds` — the seller's surface, and the sale that was called off
+### `/perch` — the seller's surface, and the sale that never happened
 
-Added 2026-08-08, the same §5.1-early move `/desktops` was: treat the markup as
-temporary and the copy as not. **The markup half of that came due on
-2026-08-14** — all three are Next routes now, with the copy unchanged. Three
-things to know before editing them:
+🚨 **This section was about three pages until 2026-08-16. `/terms` and
+`/refunds` are deleted**, and the decision behind them is bigger than the two
+files: the user's call is that **hausfold is not selling anything, ever**. Not
+"no price yet", not "before there's a checkout" — never. Every rule below that
+reads as *waiting* for a sale is history now, and a session that re-derives one
+of those pages from `git log` is re-deriving a plan that was cancelled.
+
+What is left here is `/perch`, added 2026-08-08 as the same §5.1-early move
+`/desktops` was: treat the markup as temporary and the copy as not. **The markup
+half of that came due on 2026-08-14** — it is a Next route now, with the copy
+unchanged.
 
 - **`/perch` is the product page, moved here.** It's the consumer-voice page
   [`notes/perch-monetization.md`](https://github.com/hausfold/workshop/blob/main/notes/perch-monetization.md)
-  Phase 3 asks for, and the landing page links it internally now instead of
-  pointing at `nebelhaus.com/perch`. ⚠️ **The Astro page in `workshop/web` is
+  Phase 3 asked for (that note is now history: the plan it describes was
+  cancelled on 2026-08-15, and the page outlived it because a free app still
+  wants one page that pitches it), and the landing page links it internally now
+  instead of pointing at `nebelhaus.com/perch`. ⚠️ **The Astro page in `workshop/web` is
   still live and still what `nebelhaus.com/perch` serves.** Two pages about one
   product will not agree for long — when §5.1 lands, delete the Astro one rather
   than reconciling them, and until then fix a fact in *both* or in neither.
@@ -273,36 +296,44 @@ things to know before editing them:
   serves `nebelhaus.com/pounce` and is on its way out with the rest of that
   tree. **Don't rebuild `/pounce` as a landing page** — put the words in the
   docs tree.
-- 🚨 **The monetization plan is OFF as of 2026-08-15, and `/terms` and
-  `/refunds` outlived their reason.** They exist because Paddle's account review
-  wanted policy URLs on the seller's own domain, in front of every other step of
-  Phase 2 — and perch, the only thing that was ever going to be sold, **went
-  back to MIT with no paid tier** that day
+- 🚨 **`/terms` and `/refunds` are deleted (2026-08-16), and rebuilding either
+  is a positioning reversal, not a restoration.** They existed for one reason:
+  Paddle's account review wants policy URLs on the seller's own domain, in front
+  of every other step of Phase 2. perch, the only thing that was ever going to
+  be sold, **went back to MIT with no paid tier** on 2026-08-15
   ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67), ADR 0009
   superseding ADR 0004; the FSL window `v2026.08.04` … `v2026.08.14-1` is
   relicensed retroactively, and `docs/going-paid.md` is deleted along with
-  `License.swift` and the Settings pane). Nobody paid: the production signing
-  key was never minted and `canSell` was false in every shipped build. So the
-  two pages now describe seats, renewals and refunds for a licence that does not
-  and will not exist. **Whether they stay is the user's call, not a tidy-up** —
-  they are published URLs and one of them was a stated obligation. Until it is
-  answered each page opens with one `.aside` saying nothing is for sale, so it
-  is at least internally consistent; don't extend them past that and don't cite
-  them as evidence that a sale is coming. ⚠️ **The stale-licence sweep does not
-  find these pages by grepping for `fsl`** — `/perch/privacy` said *Licensing is
-  checked entirely on your Mac* and `/refunds` walked the reader to a Settings
-  pane perch#67 deleted, neither of which contains the word. Grep for `licen`
-  and for a UI path, not for the licence's name.
-- **The licence sentences on `/perch`, `/docs/perch`, `/terms` and
+  `License.swift` and the Settings pane). Nobody ever paid: the production
+  signing key was never minted and `canSell` was false in every shipped build.
+  So the two pages described seats, renewals and a fourteen-day window for a
+  licence nobody held and nobody will. Four 301s in `public/_redirects` keep the
+  URLs resolving.
+  - **They land on `/`, and that is the one retirement in this file with no
+    successor page.** Every other one had somewhere that carried what it
+    carried; here what they carried is gone. So the landing page's
+    "Also from hausfold" paragraph gained the sentence that makes the redirect
+    an answer rather than a soft 404: *Every one of them is free and open
+    source: no account, no subscription, nothing to buy, nothing you can't take
+    with you.* 🚨 **That sentence is now the site's only statement of the fact
+    — don't delete it as marketing.**
+  - The one thing that survived them is `/perch/privacy`, which is a **legal
+    obligation on a free app** (the App Store listing links it) rather than a
+    seller's page. Retiring the seller's surface never touched it.
+- **The licence sentences on `/perch`, `/perch/privacy`, `/docs/perch` and
   `internals/contributing` say MIT**, swept 2026-08-16 in one commit for the
   reason every sweep here happens together: a per-page correction is how the
   site ends up claiming two licences at once. ⚠️ If you meet *fair source*,
   `fsl.software` or "converts to Apache-2.0 two years after" anywhere on this
-  site, it is stale by that sweep — `rg -i 'fair source|fsl'` finds it.
-- **No page names a price**, the user's call on 2026-08-08 and now moot for
-  perch. The reasoning survives for anything hausfold does sell later: a price
-  with no button to click reads as a rug-pull warning to the people using the
-  thing free today, so the price and the checkout land in one commit.
+  site, it is stale by that sweep — but ⚠️ **`rg -i 'fair source|fsl'` is not
+  enough**: `/perch/privacy` claimed *Licensing is checked entirely on your Mac*
+  and `/refunds` walked the reader to a Settings pane perch#67 deleted, and
+  neither contains the word. Grep for `licen` and for a UI path too.
+- **No page names a price, and none ever will.** This was "not before there's a
+  checkout to click" from 2026-08-08 until 2026-08-16, when the user settled it
+  outright: hausfold does not sell. The old reasoning is worth keeping only as
+  the reason the reversal is cheap — nobody was ever charged, so nothing has to
+  be made whole.
 - 🚨 **The contact address is `hi@hausfold.co`, and that is deliberate — do not
   "upgrade" it to `support@`.** It reads informal for a legal page and a later
   session will want to fix it. Settled 2026-08-09
@@ -311,14 +342,15 @@ things to know before editing them:
   existed outside three checkboxes in perch's runbooks, and swapping the
   printed address is only free *before* the first receipt. If `support@` is
   ever wanted it lands as an **alias onto `hi@`**, which changes nothing here.
-  ⚠️ **It is not just `/terms`.** The address still reaches every landing page,
-  but since 2026-08-14 it is *written* five times rather than ten: once in
-  `src/components/sheet.tsx`'s `<Colophon>` (which is every page's footer), and
-  once each in the prose of `/terms`, `/refunds` and `/perch/privacy` — the
-  three that name it in a sentence as well as a footer. The fifth is the
-  **JSON-LD organization record** in `src/app/page.tsx`, which is the one a
-  find-and-replace over visible copy misses. `rg 'hi@hausfold' src/` finds all
-  of them; there is nothing under `public/` to grep any more.
+  ⚠️ **It is not just the footer.** The address reaches every landing page, but
+  it is *written* three times rather than ten: once in
+  `src/components/sheet.tsx`'s `<Colophon>` (which is every page's footer), once
+  in the prose of `/perch/privacy` (the one page that names it in a sentence as
+  well, and the only one left doing so since `/terms` and `/refunds` were
+  retired on 2026-08-16), and once in the **JSON-LD organization record** in
+  `src/app/page.tsx`, which is the one a find-and-replace over visible copy
+  misses. `rg 'hi@hausfold' src/` finds all of them; there is nothing under
+  `public/` to grep any more.
 
 ## The site
 
@@ -343,11 +375,15 @@ was a sheet beside a manual; the three desktop pages were sheets about a subject
 the haus tree already had a section on. The corollary, and the reason `/perch`
 is not next even though perch now has a tree of its own: perch's sheet is a
 *sales* page with a policy URL and, later, a price — things a manual is the
-wrong shape for, and things `/docs` does not carry. 🚨 **Half of that reason
-expired on 2026-08-15**, when perch went back to MIT with no paid tier: there is
-no price coming, so what holds the exemption up is the policy URL and the
-one-read pitch alone. Whether that is still enough is the user's call, and it is
-the same call as `/terms` and `/refunds` above. ⚠️ That exemption is not
+wrong shape for, and things `/docs` does not carry. 🚨 **Half of that reason is
+gone.** perch went back to MIT on 2026-08-15 and the user settled the day after
+that hausfold sells nothing ever, so there is no price coming and never was one
+here. What holds the exemption up now is the **policy URL and the one-read
+pitch**: a stranger deciding in ninety seconds is a different reader from one
+working through a manual, and `/perch/privacy` still needs a page to belong to.
+That is a thinner argument than it was, and it is the user's to revisit — but
+it is an argument, and `/terms` and `/refunds` going does not decide it.
+⚠️ That exemption is not
 free. It leaves exactly one product with two surfaces in this repo, so the
 duplicate-fact rule binds: a behaviour fixed on `/perch` is fixed in
 `/docs/perch` in the same commit, or in neither.
@@ -359,8 +395,7 @@ The pages, and the one rule each carries that isn't obvious:
 | `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `Also from hausfold` (since 2026-08-16 the whole index in one list: pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
-| `/terms` | `src/app/terms/page.tsx` | what a licence grants, the update year, the MIT note, what we don't promise. ⚠️ Opens with a standfirst saying nothing is for sale, because the rest of the page describes a licence nobody can buy — see the seller's-surface section |
-| `/refunds` | `src/app/refunds/page.tsx` | fourteen days, no questions. **Paddle's review wants this URL** — don't move it either |
+| ~~`/terms`~~, ~~`/refunds`~~ | deleted 2026-08-16 | 🚨 **retired, not moved.** hausfold sells nothing, ever, so a licence page and a refund policy describe a transaction that will never happen. Four 301s in `public/_redirects` land both on `/`; rebuilding either is a positioning reversal. See the seller's-surface section |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
@@ -715,7 +750,8 @@ Rules that are easy to break by accident:
     against the page's margin cannot drift apart; change the side padding
     there, not in `.sheet`.
   - **It applies to every `.sheet` route, not only `/`** — the landing page,
-    `/perch`, `/perch/privacy`, `/terms`, `/refunds` and the 404. One rule,
+    `/perch`, `/perch/privacy` and the 404 (`/terms` and `/refunds` were two
+    more until 2026-08-16). One rule,
     one axis, no page centred beside the rest. ⚠️ `/perch/privacy` is the one
     that can slip:
     `privacy.module.css` restates several of `.sheet`'s own properties on the
@@ -809,17 +845,15 @@ Rules that are easy to break by accident:
   `public/favicon.svg` are in `palette.yml`'s paths filter. Change a ground
   colour and change them with it. (It was ten copies, one per page, until the
   landing pages became routes.)
-- **No prices, anywhere on the site — and as of 2026-08-15 there is nothing to
-  price.** No page names a figure, `/perch`, `/terms` and `/refunds` included.
-  perch went back to MIT with no paid tier
-  ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67)), which was
-  the one product `notes/perch-monetization.md` was written for, so that note is
-  history rather than a source of truth. **The rule to keep is one page, one
-  place**: if a price ever does land it lands on that product's own page alone,
-  in the same commit as the checkout, and every other page links rather than
-  repeats it. What the reversal leaves behind is two pages describing a licence
-  nobody can buy — see the seller's-surface section above, and don't answer that
-  question by editing this bullet.
+- **No prices, anywhere on the site, and nothing to price.** No page names a
+  figure and no page ever will: perch went back to MIT with no paid tier on
+  2026-08-15 ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67)),
+  and on 2026-08-16 the user settled that **hausfold sells nothing, ever** and
+  retired `/terms` and `/refunds` on the strength of it.
+  `notes/perch-monetization.md` in the workshop is history rather than a source
+  of truth, and this bullet is no longer a "not yet" — it is the position. The
+  landing page says the free-and-open-source half out loud, once, in
+  `Also from hausfold`; everything else is silence rather than a promise.
 - **Links go outward** — *for now.* The landing page indexes the products; it
   doesn't try to hold traffic, and nebelhaus.com and GitHub are where each one
   actually lives. ⚠️ **Plan §5.1 inverts this**: once `/docs`, the gallery,
@@ -975,7 +1009,8 @@ you can see it: perch keeps `/perch`, its sales sheet, *and* gains a manual, so
 it is the one product on this site with two surfaces. That was allowed because
 a sheet with a policy URL and a price is a shape a manual can't take — see the
 retirement rule under [The site](#the-site), and note the price half of that
-argument expired on 2026-08-15 — and the price of it is that the
+argument is dead as of 2026-08-16, when the user settled that hausfold sells
+nothing ever and `/terms` and `/refunds` went — and the price of it is that the
 behaviour lists on both must be fixed together or not at all.
 
 **A new tree owes four things**, all of them easy to forget separately: an

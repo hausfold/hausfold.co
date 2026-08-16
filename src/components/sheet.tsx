@@ -12,9 +12,11 @@ import { Fragment, type ReactNode } from 'react';
 // `public/hausfold.css` (`.crumbs`, `.colophon`, `.colophon .gh`), which
 // `src/app/global.css` imports — so this is a move, not a restyle.
 
-/** The house's own GitHub link, in the colophon. Not every page carries it:
- *  the seller's pages (`/terms`, `/refunds`) point at the privacy policy
- *  instead, and `/perch` points at terms and refunds. */
+/** The house's own GitHub link, in the colophon. Every `.sheet` route with a
+ *  colophon carries it as of 2026-08-16, when `/terms` and `/refunds` were
+ *  retired: they were the pages that pointed at the privacy policy instead,
+ *  and `/perch` was the page that pointed at them. `/perch/privacy` is the one
+ *  sheet with no colophon at all, and writes its own footer. */
 export function GithubMark() {
   return (
     <a

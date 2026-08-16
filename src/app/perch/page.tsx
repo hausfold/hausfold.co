@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Command } from '@/components/command';
-import { Colophon, Crumbs } from '@/components/sheet';
+import { Colophon, Crumbs, GithubMark } from '@/components/sheet';
 import { pageMetadata } from '@/lib/page-meta';
 
 // perch's product page, ported from `public/perch/index.html`.
@@ -230,9 +230,12 @@ export default function Perch() {
           retention off by default and made Clear ask first, so this page can
           say what the shelf does instead of the general promise every other
           colophon makes. */}
+      {/* It held `terms` and `refunds` until 2026-08-16, which was the whole
+          reason this page's colophon differed from every other one. Both pages
+          were retired that day (nothing hausfold publishes is for sale, ever),
+          so this takes the house mark like `/` and the 404 do. */}
       <Colophon note="Your originals are never moved, renamed or touched, and nothing leaves the shelf on its own: clearing it asks first, and the expiry timer is off unless you turn it on. That's the intent, not a warranty.">
-        <Link href="/terms">terms</Link>
-        <Link href="/refunds">refunds</Link>
+        <GithubMark />
       </Colophon>
     </main>
   );

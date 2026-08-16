@@ -116,6 +116,27 @@
 /pounce                               /docs/pounce/                       301
 /pounce/                              /docs/pounce/                       301
 
+# /terms and /refunds, retired 2026-08-16. They existed for one reason: Paddle's
+# account review wants policy URLs on the seller's own domain, and perch was the
+# thing that was going to be sold. perch went back to MIT with no paid tier on
+# 2026-08-15 (hausfold/perch#67), and the user's decision the next day is that
+# hausfold is not selling anything, ever — so the two pages described seats,
+# renewals and a fourteen-day window for a licence that will never exist.
+#
+# Unlike every other retirement in this file, these have no successor page: no
+# surface here carries what they carried, because what they carried is gone.
+# They land on `/`, whose "Also from hausfold" paragraph is where the answer now
+# lives ("Every one of them is free and open source: ... nothing to buy"). That
+# sentence was added in the same commit for exactly this reason — a redirect
+# onto a page that doesn't answer the question is a soft 404.
+#
+# They were published from 2026-08-08 and linked from /perch's colophon, and a
+# policy URL outlives the policy, so they keep resolving forever.
+/terms      /  301
+/terms/     /  301
+/refunds    /  301
+/refunds/   /  301
+
 # The nebelhaus docs tree was retired the same day, first into the desktop's
 # own page and — when that page went too, hours later — into the haus tree's
 # Desktops section, which is where a desktop was always going to end up: it is
