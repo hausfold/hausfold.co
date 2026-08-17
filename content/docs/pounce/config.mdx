@@ -1,6 +1,6 @@
 ---
 title: Config reference
-description: Every key in ~/.config/pounce/config.json, what it defaults to, the three blocks that need a restart, and where every file lives.
+description: Every key in ~/.config/pounce/config.json, what it defaults to, the blocks that need a restart, and where every file lives.
 icon: dials
 related:
   - title: "CLI reference"
@@ -85,20 +85,20 @@ older Pounce never chokes on a config written by a newer one.
     "delay": 2,
     "exclude": ["com.apple.finder"]  // REPLACES the default, doesn't extend it
   },
-  "appHotkeys": {            // chords that only exist over one app, see below
-    "enabled": false,        // needs Accessibility
-    "scopes": [
+  "appHotkeys": {
+    "enabled": false,        // chords consumed only over named apps (needs Accessibility)
+    "scopes": [              // per app: which chords, and what each one runs
       { "bundleId": "com.mitchellh.ghostty",
         "keys": [ { "key": "p", "modifiers": ["cmd"], "target": "cmd:shell-here" } ] }
     ]
   },
-  "pages": {                 // an MRU walk over a family of workspaces, see below
-    "enabled": false,        // needs Accessibility
+  "pages": {
+    "enabled": false,        // MRU walk over prefix/* workspaces (needs Accessibility)
     "key": "tab",
     "modifiers": ["ctrl"],
     "prefix": "T",           // walks workspaces named prefix, or prefix/…
-    "bundleId": null,        // scope the walk to one app; null = anywhere
-    "mruFile": null          // recency file your window manager's hook maintains
+    "bundleId": null,        // scope the chord to one app; null = anywhere
+    "mruFile": null          // recency file your WM hook maintains, newest first
   },
   "items": {                 // per-item enable / alias / hotkey, see below
     "cmd:emoji": { "alias": "emo", "hotkey": "opt+space e" }
@@ -111,7 +111,40 @@ touch the network; set both `false` for a fully offline Pounce.
 `autoQuit.enabled` and `windows.enabled` turn on [the two opt-in
 behaviours](/docs/pounce/beyond-launching); both blocks are startup-only, so
 **any** edit inside them needs the daemon restart above, not just flipping
-`enabled`.
+`enabled`. The same goes for `appHotkeys` and `pages` below.
+
+### Chords that only fire over one app (`appHotkeys`)
+
+An ordinary hotkey swallows its chord everywhere on the Mac. macOS registers it
+globally or not at all, so binding ⌘P costs you printing in every app you own.
+`appHotkeys` is the other shape: each `scopes` entry names a `bundleId` and the
+chords Pounce should consume **only while that app is frontmost**, passing them
+through untouched anywhere else. ⌘P spawns a terminal window over Ghostty and
+still prints from your browser.
+
+Each `keys` entry's `target` is an [item key](#per-item-settings-items), the
+same address a palette row and `pounce run` use, so a scoped chord and a row
+are never two spellings of one command. It needs Accessibility (it rides the
+same event tap as `windows`), and a chord held down fires once rather than on
+autorepeat.
+
+### Walking workspace pages (`pages`)
+
+Hold the modifier, tap the key: `pages` walks the non-empty AeroSpace
+workspaces under `prefix` (`T`, `T/pounce`, `T/haus`) in most-recently-used
+order, stepping focus live as you go. There is no HUD, because the screen is
+the feedback. Recency comes from `mruFile`, which your window manager's
+workspace-change hook writes newest-first; emptiness Pounce already knows from
+its window tracker, so a tap never waits on a subprocess. Set `bundleId` to
+scope the walk to one app the way a hotkey scopes, which is how a browser keeps
+⌃⇥ for its own tabs.
+
+<Callout title="On haus, both of these are written for you">
+`haus.terminal.lanes.backend = "zmx"` is the first thing that asks for them: it
+generates the ⌘P/⌘⇧P shell-window chords and the ⌃⇥/⌃⇧⇥ walk over its
+`T/<repo>` lane pages. See [the Development
+room](/docs/haus/rooms/development#ghostty-opens-into-zellij).
+</Callout>
 
 `windowMode` and `scale` are independent knobs (proportions vs. size) and
 they compose: a compact launcher at `1.4` is still the compact layout, just
@@ -184,51 +217,6 @@ it grabs the next-step keys as ordinary global hotkeys for ~2s and releases
 them the instant one fires. Escape cancels; hesitate ~0.45s and a which-key
 overlay lists the next keys. `pounce doctor` reports every binding it actually
 armed.
-
-### Chords that only exist over one app (`appHotkeys`)
-
-A global hotkey is all-or-nothing: macOS either swallows the chord everywhere
-or nowhere. `appHotkeys` is the other shape. Each scope names a `bundleId` and
-the chords to consume **while that app is frontmost**. Everywhere else the
-keystroke is passed through untouched, so ⌘P still prints in your browser.
-
-```jsonc
-"appHotkeys": {
-  "enabled": true,
-  "scopes": [
-    { "bundleId": "com.mitchellh.ghostty",
-      "keys": [ { "key": "p", "modifiers": ["cmd"], "target": "cmd:shell-here" } ] }
-  ]
-}
-```
-
-`target` is the same item-key grammar as `items` and `pounce run`, so a scoped
-chord and a palette row are one address. It reads keys as they pass, so it
-needs Accessibility, and it is armed at startup: an edit wants the daemon
-bounce above.
-
-### Walking a family of workspaces (`pages`)
-
-Hold a modifier, tap a key, step through the **non-empty** AeroSpace workspaces
-under a prefix in most-recent-first order: ⌘Tab's muscle memory, aimed at
-workspaces instead of windows. Release and you land. There is no overlay: the
-screen you are stepping through is the feedback.
-
-```jsonc
-"pages": { "enabled": true, "prefix": "T", "modifiers": ["ctrl"], "key": "tab" }
-```
-
-`prefix` matches a workspace named `T` or anything under `T/`. Recency comes
-from `mruFile`, a newest-first list your window manager's workspace-change hook
-appends to; a walk repairs its own trail on release, so passing through three
-pages doesn't rank them above where you started. `bundleId` scopes the chord
-like a scope above, which is how a browser keeps ⌃Tab for its own tabs.
-
-<Callout title="haus wires both for you">
-Under `haus.terminal.lanes.backend = "zmx"` the [Development
-room](/docs/haus/rooms/development) sets these up as the lane keyboard: ⌘P/⌘⇧P
-open a shell window over Ghostty, ⌃Tab/⌃⇧Tab walk the `T/<repo>` lane pages.
-</Callout>
 
 ### Driving Pounce from another binder
 
