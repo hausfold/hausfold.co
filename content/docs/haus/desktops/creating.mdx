@@ -125,9 +125,6 @@ option, or a leaf that is host-only because it names a person or a piece of
 hardware. Every rule has a fixture behind it, so the message names the file and
 the option rather than failing somewhere deeper.
 
-If the file is an app **pack** (a data-only file narrowed to `haus.roster`, the
-apps on a machine), run `lib.checkPack` instead; same idea, one level in.
-
 `checkDesktop` proves the trust boundary and the option names. To prove the
 *values* build a machine, select it from a real host and evaluate:
 

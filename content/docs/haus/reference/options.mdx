@@ -1049,10 +1049,10 @@ The same thing as `package`, NAMED rather than evaluated: an
 attribute path into nixpkgs, so "nerd-fonts.fira-code" means
 `pkgs.nerd-fonts.fira-code`.
 
-This exists so a data-only desktop or app pack can change the font
-FAMILY and not just its size — reaching `pkgs` is precisely what those
-formats forbid, which made `fonts.mono.package` unreachable to every
-shared file. A name is data; a package is code.
+This exists so a data-only desktop can change the font FAMILY and not
+just its size — reaching `pkgs` is precisely what that format forbids,
+which made `fonts.mono.package` unreachable to every shared file. A
+name is data; a package is code.
 
 Set one or the other, never both. A name that resolves to nothing, or
 to a set of packages rather than a package, fails at eval with the
@@ -2069,6 +2069,30 @@ Both backends can be installed at once — this only picks which one
 `~/.config/holt/config.toml`. If zmx is somehow missing at runtime
 the hook defers (exit 3) and holt falls back to its built-in, so the
 worst case is the zellij behaviour you already had.
+
+Choosing `zmx` also changes what ⌘A runs. Claude Code's own
+`--worktree` makes the checkout through the WorktreeCreate hook and
+then runs in the pane it was launched from — it never calls `holt
+new`, so it never reaches the seam above, and the chord would keep
+opening a pane on a machine that had asked for windows. Under `zmx`
+the chord is `holt new` for every client, which builds the identical
+checkout from the outside. The side benefit is that the lane becomes
+resumable: Claude keys a transcript to the directory it started in,
+so a `holt new` lane's conversation lives at the lane's own path,
+which is where `holt <name>` goes looking for it.
+
+And it changes what living with several lanes feels like. Each
+repo's lanes tile on their own workspace page (`T/<repo>`), with
+the leader's `t` returning to whichever page you used last; ⌃⇥/⌃⇧⇥
+walk the non-empty pages by recency, and ⌘P/⌘⇧P open a shell
+WINDOW in the focused window's directory (⇧ staying inside an
+agent worktree instead of hopping to the main checkout). Those
+three chords are consumed by pounce only while Ghostty is
+frontmost — everywhere else ⌘P still prints and ⌃⇥ still switches
+the app's own tabs — and the launcher gains a `Lanes` palette
+command: fuzzy over every lane with its state, Enter focusing (or
+waking) its window, `/term` switching to a content search across
+the lanes' transcripts.
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
@@ -4573,7 +4597,8 @@ The notch file shelf. Perch is the app behind it.
 
 `boolean` · default `false`
 
-The perch notch file shelf, installed via the perch flake (copied to /Applications).
+The perch notch file shelf, installed via the perch flake (copied to
+/Applications, with its `perch` command line tool linked onto PATH).
 
 <small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
 
@@ -4658,13 +4683,17 @@ palette command already enter — so the name is reserved and defining it
 here is an error. Shape quiet through `haus.focus.slack` and
 `haus.focus.hooks` instead.
 
-Scope, and both halves are deliberate. **A scene has no surface but the
-CLI** — quiet has a bar pill and a palette row, a scene has `focus scene
-&lt;name>` and whatever `haus.keys.leaderExtras` chord you give it. And
-**nothing enters a scene for you**: no clock, no Wi-Fi network, no
-display appearing. Declaring the states is the cheap half and this is
-it; a daemon that decides *when* is a separate piece of work, and not
-one to pay for before a single scene has proved useful.
+With the launcher room on, every scene is a palette row too — a
+generated `Scene: <name>` command, plus `Leave Scene`, each with a line
+on the cheatsheet's Palette Commands page — so entering one doesn't
+mean remembering its name in a terminal. A `haus.keys.leaderExtras`
+chord remains the way to give one a key.
+
+The half that is still deliberate scope: **nothing enters a scene for
+you** — no clock, no Wi-Fi network, no display appearing. Declaring
+the states is the cheap half and this is it; a daemon that decides
+*when* is a separate piece of work, and not one to pay for before a
+single scene has proved useful.
 
 Example:
 
@@ -4866,7 +4895,8 @@ Which coding-agent clients to install. `claude` is Claude Code, `codex`
 is OpenAI Codex, `opencode` is OpenCode, `jcode` is
 [jcode](https://jcode.sh). The ⌘A terminal binding starts
 whichever one `ai.default` names — Claude Code through its own
-`--worktree` hook, the others through `holt new`.
+`--worktree` hook, the others through `holt new`, and every one of them
+through `holt new` under `haus.terminal.lanes.backend = "zmx"`.
 
 A list rather than one bool per client, matching `developer.languages`
 — the fourth client, when it came, didn't change this option's shape.
@@ -4930,7 +4960,11 @@ Must be one of `ai.clients` — see there.
 Only `claude` can make its own worktree (its native `--worktree` flag,
 which fires `holt hook create`); for the others ⌘A runs
 `holt new` instead, producing the same checkout, branch and registry
-entry from the outside. Resuming follows the client too: `codex` reopens
+entry from the outside. `haus.terminal.lanes.backend = "zmx"` puts
+`claude` on that same outside path, because the client's own flag never
+reaches the hook the zmx backend is wired into — so on a zmx machine
+this option chooses the client and nothing else about how a lane opens.
+Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
 session for that cwd, `jcode` opens its own session picker. They share one
 `holt` branch/parking/reap
@@ -5591,8 +5625,8 @@ Roster order; lower values appear first. Ties are sorted by app id.
 Nixpkgs package that installs this entry. Where it lands is
 `scope`'s call.
 
-A shared desktop or app pack can't set this one — it needs `pkgs`, and
-a data-only desktop has no arguments. Use `packageName` there.
+A shared desktop can't set this one — it needs `pkgs`, and a data-only
+desktop has no arguments. Use `packageName` there.
 
 Example:
 
@@ -5611,11 +5645,12 @@ attribute path into nixpkgs, so "orbstack" means `pkgs.orbstack` and
 "python3Packages.black" means what it says. `scope` applies to it
 identically.
 
-This is the source a shared app pack can use — see
-`haus.apps.packs`, and `modules/apps/packs/writing.nix` for one.
-Without it a pack could install from Homebrew and the App Store but
-never from Nixpkgs, because reaching `pkgs` is exactly what the
-data-only format forbids — the one gap in the four sources.
+This is the source a shared desktop can use — see `haus.apps.packs`,
+and `modules/apps/packs/writing.nix` for a saved collection written
+this way. Without it a data-only file could install from Homebrew and
+the App Store but never from Nixpkgs, because reaching `pkgs` is
+exactly what the data-only format forbids — the one gap in the four
+sources.
 
 Set this or `package`, never both; and it counts as a source like any
 other, so pairing it with `cask` is the same mistake as pairing

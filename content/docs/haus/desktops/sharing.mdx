@@ -69,13 +69,33 @@ You do not need to document how to override you. Anything a desktop sets, a host
 beats with a plain assignment. That is a property of the seam, and it holds for
 every desktop without either of you doing anything.
 
-## App packs are the neighbouring format
+## A room is the neighbouring format
 
-If what you want to share is a *set of apps* rather than a whole machine, that's
-a **pack**: a data-only file that sets nothing but `haus.roster`, imported
-through `haus.lib.pack`. It lowers every field it sets, so a consumer's own
-host wins with a plain assignment. A pack is not a desktop and doesn't compete
-with one: a machine has one desktop and as many packs as it likes.
+There are two things you can publish, and the difference is what haus can prove
+about them:
+
+- a **desktop** is *data*. Its shape is closed, `checkDesktop` reads it leaf by
+  leaf, and it cannot run anything. That is why running one from a stranger is
+  reasonable.
+- a **room** is *code* — an ordinary nix-darwin module, exported under
+  `darwinModules`. It can install packages, write files and run activation
+  steps as root, and haus can tell a reader nothing about what it does.
+
+So if what you want to share is a *set of apps* rather than a whole machine,
+that is a room: `haus.photography.enable` bringing the apps, and whatever else
+that capability needs. A machine runs one desktop and as many rooms as it likes.
+
+<Callout type="info" title="App packs were the third format, and are gone">
+Until 2026-08-17 there was a data-only file narrowed to `haus.roster`, imported
+through `haus.lib.pack` and self-tested with `checkPack`. Both helpers, and
+`haus.packFiles` / `haus.packs`, have been removed: two formats over two trust
+classes is the whole model, and a third sitting across the line earned its own
+prompt and its own docs for no one — nobody had published a pack.
+
+Nothing you can do got smaller except that. The saved collections haus itself
+ships are untouched, still one line each
+(`haus.apps.packs.writing.enable = true`); they were never the published format.
+</Callout>
 
 ## Before you share
 
