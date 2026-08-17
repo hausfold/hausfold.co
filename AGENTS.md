@@ -1493,7 +1493,7 @@ Three things are **not** small, because they're positioning and not code:
 
   | Tier | Opinionated? |
   |---|---|
-  | a **desktop** (`hacker`, `everyday`, `minimal`) | **yes** — `desktops/hacker`'s own description says so, and `leaving` says "opinionated, not possessive" |
+  | a **desktop** (`hacker`, `everyday`, `minimal`) | **yes** — `desktops/hacker`'s own description says so, and that is the one place the word belongs |
   | **haus**, the layer | **no** — every `haus.*` option and the entire rooms model exist so you can disagree with the desktop you chose |
   | **hausfold**, the org | not a thing that holds opinions; it publishes |
 
@@ -1505,6 +1505,13 @@ Three things are **not** small, because they're positioning and not code:
   `docs/haus`), which is why `/`'s hero closes **"Nothing by hand, and open
   all the way down."** A replacement has to be a promise the layer keeps, not
   a personality it claims.
+
+  ⚠️ **`leaving` opened "haus is opinionated, not possessive" and was swept in
+  the same pass**, because the subject of that sentence is the layer. It reads
+  *haus has defaults, not demands* now, which does the same job — the page is
+  about walking away, and its point is that nothing holds you — without
+  conceding the tier. That leaves **exactly one** occurrence of the word on
+  the whole site, on `desktops/hacker`, where it is true.
 - **Adding a row to the gallery.** A second entry means a second thing someone
   can install, so it needs to actually exist and be installable by a stranger
   before it gets a page: a repo and a command that works on a machine that isn't

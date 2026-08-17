@@ -29,7 +29,7 @@ import { pageMetadata } from '@/lib/page-meta';
 export const metadata = pageMetadata({
   title: 'hausfold',
   description:
-    'hausfold makes Mac software: a layer that rebuilds the whole machine, and the small native tools that live inside it.',
+    'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   path: '/',
   ogTitle: 'hausfold · We rebuild the Mac.',
 });
@@ -47,7 +47,7 @@ const organization = {
   name: 'hausfold',
   url: 'https://hausfold.co/',
   description:
-    'hausfold makes Mac software: a layer that rebuilds the whole machine, and the small native tools that live inside it.',
+    'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   email: 'hi@hausfold.co',
   sameAs: ['https://github.com/hausfold'],
 };
