@@ -1485,6 +1485,26 @@ Three things are **not** small, because they're positioning and not code:
   2026-08-08's platform repositioning — and each was the user's, not a copy
   edit. A new positioning claim needs a decision behind it, or it isn't a
   decision — it's a session's opinion.
+
+  🚨 **Never call haus "opinionated" in platform-level copy** (the user's
+  call, 2026-08-17, after a session put the word on `/`). The distinction is
+  the whole product argument and it is easy to fumble because the word IS
+  correct one tier down:
+
+  | Tier | Opinionated? |
+  |---|---|
+  | a **desktop** (`hacker`, `everyday`, `minimal`) | **yes** — `desktops/hacker`'s own description says so, and `leaving` says "opinionated, not possessive" |
+  | **haus**, the layer | **no** — every `haus.*` option and the entire rooms model exist so you can disagree with the desktop you chose |
+  | **hausfold**, the org | not a thing that holds opinions; it publishes |
+
+  The user's words: *omarchy is opinionated, haus is a platform.* Calling the
+  layer opinionated concedes the exact ground that separates it from a
+  take-it-or-leave-it rice, so it reads as a competitor's description of us.
+  **Name the macOS pain instead of a stance** — the site's own recurring
+  phrase is *the settings you always change by hand* (`/haus`'s lede,
+  `docs/haus`), which is why `/`'s hero closes **"Nothing by hand, and open
+  all the way down."** A replacement has to be a promise the layer keeps, not
+  a personality it claims.
 - **Adding a row to the gallery.** A second entry means a second thing someone
   can install, so it needs to actually exist and be installable by a stranger
   before it gets a page: a repo and a command that works on a machine that isn't

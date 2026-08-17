@@ -97,21 +97,34 @@ export default function Home() {
               teaching either, because both are one row away and every row
               is a door.
 
-              🚨 The closing clause is deliberately a description, not a
-              stance. A draft of it read "Built for the way we use our own
-              Macs, in the open, for anyone who wants theirs the same",
-              which is the **maker's voice** AGENTS.md lists among the three
-              recorded positioning reversals (2026-08-06) — and a reversed
-              position walking back onto the front door in a sentence
-              nobody decided is exactly what that rule is for. Every word
-              here is instead a property something on this page backs:
-              *native* by the apps' own pages, *open* by the licences, and
-              *opinionated* by the desktops model, where a desktop is a
-              complete answer rather than a pile of switches. */}
+              🚨 The closing clause has been wrong twice, in opposite
+              directions, and both mistakes are worth knowing.
+
+              First it read "Built for the way we use our own Macs", which
+              is the **maker's voice** AGENTS.md lists among the three
+              recorded positioning reversals (2026-08-06).
+
+              Then it read "Opinionated, native, and open", and the user
+              caught the deeper error: **opinionated is what haus is NOT.**
+              A *desktop* is opinionated — `desktops/hacker` says so in its
+              own description, and `leaving` says "opinionated, not
+              possessive" — but the layer underneath exists precisely so
+              you can disagree with it, which is what every `haus.*` option
+              and the whole rooms model are for. Calling the platform
+              opinionated concedes the ground that separates it from a
+              take-it-or-leave-it rice.
+
+              What replaced it names the macOS pain instead of a stance:
+              **nothing by hand**. That is the site's own recurring phrase
+              for the thing people actually resent (`/haus`'s lede and
+              `docs/haus` both say "the settings you always change by
+              hand"), and it is a promise the layer keeps rather than a
+              personality it claims. "native" came out in the same edit: it
+              was already in the sentence, two clauses earlier. */}
           <div className="lede">
             <p>
               hausfold makes Mac software: one layer that rebuilds the whole machine, and the small
-              native tools that live inside it. Opinionated, native, and open all the way down.
+              native tools that live inside it. Nothing by hand, and open all the way down.
             </p>
           </div>
         </header>
