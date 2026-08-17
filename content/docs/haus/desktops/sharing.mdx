@@ -77,6 +77,13 @@ through `haus.lib.pack`. It lowers every field it sets, so a consumer's own
 host wins with a plain assignment. A pack is not a desktop and doesn't compete
 with one: a machine has one desktop and as many packs as it likes.
 
+Where it sits, if a desktop and a pack name the same app: **the pack wins, and
+the host still wins over both.** The ladder is one question — who is speaking —
+so a pack somebody imported by hand outranks the desktop they chose, and both
+lose to a plain line in their own host file. (The collections haus itself ships
+behind `haus.apps.packs.<name>.enable` are the exception, and sit *below* the
+desktop: their data is haus's, and a desktop is allowed to flip that switch.)
+
 ## Before you share
 
 - [ ] `checkDesktop` prints `true`, and a real host evaluates.

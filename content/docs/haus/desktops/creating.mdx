@@ -146,6 +146,12 @@ Anything your desktop sets, a consumer overrides with a plain assignment in
 their host file. That already works: the desktop's values arrive below a host's
 in the priority ladder, so nobody needs `lib.mkForce` to disagree with you.
 
+One other thing outranks you, and it is worth knowing if your desktop names
+apps: an **app pack** a consumer imported by hand through `haus.lib.pack` sits
+between them and you, so it wins the fields it sets. The whole ladder is one
+question — who is speaking — running from the consumer, through the third
+parties they pointed at, to you, to haus.
+
 The exception is worth knowing before you set one:
 
 <Callout type="warn" title="A list you set is replaced whole, not added to">
