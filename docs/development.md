@@ -12,16 +12,17 @@ npm run types:check && npm run lint  # what CI runs first
 `npm run dev` is the loop for everything with a URL. Reach for `wrangler dev`
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
-`worker.js` behave. `/desktops` should 301 to `/#desktops`,
-`/desktops/hacker` to `/docs/haus/desktops/hacker/`, `/haus` to
-`/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
-rather than answer 200.
+`worker.js` behave. `/desktops` should 301 to `/haus/#desktops`,
+`/desktops/hacker` to `/docs/haus/desktops/hacker/`, `/docs` to
+`/docs/haus/`, `/pounce` to `/docs/pounce/`, `/haus` should be a page rather
+than a redirect, and a made-up path should 404 rather than answer 200.
 
 ## the map
 
 ```
 src/app/                          the routes
-  page.tsx                        landing page — nav, masthead, #desktops (a sentence + one link), apps, haus
+  page.tsx                        the house's door — github, the masthead, #made (one list)
+  haus/                           the layer's page — the hero, rooms, #desktops, the one file
   perch/                          the product page; perch/privacy/ is linked from the App
                                   Store, so don't move or rename that URL. (desktops/,
                                   terms/ and refunds/ used to be here; every desktop is a
@@ -29,7 +30,7 @@ src/app/                          the routes
                                   301s in _redirects for all of them)
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
-  docs/                           the Fumadocs shell
+  docs/                           the Fumadocs shell; /docs itself 301s to /docs/haus/
   global.css                      Fumadocs re-pointed at hausfold.css's tokens
 src/components/
   sheet.tsx                       the breadcrumb, the colophon, the ⌂ mark
@@ -47,6 +48,11 @@ public/                           assets only; no HTML lives here
 worker.js  test/                  the three code routes, and their tests
 scripts/                          generators — not deployed
 ```
+
+🚨 **Two ids are load-bearing**, and both are the target of a 301 someone
+already holds: `#made` on `/` (`/terms`, `/refunds`) and `#desktops` on
+`/haus` (`/desktops`, plus the 404's row). Renaming either means editing
+`public/_redirects` in the same commit.
 
 Two conventions the linter enforces and one it can't: an internal link is
 `<Link>`, an external one a plain `<a>` — and a `worker.js` route

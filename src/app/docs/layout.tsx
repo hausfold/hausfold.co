@@ -2,7 +2,7 @@ import { source } from '@/lib/source';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/lib/layout.shared';
 import { Provider } from '@/components/provider';
-import { Folder, Separator } from '@/components/sidebar-parts';
+import { Separator } from '@/components/sidebar-parts';
 
 // `<Provider>` is here rather than in the root layout, and that placement is
 // the whole of what keeps the landing pages quiet. It carries fumadocs' search
@@ -27,15 +27,17 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
         // here because the trees are about different things rather than
         // being views of the same thing.
         tabMode="auto"
-        // Two overrides, both in `src/components/sidebar-parts.tsx`:
+        // One override, in `src/components/sidebar-parts.tsx`:
         //
         //   Separator  a selector fix — the group label gets a class instead
         //              of being styled as "the bare `<p>` in the sidebar",
         //              which the tree switcher also is.
-        //   Folder     a shape change — at `/docs`, where the four roots are
-        //              the sidebar's whole contents, each is a link to its
-        //              tree rather than an accordion over it.
-        sidebar={{ components: { Separator, Folder } }}
+        //
+        // A `Folder` override sat beside it until 2026-08-17, rendering the
+        // four roots as links at `/docs`. That page is deleted and the roots
+        // are visible nowhere else, so it went with it — see the note at the
+        // foot of that file.
+        sidebar={{ components: { Separator } }}
         {...baseOptions()}
       >
         {children}

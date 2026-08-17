@@ -501,11 +501,18 @@ body {
    was one index of seven names in two tiers, and the tier was carried by
    whitespace because a heading over the lower half would have had to name
    rows it couldn't (nebelung doesn't run on haus, haus consumes it; holt
-   runs anywhere). The page is now sectioned instead, and the regrouping is
+   runs anywhere). The page was sectioned instead, and the regrouping is
    what made the headings honest: holt and nebelung came out of the `Apps`
-   list, so what's left under it really is apps. They are an `.index` of
-   their own under `Also from hausfold` as of 2026-08-14 — same class, own
-   heading, and the tier is a heading rather than whitespace. No modifier. */
+   list, so what was left under it really was apps. They became an `.index`
+   of their own under `Also from hausfold` on 2026-08-14 — same class, own
+   heading, and the tier a heading rather than whitespace.
+
+   ⚠️ The wheel turned once more on 2026-08-17, and the modifier is still
+   not wanted. The split made `/` the house's door, so every name is back in
+   ONE list under `What we make` — haus included, which is what the 2026-08-12
+   version could not manage. It works this time because the heading no longer
+   has to classify the rows: "what we make" is true of all six, where "apps"
+   was true of three. No modifier, again, and for a better reason. */
 
 .index-name {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
@@ -684,18 +691,24 @@ body {
    viewport. Not the sheet's full padding: a fragment SHOULD sit higher than
    the top of the document, just not touching it.
 
-   #desktops is the landing page's desktops section — one sentence and one
-   link since 2026-08-14, a catalogue of plates before that — and it is where
-   every /desktops link already in the wild lands: the 301 in _redirects and
-   the 404. (The docs sidebar's way-out row was a third caller until
-   2026-08-16, when that row was removed; the other two are enough.) Whatever
+   #desktops is the Desktops section — one sentence and one link since
+   2026-08-14, a catalogue of plates before that — and it is where every
+   /desktops link already in the wild lands: the 301 in _redirects and the
+   404. ⚠️ It moved from `/` to `/haus` on 2026-08-17 with the section it
+   names, when the site split into the house and the layer; the id is
+   unchanged and both callers were repointed in the same commit. Whatever
    that section becomes next, the id stays.
 
-   It used to have two neighbours here, #first-moves and #keys on
+   #made is the landing page's index of everything hausfold makes. It was
+   #apps until the same split, and it is a fragment target for the same kind
+   of reason: the four /terms and /refunds 301s land on it.
+
+   Both used to have neighbours here, #first-moves and #keys on
    /desktops/hacker. That page is gone and the anchors went with it — the
    first-moves half is /docs/haus/desktops/hacker#first-moves now, which is
    the docs half of the site and scrolls under fumadocs' own rules. */
-#desktops {
+#desktops,
+#made {
   scroll-margin-top: clamp(1.5rem, 4vw, 2.5rem);
 }
 

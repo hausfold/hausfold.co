@@ -17,8 +17,14 @@ export function baseOptions(): BaseLayoutProps {
           <span className="wordmark wordmark--nav">{appName}</span>
         </span>
       ),
-      // Out of the docs and back to the site. Docs are a wing of
+      // Out of the docs and back to the house. Docs are a wing of
       // hausfold.co, not a site of their own.
+      //
+      // ⚠️ It goes to `/`, not to `/docs` — there is no `/docs` page any
+      // more. It was a doorway listing the four trees, deleted 2026-08-17
+      // when `/` became the house's index of the same things; `/docs` and
+      // `/docs/` 301 to `/docs/haus/` in `public/_redirects`, so pointing
+      // the ⌂ there would have been one hop to somewhere it doesn't mean.
       url: '/',
     },
     // 🚨 There is no `links` list any more, and adding one back is a
@@ -41,9 +47,10 @@ export function baseOptions(): BaseLayoutProps {
     // `---Desktops---`. The way back to the site is the `⌂` in the nav
     // above, which is where a reader looks for it.
     //
-    // ⚠️ The `#desktops` anchor on `/` is still load-bearing — the
+    // ⚠️ The `#desktops` anchor is still load-bearing — the
     // `/desktops` 301 and `src/app/not-found.tsx` both land on it. This row
-    // going does not free it.
+    // going does not free it, and neither did its move from `/` to `/haus`
+    // on 2026-08-17, when the whole Desktops section went there.
     githubUrl: `https://github.com/${gitConfig.user}`,
   };
 }

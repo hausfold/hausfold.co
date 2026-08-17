@@ -22,6 +22,42 @@ built, run and deployed, and this file covers what you may change.
 
 ## What belongs here, and what doesn't
 
+> 🚨 **The site split in two on 2026-08-17, at the user's instruction, and it
+> is the biggest structural decision on this page since the docs landed.**
+> **hausfold is the org, the house and the publisher; haus is one of the things
+> it makes.** The site now says so in its shape:
+>
+> - **`/` is the house's door.** The mark, the wordmark, *We rebuild the Mac.*,
+>   a three-line paragraph about **hausfold** rather than about haus, and one
+>   list of everything the org makes, haus first. One outward link in the nav
+>   (github), because every other destination is a row in the list. It is the
+>   shortest this page has ever been and that is the point.
+> - **`/haus` is the layer's page**, and everything that used to argue for haus
+>   on `/` is there word for word: the hero paragraph (one word changed, the
+>   subject), `Rooms`, `#desktops`, and the one-file example. Its nav points at
+>   **`/docs/haus` and `hausfold/haus`**, not at the docs root and the org: a
+>   page about one thing hands you that thing.
+> - **`/docs` the page is deleted**, and `/docs` 301s to `/docs/haus/`. It was a
+>   doorway listing the four trees, which is what `/`'s own list now does one
+>   floor up — the same two-copies-of-one-subject rule that retired `/haus`,
+>   `/pounce` and the three desktop pages, applied to the last index that was
+>   duplicating another. The four **trees** are untouched; the switcher at the
+>   head of the sidebar is what moves between them, and the house mark in the
+>   docs nav goes to `/`, not to `/docs`.
+>
+> Three consequences that will bite a session that doesn't know:
+>
+> - **`#desktops` moved with its section**, to `/haus/#desktops`. The id is
+>   unchanged and still load-bearing; the `/desktops` 301 and
+>   `src/app/not-found.tsx` were both repointed in the same commit.
+> - **`#apps` is now `#made`**, on `/`'s one list, because the list stopped
+>   being only apps. The four `/terms` and `/refunds` 301s are its only
+>   callers and were repointed with it.
+> - **The `/haus` 301s are gone from `public/_redirects`.** Cloudflare reads
+>   that file ahead of the assets, so leaving them would have 301'd the new
+>   page away from itself. If `/haus` is ever retired a third time, they come
+>   back.
+
 **hausfold is the platform, the org and the seller** (decided 2026-08-08 — the
 header of `PRESENCE.md` in the private
 [`hausfold/ops`](https://github.com/hausfold/ops)). The nix-darwin ricing platform every rice sets `haus.*` options
@@ -49,8 +85,9 @@ on, the apps, the tools — *and* the name on the licences and on press.
 > you.** It read *hausfold is the commercial umbrella … deliberately not a
 > product brand and not the desktop gallery*, and forbade the family repos from
 > moving into this org. That rule is **repealed**: all ten repos
-> migrate in, and the gallery is **`hausfold.co/#desktops`** (it was
-> `/desktops`, its own page, until 2026-08-12 — written `/market`
+> migrate in, and the gallery is **`hausfold.co/haus/#desktops`** (it was
+> `hausfold.co/#desktops` until the 2026-08-17 split, and `/desktops`, its own
+> page, until 2026-08-12 — written `/market`
 > here and in the rename plan until later the same day; see the desktops
 > section below).
 > If you meet that sentence anywhere else, it's stale — fix it rather than obey
@@ -77,8 +114,9 @@ on, the apps, the tools — *and* the name on the licences and on press.
 
 | Want to change… | Where |
 |---|---|
-| the hausfold.co landing page — copy, design, the products it lists | here, `src/app/page.tsx` (it was `public/index.html` until 2026-08-14) |
-| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/#desktops` in `src/app/page.tsx` is one short paragraph and one link (it gained a making-and-sharing sentence on 2026-08-16; it still names no desktop). What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
+| the hausfold.co landing page — the house's index of what it makes | here, `src/app/page.tsx`. 🚨 **It stopped being the haus page on 2026-08-17** — see the site split above |
+| what the site says about **haus**, the layer — the hero, Rooms, Desktops, the one file | here, `src/app/haus/page.tsx`. ⚠️ `/haus` was a 301 to `/docs/haus/` from 2026-08-14 until 2026-08-17 and is a real route again; its two lines in `public/_redirects` are **deleted**, because a redirect beats a route |
+| the desktops **catalogue** | **there isn't one on this site any more** (2026-08-14) — `/haus/#desktops` in `src/app/haus/page.tsx` is one short paragraph and one link (it gained a making-and-sharing sentence on 2026-08-16; it still names no desktop). What compares them is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). See below |
 | a **desktop's own page** | **the docs**, `content/docs/haus/desktops/<name>.mdx` (2026-08-14). It was `src/app/desktops/<name>/page.tsx` for six hours of that day and `public/desktops/<name>/index.html` before that; those routes are **deleted**, with six 301s in `public/_redirects` |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo, all under `github.com/hausfold` |
@@ -86,7 +124,7 @@ on, the apps, the tools — *and* the name on the licences and on press.
 | the **platform** — any `haus.*` option, presets, packs, the `haus` CLI | the platform repo, `hausfold/haus` (the checkout is `./haus` in the workshop as of 2026-08-11 — **not** `./hausfold.co`, which is this repo. It was `./hausfold`, one dot away, until then) |
 | the **hacker desktop** — its opinions and defaults | the platform repo too, for now; it becomes a desktop file of its own later (plan §7) |
 | anything about **trill**, the notification compositor | the *code*, [`hausfold/trill`](https://github.com/hausfold/trill) — its own repo since 2026-08-09. It was called **flick** while it incubated in the workshop; both names appear in older text here. Its one docs page is `content/docs/trill/index.mdx`, and 🚨 **it ships nothing** — see the tree rules below before adding a second page to it |
-| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired |
+| **the docs** (`/docs/*`) | **here**, `content/docs/` — Fumadocs MDX, since 2026-08-12. ✅ All twenty-nine source decisions are closed as of 2026-08-13: twenty-eight were ported and `start/the-family` was deliberately retired. ⚠️ **There is no `/docs` page**, only the four trees under it — the doorway was deleted 2026-08-17 and `/docs` 301s to `/docs/haus/` |
 | the install one-liner — the URLs, the desktop table, the ref pinning | **here**, `worker.js`, since 2026-08-14. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route**, and a row that ships is a promise that URL keeps resolving |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the family's strategy notes (`go-to-market.md`, monetization) | `notes/` in the workshop |
@@ -155,12 +193,15 @@ different session, so read the two together:
   `/desktops/everyday` and `/desktops/minimal` are **deleted**, and a desktop is
   documented at `content/docs/haus/desktops/<name>.mdx`. **No screenshot frames
   anywhere**, explicitly "until velocity slows".
-  - **What must not move**: the **`#desktops` id** on `/`, because the 301 and
+  - **What must not move**: the **`#desktops` id**, because the 301 and
     the 404 both land on it (the docs sidebar's way-out row did too, until
     2026-08-16 — see the docs section); and the six new
     301s in `public/_redirects`, because a desktop has had a canonical URL
-    under `/desktops/` since 2026-08-08. ⚠️ **`/` now has a second load-bearing id: `#apps`**, on the
-    "Also from hausfold" section, where the four `/terms` and `/refunds` 301s
+    under `/desktops/` since 2026-08-08. ⚠️ **The id lives on `/haus` since
+    2026-08-17**, not on `/`, because the whole Desktops section moved there
+    with the site split — same id, one floor down, both callers repointed in
+    the same commit. ⚠️ **`/` has a load-bearing id of its own: `#made`**, on
+    the "What we make" list, where the four `/terms` and `/refunds` 301s
     land (2026-08-16). Same rule, same reason — rename it and a published URL
     starts scrolling to the masthead instead of to its answer.
   - **Exact paths, never a `/desktops/*` wildcard.** The three deep URLs need
@@ -277,14 +318,16 @@ unchanged.
   So the two pages described seats, renewals and a fourteen-day window for a
   licence nobody held and nobody will. Four 301s in `public/_redirects` keep the
   URLs resolving.
-  - **They land on `/`, and that is the one retirement in this file with no
-    successor page.** Every other one had somewhere that carried what it
+  - **They land on `/#made`, and that is the one retirement in this file with
+    no successor page.** Every other one had somewhere that carried what it
     carried; here what they carried is gone. So the landing page's
-    "Also from hausfold" paragraph gained the sentence that makes the redirect
-    an answer rather than a soft 404: *Every one of them is free and open
+    index paragraph gained the sentence that makes the redirect
+    an answer rather than a soft 404: *All of it is free and open
     source: no account, no subscription, nothing to buy, nothing you can't take
     with you.* 🚨 **That sentence is now the site's only statement of the fact
-    — don't delete it as marketing.**
+    — don't delete it as marketing.** (It said *Every one of them* under the
+    heading `Also from hausfold`, which is what that section was called until
+    the 2026-08-17 split renamed it `What we make` and moved haus into it.)
   - The one thing that survived them is `/perch/privacy`, which is a **legal
     obligation on a free app** (the App Store listing links it) rather than a
     seller's page. Retiring the seller's surface never touched it.
@@ -359,12 +402,13 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | the landing page, and since 2026-08-14 an **index rather than an argument** — a two-word `.topnav` (docs, github), the masthead, then short sections: `Rooms` (added 2026-08-15, above the desktops so "which rooms are on" isn't a forward reference), `#desktops` (one short paragraph and **one link**, and it names no desktop), `haus` (one line and the one-file example, inherited from `/haus`, Shiki-highlighted at build time since 2026-08-15), `#apps` (`Also from hausfold`: since 2026-08-16 the whole index in one list — pounce, perch, trill, holt, nebelung — `Apps` stopped being a section of its own that day, the user's call, and its intro paragraph moved down with the rows. That paragraph is also **the site's only statement that everything is free and open source**, and the `/terms` and `/refunds` 301s land on the id). The user cut it by about two thirds and the instruction was **explain in `/docs`, point from here** — so a paragraph that teaches rather than routes belongs in the docs tree, once. Also the **JSON-LD organization record**, which is the site's machine-readable identity and lists both GitHub orgs on purpose |
+| `/` | `src/app/page.tsx` | **the house's door**, and since 2026-08-17 nothing else — a one-word `.topnav` (github), the masthead, a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source**, and the `/terms` and `/refunds` 301s land on that id. Also the **JSON-LD organization record**, the site's machine-readable identity. 🚨 Everything about *haus* moved to `/haus` in that split — the hero, `Rooms`, `#desktops`, the example file — so a paragraph here that explains the layer is in the wrong page, not merely too long. The 2026-08-14 instruction that shaped it still binds one level up: **explain in `/docs`, point from here** |
+| `/haus` | `src/app/haus/page.tsx` | **the layer's page**, added 2026-08-17 with what `/` used to carry: the hero paragraph, `Rooms`, `#desktops` (one short paragraph and **one link**, naming no desktop) and `One file` (the example, Shiki-highlighted at build time). Its `.topnav` is three words — `hausfold` back up, then **`/docs/haus` and `hausfold/haus`**, the layer's own docs and repo rather than the root and the org. It is a `.sheet--inner`, so there is no ⌂ and no standfirst: the mark belongs to the house. ⚠️ The URL 301'd to `/docs/haus/` from 2026-08-14 until this page landed; those two lines are deleted from `_redirects`, because a redirect is read ahead of the assets |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |
-| ~~`/terms`~~, ~~`/refunds`~~ | deleted 2026-08-16 | 🚨 **retired, not moved.** hausfold sells nothing, ever, so a licence page and a refund policy describe a transaction that will never happen. Four 301s in `public/_redirects` land both on `/`; rebuilding either is a positioning reversal. See the seller's-surface section |
+| ~~`/terms`~~, ~~`/refunds`~~ | deleted 2026-08-16 | 🚨 **retired, not moved.** hausfold sells nothing, ever, so a licence page and a refund policy describe a transaction that will never happen. Four 301s in `public/_redirects` land both on `/#made`; rebuilding either is a positioning reversal. See the seller's-surface section |
 | `404` | `src/app/not-found.tsx` | **moved out of `public/` on 2026-08-12**, two days before the rest — Next's export always writes its own `out/404.html` and overwrites a same-named file copied from `public/`, so leaving it there produced Next's grey default on the live site |
-| `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
+| `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs). ⚠️ **`/docs` itself is a 301 to `/docs/haus/`** as of 2026-08-17 — the doorway page is deleted |
 
 🚨 **`/desktops/{hacker,everyday,minimal}` are gone, as of 2026-08-14 —
 don't rebuild them.** They were the last sheets about a subject the docs also
@@ -378,30 +422,38 @@ reader after keys wants. `#first-moves` did come across and keeps its anchor, be
 [`install`](content/docs/haus/install.mdx)'s "First run" card and two
 `_redirects` lines point at it.
 
-🚨 **`/haus` is gone, as of 2026-08-14 — don't rebuild it.** It was written
+🔄 **`/haus` was gone from 2026-08-14 to 2026-08-17, and is a page again —
+read this paragraph as history plus one live rule.** The *first* `/haus` was
+written
 before the docs existed, and once `/docs/haus` landed it was a second, shorter,
 staler account of the same subject: its commands list was a subset of
 [`reference/haus`](content/docs/haus/reference/haus.mdx), its "what it covers"
 a subset of the rooms table, its four-desktops paragraph a subset of
 [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx). Two pages about
 one thing do not stay in step — the same rule this file applies to a product's
-sheet and its manual. `/haus` and `/haus/` now 301 to `/docs/haus/` in
-`public/_redirects`, and the docs sidebar lost its `haus` way-out row for the
-same reason (a link out of the docs that lands in the docs is the tree
-switcher). 🔄 **The whole way-out list is gone as of 2026-08-16** — see
+sheet and its manual. That retirement also cost the docs sidebar its `haus`
+way-out row, for the same reason (a link out of the docs that lands in the docs
+is the tree switcher). 🔄 **The whole way-out list is gone as of 2026-08-16** — see
 [The docs](#the-docs).
-**The one piece that was worth keeping is the example file**, which is a sales
-argument rather than a reference and so belongs on a sheet someone reads once:
-it moved to the landing page's `haus` section, which gained a heading
-in the same commit. The **2026-08-12 reasoning — don't open
-with haus, because that answers "how" before anyone has asked "what" — still
-shapes the top of the page**: Rooms and Desktops come first. ⚠️ But the letter
-of that decision ("haus comes after the products") was superseded on
-2026-08-16, the user's call: `Apps` stopped being a section, its three rows
-joined holt and nebelung in "Also from hausfold", and that five-row index is
-what closes the page now, after haus. The section-order history: haus opened
+
+🚨 **The live rule is that the rebuilt `/haus` must not become that page
+again.** It is not a second account of the docs — it is the front door that
+used to be `/`, moved down one floor when the site split on 2026-08-17: the
+hero paragraph, Rooms, Desktops and the example file, each of which was already
+carrying its argument on the landing page. If it ever starts listing commands
+or restating the rooms table, it is repeating 2026-08-14 and the fix is to cut,
+not to keep in step. Its two `_redirects` lines are **deleted**, because a
+redirect is read ahead of the assets and would 301 the page away from itself.
+**The example file is the piece that made the round trip**: retired off the
+first `/haus` onto the landing page, and home again with the rest. The
+**2026-08-12 reasoning — don't open
+with haus, because that answers "how" before anyone has asked "what" — now
+shapes two pages instead of one**: `/` answers *what is hausfold* in three
+lines and a list, and `/haus` opens with Rooms and Desktops before the file.
+The section-order history, all of it on `/` until the split: haus opened
 the page, then trailed it (2026-08-12), then sat after `Apps` (2026-08-14),
-and now sits between `#desktops` and the closing index.
+then between `#desktops` and the closing index (2026-08-16), and now has a
+page of its own with the index left behind on `/`.
 
 The three things every page above shares, and where they live now — this is the
 part that used to be hand-copied nine times:
@@ -529,8 +581,10 @@ Rules that are easy to break by accident:
   requiring a hover to happen at all: a product's name in the index takes **that product's
   own accent**, and the `⌂` mark takes **all six at once**, as stripes.
   🚨 **A desktop is not a product, and does not get an accent.** No desktop is
-  named on `/` any more — the desktops section is one short paragraph and one
-  link since 2026-08-14 — so nothing there carries a `data-accent` at all, and the rule
+  named on a landing page any more — the desktops section is one short
+  paragraph and one
+  link since 2026-08-14, on `/haus` since the 2026-08-17 split — so nothing
+  there carries a `data-accent` at all, and the rule
   is written here rather than demonstrated there. It bound the landing page for
   the hours when three names sat in that line: only the developer desktop carried one,
   because the rice is a named thing with a hue assigned upstream, while
@@ -574,18 +628,20 @@ Rules that are easy to break by accident:
   the file that does.
 
   **A fourth exception, added 2026-08-15 at the user's request: the code
-  block.** The haus example on `/` is Shiki-highlighted at build time
+  block.** The haus example is Shiki-highlighted at build time
   ("uncoloured code, never" was the instruction) with the same css-variables
   ramp the docs' blocks spend — `--nb-token-*`, which resolves to the site's
   own light accents on paper and to nebelung's ramp in dark, so it holds
-  colour at rest on a landing page. Same spirit as the favicon: nothing new is
+  colour at rest on a landing page. (It was on `/` until the 2026-08-17
+  split and is on `/haus` now, with the section it belongs to.) Same spirit
+  as the favicon: nothing new is
   owned, the vocabulary is unchanged, and it is one block. The dark fork for
   the landing half lives in `src/app/global.css` under
   `prefers-color-scheme` + `body:has(.sheet)`, because those pages never
   carry `data-theme` or the docs' `.dark` class. A code block anywhere on the
   landing half inherits this; prose and chrome still don't. ⚠️ **Widened
   2026-08-16, at the user's request, from "one block" to "code, wherever it
-  is code"**: the two inline commands in the haus section's aside (`haus
+  is code"**: the two inline commands in the example's aside (`haus
   rebuild`, `haus rollback`) go through the same build-time Shiki pipeline
   and hold the same ramp at rest. The line that matters is unchanged — the
   exception covers `<code>`, never prose or chrome, and everything it
@@ -625,11 +681,12 @@ Rules that are easy to break by accident:
   `prefers-color-scheme` exactly as they did when they were hand-written HTML
   and shipped no toggle at all. What the rule still governs is *our* script,
   and there is exactly one piece: `<Command>`
-  (`src/components/command.tsx`), used on `/` and `/perch`, which was four
+  (`src/components/command.tsx`), used on `/haus` and `/perch`, which was four
   identical twelve-line `<script>` blocks
-  until the port. (Three of those four pages no longer exist: `/haus` and
-  `/pounce` became docs trees — the landing page inherited `/haus`'s example
-  file — and `/desktops/hacker` was deleted.) Its bar is
+  until the port. (Of those four pages, `/pounce` became a docs tree and
+  `/desktops/hacker` was deleted; `/`'s copy went to `/haus` with the example
+  file in the 2026-08-17 split, and `/` now ships none of our script at all.)
+  Its bar is
   unchanged and is the bar for a second one: the
   button renders `hidden` in the exported HTML and unhides only where
   `navigator.clipboard` exists, so the command is plain selectable text with JS
@@ -650,11 +707,14 @@ Rules that are easy to break by accident:
   rather than for honesty; `/desktops/hacker` drew three, then one, then
   none of them, because the page went.
 
-  🚨 **Neither `/` nor a docs page holds a frame, and this bullet argued the
+  🚨 **Neither `/`, nor `/haus`, nor a docs page holds a frame, and this
+  bullet argued the
   first of those three ways in one day.** It began as "the one exception, no
   frame at all"; the user reversed that and every catalogue row got one; then
   the user cut the catalogue itself, and the instruction with it was explicit
-  — **no images on `/` until the site's velocity slows.** Hours later the three
+  — **no images on the front page until the site's velocity slows** (`/`'s at
+  the time; the rule followed the desktops section to `/haus` on 2026-08-17).
+  Hours later the three
   desktop pages were deleted and their frames with them, so the current rule is
   the simplest of all of them: **a shot frame belongs on a landing page that is
   *about* one app**, which is `/perch` and nothing else today. The docs
@@ -716,7 +776,8 @@ Rules that are easy to break by accident:
     against the page's margin cannot drift apart; change the side padding
     there, not in `.sheet`.
   - **It applies to every `.sheet` route, not only `/`** — the landing page,
-    `/perch`, `/perch/privacy` and the 404 (`/terms` and `/refunds` were two
+    `/haus`, `/perch`, `/perch/privacy` and the 404 (`/terms` and `/refunds`
+    were two
     more until 2026-08-16). One rule,
     one axis, no page centred beside the rest. ⚠️ `/perch/privacy` is the one
     that can slip:
@@ -819,7 +880,7 @@ Rules that are easy to break by accident:
   `notes/perch-monetization.md` in the workshop is history rather than a source
   of truth, and this bullet is no longer a "not yet" — it is the position. The
   landing page says the free-and-open-source half out loud, once, in
-  `Also from hausfold`; everything else is silence rather than a promise.
+  `What we make`; everything else is silence rather than a promise.
 - **Links go inward.** The landing page used to index the products and point
   out; once `/docs`, `/holt`, `/pounce` and `/perch` were served from this repo
   most of those links became *internal*. "Outward" was never a principle — it
@@ -839,7 +900,10 @@ Rules that are easy to break by accident:
   since 2026-08-14, when the sheet was retired into the docs tree — still
   inward, one door further in.) **`trill` is the fourth and the smallest**: its
   name on the index was inert text, with nothing to point at, until it got a
-  docs tree on 2026-08-14 and became a link in the same commit. What's left
+  docs tree on 2026-08-14 and became a link in the same commit. **`haus` is the
+  fifth and arrived as a row rather than as a redirection**: the 2026-08-17
+  split gave it the first line of the index, pointing at `/haus`, which is the
+  page that took everything the index used to say about it. What's left
   pointing out of the index is `holt` and `nebelung`, which have no page here
   yet.
 
@@ -1159,9 +1223,9 @@ Two things did **not** go with the row. The `desktops` glyph stays in
 [`rooms/creating`](content/docs/haus/rooms/creating.mdx)'s way-onward card
 points at `desktops/creating` with it, and removing the entry costs that card
 its glyph and prints `[icons] unknown icon` at build time rather than failing.
-And ⚠️ **the `#desktops` anchor on `/` is still load-bearing**: the
+And ⚠️ **the `#desktops` anchor is still load-bearing**: the
 `/desktops` 301 and `src/app/not-found.tsx` both land on it. This row going
-does not free it.
+does not free it, and neither did its move to `/haus` on 2026-08-17.
 
 ### Components
 
@@ -1170,7 +1234,7 @@ does not free it.
 that hides the prose from search and from `llms-full.txt`. Adding one is a
 decision.
 
-Four components are ours. Two are thin, and exist to give the stylesheet a
+Three components are ours. Two are thin, and exist to give the stylesheet a
 class rather than a guess:
 
 - **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
@@ -1182,22 +1246,24 @@ class rather than a guess:
   element selector inside fumadocs' chrome**; the same element is three
   different things in three places.
 
-The third is a shape change rather than a class, and it exists because of one
-page:
+The third is a decision rather than a class:
 
-- **`Folder`** (same file, added 2026-08-14 at the user's request) renders a
-  page-tree folder as a **link**, never fumadocs' collapsible. The only
-  folders in this tree are the four roots — every tree's `meta.json` lists its
-  pages as explicit paths, so nothing below a root is ever a folder node — and
-  they are visible in exactly one place, `/docs` itself, which sits outside all
-  four. Fumadocs' default there is an accordion over a title that isn't a link;
-  `/docs` is a doorway with four `<Cards>` on it and the sidebar beside them
-  should answer the same question the same way. 🚨 **The href comes from
-  `$id`, not from `node.index`** — a root folder's index page is lifted out of
-  the tree before the layout sees it, which is the same trap the eyebrow in
-  `src/app/docs/[[...slug]]/page.tsx` documents.
+🔄 **A `Folder` component was the third of these from 2026-08-14 to
+2026-08-17, and it is deleted rather than kept.** It rendered a page-tree
+folder as a **link**, never fumadocs' collapsible, and the reasoning was
+sound: the only folders in this tree are the four roots — every tree's
+`meta.json` lists its pages as explicit paths, so nothing below a root is ever
+a folder node — and they were visible in exactly one place, `/docs` itself,
+which sat outside all four. That page is gone (see the site split at the top
+of this file), so nothing renders a folder row at all, and the component and
+its `.hf-tree` geometry in `src/app/global.css` went with it. 🚨 **If a page
+outside all four trees ever comes back, so does this**, and the one
+non-obvious line to restore is that **the href comes from
+`$id`, not from `node.index`** — a root folder's index page is lifted out of
+the tree before the layout sees it, which is the same trap the eyebrow in
+`src/app/docs/[[...slug]]/page.tsx` documents.
 
-The fourth is not thin either, and it is a decision rather than a class:
+The last is not thin either, and it is a decision rather than a class:
 
 - **`ViewOptions`** (`src/components/page-actions.tsx`) is the "Open in…" menu
   in the page's meta row, and it **replaces** fumadocs' `ViewOptionsPopover`
@@ -1280,7 +1346,8 @@ nothing under `public/` to `open` and no `file://` trap left to fall into.
 - Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
   asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
   **and `worker.js`**. Worth it for anything touching a URL: `/desktops` should
-  301 to `/#desktops`, `/haus` to `/docs/haus/`, and a nonexistent path
+  301 to `/haus/#desktops`, `/docs` to `/docs/haus/`, `/haus` should be a page
+  rather than a redirect, and a nonexistent path
   should 404 rather than answer 200.
 - Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
   `wrangler dev` loop above for the routing, because the one thing the unit
@@ -1418,7 +1485,7 @@ Three things are **not** small, because they're positioning and not code:
   sentence about the shape of the list promises nothing anyone can click.
   ("One entry, no apology" was this rule's shape until 2026-08-14 — read it as
   history, not as a cap.) ⚠️ **The rows left this site entirely the same day**:
-  `/` names no desktop at all, and everything a reader compares is
+  no landing page names a desktop, and everything a reader compares is
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table plus
   the four pages beside it. **The bar is unchanged and is now cleared in the
   docs** — which is a lower-ceremony place to add a page, so it is the place
@@ -1447,8 +1514,10 @@ Three things are **not** small, because they're positioning and not code:
   `src/lib/icons.tsx` and an entry in `content/docs/haus/meta.json` under
   `---Desktops---`; and a row in
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
-  ⚠️ **Nothing on `/` any more** — the landing page named the three for a few
-  hours on 2026-08-14 and stopped, so a new desktop does not touch it. 🚨
+  ⚠️ **No landing page, either** — `/` named the three for a few
+  hours on 2026-08-14 and stopped, and the section that replaced them lives on
+  `/haus` since 2026-08-17 and still names none, so a new desktop touches
+  neither page. 🚨
   **`blank` deliberately has neither the `.nix` row in `DESKTOPS` nor an
   installer URL** — it is a real desktop in the repo and is the null selection
   for someone assembling rooms by hand, so `hausfold.co/blank.sh` would promise

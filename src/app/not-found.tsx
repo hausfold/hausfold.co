@@ -32,20 +32,29 @@ export default function NotFound() {
       </header>
 
       <section>
-        {/* No data-accent: neither of these is a product's name, and the
-            accent rule exists so a product's colour follows a product. The
-            house tinting itself pink would break exactly that. */}
+        {/* No data-accent on `hausfold`: that is the house, and the accent
+            rule exists so a product's colour follows a product. `haus` is a
+            product and still takes none, for the reason the ⌂ takes all six —
+            the layer everything sits in borrows every colour and owns none.
+            A desktop is not a product and never had one either.
+
+            🚨 The middle row is `/haus/#desktops`, NOT bare `/haus`, and the
+            anchor is the point: this page is one of the two callers
+            `public/_redirects` and AGENTS.md name for that id, and dropping it
+            here would leave the `/desktops` 301 holding it alone while four
+            files still said otherwise. It moved from `/#desktops` to
+            `/haus/#desktops` on 2026-08-17, with the section itself. */}
         <ul className="index" role="list">
           <li>
             <Link className="index-name" href="/">
               hausfold
             </Link>
             , the house.{' '}
-            <Link className="index-name" href="/#desktops">
+            <Link className="index-name" href="/haus/#desktops">
               desktops
             </Link>
             , the ones you can run.{' '}
-            <Link className="index-name" href="/docs">
+            <Link className="index-name" href="/docs/haus">
               docs
             </Link>
             , how any of it works.

@@ -380,30 +380,12 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   border-bottom: 1px solid var(--rule);
 }
 
-/* A tree's row at `/docs` — the four roots, rendered as links rather than as
-   accordions (see `Folder` in src/components/sidebar-parts.tsx).
-
-   This rule is geometry only, and it exists because fumadocs does not export
-   the styled `SidebarItem` its own renderer uses — the base primitive is a
-   bare `<a>`. The numbers are fumadocs' own (`p-2`, `gap-2`, `rounded-lg`,
-   `size-4` on the glyph) so a tree row sits on exactly the grid its
-   neighbours do. Everything else — ink, hover, the active wash, the glyph's
-   tint — comes from the `#nd-sidebar a` rules below, which reach this row
-   like any other and are the reason it cannot drift out of step. */
-.hf-tree {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-}
-
-.hf-tree svg {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-}
+/* 🚨 `.hf-tree` lived here from 2026-08-14 to 2026-08-17: geometry for a root
+   folder's row at `/docs`, which fumadocs does not export a styled primitive
+   for. Both it and the `Folder` component it dressed are gone with the page
+   that was their only caller — the four roots are the sidebar's whole contents
+   nowhere else, because every tree's `meta.json` lists its pages as explicit
+   paths. Inside a tree, the switcher is what moves between them. */
 
 /* The active page is where the sidebar spends the page's accent. Fumadocs
    paints it with a tinted fill of its own (`bg-fd-primary/10`) and the
