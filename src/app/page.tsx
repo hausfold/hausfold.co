@@ -149,11 +149,23 @@ export default function Home() {
               retirement of `/terms` and `/refunds`: nothing hausfold
               publishes is for sale, and both of those URLs now 301 here, so
               this paragraph is what a reader who typed `/refunds` gets as an
-              answer. It is the site's only statement of the fact. */}
+              answer. It is the site's only statement of the fact.
+
+              🚨 The opening sentence is not new copy: it is the deleted
+              `/docs` doorway's own line ("haus is the machinery; the rest
+              are things that run on it, and run perfectly well on a Mac
+              that has never heard of it"), rehomed rather than dropped when
+              that page went on 2026-08-17. It has to be *somewhere*: it is
+              the axis the whole site is organised on (AGENTS.md's tree
+              switcher, "the layer, and the apps"), and without it a list
+              with haus at the top reads as haus plus five accessories,
+              which is the exact misreading this page's split exists to
+              prevent. */}
           <p>
-            Small, native, and every one of them keeps its settings in a plain file you can read and
-            hand to an agent. All of it is free and open source: no account, no subscription,
-            nothing to buy, nothing you can&apos;t take with you.
+            haus is the machinery; the rest run on it, and run just as well on a Mac that has never
+            heard of it. All small, all native, and each keeps its settings in a plain file you can
+            read and hand to an agent. Every one is free and open source: no account, no
+            subscription, nothing to buy, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
             {/* No data-accent, and it is the one row that couldn't have one:

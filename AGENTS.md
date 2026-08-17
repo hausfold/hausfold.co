@@ -44,6 +44,17 @@ built, run and deployed, and this file covers what you may change.
 >   duplicating another. The four **trees** are untouched; the switcher at the
 >   head of the sidebar is what moves between them, and the house mark in the
 >   docs nav goes to `/`, not to `/docs`.
+>   - **Two things off it were salvaged rather than dropped**, and both had to
+>     land somewhere specific. Its `llms.txt` / `llms-full.txt` guidance is now
+>     the closing section of
+>     [`haus/agent-rebuilds`](content/docs/haus/agent-rebuilds.mdx), which is
+>     the page a reader pointing a model at this site is already on. And its
+>     best sentence — *haus is the machinery; the rest are things that run on
+>     it, and run perfectly well on a Mac that has never heard of it* — opens
+>     `#made` on `/`. 🚨 **That one is load-bearing prose, not flavour**: it is
+>     the axis the whole site is organised on (the docs switcher, "the layer,
+>     and the apps"), and a six-row list with haus at the top reads as haus
+>     plus five accessories without it.
 >
 > Three consequences that will bite a session that doesn't know:
 >
