@@ -95,6 +95,27 @@ live conversation instead of replaying a transcript. The trade is splits: zmx
 has none by design, so windows tiles real windows rather than a second window
 manager nested inside a terminal.
 
+**The rows above change meaning when a lane stops being a pane**, because a
+chord only zellij could hear no longer reaches the thing it names. *That backend*
+needs `haus.windows.enable`, asserted rather than assumed, since the windows room
+is what places a lane and what holds the chord that starts one.
+
+| Keys | Under `"zmx"` |
+|---|---|
+| `⌃⌘A` | Starts a lane, from anywhere. It replaces `⌘A`/`⌘⇧A`, which are unbound; [the AI room](/docs/haus/rooms/ai) has why the chord had to leave the multiplexer |
+| `⌘P` / `⌘⇧P` | Still a new shell in the focused window's directory, but a **window** rather than a pane. `⇧` still stays inside an agent worktree |
+| `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
+| `⇪ T` | Not one of the rows above but the windows leader's terminal letter, which becomes page-aware: back to whichever lane page you used last |
+
+Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
+work don't pile onto one screen. `⌘P` and `⌃⇥` are only taken while Ghostty is
+frontmost, so `⌘P` still prints from a browser and `⌃⇥` still walks that app's
+own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, which
+is why an older pounce simply ignores both chords, and it gains a **Lanes**
+command to go with them: fuzzy over every lane with its state, `↵` focusing that
+lane's window or waking a parked one, and `/` plus a word searching what the
+agents are *saying* across every live session.
+
 **zellij boots Locked.** Its single-key submode leaders stay inert until you
 press `Ctrl g`, so a stray keystroke can't drop you into resize mode. Everything
 in the table above works regardless. `haus.terminal.zellijStartLocked` flips it.
