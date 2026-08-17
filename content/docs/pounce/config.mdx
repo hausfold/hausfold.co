@@ -87,10 +87,7 @@ older Pounce never chokes on a config written by a newer one.
   },
   "appHotkeys": {            // chords that only exist over one app, see below
     "enabled": false,        // needs Accessibility
-    "scopes": [
-      { "bundleId": "com.mitchellh.ghostty",
-        "keys": [ { "key": "p", "modifiers": ["cmd"], "target": "cmd:shell-here" } ] }
-    ]
+    "scopes": []          // worked example below
   },
   "pages": {                 // an MRU walk over a family of workspaces, see below
     "enabled": false,        // needs Accessibility
@@ -100,6 +97,7 @@ older Pounce never chokes on a config written by a newer one.
     "bundleId": null,        // scope the walk to one app; null = anywhere
     "mruFile": null          // recency file your window manager's hook maintains
   },
+  "fnKey": "tap",            // how pounce takes the Fn/Globe key, see below
   "items": {                 // per-item enable / alias / hotkey, see below
     "cmd:emoji": { "alias": "emo", "hotkey": "opt+space e" }
   }
@@ -166,11 +164,11 @@ runs the item directly, skipping the palette: the last segment is the key, the
 rest modifiers, and the object form `{"key": …, "modifiers": …}` works too.
 
 The laptop **Fn/Globe key** is a one-step special case
-(`"mode:emoji": { "hotkey": "fn" }`), using a keyboard event tap that needs
-Accessibility, firing only on a lone tap so Fn combinations keep working.
-`"globe"` / `"function"` are accepted aliases; haus binds emoji to it by
-default, and `haus.launcher.items."mode:emoji".hotkey = null` leaves Globe
-native.
+(`"mode:emoji": { "hotkey": "fn" }`), firing only on a lone tap so Fn
+combinations keep working; `"globe"` / `"function"` are accepted aliases. How
+pounce takes that key at all is [`fnKey`](#the-fnglobe-key-fnkey). haus binds
+emoji to it by default, and `haus.launcher.items."mode:emoji".hotkey = null`
+leaves Globe native.
 
 ### Leader sequences
 
@@ -185,7 +183,35 @@ them the instant one fires. Escape cancels; hesitate ~0.45s and a which-key
 overlay lists the next keys. `pounce doctor` reports every binding it actually
 armed.
 
-### Chords that only exist over one app (`appHotkeys`)
+### Driving Pounce from another binder
+
+AeroSpace modes, skhd, Shortcuts:
+
+```sh
+pounce run cmd:emoji
+pounce run mode:clipboard
+```
+
+Same target grammar as `items`, through the same path a native binding takes; a
+malformed target exits non-zero with a reason.
+
+## The Fn/Globe key (`fnKey`)
+
+Binding an item to `fn` is a one-step special case, and `fnKey` decides how
+pounce gets the key:
+
+| | |
+|---|---|
+| `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: HIToolbox carries its own Globe handler inside every process, below the event stream a tap can see, so macOS's Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but that value is read from login-session state, so it wants a logout, and even then the two are racing |
+| `"remap"` | Takes Fn away at the HID layer instead: it becomes F19, which pounce binds like any ordinary key. No Accessibility for this binding, and nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
+
+`remap` undoes itself and falls back to the tap if F19 is already taken or the
+keyboard doesn't expose Fn. Standalone it is applied while the daemon runs and
+removed when it exits; [inside haus](/docs/haus/rooms/launcher#the-fnglobe-key)
+it is declared instead, so it outlives the daemon. `pounce doctor` reports
+which of the two is carrying the key.
+
+## Chords that only exist over one app (`appHotkeys`)
 
 A global hotkey is all-or-nothing: macOS either swallows the chord everywhere
 or nowhere. `appHotkeys` is the other shape. Each scope names a `bundleId` and
@@ -207,7 +233,7 @@ chord and a palette row are one address. It reads keys as they pass, so it
 needs Accessibility, and it is armed at startup: an edit wants the daemon
 bounce above.
 
-### Walking a family of workspaces (`pages`)
+## Walking a family of workspaces (`pages`)
 
 Hold a modifier, tap a key, step through the **non-empty** AeroSpace workspaces
 under a prefix in most-recent-first order: ⌘Tab's muscle memory, aimed at
@@ -220,7 +246,7 @@ screen you are stepping through is the feedback.
 
 `prefix` matches a workspace named `T` or anything under `T/`. Recency comes
 from `mruFile`, a newest-first list your window manager's workspace-change hook
-appends to; a walk repairs its own trail on release, so passing through three
+pushes onto; a walk repairs its own trail on release, so passing through three
 pages doesn't rank them above where you started. `bundleId` scopes the chord
 like a scope above, which is how a browser keeps ⌃Tab for its own tabs.
 
@@ -229,18 +255,6 @@ Under `haus.terminal.lanes.backend = "zmx"` the [Development
 room](/docs/haus/rooms/development) sets these up as the lane keyboard: ⌘P/⌘⇧P
 open a shell window over Ghostty, ⌃Tab/⌃⇧Tab walk the `T/<repo>` lane pages.
 </Callout>
-
-### Driving Pounce from another binder
-
-AeroSpace modes, skhd, Shortcuts:
-
-```sh
-pounce run cmd:emoji
-pounce run mode:clipboard
-```
-
-Same target grammar as `items`, through the same path a native binding takes; a
-malformed target exits non-zero with a reason.
 
 ## File paths
 
