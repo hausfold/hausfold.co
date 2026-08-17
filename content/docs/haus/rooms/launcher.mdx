@@ -55,6 +55,23 @@ haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 `haus.theme.contrast` reach it as a palette file, so the palette matches the
 rest of the house without a second theme setting.
 
+### The Fn/Globe key
+
+haus binds the emoji picker to Fn, and macOS wants that key too: HIToolbox
+carries its own Globe handler inside every process, below the event stream
+pounce can read, so Apple's Emoji & Symbols picker can open alongside ours.
+`haus.launcher.fnKey` decides how that argument is settled:
+
+| | |
+|---|---|
+| `"tap"` | The default. Pounce reads Fn with an event tap and **shares** the key, so macOS may still answer it. Setting System Settings ▸ Keyboard ▸ "Press 🌐 key to" to Do Nothing helps, but the two are still racing |
+| `"remap"` | Turns Fn into F19 at the HID layer, so there is no Fn key left for macOS to race. The cost is that Fn stops being Fn **everywhere**: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
+
+Worth `remap` on a Mac where Fn is only ever the emoji key; a bad trade where
+Fn+arrows is muscle memory. Or hand the key back entirely with
+`haus.launcher.items."mode:emoji".hotkey = null`. `pounce doctor` reports which
+of the two is actually carrying the key.
+
 <Callout title="Keeping the Accessibility grant">
 ```nix
 haus.launcher.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";

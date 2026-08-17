@@ -40,6 +40,20 @@ steals the drop. It's the only thing perch asks of your Mac.
 - **Nothing else.** perch asks for none of the permissions that make a Mac app
   feel invasive: no Accessibility, no Input Monitoring, no Screen Recording.
 
+## The command line
+
+`perch add` ships **inside** the app, at
+`Perch.app/Contents/MacOS/perch-cli`, so it is signed and notarized with it and
+can never drift from the shelf it talks to. It isn't on your PATH by itself.
+Link it out once:
+
+```sh
+ln -s /Applications/Perch.app/Contents/MacOS/perch-cli /usr/local/bin/perch
+```
+
+On a haus machine the Shelf room does that for you. [Using the
+shelf](/docs/perch/using) has what it does with a path once it has one.
+
 ## On a haus machine
 
 If your Mac runs [haus](/docs/haus), let the Shelf room own perch instead; it

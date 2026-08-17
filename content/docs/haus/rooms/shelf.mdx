@@ -34,6 +34,18 @@ Standalone and in-the-house are the same app: if you already installed it with
 `brew install --cask hausfold/tap/perch`, letting the room own it is the
 upgrade.
 
+The room also puts **`perch` on your PATH**, the shelf's command-line door:
+
+```sh
+perch add report.pdf shot.png
+```
+
+The tool lives inside the bundle (signed and notarized with the app, and it
+cannot be named `perch` in there without replacing the app's own executable on
+a case-insensitive disk), so the room links it out of the copy in
+`/Applications` rather than installing a second one. [Using the
+shelf](/docs/perch/using) has what it does.
+
 ## Configure it
 
 There is one setting, and it's about colour:
