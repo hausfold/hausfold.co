@@ -65,7 +65,7 @@ Two of the unbindings are fixes rather than hand-offs:
 
 | Keys | What happens |
 |---|---|
-| `⌘P` / `⌘⇧P` | New pane. The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
+| `⌘P` / `⌘⇧P` | New shell **window**, in the focused window's directory. The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
 | `⌘T` / `⌘⇧T` | New tab at `$HOME` / at the focused pane's directory. Fresh tabs are born named `~`, never `Tab #N`. |
 | `⌘W` | Close the focused pane (and the tab with it, when it was the last one) |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
@@ -73,37 +73,27 @@ Two of the unbindings are fixes rather than hand-offs:
 | `⌘⏎` | Fullscreen the focused pane, or Ctrl-click the pane body |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
 | `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
-| `⌘A` / `⌘⇧A` | Spawn a coding agent in its own worktree, beside the focused pane or in place of it |
+| `⌃⌘A` | Spawn a coding agent in its own worktree — a global chord, so it works from any window |
 | `⌃⌥⇧A` | Spawn one in **this** checkout instead of its own worktree |
-| `Ctrl Tab` | Walk tabs in most-recently-used order, browser-style |
+| `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `Alt [` / `Alt ]` | Cycle layouts: grid → spiral → columns |
 
-**An agent worktree** is the throwaway checkout `⌘A` puts a coding agent in: its
+**An agent worktree** is the throwaway checkout `⌃⌘A` puts a coding agent in: its
 own copy of the repo on its own branch, so several agents can work at once
 without fighting over one set of files. Half the rows above have a `⇧` variant
 because of it: the plain key assumes you want the *real* repo, and `⇧` says stay
 in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle: resuming one, setting work aside, cleaning up.
 
-**Where that agent's terminal lives is this room's call**, though, and
-`haus.terminal.lanes.backend` is the switch. `"zellij"`, the default, is what the
-rows above describe: the lane is a pane in the `main` session. `"zmx"` makes it
-its own [zmx](https://github.com/neurosnap/zmx) session in its own Ghostty
-window, tiled by windows. The session outlives every client attached to it, so
-`⌘W` detaches and the agent keeps thinking, and reopening the lane rejoins the
-live conversation instead of replaying a transcript. The trade is splits: zmx
-has none by design, so windows tiles real windows rather than a second window
-manager nested inside a terminal.
-
-**Under `"zmx"` the rows above change**, since a lane is a window rather than a
-pane. That backend also needs `haus.windows.enable`, asserted at build time.
-
-| Keys | Under `"zmx"` |
-|---|---|
-| `⌃⌘A` | Starts a lane, from anywhere. It replaces `⌘A`/`⌘⇧A`, which are unbound; [the AI room](/docs/haus/rooms/ai) has why the chord had to leave the multiplexer |
-| `⌘P` / `⌘⇧P` | Still a new shell in the focused window's directory, but a **window** rather than a pane. `⇧` still stays inside an agent worktree |
-| `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
-| `⇪ T` | Not one of the rows above but the windows leader's terminal letter, which becomes page-aware: back to whichever lane page you used last |
+**A lane's terminal is not a pane.** It is its own
+[zmx](https://github.com/neurosnap/zmx) session in its own Ghostty window, which
+is why `⌃⌘A` is a global chord rather than a zellij one — [the AI
+room](/docs/haus/rooms/ai) has that story. The session outlives every client
+attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening the
+lane rejoins the live conversation instead of replaying a transcript. The trade
+is splits: zmx has none by design, so [windows](/docs/haus/rooms/windows) tiles
+real windows rather than a second window manager nested inside a terminal. That
+room has to be on, which is asserted at build time rather than suggested.
 
 Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
 work don't pile onto one screen. `⌘P` and `⌃⇥` are only taken while Ghostty is
