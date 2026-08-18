@@ -176,9 +176,10 @@ export default async function Haus() {
             the third. `#whats-in-the-box` is the id github-slugger gives that
             heading; if the heading is ever reworded in
             content/docs/haus/index.mdx, this href is a caller and moves with
-            it. It also settles the duplication the paragraph above hedges
-            about: the nav goes to the page, this goes to the table, so the
-            two are no longer the same destination spelled twice.
+            it. It also happens to part this link from the nav's — the nav
+            goes to the page, this goes to the table — but the exemption
+            above is what carries that, not the anchor: the rule is about a
+            section, and chrome was never inside it.
 
             🚨 The thing this deliberately is NOT is a rooms index page. A
             second list of the twelve rooms is exactly the two-copies-of-one-
