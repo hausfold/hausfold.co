@@ -216,14 +216,15 @@ which of the two is carrying the key.
 A global hotkey is all-or-nothing: macOS either swallows the chord everywhere
 or nowhere. `appHotkeys` is the other shape. Each scope names a `bundleId` and
 the chords to consume **while that app is frontmost**. Everywhere else the
-keystroke is passed through untouched, so ⌘P still prints in your browser.
+keystroke is passed through untouched, so ⌘N still opens a new window in your
+browser.
 
 ```jsonc
 "appHotkeys": {
   "enabled": true,
   "scopes": [
     { "bundleId": "com.mitchellh.ghostty",
-      "keys": [ { "key": "p", "modifiers": ["cmd"], "target": "cmd:shell-here" } ] }
+      "keys": [ { "key": "n", "modifiers": ["cmd"], "target": "cmd:shell-here" } ] }
   ]
 }
 ```
@@ -252,7 +253,8 @@ like a scope above, which is how a browser keeps ⌃Tab for its own tabs.
 
 <Callout title="haus wires both for you">
 The [Development room](/docs/haus/rooms/development) sets these up as the lane
-keyboard: ⌘P/⌘⇧P open a shell window over Ghostty, ⌃Tab/⌃⇧Tab walk the
+keyboard: ⌘N/⌘⇧N open a shell window over Ghostty, ⌘⏎ starts an agent lane,
+⌃Tab/⌃⇧Tab walk the
 `T/<repo>` lane pages.
 </Callout>
 

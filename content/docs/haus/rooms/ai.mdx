@@ -8,7 +8,7 @@ related:
     href: "/docs/haus/agent-rebuilds"
     icon: "wand"
   - title: "Development"
-    description: "Where ⌃⌘A lives: the rest of the terminal keys, and the ⇧ variants that stay inside a worktree."
+    description: "Where ⌘⏎ lives: the rest of the terminal keys, and the ⇧ variants that stay inside a worktree."
     href: "/docs/haus/rooms/development"
     icon: "shell"
 ---
@@ -18,7 +18,7 @@ branch out from under the other, uncommitted edits collide, and closing a pane
 mid-thought can lose work. **`holt`** fixes that by giving every agent its own
 checkout, and haus puts it on your `PATH`, wired to a keybind.
 
-Press **⌃⌘A** — from any window, not just a terminal — and you get a fresh
+Press **⌘⏎** — from any terminal window, a pane or another agent's lane alike — and you get a fresh
 agent session in an isolated git worktree: its own checkout on a
 `worktree-<name>` branch, branched from the repo's local `HEAD`, living
 **outside** the repo under `~/.cache/claude-worktrees/<repo>/<name>` so your
@@ -36,10 +36,13 @@ the [Development](/docs/haus/rooms/development) room sets up.
 <Callout type="warn" title="Why the chord isn't ⌘A">
 A lane is a window, not a pane, so the bind can't live in the multiplexer:
 zellij's only way to run a command is to open a pane, and a lane's own window
-has no zellij in it to receive one. ⌃⌘A sits in
-[windows](/docs/haus/rooms/windows) instead, the one layer that sees every
-window — which is why that room has to be on, asserted at build time. ⌘A is
-plain select-all again.
+has no zellij in it to receive one. ⌘⏎ is held by
+[pounce](/docs/pounce/config#chords-that-only-exist-over-one-app-apphotkeys)
+instead, scoped to Ghostty — consumed only while a terminal window is
+frontmost, so ⌘⏎ still means *send* in Slack and everywhere else. ⌘A is plain
+select-all again. [windows](/docs/haus/rooms/windows) still has to be on, and
+that is still asserted at build time: it is what tiles each lane onto its
+repo's own page.
 </Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's
@@ -116,7 +119,7 @@ in the first prompt.
 
 ```nix
 haus.ai.clients = [ "claude" "opencode" ];  # what's installed
-haus.ai.default = "claude";                 # what ⌃⌘A spawns
+haus.ai.default = "claude";                 # what ⌘⏎ spawns
 ```
 
 `ai.default` must be one of `ai.clients`, and the rebuild says so by name if it
@@ -133,7 +136,7 @@ client, `brew upgrade` moves jcode, and jcode's own in-app updater will too
 unless you set `features.check_updates = false` in `~/.jcode/config.toml`.
 
 All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
-⌃⌘A keybind, the tab marks, the statusline, the client wiring. Rooms are
+⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
 independent, so the switch is yours (or your desktop's) to set; hacker turns
 it on and names both options above. Turn the room off and `ai.clients` is ignored
 whole rather than half-wiring the machine, so a host can drop the room without
@@ -158,7 +161,7 @@ yourself) and the room's default steps aside.
 jcode has no way to open on a first message — no positional prompt, no
 `--prompt`, no stdin. So Pounce's **Spawn Agent** still makes the worktree, the
 branch named after what you typed and the pane, but the task itself goes to your
-**clipboard** with a notice saying so, for you to paste. ⌃⌘A never carries a
+**clipboard** with a notice saying so, for you to paste. ⌘⏎ never carries a
 prompt, so it behaves exactly like the other clients.
 </Callout>
 
