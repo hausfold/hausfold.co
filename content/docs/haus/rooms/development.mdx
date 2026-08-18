@@ -47,7 +47,7 @@ a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
 ## Ghostty opens into zellij
 
 Launching the terminal drops you into a persistent session called `main`; new
-panes and tabs inherit your working directory. Ghostty's own `⌘T`, `⌘P`, `⌘Y`,
+panes and tabs inherit your working directory. Ghostty's own `⌘T`, `⌘N`, `⌘Y`,
 `⌘W` and friends are **unbound** on purpose, so those keys mean the same thing
 whether or not you're multiplexed. (`⌘C` is not one of them; it stayed with
 Ghostty, as copy. Day to day you won't press it, since zellij copies a mouse
@@ -61,24 +61,24 @@ Two of the unbindings are fixes rather than hand-offs:
   Now it closes one pane; `⌘⇧W` still closes the window.
 - **`⌘D` / `⌘⇧D` do nothing**, on purpose. Their Ghostty defaults nest a second
   terminal *inside* the one zellij is driving: invisible to the multiplexer, so
-  its layout and pane keys would apply to half the window. Use `⌘P`.
+  its layout and pane keys would apply to half the window. Use `⌘N`.
 
 | Keys | What happens |
 |---|---|
-| `⌘P` / `⌘⇧P` | New shell **window**, in the focused window's directory. The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
+| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — the same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
 | `⌘T` / `⌘⇧T` | New tab at `$HOME` / at the focused pane's directory. Fresh tabs are born named `~`, never `Tab #N`. |
 | `⌘W` | Close the focused pane (and the tab with it, when it was the last one) |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
-| `⌘⏎` | Fullscreen the focused pane, or Ctrl-click the pane body |
+| `⌘⏎` | Spawn a coding agent in its own worktree, on the repo this window is looking at |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
 | `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
-| `⌃⌘A` | Spawn a coding agent in its own worktree — a global chord, so it works from any window |
 | `⌃⌥⇧A` | Spawn one in **this** checkout instead of its own worktree |
+| Ctrl-click a pane | Fullscreen it — zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `Alt [` / `Alt ]` | Cycle layouts: grid → spiral → columns |
 
-**An agent worktree** is the throwaway checkout `⌃⌘A` puts a coding agent in: its
+**An agent worktree** is the throwaway checkout `⌘⏎` puts a coding agent in: its
 own copy of the repo on its own branch, so several agents can work at once
 without fighting over one set of files. Half the rows above have a `⇧` variant
 because of it: the plain key assumes you want the *real* repo, and `⇧` says stay
@@ -87,7 +87,7 @@ lifecycle: resuming one, setting work aside, cleaning up.
 
 **A lane's terminal is not a pane.** It is its own
 [zmx](https://github.com/neurosnap/zmx) session in its own Ghostty window, which
-is why `⌃⌘A` is a global chord rather than a zellij one — [the AI
+is why `⌘⏎` is held above the multiplexer rather than inside it — [the AI
 room](/docs/haus/rooms/ai) has that story. The session outlives every client
 attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening the
 lane rejoins the live conversation instead of replaying a transcript. The trade
@@ -96,9 +96,9 @@ real windows rather than a second window manager nested inside a terminal. That
 room has to be on, which is asserted at build time rather than suggested.
 
 Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
-work don't pile onto one screen. `⌘P` and `⌃⇥` are only taken while Ghostty is
-frontmost, so `⌘P` still prints from a browser and `⌃⇥` still walks that app's
-own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, and
+work don't pile onto one screen. `⌘N`, `⌘⏎` and `⌃⇥` are only taken while
+Ghostty is frontmost, so `⌘⏎` still sends in Slack, `⌘N` still opens a new
+window in your browser, and `⌃⇥` still walks that app's own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, and
 gains a **Lanes** command beside them: fuzzy over every lane with its state,
 `↵` focusing that lane's window or waking a parked one, `/` plus a word
 searching what the agents are *saying* across every live session.
@@ -239,7 +239,7 @@ haus.terminal.editor = "code -w";                 # points at it; installs nothi
   ~` puts it back to `~`.
 - **Agent-worktree aware.** A new shell opened inside an agent worktree hops to
   the parent repo, and the tab is named after the real repo rather than the
-  throwaway checkout. `⌘⇧P` is the no-hop escape hatch.
+  throwaway checkout. `⌘⇧N` is the no-hop escape hatch.
 - **`Ctrl Tab` really works**, which it usually doesn't on macOS: Ghostty
   forwards the kitty-protocol encoding so zellij sees it.
 
