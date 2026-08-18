@@ -159,18 +159,17 @@ export default async function Haus() {
           concern handled all the way down. An app store stops at the app; a room also wires the
           keys, the theme, and the macOS settings around it, so the pieces already know each other.
         </p>
-        {/* ⚠️ This href is also the `.topnav`'s `docs`, and that is a
-            deliberate exception rather than an oversight. The one-href-per-
-            section rule below is about a *section* spending a reader's
-            attention twice to move them once; the nav is chrome, addressed
-            to someone who is not reading yet, and this is prose at the end
-            of the paragraph that earns the click. The alternative was
-            pointing this at `reference/options`, which is the generated
-            list and the wrong next step for a reader who has just been told
-            what a room is: the rooms table is on `/docs/haus`, so that is
-            where "every room" goes. */}
+        {/* ⚠️ Shares a page with the `.topnav`'s `docs`, deliberately:
+            the one-href-per-section rule is about a *section* spending a
+            reader's attention twice, and the nav is chrome. The anchor is
+            the point though — bare `/docs/haus` lands a reader promised a
+            list on the pitch, two screens above the table. Reword that
+            heading and this moves with it; nothing checks a fragment.
+
+            Not a rooms index page: a second list of the twelve is the
+            duplicate-index failure that retired /docs and /pounce. */}
         <p className="aside">
-          <Link href="/docs/haus">Every room, and what it covers</Link>.
+          <Link href="/docs/haus/#whats-in-the-box">Every room, and what it covers</Link>.
         </p>
       </section>
 

@@ -1071,6 +1071,10 @@ rather than being switched off. **No page should end without a door out of
 it.** Length still costs — this is not licence to pad a page back to the
 original's.
 
+⚠️ **`index.mdx`'s `## What's in the box` heading is a URL**, not just a
+heading: `/haus`'s Rooms section links `/docs/haus/#whats-in-the-box`, and
+nothing checks a fragment. Reword it and repoint `src/app/haus/page.tsx`.
+
 ### Colour — ⚠️ the docs do NOT follow `public/`'s greyscale rule
 
 🚨 **This section was rewritten on 2026-08-12 and it now says the opposite of
