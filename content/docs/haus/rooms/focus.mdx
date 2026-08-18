@@ -170,10 +170,16 @@ want to change about it lives in `haus.focus.slack` and `haus.focus.hooks`.
 after `focus scene`. A scene named for one of them is refused at build time
 rather than being unreachable at runtime.)
 
+**Every scene is a palette row.** With the [Launcher](/docs/haus/rooms/launcher)
+room on, declaring `haus.focus.scenes.recording` gets you a **Scene: recording**
+command in ⌘Space, a **Leave Scene** beside it, and a line each on the
+cheatsheet's Palette Commands page. Entering a scene never means remembering its
+name in a terminal.
+
 <Callout type="tip" title="Give a scene a key">
-A scene has no pill of its own. The quickest way to reach one is a leader
-chord — any free letter, since an assertion catches a clash with a roster app
-or a built-in launch key:
+A scene has no pill of its own, so the palette is the short way in and a leader
+chord is the shorter one: any free letter, since an assertion catches a clash
+with a roster app or a built-in launch key:
 
 ```nix
 haus.keys.leaderExtras = [

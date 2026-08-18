@@ -55,6 +55,19 @@ haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 `haus.theme.contrast` reach it as a palette file, so the palette matches the
 rest of the house without a second theme setting.
 
+### The Fn/Globe key
+
+haus binds the emoji picker to Fn, and macOS wants that key too, so
+`haus.launcher.fnKey` settles the argument: `"tap"` (the default) shares the key
+and may lose the race, `"remap"` turns Fn into F19 and owns it outright at the
+cost of Fn's other jobs — no Fn+arrows, no Fn+Delete. [What each mode
+does](/docs/pounce/config#the-fnglobe-key-fnkey) is pounce's side.
+
+The room's half: here the remap is **declared** rather than installed by the
+daemon, so a rebuild can't drop it and Fn stays remapped — and inert — while
+pounce is stopped. Or hand the key back with
+`haus.launcher.items."mode:emoji".hotkey = null`.
+
 <Callout title="Keeping the Accessibility grant">
 ```nix
 haus.launcher.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
@@ -75,7 +88,10 @@ may not set it.
   rebuilds.
 - **[AI](/docs/haus/rooms/ai)**: **Spawn Agent** creates a named worktree and
   opens a session in it.
-- **[Focus](/docs/haus/rooms/focus)**: the quiet switch is a command here too.
+- **[Focus](/docs/haus/rooms/focus)**: the quiet switch is a command here too,
+  and every scene you declare gets a **Scene: &lt;name&gt;** row of its own.
+- **[Development](/docs/haus/rooms/development)**: **Lanes** jumps to an agent
+  lane or searches what the agents are saying, and **New Shell Window** is ⌘P.
 - **[Windows](/docs/haus/rooms/windows)**: the opt-in `⌘Tab` window switcher,
   which groups its rows by AeroSpace workspace.
 

@@ -51,8 +51,8 @@ export default function Perch() {
             you like. Then grab any tile and carry the whole group to its real home in one motion.
           </p>
           <p>
-            It has no Dock icon and asks for no permissions. It sees what you drop on it, and
-            nothing else.
+            It has no Dock icon and asks for no permissions. It only ever sees what you hand it: a
+            drop, a right-click, the perch command, or a folder you pointed it at.
           </p>
         </div>
       </header>
@@ -187,7 +187,7 @@ export default function Perch() {
           <dt>my files</dt>
           <dd>
             they stay where they are. Perch keeps its copies inside its own sandbox container, and
-            it only ever knows about the things you dragged onto it
+            it only ever knows about the things you handed it
           </dd>
 
           <dt>a shelf app?</dt>

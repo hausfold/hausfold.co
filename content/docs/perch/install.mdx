@@ -4,7 +4,7 @@ description: One brew command, or a signed download, and the one macOS setting t
 icon: install
 related:
   - title: "Using the shelf"
-    description: "Catching a drag, carrying the stack out, and what the shelf does when you close it."
+    description: "Catching a drag, the other ways onto the shelf, carrying the stack out, and what stays there."
     href: "/docs/perch/using"
     icon: "shelf"
   - title: "Privacy"
@@ -39,6 +39,20 @@ steals the drop. It's the only thing perch asks of your Mac.
   display.
 - **Nothing else.** perch asks for none of the permissions that make a Mac app
   feel invasive: no Accessibility, no Input Monitoring, no Screen Recording.
+
+## The command line
+
+`perch add` ships **inside** the app, at
+`Perch.app/Contents/MacOS/perch-cli`, so it is signed and notarized with it and
+can never drift from the shelf it talks to. It isn't on your PATH by itself.
+Link it out once:
+
+```sh
+ln -s /Applications/Perch.app/Contents/MacOS/perch-cli /usr/local/bin/perch
+```
+
+On a haus machine the Shelf room does that for you. [Using the
+shelf](/docs/perch/using) has what it does with a path once it has one.
 
 ## On a haus machine
 

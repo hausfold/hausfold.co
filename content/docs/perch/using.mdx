@@ -1,6 +1,6 @@
 ---
 title: Using the shelf
-description: Catching a drag, carrying the stack out, and what stays on the shelf when you walk away.
+description: Catching a drag, the three other ways onto the shelf, carrying the stack out, and what stays there when you walk away.
 icon: shelf
 related:
   - title: "The Shelf room"
@@ -14,7 +14,8 @@ related:
 ---
 
 The shelf has no window to open and no icon to click. It appears when you're
-already dragging something and disappears when you're not.
+already dragging something and disappears when you're not, and it can be
+filling up while you're doing neither.
 
 ## Catching a drag
 
@@ -26,6 +27,24 @@ You can do that as many times as you like, from as many places as you like
 shelf. Files, folders, images dragged out of a web page, links and plain text
 all land the same way.
 
+## Other ways in
+
+A drag is the one you'll use, but it isn't the only way in, and none of the
+others behave any differently: each stages a copy the way a drop does, and your
+originals are only ever read.
+
+| | |
+|---|---|
+| **Right-click** | **Add to Perch Shelf** is a top-level item in Finder's context menu, with nothing to enable, and appears in any other app's Services menu for a selection or a link |
+| **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed |
+| **Your iPhone** | The companion app's Share sheet, over your own network, if you paired one |
+| **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or wherever your screenshots land, and anything **new** there arrives on the shelf by itself |
+
+What's already sitting in a folder when you add it stays put; only later
+arrivals land, including ones that happened while perch wasn't running. A
+half-written download waits until it's finished and renamed, so nothing reaches
+the shelf mid-write.
+
 ## Carrying it out
 
 Drag a tile off the shelf and drop it where it belongs. Grab the **stack** and
@@ -35,6 +54,11 @@ Whatever the destination accepts leaves the shelf; a refused drop springs back
 rather than vanishing. Because perch hands out copies of its own staged copy,
 dropping the same pile into three places is three drags, not three trips back to
 where the files came from.
+
+When the destination is a folder nothing has open, there's no need to find a
+window to drag into: right-click a tile and pick **Save to…**. It writes a copy
+wherever you point the panel, leaves the tile where it was, and only replaces an
+existing file once the new copy is whole.
 
 <Callout title="A tile appears only once its copy has finished">
 Nothing on the shelf is ever half-written, which is also why a big folder takes

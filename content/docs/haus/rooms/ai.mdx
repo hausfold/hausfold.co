@@ -8,7 +8,7 @@ related:
     href: "/docs/haus/agent-rebuilds"
     icon: "wand"
   - title: "Development"
-    description: "Where ⌘A lives: the rest of the zellij keys, and the ⇧ variants that stay inside a worktree."
+    description: "Where ⌃⌘A lives: the rest of the terminal keys, and the ⇧ variants that stay inside a worktree."
     href: "/docs/haus/rooms/development"
     icon: "shell"
 ---
@@ -18,33 +18,40 @@ branch out from under the other, uncommitted edits collide, and closing a pane
 mid-thought can lose work. **`holt`** fixes that by giving every agent its own
 checkout, and haus puts it on your `PATH`, wired to a keybind.
 
-Press **⌘A** in any repo's terminal tab and you get a fresh agent session in an
-isolated git worktree: its own checkout on a `worktree-<name>` branch, branched
-from the repo's local `HEAD`, living **outside** the repo under
-`~/.cache/claude-worktrees/<repo>/<name>` so your working tree stays clean and no
-build tool trips over it. **⌘⇧A** does the same in place of the focused pane
-rather than beside it; the pane it replaces is only suspended, so quitting the
-agent brings your shell back with its scrollback. **⌃⌥⇧A** is the resident
-variant: the one agent per tab allowed to edit the checkout you're looking at.
+Press **⌃⌘A** — from any window, not just a terminal — and you get a fresh
+agent session in an isolated git worktree: its own checkout on a
+`worktree-<name>` branch, branched from the repo's local `HEAD`, living
+**outside** the repo under `~/.cache/claude-worktrees/<repo>/<name>` so your
+working tree stays clean and no build tool trips over it. It starts on whatever
+repo the focused window is looking at. **⌃⌥⇧A** is the resident variant: the
+one agent per tab allowed to edit the checkout you're looking at.
 
-holt calls what the first two make a **lane** (one agent's branch, checkout and
+holt calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
 Not a *worktree*: a parked lane has no checkout on disk and is still a lane you
 can resume. (⌃⌥⇧A makes no lane at all; it's an agent in the checkout you
-already have.) Where a lane's terminal lives is the
-[Development](/docs/haus/rooms/development) room's call rather than holt's:
-`haus.terminal.lanes.backend` puts it in a zellij pane by default, or in a window
-of its own.
+already have.) A lane's terminal is its own zmx session in its own window, which
+the [Development](/docs/haus/rooms/development) room sets up.
+
+<Callout type="warn" title="Why the chord isn't ⌘A">
+A lane is a window, not a pane, so the bind can't live in the multiplexer:
+zellij's only way to run a command is to open a pane, and a lane's own window
+has no zellij in it to receive one. ⌃⌘A sits in
+[windows](/docs/haus/rooms/windows) instead, the one layer that sees every
+window — which is why that room has to be on, asserted at build time. ⌘A is
+plain select-all again.
+</Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's
 [its own tool](https://github.com/hausfold/holt), which haus takes as an input
 and puts on your `PATH`. You don't have to be a haus user to run it.
 
-<Callout type="tip" title="Closing a pane never loses work">
-Closing a ⌘A pane doesn't just delete the checkout. Uncommitted edits are first
-parked as a `wip:` commit on the branch, and **only branches whose work has
-already merged get reaped**: everything unmerged survives on its branch, and the
-agent's transcript survives with it. The checkout is disposable; your work isn't.
+<Callout type="tip" title="Closing a window never loses work">
+`⌘W` only detaches: the zmx session stays up and the agent keeps thinking. When
+the lane really is torn down, uncommitted edits are first parked as a `wip:`
+commit on the branch, and **only branches whose work has already merged get
+reaped**: everything unmerged survives on its branch, and the agent's transcript
+survives with it. The checkout is disposable; your work isn't.
 </Callout>
 
 ## Enable it
@@ -63,13 +70,13 @@ Nothing else in the house has to be on for it to work.
 ## Resuming
 
 Because the work is on the branch and the chat is in your client's transcript, a
-closed pane is never a dead end. Run `holt` bare to see everything you can pick
+closed window is never a dead end. Run `holt` bare to see everything you can pick
 back up, across every repo:
 
 ```
 🌫  lanes you can resume (holt <name>, or <repo>/<name>)
   repo         name         state  agent  last commit
-  nebelung     sparkle      parked claude 2 hours ago — wip: auto-saved on pane close
+  nebelung     sparkle      parked claude 2 hours ago — wip: auto-saved on lane close
   pounce       quick-emoji  live   codex  10 min ago — add fuzzy weights
 ```
 
@@ -109,7 +116,7 @@ in the first prompt.
 
 ```nix
 haus.ai.clients = [ "claude" "opencode" ];  # what's installed
-haus.ai.default = "claude";                 # what ⌘A spawns
+haus.ai.default = "claude";                 # what ⌃⌘A spawns
 ```
 
 `ai.default` must be one of `ai.clients`, and the rebuild says so by name if it
@@ -126,7 +133,7 @@ client, `brew upgrade` moves jcode, and jcode's own in-app updater will too
 unless you set `features.check_updates = false` in `~/.jcode/config.toml`.
 
 All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
-⌘A keybinds, the tab marks, the statusline, the client wiring. Rooms are
+⌃⌘A keybind, the tab marks, the statusline, the client wiring. Rooms are
 independent, so the switch is yours (or your desktop's) to set; hacker turns
 it on and names both options above. Turn the room off and `ai.clients` is ignored
 whole rather than half-wiring the machine, so a host can drop the room without
@@ -151,7 +158,7 @@ yourself) and the room's default steps aside.
 jcode has no way to open on a first message — no positional prompt, no
 `--prompt`, no stdin. So Pounce's **Spawn Agent** still makes the worktree, the
 branch named after what you typed and the pane, but the task itself goes to your
-**clipboard** with a notice saying so, for you to paste. ⌘A never carries a
+**clipboard** with a notice saying so, for you to paste. ⌃⌘A never carries a
 prompt, so it behaves exactly like the other clients.
 </Callout>
 
@@ -252,23 +259,24 @@ instead of pushing it.
 
 ## Knowing which agent needs you
 
-Run agents in eight tabs and the question is always the same one: which of them
-is sitting on a permission prompt? The zellij tab bar answers it, with a coloured
-dot in front of the name of any tab holding agent panes:
+Run eight agents at once and the question is always the same one: which of them
+is sitting on a permission prompt? For lanes that's the [bar](/docs/haus/rooms/bar)'s
+`agents` pill, since a lane has a window rather than a tab. For a resident
+⌃⌥⇧A agent the zellij tab bar answers it, with a coloured dot in front of the
+name of any tab holding one:
 
 | Mark | Means |
 |---|---|
 | **`●` peach**, and the tab washed peach | an agent is blocked on you: a permission prompt, or a question |
 | **`◐` sky** | an agent is mid-turn, working |
 | **`○` green** | it finished its turn; nothing is waiting |
-| *(nothing)* | no agent panes in that tab |
+| *(nothing)* | no resident agent in that tab |
 
 The dot shows the most urgent state in the tab, so peach always wins and the tab
 that needs you never hides behind one that's merely busy. (The peach wash is
 dropped on the tab you're already looking at.) It's the shape that carries the
 state, not the colour, and there's no count: how many agents a tab holds is the
-[bar](/docs/haus/rooms/bar)'s popup to answer, and the bar is the same signal for
-when you're out in the GUI rather than in the terminal.
+bar's popup to answer.
 
 Both are reported by each client's own lifecycle hooks: the agent says what it's
 doing; nothing scrapes the screen for it. haus wires OpenCode's plugin and
