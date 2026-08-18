@@ -159,18 +159,35 @@ export default async function Haus() {
           concern handled all the way down. An app store stops at the app; a room also wires the
           keys, the theme, and the macOS settings around it, so the pieces already know each other.
         </p>
-        {/* ⚠️ This href is also the `.topnav`'s `docs`, and that is a
-            deliberate exception rather than an oversight. The one-href-per-
-            section rule below is about a *section* spending a reader's
+        {/* ⚠️ This href shares a page with the `.topnav`'s `docs`, and that
+            is a deliberate exception rather than an oversight. The one-href-
+            per-section rule below is about a *section* spending a reader's
             attention twice to move them once; the nav is chrome, addressed
             to someone who is not reading yet, and this is prose at the end
             of the paragraph that earns the click. The alternative was
             pointing this at `reference/options`, which is the generated
             list and the wrong next step for a reader who has just been told
             what a room is: the rooms table is on `/docs/haus`, so that is
-            where "every room" goes. */}
+            where "every room" goes.
+
+            🚨 The anchor is the whole link, not decoration. Bare `/docs/haus`
+            lands a reader who was promised a list at the top of a page whose
+            first two screens are the pitch and "Why bother", and the table is
+            the third. `#whats-in-the-box` is the id github-slugger gives that
+            heading; if the heading is ever reworded in
+            content/docs/haus/index.mdx, this href is a caller and moves with
+            it. It also settles the duplication the paragraph above hedges
+            about: the nav goes to the page, this goes to the table, so the
+            two are no longer the same destination spelled twice.
+
+            🚨 The thing this deliberately is NOT is a rooms index page. A
+            second list of the twelve rooms is exactly the two-copies-of-one-
+            subject failure that retired /docs, /pounce and the desktop
+            sheets, and AGENTS.md names this table as the one place the count
+            lives. What a room *is* already reads in three places: this
+            section, the table's own lede, and rooms/creating's opening. */}
         <p className="aside">
-          <Link href="/docs/haus">Every room, and what it covers</Link>.
+          <Link href="/docs/haus/#whats-in-the-box">Every room, and what it covers</Link>.
         </p>
       </section>
 
