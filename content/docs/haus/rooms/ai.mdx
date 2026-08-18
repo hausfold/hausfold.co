@@ -37,17 +37,13 @@ already have.) Where a lane's terminal lives is the
 of its own.
 
 <Callout type="warn" title="In a window, the chord is ⌃⌘A">
-`haus.terminal.lanes.backend = "zmx"` makes a lane a window, and the chord has
-to move with it. zellij's only way to run a command is to open a pane, and a
-lane's own window has no zellij in it to receive one, so the bind leaves the
-multiplexer for the one layer that sees every window: **⌃⌘A**, pressed
-anywhere, starting a lane for whatever repo the focused window is looking at.
-⌘A and ⌘⇧A are unbound on that machine and ⌘A goes back to being select-all;
-⌃⌥⇧A is unchanged. A global ⌘A was the obvious alternative and would have
-taken select-all away from every app on the Mac.
+`haus.terminal.lanes.backend = "zmx"` makes a lane a window, so the bind leaves
+the multiplexer for the layer that sees every window: **⌃⌘A**, pressed anywhere,
+starts a lane for whatever repo the focused window is looking at. ⌘A and ⌘⇧A
+are unbound there and ⌘A goes back to being select-all; ⌃⌥⇧A is unchanged.
 
-That backend also needs `haus.windows.enable`, checked at build time rather
-than suggested: the windows room both holds the chord and places each lane.
+That backend also needs `haus.windows.enable`, asserted at build time: the
+windows room holds the chord and places each lane.
 </Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's

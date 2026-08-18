@@ -202,7 +202,7 @@ pounce gets the key:
 
 | | |
 |---|---|
-| `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: HIToolbox carries its own Globe handler inside every process, below the event stream a tap can see, so macOS's Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but that value is read from login-session state, so it wants a logout, and even then the two are racing |
+| `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: macOS's own Globe handler sits below the event stream a tap can see, so the Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but it wants a logout to take, and even then the two are racing |
 | `"remap"` | Takes Fn away at the HID layer instead: it becomes F19, which pounce binds like any ordinary key. No Accessibility for this binding, and nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
 
 `remap` undoes itself and falls back to the tap if F19 is already taken or the
