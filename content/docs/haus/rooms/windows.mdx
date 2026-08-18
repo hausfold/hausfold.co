@@ -96,8 +96,52 @@ chord would have worked on some digits and not others.
 | `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
 | `⌥,` | Accordion layout |
 | `⌥F` | Fullscreen — and the bar says so |
+| `⌥` + right-click | Fullscreen the window **under the pointer** ([below](#zoom-the-window-youre-pointing-at)) |
 | `⌥⇧Tab` | Move this workspace to the next monitor |
 | `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧←↓↑→` joins a neighbour |
+
+## Zoom the window you're pointing at
+
+`⌥F` can only ever reach the window you are *in*. Its pointer twin reaches the
+one you're pointing at:
+
+```nix
+haus.windows.mouseFullscreen = "right";   # right | left | none
+```
+
+**⌥ + right-click** now zooms whichever window is under the cursor to fill its
+own workspace — including one on another monitor, which by keyboard would mean
+going there first. It's the same AeroSpace fullscreen, so it's a toggle: the
+same click puts the window back.
+
+The modifier isn't separately settable — it follows `haus.keys.windowNav`, so
+the click and `⌥F` stay one vocabulary and a machine that moved the modifier for
+its keyboard layout moves the click with it.
+
+<Callout type="warn" title="This spends a gesture machine-wide">
+The click is consumed over **every** app, not just tiled ones, which is why the
+default is the quietest of the three rather than a free one. `"right"` still
+costs you macOS's ⌥ *variant* of a context menu — inside a Finder window ⌥ is
+what turns "Copy X" into "Copy X as Pathname" — and ⌥ + right-**drag** where an
+app uses it, since the mouse-down is swallowed before the drag starts. Clicking
+the desktop is unaffected.
+
+`"left"` is offered for mice where the right button is awkward, and costs
+considerably more: multi-cursor in GUI editors, ⌥-click-a-link to download,
+⌥-click on a menu extra, and every ⌥-drag. There is deliberately no `ctrl`
+value: ctrl+click **is** macOS's secondary click, and binding it would cost you
+context menus everywhere.
+</Callout>
+
+Clicking the desktop passes straight through, so you keep Finder's menu there,
+and anything drawn above ordinary windows — the menu bar, the Dock, the
+[bar](/docs/haus/rooms/bar) — is transparent to the chord rather than being
+"clicked".
+
+The chord is carried by [pounce](/docs/pounce)'s event tap, because AeroSpace has
+no mouse bindings at all, so it needs `haus.launcher.enable` and the
+Accessibility grant pounce already asks for. Both are true on
+[hacker](/docs/haus), which sets `"right"` out of the box.
 
 `⌥Tab` is deliberately unbound:
 [pounce](/docs/pounce/beyond-launching#a-window-switcher-not-an-app-switcher)'s `⌘Tab` answers the same question
