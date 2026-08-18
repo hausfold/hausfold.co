@@ -103,6 +103,12 @@ gains a **Lanes** command beside them: fuzzy over every lane with its state,
 `↵` focusing that lane's window or waking a parked one, `/` plus a word
 searching what the agents are *saying* across every live session.
 
+A **Pages** command covers the pages themselves: `↵` goes to one, `⌥↵` throws
+the focused window onto it and follows it there. The [bar](/docs/haus/rooms/bar)'s
+`page` pill opens the same list, in move mode on a ⇧/right-click. Typing a name
+no page has yet isn't a miss — the tiler makes a page on first use, so you can
+throw a window onto a repo whose first lane hasn't been opened.
+
 **zellij boots Locked.** Its single-key submode leaders stay inert until you
 press `Ctrl g`, so a stray keystroke can't drop you into resize mode. Everything
 in the table above works regardless. `haus.terminal.zellijStartLocked` flips it.

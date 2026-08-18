@@ -2035,67 +2035,6 @@ handler behind an interactive dialog; set it by hand once if wanted:
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
-#### `haus.terminal.lanes.backend`
-
-`one of "zellij", "zmx"` · default `"zellij"`
-
-Where an agent lane's terminal actually lives.
-
-`zellij` (the default) is the behaviour haus has always had: a
-lane is a pane in the `main` zellij session, and `holt` execs the
-client in the pane you ran it from. Panes are cheap, but a lane's
-identity is then a (session, pane-id) pair that only zellij
-understands — which is why the bar keeps a state file per pane and
-joins it back to a checkout path to work out which window to raise.
-
-`zmx` makes the lane its own zmx session, viewed through its own
-Ghostty window, tiled by windows — all three named
-`holt.<repo>.<lane>`. Three consequences, in the order you'd feel
-them:
-
-- **Closing the window stops meaning parking the work.** A zmx
-  session outlives every client attached to it, so ⌘W detaches and
-  the agent keeps thinking; `holt <name>` reopens a window onto the
-  live conversation instead of resuming a transcript.
-- **The name is the join.** `zmx ls --where state=waiting`,
-  AeroSpace's `window-title-regex`, and the lane in `holt --json`
-  all key off one string.
-- **Splits are gone**, because zmx has none by design. Windows tiles
-  the windows instead, which is the trade: a real window manager
-  rather than a second one nested inside a terminal.
-
-Both backends can be installed at once — this only picks which one
-`holt` opens into, through the `[hooks] open`/`resume` seam in
-`~/.config/holt/config.toml`. If zmx is somehow missing at runtime
-the hook defers (exit 3) and holt falls back to its built-in, so the
-worst case is the zellij behaviour you already had.
-
-Choosing `zmx` also changes what ⌘A runs. Claude Code's own
-`--worktree` makes the checkout through the WorktreeCreate hook and
-then runs in the pane it was launched from — it never calls `holt
-new`, so it never reaches the seam above, and the chord would keep
-opening a pane on a machine that had asked for windows. Under `zmx`
-the chord is `holt new` for every client, which builds the identical
-checkout from the outside. The side benefit is that the lane becomes
-resumable: Claude keys a transcript to the directory it started in,
-so a `holt new` lane's conversation lives at the lane's own path,
-which is where `holt <name>` goes looking for it.
-
-And it changes what living with several lanes feels like. Each
-repo's lanes tile on their own workspace page (`T/<repo>`), with
-the leader's `t` returning to whichever page you used last; ⌃⇥/⌃⇧⇥
-walk the non-empty pages by recency, and ⌘P/⌘⇧P open a shell
-WINDOW in the focused window's directory (⇧ staying inside an
-agent worktree instead of hopping to the main checkout). Those
-three chords are consumed by pounce only while Ghostty is
-frontmost — everywhere else ⌘P still prints and ⌃⇥ still switches
-the app's own tabs — and the launcher gains a `Lanes` palette
-command: fuzzy over every lane with its state, Enter focusing (or
-waking) its window, `/term` switching to a content search across
-the lanes' transcripts.
-
-<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
-
 #### `haus.terminal.obsidianVaults`
 
 `list of string` · default `[ ]`
@@ -2133,8 +2072,9 @@ for why link gestures hit the same wall), so flipping this rebuilds
 zellij; it does not take effect on a running server. The real cost:
 right-click stops reaching the pane's own program, so a TUI's own
 right-click context menu (lazygit, vim, mc, …) goes with it. Set
-false to leave right-click alone and keep zooming with Ctrl+Click or
-Super Enter.
+false to leave right-click alone and keep zooming with Ctrl+Click,
+which is the only other way there: ⌘↵ used to zoom a pane and is the
+agent-lane chord now.
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
@@ -2725,6 +2665,63 @@ Only meaningful with haus.windows.enable.
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
+#### `haus.windows.mouseFullscreen`
+
+`one of "right", "left", "none"` · default `"none"`
+
+Zoom the window **under the pointer** with a modifier + a click.
+
+The keyboard's `<mod>f` can only ever reach the window you are already
+in; this is its pointer twin, so zooming a window on the other monitor
+is one gesture rather than focus-then-zoom. It is the same AeroSpace
+`fullscreen` either way — a toggle, so the same click puts it back —
+and the click focuses the window on its way in.
+
+The modifier is NOT separately settable: it follows
+`haus.keys.windowNav`, so `<mod>f` and `<mod>`+click are one
+vocabulary and a machine that moved the modifier for its keyboard
+layout moves the mouse chord with it. `windowNav = "none"` therefore
+leaves nothing to hold, and an assertion refuses the pair rather than
+letting a bare click be bound — a modifier-less chord would swallow
+every click on the machine.
+
+Which button, and why the default is the right one: **the click is
+consumed over every app**, so this spends a gesture machine-wide.
+`"right"` is ⌥ + right-click, the quietest of the three rather than a
+free one: macOS uses ⌥ as the ALTERNATE-contextual-menu modifier, so
+inside a Finder window it is what turns "Copy X" into "Copy X as
+Pathname", and an app that reads ⌥ + right-DRAG (a 3D viewport zoom)
+loses that too, since the mouse-down is swallowed before the drag
+starts. The desktop passes through, so only in-window menus are
+affected. `"left"`
+is ⌥ + left-click, which costs considerably more — multi-cursor in GUI editors,
+⌥-click-a-link to download, ⌥-click on a menu extra, and every ⌥-drag
+(the mouse-down is swallowed, so the drag never begins) — offered
+because on some mice the right button is the awkward one, not because
+it is a peer of `"right"`. There is deliberately no ctrl option:
+ctrl+click IS macOS's secondary click, so binding it would cost
+context menus everywhere.
+
+Clicking the desktop passes through untouched, and anything drawn
+above ordinary windows — the menu bar, the Dock, the bar — is
+transparent to the chord rather than being "clicked".
+
+Carried by pounce's event tap (AeroSpace has no mouse bindings at all,
+and Ghostty's keybind triggers are keys), so it needs
+haus.launcher.enable and the Accessibility grant pounce already asks
+for; an assertion catches the first, and without the second the click
+simply keeps its stock meaning.
+
+Only meaningful with haus.windows.enable.
+
+Example:
+
+```nix
+"right"
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
 #### `haus.windows.numberedWorkspaces`
 
 `integer between 0 and 10 (both inclusive)` · default `4`
@@ -3069,7 +3066,7 @@ Example:
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3166,6 +3163,14 @@ The now-playing track — auto-hides when nothing plays, dims when paused, and c
 `boolean or one of "left", "center", "right"` · default `false`
 
 Memory in use, drawn as a graph pill. It counts what Activity Monitor counts — app memory + wired + compressed — and deliberately NOT the file cache: macOS fills idle RAM with cache on purpose, and the old reading counted that as used, which is why it sat near 90% on a machine doing nothing. The pill's COLOUR is the kernel's own pressure level (green normal, amber warning, red critical) rather than the percentage, because 60% of RAM in use is a Mac working correctly and a pill that goes amber for it is a pill you learn to ignore. LEFT-CLICK opens a dropdown with used/total, the cache, compressed and swap figures and then the biggest footprints per app, each row clicking through to that app's window. RIGHT-CLICK opens Activity Monitor on its Memory tab.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.bottom.items.page`
+
+`boolean or one of "left", "center", "right"` · default `false`
+
+Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a pounce box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3718,7 +3723,7 @@ Example:
 
 `boolean` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live `zellij subscribe` peek. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3815,6 +3820,14 @@ The now-playing track — auto-hides when nothing plays, dims when paused, and c
 `boolean` · default `false`
 
 Memory in use, drawn as a graph pill. It counts what Activity Monitor counts — app memory + wired + compressed — and deliberately NOT the file cache: macOS fills idle RAM with cache on purpose, and the old reading counted that as used, which is why it sat near 90% on a machine doing nothing. The pill's COLOUR is the kernel's own pressure level (green normal, amber warning, red critical) rather than the percentage, because 60% of RAM in use is a Mac working correctly and a pill that goes amber for it is a pill you learn to ignore. LEFT-CLICK opens a dropdown with used/total, the cache, compressed and swap figures and then the biggest footprints per app, each row clicking through to that app's window. RIGHT-CLICK opens Activity Monitor on its Memory tab.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.items.page`
+
+`boolean` · default `false`
+
+Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a pounce box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4292,7 +4305,10 @@ stopped. `pounce doctor` reports which of the two mechanisms is actually
 carrying the key.
 
 Inert unless something binds `fn`: with no such item, this is a key
-pounce reads and does nothing with.
+pounce reads and does nothing with. On a default haus that item is the
+emoji grid and Fn is its ONLY key — the Caps-Lock leader dropped `e` once
+one key did the job — so a host that turns the Fn binding off wants to
+put mode:emoji on something else.
 
 Example:
 
@@ -4354,7 +4370,12 @@ key with macOS's own Globe action, so the system emoji picker can still
 open alongside pounce's. haus.launcher.fnKey = "remap" is the way to own
 the key outright; read that option before reaching for it, because it
 costs Fn's other jobs. haus uses Fn for mode:emoji by default; set that
-item's hotkey to null to leave the Globe key to macOS.
+item's hotkey to null to leave the Globe key to macOS — but Fn is the ONLY
+key haus gives the emoji grid. The Caps-Lock leader carried it on `e`
+until the Fn tap made that second binding redundant (`e` is unbound now,
+and `f` is Find Files), so nulling this leaves ⌘Space → "emoji" as the
+only route. Give mode:emoji another hotkey in the same breath if you want
+a key for it.
 
 Sequences are worth knowing about on a tiling desktop: they open a namespace
 that structurally can't collide with the ⌥/⌘ chords windows already claims,
@@ -4893,10 +4914,8 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 Which coding-agent clients to install. `claude` is Claude Code, `codex`
 is OpenAI Codex, `opencode` is OpenCode, `jcode` is
-[jcode](https://jcode.sh). The ⌘A terminal binding starts
-whichever one `ai.default` names — Claude Code through its own
-`--worktree` hook, the others through `holt new`, and every one of them
-through `holt new` under `haus.terminal.lanes.backend = "zmx"`.
+[jcode](https://jcode.sh). The ⌘↵ lane chord starts whichever one
+`ai.default` names, all of them through `holt new`.
 
 A list rather than one bool per client, matching `developer.languages`
 — the fourth client, when it came, didn't change this option's shape.
@@ -4949,21 +4968,22 @@ Example:
 
 `one of "claude", "codex", "opencode", "jcode"` · default `"claude"`
 
-The coding agent started by Pounce's **Spawn Agent** command, by the
-⌘A / Super-a zellij binds and the `c` shell alias, and used to reopen
-worktrees with no client recorded yet. Each spawned worktree records its
+The coding agent started by the ⌘↵ lane chord, by Pounce's **Spawn
+Agent** command, by the ⌃⌥⇧A resident bind and the `c` shell alias, and
+used to reopen worktrees with no client recorded yet. Each spawned worktree records its
 own client, so changing this affects new work but never reopens an
 existing Codex or OpenCode task in Claude.
 
 Must be one of `ai.clients` — see there.
 
-Only `claude` can make its own worktree (its native `--worktree` flag,
-which fires `holt hook create`); for the others ⌘A runs
-`holt new` instead, producing the same checkout, branch and registry
-entry from the outside. `haus.terminal.lanes.backend = "zmx"` puts
-`claude` on that same outside path, because the client's own flag never
-reaches the hook the zmx backend is wired into — so on a zmx machine
-this option chooses the client and nothing else about how a lane opens.
+This option chooses the client and nothing else about how a lane opens.
+`claude` can make its own worktree (its native `--worktree` flag, which
+fires `holt hook create`), but haus does not use it: that flag runs the
+client in the pane it was launched from and never asks holt's `[hooks]
+open`, which is the seam a lane's own window arrives through. So every
+client goes through `holt new`, producing the same checkout, branch and
+registry entry from the outside — and the lane stays resumable, because
+Claude keys a transcript to the directory it started in.
 Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
 session for that cwd, `jcode` opens its own session picker. They share one
@@ -4978,7 +4998,7 @@ One caveat, and it is `jcode`'s alone: it has no way to be launched with
 a first message — no positional prompt, no `--prompt`, no stdin — so the
 task typed into Pounce's **Spawn Agent** box cannot be handed to it. That
 command says so and opens the lane empty rather than dropping the text
-silently. ⌘A, which never carries a prompt, is unaffected.
+silently. ⌘↵, which never carries a prompt, is unaffected.
 
 Example:
 
@@ -5000,7 +5020,7 @@ agent-state plugin). Which clients get installed is `ai.clients`.
 
 On, this room brings its clients, `holt` and the lifecycle wiring on its
 own. What it adds to OTHER rooms it adds only when they are present: the
-⌘A terminal binds and the `c` alias arrive with the terminal, the
+⌃⌥⇧A terminal bind and the `c` alias arrive with the terminal, the
 `agents` pill with the bar, the agent commands with the launcher. None
 of those rooms is switched on by turning this one on.
 

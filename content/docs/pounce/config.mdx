@@ -17,7 +17,7 @@ related:
 
 Pounce reads `~/.config/pounce/config.json`, re-read on every open. No restart
 is needed, except for the things the daemon sets up **at startup**: `windows`,
-`autoQuit`, `appHotkeys`, `pages`, and the `items` hotkeys. Those are captured
+`autoQuit`, `appHotkeys`, `pages`, `mouseChords`, and the `items` hotkeys. Those are captured
 when armed and need a restart to change:
 
 ```sh
@@ -96,6 +96,10 @@ older Pounce never chokes on a config written by a newer one.
     "prefix": "T",           // walks workspaces named prefix, or prefix/…
     "bundleId": null,        // scope the walk to one app; null = anywhere
     "mruFile": null          // recency file your window manager's hook maintains
+  },
+  "mouseChords": {           // a modifier + a click, on the window under the pointer
+    "enabled": false,        // needs Accessibility and AeroSpace
+    "chords": []             // empty means no click is consumed anywhere
   },
   "fnKey": "tap",            // how pounce takes the Fn/Globe key, see below
   "items": {                 // per-item enable / alias / hotkey, see below
@@ -256,6 +260,43 @@ The [Development room](/docs/haus/rooms/development) sets these up as the lane
 keyboard: ⌘N/⌘⇧N open a shell window over Ghostty, ⌘⏎ starts an agent lane,
 ⌃Tab/⌃⇧Tab walk the
 `T/<repo>` lane pages.
+</Callout>
+
+## A modifier and a click (`mouseChords`)
+
+A window-manager keybind can only ever reach the window you are already in. A
+mouse chord acts on the window **under the pointer**, so "zoom that one over
+there" is one gesture instead of focus-then-zoom.
+
+```jsonc
+"mouseChords": {
+  "enabled": true,
+  "chords": [
+    { "button": "right", "modifiers": ["alt"], "action": "fullscreen" }
+  ]
+}
+```
+
+That makes **⌥ + right-click** zoom whichever window you clicked to fill its own
+workspace, focusing it on the way; `fullscreen` is a toggle, so the same chord
+puts it back. It needs [AeroSpace](https://github.com/nikitabobko/AeroSpace) (the
+action shells out to `aerospace fullscreen --window-id`) and the Accessibility
+grant every consuming tap needs, and it is read once at daemon start.
+
+The click is consumed over *every* app, so the chord you pick is a chord you give
+up everywhere:
+
+| chord | what it costs |
+|---|---|
+| **⌥ + right-click** | the quietest: macOS's ⌥ *variant* of a context menu, and ⌥ + right-drag where an app uses it |
+| ⌥ + left-click | multi-cursor in GUI editors, ⌥-click to download a link, and every ⌥-drag — the down is swallowed, so the drag never starts |
+| ctrl + click | context menus machine-wide. This is macOS's own secondary click; don't |
+
+<Callout type="warn" title="A chord with no modifier is refused">
+It would swallow every click on the machine, including the ones you'd need to
+fix the config. Pounce logs the refusal and carries on. Clicking the desktop
+passes through untouched, and anything drawn above ordinary windows (the menu
+bar, the Dock, a status bar) is transparent to the chord rather than "clicked".
 </Callout>
 
 ## File paths
