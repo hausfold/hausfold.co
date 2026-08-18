@@ -2,8 +2,8 @@
   "name": "hausfold.co",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev",
     "start": "serve out",
     "options": "node scripts/gen-options.mjs",
     "options:check": "node scripts/gen-options.mjs --check",
@@ -11,7 +11,7 @@
     "bindings:update": "node scripts/check-rice-bindings.mjs --update",
     "palette": "node scripts/sync-nebelung.mjs",
     "palette:check": "node scripts/sync-nebelung.mjs --check",
-    "types:check": "next typegen && tsc --noEmit",
+    "types:check": "NEXT_TELEMETRY_DISABLED=1 next typegen && tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest"

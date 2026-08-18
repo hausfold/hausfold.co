@@ -1383,6 +1383,13 @@ nothing under `public/` to `open` and no `file://` trap left to fall into.
 - Editing **any page, docs or landing**: `npm run dev`. Hot reload — and since
   2026-08-14 that covers the landing pages too, which is the one plain win of
   the port.
+  > **Every `next` invocation in `package.json` is prefixed
+  > `NEXT_TELEMETRY_DISABLED=1`, and that prefix is load-bearing.** On exit,
+  > `next dev` spawns a *detached* `telemetry/detached-flush.js` to POST its
+  > telemetry; when that POST hangs the node process outlives the session with
+  > its cwd still inside the checkout. In an agent lane that reads as occupancy
+  > — `holt` reaps on an `lsof -d cwd` sweep, so one stuck flusher pinned a
+  > merged lane as "a pane is open in it" for four days. Don't drop the prefix.
 - Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
   asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
   **and `worker.js`**. Worth it for anything touching a URL: `/desktops` should
