@@ -327,10 +327,17 @@ body {
   gap: 1.6rem;
 }
 
-/* The landing page's two-word nav, added 2026-08-14. `.crumbs` is the same
-   vocabulary one level up — small mono, --ink-3, no box — because this site
-   has no nav bar and isn't getting one: an inner page says how to get back
-   up, and the front page says where else there is.
+/* The landing half's nav, added 2026-08-14 for the front page's two words.
+   `.crumbs` is the same vocabulary — small mono, --ink-3, no box — because
+   this site has no nav bar and isn't getting one.
+
+   ⚠️ As of 2026-08-18 the front page carries none of this: `/` had shrunk
+   to a single `github` link above a 5rem mark, and the user cut it (the
+   colophon has the same link). The one page left spending this class is
+   `/haus`, so it is live style, not dead style — but note the old
+   forward-vs-up split between this and `.crumbs` went with `/`'s nav:
+   `/haus`'s three words are a way back up AND two ways onward, which is
+   what an inner page that is also a front door needs.
 
    Left-aligned, onto the column's own left edge — the same axis the ⌂, the
    wordmark and every paragraph below it start on. It was flush RIGHT for
@@ -541,9 +548,9 @@ body {
 
 /* An inner page's whole navigation: two or three words of mono at the top,
    with the current page not a link — enough to get back up, not a nav bar.
-   `.topnav` above is its counterpart on the landing page, which has nothing
-   to get back up to and points forward instead. Between them that is all the
-   chrome this site has. */
+   `.topnav` above is the roomier form, for a page that points onward as
+   well as up. Between them that is all the chrome this site has, and `/`
+   now has neither: the front door's nav went on 2026-08-18. */
 .crumbs {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.78rem;
