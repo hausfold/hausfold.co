@@ -282,10 +282,18 @@ body:has(.sheet) {
      2026-08-14; the inset is the survivor, and it is enough on its own.)
 
      Scoped to the landing half rather than declared on `body` outright:
-     `container-type: inline-size` implies `contain: layout`, which makes
-     the element a containing block for fixed-position descendants, and
-     /docs portals fumadocs' chrome to the end of <body>. No landing page
-     positions anything fixed (checked), so here it costs nothing. */
+     `container-type: inline-size` implies `contain: layout style
+     inline-size`, and layout containment makes the element a containing
+     block for fixed-position descendants, which /docs cannot have because it
+     portals fumadocs' chrome to the end of <body>. No landing page positions
+     anything fixed (checked).
+
+     🚨 This clause used to end "so here it costs nothing", and that was
+     wrong by one cost it took four days to find: containment on the body
+     ALSO suppresses background propagation to the canvas, so the landing
+     routes rubber-banded against the browser's default rather than
+     --ground. The fix is `html { background }` at the foot of this file,
+     not a change here. Read the two together before touching either. */
   container-type: inline-size;
 }
 
@@ -1141,8 +1149,8 @@ html {
   /* The canvas colour, and it has to be declared HERE rather than left to
      `body`. Normally it isn't: CSS Backgrounds 3 §2.11.2 propagates the
      body's background up to the canvas whenever the root element has none,
-     which is what painted the rubber-band overscroll on macOS, the area
-     under a short page, and anything else outside the body's own box.
+     and the canvas is what shows in the rubber-band overscroll at either
+     end of a macOS scroll.
 
      `body:has(.sheet)` sets `container-type: inline-size` (see the note up
      at the lean), and ANY containment on the body suppresses that
@@ -1152,6 +1160,11 @@ html {
      landing route bounced against a colour that wasn't ours, while /docs,
      whose body is not a container, looked right. Same bug, one property
      away from invisible.
+
+     The overscroll is the whole of the symptom, and that is `min-h-screen`
+     on <body> in app/layout.tsx doing its job: the body box always reaches
+     the viewport's foot, so there was never a bare band under a short page.
+     This rule is also what would cover that band if the class ever went.
 
      Declaring it on the root paints the canvas directly and the propagation
      rule never comes into it. The value is the same token `body` spends, and
