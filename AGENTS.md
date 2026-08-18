@@ -29,9 +29,15 @@ built, run and deployed, and this file covers what you may change.
 >
 > - **`/` is the house's door.** The mark, the wordmark, *We rebuild the Mac.*,
 >   a three-line paragraph about **hausfold** rather than about haus, and one
->   list of everything the org makes, haus first. One outward link in the nav
->   (github), because every other destination is a row in the list. It is the
->   shortest this page has ever been and that is the point.
+>   list of everything the org makes, haus first. It is the shortest this page
+>   has ever been and that is the point. 🔄 **It has no nav at all as of
+>   2026-08-18**, at the user's instruction: the split left one outward link
+>   (github) in it, because every other destination was a row in the list, and
+>   a nav of one link above a 5rem mark is chrome rather than navigation. The
+>   colophon's GitHub mark, which every `.sheet` route with a colophon
+>   carries, is the one that stayed.
+>   **This binds `/` alone** — `/haus` keeps its three-word `.topnav`, and
+>   `.topnav` in `public/hausfold.css` is live style, not dead style.
 > - **`/haus` is the layer's page**, and everything that used to argue for haus
 >   on `/` is there word for word: the hero paragraph (one word changed, the
 >   subject), `Rooms`, `#desktops`, and the one-file example. Its nav points at
@@ -413,7 +419,7 @@ The pages, and the one rule each carries that isn't obvious:
 
 | Route | Source | What it is |
 |---|---|---|
-| `/` | `src/app/page.tsx` | **the house's door**, and since 2026-08-17 nothing else — a one-word `.topnav` (github), the masthead, a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source**, and the `/terms` and `/refunds` 301s land on that id. Also the **JSON-LD organization record**, the site's machine-readable identity. 🚨 Everything about *haus* moved to `/haus` in that split — the hero, `Rooms`, `#desktops`, the example file — so a paragraph here that explains the layer is in the wrong page, not merely too long. The 2026-08-14 instruction that shaped it still binds one level up: **explain in `/docs`, point from here** |
+| `/` | `src/app/page.tsx` | **the house's door**, and since 2026-08-17 nothing else — the masthead (⚠️ **and no `.topnav`**: it was one word, `github`, until the user cut it on 2026-08-18; the colophon carries that link and `/haus` still spends the class), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source**, and the `/terms` and `/refunds` 301s land on that id. Also the **JSON-LD organization record**, the site's machine-readable identity. 🚨 Everything about *haus* moved to `/haus` in that split — the hero, `Rooms`, `#desktops`, the example file — so a paragraph here that explains the layer is in the wrong page, not merely too long. The 2026-08-14 instruction that shaped it still binds one level up: **explain in `/docs`, point from here** |
 | `/haus` | `src/app/haus/page.tsx` | **the layer's page**, added 2026-08-17 with what `/` used to carry: the hero paragraph, `Rooms`, `#desktops` (one short paragraph and **one link**, naming no desktop) and `One file` (the example, Shiki-highlighted at build time). Its `.topnav` is three words — `hausfold` back up, then **`/docs/haus` and `hausfold/haus`**, the layer's own docs and repo rather than the root and the org. It is a `.sheet--inner`, so there is no ⌂ and no standfirst: the mark belongs to the house. ⚠️ The URL 301'd to `/docs/haus/` from 2026-08-14 until this page landed; those two lines are deleted from `_redirects`, because a redirect is read ahead of the assets |
 | `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a tree** — see the retirement rule above, and keep the two in step or in neither |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, in `privacy.module.css` |

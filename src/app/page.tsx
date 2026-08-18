@@ -61,29 +61,20 @@ export default function Home() {
       />
       <main className="sheet">
         <header className="masthead">
-          {/* One word, since 2026-08-17. It was `docs` and `github` — and
-              `docs` pointed at a doorway page that listed four trees, which
-              was a third index of the same things this page now indexes
-              directly. That page is deleted, every tree is one click from a
-              row below, and a nav whose only job is to duplicate the list
-              under it is chrome. What is left is the one destination no row
-              can be: the org itself.
+          {/* No nav at all, since 2026-08-18. It was two words (`docs` and
+              `github`), then one (`github`) once the `/docs` doorway was
+              deleted on 2026-08-17 — and a nav of one link, above a mark
+              five rem tall, is chrome rather than navigation. The org's
+              GitHub is still one click away, in the colophon below, which
+              is where every `.sheet` route with a colophon puts it.
+              (`/perch/privacy` writes its own footer and has none — see
+              `src/components/sheet.tsx`.)
 
-              It sits above the mark rather than beside it because the mark is
-              5rem tall and a row would have to pick a baseline between them;
-              and it is flush LEFT, onto the column's own left edge, which is
-              the axis the whole page hangs from.
-
-              Two judgement calls worth having written down. It is inside
-              `<main>`, which nests a nav landmark under main: the alternative
-              is a sibling of `.sheet` re-deriving the column's whole leaning
-              inset to line up with it, and one landmark inside another is the
-              cheaper of the two costs. And it takes `.crumbs`'s ink and size
-              — the quietest on the site — because the page is twenty lines
-              long and the exits that matter are the rows. */}
-          <nav className="topnav" aria-label="Site">
-            <a href="https://github.com/hausfold">github</a>
-          </nav>
+              🚨 This is `/`'s rule alone, at the user's instruction. `/haus`
+              keeps its three-word `.topnav` — an inner page owes a way back
+              up, and the layer's own docs and repo are the two destinations
+              its rows can't be. `.topnav` in `public/hausfold.css` is
+              therefore still live; don't delete it as dead style. */}
 
           <div className="mark" aria-hidden="true">
             ⌂
