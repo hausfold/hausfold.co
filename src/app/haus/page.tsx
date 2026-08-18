@@ -159,34 +159,15 @@ export default async function Haus() {
           concern handled all the way down. An app store stops at the app; a room also wires the
           keys, the theme, and the macOS settings around it, so the pieces already know each other.
         </p>
-        {/* ⚠️ This href shares a page with the `.topnav`'s `docs`, and that
-            is a deliberate exception rather than an oversight. The one-href-
-            per-section rule below is about a *section* spending a reader's
-            attention twice to move them once; the nav is chrome, addressed
-            to someone who is not reading yet, and this is prose at the end
-            of the paragraph that earns the click. The alternative was
-            pointing this at `reference/options`, which is the generated
-            list and the wrong next step for a reader who has just been told
-            what a room is: the rooms table is on `/docs/haus`, so that is
-            where "every room" goes.
+        {/* ⚠️ Shares a page with the `.topnav`'s `docs`, deliberately:
+            the one-href-per-section rule is about a *section* spending a
+            reader's attention twice, and the nav is chrome. The anchor is
+            the point though — bare `/docs/haus` lands a reader promised a
+            list on the pitch, two screens above the table. Reword that
+            heading and this moves with it; nothing checks a fragment.
 
-            🚨 The anchor is the whole link, not decoration. Bare `/docs/haus`
-            lands a reader who was promised a list at the top of a page whose
-            first two screens are the pitch and "Why bother", and the table is
-            the third. `#whats-in-the-box` is the id github-slugger gives that
-            heading; if the heading is ever reworded in
-            content/docs/haus/index.mdx, this href is a caller and moves with
-            it. It also happens to part this link from the nav's — the nav
-            goes to the page, this goes to the table — but the exemption
-            above is what carries that, not the anchor: the rule is about a
-            section, and chrome was never inside it.
-
-            🚨 The thing this deliberately is NOT is a rooms index page. A
-            second list of the twelve rooms is exactly the two-copies-of-one-
-            subject failure that retired /docs, /pounce and the desktop
-            sheets, and AGENTS.md names this table as the one place the count
-            lives. What a room *is* already reads in three places: this
-            section, the table's own lede, and rooms/creating's opening. */}
+            Not a rooms index page: a second list of the twelve is the
+            duplicate-index failure that retired /docs and /pounce. */}
         <p className="aside">
           <Link href="/docs/haus/#whats-in-the-box">Every room, and what it covers</Link>.
         </p>

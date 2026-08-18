@@ -1071,25 +1071,9 @@ rather than being switched off. **No page should end without a door out of
 it.** Length still costs — this is not licence to pad a page back to the
 original's.
 
-🚨 **`content/docs/haus/index.mdx`'s `## What's in the box` has a caller
-outside the docs.** `/haus`'s Rooms section links `/docs/haus/#whats-in-the-box`
-(the twelve-room table) rather than the page top, because that section promises
-"every room" and the table is the third screen down. **Nothing checks a
-fragment**: `<Link>` validates the route, not the hash, so a reworded heading
-fails silently and lands the reader at the top of the page instead. Reword it
-and repoint `src/app/haus/page.tsx` in the same commit. Same rule as
-`#first-moves`, `#desktops` and `#made`, one layer in: an anchor a page outside
-the tree holds is a URL, not a heading.
-
-⚠️ **What that link is deliberately NOT is a rooms index page**, and the
-question comes back because the sidebar's `---Rooms---` group opens on
-`rooms/apps` with no doorway above it. A page explaining what a room is would
-be the *fourth* copy — `/haus`'s Rooms section, the table's own lede and
-[`rooms/creating`](content/docs/haus/rooms/creating.mdx)'s opening paragraph
-are the three — and a second list of the twelve is the two-copies-of-one-subject
-failure that retired `/docs`, `/pounce`, the first `/haus` and the three
-desktop sheets. The gap that keeps prompting it is **precision, not coverage**;
-the answer is an anchor.
+⚠️ **`index.mdx`'s `## What's in the box` heading is a URL**, not just a
+heading: `/haus`'s Rooms section links `/docs/haus/#whats-in-the-box`, and
+nothing checks a fragment. Reword it and repoint `src/app/haus/page.tsx`.
 
 ### Colour — ⚠️ the docs do NOT follow `public/`'s greyscale rule
 
