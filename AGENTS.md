@@ -1322,6 +1322,19 @@ pages joined the same Next app on 2026-08-14. The last three are theirs.)*
   page changes and the reader stays at the old page's offset. Put `data-tree`
   / `data-accent` on `DocsPage`'s own `<article>` instead; it takes arbitrary
   props.
+- **Containment on `<body>` stops its background reaching the canvas**, and
+  `body:has(.sheet)` has containment — `container-type: inline-size` implies
+  `contain: layout style inline-size`. So the colour every landing page is
+  painted in stopped at the body's own box, and the rubber-band overscroll at
+  the top and bottom of a macOS scroll showed the browser's default canvas
+  instead. `/docs`, whose body is not a container, was never affected, which is
+  most of why it survived from 2026-08-14 to 2026-08-18 — and in dark Chrome it
+  is invisible outright, because the default dark canvas and nebelung's crust
+  are both `#121212`. Look for it in **light** mode, where paper meets white.
+  `html { background: var(--ground) }` in `src/app/global.css` is the fix: the
+  root paints the canvas directly and the propagation rule never comes into it.
+  ⚠️ **Don't remove it as a duplicate of `body`'s** — it is the same value on
+  purpose and the one that is actually seen.
 - **This Next is newer than your training data.** Read
   `node_modules/next/dist/docs/` before assuming an API. Next 16 says so itself
   by appending a block to `AGENTS.md` on every `next dev` — which in a

@@ -1137,6 +1137,27 @@ figure.shiki button:hover {
 
 html {
   scrollbar-gutter: stable;
+
+  /* The canvas colour, and it has to be declared HERE rather than left to
+     `body`. Normally it isn't: CSS Backgrounds 3 §2.11.2 propagates the
+     body's background up to the canvas whenever the root element has none,
+     which is what painted the rubber-band overscroll on macOS, the area
+     under a short page, and anything else outside the body's own box.
+
+     `body:has(.sheet)` sets `container-type: inline-size` (see the note up
+     at the lean), and ANY containment on the body suppresses that
+     propagation — measured, not inferred: with the container-type on, the
+     body's colour stops at its own box and the browser paints its default
+     canvas past it; with it off, the colour fills the viewport. So every
+     landing route bounced against a colour that wasn't ours, while /docs,
+     whose body is not a container, looked right. Same bug, one property
+     away from invisible.
+
+     Declaring it on the root paints the canvas directly and the propagation
+     rule never comes into it. The value is the same token `body` spends, and
+     the tokens are declared on `:root`, so both themes fork with nothing to
+     keep in step. */
+  background: var(--ground);
 }
 
 html > body[data-scroll-locked] {
