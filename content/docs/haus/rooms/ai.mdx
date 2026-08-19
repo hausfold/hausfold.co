@@ -132,8 +132,24 @@ The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
 `jcode` comes from its own Homebrew tap, which the room declares for you when
 you name it. That difference is invisible in a pane — it is on your `PATH`
 either way — but it does decide who updates it: `haus update` moves a nixpkgs
-client, `brew upgrade` moves jcode, and jcode's own in-app updater will too
-unless you set `features.check_updates = false` in `~/.jcode/config.toml`.
+client, `brew upgrade` moves jcode — and haus makes brew the only answer, by
+exporting `JCODE_CHECK_UPDATES=false` and `JCODE_NO_AUTO_UPDATE=1` for you (the
+environment form of `features.check_updates`). A client that updated itself
+would leave a binary brew's manifest doesn't describe, and the next
+`brew upgrade` would move it back.
+
+The same environment also turns off jcode's own macOS menu bar item
+(`JCODE_NO_MENUBAR`), but only where the bar's [`agents` paw](/docs/haus/rooms/bar)
+is drawn: that pill already counts running and streaming sessions, across every
+client rather than jcode alone, and it is fed by the very hooks haus wires here.
+With no paw on either bar, jcode's indicator is the only session readout the
+machine has, so it is left alone.
+
+None of this touches `~/.jcode/config.toml`. jcode rewrites that file itself
+(`/model`, `/colors`, the one-time hotkey bake), so haus never owns it and says
+what it has to say in the environment instead — the same reason the pane-status
+hooks are environment. Your own `config.toml` stays entirely yours, and a
+`features.check_updates = true` you set there loses to the variable.
 
 All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
 ⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
