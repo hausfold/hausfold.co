@@ -174,6 +174,58 @@ The **focus** (Do Not Disturb) pill is separate: whether it exists is
 `haus.focus.enable`, not `haus.bar.items`. Where it goes is still a bar
 setting, which is why it can appear in `haus.bar.bottom.items` below.
 
+## Writing your own pill
+
+`haus.bar.items` covers the pills haus ships. A pill it doesn't ship is
+`haus.bar.widgets` — one script, run on a timer, whose output is the label:
+
+```nix
+haus.bar.widgets.backup = {
+  command = "/etc/haus/backup-status.sh";
+  interval = 300;
+  icon = "󰁯";
+};
+```
+
+That's the whole requirement. One line on stdout is the label; print nothing and
+the pill hides for that tick, which is how a widget says "no news" without
+drawing an empty box. `placement = "bottom-left"` puts it on the second bar
+instead.
+
+Every bundled pill is declared here too, so you can retune one by name without
+turning it off and rebuilding it yourself:
+
+```nix
+haus.bar.widgets.weather.interval = 1800;   # ask half as often
+haus.bar.widgets.cpu.placement = "bottom-right";
+```
+
+`haus.bar.items.<name>` is sugar for `haus.bar.widgets.<name>.enable`, and
+`haus.bar.bottom.items.<name>` for its `placement` — the same settings under
+shorter names, so both spellings work and you can keep whichever reads better.
+
+Some things a widget can't do, each refused at build rather than silently: you
+can't set `command` on a bundled pill (its dropdown, click gestures and colour
+rules are written against haus's own script, so replacing half of it would leave
+you with something neither of us can reason about — write your own under a new
+name and switch that one off), you can't place a pill on the bottom bar without
+`haus.bar.bottom.enable`, and the name has to be a plain word the bar can
+address: letters, digits, `_` and `-`, and not one the bar already uses.
+
+<Callout type="info" title="Say what it will ask for">
+`permissions = [ "full-disk-access" ]` declares what macOS will prompt your
+widget for. Nothing requests it and nothing waits on it — it's there so
+`haus doctor` can tell you which pill is about to raise a dialog, and so a
+widget you got from someone else can be read for what it reaches for before you
+switch it on.
+</Callout>
+
+One rule if your script talks back to the bar: source
+`~/.config/sketchybar/bar.sh` and use `$SB`, never a bare `sketchybar`. A pill
+moved to the bottom bar belongs to a second instance, and a bare `sketchybar`
+always means the top one — same syntax, no error, and a pill that just stops
+updating.
+
 <Callout type="info" title="Secrets stay out of Nix">
 The bar never bakes a token into the build. The Harvest pill sources your own
 credentials file at runtime; `aiUsage` reads your existing Codex login the same
