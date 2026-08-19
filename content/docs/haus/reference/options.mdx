@@ -3477,11 +3477,11 @@ The menu bar, and which pills it draws.
 
 #### `haus.bar.aiUsage.provider`
 
-`one of "latest", "claude", "codex", "opencode", "jcode"` · default `"latest"`
+`one of "latest", "claude", "codex", "opencode"` · default `"latest"`
 
 Which AI provider to display in the main pill: `latest` (default, automatically
 shows whichever provider reported most recently), or one of
-`claude`, `codex`, `opencode`, `jcode`.
+`claude`, `codex`, `opencode`.
 Clicking the pill always displays the full dropdown with all reporting providers.
 
 Note this is about *usage readouts*, not about which client `holt` can
@@ -3605,7 +3605,7 @@ A paw pill tracking your agent windows. The label always names the state worth i
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. jcode is the easy one: it answers `jcode usage --json` with the same 5-hour/7-day percentages for whichever account its own `default_provider` names, so its row is one CLI call — and on a machine signed into the same Anthropic account twice, its row and Claude's move together, because they are two clients spending one budget. Claude's row is pushed by its statusline; the Codex, Opencode and jcode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
+A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4284,7 +4284,7 @@ A paw pill tracking your agent windows. The label always names the state worth i
 
 `boolean` · default `false`
 
-A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. jcode is the easy one: it answers `jcode usage --json` with the same 5-hour/7-day percentages for whichever account its own `default_provider` names, so its row is one CLI call — and on a machine signed into the same Anthropic account twice, its row and Claude's move together, because they are two clients spending one budget. Claude's row is pushed by its statusline; the Codex, Opencode and jcode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
+A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, or Opencode API token cost as daily $). Automatically shows whichever provider reported most recently. Click for expanded session/weekly limits and daily/monthly API costs with model breakdowns. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4725,6 +4725,208 @@ Example:
 
 ```nix
 "auto"
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets`
+
+`attribute set of (submodule)` · default `{ }`
+
+Every pill on the bar, including the bundled ones — the open form of
+`haus.bar.items`, and the only way to add a pill haus does not ship.
+
+A widget is one script, run on a timer, whose output is the pill's
+label. Nothing else is required:
+
+  haus.bar.widgets.backup = &#123;
+    command = "/etc/haus/backup-status.sh";
+    interval = 300;
+    icon = "󰁯";
+  &#125;;
+
+The sixteen bundled pills are already declared here, so
+`haus.bar.widgets.clock`, `.media`, `.agents` and the rest exist on
+every machine and can be retuned by name — `interval` and `placement`
+are the two fields that mean something on all of them:
+
+  haus.bar.widgets.weather.interval = 1800;   # ask half as often
+  haus.bar.widgets.cpu.placement = "left";    # only on the bottom bar
+
+A bundled widget's `command` is haus's own plugin and is read-only —
+setting one is refused by name rather than silently ignored, because a
+pill whose script you replaced but whose dropdown, click gestures and
+colour rules still belong to haus is not a pill either of us can
+reason about. Write your own widget under a new name instead.
+
+`haus.bar.items.<name>` is sugar for `haus.bar.widgets.<name>.enable`
+and `haus.bar.bottom.items.<name>` for `.placement`; both keep working
+exactly as they did, and either spelling may be used. Setting the same
+pill both ways is not an error — the open form is the more specific of
+the two and simply wins, so `haus.bar.items.cpu = false` alongside
+`haus.bar.widgets.cpu.enable = true` draws the pill.
+
+`permissions` is a DECLARATION, not a grant: it says what macOS will
+ask your widget for, so a widget can be read for what it reaches for
+before it is switched on. Nothing here requests anything, and a widget
+that lies about it merely describes itself badly.
+
+Example:
+
+```nix
+{
+  backup = {
+    command = "/etc/haus/backup-status.sh";
+    icon = "󰁯";
+    interval = 300;
+    permissions = [
+      "full-disk-access"
+    ];
+    placement = "right";
+  };
+}
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.command`
+
+`null or string` · default `null`
+
+The script whose output is this pill's label, run every
+`interval` seconds. One line on stdout is the label; nothing at all
+hides the pill for that tick, which is how a widget says "no news"
+without drawing an empty box.
+
+It runs as you, with SketchyBar's own variables in the
+environment (`$NAME` is this widget's item id, `$BUTTON` and
+`$SENDER` on a click). Reach the bar back through `$SB` after
+sourcing `~/.config/sketchybar/bar.sh` rather than by naming
+`sketchybar`, so a widget moved to the bottom bar keeps talking to
+the bar it is actually on — see AGENTS.md, it is the single most
+common way a pill silently stops updating.
+
+null on a bundled pill, whose behaviour is haus's own plugin, and
+setting one there is an error rather than an override.
+
+Example:
+
+```nix
+"/etc/haus/backup-status.sh"
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.enable`
+
+`boolean` · default `true`
+
+Whether to draw this pill. A widget you declared is on by default —
+you wrote it down to get it — while the bundled pills keep the
+defaults they always had, which `haus.bar.items` is the sugar for.
+
+Off is not "hidden": the pill is never created and its command
+never runs, so a widget switched off costs nothing at all.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.icon`
+
+`string` · default `""`
+
+The glyph drawn to the left of the label, in the bar's own font
+(`haus.fonts.mono.name`), so any Nerd Font glyph works. Empty
+draws no icon and gives the label the whole pill.
+
+Ignored on a bundled pill: those set their own, and several change
+it to say something (the memory pill's pressure colour, the
+github pill's two-tone logo).
+
+Example:
+
+```nix
+"󰁯"
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.interval`
+
+`null or (positive integer, meaning >0)` · default `null`
+
+How often to run `command`, in seconds. Works on the bundled pills
+too, where it retunes what that pill already polls at:
+
+  haus.bar.widgets.weather.interval = 1800;
+
+null keeps the widget's own default — for a bundled pill the rate
+it ships with, for yours a 60-second tick. A few pills are
+push-driven rather than polled (`agents`, `page`) and a couple own
+their rate through an older option of their own
+(`haus.bar.calendar.refresh`); setting this on one of those is
+accepted and changes only the backstop tick, which is exactly what
+update_freq is on a pill that repaints on an event.
+
+Example:
+
+```nix
+300
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.permissions`
+
+`list of (one of "accessibility", "automation", "calendar", "contacts", "full-disk-access", "location", "microphone", "network", "photos", "reminders", "screen-recording")` · default `[ ]`
+
+What macOS will ask this widget for the first time it runs.
+
+A DECLARATION and nothing more: haus requests none of these, and
+listing one neither grants it nor makes the pill wait for it. What
+it buys is a widget that can be READ for what it will reach for
+before you switch it on — the pill you installed from someone else
+most of all. That is the same shape nebelung's ports metadata
+uses, one room over: the declaration lives with the thing, the
+consumer reads it.
+
+`network` is not a macOS grant at all, and is here because "this
+pill talks to the internet" is the property people actually want
+to see on a widget they didn't write.
+
+Example:
+
+```nix
+[
+  "full-disk-access"
+]
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.placement`
+
+`null or one of "menu-bar", "bottom-left", "bottom-center", "bottom-right", "left", "center", "right"` · default `null`
+
+Which bar this pill sits on, and where along it.
+
+`"menu-bar"` is the top bar, and is where every pill goes unless
+something says otherwise — it has one group to offer, because its
+left is the workspace pills and its centre is the notch.
+`"bottom-left"`, `"bottom-center"` and `"bottom-right"` are the
+second bar's three groups, and need `haus.bar.bottom.enable`.
+
+A bare `"left"` / `"center"` / `"right"` is the same three groups
+of the bottom bar, spelled the way `haus.bar.bottom.items` spells
+them — that option is sugar for this field, so both spellings
+reach the same place.
+
+null means "wherever the sugar put it", which on a machine that
+never mentions this pill is the menu bar.
+
+Example:
+
+```nix
+"bottom-left"
 ```
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
@@ -5307,14 +5509,33 @@ Example:
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
+#### `haus.focus.scenes.<name>.apps.closeOnExit`
+
+`boolean` · default `false`
+
+On exit, quit the apps this scene STARTED — the ones from
+`apps.open` that weren't already running when you entered. An
+app you already had open is not a lever the scene pulled, so
+leaving never closes it; that is the same rule DND and the input
+device follow, and it is what keeps a work mode from taking your
+editor down with it.
+
+The quit is the polite one (the same message ⌘Q sends), so an app
+with unsaved work still gets to ask. It is recorded on entry, so
+exit closes what it opened even if the scene has since been
+edited out of the table.
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
 #### `haus.focus.scenes.<name>.apps.open`
 
 `list of string` · default `[ ]`
 
 Apps to launch on entry, by the name or bundle id `open -a`
-takes. Honest scope: exiting a scene never closes them. Quitting
-an app you were mid-sentence in is not a decision a config file
-should make, so that reversal stays yours.
+takes. Exiting a scene leaves them running unless
+`apps.closeOnExit` says otherwise — quitting an app you were
+mid-sentence in is not a decision a config file should make by
+default.
 
 Example:
 
@@ -5486,33 +5707,14 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 #### `haus.ai.clients`
 
-`list of (one of "claude", "codex", "opencode", "jcode")` · default `[ ]`
+`list of (one of "claude", "codex", "opencode")` · default `[ ]`
 
 Which coding-agent clients to install. `claude` is Claude Code, `codex`
-is OpenAI Codex, `opencode` is OpenCode, `jcode` is
-[jcode](https://jcode.sh). The ⌘↵ lane chord starts whichever one
-`ai.default` names, all of them through `holt new`.
+is OpenAI Codex, `opencode` is OpenCode. The ⌘↵ lane chord starts
+whichever one `ai.default` names, all of them through `holt new`.
 
 A list rather than one bool per client, matching `developer.languages`
-— the fourth client, when it came, didn't change this option's shape.
-
-`jcode` is the one that does NOT come from nixpkgs: there is no
-derivation for it, so this room installs it from its own Homebrew tap as
-a roster entry (`1jehuang/jcode/jcode`) instead — the same way bar
-installs SketchyBar. From here that is invisible (it is on PATH in a
-pane either way), and core enables the Homebrew framework on every
-machine, so nothing else has to be switched on for it. What it does
-change is WHO updates it: `haus update` moves a nixpkgs client, `brew
-upgrade` moves this one — and haus makes that the only answer by
-exporting `JCODE_CHECK_UPDATES=false` (plus `JCODE_NO_AUTO_UPDATE`) for
-you, the env form of `features.check_updates` in `~/.jcode/config.toml`.
-A client that updated itself would land a binary brew's manifest
-doesn't describe, and the next `brew upgrade` would move it back.
-The same environment turns off jcode's own macOS status item
-(`JCODE_NO_MENUBAR`) wherever the bar's `agents` paw is drawn, since
-that pill counts the same sessions across every client rather than
-jcode alone. `~/.jcode/config.toml` itself stays untouched — jcode
-rewrites that file, so haus never owns it.
+— a client added later doesn't change this option's shape.
 
 This is the option that makes `ai.default` honest. Naming a client
 you have not installed used to fail *at spawn time*, inside the pane,
@@ -5521,12 +5723,10 @@ after the worktree already existed: a flash of
 be a member of this list, so the same mistake fails the rebuild
 instead, with both values named.
 
-Override the package for a nixpkgs client the usual Nix way — an overlay
-on `claude-code`, `codex` or `opencode` — rather than dropping the client
+Override a client's package the usual Nix way — an overlay on
+`claude-code`, `codex` or `opencode` — rather than dropping the client
 here and installing your own copy alongside; two derivations shipping
-the same `bin/` name collide in one profile. For `jcode` the same job is
-a roster override: set `haus.roster.jcode.brew` (or `.package`, if you
-package it yourself) and this room's `mkDefault` steps aside.
+the same `bin/` name collide in one profile.
 
 Ignored entirely when `ai.enable` is off — see `haus._ai.clients`, the
 resolved list every room actually installs from. Before step 4 this was
@@ -5550,7 +5750,7 @@ Example:
 
 #### `haus.ai.default`
 
-`one of "claude", "codex", "opencode", "jcode"` · default `"claude"`
+`one of "claude", "codex", "opencode"` · default `"claude"`
 
 The coding agent started by the ⌘↵ lane chord, by Pounce's **Spawn
 Agent** command, by the ⌃⌥⇧A resident bind and the `c` shell alias, and
@@ -5570,19 +5770,11 @@ registry entry from the outside — and the lane stays resumable, because
 Claude keys a transcript to the directory it started in.
 Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
-session for that cwd, `jcode` opens its own session picker. They share one
-`holt` branch/parking/reap
+session for that cwd. They share one `holt` branch/parking/reap
 lifecycle, and they all light up the `agents` bar pill — the opencode
-plugin, the codex hooks and jcode's
-`JCODE_HOOK_*` environment are written for
+plugin and the codex hooks are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
 settings.json (see `haus.bar.items.agents`).
-
-One caveat, and it is `jcode`'s alone: it has no way to be launched with
-a first message — no positional prompt, no `--prompt`, no stdin — so the
-task typed into Pounce's **Spawn Agent** box cannot be handed to it. That
-command says so and opens the lane empty rather than dropping the text
-silently. ⌘↵, which never carries a prompt, is unaffected.
 
 Example:
 
@@ -5627,12 +5819,7 @@ Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
 in `ai.clients`, to the path that client actually reads:
 `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md`, `~/.jcode/prompt-overlay.md`.
-
-That last one is jcode's system-prompt APPENDIX rather than an
-instructions file, which is the closest thing it has to the slot and
-the only one that is jcode's alone: the `~/AGENTS.md` it also reads is
-a shared convention other clients read too, so haus leaves it to you.
+`~/.config/opencode/AGENTS.md`.
 
 Write it client-neutrally: the same text reaches whichever agent the ⌘A
 pane spawns, so a line about a Claude-only skill or file path is noise
@@ -5651,9 +5838,7 @@ after setting this.
 
 With `ai.clients` empty (a machine haus installs no client on)
 every known client's path is written instead of none: the list being
-empty means haus installs none, not that no agent runs here. jcode is
-the one exception — creating `~/.jcode/` there would cancel its
-first-run skill import for a client haus never installed.
+empty means haus installs none, not that no agent runs here.
 
 Example:
 
@@ -5677,14 +5862,11 @@ host file and runs `haus rebuild` instead of guessing at dotfiles and
 
 One copy per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,
-`~/.config/opencode/skills/haus`, `~/.jcode/skills/haus`. OpenCode also
+`~/.config/opencode/skills/haus`. OpenCode also
 scans `~/.claude/skills`
 for Claude Code compatibility, and prefers its own copy when both
 exist — so a machine running both clients sees the skill once, not
-twice. jcode scans the same shared directories, and its own copy is
-also what stops it copying `~/.claude/skills` into `~/.jcode/skills` on
-first run — a copy that would freeze this skill at the revision it was
-taken on, where `haus update` could never move it again.
+twice.
 
 The skill's option reference is GENERATED from the haus revision this
 machine is pinned to, so it can only ever describe options that
