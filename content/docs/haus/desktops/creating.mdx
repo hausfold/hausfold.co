@@ -156,12 +156,18 @@ what you get. The alternative (lists concatenating) means a consumer can add
 to your list but can never drop one entry from it.
 
 **Attribute sets are the middle case.** `roster`, `workspaces` and
-`pounce.items` are carried per key, so a host that names one app's field leaves
-the rest of yours standing.
+`launcher.items` are carried per key, so a host that names one app's field
+leaves the rest of yours standing.
 
 List what your desktop sets in its README, so restating it is possible without
 reading the file.
 </Callout>
+
+Which options are which is on the
+[options reference](/docs/haus/reference/options), stated per option and
+generated from the same registry `checkDesktop` reads: *host-only* for the ones
+a desktop may never set, and *desktop-safe per key* for the containers whose
+keys a named rule decides.
 
 ## What doesn't belong in one
 
