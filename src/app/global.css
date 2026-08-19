@@ -177,7 +177,8 @@
 /* Where a page's hue comes from, in order of precedence:
 
      1. `accent: pounce` in the page's frontmatter — the page is *about* a
-        product, and takes that product's colour.
+        product, and takes that product's colour. No page sets one today; a
+        room page is about the room, not about the app it installs.
      2. the tree it lives in — /docs/haus is mauve, /docs/pounce peach,
         /docs/perch green, /docs/trill yellow.
      3. nothing, which is `--ink`: the /docs index itself, which is a
