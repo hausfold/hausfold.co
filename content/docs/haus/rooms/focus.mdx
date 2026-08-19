@@ -134,6 +134,7 @@ haus.focus.scenes.recording = {
   preventSleep = true;              # no screensaver mid-take
   audio.input = "Studio Mic";       # exact device name
   apps.open = [ "OBS" ];
+  apps.closeOnExit = true;          # quit OBS again on the way out
   hooks = [ ./key-light-on.sh ];    # called with "on" / "off"
 };
 ```
@@ -194,9 +195,13 @@ haus.keys.leaderExtras = [
 
 ### What a scene doesn't do
 
-- **It never closes the apps it opened.** Quitting something you were
-  mid-sentence in isn't a decision a config file should make, so that half
-  stays yours.
+- **It doesn't close the apps it opened unless you ask.** Quitting something
+  you were mid-sentence in isn't a decision a config file should make by
+  default — set `apps.closeOnExit = true` and it becomes one you made. Even
+  then it only quits what the scene actually *started*: an app you already had
+  open is not a lever the scene pulled, so leaving never takes it down with it.
+  The quit is the polite one, the same message ⌘Q sends, so an app with unsaved
+  work still gets to ask.
 - **Nothing enters a scene for you.** There's no timer, no Wi-Fi rule, no
   "when the camera turns on" — you enter it, from a chord, a palette item or a
   terminal. That's deliberate: declaring the states is cheap and a daemon that
