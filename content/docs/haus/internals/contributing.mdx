@@ -55,14 +55,13 @@ existing one is a **room**, and rooms have a shape:
 [Create a room](/docs/haus/rooms/creating) is the two files, the registry entry
 and the rule about talking to other rooms.
 
-Four command-line tools come out of that, and only the first is for people who
+Three command-line tools come out of that, and only the first is for people who
 merely *use* haus:
 
 | Command | Reach for it to… | Ships in |
 |---|---|---|
 | **`haus`** | drive your own Mac: [rebuild, update, roll back, diagnose](/docs/haus/reference/haus) | haus, always |
 | **`holt`** | manage [agent worktrees](/docs/haus/rooms/ai) in any git repo | haus, with `haus.ai.enable` on |
-| **`zscratch`** | feel-test a zellij edit with no rebuild | haus, with `haus.developer.enable` on |
 | **`bench`** | move a change across the family repos | the workshop (contributors only) |
 
 `haus` knows only *your machine*; `bench` knows only *the family repos*.
@@ -133,26 +132,26 @@ without reading that footer and you'll believe you felt a PR the batch never
 built.
 </Callout>
 
-## Feel-testing a zellij edit
+## Feel-testing a terminal edit
 
-A zellij plugin `.wasm`, a patched binary, or a layout change to tabs that
-already exist can't hot-reload (a running server holds its plugin wasm in memory
-for its whole lifetime), so seeing one means restarting the server and losing
-every open tab. `zscratch` boots your candidate as a throwaway session in its own
-window instead, rendered over a copy of the live `~/.config/zellij`:
+Nothing special: `bench try switch`, and Ghostty applies the new keybinds, theme
+and options to every running window in about a second. Windows, sessions and
+live agent conversations stay exactly where they are — and because every
+window's shell lives in a session that outlives the window, even one that does
+restart comes back to the same scrollback.
 
-```sh
-zscratch --config config.kdl             # a candidate config.kdl
-zscratch --layout my-layout.kdl          # …or a layout
-zscratch --theme  nebelung.kdl           # …or a theme
-zscratch --plugin tab-bar=tab-bar.wasm   # …or a freshly built plugin
-zscratch --bin /path/to/zellij           # …or a binary-level patch
-zscratch clean                           # kill the scratch session and temp dir
-```
-
-A plain `config.kdl` edit needs none of this: zellij applies most of that file
-to the *running* server in about a second, so `bench try switch` is enough and
-your tabs, panes and live agent sessions stay put.
+<Callout title="This used to need its own tool">
+haus ran on [zellij](https://zellij.dev) until 2026-08-19, and iterating on it
+needed a fourth CLI (`zscratch`) plus an activation hack, for two reasons worth
+knowing only so nobody rebuilds them. A running zellij server cached plugin wasm
+in memory for its whole lifetime, so a plugin edit needed a *fresh* server —
+which meant losing every open tab, which is what `zscratch`'s throwaway session
+avoided. And zellij decided "the config changed" by file mtime, while every
+`/nix/store` file is stamped epoch 1, so a home-manager symlink made each
+rebuild look *older* than what the server had already read and nothing reloaded
+— which is why that one file had to be installed by an activation script instead
+of linked. Ghostty has no plugins and watches a store symlink happily.
+</Callout>
 
 ## The whole life of a change
 
@@ -199,7 +198,7 @@ start there when you open one.
 - [Nix](https://nixos.org) and [nix-darwin](https://github.com/nix-darwin/nix-darwin), the reproducible system
 - [AeroSpace](https://github.com/nikitabobko/AeroSpace) for tiling; [SketchyBar](https://github.com/FelixKratz/SketchyBar) for the bar
 - [Catppuccin](https://github.com/catppuccin), the framework nebelung is derived from
-- the terminal stack: [Ghostty](https://ghostty.org), [zellij](https://zellij.dev), [yazi](https://yazi-rs.github.io), [helix](https://helix-editor.com), [starship](https://starship.rs)
+- the terminal stack: [Ghostty](https://ghostty.org), [zmx](https://github.com/neurosnap/zmx), [yazi](https://yazi-rs.github.io), [helix](https://helix-editor.com), [starship](https://starship.rs)
 
 haus, nebelung, pounce, perch and trill are MIT; **holt** is Apache-2.0. Read
 it, build it, change it, ship it. Each repository's `LICENSE` file is the

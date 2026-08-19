@@ -128,8 +128,7 @@ find "$HOME" -maxdepth 5 -name '*.backup' -print
 Typically `~/.zshrc.backup`, `~/.zshenv.backup`,
 `~/.config/starship.toml.backup`, `~/.config/git/config.backup`, plus some
 inside managed directories. Inspect each one, confirm the Nix-managed target is
-gone, then move it back by hand. One exception to hunting for: zellij's
-`config.kdl.backup` is cleared on every rebuild by design, so it won't be there.
+gone, then move it back by hand.
 
 <Callout type="warn">
 Don't restore blindly. A backup is the version that existed at the *first*

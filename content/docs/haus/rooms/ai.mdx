@@ -34,9 +34,8 @@ already have.) A lane's terminal is its own zmx session in its own window, which
 the [Development](/docs/haus/rooms/development) room sets up.
 
 <Callout type="warn" title="Why the chord isn't ⌘A">
-A lane is a window, not a pane, so the bind can't live in the multiplexer:
-zellij's only way to run a command is to open a pane, and a lane's own window
-has no zellij in it to receive one. ⌘⏎ is held by
+A chord that runs a command cannot live in the terminal: Ghostty has no keybind
+action that shells out — 85 actions, and not one of them. ⌘⏎ is held by
 [pounce](/docs/pounce/config#chords-that-only-exist-over-one-app-apphotkeys)
 instead, scoped to Ghostty — consumed only while a terminal window is
 frontmost, so ⌘⏎ still means *send* in Slack and everywhere else. ⌘A is plain
@@ -100,8 +99,8 @@ picker, for when a lane has more than one.
 For a lane **named after the task** rather than the random
 `luminous-twirling-codd` an unattended agent would coin, summon
 the [launcher](/docs/haus/rooms/launcher) and run **Spawn Agent**: pick a repo, describe
-the job, and it creates the checkout and opens a session in that repo's zellij
-tab. Naming the branch from the prompt is the whole point.
+the job, and it creates the checkout and opens a lane on that repo's own page.
+Naming the branch from the prompt is the whole point.
 
 How you commit the prompt picks what happens next:
 
@@ -279,16 +278,15 @@ instead of pushing it.
 ## Knowing which agent needs you
 
 Run eight agents at once and the question is always the same one: which of them
-is sitting on a permission prompt? For lanes that's the [bar](/docs/haus/rooms/bar)'s
-`agents` pill, since a lane has a window rather than a tab. For a resident
-⌃⌥⇧A agent the zellij tab bar answers it, with a coloured dot in front of the
-name of any tab holding one:
+is sitting on a permission prompt? The [bar](/docs/haus/rooms/bar)'s `agents`
+pill answers it, for every agent the same way — a lane, a ⌃⌥⇧A agent in a
+checkout you already had, or a conversation in the desktop app:
 
 | Mark | Means |
 |---|---|
-| **`●` peach**, and the tab washed peach | an agent is blocked on you: a permission prompt, or a question |
-| **`◐` sky** | an agent is mid-turn, working |
-| **`○` green** | it finished its turn; nothing is waiting |
+| **peach** | an agent is blocked on you: a permission prompt, or a question |
+| **sky** | an agent is mid-turn, working |
+| **green** | it finished its turn; nothing is waiting |
 | *(nothing)* | no resident agent in that tab |
 
 The dot shows the most urgent state in the tab, so peach always wins and the tab

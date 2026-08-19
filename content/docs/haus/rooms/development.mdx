@@ -1,6 +1,6 @@
 ---
 title: Development
-description: The terminal, the shell, the multiplexer and the editor, plus Git tooling, the CLI toolbelt and language runtimes. The command line haus sets up, and the keys that drive it.
+description: The terminal, the shell, session persistence and the editor, plus Git tooling, the CLI toolbelt and language runtimes. The command line haus sets up, and the keys that drive it.
 icon: shell
 related:
   - title: "Appearance"
@@ -14,14 +14,14 @@ related:
 ---
 
 **Development** is the room the command line lives in. It sets up the whole command line (emulator,
-multiplexer, shell, prompt, file manager, editor, and a toolbelt of modern
-replacements for the usual commands), painted from the same
+session persistence, shell, prompt, file manager, editor, and a toolbelt of
+modern replacements for the usual commands), painted from the same
 [palette](/docs/haus/rooms/appearance), down to the default editor.
 
 | | | |
 |---|---|---|
-| Terminal | [Ghostty](https://ghostty.org) | title bar hidden, opens straight into the multiplexer |
-| Multiplexer | [zellij](https://zellij.dev) | custom tab bar, three swap layouts |
+| Terminal | [Ghostty](https://ghostty.org) | title bar hidden, kitty graphics, one window per pane |
+| Sessions | [zmx](https://github.com/neurosnap/zmx) | every window's shell survives the window |
 | Shell | zsh | no framework, fzf-tab, sensible history, git aliases |
 | Prompt | [starship](https://starship.rs) | |
 | Files | [yazi](https://yazi-rs.github.io) | markdown, code and image previews |
@@ -39,35 +39,44 @@ haus.developer.enable = true;
 haus.developer.languages = [ "node" ];
 ```
 
-The terminal stack itself (Ghostty, zellij, zsh, the prompt, the editor) is
+The terminal stack itself (Ghostty, zmx, zsh, the prompt, the editor) is
 part of the foundation and always there. `haus.developer.*` is what brings the
 *tools*: the CLI toolbelt, the Git tooling and the language runtimes, each with
 a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
 
-## Ghostty opens into zellij
+## A window is a pane
 
-Launching the terminal drops you into a persistent session called `main`; new
-panes and tabs inherit your working directory. Ghostty's own `⌘T`, `⌘N`, `⌘Y`,
-`⌘W` and friends are **unbound** on purpose, so those keys mean the same thing
-whether or not you're multiplexed. (`⌘C` is not one of them; it stayed with
-Ghostty, as copy. Day to day you won't press it, since zellij copies a mouse
-selection the moment you release it, but a `⇧`-drag makes a Ghostty-level
-selection and `⌘C` takes it.)
+There is no multiplexer. A "pane" is a real Ghostty window, tiled by the
+[Windows](/docs/haus/rooms/windows) room, and every window's shell runs inside
+its own [zmx](https://github.com/neurosnap/zmx) session — so closing a window
+**detaches** it rather than ending it, and the next window Ghostty opens walks
+straight back into the shell you had, scrollback and all.
 
-Two of the unbindings are fixes rather than hand-offs:
+That buys two things a multiplexer cost. Images render for real: a multiplexer
+is a second terminal emulator in the middle of the pipe, and kitty graphics
+never survived the trip, so previews were half-block art. And there is one
+layout model instead of two nested ones — the same chords tile your browser and
+your terminal.
 
-- **`⌘W`.** Ghostty's default there closes the whole surface, and with close
-  confirmation off a stray `⌘W` silently took the window and the session in it.
-  Now it closes one pane; `⌘⇧W` still closes the window.
-- **`⌘D` / `⌘⇧D` do nothing**, on purpose. Their Ghostty defaults nest a second
-  terminal *inside* the one zellij is driving: invisible to the multiplexer, so
-  its layout and pane keys would apply to half the window. Use `⌘N`.
+Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purpose, so
+those keys mean here what they mean in every other app rather than what a
+terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
+`⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
+it.)
+
+Two of them do nothing at all, on purpose:
+
+- **`⌘T` / `⌘⇧T`.** There are no tabs — a tab would nest a second layout model
+  inside one tile. `⌘N` is "a new window here", which is what `⌘⇧T` used to mean.
+- **`⌘D` / `⌘⇧D`.** Ghostty's defaults there split the surface, and splits go
+  unused for the same reason: the tiler already tiles. It's an easy chord to hit
+  by accident coming from iTerm, so the keys do nothing rather than something
+  else.
 
 | Keys | What happens |
 |---|---|
 | `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — the same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
-| `⌘T` / `⌘⇧T` | New tab at `$HOME` / at the focused pane's directory. Fresh tabs are born named `~`, never `Tab #N`. |
-| `⌘W` | Close the focused pane (and the tab with it, when it was the last one) |
+| `⌘W` | Close the window — which **detaches** its session rather than ending it. The shell keeps running; the next window claims it back. |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
 | `⌘⏎` | Spawn a coding agent in its own worktree, on the repo this window is looking at |
@@ -85,9 +94,9 @@ because of it: the plain key assumes you want the *real* repo, and `⇧` says st
 in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle: resuming one, setting work aside, cleaning up.
 
-**A lane's terminal is not a pane.** It is its own
-[zmx](https://github.com/neurosnap/zmx) session in its own Ghostty window, which
-is why `⌘⏎` is held above the multiplexer rather than inside it — [the AI
+**A lane's terminal is a window like any other**, and its own
+[zmx](https://github.com/neurosnap/zmx) session — which is why `⌘⏎` is held at
+the window layer rather than inside the terminal; [the AI
 room](/docs/haus/rooms/ai) has that story. The session outlives every client
 attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening the
 lane rejoins the live conversation instead of replaying a transcript. The trade
@@ -109,47 +118,46 @@ the focused window onto it and follows it there. The [bar](/docs/haus/rooms/bar)
 no page has yet isn't a miss — the tiler makes a page on first use, so you can
 throw a window onto a repo whose first lane hasn't been opened.
 
-**zellij boots Locked.** Its single-key submode leaders stay inert until you
-press `Ctrl g`, so a stray keystroke can't drop you into resize mode. Everything
-in the table above works regardless. `haus.terminal.zellijStartLocked` flips it.
+Every one of those chords is taken **only while Ghostty is frontmost**, so each
+still means whatever it means everywhere else. They are held there rather than
+by the terminal for a plain reason: Ghostty has no keybind action that runs a
+command, and each of these runs one.
 
-There is **no reload chord**, because there is nothing to reload: zellij watches
-its own config and applies a change to the running server within a second. A
-`haus rebuild` lands on the session you already have: same tabs, same panes,
-same directories, live agent conversations uninterrupted.
+There is **no reload chord**, because there is nothing to reload: Ghostty
+watches its own config and applies a change within a second. A `haus rebuild`
+lands on the windows you already have — same directories, live agent
+conversations uninterrupted.
 
-<Callout title="Click a path">
-A plain click on a file path opens it **in your editor, at its line number**
-(`src/main.rs:42` lands on line 42), and a click on a directory opens a new tab
-already `cd`'d there. Handy for whatever a build tool just printed. Links work
-in every pane, including ones running a TUI that has taken the mouse; paths work
-in any pane no program is tracking the mouse in.
+<Callout title="Opening a link">
+`⌘⇧`-click opens the link under the pointer, and `⌘⇧`-hover previews where it
+goes. It is `⌘⇧` and not a plain click because most of what you'll click sits
+inside a program that has taken the mouse (an agent, `lazygit`, `vim`): the
+terminal's mouse protocol has no bit for `⌘`, so a plain `⌘`-click arrives at
+that program indistinguishable from any other click. `⇧` is the one modifier
+Ghostty always keeps for itself, which is what makes the pair dependable
+anywhere.
 </Callout>
 
 ## Finding things
 
-`⌘F` opens a search overlay for the focused pane, `⌘⇧F` the same overlay across
-every pane. It covers the window but is still a floating pane, so `Esc` puts the
-tiled layout straight back. Results appear as you type, with the lines around
-each hit beside them. `⏎` jumps to the pane a hit came from, `^y` copies the
-line, `^s` flips between this-pane and every-pane without losing your query.
+`⌘F` opens a search overlay for the focused window, `⌘⇧F` the same overlay
+across every window at once. It floats over the window that summoned it, so
+`Esc` puts you straight back. Results appear as you type, with the lines around
+each hit beside them. `⏎` jumps to the window a hit came from, `^y` copies the
+line, `^s` flips between this-window and every-window without losing your query.
 
-**In an agent pane it searches the conversation, not the terminal.** Claude Code
-and Opencode panes render in the alt-screen, which has no scrollback at all, so
+**In an agent window it searches the conversation, not the terminal.** Claude
+Code and Opencode render in the alt-screen, which has no scrollback at all, so
 searching the grid would only ever find what's on screen this second. Searching
 the stored conversation finds all of it, including text inside collapsed tool
-output. Codex panes fall back to scrollback; they report their pane state like
-the others but carry no conversation id to join to. Every other pane gets its
-full scrollback.
-
-zellij's own in-place search is still there, for when you want matches
-highlighted in the real pane and `n`/`p` to walk them: `Ctrl g` to unlock, then
-`s`. Its exits return you to Locked rather than Normal.
+output. Codex falls back to scrollback; it reports its state like the others but
+carries no conversation id to join to. Every other window gets its full
+scrollback — the *whole* of it, since that is what the session holds.
 
 ## Your review queue
 
-`⌘G` opens [gh-dash](https://github.com/dlvhdr/gh-dash) as a borderless overlay,
-themed like everything else and gone again on `q`. It's off unless you ask:
+`⌘G` opens [gh-dash](https://github.com/dlvhdr/gh-dash) in a near-fullscreen
+floating window, themed like everything else and gone again on `q`. It's off unless you ask:
 
 ```nix
 haus.terminal.ghDash.enable = true;
@@ -171,8 +179,8 @@ those four simply aren't written.
 `⌘Y` opens a floating file browser with live previews, sized to cover the
 terminal window that summoned it exactly, so it reads as that window turning
 into a file browser rather than a popup landing on it. `Enter` on a file pages
-it fullscreen; `Enter` on a directory opens a new zellij tab there, which makes
-peek double as a browse-and-pick tab chooser. `q` or `Esc` closes it and leaves
+it fullscreen; `Enter` on a directory opens a new window there, which makes
+peek double as a browse-and-pick directory chooser. `q` or `Esc` closes it and leaves
 your layout untouched.
 
 Markdown renders through `glow`, code through `bat`, images through `chafa`.
@@ -219,7 +227,7 @@ haus.git.shellAliases = {
 Name one and the room installs it. `haus.terminal.editorName` takes **helix** (the
 default), **neovim**, **vim** or **nano**: one choice that installs the editor,
 sets your `$EDITOR`, and points every "open in an editor" action at it. Those
-open in a new zellij tab, which is why the list is terminal editors.
+open in a new terminal window, which is why the list is terminal editors.
 
 ```nix
 haus.terminal.editorName = "neovim";              # installed, and $EDITOR
@@ -241,22 +249,23 @@ haus.terminal.editor = "code -w";                 # points at it; installs nothi
 
 ## Smaller things you'll notice
 
-- **Tabs rename themselves.** `cd` into a repo and the tab takes its name; `cd
-  ~` puts it back to `~`.
+- **Nothing is lost when you close a window.** Its shell keeps running in its
+  session; reopen and you land back in it, scrollback intact.
 - **Agent-worktree aware.** A new shell opened inside an agent worktree hops to
-  the parent repo, and the tab is named after the real repo rather than the
-  throwaway checkout. `⌘⇧N` is the no-hop escape hatch.
-- **`Ctrl Tab` really works**, which it usually doesn't on macOS: Ghostty
-  forwards the kitty-protocol encoding so zellij sees it.
+  the parent repo rather than starting in a throwaway checkout. `⌘⇧N` is the
+  no-hop escape hatch.
+- **`Ctrl Tab` really works**, which it usually doesn't on macOS: the OS eats it
+  for focus navigation before any app sees it, so the chord is caught one layer
+  above.
 
 ## Works with
 
-- **[AI](/docs/haus/rooms/ai)**: with both rooms on, agent panes get their
-  zellij bindings and the worktree lifecycle around them.
+- **[AI](/docs/haus/rooms/ai)**: with both rooms on, agent windows get their
+  chords and the worktree lifecycle around them.
 - **[Appearance](/docs/haus/rooms/appearance)**: the whole stack is painted
   from the same palette.
-- **[Launcher](/docs/haus/rooms/launcher)**: commands that open a terminal land
-  in the same multiplexer you already live in.
+- **[Launcher](/docs/haus/rooms/launcher)**: it hosts every terminal chord in
+  this page, and commands that open a terminal land in a window beside yours.
 
 ## Remove it
 
