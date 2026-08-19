@@ -38,6 +38,14 @@ can own more than one: the Bar room is `haus.bar` (its own bar) *and*
 Apply changes with `haus rebuild`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
+A few also carry a line about what a **shared desktop** may do with them. An
+option marked *host-only* names a person, a secret or a piece of hardware, so
+[a desktop](/docs/haus/desktops/creating) may not set it — only your host file
+can. One marked *desktop-safe per key* takes keys nobody declared, so a named
+rule decides which of them a desktop may write, and that rule is stated with
+it. Anything unmarked is plain desktop-safe. This is the same classification
+`haus.lib.checkDesktop` enforces before a desktop is evaluated.
+
 ## Apps
 
 The apps a finished machine has: the curated picks, the packs that switch a whole set on in one line, the file types they claim, App Store policy, and what a rebuild does to anything you installed by hand. The list they all land in is `haus.roster`, a shared surface below.
@@ -1091,6 +1099,8 @@ Example:
 
 `null or package` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 The package providing `name`. null (the default) installs haus's
 own JetBrains Mono Nerd Font, which is what `name` defaults to.
 
@@ -1705,6 +1715,8 @@ true
 
 `null or string` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Where ⇧⌘3 / ⇧⌘4 / ⇧⌘5 write their files. null (the default) leaves
 macOS's own choice alone, which is the Desktop.
 
@@ -1884,6 +1896,8 @@ Per-display overrides, keyed by which screen you mean.
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`display-selectors`) — Only the `internal` and `main` selectors: a display UUID names one physical panel on one desk, which is a fact about a machine rather than a taste a desktop can share.
+
 Per-display settings, keyed by which screen you mean:
 
   internal   the built-in panel
@@ -1973,6 +1987,8 @@ The shell and terminal experience.
 #### `haus.terminal.editor`
 
 `string` · default `the command for haus.terminal.editorName — hx for helix`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
@@ -2108,6 +2124,8 @@ handler behind an interactive dialog; set it by hand once if wanted:
 
 `list of string` · default `[ ]`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Home-relative paths to existing Obsidian vaults that should use the
 Nebelung theme. On each activation, Terminal copies the rendered
 theme.css + manifest.json into each vault's .obsidian/themes/Nebelung/
@@ -2135,6 +2153,8 @@ Zen browser policy, extensions and the optional native tab bridge.
 #### `haus.zen.extensions`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Browser extensions to deploy into Zen, by a stable id of your choosing.
 
@@ -2188,6 +2208,8 @@ Example:
 
 `boolean` · default `true`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Whether to deploy this extension. Set false to remove one an imported desktop added.
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
@@ -2195,6 +2217,8 @@ Whether to deploy this extension. Set false to remove one an imported desktop ad
 #### `haus.zen.extensions.<name>.id`
 
 `null or string` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The extension's own id — the key Firefox's policy engine
 matches on, NOT its AMO slug. Usually a brace-wrapped UUID,
@@ -2218,6 +2242,8 @@ Example:
 
 `one of "force_installed", "normal_installed", "allowed", "blocked"` · default `"force_installed"`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Firefox's `installation_mode`. `force_installed` installs it
 and stops the user removing it (the point, for a desktop that
 wants an extension present); `normal_installed` installs it
@@ -2228,6 +2254,8 @@ but leaves it removable.
 #### `haus.zen.extensions.<name>.slug`
 
 `null or string` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The add-on's AMO slug — the last path segment of its
 addons.mozilla.org URL. Only used to build the default
@@ -2244,6 +2272,8 @@ Example:
 #### `haus.zen.extensions.<name>.url`
 
 `string` · default `""`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Where the .xpi comes from. Defaults to AMO's "latest" endpoint
 for `slug`, so the add-on updates itself; point it at a pinned
@@ -2264,6 +2294,8 @@ url never turns it on.
 #### `haus.zen.extraPolicies`
 
 `attribute set` · default `{ }`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Anything else to put in Zen's policy set, merged beside the
 `ExtensionSettings` block `haus.zen.extensions` renders. haus OWNS
@@ -3669,7 +3701,7 @@ The Focus (Do-Not-Disturb) pill. Needs `haus.focus.enable`; setting this moves t
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a red logo, rather than as five red things or as nothing wrong. The logo stays the number's own colour while everything is fine; green is a row colour, not a resting state. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a peach logo, rather than as five bad things or as nothing wrong. The tones are one ladder: grey is no verdict (a draft, an issue), green is fine (and, approved-and-green, ready to press the button), sky is in flight (checks still running — the machine's turn), peach wants a human on one pull request (it conflicts, its checks came back red, or a reviewer asked for changes), and RED is reserved for a red DEFAULT BRANCH. Nothing one of your PRs can do turns the pill red, because a red that fires for every work-in-progress is a red you stop reading; the only other way to reach it is a source you declared `bad` yourself. Green is not a resting state: with nothing open there are no rows at all and the logo keeps the number's own grey, so a green octocat means "there is a queue, and every row in it is fine". LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3819,6 +3851,8 @@ false
 #### `haus.bar.calendar.me`
 
 `list of string` · default `[ ]`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Addresses (or display names) that are YOU, dropped from the "with …"
 line in the dropdown. An attendee list that includes you is a list that
@@ -3980,6 +4014,8 @@ false
 
 `string` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Which Elgato Key Light the `elgato` pill toggles — a hostname or IP,
 optionally with a `:port` (the light's HTTP API is on 9123).
 
@@ -4033,6 +4069,8 @@ Example:
 #### `haus.bar.github.sources`
 
 `list of (submodule)` · see below
+
+**Desktop-safe per key** (`submodule-list`) — A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
 
 What the `github` pill counts, in the order it prefers to speak about
 them. Each entry names exactly ONE kind — `search`, `ci` or `command` —
@@ -4093,10 +4131,15 @@ true
 
 `null or string` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 A command run through `bash -c`, printing one row per line as
-`<state>\t<text>` or `<state>\t<text>\t<url>`, where state is `ok`,
-`warn` or `bad`. The count is the number of rows; a line that doesn't
-match the shape is dropped rather than drawn mangled.
+`<state>\t<text>` or `<state>\t<text>\t<url>`, where state is one rung
+of the pill's ladder: `ok` (green), `busy` (sky — in flight, nobody's
+turn yet), `warn` (peach — wants a human) or `bad` (red — reserved for
+"this is broken", the tone a red default branch wears). The count is the
+number of rows; a line that doesn't match the shape is dropped rather
+than drawn mangled.
 
 It runs from the bar's detached fetch, i.e. under launchd's environment
 and not your interactive shell: name binaries by absolute path or expect
@@ -4173,14 +4216,29 @@ Each row it draws carries its own MERGE VERDICT, from the same request
 that counted them: whether the pull request conflicts, what its head
 commit's checks came back as, and what the review landed on, folded into
 the one state GitHub's own merge box answers with. That is the row's
-glyph and colour, and the worst of them across every source is what
-tints the pill's logo. In precedence order: a draft is muted (its author
-already said "not ready", so its red checks are not news), then a
-conflict, then failed checks, then checks still running, then changes
-requested, then approved-and-green — which gets a glyph of its own,
-being the one row that means you can press the button. A mergeability
+glyph, its colour and the word after its title, and the worst of them
+across every source is what tints the pill's logo.
+
+In precedence order, first match wins: a draft is *grey* (its author
+already said "not ready", so its red checks are not news); then a
+conflict, then failed checks — both *peach*; then checks still running,
+*sky*, the machine's turn rather than yours; then changes requested,
+*peach* again; then green, *green*, with approved-and-green getting a
+glyph and a word of its own, being the one row that means you can press
+the button. Note that a run in flight outranks a reviewer's changes
+request rather than the other way round: peach and sky are two tiers,
+but the order the verdicts are tested in is one list. A mergeability
 GitHub has not computed yet reads as no verdict and resolves itself on
 the next refresh.
+
+Note what a search row cannot be: *red*, ever. Red on this pill means a
+DEFAULT BRANCH is broken — see `ci` — and nothing one pull request of
+yours does reaches it, because a red that fires for every
+work-in-progress is a red you stop reading. Marking the source itself
+`bad` (`severity`) doesn't change that either: it reddens this source's
+COUNT and its section heading, which is you putting your own filter on
+the same footing as a broken main, and leaves each row wearing the
+verdict it earned.
 
 The string is literal: nothing interpolates `haus.git.org` into it for
 you, because a machine that reads several owners is the reason that
@@ -4202,6 +4260,11 @@ How much this source's count matters, which decides both its colour
 (`info` neutral, `warn` peach, `bad` red) and which source the PILL
 speaks for when more than one has something to say — highest severity
 first, then list order.
+
+`bad` is worth spending carefully: a red default branch is the only
+thing that turns this pill red on its own, so a source you mark `bad`
+is one you are putting on that footing. A queue you merely want to
+notice is `warn`.
 
 It is per-source rather than global because the same kind means
 different things in two entries: `is:pr is:open` is a work queue and
@@ -4348,7 +4411,7 @@ Toggles an Elgato Key Light on the local network. The light is found over mDNS (
 
 `boolean` · default `false`
 
-One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a red logo, rather than as five red things or as nothing wrong. The logo stays the number's own colour while everything is fine; green is a row colour, not a resting state. LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
+One number from GitHub, and the rows behind it. The pill is configured as a list of typed SOURCES (`haus.bar.github.sources`) — a `search` filter, the `ci` board, or your own `command` — and its label is whichever source is worth interrupting you for: the highest-severity one with a nonzero count, earliest in the list on a tie. With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a peach logo, rather than as five bad things or as nothing wrong. The tones are one ladder: grey is no verdict (a draft, an issue), green is fine (and, approved-and-green, ready to press the button), sky is in flight (checks still running — the machine's turn), peach wants a human on one pull request (it conflicts, its checks came back red, or a reviewer asked for changes), and RED is reserved for a red DEFAULT BRANCH. Nothing one of your PRs can do turns the pill red, because a red that fires for every work-in-progress is a red you stop reading; the only other way to reach it is a source you declared `bad` yourself. Green is not a resting state: with nothing open there are no rows at all and the logo keeps the number's own grey, so a green octocat means "there is a queue, and every row in it is fine". LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4631,6 +4694,8 @@ true
 
 `attribute set of string` · default `{ }`
 
+**Desktop-safe per key** (`attrs-of-string`) — Keys and values are strings carrying no quote, backslash, `$`, backtick, newline or tab, because they are written into a generated file as shell assignments.
+
 Override the media pill's glyph, keyed by bundle id
 (`com.spotify.client`) or by KIND — one of `music`, `spotify`,
 `podcast`, `video`, `vlc`, `browser.video`, `browser.music`, `other`.
@@ -4733,6 +4798,8 @@ Example:
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`widget-entries`) — Keys are plain widget names, because each becomes a SketchyBar item name; a desktop may place and retune a pill, but `command` stays host-only so it can never add one that runs code.
+
 Every pill on the bar, including the bundled ones — the open form of
 `haus.bar.items`, and the only way to add a pill haus does not ship.
 
@@ -4792,6 +4859,8 @@ Example:
 #### `haus.bar.widgets.<name>.command`
 
 `null or string` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The script whose output is this pill's label, run every
 `interval` seconds. One line on stdout is the label; nothing at all
@@ -5120,6 +5189,8 @@ what it did before this option existed.
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`launcher-items`) — Keys are plain item ids, since each one names a single row in the palette.
+
 Per-item palette settings, keyed by the item's own address. One entry is
 one row of the palette: hide it, give it a search shorthand, give it a key.
 
@@ -5315,6 +5386,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 A code-signing identity in your login keychain — either its SHA-1 or
 (preferred) its full common name. The pounce daemon is re-signed with
 it so a macOS Accessibility (TCC) grant survives rebuilds. List yours:
@@ -5456,6 +5529,8 @@ sketchybar once for the pill). `focus doctor` walks the one-time steps.
 
 `list of (absolute path or string)` · default `[ ]`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Extra scripts run on every switch, both ways, each called with a single
 argument "on" or "off". Paths are copied into the store; strings are
 run as-is (so $HOME paths work). Failures are logged, never fatal —
@@ -5472,6 +5547,8 @@ Example:
 #### `haus.focus.scenes`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`scene-entries`) — Keys are plain scene names — what you type after `focus scene`, so a key has to survive as one shell word.
 
 Named machine states, entered with `focus scene <name>` and left with
 `focus scene off`. One at a time: entering a scene leaves whichever was
@@ -5602,6 +5679,8 @@ paired.
 
 `list of (absolute path or string)` · default `[ ]`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Scripts run on entry and exit, each called with "on" or "off" —
 the same contract as `haus.focus.hooks`, scoped to this scene.
 Failures are logged, never fatal.
@@ -5684,6 +5763,8 @@ Slack status text while quiet.
 #### `haus.focus.slack.tokenCommand`
 
 `string` · default `""`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Shell command that prints the Slack user token (xoxp-…) to stdout.
 Keychain-first so no secret ever lands in the store or a dotfile:
@@ -5815,6 +5896,8 @@ modules/moved.nix for why.
 
 `strings concatenated with "\n"` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
 in `ai.clients`, to the path that client actually reads:
@@ -5917,6 +6000,8 @@ window only ever meant "the grant went missing").
 #### `haus.snippets.matches`
 
 `list of (submodule)` · default `[ ]`
+
+**Desktop-safe per key** (`submodule-list`) — A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
 
 The expansion table — one &#123; trigger; replace; &#125; per snippet, written
 to ~/.config/espanso/match/default.yml. Only espanso's plain
@@ -6372,6 +6457,8 @@ Where secret values come from on this machine.
 
 `null or string` · default `"keyring"`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 The secretspec provider that supplies secret VALUES on this machine.
 The secrets room writes it to ~/.config/secretspec/config.toml as the
 default provider, so `secretspec run / check / set` work without
@@ -6408,6 +6495,8 @@ One list of everything this machine has — apps, fonts, command-line tools. Eac
 #### `haus.roster`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`roster-entries`) — Keys are plain app ids — letters, digits, `_` and `-` — because each one becomes a launcher row and an argument to an installer.
 
 The one list of things this machine has, keyed by a stable id. It is
 the canonical, composable source for AeroSpace launcher keys, the
@@ -6557,6 +6646,8 @@ work inside. Requires `appId`; ignored (with a warning) without it.
 
 `null or string` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 The haus module that puts this app on disk, when none of the
 four sources above describes it: pounce and perch copy a
 notarized bundle into /Applications from their own activation
@@ -6643,6 +6734,8 @@ Roster order; lower values appear first. Ties are sorted by app id.
 #### `haus.roster.<name>.package`
 
 `null or package` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Nixpkgs package that installs this entry. Where it lands is
 `scope`'s call.
@@ -6736,6 +6829,8 @@ The named AeroSpace workspaces this machine declares, and which roster apps live
 #### `haus.workspaces`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`workspace-entries`) — Keys are plain workspace names, which is what AeroSpace and the bar's page pill both spell them as.
 
 AeroSpace workspaces this machine names on purpose, keyed by the
 workspace id AeroSpace itself will use (any string it accepts as a
@@ -6959,6 +7054,8 @@ Example:
 
 `list of (submodule)` · default `[ ]`
 
+**Desktop-safe per key** (`submodule-list`) — A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
+
 Extra launch-mode (leader) bindings beyond the app roster: tap the leader,
 then `key`, to run `command`. Use it for leader actions that aren't
 "launch an app" — a script, an AppleScript, opening a URL.
@@ -6998,6 +7095,8 @@ Example:
 #### `haus.keys.leaderExtras.*.command`
 
 `string` · no default
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The shell command run when the leader is followed by `key`; launch
 mode exits afterward. It's written verbatim into a small `/bin/sh`
@@ -7133,6 +7232,8 @@ the ⌘Space step is dropped when pounce is off. Progress lives in
 
 `null or (non-empty (list of (submodule)))` · default `null`
 
+**Desktop-safe per key** (`submodule-list`) — A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
+
 A community-authored tour, in order. null keeps the built-in four-move
 hacker tour unchanged; supplying a list replaces it, so a shared desktop
 can teach its own workflow without shipping scripts or reaching outside the
@@ -7211,6 +7312,8 @@ Your commit identity, plus the GitHub owner this machine's work lives under — 
 
 `string` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Git user.email for commits.
 
 Example:
@@ -7225,6 +7328,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Git user.name for commits (terminal wires it into home-manager).
 
 Example:
@@ -7238,6 +7343,8 @@ Example:
 #### `haus.git.org`
 
 `string` · default `""`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The GitHub owner whose repos this machine works on. An organisation,
 or your own account: GitHub's issue search treats `org:<user>` the
@@ -7278,6 +7385,8 @@ Example:
 
 `attribute set of (null or string)` · default `{ }`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Per-host additions and overrides for Terminal's built-in Git shell
 aliases. Values are shell command strings; null removes a built-in.
 Terminal deliberately owns a compact, framework-independent default
@@ -7300,6 +7409,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 GPG key id for signing commits/tags. Empty disables commit signing.
 Key material + any YubiKey/smartcard setup live outside Nix
 (gpg-agent + pinentry-mac).
@@ -7320,6 +7431,8 @@ Language, region, units and keyboard layouts. What a machine in any language oth
 
 `null or one of "12h", "24h"` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Force 12- or 24-hour time everywhere, overriding whatever `region`
 implies. null (the default) follows the region.
 
@@ -7339,6 +7452,8 @@ Example:
 #### `haus.locale.inputSources`
 
 `null or (list of string)` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The keyboard layouts available in the input menu, by input-source id
 (`com.apple.keylayout.*`). null (the default) leaves your layouts
@@ -7376,6 +7491,8 @@ Example:
 
 `null or (list of string)` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Preferred languages, best first — the order System Settings ▸ General
 ▸ Language & Region shows. null (the default) leaves macOS's own list
 alone.
@@ -7403,6 +7520,8 @@ Example:
 
 `null or boolean` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Use the metric system, overriding whatever `region` implies. null
 (the default) follows the region.
 
@@ -7423,6 +7542,8 @@ true
 #### `haus.locale.region`
 
 `null or string` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 The region whose formats macOS uses — dates, number separators, paper
 size, the first day of the week. An ICU locale identifier
@@ -7449,6 +7570,8 @@ Example:
 
 `null or one of "celsius", "fahrenheit"` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Temperature unit, overriding whatever `region` implies. null (the
 default) follows the region. Separate from `metric` because macOS
 keeps it separate — a metric machine reporting °F is a real
@@ -7470,6 +7593,8 @@ Sleep timers and Low Power Mode, said separately for battery and charger — whi
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Minutes of idleness before the Mac sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7487,6 +7612,8 @@ Example:
 #### `haus.power.computerSleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Minutes of idleness before the Mac sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7506,6 +7633,8 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Minutes of idleness before the disk spins down while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7523,6 +7652,8 @@ Example:
 #### `haus.power.diskSleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Minutes of idleness before the disk spins down while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7542,6 +7673,8 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Minutes of idleness before the display sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7559,6 +7692,8 @@ Example:
 #### `haus.power.displaySleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Minutes of idleness before the display sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7578,6 +7713,8 @@ Example:
 
 `null or boolean` · default `null`
 
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
+
 Low Power Mode while on battery. null (the default) leaves
 macOS's own choice alone.
 
@@ -7596,6 +7733,8 @@ true
 #### `haus.power.lowPowerMode.charger`
 
 `null or boolean` · default `null`
+
+**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.
 
 Low Power Mode while plugged in. null (the default) leaves
 macOS's own choice alone.

@@ -69,10 +69,23 @@ const GROUPS = hausFile(
 // exists nowhere but `namespaces`.
 const NAMESPACES = GROUPS.namespaces ?? {};
 const ROOMS = GROUPS.rooms;
+// One sentence per named recursive validator. haus's registry carries it beside
+// the name so the rule is stated wherever the name is rendered rather than only
+// in the guide about writing a desktop, which is a different file in a
+// different repository that nothing checks against this one.
+const VALIDATORS = GROUPS.validators;
 if (!ROOMS) {
   console.error(
     'groups.json carries no `rooms` table.\n\n' +
       'The haus checkout predates the room registry. Update it and re-run.\n',
+  );
+  process.exit(1);
+}
+if (!VALIDATORS) {
+  console.error(
+    'groups.json carries no `validators` table.\n\n' +
+      'The haus checkout predates the validator rules this page renders.\n' +
+      'Update it and re-run.\n',
   );
   process.exit(1);
 }
@@ -159,6 +172,42 @@ function docsLinks(value) {
   return value.replaceAll('](/internals/flakes/', '](/docs/haus/internals/flakes/');
 }
 
+// What a SHARED DESKTOP may do with this option, out of haus's registry — the
+// same classification `checkDesktop` enforces, and the reason a desktop file
+// can be trusted by reading it. Only the two interesting answers are rendered:
+// most options are plainly desktop-safe, and a line saying so under every one
+// of them would be 200-odd rows of noise around the few that matter. The page
+// intro says that unmarked means safe.
+//
+// `recursive` means the container admits keys the module system never declared,
+// so a named validator decides which of them a desktop may write. The name on
+// its own answers nothing, hence the sentence beside it.
+function renderSafety(option) {
+  const meta = NAMESPACES[groupOf(option.name)]?.options?.[option.name];
+  if (!meta) {
+    console.error(
+      `groups.json does not classify \`${option.name}\`.\n\n` +
+        "haus's own room-registry check refuses that, so this is a stale\n" +
+        'checkout rather than an unclassified option. Update it and re-run.\n',
+    );
+    process.exit(1);
+  }
+  if (meta.desktopSafe === true) return undefined;
+  if (meta.desktopSafe === false) {
+    return '**Host-only** — it names a person, a secret or a piece of hardware, so a shared desktop may not set it.';
+  }
+  const rule = VALIDATORS[meta.validator]?.rule;
+  if (!rule) {
+    console.error(
+      `groups.json states no rule for the validator \`${meta.validator}\`.\n\n` +
+        "haus's own room-registry check refuses that too. Update the checkout\n" +
+        'and re-run.\n',
+    );
+    process.exit(1);
+  }
+  return `**Desktop-safe per key** (\`${meta.validator}\`) — ${rule}`;
+}
+
 function renderOption(option) {
   const lines = [
     `#### \`${option.name}\``,
@@ -166,6 +215,8 @@ function renderOption(option) {
     `\`${option.type}\` · ${renderDefault(option)}`,
     '',
   ];
+  const safety = renderSafety(option);
+  if (safety) lines.push(mdxText(safety), '');
   lines.push(mdxText((option.description ?? '').trimEnd()), '');
   const example = literal(option.example);
   if (example !== undefined) {
@@ -234,6 +285,14 @@ can own more than one: the Bar room is \`${PREFIX}.bar\` (its own bar) *and*
 
 Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
+
+A few also carry a line about what a **shared desktop** may do with them. An
+option marked *host-only* names a person, a secret or a piece of hardware, so
+[a desktop](/docs/haus/desktops/creating) may not set it — only your host file
+can. One marked *desktop-safe per key* takes keys nobody declared, so a named
+rule decides which of them a desktop may write, and that rule is stated with
+it. Anything unmarked is plain desktop-safe. This is the same classification
+\`haus.lib.checkDesktop\` enforces before a desktop is evaluated.
 
 ${body}
 `;
