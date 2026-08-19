@@ -158,7 +158,7 @@ agent](/docs/haus/agent-rebuilds) has the detail.
 
 The `pam_reattach` shim isn't loading. It ships with the **security** room and is
 on by default; check the order in `/etc/pam.d/sudo_local`: reattach must come
-*before* the Touch ID line. Outside tmux or zellij, Touch ID should just work;
+*before* the Touch ID line. Outside a multiplexer, Touch ID should just work;
 cancel the prompt to fall back to your password. [Touch
 ID](/docs/haus/rooms/security) has the rest.
 

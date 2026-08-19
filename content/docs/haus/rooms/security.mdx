@@ -11,7 +11,8 @@ related:
 
 **Security** is the small auth room: it turns on **Touch ID for `sudo`**, and
 (the part stock Touch-ID-for-sudo gets wrong) makes that work **inside a
-terminal multiplexer** like zellij or tmux, where it would otherwise silently
+terminal multiplexer** like tmux or `zmx` — which every haus terminal window
+runs inside — where it would otherwise silently
 fail.
 
 ## Enable it
@@ -25,7 +26,7 @@ haus.security.touchId.passwordlessRebuild = true;
 
 ```nix
 security.pam.services.sudo_local.touchIdAuth = true;   # fingerprint for sudo
-security.pam.services.sudo_local.reattach   = true;    # make it work in tmux/zellij
+security.pam.services.sudo_local.reattach   = true;    # make it work in tmux/zmx
 ```
 
 `reattach` pulls in [`pam_reattach`](https://github.com/fabianishere/pam_reattach),
@@ -57,8 +58,8 @@ matches if you type that literal path, which nobody does. Matching
 `/run/current-system/sw/bin/darwin-rebuild` is what survives a rebuild.
 </Callout>
 
-<Callout title="Yes, it works inside zellij">
-Type `sudo -v` in a zellij pane and the Touch ID dialog floats up right over
+<Callout title="Yes, it works inside a session">
+Type `sudo -v` in a terminal window and the Touch ID dialog floats up right over
 the multiplexer. Touch the sensor, no password typed. (`darwin-rebuild` is
 the happy exception; it doesn't even ask.)
 </Callout>

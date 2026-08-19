@@ -313,7 +313,7 @@ machine that changes its accent sees exactly one pill change hue, unless
 
 Honest scope: this moves the accent on those tools, NOT literally
 everything. Single-file dotfiles that bake the palette at their own
-theme slot (ghostty, starship, tmux, bat, zellij, …) keep their built-in
+theme slot (ghostty, starship, tmux, bat, …) keep their built-in
 colour and don't follow this option. The base palette stays the same
 Nebelung grey either way — only the accent hue changes.
 
@@ -359,7 +359,7 @@ Both keep all twelve ramp steps distinct, which is the property nebelung's
 tests actually assert.
 
 Honest scope. This recolours what haus injects colours into:
-Ghostty, bat, delta, lsd, yazi, zellij, glow, starship, lazygit, the
+Ghostty, bat, delta, lsd, yazi, glow, starship, lazygit, the
 bar, pounce and perch (at runtime, via ~/.config/&#123;pounce,perch&#125;/themes/ —
 and unlike `flavor`, contrast reaches both on BOTH halves of their
 light/dark pair), Zen and Obsidian. It does NOT reach:
@@ -398,7 +398,7 @@ Honest scope, in two parts.
 
 What follows it: every tool haus injects colours into or points at a
 rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
-lazygit, zellij, opencode, the bar, Zen and Obsidian, plus helix
+lazygit, opencode, the bar, Zen and Obsidian, plus helix
 whenever it is the editor `haus.terminal.editorName` selects (Nebelung
 has a port for helix and none for the alternatives).
 These are genuinely re-rendered for the flavor, not recoloured in place:
@@ -1076,10 +1076,11 @@ lives in.
 
 hacker's 19pt baseline exists for a reason worth knowing: the Ghostty window is
 tiled to a fixed pixel height by windows, and sizes that don't divide
-that height evenly used to leave a gap under zellij's status bar.
-That's since been fixed properly (window-padding-balance +
-`extend-always`), so any size is safe now — 19 is simply the tuned
-starting point.
+that height evenly used to leave a gap along its bottom edge, under
+the multiplexer's status bar. That's since been fixed properly
+(`window-padding-balance`, which splits the leftover pixels evenly
+instead of dumping them all at the bottom), so any size is safe now —
+19 is simply the tuned starting point.
 
 Example:
 
@@ -1909,8 +1910,8 @@ The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
 action launches — the "Nix Config" palette command, the bar's nix-open
 item, and the file-association hijack. Those open the target in a new
-zellij tab running this command, so a terminal editor is the natural
-fit for haus; a GUI editor's CLI works too (e.g. "code" or
+terminal WINDOW running this command, so a terminal editor is the
+natural fit for haus; a GUI editor's CLI works too (e.g. "code" or
 "code -w" to block).
 
 It defaults to the command for `haus.terminal.editorName`, so choosing an
@@ -1957,10 +1958,10 @@ Example:
 `one of "accent", "grey", "off", "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender"` · default `"accent"`
 
 The outline drawn around every floating terminal `float-term.sh` spawns:
-the Super-y yazi peek panel, the bar's agent peek, and the palette's
-Rebuild System / Install App / Settings and `zscratch` windows. They all
-land on top of a tiled desktop, where a dark terminal over a dark window
-behind it has no edge at all.
+the ⌘Y yazi peek panel, the bar's agent peek, and the palette's
+Rebuild System / Install App / Settings windows. They all land on top of
+a tiled desktop, where a dark terminal over a dark window behind it has
+no edge at all.
 
 - `accent` (the default) — `haus.theme.accent`, so a summoned window
   announces itself and the whole desktop keeps one accent.
@@ -1982,7 +1983,7 @@ JankyBorders. Switch it with
 `haus set terminal.floatBorder grey && haus rebuild`; to compare colours
 first, without a rebuild, outline any window by hand (the process name is
 lower-case — `pgrep -x Ghostty` matches nothing and rings nothing):
-`~/.config/zellij/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
+`~/.config/haus/term/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
 
 Example:
 
@@ -1996,8 +1997,8 @@ Example:
 
 `boolean` · default `false`
 
-Whether to enable the themed gh-dash GitHub dashboard and its Cmd-G
-fullscreen Zellij overlay.
+Whether to enable the themed gh-dash GitHub dashboard and its ⌘G
+near-fullscreen floating window.
 
 Enabling it gets you the issue and notification tabs (yours, assigned,
 unread, participating). The four PR tabs — open / green / red /
@@ -2025,7 +2026,7 @@ true
 When true, build a small opener app and make it the default handler
 for ~80 text/code extensions (json, md, ts, nix, rs, go, kdl, …), so
 opening or clicking those files opens them in haus.terminal.editor in
-a terminal tab. The app declares the types itself (not just `duti`) so
+a terminal window. The app declares the types itself (not just `duti`) so
 extensions nothing else on the machine declares still bind. Off by
 default: silently rewriting your file associations is a jarring,
 hard-to-undo change, so it's strictly opt-in. (Extensionless executables
@@ -2056,42 +2057,6 @@ Example:
   "Library/Mobile Documents/iCloud~md~obsidian/Documents/notes"
 ]
 ```
-
-<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
-
-#### `haus.terminal.rightClickFullscreen`
-
-`boolean` · default `true`
-
-When true (the default), a bare right-click on any pane zooms it
-fullscreen — the same MouseAction::ToggleFullscreen Ctrl+Click already
-triggers, just a different, easier-to-reach trigger. It's a whole
-zellij-unwrapped patch, not a config toggle (mouse buttons still
-aren't bindable in config.kdl — see naked-click-links.patch's header
-for why link gestures hit the same wall), so flipping this rebuilds
-zellij; it does not take effect on a running server. The real cost:
-right-click stops reaching the pane's own program, so a TUI's own
-right-click context menu (lazygit, vim, mc, …) goes with it. Set
-false to leave right-click alone and keep zooming with Ctrl+Click,
-which is the only other way there: ⌘↵ used to zoom a pane and is the
-agent-lane chord now.
-
-<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
-
-#### `haus.terminal.zellijStartLocked`
-
-`boolean` · default `true`
-
-When true (the default), zellij boots into Locked input mode instead of
-Normal — its single-key submode leaders (pane, tab, resize, …) stay
-inert until you unlock with Ctrl-g, so a stray keystroke can't jump you
-into a submode. The `Super`-prefixed launchers (claude / pane / tab /
-yazi-peek / fullscreen) are bound in `shared` and keep working while
-locked, as do `Alt [` / `Alt ]` (cycle swap layouts) — the rest of
-zellij's `Alt` row stays inert while locked, since those keys are
-readline/vim word motions the pane's app wants. The bar's bottom-right
-quick-hint block only shows in Locked mode. Set false to start in Normal
-mode (zellij's own default).
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
@@ -3066,7 +3031,7 @@ Example:
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+A paw pill tracking your agent windows. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3723,7 +3688,7 @@ Example:
 
 `boolean` · default `false`
 
-A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+A paw pill tracking your agent windows. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4988,8 +4953,8 @@ Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
 session for that cwd, `jcode` opens its own session picker. They share one
 `holt` branch/parking/reap
-lifecycle, and they all light up the `agents` bar pill and the zellij
-tab-bar badge — the opencode plugin, the codex hooks and jcode's
+lifecycle, and they all light up the `agents` bar pill — the opencode
+plugin, the codex hooks and jcode's
 `JCODE_HOOK_*` environment are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
 settings.json (see `haus.bar.items.agents`).
@@ -5013,8 +4978,8 @@ Example:
 `boolean` · default `false`
 
 The AI room: coding-agent *tooling*. `holt` (agent worktrees),
-`agent-state` (the pane-status writer behind the `agents` bar pill and
-the zellij tab badge), the agent-worktree statusline, and the client
+`agent-state` (the status writer behind the `agents` bar pill),
+the agent-worktree statusline, and the client
 config the Terminal room writes (Claude Code's settings.json keys, opencode's
 agent-state plugin). Which clients get installed is `ai.clients`.
 
@@ -5336,7 +5301,8 @@ true
 
 The security room: Touch ID for `sudo`, with `reattach` — the PAM shim
 that keeps the prompt working when sudo runs inside a terminal
-multiplexer (tmux/zellij/screen), where it otherwise beachballs.
+multiplexer (tmux/screen, or the `zmx` session every haus terminal
+window runs inside), where it otherwise beachballs.
 
 Off means macOS's stock password prompt everywhere, including for the
 rebuild below. Nothing else in haus depends on it.
@@ -6085,8 +6051,8 @@ hjkl focus chords were dropped: only `/` `,`, `f`, `⇧⇥`, `⇧;` and
 on — and `<mod>⇥` is free again, since workspace back-and-forth
 retired in favour of pounce's cross-workspace ⌘⇥ switcher. (Under
 "ctrl-alt" that used to bite — the throws were `⌃⌥⇧` + an app's roster
-letter, so an app on `a` silently ate terminal's zellij
-`Ctrl Alt Shift a` in-place-agent bind. That collision is gone.)
+letter, so an app on `a` silently ate terminal's ⌃⌥⇧A in-place-agent
+chord. That collision is gone.)
 Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
 
