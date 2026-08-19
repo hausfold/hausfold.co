@@ -126,29 +126,9 @@ isn't rather than failing later, inside the pane, after the checkout already
 exists. `clients` defaults to an empty list, which is exempt from that check
 (there's nothing to be absent from) and means haus installs no client itself.
 
-The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
-(OpenCode) and `jcode` ([jcode](https://jcode.sh)). Three come from nixpkgs;
-`jcode` comes from its own Homebrew tap, which the room declares for you when
-you name it. That difference is invisible in a pane — it is on your `PATH`
-either way — but it does decide who updates it: `haus update` moves a nixpkgs
-client, `brew upgrade` moves jcode — and haus makes brew the only answer, by
-exporting `JCODE_CHECK_UPDATES=false` and `JCODE_NO_AUTO_UPDATE=1` for you (the
-environment form of `features.check_updates`). A client that updated itself
-would leave a binary brew's manifest doesn't describe, and the next
-`brew upgrade` would move it back.
-
-The same environment also turns off jcode's own macOS menu bar item
-(`JCODE_NO_MENUBAR`), but only where the bar's [`agents` paw](/docs/haus/rooms/bar)
-is drawn: that pill already counts running and streaming sessions, across every
-client rather than jcode alone, and it is fed by the very hooks haus wires here.
-With no paw on either bar, jcode's indicator is the only session readout the
-machine has, so it is left alone.
-
-None of this touches `~/.jcode/config.toml`. jcode rewrites that file itself
-(`/model`, `/colors`, the one-time hotkey bake), so haus never owns it and says
-what it has to say in the environment instead — the same reason the pane-status
-hooks are environment. Your own `config.toml` stays entirely yours, and a
-`features.check_updates = true` you set there loses to the variable.
+The three names are `claude` (Claude Code), `codex` (OpenAI Codex) and
+`opencode` (OpenCode). All three come from nixpkgs, so `haus update` is what
+moves them.
 
 All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
 ⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
@@ -158,26 +138,14 @@ whole rather than half-wiring the machine, so a host can drop the room without
 having to blank the list its desktop set.
 
 holt records the client **with the lane**, so changing the option only affects new
-spawns: a parked Codex task still reopens through `codex resume --last`, an
-OpenCode one through `opencode --continue`, and a jcode one through its session
-picker.
+spawns: a parked Codex task still reopens through `codex resume --last` and an
+OpenCode one through `opencode --continue`.
 
 <Callout type="warn" title="Overlay a client, don't add one">
 Want a patched build of a client? **Overlay the package** (`claude-code`,
 `codex`, `opencode`) rather than putting your own derivation in `home.packages`
 beside it. Two derivations shipping the same `bin/claude` collide in one profile,
 and the rebuild fails with `two given paths contain a conflicting subpath`.
-For `jcode` the same job is a roster override instead, since it isn't a nixpkgs
-package: set `haus.roster.jcode.brew` (or `.package`, if you package it
-yourself) and the room's default steps aside.
-</Callout>
-
-<Callout type="warn" title="jcode can't be handed a task">
-jcode has no way to open on a first message — no positional prompt, no
-`--prompt`, no stdin. So Pounce's **Spawn Agent** still makes the worktree, the
-branch named after what you typed and the pane, but the task itself goes to your
-**clipboard** with a notice saying so, for you to paste. ⌘⏎ never carries a
-prompt, so it behaves exactly like the other clients.
 </Callout>
 
 ## Never `git stash`: park instead
