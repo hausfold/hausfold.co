@@ -17,9 +17,12 @@ const docs = defineDocs({
     // 2026-08-12 every page takes its tree's hue at rest — mauve under
     // /docs/haus, peach under /docs/pounce — from `data-tree`, and
     // `accent` exists for the page that is genuinely about one product
-    // rather than about the tree it sits in. Most pages therefore have
-    // none, including every page in the pounce tree, which the tree
-    // already colours. See "the borrowed accent" in `src/app/global.css`.
+    // rather than about the tree it sits in. As of 2026-08-19 *no* page
+    // carries one — `rooms/launcher` was the last, and a room page wearing
+    // pounce's peach read as the whole page belonging to the app rather
+    // than to the room. The key stays because the case it exists for is
+    // real; it is just not this one. See "the borrowed accent" in
+    // `src/app/global.css`.
     schema: pageSchema.extend({
       accent: z.enum(accents).optional(),
       // The page's way-onward cards, moved out of the MDX body on 2026-08-16

@@ -42,8 +42,11 @@
                            pounce's own peach, and a page that is
                            genuinely about a product may still name that
                            product in `accent:` frontmatter and override
-                           both. The hue is never invented: it is one of
-                           the six --a-* the landing page already spends.
+                           both — though no page does today, and a *room*
+                           page is not that page: it documents the room,
+                           not the app the room installs. The hue is never
+                           invented: it is one of the six --a-* the landing
+                           page already spends.
      four named steps    — the accent itself (type, ticks, active icons),
                            `--accent-wash` for fills, `--accent-line` for
                            rules, `--accent-quiet` for a resting glyph.
@@ -177,11 +180,13 @@
 /* Where a page's hue comes from, in order of precedence:
 
      1. `accent: pounce` in the page's frontmatter — the page is *about* a
-        product, and takes that product's colour.
+        product, and takes that product's colour. No page sets one today; a
+        room page is about the room, not about the app it installs.
      2. the tree it lives in — /docs/haus is mauve, /docs/pounce peach,
         /docs/perch green, /docs/trill yellow.
-     3. nothing, which is `--ink`: the /docs index itself, which is a
-        doorway to every tree and shouldn't pick a side.
+     3. nothing, which is `--ink`. Nothing reaches this branch today: the
+        /docs index was the one page outside all four trees and was deleted
+        on 2026-08-17, so every docs page now takes (2).
 
    The page renders both as attributes on its own container
    (`data-tree`, `data-accent` — see app/docs/[[...slug]]/page.tsx), but

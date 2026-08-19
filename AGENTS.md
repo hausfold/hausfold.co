@@ -1107,9 +1107,14 @@ The leash, in full:
   of the six in `src/lib/shared.ts` — and that rule is written *after* the tree
   rules so it wins. Keep it for the page that is genuinely about a **different**
   product than its tree. **No page in the pounce tree carries one**, because the
-  tree already says peach; the worked example is the other direction —
-  `haus/rooms/launcher` sets `accent: pounce` so the room reads as the app it
-  installs rather than as the layer around it.
+  tree already says peach. 🚨 **And as of 2026-08-19, no page anywhere carries
+  one** — `haus/rooms/launcher` set `accent: pounce`, and the user cut it: a
+  room page is about the *room*, not about the app it installs, and hueing the
+  whole page peach said the opposite. `rooms/shelf` never had one and is the
+  shape to match. The key stays in the schema because the case it was written
+  for is real, but it now has **no worked example** — don't add one back to a
+  room page, and treat reaching for it as a signal that the page may be two
+  pages.
 - **Four named steps, and nothing mixes its own**: `--accent` itself,
   `--accent-wash` (7%, for fills — the active sidebar row, a hovered table
   row, inline code), `--accent-line` (55% into the rule colour, for rules —

@@ -29,8 +29,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   // so, and it is the reason most pages need no `accent` at all: the layer's
   // pages wear the palette's own mauve, an app's pages wear that app's own
   // accent, and `accent` in frontmatter is left for the page that is genuinely
-  // about a *different* product than its tree — `rooms/launcher` in the haus
-  // tree is the worked example. See "the borrowed accent" in `global.css`.
+  // about a *different* product than its tree. No page carries one today:
+  // `rooms/launcher` did until 2026-08-19, and a room page reading as the app
+  // it installs rather than as the layer was the thing the user cut. See
+  // "the borrowed accent" in `global.css`.
   const tree = page.slugs[0];
   // The tree's own node, for its name and its glyph. A root folder's `$id`
   // is its directory under `content/docs`, which is also the page's first
