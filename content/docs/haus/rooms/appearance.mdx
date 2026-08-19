@@ -1,6 +1,6 @@
 ---
 title: Appearance
-description: "One silver-mist palette across every tool: the accent, the contrast, light mode, the generated wallpaper, and one line for bigger type."
+description: "One silver-mist palette across every tool: the accent, the contrast, light mode, the generated wallpaper, and one line each for bigger type and less motion."
 icon: palette
 related:
   - title: "Bar"
@@ -142,6 +142,56 @@ they stay dark under `flavor = "latte"`. Pin them with
 unmanaged.
 </Callout>
 
+## Motion
+
+Everything above is about how the machine looks standing still. This is about
+what it does while you watch. One line stops the movement haus itself makes:
+
+```nix
+haus.appearance.reduceMotion = true;
+```
+
+macOS's own animations were always reachable — [`haus.animations`](/docs/haus/reference/options#animations)
+curates the Dock's timings, and `haus.accessibility.reduceMotion` is Apple's own
+switch. Neither touches the motion **haus** draws, which is the gap this closes.
+Five things stop:
+
+| What moves | Its own option |
+|---|---|
+| the logo pill sweeping through the six family accents on hover | `haus.bar.logo.sweep` |
+| a long track title sweeping past the media pill, and in its dropdown | `haus.bar.media.marquee` |
+| a long meeting title sweeping past the calendar pill | `haus.bar.calendar.marquee` |
+| the pointer jumping to whatever window took focus | `haus.windows.mouseFollowsFocus` |
+| being pulled off a workspace the moment ⌘Q empties it | `haus.windows.gravity` |
+
+Each is set as a **default**, so you can keep any one of them by naming it:
+`reduceMotion = true` alongside `haus.bar.logo.sweep = true` drops everything but
+the sweep. Nothing is lost but the movement — a title too long for its pill is
+clipped instead of swept, and both dropdowns still carry it in full.
+
+The last row is the one worth reading twice. **Gravity** is not an animation, it
+is a whole screen's worth of content replaced in a blink because an app quit —
+which is exactly the shape of a vestibular trigger, and the largest unasked
+movement haus makes.
+
+<Callout type="warn" title="It also asks for macOS's Reduce Motion, which reaches the web">
+Quietening five pills while Spaces keep sliding would answer the question
+halfway, so this sets `haus.accessibility.reduceMotion` too. That flag is the one
+every browser reads as `prefers-reduced-motion: reduce`, so it changes sites as
+well as your Mac — mostly for the better, but a site whose scroll-reveal
+animation is what makes its text appear will show you nothing. Keep the local
+half without the web one:
+
+```nix
+haus.appearance.reduceMotion = true;
+haus.accessibility.reduceMotion = false;
+```
+
+Apple's half needs Full Disk Access on whatever you rebuild from; the five rows
+above need no permission at all, so a machine without the grant still gets all
+of them.
+</Callout>
+
 ## The desktop
 
 The wallpaper is generated on your machine rather than shipped as a picture, and
@@ -254,6 +304,9 @@ preserved. That is a change in the nebelung repo, not in your host file.
 
 ## Works with
 
+- **[Bar](/docs/haus/rooms/bar)** and **[Windows](/docs/haus/rooms/windows)**:
+  `haus.appearance.reduceMotion` reaches into both, because between them they own
+  every moving thing haus draws.
 - **[Displays](/docs/haus/rooms/displays)**: `haus.appearance.largePrint` is
   one line for bigger type: it moves the interface scale, the contrast, macOS's
   own contrast lift and `displays.main.uiScale` together, each as a default you
@@ -279,6 +332,7 @@ anyone wants. The parts do:
 haus.theme.ports.enable = false;   # stop writing themes into other apps
 haus.wallpaper.style = "none";     # keep the desktop picture you had
 haus.appearance.largePrint = false;
+haus.appearance.reduceMotion = false;   # the default: haus animates as designed
 ```
 
 ## Options

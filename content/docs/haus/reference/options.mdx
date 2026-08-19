@@ -201,7 +201,7 @@ How the machine looks: the palette and its accent, the wallpaper, the fonts, and
 
 ### haus.appearance
 
-The Appearance room's own profile — one named answer to a whole-machine question, where the groups below are the individual dials. `largePrint` sets the interface scale, the high-contrast palette, macOS's own contrast lift and the screen's scaled resolution together, each as a default you can still pin by hand.
+The Appearance room's own profiles — named answers to whole-machine questions, where the groups below are the individual dials. `largePrint` sets the interface scale, the high-contrast palette, macOS's own contrast lift and the screen's scaled resolution together. `reduceMotion` stops the motion haus itself draws — the bar's hover sweeps, the pointer following focus, the pull back off an emptied workspace — and asks for macOS's own Reduce Motion alongside it. Both set every value as a default you can still pin by hand.
 
 #### `haus.appearance.largePrint`
 
@@ -266,6 +266,74 @@ quietly under-delivers is worse than one that says where it stops:
       haus.fonts.mono.name        = "AtkynsonMono Nerd Font";
 
   - Light mode, if it reads better for you: `haus.theme.flavor = "latte"`.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/appearance/options.nix`](https://github.com/hausfold/haus/blob/main/modules/appearance/options.nix).</small>
+
+#### `haus.appearance.reduceMotion`
+
+`boolean` · default `false`
+
+Stop the things haus itself animates from animating. One switch, for a
+machine whose user is vestibular-sensitive, motion-sick, or simply done
+with movement in the corner of their eye.
+
+It exists because macOS's own motion is already curated — `haus.animations`
+for the Dock's timings, `haus.accessibility.reduceMotion` for Apple's
+switch — and NEITHER of them reaches the motion haus draws. The bar's
+sweeps and the tiler's automatic moves are the layer's own; they run
+happily on a Mac with every Apple switch flipped, and until this option
+there was no way to quiet them short of turning off the pills that carry
+them.
+
+What it stops, all of it haus's own:
+
+  the logo pill's hover sweep   six family accents turning through the
+                                mark whenever the pointer crosses it
+                                (`haus.bar.logo.sweep`)
+  the media pill's marquee      a long track title sweeping past on hover
+                                (`haus.bar.media.marquee`)
+  the calendar pill's marquee   the same, for a long meeting title
+                                (`haus.bar.calendar.marquee`)
+  the pointer following focus   `haus.windows.mouseFollowsFocus`: a
+                                pointer teleporting across the desk is
+                                movement you did not make
+  workspace gravity             `haus.windows.gravity`: the automatic pull
+                                back to a populated workspace when a ⌘Q
+                                empties this one — a whole screen changing
+                                under you, unasked
+
+Every one is set as a DEFAULT, so any single one goes back by name:
+this option `true` with `haus.bar.logo.sweep = true` keeps the sweep and
+drops the rest. Nothing loses information — a title too long for its pill
+is clipped rather than swept, and both dropdowns carry it in full.
+
+IT ALSO ASKS FOR macOS's OWN "Reduce motion"
+(`haus.accessibility.reduceMotion`), again as a default, because a machine
+that quietened its own five surfaces and left Spaces sliding would have
+answered the question halfway. Know that flag's blast radius before you
+take it: it is the single switch every browser reads as
+`prefers-reduced-motion: reduce`, so it rewrites the web too — mostly for
+the better, except on sites whose scroll-reveal animation is what makes
+their content visible at all. `haus.accessibility.reduceMotion = false` in
+your host keeps the local half without the web one.
+
+That composition is deliberate rather than convenient. Apple's flag is
+FDA-gated at its own option, so on a machine whose rebuilding app lacks
+Full Disk Access it is skipped with a warning — and everything above still
+applies, because haus's own half depends on no permission at all. A
+legibility switch that only worked with a grant would be the wrong shape.
+
+What it deliberately does NOT set is `haus.animations = "fast"`. That
+group speeds macOS's Dock timings UP rather than removing motion, and
+coming back from it only stops writing rather than restores — a
+motion-sensitivity switch has no business leaving a Dock permanently
+retuned.
 
 Example:
 
@@ -2726,6 +2794,37 @@ haus.keys.windowNav = "none" instead of turning the room off.
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
+#### `haus.windows.gravity`
+
+`boolean` · default `true`
+
+When a ⌘Q leaves the focused workspace empty, pull back to the most
+recently populated one instead of leaving you on a blank screen.
+
+It fires only for a workspace you EMPTIED — never for one you
+deliberately navigated to that happens to be empty — so in ordinary use
+it is the difference between quitting the last app on a space and then
+having to find your way off it.
+
+Turn it off if a screen that changes without you touching it is worse
+than a blank one. That is what `haus.appearance.reduceMotion` decides on
+your behalf: it is the largest movement haus makes that you did not ask
+for, and one whole display's worth of content replaced in a blink is
+exactly what a vestibular trigger looks like.
+
+Needs both `haus.windows.enable` and `haus.bar.enable`: the quit is
+detected from the bar's own event stream (see
+modules/bar/sketchybar/plugins/empty_workspace.sh for why there is no
+AeroSpace hook for it), so with no bar there is no gravity either way.
+
+Example:
+
+```nix
+false
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
 #### `haus.windows.mouseFollowsFocus`
 
 `boolean` · default `false`
@@ -3695,6 +3794,28 @@ Example:
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
+#### `haus.bar.calendar.marquee`
+
+`boolean` · default `true`
+
+Sweep a long event title past while the pointer is on the calendar pill.
+
+Hover only, exactly like the media pill's: the label is clipped to
+`haus.bar.calendar.width` and hovering shows the rest. Off, the clip is
+all you get on the pill and the timeline dropdown carries the full name,
+which is where a title you actually need to read belongs anyway.
+
+`haus.appearance.reduceMotion` turns this off as a default, along with
+the rest of the motion haus draws.
+
+Example:
+
+```nix
+false
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
 #### `haus.bar.calendar.me`
 
 `list of string` · default `[ ]`
@@ -4534,6 +4655,29 @@ Example:
   "browser.video" = "󰗃";
   "com.apple.podcasts" = "󰦔";
 }
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.media.marquee`
+
+`boolean` · default `true`
+
+Sweep a long track title past while the pointer is on the media pill.
+
+Hover is the only thing that starts it — nothing here runs a marquee on
+a track change or on a timer — and one hover buys one full pass back to
+the start. Off, a title too long for `haus.bar.media.width` is simply
+clipped, and the dropdown still carries it in full, so nothing is lost
+but the movement.
+
+`haus.appearance.reduceMotion` turns this off as a default, along with
+the rest of the motion haus draws.
+
+Example:
+
+```nix
+false
 ```
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
