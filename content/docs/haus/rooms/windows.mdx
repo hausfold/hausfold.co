@@ -282,12 +282,14 @@ haus.windows.nativeTiling.topEdgeFullscreen = false;
 haus.windows.stageManager.enable            = false;
 ```
 
-If you'd rather keep native tiling and just stop it firing by accident, there's
-a middle setting — it then takes a held ⌥ rather than any drag that reaches an
-edge:
+If you'd rather keep native tiling available and just stop it firing by
+accident, add the ⌥ accelerator to the line above — it's a second, deliberate
+way in, not a replacement for turning the bare drag off (the two keys are
+independent, and macOS ships both on):
 
 ```nix
-haus.windows.nativeTiling.optionAccelerator = true;
+haus.windows.nativeTiling.edgeDrag          = false;  # no tiling on a bare drag
+haus.windows.nativeTiling.optionAccelerator = true;   # ⌥-drag still tiles
 ```
 
 haus **warns** when the tiler and either of these are on together, naming both
