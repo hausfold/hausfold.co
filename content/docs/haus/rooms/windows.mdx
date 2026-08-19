@@ -266,6 +266,23 @@ Both halves are *lazy*: nothing moves while the pointer is already inside
 whatever took focus, so it re-centres on the jumps that would have lost it and
 sits still on the ones that wouldn't.
 
+And one that IS on by default, because most of the time it saves you a keystroke:
+
+```nix
+haus.windows.gravity = false;
+```
+
+**Gravity** is what pulls you back to the most recently populated workspace when
+a ⌘Q leaves the one you're on empty. It fires only for a workspace you *emptied*,
+never for one you deliberately walked onto that happened to be empty. Turn it off
+if a screen changing without you touching it is worse than a blank one —
+[`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) decides that
+for you, since it is the largest unasked movement haus makes.
+
+It needs the [bar](/docs/haus/rooms/bar) as well as this room: a ⌘Q announces
+itself through the bar's event stream and nowhere else, so with no bar there is
+no gravity either way.
+
 ## macOS has its own opinion about windows
 
 Stage Manager and edge-drag tiling answer the same question this room does, and
@@ -336,6 +353,9 @@ does the same for the other rooms.
   launches, and its workspace is where its windows land.
 - **[Launcher](/docs/haus/rooms/launcher)**: its opt-in `⌘Tab` window switcher
   answers the same question from the other side.
+- **[Appearance](/docs/haus/rooms/appearance)**: `haus.appearance.reduceMotion`
+  switches off both of this room's unasked movements — the pointer following
+  focus, and gravity.
 
 ## Options
 
