@@ -208,19 +208,20 @@ haus.bar.widgets.cpu.placement = "bottom-right";
 `haus.bar.bottom.items.<name>` for its `placement` — the same settings under
 shorter names, so both spellings work and you can keep whichever reads better.
 
-Two things a widget can't do, both refused at build rather than silently:
-you can't set `command` on a bundled pill (its dropdown, click gestures and
-colour rules are written against haus's own script, so replacing half of it
-would leave you with something neither of us can reason about — write your own
-under a new name and switch that one off), and you can't place a pill on the
-bottom bar without `haus.bar.bottom.enable`, which would draw it nowhere at all.
+Some things a widget can't do, each refused at build rather than silently: you
+can't set `command` on a bundled pill (its dropdown, click gestures and colour
+rules are written against haus's own script, so replacing half of it would leave
+you with something neither of us can reason about — write your own under a new
+name and switch that one off), you can't place a pill on the bottom bar without
+`haus.bar.bottom.enable`, and the name has to be a plain word the bar can
+address: letters, digits, `_` and `-`, and not one the bar already uses.
 
 <Callout type="info" title="Say what it will ask for">
 `permissions = [ "full-disk-access" ]` declares what macOS will prompt your
-widget for. Nothing requests it and nothing waits on it — it's there so
-`haus doctor` can tell you which pill is about to raise a dialog, and so a
+widget for. Nothing requests it and nothing waits on it — it's there so a
 widget you got from someone else can be read for what it reaches for before you
-switch it on.
+switch it on, and so a tool can answer "which pill here is going to prompt me"
+without a second hand-kept list.
 </Callout>
 
 One rule if your script talks back to the bar: source
