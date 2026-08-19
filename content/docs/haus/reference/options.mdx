@@ -313,7 +313,7 @@ machine that changes its accent sees exactly one pill change hue, unless
 
 Honest scope: this moves the accent on those tools, NOT literally
 everything. Single-file dotfiles that bake the palette at their own
-theme slot (ghostty, starship, tmux, bat, …) keep their built-in
+theme slot (ghostty, starship, tmux, bat, zellij, …) keep their built-in
 colour and don't follow this option. The base palette stays the same
 Nebelung grey either way — only the accent hue changes.
 
@@ -359,7 +359,7 @@ Both keep all twelve ramp steps distinct, which is the property nebelung's
 tests actually assert.
 
 Honest scope. This recolours what haus injects colours into:
-Ghostty, bat, delta, lsd, yazi, glow, starship, lazygit, the
+Ghostty, bat, delta, lsd, yazi, zellij, glow, starship, lazygit, the
 bar, pounce and perch (at runtime, via ~/.config/&#123;pounce,perch&#125;/themes/ —
 and unlike `flavor`, contrast reaches both on BOTH halves of their
 light/dark pair), Zen and Obsidian. It does NOT reach:
@@ -398,7 +398,7 @@ Honest scope, in two parts.
 
 What follows it: every tool haus injects colours into or points at a
 rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
-lazygit, opencode, the bar, Zen and Obsidian, plus helix
+lazygit, zellij, opencode, the bar, Zen and Obsidian, plus helix
 whenever it is the editor `haus.terminal.editorName` selects (Nebelung
 has a port for helix and none for the alternatives).
 These are genuinely re-rendered for the flavor, not recoloured in place:
@@ -1076,11 +1076,10 @@ lives in.
 
 hacker's 19pt baseline exists for a reason worth knowing: the Ghostty window is
 tiled to a fixed pixel height by windows, and sizes that don't divide
-that height evenly used to leave a gap along its bottom edge, under
-the multiplexer's status bar. That's since been fixed properly
-(`window-padding-balance`, which splits the leftover pixels evenly
-instead of dumping them all at the bottom), so any size is safe now —
-19 is simply the tuned starting point.
+that height evenly used to leave a gap under zellij's status bar.
+That's since been fixed properly (window-padding-balance +
+`extend-always`), so any size is safe now — 19 is simply the tuned
+starting point.
 
 Example:
 
@@ -1910,8 +1909,8 @@ The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
 action launches — the "Nix Config" palette command, the bar's nix-open
 item, and the file-association hijack. Those open the target in a new
-terminal WINDOW running this command, so a terminal editor is the
-natural fit for haus; a GUI editor's CLI works too (e.g. "code" or
+zellij tab running this command, so a terminal editor is the natural
+fit for haus; a GUI editor's CLI works too (e.g. "code" or
 "code -w" to block).
 
 It defaults to the command for `haus.terminal.editorName`, so choosing an
@@ -1958,10 +1957,10 @@ Example:
 `one of "accent", "grey", "off", "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender"` · default `"accent"`
 
 The outline drawn around every floating terminal `float-term.sh` spawns:
-the ⌘Y yazi peek panel, the bar's agent peek, and the palette's
-Rebuild System / Install App / Settings windows. They all land on top of
-a tiled desktop, where a dark terminal over a dark window behind it has
-no edge at all.
+the Super-y yazi peek panel, the bar's agent peek, and the palette's
+Rebuild System / Install App / Settings and `zscratch` windows. They all
+land on top of a tiled desktop, where a dark terminal over a dark window
+behind it has no edge at all.
 
 - `accent` (the default) — `haus.theme.accent`, so a summoned window
   announces itself and the whole desktop keeps one accent.
@@ -1983,7 +1982,7 @@ JankyBorders. Switch it with
 `haus set terminal.floatBorder grey && haus rebuild`; to compare colours
 first, without a rebuild, outline any window by hand (the process name is
 lower-case — `pgrep -x Ghostty` matches nothing and rings nothing):
-`~/.config/haus/term/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
+`~/.config/zellij/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
 
 Example:
 
@@ -1997,8 +1996,8 @@ Example:
 
 `boolean` · default `false`
 
-Whether to enable the themed gh-dash GitHub dashboard and its ⌘G
-near-fullscreen floating window.
+Whether to enable the themed gh-dash GitHub dashboard and its Cmd-G
+fullscreen Zellij overlay.
 
 Enabling it gets you the issue and notification tabs (yours, assigned,
 unread, participating). The four PR tabs — open / green / red /
@@ -2026,7 +2025,7 @@ true
 When true, build a small opener app and make it the default handler
 for ~80 text/code extensions (json, md, ts, nix, rs, go, kdl, …), so
 opening or clicking those files opens them in haus.terminal.editor in
-a terminal window. The app declares the types itself (not just `duti`) so
+a terminal tab. The app declares the types itself (not just `duti`) so
 extensions nothing else on the machine declares still bind. Off by
 default: silently rewriting your file associations is a jarring,
 hard-to-undo change, so it's strictly opt-in. (Extensionless executables
@@ -2057,6 +2056,42 @@ Example:
   "Library/Mobile Documents/iCloud~md~obsidian/Documents/notes"
 ]
 ```
+
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
+
+#### `haus.terminal.rightClickFullscreen`
+
+`boolean` · default `true`
+
+When true (the default), a bare right-click on any pane zooms it
+fullscreen — the same MouseAction::ToggleFullscreen Ctrl+Click already
+triggers, just a different, easier-to-reach trigger. It's a whole
+zellij-unwrapped patch, not a config toggle (mouse buttons still
+aren't bindable in config.kdl — see naked-click-links.patch's header
+for why link gestures hit the same wall), so flipping this rebuilds
+zellij; it does not take effect on a running server. The real cost:
+right-click stops reaching the pane's own program, so a TUI's own
+right-click context menu (lazygit, vim, mc, …) goes with it. Set
+false to leave right-click alone and keep zooming with Ctrl+Click,
+which is the only other way there: ⌘↵ used to zoom a pane and is the
+agent-lane chord now.
+
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
+
+#### `haus.terminal.zellijStartLocked`
+
+`boolean` · default `true`
+
+When true (the default), zellij boots into Locked input mode instead of
+Normal — its single-key submode leaders (pane, tab, resize, …) stay
+inert until you unlock with Ctrl-g, so a stray keystroke can't jump you
+into a submode. The `Super`-prefixed launchers (claude / pane / tab /
+yazi-peek / fullscreen) are bound in `shared` and keep working while
+locked, as do `Alt [` / `Alt ]` (cycle swap layouts) — the rest of
+zellij's `Alt` row stays inert while locked, since those keys are
+readline/vim word motions the pane's app wants. The bar's bottom-right
+quick-hint block only shows in Locked mode. Set false to start in Normal
+mode (zellij's own default).
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
@@ -2355,7 +2390,7 @@ stay: these are the *tools*, not the appearance.
 
 ## Windows
 
-Tiling, window navigation, hot corners, and the leader key that launches an app or throws it somewhere. The workspaces themselves (`haus.workspaces`) and the keys haus claims (`haus.keys`) are shared surfaces below, because the bar and the launcher read them too.
+Tiling, window navigation, hot corners, and the leader key that launches an app or throws it somewhere — plus macOS's own Stage Manager, edge-drag tiling and desktop clutter, which answer the same question the tiler does. The workspaces themselves (`haus.workspaces`) and the keys haus claims (`haus.keys`) are shared surfaces below, because the bar and the launcher read them too.
 
 ### haus.hotCorners
 
@@ -2539,7 +2574,7 @@ Example:
 
 ### haus.windows
 
-Tiling window management and the Caps-Lock leader launcher.
+Tiling window management and the Caps-Lock leader launcher — plus macOS's OWN window features (Stage Manager, edge-drag tiling, the desktop's icons and widgets), which live here rather than with the other macOS settings because they decide the same thing the tiler does and haus warns when both are on.
 
 #### `haus.windows.accordionPadding`
 
@@ -2596,6 +2631,120 @@ why it is the default. The other two are for a machine that should
 split the same way whatever display it wakes up on.
 
 Only meaningful with haus.windows.enable.
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.desktop.clickToReveal`
+
+`null or boolean` · default `null`
+
+Click the wallpaper to push every window aside and reveal the desktop.
+macOS 14 turned this on for everybody and it is the change most people
+want back: true is "always", false is "only in Stage Manager".
+
+Worth knowing before you leave it on with a tiler: a click on the
+wallpaper is easy to make by accident on a workspace whose windows do
+not cover the screen, and it moves every window on it.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.desktop.hideIcons`
+
+`null or boolean` · default `null`
+
+Hide the icons on your desktop, always — the files are still in
+`~/Desktop`, Finder still shows them, they just stop being drawn on
+the wallpaper.
+
+The natural companion to a generated `haus.wallpaper`, which you chose
+to look at rather than to be a filing cabinet.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.desktop.hideWidgets`
+
+`null or boolean` · default `null`
+
+Hide desktop widgets, always. Same idea as `hideIcons`, for the
+clock/calendar/weather widgets macOS 14 let you park on the desktop.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
@@ -2687,6 +2836,164 @@ Example:
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
+#### `haus.windows.nativeTiling.edgeDrag`
+
+`null or boolean` · default `null`
+
+Drag a window to the side of the screen and macOS tiles it there.
+On (macOS's own default) unless you say otherwise.
+
+THE ONE TO TURN OFF IF YOU TILE. With `haus.windows.enable` on,
+AeroSpace already owns where windows go, and this is the setting that
+makes a window you were merely dragging past the edge of the screen
+snap to half of it — which then fights the tiler for the same space.
+Setting it false is the single most useful key in this group for a
+tiling machine, and haus warns about the combination.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.nativeTiling.margins`
+
+`null or boolean` · default `null`
+
+Leave a gap between natively tiled windows and the screen edges.
+macOS's own gaps setting, and nothing to do with
+`haus.windows.accordionPadding` or AeroSpace's gaps, which apply to
+windows the TILER placed.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.nativeTiling.optionAccelerator`
+
+`null or boolean` · default `null`
+
+Hold ⌥ while dragging to tile, instead of tiling whenever a drag
+reaches an edge.
+
+The middle setting between the two extremes, and the one to reach for
+before turning `edgeDrag` off entirely: native tiling stays available
+on the machine and stops happening by accident, because it now takes a
+modifier you have to mean. On a tiling machine that still costs a
+modifier AeroSpace may want — check `haus.keys.windowNav` before
+relying on it.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.nativeTiling.topEdgeFullscreen`
+
+`null or boolean` · default `null`
+
+Drag a window up to the menu bar and macOS fills the screen with it.
+The same bargain as `edgeDrag`, at the top edge, and worth turning off
+for the same reason if you tile: the menu bar is somewhere a window
+gets dragged PAST, on the way to somewhere else.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
 #### `haus.windows.numberedWorkspaces`
 
 `integer between 0 and 10 (both inclusive)` · default `4`
@@ -2719,6 +3026,198 @@ Example:
 
 ```nix
 6
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.stageManager.autoHideStrip`
+
+`null or boolean` · default `null`
+
+Hide the strip of recent apps until the pointer goes near it, instead
+of keeping it on screen. Only does anything while Stage Manager is on.
+
+The setting that buys back the width Stage Manager costs you on a
+laptop display.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.stageManager.enable`
+
+`null or boolean` · default `null`
+
+macOS's Stage Manager: recent windows are swept into a strip down the
+side of the screen, one app in the middle at a time.
+
+Turning this on while `haus.windows.enable` is also on gives you two
+window managers with different ideas about where a window belongs —
+AeroSpace tiles it, Stage Manager pulls it back to the strip. haus
+warns about the pair rather than refusing it, because "Stage Manager
+on the laptop display, tiling on the external" is a real way to work,
+but if windows will not stay where the tiler puts them this is the
+first thing to turn off.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.stageManager.groupWindows`
+
+`null or boolean` · default `null`
+
+When you click an app in the strip, whether Stage Manager brings ALL
+of that app's windows forward together (true) or one at a time
+(false). macOS spells these "All at once" and "One at a time".
+
+True is what you want for an app you keep several windows of and read
+side by side; false keeps the middle of the screen to a single window,
+which is the point of Stage Manager for most people.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.stageManager.hideDesktopIcons`
+
+`null or boolean` · default `null`
+
+Hide the icons on your desktop while Stage Manager is on. The
+Stage-Manager-only twin of `haus.windows.desktop.hideIcons`, which
+hides them always.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.stageManager.hideWidgets`
+
+`null or boolean` · default `null`
+
+Hide desktop widgets while Stage Manager is on. The
+Stage-Manager-only twin of `haus.windows.desktop.hideWidgets`.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off": these are settings people have usually already made by hand,
+and a rebuild that named one it didn't care about would silently
+overwrite a choice. Turning an option back to null STOPS writing, it
+does not restore — macOS keeps no memory of what the value was.
+
+TAKES EFFECT AT YOUR NEXT LOGIN. The write lands during the rebuild (no
+permission is involved, and `haus diff` will show the new value straight
+away), but macOS reads this domain when your login session starts and
+offers nothing that makes it re-read: there is no process to restart the
+way Finder or the menu bar can be restarted. So a rebuild that changes
+this option leaves your desktop behaving exactly as it did until you log
+out and back in — which is a wait, not a failure, and nothing is in a
+half-applied state meanwhile.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
 ```
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
@@ -3031,7 +3530,7 @@ Example:
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A paw pill tracking your agent windows. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3688,7 +4187,7 @@ Example:
 
 `boolean` · default `false`
 
-A paw pill tracking your agent windows. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+A paw pill tracking your agent-worktree panes. The label always names the state worth interrupting you for — "2 ready" outranks "5 working", which outranks "1 done" — never a bare count you'd have to click to decode. Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the pane's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that pane, ⌥/right-click for a live peek at what it is saying — `zellij subscribe` for a pane, `zmx tail` for a lane, and nothing for a desktop session, whose transcript is not readable from outside the app (that row raises the app on either click). Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row whose zellij pane is gone drops off by itself, which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no pane and no lane, so it is tracked by its conversation id instead and a click raises the app rather than a window — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4961,8 +5460,8 @@ Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
 session for that cwd, `jcode` opens its own session picker. They share one
 `holt` branch/parking/reap
-lifecycle, and they all light up the `agents` bar pill — the opencode
-plugin, the codex hooks and jcode's
+lifecycle, and they all light up the `agents` bar pill and the zellij
+tab-bar badge — the opencode plugin, the codex hooks and jcode's
 `JCODE_HOOK_*` environment are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
 settings.json (see `haus.bar.items.agents`).
@@ -4986,8 +5485,8 @@ Example:
 `boolean` · default `false`
 
 The AI room: coding-agent *tooling*. `holt` (agent worktrees),
-`agent-state` (the status writer behind the `agents` bar pill),
-the agent-worktree statusline, and the client
+`agent-state` (the pane-status writer behind the `agents` bar pill and
+the zellij tab badge), the agent-worktree statusline, and the client
 config the Terminal room writes (Claude Code's settings.json keys, opencode's
 agent-state plugin). Which clients get installed is `ai.clients`.
 
@@ -5172,11 +5671,201 @@ Example:
 
 ## Security
 
-Touch ID for sudo, lock behaviour, the firewall, and where secret values come from.
+Touch ID for sudo, lock and login-window behaviour, the guest account, the firewall, and where secret values come from.
 
 ### haus.lock
 
-Whether waking this Mac needs a password, and how long the grace period is. Worth setting on any laptop that leaves the house.
+Whether waking this Mac needs a password and how long the grace period is, plus the login window itself — name-and-password instead of a list of faces, a message for whoever finds a lost laptop, and which of Shut Down / Restart / Sleep it offers. The login half lands at your next login, which each option says.
+
+#### `haus.lock.login.hideRestart`
+
+`null or boolean` · default `null`
+
+Remove the Restart button from the login window. Same reasoning as
+`hideShutDown`, and normally set with it — leaving one of the two
+buttons is a curious middle ground.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off" — and on this domain that matters more than most, because
+several of these keys are ON out of the box. Turning an option back to
+null STOPS writing rather than restoring: macOS keeps no memory of
+what the value was before haus set it.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.lock.login.hideShutDown`
+
+`null or boolean` · default `null`
+
+Remove the Shut Down button from the login window.
+
+For a machine that should stay up and reachable — a Mac serving
+something on the desk in the corner — where the only person pressing
+it is someone who walked past. It does not stop a long press on the
+power button, and it is not a lock: it removes the easy way, not
+every way.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off" — and on this domain that matters more than most, because
+several of these keys are ON out of the box. Turning an option back to
+null STOPS writing rather than restoring: macOS keeps no memory of
+what the value was before haus set it.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.lock.login.hideSleep`
+
+`null or boolean` · default `null`
+
+Remove the Sleep button from the login window. The mildest of the
+three, and the one with a real cost on a laptop: sleeping from the
+login window is how you put a machine away that you have already
+locked.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off" — and on this domain that matters more than most, because
+several of these keys are ON out of the box. Turning an option back to
+null STOPS writing rather than restoring: macOS keeps no memory of
+what the value was before haus set it.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.lock.login.message`
+
+`null or string` · default `null`
+
+A line of text under the password field on the login window.
+null (the default) leaves whatever is there alone.
+
+The one genuinely useful thing to put here is how to reach you if
+the machine is lost — it is visible to somebody who cannot log in,
+which is exactly the person you want reading it. Everything else it
+gets used for (a banner, a policy notice) is a workplace thing.
+
+Not a security boundary: anyone who can read this can also read it
+off the disk, and it is not a lock. Empty string clears the message
+rather than leaving it alone; that is `""`, not null.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+"If found, please call +1 555 0100."
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.lock.login.showNameField`
+
+`null or boolean` · default `null`
+
+Ask for a username AND a password, instead of showing a list of
+user pictures to click.
+
+The shoulder-surfing setting: with the list, half the credential is
+already on screen for anyone who walks past. Worth true on a laptop
+that leaves the house, and it is also the only way to log into an
+account the list deliberately hides.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off" — and on this domain that matters more than most, because
+several of these keys are ON out of the box. Turning an option back to
+null STOPS writing rather than restoring: macOS keeps no memory of
+what the value was before haus set it.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.lock.requirePassword`
 
@@ -5217,7 +5906,7 @@ Example:
 
 ### haus.security
 
-Security posture: the built-in application firewall and how strict it is (off on a fresh Mac — the setting to turn on for a laptop that joins networks you don't own), plus Touch ID for `sudo`, including inside a terminal multiplexer, and the passwordless-rebuild rule.
+Security posture: the built-in application firewall and how strict it is (off on a fresh Mac — the setting to turn on for a laptop that joins networks you don't own), whether the passwordless Guest account can log in (on out of the box, and the one genuine boundary in this group), plus Touch ID for `sudo`, including inside a terminal multiplexer, and the passwordless-rebuild rule.
 
 #### `haus.security.firewall.allowSigned`
 
@@ -5303,14 +5992,58 @@ true
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
+#### `haus.security.guestAccount`
+
+`null or boolean` · default `null`
+
+Whether anyone can log in as "Guest" without a password — a temporary
+session macOS wipes when they log out.
+
+Fresh Macs ship with this ON, which is the fact worth knowing: a
+machine you never configured lets a stranger who has it in their hands
+reach a browser, a network and any file share you are connected to.
+`false` is the setting almost every personal machine wants and almost
+no one has made.
+
+It is also the one key in this group that is genuinely a security
+boundary rather than a papercut, so it is worth setting explicitly even
+when you believe it is already off.
+
+
+null (the default) writes nothing at all, which is not the same as
+"off" — and on this domain that matters more than most, because
+several of these keys are ON out of the box. Turning an option back to
+null STOPS writing rather than restoring: macOS keeps no memory of
+what the value was before haus set it.
+
+TAKES EFFECT AT YOUR NEXT LOGIN — and for most of this group that is the
+only moment it could: the login window is what the setting is ABOUT, so
+"when do I see it" and "when does it apply" are the same question. The
+write lands during the rebuild and needs no permission; what has no
+live-reload path is the reader. `loginwindow` is the process that owns
+your session, so the restart that would make it re-read this domain is
+the one that would log you out to do it — which is why haus never fires
+it for you.
+
+`haus plan` says the same thing before the rebuild, and `haus doctor`
+after it, both read out of the built activation script rather than from a
+second copy of this list.
+
+Example:
+
+```nix
+true
+```
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
 #### `haus.security.touchId.enable`
 
 `boolean` · default `false`
 
 The security room: Touch ID for `sudo`, with `reattach` — the PAM shim
 that keeps the prompt working when sudo runs inside a terminal
-multiplexer (tmux/screen, or the `zmx` session every haus terminal
-window runs inside), where it otherwise beachballs.
+multiplexer (tmux/zellij/screen), where it otherwise beachballs.
 
 Off means macOS's stock password prompt everywhere, including for the
 rebuild below. Nothing else in haus depends on it.
@@ -6059,8 +6792,8 @@ hjkl focus chords were dropped: only `/` `,`, `f`, `⇧⇥`, `⇧;` and
 on — and `<mod>⇥` is free again, since workspace back-and-forth
 retired in favour of pounce's cross-workspace ⌘⇥ switcher. (Under
 "ctrl-alt" that used to bite — the throws were `⌃⌥⇧` + an app's roster
-letter, so an app on `a` silently ate terminal's ⌃⌥⇧A in-place-agent
-chord. That collision is gone.)
+letter, so an app on `a` silently ate terminal's zellij
+`Ctrl Alt Shift a` in-place-agent bind. That collision is gone.)
 Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
 

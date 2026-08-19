@@ -266,6 +266,55 @@ Both halves are *lazy*: nothing moves while the pointer is already inside
 whatever took focus, so it re-centres on the jumps that would have lost it and
 sits still on the ones that wouldn't.
 
+## macOS has its own opinion about windows
+
+Stage Manager and edge-drag tiling answer the same question this room does, and
+macOS turns edge-drag tiling **on** out of the box. So on a fresh haus machine
+you have two window managers: AeroSpace tiles a window into the layout, and a
+drag that merely passes near the screen edge hands half the screen to it. The
+symptom is "windows won't stay where I put them", and it points at neither of
+them on its own — which is why this room owns the settings rather than leaving
+them with the rest of the macOS defaults:
+
+```nix
+haus.windows.nativeTiling.edgeDrag         = false;  # the one to turn off if you tile
+haus.windows.nativeTiling.topEdgeFullscreen = false;
+haus.windows.stageManager.enable            = false;
+```
+
+If you'd rather keep native tiling and just stop it firing by accident, there's
+a middle setting — it then takes a held ⌥ rather than any drag that reaches an
+edge:
+
+```nix
+haus.windows.nativeTiling.optionAccelerator = true;
+```
+
+haus **warns** when the tiler and either of these are on together, naming both
+switches. It's a warning and not an error, because "Stage Manager on the laptop
+panel, tiling on the external" is a real way to work.
+
+The same group covers the desktop itself, which pairs well with a wallpaper you
+chose to look at rather than to file things on:
+
+```nix
+haus.windows.desktop.hideIcons     = true;   # files stay in ~/Desktop
+haus.windows.desktop.hideWidgets   = true;
+haus.windows.desktop.clickToReveal = false;  # macOS 14's click-the-wallpaper behaviour
+```
+
+<Callout title="These land at your next login">
+  This whole group writes `com.apple.WindowManager`, which macOS reads when your
+  login session starts and never re-reads — there is no process to restart the
+  way Finder or the menu bar can be restarted. **The write happens during the
+  rebuild; the effect appears at your next login.** Nothing is half-applied in
+  between, and `haus plan` tells you before the rebuild rather than after.
+</Callout>
+
+Every option here is unset by default, like every macOS setting haus curates.
+Unset doesn't mean "off" — it means haus writes nothing, so a choice you made by
+hand years ago survives untouched.
+
 ## Turning it off
 
 ```nix
