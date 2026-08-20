@@ -3792,14 +3792,6 @@ Memory in use, drawn as a graph pill. It counts what Activity Monitor counts —
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.bar.bottom.items.page`
-
-`boolean or one of "left", "center", "right"` · default `false`
-
-Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a palette box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
-
-<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
-
 #### `haus.bar.bottom.items.volume`
 
 `boolean or one of "left", "center", "right"` · default `false`
@@ -4502,14 +4494,6 @@ Memory in use, drawn as a graph pill. It counts what Activity Monitor counts —
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
-#### `haus.bar.items.page`
-
-`boolean` · default `false`
-
-Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a palette box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
-
-<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
-
 #### `haus.bar.items.volume`
 
 `boolean` · default `false`
@@ -4993,7 +4977,7 @@ too, where it retunes what that pill already polls at:
 
 null keeps the widget's own default — for a bundled pill the rate
 it ships with, for yours a 60-second tick. A few pills are
-push-driven rather than polled (`agents`, `page`) and a couple own
+push-driven rather than polled (`agents`) and a couple own
 their rate through an older option of their own
 (`haus.bar.calendar.refresh`); setting this on one of those is
 accepted and changes only the backstop tick, which is exactly what
@@ -6036,7 +6020,7 @@ Example:
 `one of "claude", "codex", "opencode"` · default `"claude"`
 
 The coding agent started by the ⌘↵ lane chord, by the palette's
-**Spawn Agent** command, by the ⌃⌥⇧A resident bind and the `c` shell
+**Spawn Agent** command and by the `c` shell
 alias, and used to reopen worktrees with no client recorded yet. Each spawned worktree records its
 own client, so changing this affects new work but never reopens an
 existing Codex or OpenCode task in Claude.
@@ -6079,7 +6063,7 @@ agent-state plugin). Which clients get installed is `ai.clients`.
 
 On, this room brings its clients, `holt` and the lifecycle wiring on its
 own. What it adds to OTHER rooms it adds only when they are present: the
-⌃⌥⇧A terminal bind and the `c` alias arrive with the terminal, the
+`c` alias arrives with the terminal, the
 `agents` pill with the bar, the agent commands with the launcher. None
 of those rooms is switched on by turning this one on.
 
@@ -7387,9 +7371,9 @@ hjkl focus chords were dropped: only `/` `,`, `f`, `⇧⇥`, `⇧;` and
 `⇧`+the arrows, none of which a roster letter can land
 on — and `<mod>⇥` is free again, since workspace back-and-forth
 retired in favour of the launcher's cross-workspace ⌘⇥ switcher. (Under
-"ctrl-alt" that used to bite — the throws were `⌃⌥⇧` + an app's roster
-letter, so an app on `a` silently ate terminal's ⌃⌥⇧A in-place-agent
-chord. That collision is gone.)
+"ctrl-alt" that used to bite: the throws were `⌃⌥⇧` + an app's roster
+letter, so an app on `a` silently ate whatever the terminal had bound
+on ⌃⌥⇧A. Moving the throws onto the leader ended it.)
 Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
 
