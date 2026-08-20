@@ -107,7 +107,7 @@ older Pounce never chokes on a config written by a newer one.
     "chords": []             // empty means no click is consumed anywhere
   },
   "fnKey": "tap",            // how pounce takes the Fn/Globe key, see below
-  "items": {                 // per-item enable / alias / hotkey, see below
+  "items": {                 // per-item enable / alias / hotkey / where it is listed
     "cmd:emoji": { "alias": "emo", "hotkey": "opt+space e" }
   }
 }
@@ -157,8 +157,9 @@ curl -fsSLo ~/.config/pounce/themes/nebelung-latte.json \
 
 ## Per-item settings (`items`)
 
-One map for what you'd otherwise want three keys: hide a row, give it a search
-shorthand, give it a global key. Each entry is keyed by an **item key**:
+One map for what you'd otherwise want a key each: hide a row, give it a search
+shorthand, give it a global key, list it only where it is useful. Each entry is
+keyed by an **item key**:
 
 | Item key | Addresses |
 |---|---|
@@ -173,6 +174,8 @@ shorthand, give it a global key. Each entry is keyed by an **item key**:
   "items": {
     "cmd:emoji":                     { "alias": "emo", "hotkey": "opt+e" },
     "cmd:brew-services":             { "enabled": false },
+    "cmd:lane-here":                 { "workspaces": ["T"] },
+    "cmd:peek":                      { "bundleIds": ["com.mitchellh.ghostty"] },
     "app:/Applications/Ghostty.app": { "alias": "term", "hotkey": "opt+t" },
     "mode:clipboard":                { "hotkey": "cmd+shift+v" }
   }
@@ -184,6 +187,46 @@ an item off the list but on a key is a legitimate setup. `alias` is a search
 shorthand that wins over whatever app fuzzy-matches the same letters. `hotkey`
 runs the item directly, skipping the palette: the last segment is the key, the
 rest modifiers, and the object form `{"key": …, "modifiers": …}` works too.
+
+### Rows that only exist where they work
+
+`enabled` is a decision you make once. `workspaces` and `bundleIds` are asked
+again on every summon, so a row can be listed only where it means something. The
+case they were built for is a command that acts on *the window you were looking
+at*: it reads the focused terminal's directory, and opened over a browser it has
+nothing to read.
+
+`workspaces` takes workspace names (a bare string works for one). `"T"` matches
+the page `T` and every `T/…` child, the shape [`pages`](#walking-a-family-of-workspaces-pages)
+already uses; `"T/*"` is the children alone, `"T/main"` is that one page.
+Matching ignores case, which is one of two places this is deliberately not the
+same predicate as `pages.prefix`: the walk matches case-sensitively and has no
+`/*` form. Which page you are on comes from `pages.mruFile`, so set
+that even if you never turn the ⌃Tab walk on. **With no readable `mruFile` this
+filters nothing**, deliberately: a Mac that cannot answer the question would
+otherwise hide the row forever.
+
+`bundleIds` takes bundle ids and lists the row only while one of them is
+frontmost, also ignoring case. Set both and the row wants both, which is worth
+knowing before you add one to a row that already carries the other.
+
+Either way it scopes the **row**, never a `hotkey` on the same item, the same
+way `enabled: false` leaves a key armed. Scoping a chord instead is
+[`appHotkeys`](#chords-that-only-exist-over-one-app-apphotkeys), which has to
+consume the keystroke to do it.
+
+A row that never appears looks exactly like a row you never installed, so
+`pounce doctor` names every scoped item, what it asks for, the page you are on
+and which rows that leaves out. It fails outright when something asks about
+`workspaces` while `mruFile` is unset or points somewhere it cannot read, since
+both leave the scoping doing nothing.
+
+<Callout title="haus does this to three rows">
+The [Launcher room](/docs/haus/rooms/launcher) lists **New Agent Lane**, **New
+Shell Window** and its `⇧` twin only on the terminal pages, because all three
+inherit the focused window's directory. **Spawn Agent** asks which repo instead
+of inheriting one, so it stays everywhere.
+</Callout>
 
 The laptop **Fn/Globe key** is a one-step special case
 (`"mode:emoji": { "hotkey": "fn" }`), firing only on a lone tap so Fn
@@ -270,7 +313,10 @@ screen you are stepping through is the feedback.
 `prefix` matches a workspace named `T` or anything under `T/`. Recency comes
 from `mruFile`, a newest-first list your window manager's workspace-change hook
 pushes onto; a walk repairs its own trail on release, so passing through three
-pages doesn't rank them above where you started. `bundleId` scopes the chord
+pages doesn't rank them above where you started. That file has a second reader:
+its head line is how the palette answers "which page am I on" when an item
+carries [`workspaces`](#rows-that-only-exist-where-they-work), which is why it
+is worth setting even with `enabled: false`. `bundleId` scopes the chord
 like a scope above, which is how a browser keeps ⌃Tab for its own tabs.
 
 <Callout title="haus wires both for you">

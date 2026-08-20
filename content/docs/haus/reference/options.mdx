@@ -5278,7 +5278,8 @@ what it did before this option existed.
 **Desktop-safe per key** (`launcher-items`). Keys are plain item ids, since each one names a single row in the palette.
 
 Per-item palette settings, keyed by the item's own address. One entry is
-one row of the palette: hide it, give it a search shorthand, give it a key.
+one row of the palette: hide it, give it a search shorthand, give it a
+key, or list it only where it is useful (`workspaces` / `bundleIds`).
 
   "cmd:&lt;id>"                       a command, by script name without .sh
   "app:/Applications/Foo.app"      an application, by path
@@ -5340,6 +5341,16 @@ Example:
     alias = "emo";
     hotkey = "opt+e";
   };
+  "cmd:lane-here" = {
+    workspaces = [
+      "T"
+    ];
+  };
+  "cmd:peek" = {
+    bundleIds = [
+      "com.mitchellh.ghostty"
+    ];
+  };
   "mode:clipboard" = {
     hotkey = "cmd+shift+v";
   };
@@ -5362,6 +5373,34 @@ Example:
 
 ```nix
 "emo"
+```
+
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
+
+#### `haus.launcher.items.<name>.bundleIds`
+
+`list of string` · default `[ ]`
+
+List this row only while one of these apps is frontmost. Empty —
+the default — means any app.
+
+The tighter twin of `workspaces` for a row that needs a
+particular app rather than a particular page: a Ghostty window
+dragged onto another page still satisfies this one, and a
+browser parked on a terminal page does not. Set both and the row
+wants both. Case-insensitive.
+
+Like `workspaces`, it scopes the row alone. Scoping a KEY to an
+app is a different mechanism with a different cost — the palette
+has to consume the keystroke to do it — and haus writes those
+itself (the ⌘↵ and ⌘N Ghostty taps).
+
+Example:
+
+```nix
+[
+  "com.mitchellh.ghostty"
+]
 ```
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
@@ -5433,6 +5472,40 @@ keeps working. It's how you hide a command you only ever want to
 reach by key — or clear the launcher of tools someone else on this
 Mac has no use for, which is the closest thing to a "pack" the
 surface has today. (It writes the palette's own `enabled` key.)
+
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
+
+#### `haus.launcher.items.<name>.workspaces`
+
+`list of string` · default `[ ]`
+
+List this row only while one of these workspaces is in front.
+Empty — the default — means everywhere.
+
+A bare name matches that page AND its children, the same rule
+the ⌃⇥ page walk's prefix uses: `"T"` covers T and every
+T/&lt;repo> lane page. `"T/*"` is the children only, and `"T/main"`
+is that one page. Case-insensitive.
+
+It scopes the ROW, never this item's `hotkey` — a key you bound
+stays bound, exactly as it does under `listed = false`. What
+this is FOR is a row whose command needs the window you were
+looking at: an agent lane or a shell "here" reads the focused
+terminal's directory, and from a browser it has nothing to read.
+
+Which page you are on is read from the workspace-recency file
+the windows room's AeroSpace hook maintains. **With no such file
+— no tiler, or the windows room off — this filters nothing**,
+deliberately: a machine that cannot answer the question would
+otherwise hide the row forever.
+
+Example:
+
+```nix
+[
+  "T"
+]
+```
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
