@@ -310,10 +310,10 @@ half of that came due on 2026-08-14** — it is a Next route now, with the copy
 unchanged.
 
 - **`/perch` is the product page, moved here.** It's the consumer-voice page
-  [`notes/perch-monetization.md`](https://github.com/hausfold/workshop/blob/main/notes/perch-monetization.md)
-  Phase 3 asked for (that note is now history: the plan it describes was
-  cancelled on 2026-08-15, and the page outlived it because a free app still
-  wants one page that pitches it), and the landing page links it internally.
+  the workshop's monetization plan asked for. That plan was cancelled on
+  2026-08-15 and its note (`notes/perch-monetization.md`) deleted on
+  2026-08-20; the page outlived it, because a free app still wants one page
+  that pitches it. The landing page links it internally.
   ✅ **`/pounce` used to inherit a duplicate-page warning, and no longer
   exists.** It was added 2026-08-09 and **retired on 2026-08-14** into
   `content/docs/pounce/` — pounce's docs tree — with `/pounce` 301ing to
@@ -740,9 +740,12 @@ Rules that are easy to break by accident:
   desktop pages say what a desktop is instead of showing it. If any of this
   comes back, the frame question comes back with it and is the user's to
   answer, not a detail to restore from `git log`.
-  The scene, the checklist and a
-  ready-to-apply patch are in the workshop's `assets/SHOT-hacker-desktop.md`
-  and `assets/desktops-hero.patch` — but the patch is now **four times**
+  ⚠️ **Both files this bullet pointed at are deleted** (workshop, 2026-08-20)
+  — the scene survives as one line in the workshop's `assets/SHOTLIST.md`
+  slot-2 cell: one clean tiled desktop, bar at the top, two windows tiled,
+  Pounce open mid-search, nebelung grey across everything. Reshoot from that.
+  What follows is why the patch went, and is kept because the failure mode
+  generalises. `assets/desktops-hero.patch` was **four times**
   overtaken: it targets `public/desktops/index.html`, which the 2026-08-12
   catalogue move deleted, in a file format the 2026-08-14 port replaced, for a
   section the same day removed, on a page the same day deleted. Read it for the
@@ -899,8 +902,8 @@ Rules that are easy to break by accident:
   2026-08-15 ([hausfold/perch#67](https://github.com/hausfold/perch/pull/67)),
   and on 2026-08-16 the user settled that **hausfold sells nothing, ever** and
   retired `/terms` and `/refunds` on the strength of it.
-  `notes/perch-monetization.md` in the workshop is history rather than a source
-  of truth, and this bullet is no longer a "not yet" — it is the position. The
+  The workshop's monetization note is gone (deleted 2026-08-20), and this
+  bullet is no longer a "not yet" — it is the position. The
   landing page says the free-and-open-source half out loud, once, in
   `What we make`; everything else is silence rather than a promise.
 - **Links go inward.** The landing page used to index the products and point
