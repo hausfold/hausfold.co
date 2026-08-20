@@ -39,13 +39,14 @@ Apply changes with `haus rebuild`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
 A few also carry a line about what a **shared desktop** may do with them.
-*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it,
-because it names a person, a secret or a piece of hardware, or because it takes
-a package or a command the machine would run. *Desktop-safe per key* means the
-option takes keys nobody declared, so a named rule decides which of them a
-desktop may write; that rule is stated beside it. Anything unmarked is plain
-desktop-safe. This is the same classification `haus.lib.checkDesktop` enforces
-before a desktop is evaluated.
+*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it —
+because it names a person, a secret or a piece of hardware, because it takes a
+package or a command the machine would run, or because it is simply a fact
+about this Mac; which of those it is, is stated beside it. *Desktop-safe per
+key* means the option takes keys nobody declared, so a named rule decides which
+of them a desktop may write; that rule is stated beside it too. Anything
+unmarked is plain desktop-safe. This is the same classification
+`haus.lib.checkDesktop` enforces before a desktop is evaluated.
 
 ## Apps
 
@@ -1104,7 +1105,7 @@ Example:
 
 `null or package` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It takes a `pkgs` value, and desktop data is evaluated with no module arguments to take one from. The `…Name` leaf beside it is the desktop-safe half of the pair.
 
 The package providing `name`. null (the default) installs haus's
 own JetBrains Mono Nerd Font, which is what `name` defaults to.
@@ -1720,7 +1721,7 @@ true
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names a path on this disk, so it is a fact about one filesystem rather than an opinion a shared desktop can hold about every machine.
 
 Where ⇧⌘3 / ⇧⌘4 / ⇧⌘5 write their files. null (the default) leaves
 macOS's own choice alone, which is the Desktop.
@@ -1993,7 +1994,7 @@ The shell and terminal experience.
 
 `string` · default `the command for haus.terminal.editorName — hx for helix`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
@@ -2129,7 +2130,7 @@ handler behind an interactive dialog; set it by hand once if wanted:
 
 `list of string` · default `[ ]`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names a path on this disk, so it is a fact about one filesystem rather than an opinion a shared desktop can hold about every machine.
 
 Home-relative paths to existing Obsidian vaults that should use the
 Nebelung theme. On each activation, Terminal copies the rendered
@@ -2159,7 +2160,7 @@ Zen browser policy, extensions and the optional native tab bridge.
 
 `attribute set of (submodule)` · default `{ }`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 Browser extensions to deploy into Zen, by a stable id of your choosing.
 
@@ -2213,7 +2214,7 @@ Example:
 
 `boolean` · default `true`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 Whether to deploy this extension. Set false to remove one an imported desktop added.
 
@@ -2223,7 +2224,7 @@ Whether to deploy this extension. Set false to remove one an imported desktop ad
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 The extension's own id — the key Firefox's policy engine
 matches on, NOT its AMO slug. Usually a brace-wrapped UUID,
@@ -2247,7 +2248,7 @@ Example:
 
 `one of "force_installed", "normal_installed", "allowed", "blocked"` · default `"force_installed"`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 Firefox's `installation_mode`. `force_installed` installs it
 and stops the user removing it (the point, for a desktop that
@@ -2260,7 +2261,7 @@ but leaves it removable.
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 The add-on's AMO slug — the last path segment of its
 addons.mozilla.org URL. Only used to build the default
@@ -2278,7 +2279,7 @@ Example:
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 Where the .xpi comes from. Defaults to AMO's "latest" endpoint
 for `slug`, so the add-on updates itself; point it at a pinned
@@ -2300,7 +2301,7 @@ url never turns it on.
 
 `attribute set` · default `{ }`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It installs browser extensions, or writes raw enterprise policy into a file haus owns as root: code reaching your browser through what is supposed to be readable data.
 
 Anything else to put in Zen's policy set, merged beside the
 `ExtensionSettings` block `haus.zen.extensions` renders. haus OWNS
@@ -3916,7 +3917,7 @@ false
 
 `list of string` · default `[ ]`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 Addresses (or display names) that are YOU, dropped from the "with …"
 line in the dropdown. An attendee list that includes you is a list that
@@ -4078,7 +4079,7 @@ false
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names a device on your own network by host or IP — a fact about your desk. Left empty, the pill discovers the device itself, which is what a shared desktop should leave it doing.
 
 Which Elgato Key Light the `elgato` pill toggles — a hostname or IP,
 optionally with a `:port` (the light's HTTP API is on 9123).
@@ -4195,7 +4196,7 @@ true
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 A command run through `bash -c`, printing one row per line as
 `<state>\t<text>` or `<state>\t<text>\t<url>`, where state is one rung
@@ -4924,7 +4925,7 @@ Example:
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 The script whose output is this pill's label, run every
 `interval` seconds. One line on stdout is the label; nothing at all
@@ -5450,7 +5451,7 @@ Example:
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names a code-signing identity in one login keychain, which exists on exactly one Mac and cannot be meaningfully published.
 
 A code-signing identity in your login keychain — either its SHA-1 or
 (preferred) its full common name. The pounce daemon is re-signed with
@@ -5593,7 +5594,7 @@ sketchybar once for the pill). `focus doctor` walks the one-time steps.
 
 `list of (absolute path or string)` · default `[ ]`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 Extra scripts run on every switch, both ways, each called with a single
 argument "on" or "off". Paths are copied into the store; strings are
@@ -5743,7 +5744,7 @@ paired.
 
 `list of (absolute path or string)` · default `[ ]`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 Scripts run on entry and exit, each called with "on" or "off" —
 the same contract as `haus.focus.hooks`, scoped to this scene.
@@ -5828,7 +5829,7 @@ Slack status text while quiet.
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in — a credential belonging to one person on one Mac.
 
 Shell command that prints the Slack user token (xoxp-…) to stdout.
 Keychain-first so no secret ever lands in the store or a dotfile:
@@ -5960,7 +5961,7 @@ modules/moved.nix for why.
 
 `strings concatenated with "\n"` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Your own always-on instructions to coding agents — the private working context you write for your own machine, not something a stranger's file should arrive holding.
 
 Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
@@ -6521,7 +6522,7 @@ Where secret values come from on this machine.
 
 `null or string` · default `"keyring"`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in — a credential belonging to one person on one Mac.
 
 The secretspec provider that supplies secret VALUES on this machine.
 The secrets room writes it to ~/.config/secretspec/config.toml as the
@@ -6710,7 +6711,7 @@ you work inside. Requires `appId`; ignored (with a warning) without it.
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. haus sets this itself, so the roster can still say which module put an app on disk. It is a generated fact about this machine rather than an input anyone writes.
 
 The haus module that puts this app on disk, when none of the
 four sources above describes it: the launcher and the shelf copy a
@@ -6799,7 +6800,7 @@ Roster order; lower values appear first. Ties are sorted by app id.
 
 `null or package` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It takes a `pkgs` value, and desktop data is evaluated with no module arguments to take one from. The `…Name` leaf beside it is the desktop-safe half of the pair.
 
 Nixpkgs package that installs this entry. Where it lands is
 `scope`'s call.
@@ -7160,7 +7161,7 @@ Example:
 
 `string` · no default
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs. A desktop is a file you can read to know what it does, and a leaf that runs a command is exactly what would stop being true of.
 
 The shell command run when the leader is followed by `key`; launch
 mode exits afterward. It's written verbatim into a small `/bin/sh`
@@ -7377,7 +7378,7 @@ Your commit identity, plus the GitHub owner this machine's work lives under — 
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 Git user.email for commits.
 
@@ -7393,7 +7394,7 @@ Example:
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 Git user.name for commits (terminal wires it into home-manager).
 
@@ -7409,7 +7410,7 @@ Example:
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 The GitHub owner whose repos this machine works on. An organisation,
 or your own account: GitHub's issue search treats `org:<user>` the
@@ -7450,7 +7451,7 @@ Example:
 
 `attribute set of (null or string)` · default `{ }`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 Per-host additions and overrides for Terminal's built-in Git shell
 aliases. Values are shell command strings; null removes a built-in.
@@ -7474,7 +7475,7 @@ Example:
 
 `string` · default `""`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine — your commit identity, the addresses that are yours. A desktop that set it would put its author's name on your work.
 
 GPG key id for signing commits/tags. Empty disables commit signing.
 Key material + any YubiKey/smartcard setup live outside Nix
@@ -7496,7 +7497,7 @@ Language, region, units and keyboard layouts. What a machine in any language oth
 
 `null or one of "12h", "24h"` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 Force 12- or 24-hour time everywhere, overriding whatever `region`
 implies. null (the default) follows the region.
@@ -7518,7 +7519,7 @@ Example:
 
 `null or (list of string)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 The keyboard layouts available in the input menu, by input-source id
 (`com.apple.keylayout.*`). null (the default) leaves your layouts
@@ -7556,7 +7557,7 @@ Example:
 
 `null or (list of string)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 Preferred languages, best first — the order System Settings ▸ General
 ▸ Language & Region shows. null (the default) leaves macOS's own list
@@ -7585,7 +7586,7 @@ Example:
 
 `null or boolean` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 Use the metric system, overriding whatever `region` implies. null
 (the default) follows the region.
@@ -7608,7 +7609,7 @@ true
 
 `null or string` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 The region whose formats macOS uses — dates, number separators, paper
 size, the first day of the week. An ICU locale identifier
@@ -7635,7 +7636,7 @@ Example:
 
 `null or one of "celsius", "fahrenheit"` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
 
 Temperature unit, overriding whatever `region` implies. null (the
 default) follows the region. Separate from `metric` because macOS
@@ -7658,7 +7659,7 @@ Sleep timers and Low Power Mode, said separately for battery and charger — whi
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the Mac sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7678,7 +7679,7 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the Mac sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7698,7 +7699,7 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the disk spins down while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7718,7 +7719,7 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the disk spins down while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7738,7 +7739,7 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the display sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7758,7 +7759,7 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Minutes of idleness before the display sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7778,7 +7779,7 @@ Example:
 
 `null or boolean` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Low Power Mode while on battery. null (the default) leaves
 macOS's own choice alone.
@@ -7799,7 +7800,7 @@ true
 
 `null or boolean` · default `null`
 
-**Host-only.** A shared desktop may not set it; only your host file can.
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it — whether it has a battery at all, and how this particular one is carried around.
 
 Low Power Mode while plugged in. null (the default) leaves
 macOS's own choice alone.

@@ -88,6 +88,13 @@ if (!ROOMS) {
 // against a current haus fixes it.
 const VALIDATORS = GROUPS.validators ?? {};
 
+// And one per host-only reason, carried the same way and for the same reason:
+// the classification alone says a shared desktop may not set the leaf, which is
+// the half a reader can already see from the option's name being someone's
+// email address and cannot see at all when it is a font package. Degrades the
+// same way — the row keeps its classification and loses its sentence.
+const HOST_ONLY_REASONS = GROUPS.hostOnlyReasons ?? {};
+
 // A generated cross-repository artifact fails by emptying, not by erroring.
 // Keep a hard floor here so a namespace disagreement cannot produce a valid
 // page with a title, an intro and zero options.
@@ -177,13 +184,14 @@ function docsLinks(value) {
 // of them would be 250 rows of noise around the 54 that matter; the page intro
 // says that unmarked means safe.
 //
-// WHY THE HOST-ONLY ROW CARRIES NO REASON. There are 43 of them and they are
-// host-only for at least four different reasons: it names a person or a
+// Both interesting answers now carry their WHY from the same place. The
+// host-only row used to state the classification alone, because the 43 of them
+// are host-only for at least four different reasons — it names a person or a
 // secret, it names hardware, it takes a `pkgs` value, or it is a command the
-// machine would run. One sentence written here would be false on most of the
-// rows it printed. The per-option reason belongs in haus's registry beside
-// `desktopSafe`, exactly as a validator's rule now sits beside its name; until
-// it does, this states the classification and the intro states the range.
+// machine would run — and one sentence written here would have been false on
+// most of the rows it printed. haus carries the per-option reason in its
+// registry now, beside `desktopSafe`, exactly as a validator's rule sits beside
+// its name; this reads it rather than inventing one.
 //
 // An unclassified option renders with no line at all rather than taking the
 // page down. haus's own room-registry check refuses one, but that is an
@@ -193,7 +201,10 @@ function renderSafety(option) {
   const meta = NAMESPACES[groupOf(option.name)]?.options?.[option.name];
   if (!meta) return undefined;
   if (meta.desktopSafe === false) {
-    return '**Host-only.** A shared desktop may not set it; only your host file can.';
+    const named =
+      '**Host-only.** A shared desktop may not set it; only your host file can.';
+    const why = HOST_ONLY_REASONS[meta.reason]?.why;
+    return why ? `${named} ${why}` : named;
   }
   if (meta.desktopSafe !== 'recursive' || !meta.validator) return undefined;
   const rule = VALIDATORS[meta.validator]?.rule;
@@ -280,13 +291,14 @@ Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
 A few also carry a line about what a **shared desktop** may do with them.
-*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it,
-because it names a person, a secret or a piece of hardware, or because it takes
-a package or a command the machine would run. *Desktop-safe per key* means the
-option takes keys nobody declared, so a named rule decides which of them a
-desktop may write; that rule is stated beside it. Anything unmarked is plain
-desktop-safe. This is the same classification \`haus.lib.checkDesktop\` enforces
-before a desktop is evaluated.
+*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it —
+because it names a person, a secret or a piece of hardware, because it takes a
+package or a command the machine would run, or because it is simply a fact
+about this Mac; which of those it is, is stated beside it. *Desktop-safe per
+key* means the option takes keys nobody declared, so a named rule decides which
+of them a desktop may write; that rule is stated beside it too. Anything
+unmarked is plain desktop-safe. This is the same classification
+\`haus.lib.checkDesktop\` enforces before a desktop is evaluated.
 
 ${body}
 `;
