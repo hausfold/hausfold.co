@@ -50,26 +50,50 @@ highlights, yazi, glow's markdown headings, the Zen browser, and the
 theme. That list isn't prose anyone maintains by hand: a build-time check fails
 if a surface on it starts, or stops, following the accent.
 
-<Callout type="warn" title="Zen means Zen's chrome, not the web">
-The accent moves the browser's own UI. It does **not** re-tint github.com,
-because those are Catppuccin *userstyles*, compiled inside the browser and
-stored in the Stylus extension rather than in any file haus writes.
+<Callout type="warn" title="Zen means Zen's chrome — the web is a second step">
+The accent moves the browser's own UI. It does **not** re-tint github.com on its
+own, because those are Catppuccin *userstyles*: LESS source, compiled rather than
+copied, which is why no palette file haus writes can reach them.
 
-Declare the extension and haus closes the loop:
+There are two ways to close that loop, and they answer different questions.
+
+**Name the sites you want, and haus compiles them:**
+
+```nix
+haus.zen.userStyles = [ "github" "youtube" ];
+```
+
+haus compiles those styles at build time — stamped with *your* accent and
+flavor — and appends the result to the stylesheet it already drops into every
+Zen profile. No extension, no import, nothing to carry to your next machine: a
+rebuild re-tints them. Name a style that doesn't exist and the build fails
+listing all 134, so a typo costs a rebuild rather than a silently stock site.
+
+Keep the list to sites you actually read. A user stylesheet is applied to every
+document, and these are big — github and youtube together are ~320 KB.
+
+**Or deploy Stylus, and keep the browser in charge:**
 
 ```nix
 haus.zen.extensions.stylus = { };
 ```
 
-It deploys Stylus through a macOS managed preference (`haus.roster` can't
-install add-ons) and stamps nebelung's userstyle bundle from *your* accent,
-flavor and contrast, so all three axes on this page reach the web. Because that
-preference is root-owned, Zen will say it is **managed by your organization**;
-that organization is your own config. Set
+That deploys the extension through a macOS managed preference (`haus.roster`
+can't install add-ons) and stamps nebelung's userstyle bundle from your accent,
+flavor and contrast. The import itself stays a click, because Stylus has no file
+interface: activation prints a one-time nudge and you do **Stylus ▸ Manage ▸
+Import**. What you get for that click is what a compiled sheet can't do —
+per-site toggles, styles that update themselves, and adding one without a
+rebuild. Because the preference is root-owned, Zen will say it is **managed by
+your organization**; that organization is your own config. Set
 `haus.zen.extensions.stylus.mode = "normal_installed"` to keep it removable.
 
-The import itself stays a click, because Stylus has no file interface: activation
-prints a one-time nudge, and you do **Stylus ▸ Manage ▸ Import**.
+Both can be on. Keep a given site in one or the other, though — two stylesheets
+setting the same property is a race nobody wins.
+
+Either way this is a Gecko story and stays one. Styling a site with no extension
+needs `@-moz-document` in a user stylesheet, and Chromium removed user
+stylesheets in Chrome 33.
 </Callout>
 
 ## Contrast
