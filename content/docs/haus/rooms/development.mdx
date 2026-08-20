@@ -76,8 +76,8 @@ Two of them do nothing at all, on purpose:
 | Keys | What happens |
 |---|---|
 | `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — the same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
-| `⌘W` | Close the window — which **detaches** its session rather than ending it. The shell keeps running; the next window claims it back. |
-| `⌃D` / `exit` | End the shell — which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into. |
+| `⌘W` | Close the window — which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
+| `⌃D` / `exit` | End the shell — which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
 | `⌘⏎` | Spawn a coding agent in its own worktree, on the repo this window is looking at |
@@ -86,6 +86,31 @@ Two of them do nothing at all, on purpose:
 | `⌥` right-click a window | Fullscreen it — zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `⌥/` / `⌥,` | Tiles layout / accordion layout |
+
+### Your windows come back
+
+Nothing you close is gone. Every window's shell lives in a session that outlives
+it, so `⌘W` parks a window and `⌘Q` parks all of them — the shells keep running,
+the builds keep building, the agents keep thinking, with nothing looking at them.
+
+Start Ghostty again and **the first window puts the desk back**: one window per
+parked session, each rejoined to the session it belongs to, with lanes landing
+on their own repo pages. Not a snapshot being replayed — the same processes,
+still running, with their scrollback intact.
+
+Only the *first* window does that. `⌘N` is always a new shell in the directory
+you asked for, never a parked one handed back, because a chord that sometimes
+gives you a stranger's shell in a stranger's directory is a chord you stop
+trusting. To pull the rest back later — you closed a few and changed your mind —
+the palette has **Restore Terminal Windows**, and the [bar](/docs/haus/rooms/bar)'s
+agents pill, `⌘F`'s ⏎ and the **Lanes** picker each reopen one at a time.
+
+So the pair worth having in the fingers is `⌃D` versus `⌘W`: **end** a shell you
+are finished with, **close** one you want back. A window closed with `⌘W` is a
+window that returns; if you never end anything, every start is a crowd.
+
+Set `haus.terminal.restoreWindows = false` if you would rather the first window
+were just a window.
 
 **An agent worktree** is the throwaway checkout `⌘⏎` puts a coding agent in: its
 own copy of the repo on its own branch, so several agents can work at once
