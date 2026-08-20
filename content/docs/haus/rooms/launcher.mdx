@@ -85,8 +85,18 @@ is [the palette's own side](/docs/pounce/config#rows-that-only-exist-where-they-
 The room's half: haus writes the scoping only where the
 [Windows](/docs/haus/rooms/windows) room is on, since that room is what gives
 Ghostty a page to be on and what runs the workspace hook the palette reads to
-know where you are. Without a tiler no scoping is written at all and the rows
-stay everywhere.
+know where you are. Without a tiler no scoping is written at all and those three
+rows stay everywhere.
+
+A fourth row can be absent for a different reason. **Pages** isn't scoped to a
+workspace — its list is every workspace's pages at once — but it hides itself
+while no page exists anywhere, through a
+[`whenFile`](/docs/pounce/writing-commands#a-row-that-hides-when-there-is-nothing-to-act-on)
+in the command script rather than through `haus.launcher.items`. The file it
+watches is written by the Windows room's workspace hook, and a file nothing ever
+writes reads as a yes, so on a machine with no tiler the row stays — where, like
+every page chord, it has nothing to work with. `pounce doctor` says which of the
+two is happening.
 
 ### The Fn/Globe key
 
