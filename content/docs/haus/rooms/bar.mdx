@@ -34,6 +34,19 @@ icon, with the focused one highlighted and the front app's title alongside.
 Switch workspaces and the highlight follows; tap the Caps-Lock leader and the
 whole left side flips into launcher letters.
 
+**And which PAGE of it, if it has pages.** A page is a workspace with a `/` in
+its name — `T/haus`, the per-repo page an agent
+[lane](/docs/haus/rooms/development) tiles its window onto. When you're on one,
+a pill between the workspaces and the front app names it; when you're not, it
+isn't there. The workspace pill stays lit either way, because a page belongs to
+its workspace: `T/haus` keeps `T` highlighted, and the Caps-Lock leader's `t`
+takes you back to whichever page of `T` you used last. Click the page pill to
+open the **Pages** picker and go to one; ⇧ or right-click opens the same list in
+move mode, throwing the focused window onto the page you pick and following it
+there. It needs [Windows](/docs/haus/rooms/windows) — a page is an AeroSpace
+workspace — and nothing else: pages aren't a terminal feature, only their one
+producer is.
+
 **Right: the status cluster.** Clock, battery, Wi-Fi, weather and media, all
 on by default and each one hideable. More readouts are available and off by
 default; see [toggling pills](#toggling-pills).
@@ -159,7 +172,6 @@ A pill set `false` is never created; its update script doesn't even run.
 | `volume` | Output volume and mute state. |
 | `calendar` | Your next meeting and one gesture to join it. Reads `in 12m · Design review`; the whole pill fills five minutes either side of the start. **Right-click joins** the conferencing link; left-click opens the day as a timeline. |
 | `caffeinate` | A coffee pill: click for 1, 2, 4, 8 hours or until stopped; right-click stops. Survives a bar reload. |
-| `page` | Which repo page you're on: the `T/<repo>` workspace a [lane](/docs/haus/rooms/development) tiles itself onto. It draws only on the terminal pages and stays silent everywhere else, because "which repo" has no answer on the page holding your notes. Click opens the **Pages** picker to go to one; ⇧/right-click opens the same list in move mode, throwing the focused window onto the page you pick and following it there. Needs `haus.windows.enable`. |
 | `agents` | Tracks your [agent](/docs/haus/rooms/ai) lanes, and Claude Code desktop sessions too: red when one is waiting on you, click to jump to it. |
 | `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. The pill shows the client you last actually **used** — the one whose percentages last went *up*, not the one whose feed polls most often. Grey means the numbers are old rather than low, and the dropdown dates them. See [Where the usage numbers come from](#where-the-usage-numbers-come-from). |
 | `github` | What's waiting on you across GitHub, from sources you name in `haus.bar.github.sources`: a search filter, the `ci` board, or your own command. Two-tone: the **number** is how many, the **octocat** is how bad, taking the worst single row on one ladder — grey for no verdict (a draft, an issue), green for fine (and, approved-and-green, ready to press the button), sky for a run still going, peach for anything wanting a human on one pull request (it conflicts, its checks came back red, a reviewer asked for changes), and **red for a red default branch and nothing else**. Nothing one of your own PRs does turns the pill red — a red that fires for every work-in-progress is a red you stop reading — bar a source you declare `bad` yourself. Click for the rows, each one a link; right-click refreshes. Needs the [Development room](/docs/haus/rooms/development)'s git, a `gh auth login` you've run, and either `haus.git.org` (which fills the sources with that owner's red default branches and open PRs) or your own `haus.bar.github.sources`. Turning the pill on with neither fails the build rather than drawing an empty pill. |

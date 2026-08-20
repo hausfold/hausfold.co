@@ -23,14 +23,14 @@ agent session in an isolated git worktree: its own checkout on a
 `worktree-<name>` branch, branched from the repo's local `HEAD`, living
 **outside** the repo under `~/.cache/claude-worktrees/<repo>/<name>` so your
 working tree stays clean and no build tool trips over it. It starts on whatever
-repo the focused window is looking at. **⌃⌥⇧A** is the resident variant: the
-one agent per tab allowed to edit the checkout you're looking at.
+repo the focused window is looking at.
 
 holt calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
 Not a *worktree*: a parked lane has no checkout on disk and is still a lane you
-can resume. (⌃⌥⇧A makes no lane at all; it's an agent in the checkout you
-already have.) A lane's terminal is its own zmx session in its own window, which
+can resume. (For an agent in the checkout you already have — no worktree, no
+lane — type `c` in that window's shell; it is the client `ai.default` names.)
+A lane's terminal is its own zmx session in its own window, which
 the [Development](/docs/haus/rooms/development) room sets up.
 
 <Callout type="warn" title="Why the chord isn't ⌘A">
@@ -248,8 +248,8 @@ instead of pushing it.
 
 Run eight agents at once and the question is always the same one: which of them
 is sitting on a permission prompt? The [bar](/docs/haus/rooms/bar)'s `agents`
-pill answers it, for every agent the same way — a lane, a ⌃⌥⇧A agent in a
-checkout you already had, or a conversation in the desktop app:
+pill answers it, for every agent the same way — a lane, an agent you started by
+hand in a checkout you already had, or a conversation in the desktop app:
 
 | Mark | Means |
 |---|---|
