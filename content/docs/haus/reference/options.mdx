@@ -157,7 +157,7 @@ that plays videos" is part of what that desktop considers a finished
 machine. The bare layer installs nothing you didn't ask for.
 
 Set false and nothing is installed or rebound — bring your own
-player via the pounce "Install App" palette command or a roster
+player via the palette's "Install App" command or a roster
 entry. Once on it is a roster entry like any other: give it a leader
 letter with `haus.roster.iina.key`, or pin a different build
 with `haus.roster.iina.package`.
@@ -259,7 +259,7 @@ quietly under-delivers is worse than one that says where it stops:
   - Third-party apps' own font settings. Nothing outside haus follows
     `ui.scale` — they follow the display, which is why the line above
     matters.
-  - The perch shelf, which sizes itself from the screen because it hangs
+  - The shelf, which sizes itself from the screen because it hangs
     off the notch. Scaling the display shrinks its width in points by
     exactly the factor that makes a point bigger.
   - The menu bar's HEIGHT. Its type grows to a 1.25x ceiling and stops:
@@ -367,10 +367,10 @@ the tools hacker injects colours into — lazygit, fzf, yazi (including
 glow-rendered Markdown headings), and the Zen browser — via the matching
 Nebelung per-accent ports.
 
-perch follows it too, and is the one surface handed the NAME rather than
+The shelf follows it too, and is the one surface handed the NAME rather than
 a hex: the shelf resolves it against whichever half of its dark/light
 pair macOS is showing, so the ember under the notch and a pinned tile
-wear this accent in both polarities from one key. Left at perch's
+wear this accent in both polarities from one key. Left at the shelf's
 default it accents with its own mark green.
 
 Three more things follow it: the generated desktop (the bloom behind
@@ -437,9 +437,9 @@ tests actually assert.
 
 Honest scope. This recolours what haus injects colours into:
 Ghostty, bat, delta, lsd, yazi, glow, starship, lazygit, the
-bar, pounce and perch (at runtime, via ~/.config/&#123;pounce,perch&#125;/themes/ —
-and unlike `flavor`, contrast reaches both on BOTH halves of their
-light/dark pair), Zen and Obsidian. It does NOT reach:
+bar, the launcher and the shelf (at runtime, via
+~/.config/&#123;pounce,perch&#125;/themes/ — and unlike `flavor`, contrast reaches
+both on BOTH halves of their light/dark pair), Zen and Obsidian. It does NOT reach:
 
   - macOS itself. For system-wide contrast see
     haus.accessibility.increaseContrast — a separate, FDA-gated
@@ -485,8 +485,8 @@ whiskers takes different branches for a light flavor (terminal ANSI
 
 What does NOT follow it:
 
-  - pounce and perch, by default. Both read their palette at runtime and
-    can pick per polarity, so haus.launcher.followSystemAppearance
+  - the launcher and the shelf, by default. Both read their palette at
+    runtime and can pick per polarity, so haus.launcher.followSystemAppearance
     and haus.shelf.followSystemAppearance (default true) hand that
     choice to macOS Light/Dark instead: haus installs every rendered
     variant into ~/.config/&#123;pounce,perch&#125;/themes/ and writes the
@@ -496,7 +496,7 @@ What does NOT follow it:
     haus.theme.systemAppearance = "flavor". Left at its default haus
     does not touch system appearance in either direction, so latte on
     a dark macOS looks half-done and that half is yours —
-    except in pounce and perch, which read the appearance themselves.
+    except in the launcher and the shelf, which read it themselves.
   - three of the six desktops (haus.wallpaper.style). The hand-made
     "orbits", "constellation" and "flow" have the dark palette baked into
     their pixels; "bold" is generated but follows theme.accent rather
@@ -585,7 +585,7 @@ rebuild time and does not fight it afterwards, so on an Auto machine
 this option holds only until the next scheduled switch. Pick Light or
 Dark there if you want it to stick.
 
-Interaction worth knowing: haus.&#123;pounce,perch&#125;.followSystemAppearance
+Interaction worth knowing: haus.&#123;launcher,shelf&#125;.followSystemAppearance
 hand polarity to macOS. Set this to "flavor" and macOS's polarity is in
 turn haus's, so those two end up following `flavor` transitively —
 which is usually what you wanted, but it does mean `followSystemAppearance`
@@ -2917,9 +2917,9 @@ Clicking the desktop passes through untouched, and anything drawn
 above ordinary windows — the menu bar, the Dock, the bar — is
 transparent to the chord rather than being "clicked".
 
-Carried by pounce's event tap (AeroSpace has no mouse bindings at all,
+Carried by the launcher's event tap (AeroSpace has no mouse bindings at all,
 and Ghostty's keybind triggers are keys), so it needs
-haus.launcher.enable and the Accessibility grant pounce already asks
+haus.launcher.enable and Pounce's Accessibility grant, which it already asks
 for; an assertion catches the first, and without the second the click
 simply keeps its stock meaning.
 
@@ -3734,7 +3734,7 @@ Memory in use, drawn as a graph pill. It counts what Activity Monitor counts —
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a pounce box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
+Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a palette box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4444,7 +4444,7 @@ Memory in use, drawn as a graph pill. It counts what Activity Monitor counts —
 
 `boolean` · default `false`
 
-Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a pounce box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
+Which repo PAGE you are looking at — the `T/<repo>` workspace a lane's window tiles itself onto. The label is the repo, and it costs nothing to produce: the workspace's own name already carries it, so there is no git call, no cwd to resolve and no join. It draws ONLY on the terminal pages — the repo spelled out on a `T/<repo>`, the glyph alone on bare `T` (a real place, not an error), and nothing at all anywhere else, because "which repo" has no answer on the workspace holding your notes. The repaint is pushed by AeroSpace's own workspace-change hook rather than polled, so it lands on the switch, exactly as the menu bar's workspace pills do — and a hidden pill could not revive itself from a tick in any case. CLICK opens the Pages picker: a plain click goes to a page, ⇧/right-click opens the same list in move mode, which throws the focused window onto the page you pick and follows it there — the single-window counterpart to leader-backtick putting every window back at once. Inside the picker the other direction is ⌥↵ — Shift+Return types a newline in a palette box and never commits, and ⌘↵ is the Ghostty-scoped lane chord. Needs `haus.windows.enable`: a page is an AeroSpace workspace, so with the tiler off the pill is left out rather than drawn permanently dormant. Typing a name no page has yet is not a miss — AeroSpace makes a workspace on first use, so it throws the window onto a page for a repo whose first lane hasn't been opened.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4503,12 +4503,12 @@ What the logo pill does when clicked:
 |---|---|
 | left click | the **haus menu** — System Settings, Activity Monitor, Lock Screen, Nix Config, Haus Settings, Rebuild System, Reload SketchyBar |
 | ⌘ left click | `haus rebuild`, straight into a floating terminal |
-| right click | the full pounce palette (⌘Space), which is what a bare click on this pill used to do |
+| right click | the full palette (⌘Space), which is what a bare click on this pill used to do |
 
-All three are drawn by **pounce**, so all three need
-`haus.launcher.enable` (which the hacker desktop turns on). With pounce
-off they are silent no-ops and this option is the switch that says so out
-loud — turn it off and the pill stops responding to clicks entirely,
+All three are drawn by the **launcher**, so all three need
+`haus.launcher.enable` (which the hacker desktop turns on). With the
+launcher off they are silent no-ops and this option is the switch that
+says so out loud — turn it off and the pill stops responding to clicks entirely,
 rather than looking like an affordance that does nothing.
 
 The menu's rows are not reimplemented here: each one runs the palette
@@ -5003,7 +5003,7 @@ Example:
 
 ## Launcher
 
-Pounce — the command palette, its daemon, its commands, and every Pounce setting haus exposes.
+The command palette: its daemon, its commands, and every Pounce setting haus exposes.
 
 ### haus.launcher
 
@@ -5025,7 +5025,7 @@ enough for a cold IDE reopening a project — that is a case for
 haus.launcher.autoQuit.exclude rather than for a delay you would feel on
 every app.
 
-Read once, when auto-quit arms — changing it bounces the pounce daemon
+Read once, when auto-quit arms — changing it bounces the palette daemon
 on the next rebuild.
 
 Example:
@@ -5042,7 +5042,7 @@ Example:
 
 Quit an app when you close its last window, the way Windows does it.
 macOS keeps a windowless app running, so every one of them is a ⌘Q you
-forgot; with this on, pounce notices the last window go away and asks
+forgot; with this on, the palette notices the last window go away and asks
 the app to quit.
 
 *Asked*, not killed — it is the same Quit event ⌘Q sends, so an app
@@ -5062,18 +5062,18 @@ guessing.
 Off by default: this changes when your apps die, which is a thing you
 feel, and the muscle memory it suits is not everyone's.
 
-Unlike the rest of pounce's config, the auto-quit settings are read once
+Unlike the rest of the palette's config, the auto-quit settings are read once
 — when the daemon arms them — rather than per open. So a rebuild that
-touches any of the three restarts the pounce daemon, which haus does
+touches any of the three restarts the palette daemon, which haus does
 for you; nothing here needs a log-out to land.
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
 #### `haus.launcher.autoQuit.exclude`
 
-`null or (list of string)` · default `pounce's own list — `[ "com.apple.finder" ]``
+`null or (list of string)` · default `the palette's own list — `[ "com.apple.finder" ]``
 
-Bundle ids never auto-quit. `null` leaves pounce's own default in
+Bundle ids never auto-quit. `null` leaves the palette's own default in
 place, which is `[ "com.apple.finder" ]` — Finder is the one app macOS
 runs windowless by design, and quitting it blinks the desktop out while
 it relaunches.
@@ -5085,7 +5085,7 @@ mean nothing is excluded.
 Read a bundle id off any running app with
 `osascript -e 'id of app "Notes"'`.
 
-Read once, when auto-quit arms — adding an app here bounces the pounce
+Read once, when auto-quit arms — adding an app here bounces the palette
 daemon on the next rebuild, so the app stops being quit immediately
 rather than at the next log-in.
 
@@ -5113,19 +5113,19 @@ The pounce command palette daemon (⌘Space) + the palette commands haus ships.
 
 `one of "tap", "remap"` · default `"tap"`
 
-How pounce gets the Fn/Globe key when an item binds it — which haus does
-by default, with haus.launcher.items."mode:emoji".hotkey = "fn".
+How the palette gets the Fn/Globe key when an item binds it — which
+haus does by default, with haus.launcher.items."mode:emoji".hotkey = "fn".
 
 `tap` reads Fn with an event tap. It needs Pounce's Accessibility grant,
 and it SHARES the key with macOS: HIToolbox carries its own Globe handler
 inside every process, below the event stream a tap can see, so macOS's
-Emoji & Symbols picker can still open alongside pounce's. Setting System
+Emoji & Symbols picker can still open alongside the palette's. Setting System
 Settings ▸ Keyboard ▸ "Press 🌐 key to" to Do Nothing helps, but that
 value is read from login-session state — it wants a full logout, and even
 then the two handlers are racing rather than one owning the key.
 
 `remap` takes Fn away at the HID layer instead: it becomes F19, which
-pounce binds like any ordinary key. No Accessibility grant for this
+the palette binds like any ordinary key. No Accessibility grant for this
 binding, and nothing left for macOS to race, because there is no Fn key
 in the system any more. That last part is also the cost — Fn stops being
 Fn EVERYWHERE, so no Fn+arrows (Home/End/PageUp/PageDown), no Fn+Delete,
@@ -5138,22 +5138,22 @@ Three things `remap` does not promise:
   numeric keypad), where pressing it fires the binding too.
 - A keyboard that re-enumerates — an external one replugged, some
   sleep/wake cycles — drops the mapping, and the binding stays dead
-  until the pounce daemon restarts. `pounce doctor` reports it.
+  until the palette daemon restarts. `pounce doctor` reports it.
 - If F19 is already taken, or the keyboard doesn't expose Fn to IOHID,
-  pounce undoes the remap and falls back to the tap — Accessibility
+  the palette undoes the remap and falls back to the tap — Accessibility
   grant and all.
 
 On haus the mapping is declared rather than left to the daemon
 (modules/launcher/default.nix says why: nix-darwin writes IOKit's
-UserKeyMapping whole, so a rebuild would otherwise drop a mapping pounce
+UserKeyMapping whole, so a rebuild would otherwise drop a mapping the palette
 installed). It shares that list with the Caps Lock leader's remap, is
 re-applied at each activation, and does not survive a reboot — but it
-DOES outlive the daemon, so Fn stays remapped and inert while pounce is
+DOES outlive the daemon, so Fn stays remapped and inert while the palette is
 stopped. `pounce doctor` reports which of the two mechanisms is actually
 carrying the key.
 
 Inert unless something binds `fn`: with no such item, this is a key
-pounce reads and does nothing with. On a default haus that item is the
+the palette reads and does nothing with. On a default haus that item is the
 emoji grid and Fn is its ONLY key — the Caps-Lock leader dropped `e` once
 one key did the job — so a host that turns the Fn binding off wants to
 put mode:emoji on something else.
@@ -5170,18 +5170,18 @@ Example:
 
 `boolean` · default `true`
 
-Let the palette follow macOS Light/Dark Mode instead of pinning one
-polarity: pounce gets the nebelung variant AND its latte counterpart at
+Let the launcher follow macOS Light/Dark Mode instead of pinning one
+polarity: it gets the nebelung variant AND its latte counterpart at
 your haus.theme.contrast, as its `theme`/`themeLight` pair, and
 picks between them per open (no rebuild, no daemon restart).
 
-Honest scope: this makes pounce the one themed tool that does NOT follow
+Honest scope: this makes the launcher the one themed tool that does NOT follow
 haus.theme.flavor — a flavor pin is a *palette* choice, and asking
 to follow the system says the polarity is macOS's call. The contrast
 axis still applies to both halves. Every other themed tool keeps
 whatever flavor pins.
 
-false pins pounce to the flavor like every other port, which is exactly
+false pins the launcher to the flavor like every other port, which is exactly
 what it did before this option existed.
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
@@ -5202,7 +5202,7 @@ one row of the palette: hide it, give it a search shorthand, give it a key.
   "mode:&lt;name>"                    a built-in window — launcher, clipboard,
                                    emoji, screenshots, camera, filesearch
 
-Those keys are pounce's own address space (the same strings its frecency
+Those keys are the palette's own address space (the same strings its frecency
 store and `pounce run` use), so a key written here is also what you'd type
 to invoke the thing from a script or another tool's binding.
 
@@ -5217,7 +5217,7 @@ value: hotkey = "fn". By default it is read with an event tap, which
 needs Pounce's Accessibility grant (unlike a Carbon chord or leader
 sequence) and fires only when Fn is tapped alone — and which SHARES the
 key with macOS's own Globe action, so the system emoji picker can still
-open alongside pounce's. haus.launcher.fnKey = "remap" is the way to own
+open alongside the palette's. haus.launcher.fnKey = "remap" is the way to own
 the key outright; read that option before reaching for it, because it
 costs Fn's other jobs. haus uses Fn for mode:emoji by default; set that
 item's hotkey to null to leave the Globe key to macOS — but Fn is the ONLY
@@ -5229,7 +5229,7 @@ a key for it.
 
 Sequences are worth knowing about on a tiling desktop: they open a namespace
 that structurally can't collide with the ⌥/⌘ chords windows already claims,
-and they need no Accessibility grant (pounce grabs the second step as an
+and they need no Accessibility grant (the palette grabs the second step as an
 ordinary global hotkey for a couple of seconds rather than tapping events).
 
 Two things this checks at build time, because both fail SILENTLY at
@@ -5238,7 +5238,7 @@ nothing at all), and a chord already claimed by haus.keys.palette,
 haus.keys.leader, or a terminal binding (whoever registers first
 wins, and it isn't always the same one). What it can't check is whether
 `cmd:<id>` names a command that exists — command scripts are discovered
-at runtime, so pounce warns about that itself when the daemon starts, and
+at runtime, so the palette warns about that itself when the daemon starts, and
 `pounce doctor` lists any binding that failed to arm.
 
 Example:
@@ -5315,10 +5315,10 @@ Example:
 
 A global chord, or a leader sequence, that invokes this item
 directly without opening the palette first. Modifier names follow
-pounce's spelling: cmd/command/super/meta · opt/option/alt ·
+the palette's spelling: cmd/command/super/meta · opt/option/alt ·
 ctrl/control · shift.
 
-Whether the KEY name is one pounce can bind is not checked here
+Whether the KEY name is one the palette can bind is not checked here
 (that vocabulary lives in the app); a chord it can't register is
 reported by `pounce doctor` rather than silently dropped.
 
@@ -5347,15 +5347,15 @@ it does: false removes the ROW, and a `hotkey` on the same item
 keeps working. It's how you hide a command you only ever want to
 reach by key — or clear the launcher of tools someone else on this
 Mac has no use for, which is the closest thing to a "pack" the
-surface has today. (It writes pounce's own `enabled` key.)
+surface has today. (It writes the palette's own `enabled` key.)
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
 #### `haus.launcher.scale`
 
-`integer or floating point number between 0.8 and 2.0 (both inclusive)` · default `haus.ui.scale, held inside pounce's 0.8-2.0`
+`integer or floating point number between 0.8 and 2.0 (both inclusive)` · default `haus.ui.scale, held inside the palette's 0.8-2.0`
 
-How big the palette is drawn. Multiplies every size in pounce's UI — the
+How big the palette is drawn. Multiplies every size in its UI — the
 launcher's rows, header, icons and action bar, and the panels behind it:
 the emoji grid, clipboard history, recent screenshots, camera peek, Find
 Files, the cheatsheet and the window switcher.
@@ -5365,7 +5365,7 @@ It exists as its own option for the case where the palette wants a
 different size from the rest of haus — the launcher is read at arm's
 length for a second, not lived in like the terminal.
 
-pounce's own range is narrower than ui.scale's, so a machine at
+The palette's own range is narrower than ui.scale's, so a machine at
 `ui.scale = 2.5` gets a palette at 2.0 rather than an evaluation error.
 
 Two things adapt on their own, which is why one number is enough: the
@@ -5406,7 +5406,7 @@ but expires yearly and pins the specific cert, so it's less durable.
 Changing this once invalidates the existing grant (the requirement
 changes) — re-approve pounce in Accessibility a single time after.
 
-Leave empty to run pounce unsigned (the palette works, but auto-paste
+Leave empty to run it unsigned (the palette works, but auto-paste
 and other Accessibility-gated features stay off).
 
 Example:
@@ -5423,7 +5423,7 @@ Example:
 
 The palette's proportions. `compact` is narrower with tighter rows and
 keeps its list hidden until you type — haus's tuned look, and what it
-shipped before this option existed. `default` is pounce's roomier layout,
+shipped before this option existed. `default` is the palette's roomier layout,
 which shows the top results the moment it opens.
 
 This is shape, not size: how BIG the palette is drawn is
@@ -5436,8 +5436,8 @@ is still the compact layout, just readable from further away.
 
 `boolean` · default `true`
 
-Replace the stock ⌘Tab app switcher with pounce's MRU *window* switcher:
-tap ⌘⇥ to toggle to the last window (across workspaces), hold ⌘ and keep
+Replace the stock ⌘Tab app switcher with the palette's MRU *window*
+switcher: tap ⌘⇥ to toggle to the last window (across workspaces), hold ⌘ and keep
 tapping ⇥ to walk older ones, type while holding to fuzzy-filter
 (frecency-ranked). Rows are gathered by AeroSpace workspace under a
 header each, and focusing goes through `aerospace focus --window-id` so
@@ -5460,7 +5460,7 @@ this default is safe on a fresh, not-yet-granted install. false leaves
 
 ## Shelf
 
-Perch — the file shelf that grows out of the notch to catch what you drag at it.
+The file shelf that grows out of the notch to catch what you drag at it.
 
 ### haus.shelf
 
@@ -5470,7 +5470,7 @@ The notch file shelf. Perch is the app behind it.
 
 `boolean` · default `false`
 
-The perch notch file shelf, installed via the perch flake (copied to
+The perch notch file shelf, installed from its own flake (copied to
 /Applications, with its `perch` command line tool linked onto PATH).
 
 <small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
@@ -5480,17 +5480,17 @@ The perch notch file shelf, installed via the perch flake (copied to
 `boolean` · default `true`
 
 Let the shelf's palette follow macOS Light/Dark Mode instead of pinning
-one polarity: perch gets the nebelung variant AND its latte counterpart
+one polarity: the shelf gets the nebelung variant AND its latte counterpart
 at your haus.theme.contrast, and picks between them itself — no
 rebuild, no relaunch.
 
-Same honest scope as the pounce option of the same name: with
-this on, perch does NOT follow haus.theme.flavor, because asking to
+Same honest scope as the launcher option of the same name: with
+this on, the shelf does NOT follow haus.theme.flavor, because asking to
 follow the system says the polarity is macOS's call. The contrast axis
 still applies to both halves. Set it false to pin the shelf to
 theme.flavor like every other themed tool.
 
-Perch has no theme picker of its own — the shelf is a five-second
+The shelf has no theme picker of its own — it is a five-second
 surface with nowhere to put one — so this is the only word on its
 colors.
 
@@ -5834,9 +5834,9 @@ Example:
 
 `one of "claude", "codex", "opencode"` · default `"claude"`
 
-The coding agent started by the ⌘↵ lane chord, by Pounce's **Spawn
-Agent** command, by the ⌃⌥⇧A resident bind and the `c` shell alias, and
-used to reopen worktrees with no client recorded yet. Each spawned worktree records its
+The coding agent started by the ⌘↵ lane chord, by the palette's
+**Spawn Agent** command, by the ⌃⌥⇧A resident bind and the `c` shell
+alias, and used to reopen worktrees with no client recorded yet. Each spawned worktree records its
 own client, so changing this affects new work but never reopens an
 existing Codex or OpenCode task in Claude.
 
@@ -6501,7 +6501,7 @@ One list of everything this machine has — apps, fonts, command-line tools. Eac
 
 The one list of things this machine has, keyed by a stable id. It is
 the canonical, composable source for AeroSpace launcher keys, the
-SketchyBar pills, the pounce cheatsheet, Nebelung theme ports — and
+SketchyBar pills, the launcher cheatsheet, Nebelung theme ports — and
 for the install itself, from any of four sources (`cask`, `brew`,
 `package`, `appStoreId`).
 
@@ -6520,7 +6520,7 @@ Mail and Messages) instead of baking "one app, one workspace" into
 this schema. See that option.
 
 Attribute-set entries merge across Nix modules, so a host, an imported
-file, and pounce's "Install App" command can each contribute one app
+file, and the palette's "Install App" command can each contribute one app
 without parsing or replacing a monolithic list. Set an entry's enable
 field to false to remove it, or override individual fields by app id.
 
@@ -6638,8 +6638,8 @@ Always float this app's windows instead of tiling them — an
 AeroSpace `on-window-detected` rule generated from `appId`
 (`run = 'layout floating'`). Right for a picker/dialog/status
 window that would otherwise reflow the whole workspace every time
-it opens (FaceTime, Trill's Settings/Inbox), not for something you
-work inside. Requires `appId`; ignored (with a warning) without it.
+it opens (FaceTime, Trill's Settings/Inbox), not for something
+you work inside. Requires `appId`; ignored (with a warning) without it.
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
@@ -6650,7 +6650,7 @@ work inside. Requires `appId`; ignored (with a warning) without it.
 **Host-only.** A shared desktop may not set it; only your host file can.
 
 The haus module that puts this app on disk, when none of the
-four sources above describes it: pounce and perch copy a
+four sources above describes it: the launcher and the shelf copy a
 notarized bundle into /Applications from their own activation
 step, which is neither a cask nor a package you can list.
 
@@ -6990,7 +6990,7 @@ Where it stops, and why it isn't a gap waiting to be filled:
     (1.25x) and then stops, silently: past that a machine simply gets the
     ceiling. The only way to make the whole bar bigger is to change what
     a point MEANS — the display's scaled resolution, below.
-  - perch, the notch shelf. It sizes itself from the SCREEN — a fraction
+  - the shelf, under the notch. It sizes itself from the SCREEN — a fraction
     of the display's width, clamped — which is the right answer for a
     thing hanging off the notch, and it means NEITHER lever moves it: a
     scaled display shrinks the shelf's width in points by the same
@@ -7140,7 +7140,7 @@ Example:
 
 `one of "cmd-space", "alt-space", "ctrl-space", "none"` · default `"none"`
 
-What opens the pounce command palette. Registered in-process by the
+What opens the command palette. Registered in-process by the
 daemon, so it's near-instant and doesn't go through AeroSpace.
 
 "cmd-space" (default) is the one value that also DISABLES Spotlight's
@@ -7185,7 +7185,7 @@ small now that the workspace throws moved to the leader and the
 hjkl focus chords were dropped: only `/` `,`, `f`, `⇧⇥`, `⇧;` and
 `⇧`+the arrows, none of which a roster letter can land
 on — and `<mod>⇥` is free again, since workspace back-and-forth
-retired in favour of pounce's cross-workspace ⌘⇥ switcher. (Under
+retired in favour of the launcher's cross-workspace ⌘⇥ switcher. (Under
 "ctrl-alt" that used to bite — the throws were `⌃⌥⇧` + an app's roster
 letter, so an app on `a` silently ate terminal's ⌃⌥⇧A in-place-agent
 chord. That collision is gone.)
@@ -7224,7 +7224,7 @@ hides it forever. Detection reuses signals haus already fires (the
 leader-mode scripts) — no key logging, no Accessibility.
 
 Needs windows + bar (it silently stays out of the bar without them);
-the ⌘Space step is dropped when pounce is off. Progress lives in
+the ⌘Space step is dropped when the launcher is off. Progress lives in
 ~/.local/state/haus — `haus tour reset` re-arms a finished tour.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
@@ -7241,8 +7241,9 @@ can teach its own workflow without shipping scripts or reaching outside the
 `haus.*` option surface.
 
 Detection reuses signals haus already emits. `launch`, `workspace`,
-`navigate` and `resize` need windows; `palette` needs Pounce and its palette
-binding. The module warns when a chosen detector's room is disabled.
+`navigate` and `resize` need windows; `palette` needs the launcher and
+the key that opens it. The module warns when a chosen detector's room is
+disabled.
 
 Authoring a tour is also the ONLY way to have one without windows: the
 built-in lap is three leader moves plus the palette, so `tour.enable` on a
@@ -7267,9 +7268,9 @@ Example:
 `one of "launch", "workspace", "navigate", "resize", "palette"` · no default
 
 The existing haus signal that completes this step: entering launch,
-navigate or resize mode; changing workspace; or running the Haus Tour
-command from Pounce (`palette`). The tour observes outcomes, never
-keystrokes. Clicking the pill still skips a step that cannot be
+navigate or resize mode; changing workspace; or running the
+Haus Tour command from the launcher (`palette`). The tour
+observes outcomes, never keystrokes. Clicking the pill still skips a step that cannot be
 detected in the current setup.
 
 Example:
