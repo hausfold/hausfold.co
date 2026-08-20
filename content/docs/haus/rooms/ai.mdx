@@ -272,9 +272,11 @@ deliberately leaves them alone.
 <Callout type="info" title="What haus does write into `~/.claude/settings.json`">
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
 `WorktreeCreate` and `WorktreeRemove`, pointing at `holt hook create` /
-`holt hook remove`, plus the statusline, `permissions.defaultMode` and a few TUI
-keys. It merges into the file rather than replacing it, touches no other hook
-event, and re-asserts on every rebuild, because Claude Code rewrites its own
+`holt hook remove`; the **`PreToolUse`** hook that runs
+[`agent-desktop-guard`](#the-screen-belongs-to-you); plus the statusline,
+`permissions.defaultMode` and a few TUI keys. It merges into the file rather
+than replacing it, leaves the four agent-state hooks and any hook of your own
+alone, and re-asserts on every rebuild, because Claude Code rewrites its own
 settings on its own schedule and a hand-written hook can go with them. You'd find
 that out at pane close, by losing a lane's parking.
 </Callout>
@@ -313,6 +315,47 @@ cost, the permission mode, and a short model tag. Context is coloured by **token
 count**, not percentage, because the percentage means different things on a 200k
 and a 1M model. Permission mode follows the same "no news is good news" rule as
 the status token: the default shows nothing, everything else is a positive mark.
+
+## The screen belongs to you
+
+`permissions.defaultMode` is `auto`, which is right for files and wrong for the
+screen: an agent that decides to foreground an app, move a window or click
+something just does it — while you are typing into something else. With several
+lanes running that lands as random focus theft, and no amount of prompt wording
+makes it never happen.
+
+**`agent-desktop-guard`** is the counterweight: a `PreToolUse` hook haus
+declares beside the worktree ones. It is **not** a blocklist — the only verdict
+it can return is *ask*. It re-opens the permission prompt for one thin slice of
+tool calls and returns no opinion on everything else, so auto-mode is untouched
+wherever it was already fine. Driving a GUI you asked for, recording a demo,
+rebuilding when you said to: all still there, one keypress away.
+
+The line it draws is not *is this dangerous*. It is:
+
+> does this change what is in front of my eyes, within about two seconds?
+
+| Silent — no prompt | Asks first |
+|---|---|
+| `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position — looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
+| `defaults write` — invisible until something restarts | `killall Dock` — instantly visible |
+| `open -ga Ghostty` — the explicitly backgrounded form | `open` in its foregrounding form, which is its default |
+| every `mcp__claude-in-chrome__*` call — that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
+
+The same rebuild prepends a short **screen etiquette** section to the
+instructions file every client reads: prefer looking to touching, never
+foreground an app just to see it, hand feel-tests back to the person at the
+keyboard. The etiquette is what keeps the hook from firing; the hook is what
+catches the times it doesn't.
+
+<Callout type="tip" title="Turning it off for one pane">
+`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there — for a
+long unattended run where forty prompts is the problem. It mirrors bench's
+`BENCH_AGENT_SWITCH=1`: a reminder, not a jail. Only Claude Code gets the hook,
+since it is the client with a `PreToolUse` event to hang it on; the etiquette
+text goes to all of them.
+</Callout>
+
 
 ## Command summary
 
