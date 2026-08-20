@@ -44,7 +44,7 @@ For the day-to-day shape of it, see
 | `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, Pounce's Accessibility grant, your secrets, agent readiness. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
-| `haus show <src>` | Read a desktop or room — a local file, or a source you have not got yet — before you publish it, or before you trust one. Read-only; see below. |
+| `haus show <src>` | Read a desktop or room — a local file, or a source you have not got yet — before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
 
 ## Changing a setting without opening an editor
 
@@ -152,19 +152,68 @@ So `show` is safe to run on something you have every intention of refusing. If
 the repo holds more than one desktop, `show` lists them and stops; name the one
 you mean with `--file`.
 
-It answers three questions and stops. **What class is it** — a desktop is data
+It answers four questions and stops. **What class is it** — a desktop is data
 haus can check, a room is a nix-darwin module and haus can tell you nothing
 about what it does. **Does it pass**, with every rule it broke named, the same
 rules [`checkDesktop`](/docs/haus/desktops/creating#prove-the-boundary) enforces
-at rebuild time. And **what does it set**, grouped by room, with the rooms it
+at rebuild time. **What does it set**, grouped by room, with the rooms it
 says nothing about listed after — because what a desktop leaves alone is half
-of what you are agreeing to.
+of what you are agreeing to. And, on a machine that has a haus config, **what
+would change here**.
 
 For a **fetched source** it tells you one more thing: where it came from. The
 source as you typed it, the revision it resolved to, and two dates that are easy
 to confuse: `changed`, the source's own commit date, and `fetched`, stamped from
 the clock as this command ran. Nothing in a lock file records the second
 one, which is why `show` has to.
+
+### What would change here
+
+A passing desktop is compared against your own machine, leaf by leaf, and the
+first thing it prints is the part you cannot get from either file:
+
+```text
+becomes   ~/.config/nix · host mbp · desktop hacker.nix
+
+  ⚠ 1 leaf your own config outranks — the desktop does not move it
+    haus.theme.accent          stays "pink"   (it asks for "teal")
+
+  changes   3 leaves
+    haus.bar.enable            true → false
+    haus.developer.languages   [ "node" ] → [ "rust" "go" ]   ⚠ a list:
+                                              replaced whole, not merged
+
+  turns off 19 leaves the desktop you have sets and this one does not
+```
+
+**A line in your host file outranks any desktop.** That is the ladder working as
+designed — a desktop must lose to the person who chose it — but it means a
+stranger's file can be full of opinions that do nothing on your Mac, and no
+error anywhere says so. `show` names them first.
+
+**A list your host names is replaced whole, not merged.** Lists only combine
+between definitions of equal rank, so the desktop's entries do not add to
+yours: yours simply win, all of them. It is the one interaction neither file
+shows you.
+
+Three things it will not guess at. A leaf inside a list-like option
+(`haus.roster.<app>.key` and its kind) has no option of its own to rank, so the
+values are shown and the winner is not — `haus plan` settles that. A leaf your
+haus has never heard of is a **version gap**, not a bad desktop: it passed the
+checker, which read the option registry your pin ships, so `haus update` is the
+answer and not the file. And a leaf the desktop you have now sets and this one
+does not goes back to *whatever haus decides* — the value underneath is not
+recorded anywhere on your machine, so no number is printed for it.
+
+This is a **leaf diff, not a rebuild preview**. Turning a room off moves
+packages, files and services that nothing here counts;
+[`haus plan`](#looking-before-you-leap) builds that answer. The comparison
+evaluates *your* flake and never the stranger's — what crosses over is the list
+of option names, not their file and not their values — and it still writes
+nothing, including your lock: if your `flake.lock` would have to change to
+answer, `show` says so and skips the section rather than resolving pins nobody
+chose. `--no-diff` skips it outright, and a machine with no haus config never
+sees it, which is what a publisher's CI wants.
 
 A raw `file+https://` URL has neither: it pins content and nothing else, so
 there is no revision to compare and no commit date to age. Worse than a missing
@@ -207,8 +256,11 @@ For CI, the exit code is the contract:
 | `3` | It is code and you did not say `--room`, so nothing was checked. |
 
 `--json` prints the whole report on stdout instead, with `class`, `checked`,
-`ok`, `failures`, `sets`, `silent` and `origin`, which is `null` for a local
-file. On a machine that has no haus — a publisher's CI runner, say — the
+`ok`, `failures`, `sets`, `silent`, `origin` — `null` for a local file — and
+`machine`, which is `null` whenever there was nothing to compare against and
+otherwise carries one verdict per leaf (`changes`, `unchanged`, `overridden`,
+`unranked`, `unknown`) plus the leaves your current desktop sets and this one
+does not. On a machine that has no haus — a publisher's CI runner, say — the
 same command is one `nix run` away:
 
 ```sh

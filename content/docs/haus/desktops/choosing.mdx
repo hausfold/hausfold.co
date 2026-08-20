@@ -101,8 +101,10 @@ the line for you; `HAUS_DESKTOP=minimal` picks a different one on an
 
 <Callout title="A desktop you found online is selected the same way">
 Read it first: `haus show github:ada/writer-desktop` fetches it into the store
-and tells you what it is, what it sets and what it leaves alone, without
-touching your config. Then vendor the `.nix` file in and point `desktop` at the
+and tells you what it is, what it sets, what it leaves alone and — leaf by leaf
+— [what would change on this Mac](/docs/haus/reference/haus#what-would-change-here),
+including the leaves your own host file outranks so the desktop cannot move
+them at all. It writes nothing in your config. Then vendor the `.nix` file in and point `desktop` at the
 path: `desktop = ./desktops/writer.nix;`. There is no separate import mechanism
 for someone else's desktop; that's the point of the format being closed.
 
