@@ -193,6 +193,47 @@ haus.keys.leaderExtras = [
 ```
 </Callout>
 
+### Enter a scene automatically
+
+Give a scene a `when` and it enters itself:
+
+```nix
+haus.focus.scenes.evening = {
+  description = "wind down";
+  when = {
+    time = "19:00-23:00";     # 24-hour; an end before the start wraps midnight
+    days = [ "mon" "tue" "wed" "thu" "fri" ];   # empty means every day
+    power = "battery";        # or "ac", or "any" — the default
+    displays = 2;             # at least this many screens, i.e. docked
+    wifi = [ "Home" ];        # exact SSID (host-only: it names your network)
+  };
+};
+```
+
+Everything you set has to hold at once. Set nothing and the scene waits for you,
+exactly as before.
+
+**The rule that makes this safe to leave running: it never overrides a state you
+chose.**
+
+- It enters a scene the moment a condition *becomes* true — and only when no
+  scene is on and you aren't already quiet.
+- It leaves only a scene it entered itself. One you entered by hand is yours.
+- Leave an automatic scene by hand and it stays left, until its condition goes
+  false and true again. Walk out of the evening scene at 19:10 and you're out
+  for the night, not back in it thirty seconds later.
+
+A check runs every `haus.focus.triggers.interval` seconds (30 by default), and
+only on a Mac where some scene actually declares a condition.
+
+<Callout type="warn" title="Check what your Mac will tell it">
+`focus auto --probe` prints what each probe reads right now — the clock, the
+power source, your Wi-Fi network, the screen count — and what every condition
+makes of it. Run it once before trusting a rule: **macOS can refuse to report
+your SSID** (it sits behind Location Services), and a network it won't name
+matches nothing. `focus doctor` flags that case too.
+</Callout>
+
 ### What a scene doesn't do
 
 - **It doesn't close the apps it opened unless you ask.** Quitting something
@@ -202,10 +243,11 @@ haus.keys.leaderExtras = [
   open is not a lever the scene pulled, so leaving never takes it down with it.
   The quit is the polite one, the same message ⌘Q sends, so an app with unsaved
   work still gets to ask.
-- **Nothing enters a scene for you.** There's no timer, no Wi-Fi rule, no
-  "when the camera turns on" — you enter it, from a chord, a palette item or a
-  terminal. That's deliberate: declaring the states is cheap and a daemon that
-  decides *when* is not.
+- **A scene with no `when` waits for you** — a chord, a palette item or a
+  terminal. Conditions are opt-in per scene, and the only ones there are are the
+  five [above](#enter-a-scene-automatically): the clock, the weekday, your
+  network, the power source and the screen count. There's no "when the camera
+  turns on".
 - **`audio.input` wants the exact device name**, as `SwitchAudioSource -a -t
   input` prints it. Naming one that isn't plugged in logs a line and moves on —
   the rest of the scene still applies.
@@ -235,6 +277,11 @@ grant, and the Slack token, and prints the fix for each.
   Full Disk Access for exact reads.
 - **The chord stopped working**: a rebuild re-binds hotkey 175 on every
   activation and heals it.
+- **A scene isn't entering by itself**: run `focus auto --probe`. It shows every
+  condition against what your Mac reports right now — usually either a fact
+  macOS won't give up (your SSID) or a condition that was already true when you
+  declared it, which is not the edge that enters a scene. Leaving and re-meeting
+  the condition starts it.
 
 ## Works with
 
