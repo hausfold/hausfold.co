@@ -39,9 +39,10 @@ action that shells out — 85 actions, and not one of them. ⌘⏎ is held by
 [pounce](/docs/pounce/config#chords-that-only-exist-over-one-app-apphotkeys)
 instead, scoped to Ghostty — consumed only while a terminal window is
 frontmost, so ⌘⏎ still means *send* in Slack and everywhere else. ⌘A is plain
-select-all again. [windows](/docs/haus/rooms/windows) still has to be on, and
-that is still asserted at build time: it is what tiles each lane onto its
-repo's own page.
+select-all again. [windows](/docs/haus/rooms/windows) no longer has to be on:
+without it a lane opens as an ordinary macOS window, which is a warning at
+build time rather than a refusal. What you lose is placement — the per-repo
+`T/<repo>` pages and the `⌃⇥` walk between them — not the lane.
 </Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's

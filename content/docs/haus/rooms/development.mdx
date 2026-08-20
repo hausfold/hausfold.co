@@ -102,7 +102,11 @@ attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening t
 lane rejoins the live conversation instead of replaying a transcript. The trade
 is splits: zmx has none by design, so [windows](/docs/haus/rooms/windows) tiles
 real windows rather than a second window manager nested inside a terminal. That
-room has to be on, which is asserted at build time rather than suggested.
+room is worth having and is not required: with it off, lanes open as ordinary
+macOS windows wherever macOS puts them, and the build says so once as a
+warning. Everything else about a lane is the same — `⌘⏎` spawns one, `⌘W`
+detaches, `⌘F` searches this window, and the bar's agents pill still goes to a
+lane and peeks it.
 
 Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
 work don't pile onto one screen. `⌘N`, `⌘⏎` and `⌃⇥` are only taken while
