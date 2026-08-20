@@ -300,9 +300,12 @@ The status token is one mutually-exclusive slot:
 | `●` *(muted)* | nothing to report: clean tree, nothing ahead — including a lane that hasn't committed yet |
 
 A lane that has *never committed* is not landed, whatever git's ancestry says
-about it: it is simply empty, so it gets the muted `●`, not `⏏`. The same
-distinction reaches the paw pill — such a lane draws no PR row at all, where it
-used to announce itself as `merged` from the second it was spawned.
+about it: it is simply empty, so it gets the muted `●`, not `⏏`. It is still
+reaped when you close the pane — there is nothing on it to keep — so `●` covers
+both "nothing to report" and "nothing here yet", and `⏏` is now specifically
+*this branch's work reached main*. The same distinction reaches the paw pill:
+such a lane draws no PR row at all, where it used to announce itself as `merged`
+from the second it was spawned.
 
 Flush right on row one sit a few per-session chips: how far behind your pinned
 revision you are (`⇡N`, what `haus update` would pull), context used, session
