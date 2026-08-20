@@ -37,9 +37,18 @@ whole left side flips into launcher letters.
 **And which PAGE of it, if it has pages.** A page is a workspace with a `/` in
 its name — `T/haus`, the per-repo page an agent
 [lane](/docs/haus/rooms/development) tiles its window onto. When you're on one,
-a pill between the workspaces and the front app names it; when you're not, it
-isn't there. The workspace pill stays lit either way, because a page belongs to
-its workspace: `T/haus` keeps `T` highlighted, and the Caps-Lock leader's `t`
+a pill between the workspaces and the front app names it, and adds `2/3` when
+that workspace has more than one live page — which of them you're on, out of how
+many there are. On the only page of a workspace the counter is left off.
+
+Stand on the workspace itself and the pill is still there, dimmed, showing just
+the number: `3` on `T` means three pages are open under it, none of which you're
+looking at. That's the notice that they exist, and the button that lists them —
+without it, `T` with three lanes paged away looks exactly like `T` with none. A
+workspace with no pages under it gets no pill at all.
+
+The workspace pill stays lit through all of this, because a page belongs to its
+workspace: `T/haus` keeps `T` highlighted, and the Caps-Lock leader's `t`
 takes you back to whichever page of `T` you used last. Click the page pill to
 open the **Pages** picker and go to one; ⇧ or right-click opens the same list in
 move mode, throwing the focused window onto the page you pick and following it
