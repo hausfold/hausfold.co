@@ -54,6 +54,40 @@ haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 `haus.theme.contrast` reach it as a palette file, so the palette matches the
 rest of the house without a second theme setting.
 
+### Rows that are listed on some pages only
+
+haus scopes three rows this way: **New Agent Lane** (⌘⏎), **New Shell Window**
+(⌘N) and its `⇧` twin. All three act on **the window you were looking at**, so
+from a browser they have nothing to read: the lane finds no repo and refuses out
+loud, the shell opens in `$HOME`. They are listed on the terminal pages only,
+`T` and every `T/<repo>` lane page:
+
+```nix
+# hand it back everywhere:
+haus.launcher.items."cmd:lane-here".workspaces = [ ];
+
+# or follow the app instead of the page, which needs BOTH lines: the two
+# predicates are ANDed, so adding bundleIds on its own only narrows the row
+# further (on T, and with Ghostty in front).
+haus.launcher.items."cmd:lane-here".workspaces = [ ];
+haus.launcher.items."cmd:lane-here".bundleIds = [ "com.mitchellh.ghostty" ];
+```
+
+**Spawn Agent** is untouched and stays everywhere, because it asks which repo
+rather than inheriting one. That makes it the row to reach for from a browser,
+where the lane chord cannot go.
+
+Both keys work on any item, and they scope the **row** and never a `hotkey` on
+the same item, so ⌘⏎ and ⌘N keep working wherever Ghostty is frontmost. What
+each one matches, and what `pounce doctor` reports about a row you cannot find,
+is [the palette's own side](/docs/pounce/config#rows-that-only-exist-where-they-work).
+
+The room's half: haus writes the scoping only where the
+[Windows](/docs/haus/rooms/windows) room is on, since that room is what gives
+Ghostty a page to be on and what runs the workspace hook the palette reads to
+know where you are. Without a tiler no scoping is written at all and the rows
+stay everywhere.
+
 ### The Fn/Globe key
 
 haus binds the emoji picker to Fn, and macOS wants that key too, so
@@ -90,7 +124,8 @@ may not set it.
 - **[Focus](/docs/haus/rooms/focus)**: the quiet switch is a command here too,
   and every scene you declare gets a **Scene: &lt;name&gt;** row of its own.
 - **[Development](/docs/haus/rooms/development)**: **Lanes** jumps to an agent
-  lane or searches what the agents are saying, and **New Shell Window** is ⌘N.
+  lane or searches what the agents are saying, **New Agent Lane** is ⌘⏎ and
+  **New Shell Window** is ⌘N (both listed on the terminal pages, as above).
 - **[Windows](/docs/haus/rooms/windows)**: the opt-in `⌘Tab` window switcher,
   which groups its rows by AeroSpace workspace.
 
