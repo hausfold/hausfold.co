@@ -125,9 +125,11 @@ clobbering it, so the file you had before the install is usually still there:
 find "$HOME" -maxdepth 5 -name '*.backup' -print
 ```
 
-Typically `~/.zshrc.backup`, `~/.zshenv.backup`, `~/.profile.backup`,
-`~/.config/starship.toml.backup`, `~/.config/git/config.backup`, plus some
-inside managed directories. Inspect each one, confirm the Nix-managed target is
+Typically `~/.zshrc.backup`, `~/.zshenv.backup`, `~/.zprofile.backup`,
+`~/.profile.backup`, `~/.config/starship.toml.backup`,
+`~/.config/git/config.backup`, plus some inside managed directories.
+`~/.zprofile` is the one people forget, and it is where Homebrew's `shellenv`
+line usually lives. Inspect each one, confirm the Nix-managed target is
 gone, then move it back by hand.
 
 `~/.profile` is worth a second look while haus is still installed rather than
