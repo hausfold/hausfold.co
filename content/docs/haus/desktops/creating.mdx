@@ -56,7 +56,8 @@ desktop = ./desktops/writer.nix;
 
 `git add` the file before you rebuild. A config is a git repository and Nix
 reads only its tracked files, so a brand-new desktop that hasn't been staged
-fails as a path that does not exist — on a file sitting in the directory.
+fails with an error about a path that does not exist, naming a file that is
+sitting right there in the directory.
 
 ## A desktop is the whole answer
 

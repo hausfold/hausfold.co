@@ -104,9 +104,10 @@ Vendor the `.nix` file into your config and point `desktop` at the path:
 `desktop = ./desktops/writer.nix;`. There is no separate import mechanism for
 someone else's desktop; that's the point of the format being closed.
 
-`git add` it once it's in place — your config is a git repository, and Nix
-reads only the tracked files, so an unstaged desktop evaluates as a path that
-does not exist.
+`git add` it once it's in place. Your config is a git repository and Nix reads
+only the tracked files, so an unstaged desktop evaluates as a path that does
+not exist. [Share a desktop](/docs/haus/desktops/sharing) has the whole
+sequence.
 </Callout>
 
 ## Changing your mind
