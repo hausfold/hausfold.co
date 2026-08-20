@@ -125,10 +125,17 @@ clobbering it, so the file you had before the install is usually still there:
 find "$HOME" -maxdepth 5 -name '*.backup' -print
 ```
 
-Typically `~/.zshrc.backup`, `~/.zshenv.backup`,
+Typically `~/.zshrc.backup`, `~/.zshenv.backup`, `~/.profile.backup`,
 `~/.config/starship.toml.backup`, `~/.config/git/config.backup`, plus some
 inside managed directories. Inspect each one, confirm the Nix-managed target is
 gone, then move it back by hand.
+
+`~/.profile` is worth a second look while haus is still installed rather than
+after. haus writes its own — a guarded one, because an unguarded `. "$file"`
+naming a file that isn't there prints an error on every new terminal window —
+and it sources `~/.profile.local` if you have one. So anything your old
+`~/.profile` set (a PATH, a toolchain's `env`) belongs in `~/.profile.local`
+until you leave, and comes back with the rest afterwards.
 
 <Callout type="warn">
 Don't restore blindly. A backup is the version that existed at the *first*
