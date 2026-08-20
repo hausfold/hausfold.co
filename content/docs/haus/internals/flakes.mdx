@@ -64,7 +64,7 @@ Only `username` and `hostname` are required. `desktop` selects the one
 [desktop](/docs/haus/desktops/choosing) this machine runs (the argument the
 installer writes for you), and `extraModules` is the seam for any other
 nix-darwin module. Eight of haus's modules (`core`,
-`terminal`, `windows`, `bar`, `security`, `pounce`, `focus`, `secrets`) are also
+`terminal`, `windows`, `bar`, `security`, `launcher`, `focus`, `secrets`) are also
 exported on their own under `darwinModules`, alongside a `default` holding the
 lot. Reach for one of those only with the builder still around it: a module
 declares no options of its own and takes the username from `mkHaus`, so on

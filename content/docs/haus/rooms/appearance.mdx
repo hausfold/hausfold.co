@@ -135,10 +135,11 @@ one haus tells you and changes nothing. And if Appearance is set to **Auto**,
 macOS switches polarity on its own schedule; haus sets it at rebuild time and
 doesn't fight it afterwards.
 
-**pounce and perch** are the exception in the other direction: both read their
+**The launcher and the shelf** are the exception in the other direction: both read their
 palette at runtime and follow macOS's Light/Dark themselves, so on a dark Mac
 they stay dark under `flavor = "latte"`. Pin them with
-`haus.launcher.followSystemAppearance = false`, needed only while macOS stays
+`haus.launcher.followSystemAppearance = false` and
+`haus.shelf.followSystemAppearance = false`, needed only while macOS stays
 unmanaged.
 </Callout>
 
