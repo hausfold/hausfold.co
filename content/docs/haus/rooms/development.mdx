@@ -75,7 +75,7 @@ Two of them do nothing at all, on purpose:
 
 | Keys | What happens |
 |---|---|
-| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — the same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
+| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — and on its **lane page**, when that is where you pressed it. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
 | `⌘W` | Close the window — which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
 | `⌃D` / `exit` | End the shell — which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
@@ -140,6 +140,14 @@ window in your browser, and `⌃⇥` still walks that app's own tabs. The [Launc
 gains a **Lanes** command beside them: fuzzy over every lane with its state,
 `↵` focusing that lane's window or waking a parked one, `/` plus a word
 searching what the agents are *saying* across every live session.
+
+A `⌘N` shell window follows the pages too: pressed on a repo's page it opens
+**there**, beside the lane you asked it from, rather than on the shared `T` two
+pages away. Pressed anywhere else — on `T` itself, or on a workspace you had
+dragged a terminal to — it lands on `T`, which is where plain terminal windows
+live. One caveat: a shell window carries no name saying which page is its own,
+so the next **re-sort everything** (`caps` then `` ` ``) sends it home to `T`.
+The lanes stay where they belong.
 
 ⌘⏎ and ⌘N have palette rows as well as chords, and those rows are
 [listed on the terminal pages only](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only):
