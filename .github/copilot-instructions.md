@@ -24,7 +24,8 @@ The short version:
   docs and the install one-liner's *route* are here. `AGENTS.md`'s routing table
   decides.
 - **Positioning is not a copy edit.** A new claim about what hausfold *is* needs
-  a decision behind it; three reversals are on record. Same for adding a gallery row or naming a product that isn't real yet.
+  a decision behind it. Same for adding a desktop or naming a product that isn't
+  real yet.
 - House rules that are easy to break by accident: greyscale at rest (accents are
   borrowed from nebelung and hover-only), no motion beyond the one hover sheen,
   no `og:image` (a decision, not an omission), and **the head comes from a
