@@ -2218,17 +2218,20 @@ because enterprise policies are on, Zen will tell you it is "managed by
 your organization" — that organization is haus.
 
 Every entry needs an `id` — the key Firefox's policy engine matches
-on, unguessable and unreachable from the add-on's name. haus fills that
-in for add-ons whose id it has read off a live profile, and it knows
-none today: the one it carried was Stylus. See the `id` option for
-where to read one off.
+on, unguessable and unreachable from the add-on's name. haus fills it in
+for the add-ons whose id it has read off a live profile
+(stylus),
+so those need only be named. Everything else brings its own — see the
+`id` option for where to read one off.
 
 This is deployment, not theming. haus themes Zen's own UI through
-`haus.theme.accent`, and real websites through `haus.zen.userStyles`,
-which compiles the Nebelung userstyles into the profile's
-userContent.css — no add-on involved. Stylus used to be the way that
-reached the web, with a stamped bundle and an import click; that path
-was retired on 2026-08-20 and nothing here replaces it.
+`haus.theme.accent` and real websites through `haus.zen.userStyles`,
+which compiles the Nebelung userstyles straight into the profile's
+userContent.css. Stylus used to be the second half of that story — haus
+stamped your accent, flavor and contrast into a bundle and nudged you to
+import it — and that half was retired on 2026-08-20. Naming `stylus`
+here still deploys the extension; it just arrives unthemed now, so keep
+the sites you care about in `haus.zen.userStyles` instead.
 
 Example:
 
@@ -2422,12 +2425,13 @@ Nebelung userstyles to compile into Zen's `userContent.css`, by slug —
 the palette on real websites, with **no extension and no import click**.
 
 These are the 134 styles nebelung ships for the Stylus extension,
-taken the other way round. They are LESS source, which is why the accent
-could only ever reach the web through an import click: the extension
-compiled them in the browser. haus compiles the ones you name here at
-build time instead, stamping the same three axes (`haus.theme.accent`, and the flavor on both its light and dark
-vars), and appends the result to the stylesheet it already drops into
-every Zen profile. Nothing to re-import and no state to carry to the
+taken the other way round. They are LESS source, which is why the
+accent could only ever reach the web through an import click: the
+extension compiled them in the browser. haus compiles the ones you name
+here at build time instead, stamping the same three axes
+(`haus.theme.accent`, and the flavor on both its light and dark vars),
+and appends the result to the stylesheet it already drops into every
+Zen profile. Nothing to re-import and no state to carry to the
 next machine — but a **restart of Zen** is what applies it: Firefox
 reads `userContent.css` once at startup, so a rebuild alone leaves an
 open browser on the previous colours.
@@ -2466,12 +2470,12 @@ the declaration would therefore be dropped: `@keyframes`, descriptor
 blocks like `@font-face`, and at-statements.
 
 This is now the only web-theming path haus ships. Until 2026-08-20 it
-also deployed the Stylus extension and stamped an importable bundle for
-it; what that click bought — per-site toggles, styles that update
-themselves, adding one without a rebuild — is what a compiled sheet
-gives up, and none of it was being used. Installing Stylus yourself
-still works (`haus.zen.extensions`, with its `id`), but keep a given
-site in one place or the other: they do not tie, and a user sheet's
+also stamped an importable bundle for the Stylus extension; what that
+click bought — per-site toggles, styles that update themselves, adding
+one without a rebuild — is what a compiled sheet gives up, and none of
+it was being used. `haus.zen.extensions.stylus` still deploys the
+extension, unthemed, but keep a given site in one place or the other:
+they do not tie, and a user sheet's
 `!important` outranks every author sheet, so this one wins and the
 extension's copy of that site would be doing nothing.
 
