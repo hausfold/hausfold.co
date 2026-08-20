@@ -38,6 +38,15 @@ can own more than one: the Bar room is `haus.bar` (its own bar) *and*
 Apply changes with `haus rebuild`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
+A few also carry a line about what a **shared desktop** may do with them.
+*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it,
+because it names a person, a secret or a piece of hardware, or because it takes
+a package or a command the machine would run. *Desktop-safe per key* means the
+option takes keys nobody declared, so a named rule decides which of them a
+desktop may write; that rule is stated beside it. Anything unmarked is plain
+desktop-safe. This is the same classification `haus.lib.checkDesktop` enforces
+before a desktop is evaluated.
+
 ## Apps
 
 The apps a finished machine has: the curated picks, the packs that switch a whole set on in one line, the file types they claim, App Store policy, and what a rebuild does to anything you installed by hand. The list they all land in is `haus.roster`, a shared surface below.
@@ -1091,6 +1100,8 @@ Example:
 
 `null or package` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 The package providing `name`. null (the default) installs haus's
 own JetBrains Mono Nerd Font, which is what `name` defaults to.
 
@@ -1705,6 +1716,8 @@ true
 
 `null or string` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Where ⇧⌘3 / ⇧⌘4 / ⇧⌘5 write their files. null (the default) leaves
 macOS's own choice alone, which is the Desktop.
 
@@ -1884,6 +1897,8 @@ Per-display overrides, keyed by which screen you mean.
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`display-selectors`). Only the `internal` and `main` selectors: a display UUID names one physical panel on one desk, which is a fact about a machine rather than a taste a desktop can share.
+
 Per-display settings, keyed by which screen you mean:
 
   internal   the built-in panel
@@ -1973,6 +1988,8 @@ The shell and terminal experience.
 #### `haus.terminal.editor`
 
 `string` · default `the command for haus.terminal.editorName — hx for helix`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
@@ -2108,6 +2125,8 @@ handler behind an interactive dialog; set it by hand once if wanted:
 
 `list of string` · default `[ ]`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Home-relative paths to existing Obsidian vaults that should use the
 Nebelung theme. On each activation, Terminal copies the rendered
 theme.css + manifest.json into each vault's .obsidian/themes/Nebelung/
@@ -2135,6 +2154,8 @@ Zen browser policy, extensions and the optional native tab bridge.
 #### `haus.zen.extensions`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Browser extensions to deploy into Zen, by a stable id of your choosing.
 
@@ -2188,6 +2209,8 @@ Example:
 
 `boolean` · default `true`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Whether to deploy this extension. Set false to remove one an imported desktop added.
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
@@ -2195,6 +2218,8 @@ Whether to deploy this extension. Set false to remove one an imported desktop ad
 #### `haus.zen.extensions.<name>.id`
 
 `null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The extension's own id — the key Firefox's policy engine
 matches on, NOT its AMO slug. Usually a brace-wrapped UUID,
@@ -2218,6 +2243,8 @@ Example:
 
 `one of "force_installed", "normal_installed", "allowed", "blocked"` · default `"force_installed"`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Firefox's `installation_mode`. `force_installed` installs it
 and stops the user removing it (the point, for a desktop that
 wants an extension present); `normal_installed` installs it
@@ -2228,6 +2255,8 @@ but leaves it removable.
 #### `haus.zen.extensions.<name>.slug`
 
 `null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The add-on's AMO slug — the last path segment of its
 addons.mozilla.org URL. Only used to build the default
@@ -2244,6 +2273,8 @@ Example:
 #### `haus.zen.extensions.<name>.url`
 
 `string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Where the .xpi comes from. Defaults to AMO's "latest" endpoint
 for `slug`, so the add-on updates itself; point it at a pinned
@@ -2264,6 +2295,8 @@ url never turns it on.
 #### `haus.zen.extraPolicies`
 
 `attribute set` · default `{ }`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Anything else to put in Zen's policy set, merged beside the
 `ExtensionSettings` block `haus.zen.extensions` renders. haus OWNS
@@ -3820,6 +3853,8 @@ false
 
 `list of string` · default `[ ]`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Addresses (or display names) that are YOU, dropped from the "with …"
 line in the dropdown. An attendee list that includes you is a list that
 tells you nothing — every meeting is "with you and Ana".
@@ -3980,6 +4015,8 @@ false
 
 `string` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Which Elgato Key Light the `elgato` pill toggles — a hostname or IP,
 optionally with a `:port` (the light's HTTP API is on 9123).
 
@@ -4033,6 +4070,8 @@ Example:
 #### `haus.bar.github.sources`
 
 `list of (submodule)` · see below
+
+**Desktop-safe per key** (`submodule-list`). A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
 
 What the `github` pill counts, in the order it prefers to speak about
 them. Each entry names exactly ONE kind — `search`, `ci` or `command` —
@@ -4092,6 +4131,8 @@ true
 #### `haus.bar.github.sources.*.command`
 
 `null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 A command run through `bash -c`, printing one row per line as
 `<state>\t<text>` or `<state>\t<text>\t<url>`, where state is one rung
@@ -4654,6 +4695,8 @@ true
 
 `attribute set of string` · default `{ }`
 
+**Desktop-safe per key** (`attrs-of-string`). Keys and values are strings carrying no quote, backslash, `$`, backtick, newline or tab, because they are written into a generated file as shell assignments.
+
 Override the media pill's glyph, keyed by bundle id
 (`com.spotify.client`) or by KIND — one of `music`, `spotify`,
 `podcast`, `video`, `vlc`, `browser.video`, `browser.music`, `other`.
@@ -4756,6 +4799,8 @@ Example:
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`widget-entries`). Keys are plain widget names, because each becomes a SketchyBar item name; a desktop may place and retune a pill, but `command` stays host-only so it can never add one that runs code.
+
 Every pill on the bar, including the bundled ones — the open form of
 `haus.bar.items`, and the only way to add a pill haus does not ship.
 
@@ -4815,6 +4860,8 @@ Example:
 #### `haus.bar.widgets.<name>.command`
 
 `null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The script whose output is this pill's label, run every
 `interval` seconds. One line on stdout is the label; nothing at all
@@ -5143,6 +5190,8 @@ what it did before this option existed.
 
 `attribute set of (submodule)` · default `{ }`
 
+**Desktop-safe per key** (`launcher-items`). Keys are plain item ids, since each one names a single row in the palette.
+
 Per-item palette settings, keyed by the item's own address. One entry is
 one row of the palette: hide it, give it a search shorthand, give it a key.
 
@@ -5338,6 +5387,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 A code-signing identity in your login keychain — either its SHA-1 or
 (preferred) its full common name. The pounce daemon is re-signed with
 it so a macOS Accessibility (TCC) grant survives rebuilds. List yours:
@@ -5479,6 +5530,8 @@ sketchybar once for the pill). `focus doctor` walks the one-time steps.
 
 `list of (absolute path or string)` · default `[ ]`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Extra scripts run on every switch, both ways, each called with a single
 argument "on" or "off". Paths are copied into the store; strings are
 run as-is (so $HOME paths work). Failures are logged, never fatal —
@@ -5495,6 +5548,8 @@ Example:
 #### `haus.focus.scenes`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`scene-entries`). Keys are plain scene names — what you type after `focus scene`, so a key has to survive as one shell word.
 
 Named machine states, entered with `focus scene <name>` and left with
 `focus scene off`. One at a time: entering a scene leaves whichever was
@@ -5625,6 +5680,8 @@ paired.
 
 `list of (absolute path or string)` · default `[ ]`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Scripts run on entry and exit, each called with "on" or "off" —
 the same contract as `haus.focus.hooks`, scoped to this scene.
 Failures are logged, never fatal.
@@ -5707,6 +5764,8 @@ Slack status text while quiet.
 #### `haus.focus.slack.tokenCommand`
 
 `string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Shell command that prints the Slack user token (xoxp-…) to stdout.
 Keychain-first so no secret ever lands in the store or a dotfile:
@@ -5838,6 +5897,8 @@ modules/moved.nix for why.
 
 `strings concatenated with "\n"` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
 in `ai.clients`, to the path that client actually reads:
@@ -5940,6 +6001,8 @@ window only ever meant "the grant went missing").
 #### `haus.snippets.matches`
 
 `list of (submodule)` · default `[ ]`
+
+**Desktop-safe per key** (`submodule-list`). A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
 
 The expansion table — one &#123; trigger; replace; &#125; per snippet, written
 to ~/.config/espanso/match/default.yml. Only espanso's plain
@@ -6395,6 +6458,8 @@ Where secret values come from on this machine.
 
 `null or string` · default `"keyring"`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 The secretspec provider that supplies secret VALUES on this machine.
 The secrets room writes it to ~/.config/secretspec/config.toml as the
 default provider, so `secretspec run / check / set` work without
@@ -6431,6 +6496,8 @@ One list of everything this machine has — apps, fonts, command-line tools. Eac
 #### `haus.roster`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`roster-entries`). Keys are plain app ids — letters, digits, `_` and `-` — because each one becomes a launcher row and an argument to an installer.
 
 The one list of things this machine has, keyed by a stable id. It is
 the canonical, composable source for AeroSpace launcher keys, the
@@ -6580,6 +6647,8 @@ work inside. Requires `appId`; ignored (with a warning) without it.
 
 `null or string` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 The haus module that puts this app on disk, when none of the
 four sources above describes it: pounce and perch copy a
 notarized bundle into /Applications from their own activation
@@ -6666,6 +6735,8 @@ Roster order; lower values appear first. Ties are sorted by app id.
 #### `haus.roster.<name>.package`
 
 `null or package` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Nixpkgs package that installs this entry. Where it lands is
 `scope`'s call.
@@ -6759,6 +6830,8 @@ The named AeroSpace workspaces this machine declares, and which roster apps live
 #### `haus.workspaces`
 
 `attribute set of (submodule)` · default `{ }`
+
+**Desktop-safe per key** (`workspace-entries`). Keys are plain workspace names, which is what AeroSpace and the bar's page pill both spell them as.
 
 AeroSpace workspaces this machine names on purpose, keyed by the
 workspace id AeroSpace itself will use (any string it accepts as a
@@ -6982,6 +7055,8 @@ Example:
 
 `list of (submodule)` · default `[ ]`
 
+**Desktop-safe per key** (`submodule-list`). A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
+
 Extra launch-mode (leader) bindings beyond the app roster: tap the leader,
 then `key`, to run `command`. Use it for leader actions that aren't
 "launch an app" — a script, an AppleScript, opening a URL.
@@ -7021,6 +7096,8 @@ Example:
 #### `haus.keys.leaderExtras.*.command`
 
 `string` · no default
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The shell command run when the leader is followed by `key`; launch
 mode exits afterward. It's written verbatim into a small `/bin/sh`
@@ -7156,6 +7233,8 @@ the ⌘Space step is dropped when pounce is off. Progress lives in
 
 `null or (non-empty (list of (submodule)))` · default `null`
 
+**Desktop-safe per key** (`submodule-list`). A list of settings, checked field by field inside each element — and a host that names the list at all REPLACES it rather than appending to it.
+
 A community-authored tour, in order. null keeps the built-in four-move
 hacker tour unchanged; supplying a list replaces it, so a shared desktop
 can teach its own workflow without shipping scripts or reaching outside the
@@ -7234,6 +7313,8 @@ Your commit identity, plus the GitHub owner this machine's work lives under — 
 
 `string` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Git user.email for commits.
 
 Example:
@@ -7248,6 +7329,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Git user.name for commits (terminal wires it into home-manager).
 
 Example:
@@ -7261,6 +7344,8 @@ Example:
 #### `haus.git.org`
 
 `string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The GitHub owner whose repos this machine works on. An organisation,
 or your own account: GitHub's issue search treats `org:<user>` the
@@ -7301,6 +7386,8 @@ Example:
 
 `attribute set of (null or string)` · default `{ }`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Per-host additions and overrides for Terminal's built-in Git shell
 aliases. Values are shell command strings; null removes a built-in.
 Terminal deliberately owns a compact, framework-independent default
@@ -7323,6 +7410,8 @@ Example:
 
 `string` · default `""`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 GPG key id for signing commits/tags. Empty disables commit signing.
 Key material + any YubiKey/smartcard setup live outside Nix
 (gpg-agent + pinentry-mac).
@@ -7343,6 +7432,8 @@ Language, region, units and keyboard layouts. What a machine in any language oth
 
 `null or one of "12h", "24h"` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Force 12- or 24-hour time everywhere, overriding whatever `region`
 implies. null (the default) follows the region.
 
@@ -7362,6 +7453,8 @@ Example:
 #### `haus.locale.inputSources`
 
 `null or (list of string)` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The keyboard layouts available in the input menu, by input-source id
 (`com.apple.keylayout.*`). null (the default) leaves your layouts
@@ -7399,6 +7492,8 @@ Example:
 
 `null or (list of string)` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Preferred languages, best first — the order System Settings ▸ General
 ▸ Language & Region shows. null (the default) leaves macOS's own list
 alone.
@@ -7426,6 +7521,8 @@ Example:
 
 `null or boolean` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Use the metric system, overriding whatever `region` implies. null
 (the default) follows the region.
 
@@ -7446,6 +7543,8 @@ true
 #### `haus.locale.region`
 
 `null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 The region whose formats macOS uses — dates, number separators, paper
 size, the first day of the week. An ICU locale identifier
@@ -7472,6 +7571,8 @@ Example:
 
 `null or one of "celsius", "fahrenheit"` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Temperature unit, overriding whatever `region` implies. null (the
 default) follows the region. Separate from `metric` because macOS
 keeps it separate — a metric machine reporting °F is a real
@@ -7493,6 +7594,8 @@ Sleep timers and Low Power Mode, said separately for battery and charger — whi
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Minutes of idleness before the Mac sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7510,6 +7613,8 @@ Example:
 #### `haus.power.computerSleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Minutes of idleness before the Mac sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7529,6 +7634,8 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Minutes of idleness before the disk spins down while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7546,6 +7653,8 @@ Example:
 #### `haus.power.diskSleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Minutes of idleness before the disk spins down while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7565,6 +7674,8 @@ Example:
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Minutes of idleness before the display sleeps while on battery, or
 `"never"`. null (the default) leaves macOS's own choice alone.
 
@@ -7582,6 +7693,8 @@ Example:
 #### `haus.power.displaySleep.charger`
 
 `null or positive integer, meaning >0, or value "never" (singular enum)` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Minutes of idleness before the display sleeps while on the charger, or
 `"never"`. null (the default) leaves macOS's own choice alone.
@@ -7601,6 +7714,8 @@ Example:
 
 `null or boolean` · default `null`
 
+**Host-only.** A shared desktop may not set it; only your host file can.
+
 Low Power Mode while on battery. null (the default) leaves
 macOS's own choice alone.
 
@@ -7619,6 +7734,8 @@ true
 #### `haus.power.lowPowerMode.charger`
 
 `null or boolean` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can.
 
 Low Power Mode while plugged in. null (the default) leaves
 macOS's own choice alone.

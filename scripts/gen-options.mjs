@@ -76,6 +76,17 @@ if (!ROOMS) {
   );
   process.exit(1);
 }
+// One sentence per named recursive validator. haus's registry carries it beside
+// the name so the rule is stated wherever the name is rendered rather than only
+// in the guide about writing a desktop, which is a different file in a
+// different repository that nothing checks against this one.
+//
+// Absent, the class still renders and the sentence does not. Exiting instead
+// would take the whole page out over a haus checkout that is merely older than
+// this renderer, and the miss already surfaces the honest way: the page comes
+// out short of its rule lines, `--check` reports it STALE, and regenerating
+// against a current haus fixes it.
+const VALIDATORS = GROUPS.validators ?? {};
 
 // A generated cross-repository artifact fails by emptying, not by erroring.
 // Keep a hard floor here so a namespace disagreement cannot produce a valid
@@ -159,6 +170,37 @@ function docsLinks(value) {
   return value.replaceAll('](/internals/flakes/', '](/docs/haus/internals/flakes/');
 }
 
+// What a SHARED DESKTOP may do with this option, out of haus's registry: the
+// same classification `checkDesktop` enforces, and the reason a desktop file
+// can be trusted by reading it. Only the two interesting answers are rendered.
+// Most options are plainly desktop-safe, and a line saying so under every one
+// of them would be 250 rows of noise around the 54 that matter; the page intro
+// says that unmarked means safe.
+//
+// WHY THE HOST-ONLY ROW CARRIES NO REASON. There are 43 of them and they are
+// host-only for at least four different reasons: it names a person or a
+// secret, it names hardware, it takes a `pkgs` value, or it is a command the
+// machine would run. One sentence written here would be false on most of the
+// rows it printed. The per-option reason belongs in haus's registry beside
+// `desktopSafe`, exactly as a validator's rule now sits beside its name; until
+// it does, this states the classification and the intro states the range.
+//
+// An unclassified option renders with no line at all rather than taking the
+// page down. haus's own room-registry check refuses one, but that is an
+// invariant in another repository, and this file's whole design is that an
+// older or odder haus degrades the render instead of stopping it.
+function renderSafety(option) {
+  const meta = NAMESPACES[groupOf(option.name)]?.options?.[option.name];
+  if (!meta) return undefined;
+  if (meta.desktopSafe === false) {
+    return '**Host-only.** A shared desktop may not set it; only your host file can.';
+  }
+  if (meta.desktopSafe !== 'recursive' || !meta.validator) return undefined;
+  const rule = VALIDATORS[meta.validator]?.rule;
+  const named = `**Desktop-safe per key** (\`${meta.validator}\`).`;
+  return rule ? `${named} ${rule}` : named;
+}
+
 function renderOption(option) {
   const lines = [
     `#### \`${option.name}\``,
@@ -166,6 +208,8 @@ function renderOption(option) {
     `\`${option.type}\` · ${renderDefault(option)}`,
     '',
   ];
+  const safety = renderSafety(option);
+  if (safety) lines.push(mdxText(safety), '');
   lines.push(mdxText((option.description ?? '').trimEnd()), '');
   const example = literal(option.example);
   if (example !== undefined) {
@@ -234,6 +278,15 @@ can own more than one: the Bar room is \`${PREFIX}.bar\` (its own bar) *and*
 
 Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
+
+A few also carry a line about what a **shared desktop** may do with them.
+*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it,
+because it names a person, a secret or a piece of hardware, or because it takes
+a package or a command the machine would run. *Desktop-safe per key* means the
+option takes keys nobody declared, so a named rule decides which of them a
+desktop may write; that rule is stated beside it. Anything unmarked is plain
+desktop-safe. This is the same classification \`haus.lib.checkDesktop\` enforces
+before a desktop is evaluated.
 
 ${body}
 `;
