@@ -18,7 +18,7 @@ has goes in **one list**, `haus.roster`, and you never choose an *option*, only
 which **fields** to set. A field says where the app comes from; another says what
 key launches it; an entry with neither is still a declaration.
 
-The quickest route doesn't involve editing anything: open pounce, run **Install
+The quickest route doesn't involve editing anything: open the command palette, run **Install
 App**, and pick from the curated shelf or search Homebrew, the Mac App Store, or
 your flake's pinned nixpkgs. It writes a small Nix module under
 `hosts/<hostname>/packages/`, rebuilds, and commits that one file. There is no
@@ -135,7 +135,7 @@ any machine can install it. It **can** fetch a free app you've never had. An
 unpurchased paid app is reported and skipped during a rebuild, never fatal.
 
 A rebuild fetches these during activation, which is already running as root, so
-`mas get` neither prompts nor wedges. Going through pounce's **Install App**
+`mas get` neither prompts nor wedges. Going through the palette's **Install App**
 instead runs it in a visible floating terminal, because that path can be asked
 for an Apple Account.
 

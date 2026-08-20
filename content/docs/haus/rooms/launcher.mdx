@@ -1,6 +1,6 @@
 ---
 title: Launcher
-description: Pounce on ⌘Space. The room that installs the palette, hands it the key Spotlight was holding, and keeps its Accessibility grant alive across rebuilds.
+description: The ⌘Space command palette. The room that installs it, hands it the key Spotlight was holding, and keeps its Accessibility grant alive across rebuilds.
 icon: launcher
 related:
   - title: "The pounce docs"
@@ -34,7 +34,7 @@ haus rebuild
 ```
 
 Only `cmd-space` displaces Spotlight; moving the palette elsewhere is how you
-keep both. haus frees ⌘Space from Spotlight so pounce can own it, which is the
+keep both. haus frees ⌘Space from Spotlight so the palette can own it, which is the
 step a standalone install has to do by hand.
 
 ## Configure it
@@ -50,7 +50,7 @@ haus.launcher.autoQuit.enable = false;        # quit an app when its last window
 haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 ```
 
-`haus.ui.scale` writes pounce's `scale` for you, and your `haus.theme.flavor` /
+`haus.ui.scale` writes the palette's `scale` for you, and your `haus.theme.flavor` /
 `haus.theme.contrast` reach it as a palette file, so the palette matches the
 rest of the house without a second theme setting.
 
@@ -60,11 +60,11 @@ haus binds the emoji picker to Fn, and macOS wants that key too, so
 `haus.launcher.fnKey` settles the argument: `"tap"` (the default) shares the key
 and may lose the race, `"remap"` turns Fn into F19 and owns it outright at the
 cost of Fn's other jobs — no Fn+arrows, no Fn+Delete. [What each mode
-does](/docs/pounce/config#the-fnglobe-key-fnkey) is pounce's side.
+does](/docs/pounce/config#the-fnglobe-key-fnkey) is the palette's own side.
 
 The room's half: here the remap is **declared** rather than installed by the
 daemon, so a rebuild can't drop it and Fn stays remapped — and inert — while
-pounce is stopped. Or hand the key back with
+the palette is stopped. Or hand the key back with
 `haus.launcher.items."mode:emoji".hotkey = null`.
 
 <Callout title="Keeping the Accessibility grant">
