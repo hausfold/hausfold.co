@@ -221,6 +221,13 @@ and which rows that leaves out. It fails outright when something asks about
 `workspaces` while `mruFile` is unset or points somewhere it cannot read, since
 both leave the scoping doing nothing.
 
+Both of these ask **where you are** — `workspaces` from a file, `bundleIds` from
+the frontmost app, neither with a subprocess. *Is there anything to act on at
+all* is a different question, and it belongs to the command script rather than to
+this config: a
+[`whenFile` header](/docs/pounce/writing-commands#a-row-that-hides-when-there-is-nothing-to-act-on)
+names a file that can hide its own row.
+
 <Callout title="haus does this to three rows">
 The [Launcher room](/docs/haus/rooms/launcher) lists **New Agent Lane**, **New
 Shell Window** and its `⇧` twin only on the terminal pages, because all three
