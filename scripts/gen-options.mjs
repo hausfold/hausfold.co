@@ -291,14 +291,12 @@ Apply changes with \`haus rebuild\`. Each option lists its **type** and
 **default** under its name, and links to the file that declares it.
 
 A few also carry a line about what a **shared desktop** may do with them.
-*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it —
-because it names a person, a secret or a piece of hardware, because it takes a
-package or a command the machine would run, or because it is simply a fact
-about this Mac; which of those it is, is stated beside it. *Desktop-safe per
-key* means the option takes keys nobody declared, so a named rule decides which
-of them a desktop may write; that rule is stated beside it too. Anything
-unmarked is plain desktop-safe. This is the same classification
-\`haus.lib.checkDesktop\` enforces before a desktop is evaluated.
+*Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it, and
+the reason why is stated beside it. *Desktop-safe per key* means the option
+takes keys nobody declared, so a named rule decides which of them a desktop may
+write; that rule is stated beside it too. Anything unmarked is plain
+desktop-safe. This is the same classification \`haus.lib.checkDesktop\` enforces
+before a desktop is evaluated.
 
 ${body}
 `;
