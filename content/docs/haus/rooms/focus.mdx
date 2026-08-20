@@ -1,6 +1,6 @@
 ---
 title: Focus
-description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges — plus the named states around it.
+description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges — plus the named states around it, which your Mac can enter on its own.
 icon: bellOff
 related:
   - title: "Bar"
@@ -193,6 +193,53 @@ haus.keys.leaderExtras = [
 ```
 </Callout>
 
+### Enter a scene automatically
+
+Give a scene a `when` and it enters itself:
+
+```nix
+haus.focus.scenes.evening = {
+  description = "wind down";
+  when = {
+    time = "19:00-23:00";   # 24-hour; an end before the start wraps midnight
+    days = [ "mon" "tue" "wed" "thu" "fri" ];   # empty means every day
+  };
+};
+```
+
+Three more conditions you can add: `wifi = [ "Home" ]` (the exact network name —
+host-only, since it names one router in one building), `power = "battery"` or
+`"ac"`, and `displays = 2` for "at least two screens", which is how you say
+*docked*. Everything you set has to hold at once, so pick the few that describe
+the moment.
+
+**The rule that makes this safe to leave running: it never overrides a state you
+chose.**
+
+- It enters a scene the moment a condition *becomes* true — and only when no
+  scene is on and you aren't already quiet.
+- It ends the scene when the condition stops holding, putting back what the
+  scene changed, exactly as `focus scene off` would.
+- It leaves only a scene it entered itself. One you entered by hand is yours,
+  whatever its conditions do.
+- Leave an automatic scene by hand and it stays left, until its condition goes
+  false and true again. Walk out of the evening scene at 19:10 and you're out
+  for the night, not back in it thirty seconds later.
+- Each turn of a condition is offered once. If 19:00 arrives while you're in
+  another scene, or already quiet, that evening is simply missed — it won't jump
+  in at 19:40 when you go free.
+
+A check runs every `haus.focus.triggers.interval` seconds (30 by default), and
+only on a Mac where some scene actually declares a condition.
+
+<Callout type="warn" title="Check what your Mac will tell it">
+`focus auto --probe` prints what each probe reads right now — the clock, the
+power source, your Wi-Fi network, the screen count — and what every condition
+makes of it. Run it once before trusting a rule: **macOS can refuse to report
+your SSID** (it sits behind Location Services), and a network it won't name
+matches nothing. Once a scene depends on one, `focus doctor` flags it too.
+</Callout>
+
 ### What a scene doesn't do
 
 - **It doesn't close the apps it opened unless you ask.** Quitting something
@@ -202,17 +249,18 @@ haus.keys.leaderExtras = [
   open is not a lever the scene pulled, so leaving never takes it down with it.
   The quit is the polite one, the same message ⌘Q sends, so an app with unsaved
   work still gets to ask.
-- **Nothing enters a scene for you.** There's no timer, no Wi-Fi rule, no
-  "when the camera turns on" — you enter it, from a chord, a palette item or a
-  terminal. That's deliberate: declaring the states is cheap and a daemon that
-  decides *when* is not.
+- **A scene with no `when` waits for you** — a chord, a palette item or a
+  terminal. Conditions are opt-in per scene, and there are five of them
+  [above](#enter-a-scene-automatically): the clock, the weekday, your network,
+  the power source and the screen count. There's no "when the camera turns on".
 - **`audio.input` wants the exact device name**, as `SwitchAudioSource -a -t
   input` prints it. Naming one that isn't plugged in logs a line and moves on —
   the rest of the scene still applies.
 - **Its hooks are host-only.** A scene is data a shared desktop may ship, but
-  the arbitrary script one runs belongs to a person, so `hooks` is a line you
-  write in your own host file. Everything else about a scene a desktop can
-  publish.
+  the arbitrary script one runs belongs to a person — so `hooks`, and
+  `when.wifi` because it names one router in one building, are lines you write
+  in your own host file. Everything else about a scene a desktop can publish,
+  including the conditions that enter it.
 
 ## Honest scope
 
@@ -235,6 +283,12 @@ grant, and the Slack token, and prints the fix for each.
   Full Disk Access for exact reads.
 - **The chord stopped working**: a rebuild re-binds hotkey 175 on every
   activation and heals it.
+- **A scene isn't entering by itself**: run `focus auto --probe`. It shows every
+  condition against what your Mac reports right now, which catches the common
+  cause — a fact macOS won't give up, usually your SSID. If everything reads
+  right and it still didn't fire, the condition most likely turned true while
+  you were in another scene or already quiet: that turn is offered once and
+  passed. It comes back the next time the condition does.
 
 ## Works with
 
