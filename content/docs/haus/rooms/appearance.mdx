@@ -55,9 +55,7 @@ The accent moves the browser's own UI. It does **not** re-tint github.com on its
 own, because those are Catppuccin *userstyles*: LESS source, compiled rather than
 copied, which is why no palette file haus writes can reach them.
 
-There are two ways to close that loop, and they answer different questions.
-
-**Name the sites you want, and haus compiles them:**
+haus closes that loop by compiling them for you — name the sites you want:
 
 ```nix
 haus.zen.userStyles = [ "github" "youtube" ];
@@ -75,28 +73,21 @@ document, and these are big — github and youtube together are ~320 KB.
 Zen reads that file **once, at startup**, so a rebuild alone leaves an open
 browser on the old colours: quit Zen and reopen it.
 
-**Or deploy Stylus, and keep the browser in charge:**
+There used to be a second way, and it is gone: until 2026-08-20 haus could
+deploy the **Stylus** extension and stamp nebelung's userstyle bundle from your
+accent, flavor and contrast for you to import by hand. What that click bought is
+exactly what the compiled sheet gives up — per-site toggles, styles that update
+themselves, and adding one without a rebuild — and none of it survived contact
+with a rebuild-driven setup. Stylus still installs like any other add-on if you
+want it (`haus.zen.extensions`, bringing its `id`); haus simply doesn't stamp a
+bundle for it any more.
 
-```nix
-haus.zen.extensions.stylus = { };
-```
-
-That deploys the extension through a macOS managed preference (`haus.roster`
-can't install add-ons) and stamps nebelung's userstyle bundle from your accent,
-flavor and contrast. The import itself stays a click, because Stylus has no file
-interface: activation prints a one-time nudge and you do **Stylus ▸ Manage ▸
-Import**. What you get for that click is what a compiled sheet can't do —
-per-site toggles, styles that update themselves, and adding one without a
-rebuild. Because the preference is root-owned, Zen will say it is **managed by
-your organization**; that organization is your own config. Set
-`haus.zen.extensions.stylus.mode = "normal_installed"` to keep it removable.
-
-Both can be on. Keep a given site in one or the other, though — and not because
-it is a close-run thing. The compiled sheet is a *user* stylesheet, which loses
-to the page unless every declaration is `!important`, so haus compiles it that
-way; Stylus injects its CSS *into* the page instead. User `!important` outranks
+If you do run both, keep a given site in one or the other — and not because it
+is a close-run thing. The compiled sheet is a *user* stylesheet, which loses to
+the page unless every declaration is `!important`, so haus compiles it that way;
+an extension injects its CSS *into* the page instead. User `!important` outranks
 anything a page-level sheet can say, so on a site both theme, the compiled sheet
-wins and the Stylus copy is doing nothing but slowing the page down.
+wins and the extension's copy does nothing but slow the page down.
 
 Either way this is a Gecko story and stays one. Styling a site with no extension
 needs `@-moz-document` in a user stylesheet, and Chromium removed user

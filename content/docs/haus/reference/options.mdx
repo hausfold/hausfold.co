@@ -397,18 +397,16 @@ Zen means Zen's own UI, and the web is a second step. haus places the
 Nebelung userChrome/userContent pair, and nebelung's userContent styles
 `about:` pages only — github.com and youtube.com are Catppuccin-derived
 *userstyles*, LESS source compiled rather than copied, which is why no
-palette file haus writes reaches them on its own. Two options do,
-differently. `haus.zen.userStyles` names the sites you want and haus
-compiles them with this accent into that same userContent.css, so a
-rebuild (and a Zen restart) recolours them with nothing to import.
-`haus.zen.extensions.stylus` deploys the extension instead and stamps
-the same accent into the bundle it hands you — the import stays a click,
-because Stylus has no file interface, and until you make it the web
-keeps the accent you last imported. What that click buys is what a
-compiled sheet can't do: per-site toggles, self-updating styles, and
-adding one without a rebuild.
+palette file haus writes reaches them on its own. One option does:
+`haus.zen.userStyles` names the sites you want and haus compiles them
+with this accent into that same userContent.css, so a rebuild (and a Zen
+restart) recolours them with nothing to import. Until 2026-08-20 there
+was a second way — haus deployed the Stylus extension and stamped this
+accent into a bundle you imported by hand — and it is retired; what the
+click bought (per-site toggles, self-updating styles, adding one without
+a rebuild) is what the compiled sheet gives up.
 
-Both halves of that are pinned by the `accent-reach` flake check, which
+That reach is pinned by the `accent-reach` flake check, which
 fingerprints every surface under three accents and fails if one starts
 or stops following the accent without anyone deciding it should.
 
@@ -2219,25 +2217,23 @@ rebuild` that can't reach it warns instead of installing anything. And
 because enterprise policies are on, Zen will tell you it is "managed by
 your organization" — that organization is haus.
 
-haus knows the id and slug of the extensions it themes
-(stylus),
-so those need only be named. Everything else needs `id` — see that
-option for where to find it.
+Every entry needs an `id` — the key Firefox's policy engine matches
+on, unguessable and unreachable from the add-on's name. haus fills that
+in for add-ons whose id it has read off a live profile, and it knows
+none today: the one it carried was Stylus. See the `id` option for
+where to read one off.
 
-Naming `stylus` here also turns on the stamped userstyle bundle (see
-haus.theme.accent): the Catppuccin-derived styles Stylus imports
-carry their own accent and flavor variables, which no palette file can
-reach, so haus stamps the bundle from your theme — accent, flavor,
-and the contrast it's rendered for — and tells you when there's a new
-one to import.
+This is deployment, not theming. haus themes Zen's own UI through
+`haus.theme.accent`, and real websites through `haus.zen.userStyles`,
+which compiles the Nebelung userstyles into the profile's
+userContent.css — no add-on involved. Stylus used to be the way that
+reached the web, with a stamped bundle and an import click; that path
+was retired on 2026-08-20 and nothing here replaces it.
 
 Example:
 
 ```nix
 {
-  # Known to haus — id and slug are filled in.
-  stylus = { };
-  # Anything else: bring the id.
   ublock-origin = {
     id = "uBlock0@raymondhill.net";
     slug = "ublock-origin";
@@ -2425,11 +2421,11 @@ signing — packaging, not a code change — and would drop the pref.
 Nebelung userstyles to compile into Zen's `userContent.css`, by slug —
 the palette on real websites, with **no extension and no import click**.
 
-This is the same 134 styles Stylus would import, taken the other way
-round. They are LESS source, which is why the accent could only ever
-reach the web through a click: Stylus compiles them in the browser.
-haus compiles the ones you name here instead, stamping the same three
-axes (`haus.theme.accent`, and the flavor on both its light and dark
+These are the 134 styles nebelung ships for the Stylus extension,
+taken the other way round. They are LESS source, which is why the accent
+could only ever reach the web through an import click: the extension
+compiled them in the browser. haus compiles the ones you name here at
+build time instead, stamping the same three axes (`haus.theme.accent`, and the flavor on both its light and dark
 vars), and appends the result to the stylesheet it already drops into
 every Zen profile. Nothing to re-import and no state to carry to the
 next machine — but a **restart of Zen** is what applies it: Firefox
@@ -2446,17 +2442,38 @@ every document, and these are big: github and youtube together are
 ~320 KB, the whole set is 7 MB of CSS on every page load to theme sites
 you never open. This is for the handful you actually read.
 
-A couple of dozen styles theme code blocks through a remote
-`@import url(...)` — mdn, wikipedia and the nix docs among them. An
-`@import` inside an `@-moz-document` block is invalid CSS, so Firefox
-drops it and those styles land with their code blocks unthemed; the
-rest of each style applies, and the build prints which ones are
-affected. Stylus has the same styles without that limit.
+Code blocks are themed too, including on the couple of dozen styles
+that reach for them through a remote `@import url(...)` — mdn,
+wikipedia, stack-overflow and the nix docs among them. An `@import`
+inside an `@-moz-document` block is invalid CSS wherever it points, so
+haus vendors the four files those 29 styles share and pastes each one
+in where its `@import` was. A fifth URL appearing upstream fails the
+build naming it, rather than shipping a style whose code blocks are
+quietly stock.
 
-What stays with `haus.zen.extensions.stylus`: per-site toggles, styles
-that update themselves, and adding one without a rebuild. Both can be
-on — but keep a given site in one or the other, since two sheets
-setting the same property is a race nobody wins.
+Every declaration is compiled to `!important`, and that is load-bearing
+rather than heavy-handed: a user stylesheet's normal declarations rank
+BELOW the page's own in the cascade, so an unstamped sheet matches the
+site and then loses every property to it. Most of these styles theme by
+redefining the site's own custom properties without `!important` —
+which is free for an extension, since it injects author-origin CSS —
+so without the stamp they render nothing. It was measured that way: this
+option shipped twice before anyone loaded a page instead of checking
+that the file was in the profile.
+
+The stamp is skipped exactly where `!important` would be invalid and
+the declaration would therefore be dropped: `@keyframes`, descriptor
+blocks like `@font-face`, and at-statements.
+
+This is now the only web-theming path haus ships. Until 2026-08-20 it
+also deployed the Stylus extension and stamped an importable bundle for
+it; what that click bought — per-site toggles, styles that update
+themselves, adding one without a rebuild — is what a compiled sheet
+gives up, and none of it was being used. Installing Stylus yourself
+still works (`haus.zen.extensions`, with its `id`), but keep a given
+site in one place or the other: they do not tie, and a user sheet's
+`!important` outranks every author sheet, so this one wins and the
+extension's copy of that site would be doing nothing.
 
 **Gecko only, and permanently so.** `@-moz-document` in a user sheet is
 what makes this possible; Chromium removed user stylesheets in Chrome 33
