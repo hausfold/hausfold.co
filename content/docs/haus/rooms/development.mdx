@@ -158,22 +158,31 @@ lands on the windows you already have — same directories, live agent
 conversations uninterrupted.
 
 <Callout title="Opening a link">
-`⌘⇧`-click opens the link under the pointer, and `⌘⇧`-hover previews where it
-goes. It is `⌘⇧` and not a plain click because most of what you'll click sits
-inside a program that has taken the mouse (an agent, `lazygit`, `vim`): the
-terminal's mouse protocol has no bit for `⌘`, so a plain `⌘`-click arrives at
-that program indistinguishable from any other click. `⇧` is the one modifier
-Ghostty always keeps for itself, which is what makes the pair dependable
-anywhere.
+`⌘`-click opens the link under the pointer, and `⌘`-hover previews where it
+goes — no shift. It works even though most of what you'll click sits inside a
+program that has taken the mouse (an agent, `lazygit`, `vim`), because Ghostty
+treats a `⌘`-click as a link click and never forwards it: the program only sees
+the ones you make without `⌘`. A bare click still belongs to whatever is
+running.
+
+`⇧` is a different tool for a different job — it's the one modifier Ghostty
+always keeps for itself, which is what lets `⇧`-drag select text over a
+program's mouse grab. Adding it to a link click buys nothing.
 </Callout>
 
 ## Finding things
 
 `⌘F` opens a search overlay for the focused window, `⌘⇧F` the same overlay
-across every window at once. It floats over the window that summoned it, so
-`Esc` puts you straight back. Results appear as you type, with the lines around
-each hit beside them. `⏎` jumps to the window a hit came from, `^y` copies the
-line, `^s` flips between this-window and every-window without losing your query.
+across every window at once. Either way `Esc` puts you straight back. Results
+appear as you type, with the lines around each hit beside them. `⏎` jumps to the
+window a hit came from, `^y` copies the line, `^s` flips between this-window and
+every-window without losing your query.
+
+The overlay is **sized to its scope**: searching one window, it covers exactly
+that window, because that window's scrollback is the whole haystack. Searching
+every window, it covers the desktop, because there is no one window the results
+belong to. `^s` resizes it as it flips, so the shape always matches what you're
+looking through.
 
 **In an agent window it searches the conversation, not the terminal.** Claude
 Code and Opencode render in the alt-screen, which has no scrollback at all, so
@@ -205,9 +214,10 @@ those four simply aren't written.
 
 ## yazi peek
 
-`⌘Y` opens a floating file browser with live previews, sized to cover the
-terminal window that summoned it exactly, so it reads as that window turning
-into a file browser rather than a popup landing on it. `Enter` on a file pages
+`⌘Y` opens a floating file browser with live previews, covering the tiled
+desktop — the whole layout, not the window you pressed it in. yazi draws a
+parent column, the tree and a live preview side by side, and half a screen is
+not enough for all three. `Enter` on a file pages
 it fullscreen; `Enter` on a directory opens a new window there, which makes
 peek double as a browse-and-pick directory chooser. `q` or `Esc` closes it and leaves
 your layout untouched.
