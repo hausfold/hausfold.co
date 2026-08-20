@@ -71,6 +71,11 @@ older Pounce never chokes on a config written by a newer one.
     "homeOnly": true,        // scope to ~ instead of the whole Spotlight index
     "maxResults": 60
   },
+  "systemSettings": {         // System Settings, opened by the setting rather than the pane
+    "enabled": true,
+    "subItemMinQuery": 3,     // characters before the settings INSIDE a pane join the results; 0 = from the first keystroke
+    "maxPerPane": 8           // how many settings one pane may contribute to a list; 0 = no cap
+  },
   "apps": {
     "demoteBundleIds": [],   // sink these below everything else; REPLACES a built-in list of Apple utilities (Feedback Assistant, Audio MIDI Setup, …)
     "hideBundleIds": []      // drop these from the list entirely
@@ -115,6 +120,17 @@ behaviours](/docs/pounce/beyond-launching); both blocks are startup-only, so
 **any** edit inside them needs the daemon restart above, not just flipping
 `enabled`.
 
+`systemSettings` is the one block worth tuning rather than flipping. Every
+System Settings pane is a row, and so is every setting *inside* one: `⏎` opens
+the pane already scrolled to what you picked. The titles and their synonyms come
+from the panes' own search index, so "full disk access" and "night shift" find
+the right screen even when that isn't what the row is called. There are about
+700 individual settings and Accessibility alone ships 342 of them, which is why
+two of the three keys exist: `subItemMinQuery` keeps short queries about your
+apps, and `maxPerPane` stops one pane from being the whole answer. Panes
+themselves are always searchable, and start ranked below everything at an empty
+query until you use them.
+
 `windowMode` and `scale` are independent knobs (proportions vs. size) and
 they compose: a compact launcher at `1.4` is still the compact layout, just
 bigger. Values outside 0.8–2.0 clamp rather than reject. On haus, `scale` is
@@ -148,6 +164,8 @@ shorthand, give it a global key. Each entry is keyed by an **item key**:
 |---|---|
 | `cmd:<id>` | a command script, by filename without `.sh` |
 | `app:/Applications/Foo.app` | an application, by path |
+| `shortcut:<uuid>` | a Shortcut from your Shortcuts library, by its uuid |
+| `setting:<pane>[?<anchor>]` | a System Settings pane, or one setting inside it — `setting:com.apple.Displays-Settings.extension?nightShiftSection`. `pounce doctor` prints the exact key |
 | `mode:<name>` | a built-in window: `launcher`, `clipboard`, `emoji`, `screenshots`, `camera`, `filesearch` |
 
 ```jsonc
