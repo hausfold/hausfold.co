@@ -32,13 +32,26 @@ For a first release, invite people to vendor the `.nix` file into their own
 config rather than fetching it:
 
 ```sh
+mkdir -p ~/.config/nix/desktops
 curl -O https://raw.githubusercontent.com/you/writer-desktop/main/writer.nix
 mv writer.nix ~/.config/nix/desktops/
+git -C ~/.config/nix add desktops/writer.nix
 ```
 
 ```nix
 desktop = ./desktops/writer.nix;
 ```
+
+<Callout type="warn" title="The `git add` is the step people lose an hour to">
+A config that is a git repository, which a bootstrap install always is, hands
+Nix only its **tracked** files. An untracked `writer.nix` is invisible to the
+evaluation no matter what the `desktop` line says, and the error names a path
+that is plainly right there in the directory the person is looking at. Stage
+it in the same breath as downloading it; committing can wait.
+
+`checkDesktop` will not catch this for you: it reads the path you hand it,
+so it passes on the very file the rebuild cannot see.
+</Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It
 should not hide the data people are being asked to trust, and any wrapper owes
