@@ -394,16 +394,20 @@ theme slot (ghostty, starship, tmux, bat, …) keep their built-in
 colour and don't follow this option. The base palette stays the same
 Nebelung grey either way — only the accent hue changes.
 
-Zen means Zen's own UI, and the web is a separate story. haus places
-the Nebelung userChrome/userContent pair, but userContent only styles
-`about:` pages — github.com and youtube.com are themed by the Stylus
-extension, whose Catppuccin-derived styles carry their OWN `accentColor`
-var (default mauve) inside the extension's storage, where no stylesheet
-can reach it. Declare `haus.zen.extensions.stylus` and haus
-stamps that var with this accent and tells you, once, when there's a new
-bundle to import; the import itself stays a click, because Stylus has no
-file interface. Until you make it, the web keeps the accent you last
-imported.
+Zen means Zen's own UI, and the web is a second step. haus places the
+Nebelung userChrome/userContent pair, and nebelung's userContent styles
+`about:` pages only — github.com and youtube.com are Catppuccin-derived
+*userstyles*, LESS source compiled rather than copied, which is why no
+palette file haus writes reaches them on its own. Two options do,
+differently. `haus.zen.userStyles` names the sites you want and haus
+compiles them with this accent into that same userContent.css, so a
+rebuild (and a Zen restart) recolours them with nothing to import.
+`haus.zen.extensions.stylus` deploys the extension instead and stamps
+the same accent into the bundle it hands you — the import stays a click,
+because Stylus has no file interface, and until you make it the web
+keeps the accent you last imported. What that click buys is what a
+compiled sheet can't do: per-site toggles, self-updating styles, and
+adding one without a rebuild.
 
 Both halves of that are pinned by the `accent-reach` flake check, which
 fingerprints every surface under three accents and fails if one starts
@@ -2389,19 +2393,27 @@ reach the web through a click: Stylus compiles them in the browser.
 haus compiles the ones you name here instead, stamping the same three
 axes (`haus.theme.accent`, and the flavor on both its light and dark
 vars), and appends the result to the stylesheet it already drops into
-every Zen profile. A rebuild recolours them; nothing to re-import, no
-state to carry to the next machine.
+every Zen profile. Nothing to re-import and no state to carry to the
+next machine — but a **restart of Zen** is what applies it: Firefox
+reads `userContent.css` once at startup, so a rebuild alone leaves an
+open browser on the previous colours.
 
 A slug is the style's own name in nebelung's bundle — `github`,
-`youtube`, `reddit`, `wikipedia`. Naming one that doesn't exist fails
+`youtube`, `reddit`, `hacker-news`. Naming one that doesn't exist fails
 the build and lists every slug there is, so a typo costs a rebuild
 rather than a silently unthemed site.
 
 **Keep the list short.** A user stylesheet is parsed and applied to
 every document, and these are big: github and youtube together are
-~320 KB, all 134 would be several megabytes of CSS on every page load
-to theme sites you never open. This is for the handful you actually
-read.
+~320 KB, the whole set is 7 MB of CSS on every page load to theme sites
+you never open. This is for the handful you actually read.
+
+A couple of dozen styles theme code blocks through a remote
+`@import url(...)` — mdn, wikipedia and the nix docs among them. An
+`@import` inside an `@-moz-document` block is invalid CSS, so Firefox
+drops it and those styles land with their code blocks unthemed; the
+rest of each style applies, and the build prints which ones are
+affected. Stylus has the same styles without that limit.
 
 What stays with `haus.zen.extensions.stylus`: per-site toggles, styles
 that update themselves, and adding one without a rebuild. Both can be
