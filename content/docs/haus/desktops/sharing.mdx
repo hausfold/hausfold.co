@@ -49,8 +49,8 @@ evaluation no matter what the `desktop` line says, and the error names a path
 that is plainly right there in the directory the person is looking at. Stage
 it in the same breath as downloading it; committing can wait.
 
-`checkDesktop` will not catch this for you: it reads the path you hand it,
-so it passes on the very file the rebuild cannot see.
+Neither `haus show` nor `checkDesktop` catches this for you: both read the
+path they are handed, so they pass on the very file the rebuild cannot see.
 </Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It
@@ -76,7 +76,7 @@ feel like tomorrow. Tell them:
   `snippets.matches`), because a host that names the same one
   [replaces yours whole](/docs/haus/desktops/creating#leave-room-for-the-host)
   and has to restate the entries it wants to keep;
-- **that both `checkDesktop` and a real host evaluation passed**.
+- **that both `haus show` and a real host evaluation passed**.
 
 You do not need to document how to override you. Anything a desktop sets, a host
 beats with a plain assignment. That is a property of the seam, and it holds for
@@ -89,10 +89,12 @@ about them:
 
 - a **desktop** is *data*. Its shape is closed, `checkDesktop` reads it leaf by
   leaf, and it cannot run anything. That is why running one from a stranger is
-  reasonable.
+  reasonable — and why `haus show` will tell you it passed.
 - a **room** is *code* — an ordinary nix-darwin module, exported under
   `darwinModules`. It can install packages, write files and run activation
   steps as root, and haus can tell a reader nothing about what it does.
+  `haus show` says so and checks nothing; that is the honest answer, not a
+  gap in the tooling.
 
 So if what you want to share is a *set of apps* rather than a whole machine,
 that is a room: `haus.photography.enable` bringing the apps, and whatever else
@@ -112,7 +114,7 @@ ships are untouched, still one line each
 
 ## Before you share
 
-- [ ] `checkDesktop` prints `true`, and a real host evaluates.
+- [ ] `haus show ./writer.nix` passes, and a real host evaluates.
 - [ ] You have run it on a Mac, not only evaluated it.
 - [ ] Every room it turns off agrees with the features that depend on that room,
       `tour.steps` included.

@@ -120,18 +120,30 @@ none of them. Check that pairing by eye.
 Run the same structural check haus runs against its own desktops:
 
 ```sh
+haus show ./writer.nix
+```
+
+It says what class the file is, then either passes it or names exactly what
+escaped: a stray top-level key, an `imports`, a merge or priority instruction,
+an option that isn't a haus option, or a leaf that is host-only. Every rule has
+a fixture behind it, so the message names the file and the option rather than
+failing somewhere deeper. It also prints what the file sets, grouped by room,
+and which rooms it leaves alone — which is the half a `true` never told you.
+It exits non-zero when it fails, so it is also the line to put in your CI;
+[the reference](/docs/haus/reference/haus#reading-a-file-before-you-trust-it)
+has the exit codes and `--json`.
+
+The rules underneath it are `haus.lib.checkDesktop`'s, and on a machine with no
+haus installed you can call that directly — the same rules, reached the long
+way:
+
+```sh
 nix eval --impure --expr \
   '(builtins.getFlake "github:hausfold/haus").lib.checkDesktop ./writer.nix'
 ```
 
-It prints `true`, or throws naming exactly what escaped: a stray top-level key,
-an `imports`, a merge or priority instruction, an option that isn't a haus
-option, or a leaf that is host-only because it names a person or a piece of
-hardware. Every rule has a fixture behind it, so the message names the file and
-the option rather than failing somewhere deeper.
-
-`checkDesktop` proves the trust boundary and the option names. To prove the
-*values* build a machine, select it from a real host and evaluate:
+That prints `true` or throws. To prove the *values* build a machine, select it
+from a real host and evaluate:
 
 ```sh
 nix eval .#darwinConfigurations.myhost.system.drvPath
