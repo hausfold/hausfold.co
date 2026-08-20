@@ -72,6 +72,9 @@ listing all 134, so a typo costs a rebuild rather than a silently stock site.
 Keep the list to sites you actually read. A user stylesheet is applied to every
 document, and these are big — github and youtube together are ~320 KB.
 
+Zen reads that file **once, at startup**, so a rebuild alone leaves an open
+browser on the old colours: quit Zen and reopen it.
+
 **Or deploy Stylus, and keep the browser in charge:**
 
 ```nix
@@ -88,8 +91,12 @@ rebuild. Because the preference is root-owned, Zen will say it is **managed by
 your organization**; that organization is your own config. Set
 `haus.zen.extensions.stylus.mode = "normal_installed"` to keep it removable.
 
-Both can be on. Keep a given site in one or the other, though — two stylesheets
-setting the same property is a race nobody wins.
+Both can be on. Keep a given site in one or the other, though — and not because
+it is a close-run thing. The compiled sheet is a *user* stylesheet, which loses
+to the page unless every declaration is `!important`, so haus compiles it that
+way; Stylus injects its CSS *into* the page instead. User `!important` outranks
+anything a page-level sheet can say, so on a site both theme, the compiled sheet
+wins and the Stylus copy is doing nothing but slowing the page down.
 
 Either way this is a Gecko story and stays one. Styling a site with no extension
 needs `@-moz-document` in a user stylesheet, and Chromium removed user
