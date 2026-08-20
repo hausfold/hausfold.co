@@ -54,6 +54,10 @@ Someone selects it the same way they select one of haus's own:
 desktop = ./desktops/writer.nix;
 ```
 
+`git add` the file before you rebuild. A config is a git repository and Nix
+reads only its tracked files, so a brand-new desktop that hasn't been staged
+fails as a path that does not exist — on a file sitting in the directory.
+
 ## A desktop is the whole answer
 
 A host runs **exactly one**, so yours is not a diff against hacker; it is

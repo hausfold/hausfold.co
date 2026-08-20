@@ -103,6 +103,10 @@ the line for you; `HAUS_DESKTOP=minimal` picks a different one on an
 Vendor the `.nix` file into your config and point `desktop` at the path:
 `desktop = ./desktops/writer.nix;`. There is no separate import mechanism for
 someone else's desktop; that's the point of the format being closed.
+
+`git add` it once it's in place — your config is a git repository, and Nix
+reads only the tracked files, so an unstaged desktop evaluates as a path that
+does not exist.
 </Callout>
 
 ## Changing your mind
