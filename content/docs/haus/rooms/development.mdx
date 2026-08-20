@@ -220,13 +220,15 @@ those four simply aren't written.
 
 ## yazi peek
 
-`⌘Y` opens a floating file browser with live previews, covering the tiled
-desktop — the whole layout, not the window you pressed it in. yazi draws a
-parent column, the tree and a live preview side by side, and half a screen is
-not enough for all three. `Enter` on a file pages
-it fullscreen; `Enter` on a directory opens a new window there, which makes
-peek double as a browse-and-pick directory chooser. `q` or `Esc` closes it and leaves
-your layout untouched.
+`⌘Y` opens a floating file browser with live previews, covering exactly the
+window you pressed it in — peek is rooted at *that* window's directory, so it
+reads as that terminal turning into a file browser rather than as a popup
+landing on your layout. (It covers a lot in a narrow pane: yazi wants a parent
+column, the tree and a live preview side by side. Summon it from a wide window
+when you're browsing rather than glancing.) `Enter` on a file pages it
+fullscreen; `Enter` on a directory opens a new window there, which makes peek
+double as a browse-and-pick directory chooser. `q` or `Esc` closes it and
+leaves your layout untouched.
 
 Markdown renders through `glow`, code through `bat`, images through `chafa`.
 `Y` copies a file's *contents*, not its path.
