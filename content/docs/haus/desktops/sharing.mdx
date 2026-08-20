@@ -42,6 +42,14 @@ git -C ~/.config/nix add desktops/writer.nix
 desktop = ./desktops/writer.nix;
 ```
 
+Tell them they can read it before they vendor it. `haus show` takes the repo
+directly, fetches it into the store and reports on it without touching their
+config:
+
+```sh
+haus show github:you/writer-desktop
+```
+
 <Callout type="warn" title="The `git add` is the step people lose an hour to">
 A config that is a git repository, which a bootstrap install always is, hands
 Nix only its **tracked** files. An untracked `writer.nix` is invisible to the
@@ -49,8 +57,8 @@ evaluation no matter what the `desktop` line says, and the error names a path
 that is plainly right there in the directory the person is looking at. Stage
 it in the same breath as downloading it; committing can wait.
 
-Neither `haus show` nor `checkDesktop` catches this for you: both read the
-path they are handed, so they pass on the very file the rebuild cannot see.
+Neither `haus show` nor `checkDesktop` catches this for you: both read what
+they are handed, so they pass on the very file the rebuild cannot see.
 </Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It

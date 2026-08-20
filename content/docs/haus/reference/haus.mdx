@@ -44,7 +44,7 @@ For the day-to-day shape of it, see
 | `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, Pounce's Accessibility grant, your secrets, agent readiness. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
-| `haus show <file>` | Read a desktop or room file — before you publish it, or before you trust one. Read-only; see below. |
+| `haus show <src>` | Read a desktop or room — a local file, or a source you have not got yet — before you publish it, or before you trust one. Read-only; see below. |
 
 ## Changing a setting without opening an editor
 
@@ -133,15 +133,24 @@ light mode*, *High contrast on*. The palette keeps no settings of its own; it
 calls `haus set`.
 </Callout>
 
-## Reading a file before you trust it
+## Reading a desktop or room before you trust it
 
 `haus show` is the odd one out here: every other command drives *this* Mac, and
-this one reads a file. It is what you run when someone hands you a desktop, and
-what you run on your own before you publish one.
+this one reads someone's work. It is what you run when a stranger hands you a
+desktop, and what you run on your own before you publish one.
 
 ```sh
-haus show ./writer.nix
+haus show ./writer.nix                     # a file you already have
+haus show github:ada/writer-desktop        # one you don't
+haus show git+https://git.example.org/ada/desktop
+haus show file+https://example.org/writer.nix
 ```
+
+A source is fetched into the Nix store and read there. Nothing in **your
+config** is written: not your `flake.nix`, not your lock, not a vendored copy.
+So `show` is safe to run on something you have every intention of refusing. If
+the repo holds more than one desktop, `show` lists them and stops; name the one
+you mean with `--file`.
 
 It answers three questions and stops. **What class is it** — a desktop is data
 haus can check, a room is a nix-darwin module and haus can tell you nothing
@@ -151,8 +160,34 @@ at rebuild time. And **what does it set**, grouped by room, with the rooms it
 says nothing about listed after — because what a desktop leaves alone is half
 of what you are agreeing to.
 
-Nothing is fetched, written or applied. It takes a local path today; remote
-sources come with `haus add`.
+For a **fetched source** it tells you one more thing: where it came from. The
+source as you typed it, the revision it resolved to, and two dates that are easy
+to confuse: `changed`, the source's own commit date, and `fetched`, stamped from
+the clock as this command ran. Nothing in a lock file records the second
+one, which is why `show` has to.
+
+A raw `file+https://` URL has neither: it pins content and nothing else, so
+there is no revision to compare and no commit date to age. Worse than a missing
+changelog, a later `nix flake update` on one prints the **same URL on both sides
+of its arrow** while the content moves underneath. It reads as confirmation that
+nothing changed. `show` says so where the shape is chosen, because
+that is the cheap moment to publish from a repo instead.
+
+<Callout type="info" title="Fetching and reading are two separate acts">
+Reading a `.nix` file means **evaluating** it, and Nix evaluation is not inert —
+a file can read other files and reach the network while it is being read. So
+`show` splits the job. The fetch reaches the network and runs nothing: it pulls
+a *tree*, never locking a flake, so not even a room's own `flake.nix` is
+evaluated. The read reaches nothing: it runs restricted, where no fetch of any
+scheme resolves and the only readable paths are the checker's own and the source
+you named. An attempt to reach anything else fails loudly and names what it
+reached for.
+
+One honest limit: the restriction's unit is the store path, so a desktop fetched
+from a repo can read the other files **its publisher shipped beside it**. It
+still cannot read anything of yours. That is why the report attributes values to
+the fetched tree rather than to one file in it.
+</Callout>
 
 <Callout type="warn" title="It proves *data*. It only ever reports *code*.">
 A module function is reported as a room without being asked, because that
@@ -168,15 +203,17 @@ For CI, the exit code is the contract:
 |---|---|
 | `0` | It is a desktop and it passed — or it is a room and you passed `--room`. |
 | `1` | It was checked as a desktop and it failed; every rule is listed. |
-| `2` | The file could not be read, or the arguments were wrong. |
+| `2` | It could not be fetched or read, or the arguments were wrong. |
 | `3` | It is code and you did not say `--room`, so nothing was checked. |
 
 `--json` prints the whole report on stdout instead, with `class`, `checked`,
-`ok`, `failures`, `sets` and `silent`. On a machine that has no haus — a
-publisher's CI runner, say — the same command is one `nix run` away:
+`ok`, `failures`, `sets`, `silent` and `origin`, which is `null` for a local
+file. On a machine that has no haus — a publisher's CI runner, say — the
+same command is one `nix run` away:
 
 ```sh
 nix run github:hausfold/haus#show -- ./writer.nix
+nix run github:hausfold/haus#show -- github:ada/writer-desktop
 ```
 
 ## Looking before you leap
