@@ -297,7 +297,12 @@ The status token is one mutually-exclusive slot:
 | `N^` | `N` commits on the branch, not merged yet |
 | `N^` *(orange)* | the PR merged and `N` commits landed since, covered by nothing; `holt reship` |
 | `+A -D` | uncommitted line changes, when nothing's committed yet |
-| `●` *(muted)* | nothing to report: clean tree, nothing ahead |
+| `●` *(muted)* | nothing to report: clean tree, nothing ahead — including a lane that hasn't committed yet |
+
+A lane that has *never committed* is not landed, whatever git's ancestry says
+about it: it is simply empty, so it gets the muted `●`, not `⏏`. The same
+distinction reaches the paw pill — such a lane draws no PR row at all, where it
+used to announce itself as `merged` from the second it was spawned.
 
 Flush right on row one sit a few per-session chips: how far behind your pinned
 revision you are (`⇡N`, what `haus update` would pull), context used, session
