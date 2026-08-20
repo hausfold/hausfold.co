@@ -187,7 +187,7 @@ bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 
 | Variable | Effect |
 |---|---|
-| `HAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults — including the Determinate installer's own confirmation of the Nix install, which a run with no terminal has no way to answer |
+| `HAUS_NONINTERACTIVE=1` | Skip the questions, take the defaults. That covers the Determinate installer's own confirmation of the Nix install too, which haus answers on your behalf, so a run with no terminal at all (ssh, CI, a provisioning wrapper) gets all the way through |
 | `HAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal; pair it with `--defaults` for a silent run |
 | `HAUS_DESKTOP` | Which desktop to select (`hacker`, `everyday`, `minimal`, `blank`), or `--desktop=<name>` on the command line. Setting it skips that question even in an interactive run, which is what a desktop's own URL does for you |
 | `HAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
