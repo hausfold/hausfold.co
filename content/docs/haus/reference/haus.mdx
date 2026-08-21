@@ -45,6 +45,9 @@ For the day-to-day shape of it, see
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
 | `haus show <src>` | Read a desktop or room — a local file, or a source you have not got yet — before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
+| `haus add <src>` | Pin a desktop you found and select it: writes `flake.nix` and `flake.lock`, never rebuilds. See below. |
+| `haus desktop [name]` | List every desktop this machine can select — built in and pinned — or switch to one. |
+| `haus remove <name> [replacement]` | Unpin a desktop `add` brought in. Falls back to `blank` if it was the one selected. |
 
 ## Changing a setting without opening an editor
 
@@ -267,6 +270,49 @@ same command is one `nix run` away:
 nix run github:hausfold/haus#show -- ./writer.nix
 nix run github:hausfold/haus#show -- github:ada/writer-desktop
 ```
+
+## Pinning a desktop you found
+
+`haus show` told you what it is; `haus add` is the command that actually
+brings it in. It reruns the same check, and refuses whatever `show` would
+have:
+
+```sh
+haus add github:ada/writer-desktop
+```
+
+That fetches it, checks it, prints the same report `show` would have, asks
+`Add 'writer-desktop' from github:ada/writer-desktop and select it? [y/N]`,
+then writes `flake.nix` (the input, and the `desktop` line) and
+`flake.lock` in one edit. Nothing rebuilds — `haus rebuild` is the next
+step, printed at the end.
+
+```sh
+haus add --as writer --file writer.nix github:ada/desktops   # name it, pick the file
+haus add --vendor file+https://example.org/writer.nix        # copy it in, don't pin it
+haus add --print git+https://git.example.org/ada/desktop     # show the edit, write nothing
+haus add -y github:ada/writer-desktop                         # skip the prompt
+```
+
+`--vendor` is the old by-hand path (`curl`, `mv`, `git add`) done for you: the
+file lands at `desktops/<name>.nix` in your config instead of becoming a flake
+input, which is the right call for a one-off you plan to edit yourself.
+Pinning is the default because it is how you get `haus update <name>` later.
+
+Once it's in, three commands manage it the same way `haus rebuild` and
+`haus rollback` manage your own machine:
+
+```sh
+haus desktop            # list what's pinned, and what's selected
+haus desktop writer     # switch to a pinned (or built-in) desktop
+haus update writer      # pull the latest writer, then rebuild
+haus remove writer      # unpin it — falls back to blank if it was selected
+```
+
+`haus add` only takes desktops today — a room (an ordinary nix-darwin module)
+refuses, naming that, and points at `haus show --room` instead. Only one
+third-party desktop can be pinned at a time; a second `haus add` prints the
+lines to add by hand rather than guessing at your `flake.nix`.
 
 ## Looking before you leap
 
