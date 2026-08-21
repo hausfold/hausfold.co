@@ -113,9 +113,12 @@ rewind point. Non-fatal if Time Machine is off.
 
 Your git name and email, a desktop (hacker / everyday / minimal / custom), an
 accent colour, a wallpaper, and an editor: helix, neovim, vim or nano, and haus
-installs the one you name. It also asks whether to keep your current Dock,
-keyboard and Finder settings, and whether to adopt the Homebrew casks you
-already have.
+installs the one you name. Then, separately, whether you'd rather point
+`$EDITOR` at a GUI editor instead — VS Code, Cursor, Zed or your own command —
+and for the first three, haus installs that too (adopting it in place if it's
+already on your Mac some other way, rather than laying down a second copy). It
+also asks whether to keep your current Dock, keyboard and Finder settings, and
+whether to adopt the Homebrew casks you already have.
 </Step>
 
 <Step>
@@ -192,6 +195,7 @@ bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 | `HAUS_DESKTOP` | Which desktop to select (`hacker`, `everyday`, `minimal`, `blank`), or `--desktop=<name>` on the command line. Setting it skips that question even in an interactive run, which is what a desktop's own URL does for you |
 | `HAUS_ROOMS` | Which rooms to turn on, one by one, instead of taking a desktop's selection |
 | `HAUS_ACCENT` / `HAUS_WALLPAPER` / `HAUS_EDITOR` | The look and the editor |
+| `HAUS_GUI_EDITOR` / `HAUS_GUI_EDITOR_APP` | Point `$EDITOR` at a GUI editor's CLI (e.g. `"code -w"`) and, for `vscode`/`cursor`/`zed`, install it too |
 | `HAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
 | `HAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
 | `HAUS_FROM` | Restore an existing config instead of scaffolding |

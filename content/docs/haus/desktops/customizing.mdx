@@ -140,6 +140,7 @@ bar](/docs/haus/rooms/bar) lists them.
 haus.homebrew.cleanup = "none";    # none | uninstall | zap: what a rebuild does to undeclared apps
 haus.homebrew.autoUpdate = false;  # brew update before each rebuild
 haus.homebrew.upgrade = false;     # upgrade outdated packages each rebuild
+haus.homebrew.adopt = true;        # adopt an already-installed app instead of failing on it
 ```
 
 `cleanup` is `"none"` so nothing you installed by hand is ever removed; `"zap"`
@@ -152,6 +153,18 @@ cask once, then leaves whatever version brew first laid down. That's why an app
 can sit on an old version on a fully synced machine. Upgrade one on demand with
 `brew upgrade --cask <name>`, or set both to `true` and accept that two rebuilds
 days apart can land different app versions.
+</Callout>
+
+<Callout type="warn" title="adopt hands cleanup a new app to manage">
+`adopt` is on by default so declaring a cask that's already sitting in
+`/Applications` — installed by hand, the App Store, anything other than
+Homebrew — gets tracked into Homebrew's bookkeeping instead of failing
+activation with "there is already an App at …". That app is now genuinely
+brew-managed: if you later remove its roster entry on a `cleanup = "zap"`
+machine, the next rebuild zaps it like any other undeclared cask, even though
+you never installed it through haus. Turn `adopt` off if you'd rather activation
+fail loudly on a name collision than start managing an app you brought
+yourself.
 </Callout>
 
 ## Turning rooms off
