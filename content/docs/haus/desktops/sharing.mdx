@@ -28,21 +28,7 @@ writer-desktop/
 └── LICENSE
 ```
 
-For a first release, invite people to vendor the `.nix` file into their own
-config rather than fetching it:
-
-```sh
-mkdir -p ~/.config/nix/desktops
-curl -O https://raw.githubusercontent.com/you/writer-desktop/main/writer.nix
-mv writer.nix ~/.config/nix/desktops/
-git -C ~/.config/nix add desktops/writer.nix
-```
-
-```nix
-desktop = ./desktops/writer.nix;
-```
-
-Tell them they can read it before they vendor it. `haus show` takes the repo
+Tell them they can read it before they run it. `haus show` takes the repo
 directly, fetches it into the store and reports on it without touching their
 config:
 
@@ -50,15 +36,26 @@ config:
 haus show github:you/writer-desktop
 ```
 
-<Callout type="warn" title="The `git add` is the step people lose an hour to">
-A config that is a git repository, which a bootstrap install always is, hands
-Nix only its **tracked** files. An untracked `writer.nix` is invisible to the
-evaluation no matter what the `desktop` line says, and the error names a path
-that is plainly right there in the directory the person is looking at. Stage
-it in the same breath as downloading it; committing can wait.
+Once they trust it, `haus add github:you/writer-desktop` pins it and selects
+it — writing the input and the `desktop` line in one edit — and `haus
+rebuild` is the only step left. That's the [CLI
+reference](/docs/haus/reference/haus#pinning-a-desktop-you-found)'s job to
+teach, not the README's: your repository only needs to be readable and
+`haus show`-clean.
 
-Neither `haus show` nor `checkDesktop` catches this for you: both read what
-they are handed, so they pass on the very file the rebuild cannot see.
+<Callout title="Vendoring is still there for a one-off">
+`haus add --vendor github:you/writer-desktop` copies the file into their
+config at `desktops/writer.nix` instead of pinning it, for someone who plans
+to fork and edit it immediately. It still has to be `git add`ed — a config
+that is a git repository, which a bootstrap install always is, hands Nix only
+its **tracked** files, and an untracked `writer.nix` is invisible to the
+evaluation no matter what the `desktop` line says. `haus add --vendor` stages
+it for you; anyone still copying a file in by hand should do the same in the
+same breath as downloading it.
+
+Neither `haus show` nor `checkDesktop` catches a missing `git add` for you:
+both read what they are handed, so they pass on the very file the rebuild
+cannot see.
 </Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It
