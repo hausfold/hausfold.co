@@ -37,7 +37,7 @@ or Pounce never lists them.
 | `description` | Subtitle | *(empty)* |
 | `icon` | An [SF Symbol](https://developer.apple.com/sf-symbols/) name | `sparkles` |
 | `submenu` | `true` means the command re-invokes Pounce for a second step | `false` |
-| `whenFile` | A file that can hide the row — see below | *(always listed)* |
+| `whenFile` | A file that can hide the row (see below) | *(always listed)* |
 
 Header lines are read from the first 30 lines of the file; anything else in them
 is skipped.
@@ -46,8 +46,8 @@ is skipped.
 
 [`workspaces` and `bundleIds`](/docs/pounce/config#rows-that-only-exist-where-they-work)
 ask **where you are**. The other question a row can want asked is *is there
-anything here for me to act on at all* — a pages picker on a Mac with no page on
-it, a lane picker with no lanes — and no name can answer that. `whenFile` names a
+anything here for me to act on at all* (a pages picker on a Mac with no page on
+it, a lane picker with no lanes), and no name can answer that. `whenFile` names a
 file that can:
 
 ```bash
@@ -56,18 +56,18 @@ file that can:
 
 The file is a **veto**, read on every summon: the row is hidden only while the
 file's first line is exactly `0`. A missing file, an unreadable one, an empty one
-and any other content all list the row — a row that hid whenever nobody was
+and any other content all list the row: a row that hid whenever nobody was
 answering would hide forever, with nothing in any log.
 
 Whatever already knows the answer writes it: a hook you have, writing `0` or `1`
-where a summon can stat it. **A file rather than a command on purpose** — the
+where a summon can stat it. **A file rather than a command on purpose**: the
 registry is rebuilt on the keystroke, and a fork there is paid on every summon
 for a row that is usually listed anyway.
 
 Like the config scoping it hides the **row**, never the command: `pounce run
 cmd:<id>` and any hotkey on it keep working. And `pounce doctor` names every
 command that declares one, the file it is watching and whether that file is
-hiding it right now — without that, a hidden row is indistinguishable from a row
+hiding it right now; without that, a hidden row is indistinguishable from a row
 you never installed.
 
 <Callout title="haus does this to one row">

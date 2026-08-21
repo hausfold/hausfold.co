@@ -1,6 +1,6 @@
 ---
 title: Focus
-description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges — plus the named states around it, which your Mac can enter on its own.
+description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges, plus the named states around it, which your Mac can enter on its own.
 icon: bellOff
 related:
   - title: "Bar"
@@ -15,7 +15,7 @@ Disturb** on or off, optionally sets your **Slack status** (and silences
 Slack on your phone), and runs any **hooks** you add. All three surfaces
 call the same engine, so they can never disagree.
 
-Quiet is one **scene** — the built-in one. [Declare others](#scenes) and
+Quiet is one **scene**: the built-in one. [Declare others](#scenes) and
 `focus scene recording` puts the whole Mac into that state at once.
 
 Because focus drives the *real* macOS Focus, everything Focus already does
@@ -124,7 +124,7 @@ chatty apps to a parking workspace with `aerospace`.
 ## Scenes
 
 Quiet is a state your Mac can be in. So is *recording*, *presenting*,
-*reading on the sofa* — each one a handful of settings you'd otherwise flip by
+*reading on the sofa*, each one a handful of settings you'd otherwise flip by
 hand, in the same order, every time. A **scene** is that handful, named:
 
 ```nix
@@ -155,16 +155,16 @@ you'd rather leaving always end quiet-off), the input device is restored, and
 the `caffeinate` hold is released.
 
 A scene only ever reverses what it actually changed. Start a quiet scene while
-you're *already* quiet and it doesn't touch Do Not Disturb at all — so leaving
+you're *already* quiet and it doesn't touch Do Not Disturb at all, so leaving
 it doesn't un-quiet you, and your Slack status isn't disturbed on the way in or
 out.
 
 **The pill releases a scene too.** Clicking the bell (or running `focus off`,
-or the palette command) while a scene is on leaves the scene properly — hold
-released, microphone back — rather than only un-quieting and leaving the rest
+or the palette command) while a scene is on leaves the scene properly (hold
+released, microphone back) rather than only un-quieting and leaving the rest
 behind.
 
-`quiet` is the built-in scene — it's what the pill, the palette command and
+`quiet` is the built-in scene: it's what the pill, the palette command and
 `focus on` already enter, so it's a name you can't redeclare. Everything you'd
 want to change about it lives in `haus.focus.slack` and `haus.focus.hooks`.
 (`off`, `list` and `status` are taken for the same reason: they're the words
@@ -207,7 +207,7 @@ haus.focus.scenes.evening = {
 };
 ```
 
-Three more conditions you can add: `wifi = [ "Home" ]` (the exact network name —
+Three more conditions you can add: `wifi = [ "Home" ]` (the exact network name,
 host-only, since it names one router in one building), `power = "battery"` or
 `"ac"`, and `displays = 2` for "at least two screens", which is how you say
 *docked*. Everything you set has to hold at once, so pick the few that describe
@@ -216,7 +216,7 @@ the moment.
 **The rule that makes this safe to leave running: it never overrides a state you
 chose.**
 
-- It enters a scene the moment a condition *becomes* true — and only when no
+- It enters a scene the moment a condition *becomes* true, and only when no
   scene is on and you aren't already quiet.
 - It ends the scene when the condition stops holding, putting back what the
   scene changed, exactly as `focus scene off` would.
@@ -226,15 +226,15 @@ chose.**
   false and true again. Walk out of the evening scene at 19:10 and you're out
   for the night, not back in it thirty seconds later.
 - Each turn of a condition is offered once. If 19:00 arrives while you're in
-  another scene, or already quiet, that evening is simply missed — it won't jump
+  another scene, or already quiet, that evening is simply missed; it won't jump
   in at 19:40 when you go free.
 
 A check runs every `haus.focus.triggers.interval` seconds (30 by default), and
 only on a Mac where some scene actually declares a condition.
 
 <Callout type="warn" title="Check what your Mac will tell it">
-`focus auto --probe` prints what each probe reads right now — the clock, the
-power source, your Wi-Fi network, the screen count — and what every condition
+`focus auto --probe` prints what each probe reads right now (the clock, the
+power source, your Wi-Fi network, the screen count) and what every condition
 makes of it. Run it once before trusting a rule: **macOS can refuse to report
 your SSID** (it sits behind Location Services), and a network it won't name
 matches nothing. Once a scene depends on one, `focus doctor` flags it too.
@@ -244,20 +244,20 @@ matches nothing. Once a scene depends on one, `focus doctor` flags it too.
 
 - **It doesn't close the apps it opened unless you ask.** Quitting something
   you were mid-sentence in isn't a decision a config file should make by
-  default — set `apps.closeOnExit = true` and it becomes one you made. Even
+  default; set `apps.closeOnExit = true` and it becomes one you made. Even
   then it only quits what the scene actually *started*: an app you already had
   open is not a lever the scene pulled, so leaving never takes it down with it.
   The quit is the polite one, the same message ⌘Q sends, so an app with unsaved
   work still gets to ask.
-- **A scene with no `when` waits for you** — a chord, a palette item or a
+- **A scene with no `when` waits for you:** a chord, a palette item or a
   terminal. Conditions are opt-in per scene, and there are five of them
   [above](#enter-a-scene-automatically): the clock, the weekday, your network,
   the power source and the screen count. There's no "when the camera turns on".
 - **`audio.input` wants the exact device name**, as `SwitchAudioSource -a -t
-  input` prints it. Naming one that isn't plugged in logs a line and moves on —
+  input` prints it. Naming one that isn't plugged in logs a line and moves on;
   the rest of the scene still applies.
 - **Its hooks are host-only.** A scene is data a shared desktop may ship, but
-  the arbitrary script one runs belongs to a person — so `hooks`, and
+  the arbitrary script one runs belongs to a person, so `hooks`, and
   `when.wifi` because it names one router in one building, are lines you write
   in your own host file. Everything else about a scene a desktop can publish,
   including the conditions that enter it.
@@ -285,7 +285,7 @@ grant, and the Slack token, and prints the fix for each.
   activation and heals it.
 - **A scene isn't entering by itself**: run `focus auto --probe`. It shows every
   condition against what your Mac reports right now, which catches the common
-  cause — a fact macOS won't give up, usually your SSID. If everything reads
+  cause: a fact macOS won't give up, usually your SSID. If everything reads
   right and it still didn't fire, the condition most likely turned true while
   you were in another scene or already quiet: that turn is offered once and
   passed. It comes back the next time the condition does.

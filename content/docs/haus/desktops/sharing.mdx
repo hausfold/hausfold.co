@@ -37,7 +37,7 @@ haus show github:you/writer-desktop
 ```
 
 Once they trust it, `haus add github:you/writer-desktop` pins it and selects
-it — writing the input and the `desktop` line in one edit — and `haus
+it (writing the input and the `desktop` line in one edit) and `haus
 rebuild` is the only step left. That's the [CLI
 reference](/docs/haus/reference/haus#pinning-a-desktop-you-found)'s job to
 teach, not the README's: your repository only needs to be readable and
@@ -46,7 +46,7 @@ teach, not the README's: your repository only needs to be readable and
 <Callout title="Vendoring is still there for a one-off">
 `haus add --vendor github:you/writer-desktop` copies the file into their
 config at `desktops/writer.nix` instead of pinning it, for someone who plans
-to fork and edit it immediately. It still has to be `git add`ed — a config
+to fork and edit it immediately. It still has to be `git add`ed: a config
 that is a git repository, which a bootstrap install always is, hands Nix only
 its **tracked** files, and an untracked `writer.nix` is invisible to the
 evaluation no matter what the `desktop` line says. `haus add --vendor` stages
@@ -94,8 +94,8 @@ about them:
 
 - a **desktop** is *data*. Its shape is closed, `checkDesktop` reads it leaf by
   leaf, and it cannot run anything. That is why running one from a stranger is
-  reasonable — and why `haus show` will tell you it passed.
-- a **room** is *code* — an ordinary nix-darwin module, exported under
+  reasonable, and why `haus show` will tell you it passed.
+- a **room** is *code*: an ordinary nix-darwin module, exported under
   `darwinModules`. It can install packages, write files and run activation
   steps as root, and haus can tell a reader nothing about what it does.
   `haus show` says so and checks nothing; that is the honest answer, not a
@@ -104,7 +104,7 @@ about them:
 So if what you want to share is a *set of apps* rather than a whole machine,
 that is a room: `haus.photography.enable` bringing the apps, and whatever else
 that capability needs. A machine runs one desktop and as many rooms as it likes.
-A published room claims a plain `haus.<name>` — the reserved `haus.my.*` prefix
+A published room claims a plain `haus.<name>`: the reserved `haus.my.*` prefix
 is for rooms that never leave one Mac. Until haus can record which input claimed
 a name, a machine that installs your room warns once per rebuild that nothing
 there says where it came from; that record is coming, and the name is right.
@@ -114,7 +114,7 @@ Until 2026-08-17 there was a data-only file narrowed to `haus.roster`, imported
 through `haus.lib.pack` and self-tested with `checkPack`. Both helpers, and
 `haus.packFiles` / `haus.packs`, have been removed: two formats over two trust
 classes is the whole model, and a third sitting across the line earned its own
-prompt and its own docs for no one — nobody had published a pack.
+prompt and its own docs for no one: nobody had published a pack.
 
 Nothing you can do got smaller except that. The saved collections haus itself
 ships are untouched, still one line each

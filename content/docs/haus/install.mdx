@@ -129,11 +129,11 @@ which macOS settings change, and which casks it found. **No app you installed
 is ever removed.**
 
 It also names the handful of files that would **stop** the first switch rather
-than be backed up — a dotfile that is a *symlink* (a dotfiles repo, `stow`,
+than be backed up: a dotfile that is a *symlink* (a dotfiles repo, `stow`,
 `chezmoi`), or one whose `<file>.backup` name is already taken. Home Manager
 moves regular files aside and refuses links, on purpose: silently deleting a
 link into your dotfiles repo is the worse failure. Clear each one it lists, or
-tell haus to skip that file (`home.file.".profile".enable = false;`) — before
+tell haus to skip that file (`home.file.".profile".enable = false;`), before
 the build, which is the last moment it costs nothing.
 </Step>
 

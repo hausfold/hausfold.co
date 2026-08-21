@@ -101,13 +101,13 @@ the line for you; `HAUS_DESKTOP=minimal` picks a different one on an
 
 <Callout title="A desktop you found online is one command, not a hand-edit">
 Read it first: `haus show github:ada/writer-desktop` fetches it into the store
-and tells you what it is, what it sets, what it leaves alone and — leaf by leaf
-— [what would change on this Mac](/docs/haus/reference/haus#what-would-change-here),
+and tells you what it is, what it sets, what it leaves alone and, leaf by leaf,
+[what would change on this Mac](/docs/haus/reference/haus#what-would-change-here),
 including the leaves your own host file outranks so the desktop cannot move
 them at all. It writes nothing in your config.
 
 Like it? `haus add github:ada/writer-desktop` runs that same check, then pins
-it and selects it in one edit to `flake.nix` and `flake.lock` — no vendored
+it and selects it in one edit to `flake.nix` and `flake.lock`: no vendored
 file, no hand-written `desktop = ` line. `haus rebuild` is the only step left.
 [Share a desktop](/docs/haus/desktops/sharing) and the [CLI
 reference](/docs/haus/reference/haus#pinning-a-desktop-you-found) have the

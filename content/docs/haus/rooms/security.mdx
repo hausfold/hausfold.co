@@ -11,8 +11,8 @@ related:
 
 **Security** is the small auth room: it turns on **Touch ID for `sudo`**, and
 (the part stock Touch-ID-for-sudo gets wrong) makes that work **inside a
-terminal multiplexer** like tmux or `zmx` — which every haus terminal window
-runs inside — where it would otherwise silently
+terminal multiplexer** like tmux or `zmx` (which every haus terminal window
+runs inside), where it would otherwise silently
 fail.
 
 ## Enable it
@@ -101,7 +101,7 @@ config; haus declares which exist and fetches them at runtime.
 ## The login window
 
 Everything above is about a session you're already in. These are about the
-screen before it — and they are the settings most people have never touched,
+screen before it, and they are the settings most people have never touched,
 because macOS asks nobody about them:
 
 ```nix
@@ -113,7 +113,7 @@ haus.lock.login.hideShutDown  = true;    # and .hideRestart, .hideSleep
 
 **`guestAccount` is the one worth doing today.** Fresh Macs ship with Guest
 **on**, so a machine you never configured lets whoever is holding it reach a
-browser, your network and any file share you're connected to — without a
+browser, your network and any file share you're connected to, without a
 password. It's the only genuine security boundary in this group; the rest are
 preferences.
 
@@ -125,7 +125,7 @@ useful thing to put there.
 <Callout title="These land at your next login">
   Every setting in this section writes to `com.apple.loginwindow`, which macOS
   reads once when your session is created. There is no process to restart that
-  would make it read again — the one that owns the domain is the one that owns
+  would make it read again: the one that owns the domain is the one that owns
   your session, so the "restart" would be logging you out. **The write happens
   during the rebuild and the effect appears at your next login.** Nothing is
   half-applied in between.

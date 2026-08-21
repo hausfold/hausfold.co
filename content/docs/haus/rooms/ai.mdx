@@ -18,7 +18,7 @@ branch out from under the other, uncommitted edits collide, and closing a pane
 mid-thought can lose work. **`holt`** fixes that by giving every agent its own
 checkout, and haus puts it on your `PATH`, wired to a keybind.
 
-Press **⌘⏎** — from any terminal window, a pane or another agent's lane alike — and you get a fresh
+Press **⌘⏎** (from any terminal window, a pane or another agent's lane alike) and you get a fresh
 agent session in an isolated git worktree: its own checkout on a
 `worktree-<name>` branch, branched from the repo's local `HEAD`, living
 **outside** the repo under `~/.cache/claude-worktrees/<repo>/<name>` so your
@@ -28,21 +28,21 @@ repo the focused window is looking at.
 holt calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
 Not a *worktree*: a parked lane has no checkout on disk and is still a lane you
-can resume. (For an agent in the checkout you already have — no worktree, no
-lane — type `c` in that window's shell; it is the client `ai.default` names.)
+can resume. (For an agent in the checkout you already have, with no worktree and
+no lane, type `c` in that window's shell; it is the client `ai.default` names.)
 A lane's terminal is its own zmx session in its own window, which
 the [Development](/docs/haus/rooms/development) room sets up.
 
 <Callout type="warn" title="Why the chord isn't ⌘A">
 A chord that runs a command cannot live in the terminal: Ghostty has no keybind
-action that shells out — 85 actions, and not one of them. ⌘⏎ is held by
+action that shells out: 85 actions, and not one of them. ⌘⏎ is held by
 [pounce](/docs/pounce/config#chords-that-only-exist-over-one-app-apphotkeys)
-instead, scoped to Ghostty — consumed only while a terminal window is
+instead, scoped to Ghostty: consumed only while a terminal window is
 frontmost, so ⌘⏎ still means *send* in Slack and everywhere else. ⌘A is plain
 select-all again. [windows](/docs/haus/rooms/windows) no longer has to be on:
 without it a lane opens as an ordinary macOS window, which is a warning at
-build time rather than a refusal. What you lose is placement — the per-repo
-`T/<repo>` pages and the `⌃⇥` walk between them — not the lane.
+build time rather than a refusal. What you lose is placement (the per-repo
+`T/<repo>` pages and the `⌃⇥` walk between them), not the lane.
 </Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's
@@ -248,7 +248,7 @@ instead of pushing it.
 
 Run eight agents at once and the question is always the same one: which of them
 is sitting on a permission prompt? The [bar](/docs/haus/rooms/bar)'s `agents`
-pill answers it, for every agent the same way — a lane, an agent you started by
+pill answers it, for every agent the same way: a lane, an agent you started by
 hand in a checkout you already had, or a conversation in the desktop app:
 
 | Mark | Means |
@@ -300,11 +300,11 @@ The status token is one mutually-exclusive slot:
 | `N^` | `N` commits on the branch, not merged yet |
 | `N^` *(orange)* | the PR merged and `N` commits landed since, covered by nothing; `holt reship` |
 | `+A -D` | uncommitted line changes, when nothing's committed yet |
-| `●` *(muted)* | nothing to report: clean tree, nothing ahead — including a lane that hasn't committed yet |
+| `●` *(muted)* | nothing to report: clean tree, nothing ahead, including a lane that hasn't committed yet |
 
 A lane that has *never committed* is not landed, whatever git's ancestry says
 about it: it is simply empty, so it gets the muted `●`, not `⏏`. It is still
-reaped when you close the pane — there is nothing on it to keep — so `●` covers
+reaped when you close the pane (there is nothing on it to keep), so `●` covers
 both "nothing to report" and "nothing here yet", and `⏏` is now specifically
 *this branch's work reached main*. The same distinction reaches the paw pill:
 such a lane draws no PR row at all, where it used to announce itself as `merged`
@@ -321,12 +321,12 @@ the status token: the default shows nothing, everything else is a positive mark.
 
 `permissions.defaultMode` is `auto`, which is right for files and wrong for the
 screen: an agent that decides to foreground an app, move a window or click
-something just does it — while you are typing into something else. With several
+something just does it, while you are typing into something else. With several
 lanes running that lands as random focus theft, and no amount of prompt wording
 makes it never happen.
 
 **`agent-desktop-guard`** is the counterweight: a `PreToolUse` hook haus
-declares beside the worktree ones. It is **not** a blocklist — the only verdict
+declares beside the worktree ones. It is **not** a blocklist: the only verdict
 it can return is *ask*. It re-opens the permission prompt for one thin slice of
 tool calls and returns no opinion on everything else, so auto-mode is untouched
 wherever it was already fine. Driving a GUI you asked for, recording a demo,
@@ -336,13 +336,13 @@ The line it draws is not *is this dangerous*. It is:
 
 > does this change what is in front of my eyes, within about two seconds?
 
-| Silent — no prompt | Asks first |
+| Silent: no prompt | Asks first |
 |---|---|
-| `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position — looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
-| `defaults write` — invisible until something restarts | `killall Dock` — instantly visible |
-| `open -ga Ghostty` — the explicitly backgrounded form | `open` in its foregrounding form, which is its default |
-| every `mcp__claude-in-chrome__*` call — that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
-| | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch` — the whole desktop redraws |
+| `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position; looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
+| `defaults write`: invisible until something restarts | `killall Dock`: instantly visible |
+| `open -ga Ghostty`: the explicitly backgrounded form | `open` in its foregrounding form, which is its default |
+| every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
+| | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch`; the whole desktop redraws |
 
 Also on the ask side, for the same reason: `aerospace` focus/move/workspace
 commands, `sketchybar --reload`, `launchctl kickstart`, writing your clipboard,
@@ -350,7 +350,7 @@ and teaching a computer-use step.
 
 The hook has a written counterpart, and it is opt-in: **if you set
 [`ai.instructions`](/docs/haus/reference/options#ai)**, haus prepends a short
-**screen etiquette** section to the file every client reads — prefer looking to
+**screen etiquette** section to the file every client reads: prefer looking to
 touching, never foreground an app just to see it, hand feel-tests back to the
 person at the keyboard. Leave that option empty (the default) and haus writes no
 instructions file at all, so you get the hook and none of the prose. The
@@ -358,9 +358,9 @@ etiquette is what keeps the hook from firing; the hook is what catches the times
 it doesn't.
 
 <Callout type="tip" title="Turning it off for one pane">
-`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there — for a
+`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there, for a
 long unattended run where forty prompts is the problem. It mirrors bench's
-`BENCH_AGENT_SWITCH=1`: a reminder, not a jail. Only Claude Code gets the hook — the one client haus
+`BENCH_AGENT_SWITCH=1`: a reminder, not a jail. Only Claude Code gets the hook: the one client haus
 hangs one on; the etiquette text, when you have any, goes to all of them.
 </Callout>
 

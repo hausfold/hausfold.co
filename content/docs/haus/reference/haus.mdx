@@ -44,9 +44,9 @@ For the day-to-day shape of it, see
 | `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, Pounce's Accessibility grant, your secrets, agent readiness. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
-| `haus show <src>` | Read a desktop or room — a local file, or a source you have not got yet — before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
+| `haus show <src>` | Read a desktop or room (a local file, or a source you have not got yet) before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
 | `haus add <src>` | Pin a desktop you found and select it: writes `flake.nix` and `flake.lock`, never rebuilds. See below. |
-| `haus desktop [name]` | List every desktop this machine can select — built in and pinned — or switch to one. |
+| `haus desktop [name]` | List every desktop this machine can select (built in and pinned), or switch to one. |
 | `haus remove <name> [replacement]` | Unpin a desktop `add` brought in. Falls back to `blank` if it was the one selected. |
 
 ## Changing a setting without opening an editor
@@ -155,12 +155,12 @@ So `show` is safe to run on something you have every intention of refusing. If
 the repo holds more than one desktop, `show` lists them and stops; name the one
 you mean with `--file`.
 
-It answers four questions and stops. **What class is it** — a desktop is data
+It answers four questions and stops. **What class is it:** a desktop is data
 haus can check, a room is a nix-darwin module and haus can tell you nothing
 about what it does. **Does it pass**, with every rule it broke named, the same
 rules [`checkDesktop`](/docs/haus/desktops/creating#prove-the-boundary) enforces
 at rebuild time. **What does it set**, grouped by room, with the rooms it
-says nothing about listed after — because what a desktop leaves alone is half
+says nothing about listed after, because what a desktop leaves alone is half
 of what you are agreeing to. And, on a machine that has a haus config, **what
 would change here**.
 
@@ -190,7 +190,7 @@ becomes   ~/.config/nix · host mbp · desktop hacker.nix
 ```
 
 **A line in your host file outranks any desktop.** That is the ladder working as
-designed — a desktop must lose to the person who chose it — but it means a
+designed (a desktop must lose to the person who chose it), but it means a
 stranger's file can be full of opinions that do nothing on your Mac, and no
 error anywhere says so. `show` names them first.
 
@@ -201,18 +201,18 @@ shows you.
 
 Three things it will not guess at. A leaf inside a list-like option
 (`haus.roster.<app>.key` and its kind) has no option of its own to rank, so the
-values are shown and the winner is not — `haus plan` settles that. A leaf your
+values are shown and the winner is not; `haus plan` settles that. A leaf your
 haus has never heard of is a **version gap**, not a bad desktop: it passed the
 checker, which read the option registry your pin ships, so `haus update` is the
 answer and not the file. And a leaf the desktop you have now sets and this one
-does not goes back to *whatever haus decides* — the value underneath is not
+does not goes back to *whatever haus decides*: the value underneath is not
 recorded anywhere on your machine, so no number is printed for it.
 
 This is a **leaf diff, not a rebuild preview**. Turning a room off moves
 packages, files and services that nothing here counts;
 [`haus plan`](#looking-before-you-leap) builds that answer. The comparison
-evaluates *your* flake and never the stranger's — what crosses over is the list
-of option names, not their file and not their values — and it still writes
+evaluates *your* flake and never the stranger's (what crosses over is the list
+of option names, not their file and not their values), and it still writes
 nothing, including your lock: if your `flake.lock` would have to change to
 answer, `show` says so and skips the section rather than resolving pins nobody
 chose. `--no-diff` skips it outright, and a machine with no haus config never
@@ -226,7 +226,7 @@ nothing changed. `show` says so where the shape is chosen, because
 that is the cheap moment to publish from a repo instead.
 
 <Callout type="info" title="Fetching and reading are two separate acts">
-Reading a `.nix` file means **evaluating** it, and Nix evaluation is not inert —
+Reading a `.nix` file means **evaluating** it, and Nix evaluation is not inert:
 a file can read other files and reach the network while it is being read. So
 `show` splits the job. The fetch reaches the network and runs nothing: it pulls
 a *tree*, never locking a flake, so not even a room's own `flake.nix` is
@@ -244,7 +244,7 @@ the fetched tree rather than to one file in it.
 <Callout type="warn" title="It proves *data*. It only ever reports *code*.">
 A module function is reported as a room without being asked, because that
 guess can only be over-cautious. Nothing is ever called a *desktop* because it
-looks like one — that answer comes from the checker passing, never from the
+looks like one; that answer comes from the checker passing, never from the
 file's shape. So a room is a warning, not a verdict: read it, or trust whoever
 wrote it.
 </Callout>
@@ -253,17 +253,17 @@ For CI, the exit code is the contract:
 
 | Exit | Means |
 |---|---|
-| `0` | It is a desktop and it passed — or it is a room and you passed `--room`. |
+| `0` | It is a desktop and it passed, or it is a room and you passed `--room`. |
 | `1` | It was checked as a desktop and it failed; every rule is listed. |
 | `2` | It could not be fetched or read, or the arguments were wrong. |
 | `3` | It is code and you did not say `--room`, so nothing was checked. |
 
 `--json` prints the whole report on stdout instead, with `class`, `checked`,
-`ok`, `failures`, `sets`, `silent`, `origin` — `null` for a local file — and
+`ok`, `failures`, `sets`, `silent`, `origin` (`null` for a local file), and
 `machine`, which is `null` whenever there was nothing to compare against and
 otherwise carries one verdict per leaf (`changes`, `unchanged`, `overridden`,
 `unranked`, `unknown`) plus the leaves your current desktop sets and this one
-does not. On a machine that has no haus — a publisher's CI runner, say — the
+does not. On a machine that has no haus (a publisher's CI runner, say), the
 same command is one `nix run` away:
 
 ```sh
@@ -284,7 +284,7 @@ haus add github:ada/writer-desktop
 That fetches it, checks it, prints the same report `show` would have, asks
 `Add 'writer-desktop' from github:ada/writer-desktop and select it? [y/N]`,
 then writes `flake.nix` (the input, and the `desktop` line) and
-`flake.lock` in one edit. Nothing rebuilds — `haus rebuild` is the next
+`flake.lock` in one edit. Nothing rebuilds; `haus rebuild` is the next
 step, printed at the end.
 
 ```sh
@@ -309,7 +309,7 @@ haus update writer      # pull the latest writer, then rebuild
 haus remove writer      # unpin it — falls back to blank if it was selected
 ```
 
-`haus add` only takes desktops today — a room (an ordinary nix-darwin module)
+`haus add` only takes desktops today: a room (an ordinary nix-darwin module)
 refuses, naming that, and points at `haus show --room` instead. Only one
 third-party desktop can be pinned at a time; a second `haus add` prints the
 lines to add by hand rather than guessing at your `flake.nix`.
