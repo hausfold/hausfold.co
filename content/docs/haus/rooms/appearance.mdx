@@ -50,25 +50,25 @@ highlights, yazi, glow's markdown headings, the Zen browser, and the
 theme. That list isn't prose anyone maintains by hand: a build-time check fails
 if a surface on it starts, or stops, following the accent.
 
-<Callout type="warn" title="Zen means Zen's chrome — the web is a second step">
+<Callout type="warn" title="Zen means Zen's chrome: the web is a second step">
 The accent moves the browser's own UI. It does **not** re-tint github.com on its
 own, because those are Catppuccin *userstyles*: LESS source, compiled rather than
 copied, which is why no palette file haus writes can reach them.
 
-haus closes that loop by compiling them for you — name the sites you want:
+haus closes that loop by compiling them for you. Name the sites you want:
 
 ```nix
 haus.zen.userStyles = [ "github" "youtube" ];
 ```
 
-haus compiles those styles at build time — stamped with *your* accent and
-flavor — and appends the result to the stylesheet it already drops into every
+haus compiles those styles at build time (stamped with *your* accent and
+flavor) and appends the result to the stylesheet it already drops into every
 Zen profile. No extension, no import, nothing to carry to your next machine: a
 rebuild re-tints them. Name a style that doesn't exist and the build fails
 listing all 134, so a typo costs a rebuild rather than a silently stock site.
 
 Keep the list to sites you actually read. A user stylesheet is applied to every
-document, and these are big — github and youtube together are ~320 KB.
+document, and these are big: github and youtube together are ~320 KB.
 
 Zen reads that file **once, at startup**, so a rebuild alone leaves an open
 browser on the old colours: quit Zen and reopen it.
@@ -76,13 +76,13 @@ browser on the old colours: quit Zen and reopen it.
 There used to be a second way: until 2026-08-20 haus stamped nebelung's
 userstyle bundle from your accent, flavor and contrast, and you imported it into
 the **Stylus** extension by hand. What that click bought is exactly what the
-compiled sheet gives up — per-site toggles, styles that update themselves, and
-adding one without a rebuild — and none of it survived contact with a
+compiled sheet gives up: per-site toggles, styles that update themselves, and
+adding one without a rebuild. None of it survived contact with a
 rebuild-driven setup, so it is retired. `haus.zen.extensions.stylus = { };`
 still deploys the extension; it just arrives unthemed now, with no bundle and no
 import nudge.
 
-If you do run both, keep a given site in one or the other — and not because it
+If you do run both, keep a given site in one or the other, and not because it
 is a close-run thing. The compiled sheet is a *user* stylesheet, which loses to
 the page unless every declaration is `!important`, so haus compiles it that way;
 an extension injects its CSS *into* the page instead. User `!important` outranks
@@ -174,7 +174,7 @@ what it does while you watch. One line stops the movement haus itself makes:
 haus.appearance.reduceMotion = true;
 ```
 
-macOS's own animations were always reachable — [`haus.animations`](/docs/haus/reference/options#animations)
+macOS's own animations were always reachable: [`haus.animations`](/docs/haus/reference/options#animations)
 curates the Dock's timings, and `haus.accessibility.reduceMotion` is Apple's own
 switch. Neither touches the motion **haus** draws, which is the gap this closes.
 Five things stop:
@@ -189,11 +189,11 @@ Five things stop:
 
 Each is set as a **default**, so you can keep any one of them by naming it:
 `reduceMotion = true` alongside `haus.bar.logo.sweep = true` drops everything but
-the sweep. Nothing is lost but the movement — a title too long for its pill is
+the sweep. Nothing is lost but the movement: a title too long for its pill is
 clipped instead of swept, and both dropdowns still carry it in full.
 
 The last row is the one worth reading twice. **Gravity** is not an animation, it
-is a whole screen's worth of content replaced in a blink because an app quit —
+is a whole screen's worth of content replaced in a blink because an app quit,
 which is exactly the shape of a vestibular trigger, and the largest unasked
 movement haus makes.
 
@@ -201,7 +201,7 @@ movement haus makes.
 Quietening five pills while Spaces keep sliding would answer the question
 halfway, so this sets `haus.accessibility.reduceMotion` too. That flag is the one
 every browser reads as `prefers-reduced-motion: reduce`, so it changes sites as
-well as your Mac — mostly for the better, but a site whose scroll-reveal
+well as your Mac, mostly for the better, but a site whose scroll-reveal
 animation is what makes its text appear will show you nothing. Keep the local
 half without the web one:
 

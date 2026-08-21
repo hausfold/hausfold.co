@@ -136,7 +136,7 @@ built.
 
 Nothing special: `bench try switch`, and Ghostty applies the new keybinds, theme
 and options to every running window in about a second. Windows, sessions and
-live agent conversations stay exactly where they are — and because every
+live agent conversations stay exactly where they are, and because every
 window's shell lives in a session that outlives the window, even one that does
 restart comes back to the same scrollback.
 
@@ -144,12 +144,12 @@ restart comes back to the same scrollback.
 haus ran on [zellij](https://zellij.dev) until 2026-08-19, and iterating on it
 needed a fourth CLI (`zscratch`) plus an activation hack, for two reasons worth
 knowing only so nobody rebuilds them. A running zellij server cached plugin wasm
-in memory for its whole lifetime, so a plugin edit needed a *fresh* server —
+in memory for its whole lifetime, so a plugin edit needed a *fresh* server,
 which meant losing every open tab, which is what `zscratch`'s throwaway session
 avoided. And zellij decided "the config changed" by file mtime, while every
 `/nix/store` file is stamped epoch 1, so a home-manager symlink made each
 rebuild look *older* than what the server had already read and nothing reloaded
-— which is why that one file had to be installed by an activation script instead
+, which is why that one file had to be installed by an activation script instead
 of linked. Ghostty has no plugins and watches a store symlink happily.
 </Callout>
 

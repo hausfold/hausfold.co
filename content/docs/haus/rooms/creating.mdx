@@ -44,18 +44,18 @@ the options that steer all four. One setting is not a room.
 
 <Callout title="Your machine, or the layer?">
 If the answer is only ever going to run on your Mac, write a plain module in
-your own config and stop reading — but name its options **`haus.my.*`**, not a
+your own config and stop reading, but name its options **`haus.my.*`**, not a
 plain `haus.<name>`. `haus.my` is reserved: haus promises never to ship a room
 under it, and a check in haus's own CI fails if a release ever tries. Under a
 plain name you are racing a future release for the word, and that race is
-usually silent — two modules declaring *different* leaves under one namespace
+usually silent: two modules declaring *different* leaves under one namespace
 merge with no error, and one room's switch ends up steering the other's. Your
 Mac warns you if you do it anyway.
 
 Set it from your **host file**, not from a desktop: a private room is the one
 thing a shared desktop may never name, since whoever runs that desktop does not
 have the room. A room you go on to *publish* drops the prefix and claims a plain
-`haus.<name>` like any other — the prefix is for what stays on one Mac.
+`haus.<name>` like any other: the prefix is for what stays on one Mac.
 
 Everything below is about a room that lands in
 [`hausfold/haus`](https://github.com/hausfold/haus), where the cost of the

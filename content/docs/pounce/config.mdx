@@ -166,7 +166,7 @@ keyed by an **item key**:
 | `cmd:<id>` | a command script, by filename without `.sh` |
 | `app:/Applications/Foo.app` | an application, by path |
 | `shortcut:<uuid>` | a Shortcut from your Shortcuts library, by its uuid |
-| `setting:<pane>[?<anchor>]` | a System Settings pane, or one setting inside it — `setting:com.apple.Displays-Settings.extension?nightShiftSection`. `pounce doctor` prints the exact key |
+| `setting:<pane>[?<anchor>]` | a System Settings pane, or one setting inside it: `setting:com.apple.Displays-Settings.extension?nightShiftSection`. `pounce doctor` prints the exact key |
 | `mode:<name>` | a built-in window: `launcher`, `clipboard`, `emoji`, `screenshots`, `camera`, `filesearch` |
 
 ```jsonc
@@ -221,7 +221,7 @@ and which rows that leaves out. It fails outright when something asks about
 `workspaces` while `mruFile` is unset or points somewhere it cannot read, since
 both leave the scoping doing nothing.
 
-Both of these ask **where you are** — `workspaces` from a file, `bundleIds` from
+Both of these ask **where you are**: `workspaces` from a file, `bundleIds` from
 the frontmost app, neither with a subprocess. *Is there anything to act on at
 all* is a different question, and it belongs to the command script rather than to
 this config: a
@@ -360,7 +360,7 @@ up everywhere:
 | chord | what it costs |
 |---|---|
 | **⌥ + right-click** | the quietest: macOS's ⌥ *variant* of a context menu, and ⌥ + right-drag where an app uses it |
-| ⌥ + left-click | multi-cursor in GUI editors, ⌥-click to download a link, and every ⌥-drag — the down is swallowed, so the drag never starts |
+| ⌥ + left-click | multi-cursor in GUI editors, ⌥-click to download a link, and every ⌥-drag: the down is swallowed, so the drag never starts |
 | ctrl + click | context menus machine-wide. This is macOS's own secondary click; don't |
 
 <Callout type="warn" title="A chord with no modifier is refused">

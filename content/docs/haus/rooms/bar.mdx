@@ -35,15 +35,15 @@ Switch workspaces and the highlight follows; tap the Caps-Lock leader and the
 whole left side flips into launcher letters.
 
 **And which PAGE of it, if it has pages.** A page is a workspace with a `/` in
-its name — `T/haus`, the per-repo page an agent
+its name: `T/haus`, the per-repo page an agent
 [lane](/docs/haus/rooms/development) tiles its window onto. When you're on one,
 a pill between the workspaces and the front app names it, and adds `2/3` when
-that workspace has more than one live page — which of them you're on, out of how
+that workspace has more than one live page: which of them you're on, out of how
 many there are. On the only page of a workspace the counter is left off.
 
 Stand on the workspace itself and the pill is still there, dimmed, showing just
 the number: `3` on `T` means three pages are open under it, none of which you're
-looking at. That's the notice that they exist, and the button that lists them —
+looking at. That's the notice that they exist, and the button that lists them:
 without it, `T` with three lanes paged away looks exactly like `T` with none. A
 workspace with no pages under it gets no pill at all.
 
@@ -52,8 +52,8 @@ workspace: `T/haus` keeps `T` highlighted, and the Caps-Lock leader's `t`
 takes you back to whichever page of `T` you used last. Click the page pill to
 open the **Pages** picker and go to one; ⇧ or right-click opens the same list in
 move mode, throwing the focused window onto the page you pick and following it
-there. It needs [Windows](/docs/haus/rooms/windows) — a page is an AeroSpace
-workspace — and nothing else: pages aren't a terminal feature, only their one
+there. It needs [Windows](/docs/haus/rooms/windows) (a page is an AeroSpace
+workspace) and nothing else: pages aren't a terminal feature, only their one
 producer is.
 
 **Right: the status cluster.** Clock, battery, Wi-Fi, weather and media, all
@@ -151,8 +151,8 @@ haus.bar.media.width = 16;        # characters of title before it sweeps. 25 by 
 ```
 
 `width` is a maximum, not a fixed size: a short title still draws a short pill.
-`haus.bar.media.marquee = false` stops the sweeping entirely — on the pill and in
-the dropdown — and clips instead;
+`haus.bar.media.marquee = false` stops the sweeping entirely (on the pill and in
+the dropdown) and clips instead;
 [`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) sets that,
 `haus.bar.calendar.marquee` and `haus.bar.logo.sweep` together.
 
@@ -182,8 +182,8 @@ A pill set `false` is never created; its update script doesn't even run.
 | `calendar` | Your next meeting and one gesture to join it. Reads `in 12m · Design review`; the whole pill fills five minutes either side of the start. **Right-click joins** the conferencing link; left-click opens the day as a timeline. |
 | `caffeinate` | A coffee pill: click for 1, 2, 4, 8 hours or until stopped; right-click stops. Survives a bar reload. |
 | `agents` | Tracks your [agent](/docs/haus/rooms/ai) lanes, and Claude Code desktop sessions too: red when one is waiting on you, click to jump to it. |
-| `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. The pill shows the client you last actually **used** — the one whose percentages last went *up*, not the one whose feed polls most often. Grey means the numbers are old rather than low, and the dropdown dates them. See [Where the usage numbers come from](#where-the-usage-numbers-come-from). |
-| `github` | What's waiting on you across GitHub, from sources you name in `haus.bar.github.sources`: a search filter, the `ci` board, or your own command. Two-tone: the **number** is how many, the **octocat** is how bad, taking the worst single row on one ladder — grey for no verdict (a draft, an issue), green for fine (and, approved-and-green, ready to press the button), sky for a run still going, peach for anything wanting a human on one pull request (it conflicts, its checks came back red, a reviewer asked for changes), and **red for a red default branch and nothing else**. Nothing one of your own PRs does turns the pill red — a red that fires for every work-in-progress is a red you stop reading — bar a source you declare `bad` yourself. Click for the rows, each one a link; right-click refreshes. Needs the [Development room](/docs/haus/rooms/development)'s git, a `gh auth login` you've run, and either `haus.git.org` (which fills the sources with that owner's red default branches and open PRs) or your own `haus.bar.github.sources`. Turning the pill on with neither fails the build rather than drawing an empty pill. |
+| `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. The pill shows the client you last actually **used**: the one whose percentages last went *up*, not the one whose feed polls most often. Grey means the numbers are old rather than low, and the dropdown dates them. See [Where the usage numbers come from](#where-the-usage-numbers-come-from). |
+| `github` | What's waiting on you across GitHub, from sources you name in `haus.bar.github.sources`: a search filter, the `ci` board, or your own command. Two-tone: the **number** is how many, the **octocat** is how bad, taking the worst single row on one ladder: grey for no verdict (a draft, an issue), green for fine (and, approved-and-green, ready to press the button), sky for a run still going, peach for anything wanting a human on one pull request (it conflicts, its checks came back red, a reviewer asked for changes), and **red for a red default branch and nothing else**. Nothing one of your own PRs does turns the pill red (a red that fires for every work-in-progress is a red you stop reading), bar a source you declare `bad` yourself. Click for the rows, each one a link; right-click refreshes. Needs the [Development room](/docs/haus/rooms/development)'s git, a `gh auth login` you've run, and either `haus.git.org` (which fills the sources with that owner's red default branches and open PRs) or your own `haus.bar.github.sources`. Turning the pill on with neither fails the build rather than drawing an empty pill. |
 | `elgato` | Toggles an Elgato Key Light on your network. |
 | `harvest` | Harvest time tracking. Reads credentials from a file you provide. |
 
@@ -202,7 +202,7 @@ setting, which is why it can appear in `haus.bar.bottom.items` below.
 ## Writing your own pill
 
 `haus.bar.items` covers the pills haus ships. A pill it doesn't ship is
-`haus.bar.widgets` — one script, run on a timer, whose output is the label:
+`haus.bar.widgets` (one script, run on a timer, whose output is the label):
 
 ```nix
 haus.bar.widgets.backup = {
@@ -226,20 +226,20 @@ haus.bar.widgets.cpu.placement = "bottom-right";
 ```
 
 `haus.bar.items.<name>` is sugar for `haus.bar.widgets.<name>.enable`, and
-`haus.bar.bottom.items.<name>` for its `placement` — the same settings under
+`haus.bar.bottom.items.<name>` for its `placement`, the same settings under
 shorter names, so both spellings work and you can keep whichever reads better.
 
 Some things a widget can't do, each refused at build rather than silently: you
 can't set `command` on a bundled pill (its dropdown, click gestures and colour
 rules are written against haus's own script, so replacing half of it would leave
-you with something neither of us can reason about — write your own under a new
+you with something neither of us can reason about; write your own under a new
 name and switch that one off), you can't place a pill on the bottom bar without
 `haus.bar.bottom.enable`, and the name has to be a plain word the bar can
 address: letters, digits, `_` and `-`, and not one the bar already uses.
 
 <Callout type="info" title="Say what it will ask for">
 `permissions = [ "full-disk-access" ]` declares what macOS will prompt your
-widget for. Nothing requests it and nothing waits on it — it's there so a
+widget for. Nothing requests it and nothing waits on it: it's there so a
 widget you got from someone else can be read for what it reaches for before you
 switch it on, and so a tool can answer "which pill here is going to prompt me"
 without a second hand-kept list.
@@ -248,13 +248,13 @@ without a second hand-kept list.
 One rule if your script talks back to the bar: source
 `~/.config/sketchybar/bar.sh` and use `$SB`, never a bare `sketchybar`. A pill
 moved to the bottom bar belongs to a second instance, and a bare `sketchybar`
-always means the top one — same syntax, no error, and a pill that just stops
+always means the top one: same syntax, no error, and a pill that just stops
 updating.
 
 <Callout type="info" title="Secrets stay out of Nix">
 The bar never bakes a token into the build. The Harvest pill sources your own
 credentials file at runtime; `aiUsage` reads the logins your AI clients already
-keep — Codex's `~/.codex/auth.json`, Claude Code's login keychain item — the
+keep (Codex's `~/.codex/auth.json`, Claude Code's login keychain item), the
 same way. Keep those files out of git.
 </Callout>
 
@@ -278,13 +278,13 @@ So it pushes nothing, and its usage only shows up through the pull. That pull
 uses the login keychain item the **terminal** client maintains, which lasts
 about nine hours and is renewed only when a terminal pane runs. Drive the
 desktop app for longer than that without opening one and the Claude row stops
-refreshing — the pill goes grey and the dropdown says how old the numbers are,
+refreshing: the pill goes grey and the dropdown says how old the numbers are,
 rather than showing stale ones as if they were current. Running `claude` in a
 terminal for a moment renews it.
 
 If you have a bearer token carrying the `user:profile` scope, put it in
 `~/.config/haus/claude-usage-token` and it overrides the keychain entirely.
-Note that `claude setup-token` does *not* mint one — that token is scoped for
+Note that `claude setup-token` does *not* mint one: that token is scoped for
 API inference and the usage endpoint refuses it. Create the file with
 `umask 077`; nothing checks its permissions for you.
 </Callout>

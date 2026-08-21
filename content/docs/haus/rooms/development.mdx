@@ -48,14 +48,14 @@ a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
 
 There is no multiplexer. A "pane" is a real Ghostty window, tiled by the
 [Windows](/docs/haus/rooms/windows) room, and every window's shell runs inside
-its own [zmx](https://github.com/neurosnap/zmx) session — so closing a window
+its own [zmx](https://github.com/neurosnap/zmx) session, so closing a window
 **detaches** it rather than ending it, and the next window Ghostty opens walks
 straight back into the shell you had, scrollback and all.
 
 That buys two things a multiplexer cost. Images render for real: a multiplexer
 is a second terminal emulator in the middle of the pipe, and kitty graphics
 never survived the trip, so previews were half-block art. And there is one
-layout model instead of two nested ones — the same chords tile your browser and
+layout model instead of two nested ones: the same chords tile your browser and
 your terminal.
 
 Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purpose, so
@@ -66,7 +66,7 @@ it.)
 
 Two of them do nothing at all, on purpose:
 
-- **`⌘T` / `⌘⇧T`.** There are no tabs — a tab would nest a second layout model
+- **`⌘T` / `⌘⇧T`.** There are no tabs: a tab would nest a second layout model
   inside one tile. `⌘N` is "a new window here", which is what `⌘⇧T` used to mean.
 - **`⌘D` / `⌘⇧D`.** Ghostty's defaults there split the surface, and splits go
   unused for the same reason: the tiler already tiles. It's an easy chord to hit
@@ -75,33 +75,33 @@ Two of them do nothing at all, on purpose:
 
 | Keys | What happens |
 |---|---|
-| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory — and on its **lane page**, when that is where you pressed it. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
-| `⌘W` | Close the window — which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
-| `⌃D` / `exit` | End the shell — which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
+| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory, and on its **lane page**, when that is where you pressed it. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
+| `⌘W` | Close the window, which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
+| `⌃D` / `exit` | End the shell, which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
 | `⌘⏎` | Spawn a coding agent in its own worktree, on the repo this window is looking at |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
 | `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
-| `⌥` right-click a window | Fullscreen it — zoom is the mouse's, not a chord |
+| `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `⌥/` / `⌥,` | Tiles layout / accordion layout |
 
 ### Your windows come back
 
 Nothing you close is gone. Every window's shell lives in a session that outlives
-it, so `⌘W` parks a window and `⌘Q` parks all of them — the shells keep running,
+it, so `⌘W` parks a window and `⌘Q` parks all of them: the shells keep running,
 the builds keep building, the agents keep thinking, with nothing looking at them.
 
 Start Ghostty again and **the first window puts the desk back**: one window per
 parked session, each rejoined to the session it belongs to, with lanes landing
-on their own repo pages. Not a snapshot being replayed — the same processes,
+on their own repo pages. Not a snapshot being replayed: the same processes,
 still running, with their scrollback intact.
 
 Only the *first* window does that. `⌘N` is always a new shell in the directory
 you asked for, never a parked one handed back, because a chord that sometimes
 gives you a stranger's shell in a stranger's directory is a chord you stop
-trusting. To pull the rest back later — you closed a few and changed your mind —
+trusting. To pull the rest back later (you closed a few and changed your mind),
 the palette has **Restore Terminal Windows**, and the [bar](/docs/haus/rooms/bar)'s
 agents pill, `⌘F`'s ⏎ and the **Lanes** picker each reopen one at a time.
 
@@ -120,7 +120,7 @@ in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
 lifecycle: resuming one, setting work aside, cleaning up.
 
 **A lane's terminal is a window like any other**, and its own
-[zmx](https://github.com/neurosnap/zmx) session — which is why `⌘⏎` is held at
+[zmx](https://github.com/neurosnap/zmx) session, which is why `⌘⏎` is held at
 the window layer rather than inside the terminal; [the AI
 room](/docs/haus/rooms/ai) has that story. The session outlives every client
 attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening the
@@ -129,7 +129,7 @@ is splits: zmx has none by design, so [windows](/docs/haus/rooms/windows) tiles
 real windows rather than a second window manager nested inside a terminal. That
 room is worth having and is not required: with it off, lanes open as ordinary
 macOS windows wherever macOS puts them, and the build says so once as a
-warning. Everything else about a lane is the same — `⌘⏎` spawns one, `⌘W`
+warning. Everything else about a lane is the same: `⌘⏎` spawns one, `⌘W`
 detaches, `⌘F` searches this window, and the bar's agents pill still goes to a
 lane and peeks it.
 
@@ -143,8 +143,8 @@ searching what the agents are *saying* across every live session.
 
 A `⌘N` shell window follows the pages too: pressed on a repo's page it opens
 **there**, beside the lane you asked it from, rather than on the shared `T` two
-pages away. Pressed anywhere else — on `T` itself, or on a workspace you had
-dragged a terminal to — it lands on `T`, which is where plain terminal windows
+pages away. Pressed anywhere else (on `T` itself, or on a workspace you had
+dragged a terminal to), it lands on `T`, which is where plain terminal windows
 live. One caveat: a shell window carries no name saying which page is its own,
 so the next **re-sort everything** (`caps` then `` ` ``) sends it home to `T`.
 The lanes stay where they belong.
@@ -158,10 +158,10 @@ so it is the row that still works from anywhere.
 A **Pages** command covers the pages themselves: `↵` goes to one, `⌥↵` throws
 the focused window onto it and follows it there. The [bar](/docs/haus/rooms/bar)'s
 `page` pill opens the same list, in move mode on a ⇧/right-click. Typing a name
-no page has yet isn't a miss — the tiler makes a page on first use, so you can
+no page has yet isn't a miss: the tiler makes a page on first use, so you can
 throw a window onto a repo whose first lane hasn't been opened.
 
-The row is listed only while some page is open — including the type-a-name door,
+The row is listed only while some page is open, including the type-a-name door,
 so on a Mac with no pages at all you open the first one with ⌘⏎ and **Pages**
 comes back with it. It is not scoped to a workspace the way the rows above are
 ([why](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only)).
@@ -173,18 +173,18 @@ command, and each of these runs one.
 
 There is **no reload chord**, because there is nothing to reload: Ghostty
 watches its own config and applies a change within a second. A `haus rebuild`
-lands on the windows you already have — same directories, live agent
+lands on the windows you already have: same directories, live agent
 conversations uninterrupted.
 
 <Callout title="Opening a link">
 `⌘`-click opens the link under the pointer, and `⌘`-hover previews where it
-goes — no shift. It works even though most of what you'll click sits inside a
+goes, no shift. It works even though most of what you'll click sits inside a
 program that has taken the mouse (an agent, `lazygit`, `vim`), because Ghostty
 treats a `⌘`-click as a link click and never forwards it: the program only sees
 the ones you make without `⌘`. A bare click still belongs to whatever is
 running.
 
-`⇧` is a different tool for a different job — it's the one modifier Ghostty
+`⇧` is a different tool for a different job: it's the one modifier Ghostty
 always keeps for itself, which is what lets `⇧`-drag select text over a
 program's mouse grab. Adding it to a link click buys nothing.
 </Callout>
@@ -209,7 +209,7 @@ searching the grid would only ever find what's on screen this second. Searching
 the stored conversation finds all of it, including text inside collapsed tool
 output. Codex falls back to scrollback; it reports its state like the others but
 carries no conversation id to join to. Every other window gets its full
-scrollback — the *whole* of it, since that is what the session holds.
+scrollback: the *whole* of it, since that is what the session holds.
 
 ## Your review queue
 
@@ -234,7 +234,7 @@ those four simply aren't written.
 ## yazi peek
 
 `⌘Y` opens a floating file browser with live previews, covering exactly the
-window you pressed it in — peek is rooted at *that* window's directory, so it
+window you pressed it in: peek is rooted at *that* window's directory, so it
 reads as that terminal turning into a file browser rather than as a popup
 landing on your layout. (It covers a lot in a narrow pane: yazi wants a parent
 column, the tree and a live preview side by side. Summon it from a wide window

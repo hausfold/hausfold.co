@@ -95,7 +95,7 @@ chord would have worked on some digits and not others.
 |---|---|
 | `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
 | `⌥,` | Accordion layout |
-| `⌥F` | Fullscreen — and the bar says so |
+| `⌥F` | Fullscreen, and the bar says so |
 | `⌥` + right-click | Fullscreen the window **under the pointer** ([below](#zoom-the-window-youre-pointing-at)) |
 | `⌥⇧Tab` | Move this workspace to the next monitor |
 | `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧←↓↑→` joins a neighbour |
@@ -110,19 +110,19 @@ haus.windows.mouseFullscreen = "right";   # right | left | none
 ```
 
 **⌥ + right-click** now zooms whichever window is under the cursor to fill its
-own workspace — including one on another monitor, which by keyboard would mean
+own workspace, including one on another monitor, which by keyboard would mean
 going there first. It's the same AeroSpace fullscreen, so it's a toggle: the
 same click puts the window back.
 
-The modifier isn't separately settable — it follows `haus.keys.windowNav`, so
+The modifier isn't separately settable: it follows `haus.keys.windowNav`, so
 the click and `⌥F` stay one vocabulary and a machine that moved the modifier for
 its keyboard layout moves the click with it.
 
 <Callout type="warn" title="This spends a gesture machine-wide">
 The click is consumed over **every** app, not just tiled ones, which is why the
 default is the quietest of the three rather than a free one. `"right"` still
-costs you macOS's ⌥ *variant* of a context menu — inside a Finder window ⌥ is
-what turns "Copy X" into "Copy X as Pathname" — and ⌥ + right-**drag** where an
+costs you macOS's ⌥ *variant* of a context menu (inside a Finder window ⌥ is
+what turns "Copy X" into "Copy X as Pathname") and ⌥ + right-**drag** where an
 app uses it, since the mouse-down is swallowed before the drag starts. Clicking
 the desktop is unaffected.
 
@@ -134,8 +134,8 @@ context menus everywhere.
 </Callout>
 
 Clicking the desktop passes straight through, so you keep Finder's menu there,
-and anything drawn above ordinary windows — the menu bar, the Dock, the
-[bar](/docs/haus/rooms/bar) — is transparent to the chord rather than being
+and anything drawn above ordinary windows (the menu bar, the Dock, the
+[bar](/docs/haus/rooms/bar)) is transparent to the chord rather than being
 "clicked".
 
 The chord is carried by [pounce](/docs/pounce)'s event tap, because AeroSpace has
@@ -150,7 +150,7 @@ like and gathers its rows by workspace.
 
 <Callout title="Windows untangle after sleep">
 macOS scrambles window positions when the machine wakes. windows watches for that
-and puts them back on its own — the right workspace *and* the tiled layout, so a
+and puts them back on its own: the right workspace *and* the tiled layout, so a
 window that came back floating at some arbitrary size joins the tiles again.
 <kbd>⇪</kbd> then <kbd>`</kbd> does it on demand, which is the repair to reach
 for any time a window ends up somewhere or some size it shouldn't be. Apps you
@@ -278,7 +278,7 @@ haus.windows.gravity = false;
 **Gravity** is what pulls you back to the most recently populated workspace when
 a ⌘Q leaves the one you're on empty. It fires only for a workspace you *emptied*,
 never for one you deliberately walked onto that happened to be empty. Turn it off
-if a screen changing without you touching it is worse than a blank one —
+if a screen changing without you touching it is worse than a blank one:
 [`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) decides that
 for you, since it is the largest unasked movement haus makes.
 
@@ -293,7 +293,7 @@ macOS turns edge-drag tiling **on** out of the box. So on a fresh haus machine
 you have two window managers: AeroSpace tiles a window into the layout, and a
 drag that merely passes near the screen edge hands half the screen to it. The
 symptom is "windows won't stay where I put them", and it points at neither of
-them on its own — which is why this room owns the settings rather than leaving
+them on its own, which is why this room owns the settings rather than leaving
 them with the rest of the macOS defaults:
 
 ```nix
@@ -303,7 +303,7 @@ haus.windows.stageManager.enable            = false;
 ```
 
 If you'd rather keep native tiling available and just stop it firing by
-accident, add the ⌥ accelerator to the line above — it's a second, deliberate
+accident, add the ⌥ accelerator to the line above: it's a second, deliberate
 way in, not a replacement for turning the bare drag off (the two keys are
 independent, and macOS ships both on):
 
@@ -327,14 +327,14 @@ haus.windows.desktop.clickToReveal = false;  # macOS 14's click-the-wallpaper be
 
 <Callout title="These land at your next login">
   This whole group writes `com.apple.WindowManager`, which macOS reads when your
-  login session starts and never re-reads — there is no process to restart the
+  login session starts and never re-reads: there is no process to restart the
   way Finder or the menu bar can be restarted. **The write happens during the
   rebuild; the effect appears at your next login.** Nothing is half-applied in
   between, and `haus plan` tells you before the rebuild rather than after.
 </Callout>
 
 Every option here is unset by default, like every macOS setting haus curates.
-Unset doesn't mean "off" — it means haus writes nothing, so a choice you made by
+Unset doesn't mean "off": it means haus writes nothing, so a choice you made by
 hand years ago survives untouched.
 
 ## Turning it off
@@ -357,7 +357,7 @@ does the same for the other rooms.
 - **[Launcher](/docs/haus/rooms/launcher)**: its opt-in `⌘Tab` window switcher
   answers the same question from the other side.
 - **[Appearance](/docs/haus/rooms/appearance)**: `haus.appearance.reduceMotion`
-  switches off both of this room's unasked movements — the pointer following
+  switches off both of this room's unasked movements: the pointer following
   focus, and gravity.
 
 ## Options
