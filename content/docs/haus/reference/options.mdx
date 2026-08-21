@@ -81,6 +81,16 @@ is already running as root, so it neither prompts nor wedges.
 
 The apps haus picks for you, the saved collections you can switch on in one line, and the file types they claim — the ones a finished machine has rather than the ones a room needs to work. Each is one switch you can turn off; what it installs is a roster entry like any other, so you can retune or replace it by app id.
 
+#### `haus.apps.cursor.enable`
+
+`boolean` · default `false`
+
+Install Cursor as the roster entry `cursor` (cask `cursor`).
+Already have it installed some other way? `haus.homebrew.adopt`
+(on by default) adopts it instead of installing a second copy.
+
+<small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
+
 #### `haus.apps.packs.writing.enable`
 
 `boolean` · default `false`
@@ -163,9 +173,48 @@ with `haus.roster.iina.package`.
 
 <small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
 
+#### `haus.apps.vscode.enable`
+
+`boolean` · default `false`
+
+Install Visual Studio Code as the roster entry `vscode` (cask
+`visual-studio-code`). Already have it installed some other way?
+`haus.homebrew.adopt` (on by default) adopts it instead of
+installing a second copy.
+
+<small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
+
+#### `haus.apps.zed.enable`
+
+`boolean` · default `false`
+
+Install Zed as the roster entry `zed` (cask `zed`). Already have it
+installed some other way? `haus.homebrew.adopt` (on by default)
+adopts it instead of installing a second copy.
+
+<small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
+
 ### haus.homebrew
 
 How rebuilds treat Homebrew packages you did not declare.
+
+#### `haus.homebrew.adopt`
+
+`boolean` · default `true`
+
+Pass `--adopt` to `brew bundle install`, so a cask haus declares that
+is already sitting in /Applications — installed by hand, the App
+Store, or anything other than Homebrew — is adopted into Homebrew's
+bookkeeping instead of failing activation with "there is already an
+App at …". Nothing about the app itself changes; only whether
+Homebrew considers itself the owner.
+
+On by default: without it, the roster's whole "declare an app,
+haus makes sure it's there" promise breaks the moment that app
+happens to already be installed some other way — which is common
+for editors, browsers and other apps most people bring with them.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
 #### `haus.homebrew.autoUpdate`
 
