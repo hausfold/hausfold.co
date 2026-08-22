@@ -202,17 +202,24 @@ How rebuilds treat Homebrew packages you did not declare.
 
 `boolean` · default `true`
 
-Pass `--adopt` to `brew bundle install`, so a cask haus declares that
-is already sitting in /Applications — installed by hand, the App
-Store, or anything other than Homebrew — is adopted into Homebrew's
-bookkeeping instead of failing activation with "there is already an
-App at …". Nothing about the app itself changes; only whether
-Homebrew considers itself the owner.
+Whether a cask haus declares that is already sitting in
+/Applications — installed by hand, the App Store, or anything
+other than Homebrew — gets adopted into Homebrew's bookkeeping
+instead of failing activation with "there is already an App at
+…". Nothing about the app itself changes; only whether Homebrew
+considers itself the owner.
 
 On by default: without it, the roster's whole "declare an app,
 haus makes sure it's there" promise breaks the moment that app
 happens to already be installed some other way — which is common
 for editors, browsers and other apps most people bring with them.
+
+Current Homebrew (`bundle/cask.rb`) adopts every such cask
+unconditionally on its own, with no supported flag left to opt
+out — `brew bundle install --adopt` was removed, and the only
+alternative, `--force`, overwrites instead of refusing. Setting
+this to `false` is a no-op until Homebrew grows a real way back
+to "fail loudly on conflict" for `brew bundle`.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
@@ -5678,6 +5685,12 @@ you're already looking at, so landing there wouldn't be a switch.
 Moving between visible tiles stays windowNav's focus keys; the skipped
 siblings are still the rows just below you in the list.
 
+Pages count as the workspace they belong to: `T`, `T/haus` and `T/main`
+are one place, so walking pages with ⌃⇥ and then tapping ⌘⇥ takes you
+off `T` altogether rather than back to the page you just left. Getting
+between pages is the ⌃⇥ walk's job, the same division of labour as
+windowNav's focus keys above.
+
 Needs the daemon to hold an Accessibility grant — in practice, set
 haus.launcher.signingIdentity so the grant survives rebuilds. Without
 the grant the event tap can't install and stock ⌘Tab keeps working, so
@@ -6239,7 +6252,10 @@ Example:
 
 The AI room: coding-agent *tooling*. `holt` (agent worktrees),
 `agent-state` (the status writer behind the `agents` bar pill),
-the agent-worktree statusline, and the client
+the agent-worktree statusline, `holt`'s `tart` runtime adapter (SPEC.md
+§5.5 — `holt runtime up|enter|down --backend tart` stands a lane up in
+a macOS VM; installing `tart` itself and pulling a base image are
+still manual, one-time steps), and the client
 config the Terminal room writes (Claude Code's settings.json keys, opencode's
 agent-state plugin). Which clients get installed is `ai.clients`.
 
@@ -7041,7 +7057,7 @@ Example:
 
 The leader letter for this app: tap Caps Lock then this key to
 launch/focus it. Must be unique across the roster, and not one of
-launch mode's own: `v` `e` `z` `,` `` ` `` `-` `=` `/` `esc`, the
+launch mode's own: `v` `f` `z` `,` `.` `` ` `` `-` `=` `/` `esc`, the
 arrows and one digit per numbered workspace (`1`-`4` out of the box;
 see haus.windows.numberedWorkspaces) are taken, and a rebuild refuses
 them.
@@ -7485,10 +7501,10 @@ Example:
 `string` · no default
 
 The AeroSpace key name pressed after the leader (e.g. "enter",
-"space", "period", or a letter). Must not collide with a roster
+"space", "backslash", or a letter). Must not collide with a roster
 app's key or a built-in launch-mode key (one digit per
 numbered workspace — see haus.windows.numberedWorkspaces — plus
-the arrows, `-`/`=`, `v`/`e`/`z`, `,`, `` ` ``, `/`, esc) —
+the arrows, `-`/`=`, `v`/`f`/`z`, `,`, `.`, `` ` ``, `/`, esc) —
 nor with the workspace throws, which are ⇧ (follow) or ⌥⇧
 (stay) + any of those digits or a roster letter ("shift-1",
 "alt-shift-b", …). An assertion in modules/windows catches a

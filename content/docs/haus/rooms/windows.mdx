@@ -71,6 +71,7 @@ haus.keys.windowNav = "alt";
 | `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
 | `Z` | Reopen the last closed app |
 | `,` | macOS System Settings: the `⌘,` convention, one level up |
+| `.` | Cycle this workspace's tiling: spiral, grid, columns ([below](#spin-the-layout-until-its-right)) |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -285,6 +286,35 @@ for you, since it is the largest unasked movement haus makes.
 It needs the [bar](/docs/haus/rooms/bar) as well as this room: a ⌘Q announces
 itself through the bar's event stream and nowhere else, so with no bar there is
 no gravity either way.
+
+## Spin the layout until it's right
+
+`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* focused
+workspace at once, cycling it through three arrangements:
+
+| Shape | What you get |
+|---|---|
+| **Spiral** | Nested splits that alternate orientation on every window, so the row keeps folding instead of getting narrower |
+| **Grid** | Evenly bucketed into √n columns, rounded up: five windows land as 2 / 2 / 1 |
+| **Columns** | One flat row again, which is what a tiled workspace does on its own |
+
+Each press advances one rung and wraps around. The dial has **one position for
+the whole machine**, not one per workspace: the key reshapes whichever workspace
+is focused, but the shape that comes next is remembered globally, so pressing `.`
+somewhere you have never cycled continues the sequence rather than starting it.
+Keep pressing until it looks right. That is the whole interaction.
+
+Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
+between, so a resize you make afterwards stands until you press again, and
+landing back on a shape you already picked reapplies it fresh (the point of it,
+once a new window has wandered in).
+
+Two things worth knowing. It is a **tiles-only dial**, so on a machine running
+`defaultLayout = "accordion"` a press converts that workspace to tiles and `⌥,`
+is what puts it back. And it rebuilds the tree by moving every window out to a
+scratch workspace and straight back, which is the one reset AeroSpace honours
+reliably; the round trip is invisible in normal use, and the window you were
+looking at keeps focus throughout.
 
 ## macOS has its own opinion about windows
 
