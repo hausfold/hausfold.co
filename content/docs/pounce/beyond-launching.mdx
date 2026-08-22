@@ -44,6 +44,14 @@ skips the workspace you're on and lands on the most recent window on a
 you're already looking at, so landing there wouldn't be a switch. The skipped
 siblings are still the rows right below you.
 
+Pages count as the workspace they belong to. A workspace name with a `/` in it
+— `T/haus`, `T/main` — is a page of `T`, and the whole `T` family is one place
+as far as a bare tap is concerned, so walking pages and then tapping ⌘⇥ takes
+you off `T` altogether rather than back to the page you just left. Getting
+*between* pages is the page walk's job. The rule is the name before the first
+`/`, and it is not keyed on `pages.prefix`: ⌘⇥'s default doesn't change shape
+depending on whether the page chord is configured.
+
 <Callout title="It is a startup setting">
 The `windows` block is captured when the daemon arms, so an edit needs a
 restart, not just a re-open:
