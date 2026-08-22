@@ -72,11 +72,23 @@ no Input Monitoring, no Screen Recording, no Dock icon, no telemetry. There is
 no permission step in a rebuild for it, which is unusual enough here to be
 worth saying.
 
-One macOS setting fights it, and haus can't fix it for you: **System Settings ▸
-Desktop & Dock ▸ "Drag windows to top of screen to enter Mission Control"**.
-macOS arms that top-edge trigger for the whole of any drag, files included, and
-it fires over the same band the shelf lives in. Leave it on and the Dock steals
-the drop. [Install](/docs/perch/install) has it too, for a Mac without haus.
+Two macOS settings get in the shelf's way, and the room turns both off for you
+while it's enabled (disabling the room stops haus writing them, but macOS keeps
+the last value written — flip them back by hand if you want them):
+
+- **Desktop & Dock ▸ "Drag windows to top of screen to enter Mission Control"**,
+  switched off outright. macOS arms that top-edge trigger for the whole of any
+  drag, files included, and it fires over the same band the shelf lives in.
+  Left on, the Dock steals the drop, and nothing perch can do stops it —
+  which is why this one isn't a preference the room asks you about.
+  [Install](/docs/perch/install) has it for a Mac without haus.
+- **The screenshot preview thumbnail**, switched off as a default. macOS parks a
+  new capture in the bottom-right corner and only writes the file when that
+  thumbnail expires (about five seconds) or you dismiss it — so a [watched
+  folder](/docs/perch/using) pointed at your screenshots catches them five
+  seconds after you took them. This one is only a delay rather than a defeat, so
+  it's a `mkDefault`: `haus.screenshots.thumbnail = true;` in your host puts the
+  thumbnail (and its markup and drag affordances) back.
 
 ## Remove it
 
