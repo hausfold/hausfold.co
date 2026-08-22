@@ -71,7 +71,7 @@ haus.keys.windowNav = "alt";
 | `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
 | `Z` | Reopen the last closed app |
 | `,` | macOS System Settings: the `⌘,` convention, one level up |
-| `.` | Cycle this workspace's tiling: spiral → grid → columns ([below](#spin-the-layout-until-its-right)) |
+| `.` | Cycle this workspace's tiling: spiral, grid, columns ([below](#spin-the-layout-until-its-right)) |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -289,22 +289,32 @@ no gravity either way.
 
 ## Spin the layout until it's right
 
-`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* workspace at
-once, cycling it through three arrangements:
+`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* focused
+workspace at once, cycling it through three arrangements:
 
-| Press | Shape |
+| Shape | What you get |
 |---|---|
-| 1st | **Spiral** — nested splits that alternate orientation on every window, so the row keeps folding instead of getting narrower |
-| 2nd | **Grid** — evenly bucketed into √n columns, rounded up: five windows land as 2 / 2 / 1 |
-| 3rd | **Columns** — one flat row again, what a workspace does on its own |
+| **Spiral** | Nested splits that alternate orientation on every window, so the row keeps folding instead of getting narrower |
+| **Grid** | Evenly bucketed into √n columns, rounded up: five windows land as 2 / 2 / 1 |
+| **Columns** | One flat row again, which is what a tiled workspace does on its own |
 
-Keep pressing and it goes round. Every press is **one shot**: it reshapes, then
-leaves you alone. Nothing runs between presses, so a resize you make afterwards
-stands until you press again — and landing back on a mode you already picked
-reapplies it fresh, which is the point once a new window has wandered in.
+Each press advances one rung and wraps around. The dial has **one position for
+the whole machine**, not one per workspace: the key reshapes whichever workspace
+is focused, but the shape that comes next is remembered globally, so pressing `.`
+somewhere you have never cycled continues the sequence rather than starting it.
+Keep pressing until it looks right. That is the whole interaction.
 
-It only ever touches the workspace you're on, and the window you were looking at
-keeps focus.
+Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
+between, so a resize you make afterwards stands until you press again, and
+landing back on a shape you already picked reapplies it fresh (the point of it,
+once a new window has wandered in).
+
+Two things worth knowing. It is a **tiles-only dial**, so on a machine running
+`defaultLayout = "accordion"` a press converts that workspace to tiles and `⌥,`
+is what puts it back. And it rebuilds the tree by moving every window out to a
+scratch workspace and straight back, which is the one reset AeroSpace honours
+reliably; the round trip is invisible in normal use, and the window you were
+looking at keeps focus throughout.
 
 ## macOS has its own opinion about windows
 
