@@ -45,9 +45,9 @@ For the day-to-day shape of it, see
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
 | `haus show <src>` | Read a desktop or room (a local file, or a source you have not got yet) before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
-| `haus add <src>` | Pin a desktop you found and select it: writes `flake.nix` and `flake.lock`, never rebuilds. See below. |
+| `haus add <src>` | Pin a desktop you found and select it, or a room with `--room --namespace <ns>`: writes `flake.nix` and `flake.lock`, never rebuilds. See below. |
 | `haus desktop [name]` | List every desktop this machine can select (built in and pinned), or switch to one. |
-| `haus remove <name> [replacement]` | Unpin a desktop `add` brought in. Falls back to `blank` if it was the one selected. |
+| `haus remove <name> [replacement]` | Unpin a desktop or a room `add` brought in. A desktop falls back to `blank` if it was the one selected. |
 
 ## Changing a setting without opening an editor
 
@@ -335,9 +335,11 @@ Pinning locks the input, and locking a flake evaluates its `flake.nix`, so the
 room's code has already run by the time anything lands in yours. That's before
 any rebuild, which is why the prompt names the revision and asks you to type
 its first twelve characters back. Neither `-y` nor `--yes` answers it. With no
-terminal attached the answer is a per-name `HAUS_ADD_ROOM_<NAME>` set to the
+terminal attached the answer is a per-name environment variable set to the
 **full** revision, so a piped installer can never accept a room on your behalf
-with one blanket switch.
+with one blanket switch. The name is `HAUS_ADD_ROOM_` plus the input's own
+name, uppercased, with anything that isn't a letter, digit or underscore
+turned into `_`: the `photo-room` above wants `HAUS_ADD_ROOM_PHOTO_ROOM`.
 </Callout>
 
 One room at a time, the same scope the desktop side keeps. `haus add --print`
@@ -347,6 +349,9 @@ shows the whole edit first (the input, the `extraModules` line, one
 deliberately stops short: it can't tell which namespace claim belonged to that
 room, so it prints the `haus reset _rooms.claimed.<ns>` for you to run rather
 than resetting a claim it might not own.
+
+Either way nothing is applied yet. Locking ran the room's `flake.nix` and that
+is all; `haus rebuild` is still the next step, printed at the end.
 
 ## Looking before you leap
 

@@ -41,8 +41,8 @@ or Pounce never lists them.
 
 Header lines are read from the first 30 lines of the file; anything else in them
 is skipped. Unknown keys are skipped too, which is what lets something else
-write into the same header: haus adds its own `cheat` keys for the cheatsheet,
-and pounce reads straight past them.
+write into the same header: haus adds `cheat` and `cheatWhen` for its
+[cheatsheet](/docs/haus/rooms/launcher), and pounce reads straight past them.
 
 <Callout type="warn" title="Spacing is forgiving, but the `#` needs a space after it">
 The header is hand-typed and a line that fails to parse says nothing at all:
@@ -53,9 +53,9 @@ or none. The value is trimmed at both ends, spaces and tabs only, so a
 non-breaking space (what ⌥Space types on macOS) survives into the value and
 you won't see why.
 
-The one thing required is *some* whitespace after the `#`. `#pounce: name = x`
-is an ordinary comment, and the row it should have named comes out as
-`my-command` instead.
+The one thing required is *some* whitespace after the `#`. Written
+`#pounce: name = Say Hello`, the line above is an ordinary comment and the row
+lists as `say-hello`.
 </Callout>
 
 ## A row that hides when there is nothing to act on
