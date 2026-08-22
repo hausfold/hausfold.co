@@ -39,10 +39,18 @@ Inside haus that is `haus.launcher.windowSwitcher`, where it defaults **on**.
 **With a tiling window manager**, rows gather by workspace under a header each,
 and focusing goes through `aerospace focus --window-id` so a window parked
 elsewhere surfaces properly. One deliberate wrinkle: a bare tap-and-release
-skips the workspace you're on and lands on the most recent window on a
-**different** one: with two windows tiled side by side, the most recent is one
-you're already looking at, so landing there wouldn't be a switch. The skipped
-siblings are still the rows right below you.
+skips the workspace **family** you're on and lands on the most recent window
+outside it: with two windows tiled side by side, the most recent is one you're
+already looking at, so landing there wouldn't be a switch. The skipped siblings
+are still the rows right below you.
+
+Family, not workspace name. A workspace whose name has a `/` in it (`T/haus`,
+`T/main`) is a page of `T`, and the whole `T` family counts as one place, so
+walking pages and then tapping ⌘⇥ takes you off `T` altogether rather than back
+to the page you just left. Getting *between* pages is the page walk's job. The
+rule is the name before the first `/`, and it is not keyed on `pages.prefix`:
+⌘⇥'s default doesn't change shape depending on whether the page chord is
+configured.
 
 <Callout title="It is a startup setting">
 The `windows` block is captured when the daemon arms, so an edit needs a
