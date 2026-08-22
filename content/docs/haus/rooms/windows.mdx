@@ -71,6 +71,7 @@ haus.keys.windowNav = "alt";
 | `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
 | `Z` | Reopen the last closed app |
 | `,` | macOS System Settings: the `⌘,` convention, one level up |
+| `.` | Cycle this workspace's tiling: spiral → grid → columns ([below](#spin-the-layout-until-its-right)) |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -285,6 +286,25 @@ for you, since it is the largest unasked movement haus makes.
 It needs the [bar](/docs/haus/rooms/bar) as well as this room: a ⌘Q announces
 itself through the bar's event stream and nowhere else, so with no bar there is
 no gravity either way.
+
+## Spin the layout until it's right
+
+`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* workspace at
+once, cycling it through three arrangements:
+
+| Press | Shape |
+|---|---|
+| 1st | **Spiral** — nested splits that alternate orientation on every window, so the row keeps folding instead of getting narrower |
+| 2nd | **Grid** — evenly bucketed into √n columns, rounded up: five windows land as 2 / 2 / 1 |
+| 3rd | **Columns** — one flat row again, what a workspace does on its own |
+
+Keep pressing and it goes round. Every press is **one shot**: it reshapes, then
+leaves you alone. Nothing runs between presses, so a resize you make afterwards
+stands until you press again — and landing back on a mode you already picked
+reapplies it fresh, which is the point once a new window has wandered in.
+
+It only ever touches the workspace you're on, and the window you were looking at
+keeps focus.
 
 ## macOS has its own opinion about windows
 
