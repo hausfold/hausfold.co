@@ -309,10 +309,44 @@ haus update writer      # pull the latest writer, then rebuild
 haus remove writer      # unpin it — falls back to blank if it was selected
 ```
 
-`haus add` only takes desktops today: a room (an ordinary nix-darwin module)
-refuses, naming that, and points at `haus show --room` instead. Only one
-third-party desktop can be pinned at a time; a second `haus add` prints the
-lines to add by hand rather than guessing at your `flake.nix`.
+Only one third-party desktop can be pinned at a time; a second `haus add`
+prints the lines to add by hand rather than guessing at your `flake.nix`.
+
+## Pinning a room
+
+A desktop is data. A **room** is code: an ordinary nix-darwin module that can
+install packages, write files and run activation scripts as root. `haus add`
+takes one of those too, but only when you say so, and it never guesses which
+`haus.<ns>` the room means to own:
+
+```sh
+haus add --room --namespace photography github:ada/photo-room
+```
+
+`--namespace` is required, and repeatable for a room that claims more than
+one. It can't be inferred, because learning it means running the room's code,
+which is the one thing this command won't do before you've agreed to it. Add
+`--module <attr>` when the room's flake exports it as something other than
+`darwinModules.default`. `--file` and `--vendor` don't apply: a room is a
+flake input, not a file you can copy in.
+
+<Callout type="warn" title="A room's confirmation is typed, and -y can't skip it">
+Pinning locks the input, and locking a flake evaluates its `flake.nix`, so the
+room's code has already run by the time anything lands in yours. That's before
+any rebuild, which is why the prompt names the revision and asks you to type
+its first twelve characters back. Neither `-y` nor `--yes` answers it. With no
+terminal attached the answer is a per-name `HAUS_ADD_ROOM_<NAME>` set to the
+**full** revision, so a piped installer can never accept a room on your behalf
+with one blanket switch.
+</Callout>
+
+One room at a time, the same scope the desktop side keeps. `haus add --print`
+shows the whole edit first (the input, the `extraModules` line, one
+`haus._rooms.claimed.<ns>` per namespace) and writes nothing. `haus remove
+<name>` takes the `extraModules` entry out along with the input, and then
+deliberately stops short: it can't tell which namespace claim belonged to that
+room, so it prints the `haus reset _rooms.claimed.<ns>` for you to run rather
+than resetting a claim it might not own.
 
 ## Looking before you leap
 

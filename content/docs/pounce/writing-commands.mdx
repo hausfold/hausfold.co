@@ -40,7 +40,23 @@ or Pounce never lists them.
 | `whenFile` | A file that can hide the row (see below) | *(always listed)* |
 
 Header lines are read from the first 30 lines of the file; anything else in them
-is skipped.
+is skipped. Unknown keys are skipped too, which is what lets something else
+write into the same header: haus adds its own `cheat` keys for the cheatsheet,
+and pounce reads straight past them.
+
+<Callout type="warn" title="Spacing is forgiving, but the `#` needs a space after it">
+The header is hand-typed and a line that fails to parse says nothing at all:
+the row just quietly carries its filename instead of its name. So the parser
+is generous about whitespace. The line may be indented, the `#` may be
+followed by any run of spaces or tabs, and `=` may have any spacing around it
+or none. The value is trimmed at both ends, spaces and tabs only, so a
+non-breaking space (what ⌥Space types on macOS) survives into the value and
+you won't see why.
+
+The one thing required is *some* whitespace after the `#`. `#pounce: name = x`
+is an ordinary comment, and the row it should have named comes out as
+`my-command` instead.
+</Callout>
 
 ## A row that hides when there is nothing to act on
 
