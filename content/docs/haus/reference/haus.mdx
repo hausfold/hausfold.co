@@ -41,13 +41,44 @@ For the day-to-day shape of it, see
 | `haus capture [cat…]` | Turn this Mac's current settings into config lines *and* a snapshot. |
 | `haus revert-settings [snapshot\|list]` | Put a captured snapshot back. |
 | `haus options` | Refresh `hosts/<host>/options.nix` (every `haus.*` option at its default, described and commented out) from the build this machine is running. |
-| `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, Pounce's Accessibility grant, your secrets, agent readiness. |
+| `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, every permission and click still waiting on you, your secrets, agent readiness. |
+| `haus permissions` | Walk everything on this Mac that needs a person — one card at a time, what it is for, and a button. `--list` reports without touching anything. See below. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
 | `haus show <src>` | Read a desktop or room (a local file, or a source you have not got yet) before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
 | `haus add <src>` | Pin a desktop you found and select it, or a room with `--room --namespace <ns>`: writes `flake.nix` and `flake.lock`, never rebuilds. See below. |
 | `haus desktop [name]` | List every desktop this machine can select (built in and pinned), or switch to one. |
 | `haus remove <name> [replacement]` | Unpin a desktop or a room `add` brought in. A desktop falls back to `blank` if it was the one selected. |
+
+## The things a rebuild cannot do for you
+
+A few steps on a fresh Mac need a human, and macOS makes sure of it: a
+permission is granted by a person clicking, or it is not granted. `haus
+permissions` is the walk through them.
+
+```sh
+haus permissions          # one card at a time, with a button
+haus permissions --list   # just the report; opens nothing, asks nothing
+```
+
+Each card says what the thing is for and what breaks without it, then offers
+the shortest route to granting it — **the real macOS prompt** where the service
+has one (Accessibility does, so Pounce's grant is one click and no trip to
+Settings), and otherwise the exact System Settings pane, deep-linked. Then it
+waits: go and click, come back, and the card has already gone green.
+
+**It only ever tells you what it can actually see.** Some grants macOS lets a
+program confirm — it asks, and a tick means macOS agreed. Others it exposes no
+way to ask about at all, Automation above all, and those cards say so and are
+marked done on your word rather than drawing a tick nothing earned. `haus
+permissions --reset` forgets the ones you took that way; the measured ones are
+unaffected, because they are re-measured every time.
+
+**The deck is your machine's, not a fixed list.** Every room contributes the
+steps it knows about, so you are shown the tiler's grant only if you run the
+tiler, and a desktop that asks for nothing shows a deck with nothing in it. A
+rebuild ends with a one-line count when anything is still waiting, and `haus
+doctor` reports the same deck read-only.
 
 ## Changing a setting without opening an editor
 
