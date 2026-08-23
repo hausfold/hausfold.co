@@ -44,10 +44,10 @@ calling app has Full Disk Access, so the pill stays truthful even when you
 toggle Focus from Control Center or your phone; without that grant, focus
 falls back to remembering its own last toggle.
 
-## The one-time grants
+## The grants
 
 Synthesizing a keypress needs **Accessibility**; exact state reads need
-**Full Disk Access**. Both are granted once, per app, in System Settings →
+**Full Disk Access**. Both are granted per app, in System Settings →
 Privacy & Security. Run `focus doctor` any time to check each piece and print
 the fix for whatever's missing.
 
@@ -59,10 +59,12 @@ the fix for whatever's missing.
   terminal + sketchybar) to **Full Disk Access** so `focus status` reads the
   real Focus state instead of guessing.
 
-<Callout type="tip" title="Why grants stick">
-macOS keys TCC grants to a code-signing identity. haus re-signs Pounce with
-your stable identity precisely so these checkboxes survive rebuilds: tick
-them once, forget them.
+<Callout type="tip" title="Which grants stick, and which come back">
+macOS keys a TCC grant to the thing it was given to. haus re-signs Pounce with
+your stable identity precisely so its checkbox survives rebuilds: tick it once,
+forget it. **sketchybar is the exception.** Its grant is keyed to the binary
+itself, so a rebuild that moves that binary asks again. `focus doctor` is what
+tells you which one went quiet.
 </Callout>
 
 ## The Slack leg
