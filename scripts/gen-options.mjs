@@ -324,15 +324,16 @@ const canonical = new Map();
 // The prose on this page is haus's own: every paragraph under every option
 // is that option's `description` in its `.nix` declaration, and this file
 // may not rewrite a word of it. What it CAN do is decide how much of it a
-// reader meets at once. Of the 318 options, 167 carry more than 500
-// characters and 24 carry more than 2,000 — a reference page that opens
+// reader meets at once. Over half of haus's option descriptions run past 500
+// characters and a couple of dozen past 2,000 — a reference page that opens
 // every one of them at full length is a page you scroll past rather than
 // read.
 //
 // So: the opening paragraph stays open, and the rest goes behind a
 // disclosure. Nothing is removed — the text is in the HTML, in the search
-// index, in `llms-full.txt` and in the page's Markdown, and every browser's
-// find-in-page opens a `<details>` to reach what is inside it.
+// index, in `llms-full.txt` and in the page's Markdown. (Whether a browser's
+// own find-in-page opens a closed `<details>` is the browser's call and not
+// uniform, which is why the page promises search rather than ⌘F.)
 //
 // The real fix for a 2,000-character option description is upstream, in the
 // `.nix` file that declares it. This is what makes the page readable in the
@@ -373,10 +374,17 @@ function sentences(text) {
   return out.filter(Boolean);
 }
 
+// Blank lines off either end, INDENTATION left alone. A plain `.trim()` here
+// takes the leading spaces off the first line of whichever half it lands on,
+// and an indented block that starts a half then stops looking indented to
+// `promoteIndentedBlocks` — which is how four aligned tables came out as one
+// run-on paragraph inside a `<details>`.
+const trimBlankLines = (value) => value.replace(/^(?:[ \t]*\n)+/, '').replace(/\s+$/, '');
+
 // What stays open, and what goes behind the disclosure. Returns `[lede, rest]`
 // with an empty `rest` meaning "render it as one piece, as before".
 function fold(description) {
-  const text = description.trim();
+  const text = trimBlankLines(description);
   // A fenced block is the one thing that cannot be cut in half by accident.
   // None of haus's descriptions carries one today; if one ever does, it
   // renders whole rather than wrongly.
@@ -389,8 +397,8 @@ function fold(description) {
   // sentence pointing at nothing, so keep taking paragraphs until one closes.
   let taken = 1;
   while (taken < paragraphs.length && /:$/.test(paragraphs[taken - 1].trimEnd())) taken += 1;
-  let lede = paragraphs.slice(0, taken).join('\n\n').trim();
-  let rest = paragraphs.slice(taken).join('\n\n').trim();
+  let lede = trimBlankLines(paragraphs.slice(0, taken).join('\n\n'));
+  let rest = trimBlankLines(paragraphs.slice(taken).join('\n\n'));
 
   // 17 of the long ones are a single unbroken paragraph, and they are the
   // longest on the page. Cut those at a sentence instead.
@@ -412,12 +420,12 @@ function fold(description) {
   return [lede, rest];
 }
 
-// An example that fits on the metadata line goes on it. 189 of the 227
-// examples on this page are one short token — `false`, `"24h"`, `12` — and
-// each was arriving as a paragraph reading "Example:" over a bordered,
+// An example that fits on the metadata line goes on it. The large majority of
+// the examples on this page are one short token — `false`, `"24h"`, `12` —
+// and each was arriving as a paragraph reading "Example:" over a bordered,
 // syntax-highlighted figure with a copy button in the corner: five lines of
-// furniture around one word, 189 times. The 38 that are a real Nix snippet
-// still get the block, which is what the block is for.
+// furniture around one word, over and over. The handful that are a real Nix
+// snippet still get the block, which is what the block is for.
 const EXAMPLE_INLINE_MAX = 40;
 const inlineExample = (example) =>
   example !== undefined && !example.includes('\n') && example.trim().length <= EXAMPLE_INLINE_MAX
@@ -451,7 +459,11 @@ function renderOption(option) {
       lines.push(
         '<details className="hf-more">',
         '',
-        '<summary>More detail</summary>',
+        // 100-odd disclosures on one page would otherwise share one
+        // accessible name, and a screen reader's controls list would be a
+        // column of identical "More detail" rows. The visible label stays
+        // two words.
+        `<summary>More detail<span className="sr-only"> on ${mdxText(option.name)}</span></summary>`,
         '',
         mdxText(promoteIndentedBlocks(rest)),
         '',
@@ -473,7 +485,7 @@ function renderOption(option) {
 
 // The namespace's own contents, as one line of links under its blurb. It is
 // what the table of contents used to be: with every option in the sidebar
-// the rail was 318 rows deep and wrapped `haus.apps.videoPlayer.enable`
+// the rail was one row per option and wrapped `haus.apps.videoPlayer.enable`
 // across three lines, which is a list nobody reads. The TOC now stops at the
 // namespace (`maxHeadingLevel: 3` in the frontmatter, honoured by the docs
 // page), and the leaf names live here instead — beside the prose they point
@@ -554,10 +566,10 @@ Apply changes with \`haus rebuild\`. Each option lists its **type**, its
 **default** and, where it fits on the line, an example under its name, and
 links to the file that declares it. A long description opens on its first
 paragraph and keeps the rest behind **More detail**; nothing is cut, and
-find-in-page still reaches inside it.
+search finds what is inside it.
 
-{/* The scope hook for this page's layout. Every rule that turns 318 option
-    headings into 318 ruled rows hangs off \`.prose:has(.hf-options)\` in
+{/* The scope hook for this page's layout. Every rule that turns an option
+    heading into a ruled row hangs off \`.prose:has(.hf-options)\` in
     src/app/global.css, so nothing here reaches an ordinary docs page. The
     div draws nothing. */}
 

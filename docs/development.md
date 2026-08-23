@@ -94,7 +94,7 @@ npm run bindings:update -- --haus /path/to/haus  # accept them, after reviewing 
 how much of it arrives at once: a description over ~700 characters opens on its
 first paragraph and keeps the rest behind a `<details>`, one shared by two
 options is printed once and cross-referenced from the other (that is what
-collapses the 15 duplicated bar pills), a one-token example goes on the metadata
+collapses the duplicated bar pills), a one-token example goes on the metadata
 line instead of into a fenced block, and an indented block inside a description
 is fenced rather than flattened into a paragraph. All four get quietly smaller
 as haus's own descriptions do; none of them can be tuned from this side by

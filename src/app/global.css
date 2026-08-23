@@ -1124,8 +1124,8 @@ figure.shiki button:hover {
 /* --- the options reference -------------------------------------------- */
 
 /* One page in the docs is not written but RENDERED — `reference/options` is
-   318 options out of haus's module system, and it is the only page here
-   whose shape is a list of records rather than an argument. Everything in
+   haus's whole module system rendered, and it is the only page here whose
+   shape is a list of records rather than an argument. Everything in
    this block is scoped to it through `.hf-options`, an empty marker div the
    generator emits once (see `scripts/gen-options.mjs`), because every rule
    below would be wrong on a page someone wrote by hand: nowhere else does
@@ -1203,8 +1203,8 @@ figure.shiki button:hover {
 
 /* Each namespace's own index, under its blurb: every option it owns, by
    leaf name, as a row of links. It is what the "On this page" rail used to
-   try to be and couldn't — 318 rows deep, wrapping `haus.apps.videoPlayer.
-   enable` over three lines. The rail now stops at the namespace
+   try to be and couldn't — one row per option, wrapping
+   `haus.apps.videoPlayer.enable` over three lines. The rail now stops at the namespace
    (`tableOfContents.maxHeadingLevel` in the page's frontmatter, read in
    `src/app/docs/[[...slug]]/page.tsx`) and the leaves live here, beside
    the prose they point into and short because the namespace is named
@@ -1251,8 +1251,8 @@ figure.shiki button:hover {
 /* The rest of a long description. haus's option descriptions run to 2,000
    characters and more, and this page may not rewrite a word of them — so
    the opening paragraph stays open and the remainder waits behind this.
-   Nothing is hidden from search, from `llms-full.txt` or from find-in-page,
-   which opens a `<details>` to reach what is inside it.
+   Nothing is hidden from the search index or from `llms-full.txt`,
+   and the site's own search reaches inside a closed one.
 
    Open, the folded half takes a left rule: it is the same option's text
    continuing, not a new one starting. */
@@ -1291,6 +1291,14 @@ figure.shiki button:hover {
 .hf-more > summary:hover,
 .hf-more > summary:focus-visible {
   color: var(--accent);
+}
+
+/* Spelled out rather than left to the UA ring. The colour change above is the
+   whole of the hover affordance, and a focus state that is ONLY a colour
+   change is one reset away from not existing. */
+.hf-more > summary:focus-visible {
+  outline: 2px solid var(--ink-3);
+  outline-offset: 3px;
 }
 
 .hf-more[open] {

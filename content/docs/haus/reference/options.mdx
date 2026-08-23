@@ -39,10 +39,10 @@ Apply changes with `haus rebuild`. Each option lists its **type**, its
 **default** and, where it fits on the line, an example under its name, and
 links to the file that declares it. A long description opens on its first
 paragraph and keeps the rest behind **More detail**; nothing is cut, and
-find-in-page still reaches inside it.
+search finds what is inside it.
 
-{/* The scope hook for this page's layout. Every rule that turns 318 option
-    headings into 318 ruled rows hangs off `.prose:has(.hf-options)` in
+{/* The scope hook for this page's layout. Every rule that turns an option
+    heading into a ruled row hangs off `.prose:has(.hf-options)` in
     src/app/global.css, so nothing here reaches an ordinary docs page. The
     div draws nothing. */}
 
@@ -74,7 +74,7 @@ Store during activation, skipping any already installed.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.appStore.install</span></summary>
 
 Off by default: this reaches the network and acts on your Apple
 ID, which shouldn't happen as a side effect of turning on a
@@ -123,7 +123,7 @@ a Mac that reads and writes rather than compiles.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.apps.packs.writing.enable</span></summary>
 
 These arrive as ordinary roster entries at `mkDefault`, so anything you
 say about one of them in your own host file wins per FIELD and the rest
@@ -155,7 +155,7 @@ or a browser. Ignored unless the player is installed.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.apps.videoPlayer.claimFileTypes</span></summary>
 
 A short list on purpose: it covers what you actually double-click,
 not everything IINA can decode. Dead, professional and DRM'd
@@ -192,7 +192,7 @@ rather than /Applications.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.apps.videoPlayer.enable</span></summary>
 
 The hacker desktop turns this on, because macOS ships QuickTime
 Player, which refuses most of what you actually double-click (mkv,
@@ -254,7 +254,7 @@ considers itself the owner.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.homebrew.adopt</span></summary>
 
 On by default: without it, the roster's whole "declare an app,
 haus makes sure it's there" promise breaks the moment that app
@@ -326,7 +326,7 @@ which rooms you run — set it in any desktop, or in your host on top of one.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.appearance.largePrint</span></summary>
 
 It moves four things, each as a DEFAULT, so pinning any single one by hand
 still wins — with one asymmetry worth knowing: a DESKTOP that sets one of
@@ -402,7 +402,7 @@ with movement in the corner of their eye.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.appearance.reduceMotion</span></summary>
 
 It exists because macOS's own motion is already curated — `haus.animations`
 for the Dock's timings, `haus.accessibility.reduceMotion` for Apple's
@@ -485,7 +485,7 @@ Nebelung per-accent ports.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.theme.accent</span></summary>
 
 The shelf follows it too, and is the one surface handed the NAME rather than
 a hex: the shelf resolves it against whichever half of its dark/light
@@ -543,7 +543,7 @@ How far the interface separates from its background.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.theme.contrast</span></summary>
 
 "high" swaps in the Nebelung high-contrast palette: the same hues and
 the same accents, with the neutral ramp pulled apart in OKLCH so text
@@ -581,7 +581,7 @@ which is what haus has always shipped; "latte" is light mode.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.theme.flavor</span></summary>
 
 Not an inversion of the dark palette — a different SOURCE palette. Nebelung
 is "Catppuccin with the blue stripped out", and those rules say nothing
@@ -638,7 +638,7 @@ port for, without wiring each one by hand.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.theme.ports.enable</span></summary>
 
 haus already themes every tool it installs itself — the shell, the
 terminal, the git stack, Zen, Obsidian. This covers the other direction:
@@ -675,15 +675,17 @@ every native app haus can't reach.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.theme.systemAppearance</span></summary>
 
+```text
 unmanaged  (default) leave it alone, in both directions. Your Mac's
-             appearance stays yours; nothing about a rebuild moves it.
-  flavor     follow haus.theme.flavor — latte sets Light, mocha
-             sets Dark. This is the one that makes light mode complete
-             rather than half-done.
-  light      pin Light, whatever the flavor is.
-  dark       pin Dark, whatever the flavor is.
+           appearance stays yours; nothing about a rebuild moves it.
+flavor     follow haus.theme.flavor — latte sets Light, mocha
+           sets Dark. This is the one that makes light mode complete
+           rather than half-done.
+light      pin Light, whatever the flavor is.
+dark       pin Dark, whatever the flavor is.
+```
 
 Default "unmanaged" on purpose: a managed default would silently revert
 an appearance you picked in System Settings on the next rebuild, which
@@ -823,7 +825,7 @@ answer to "I want it blacker" without anyone having to name a colour.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.depth</span></summary>
 
 Nebelung's background tones are a ladder of six, ordered here from the
 end nearest the polarity's extreme inwards, so the SAME number means the
@@ -918,7 +920,7 @@ reason the glow doesn't band.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.grain</span></summary>
 
 This is dither, dressed as texture. A soft glow across two thousand
 pixels spends perhaps ten of the 256 levels an 8-bit PNG has, so it
@@ -955,17 +957,19 @@ What the mark is drawn in.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.mark.color</span></summary>
 
+```text
 muted      the palette's overlay1 — present, not loud. The mark as it
-             sits on hausfold.co untouched.
-  ink        the palette's text colour, for a mark meant to be read
-             rather than noticed.
-  accent     haus.theme.accent's hex, flat.
-  spectrum   the whole family at once: a conic sweep through the six
-             product accents — nebelung, holt, perch, trill, pounce,
-             hacker — clipped to the stroke. This is the ⌂ as it
-             looks with a pointer on it on hausfold.co, held still.
+           sits on hausfold.co untouched.
+ink        the palette's text colour, for a mark meant to be read
+           rather than noticed.
+accent     haus.theme.accent's hex, flat.
+spectrum   the whole family at once: a conic sweep through the six
+           product accents — nebelung, holt, perch, trill, pounce,
+           hacker — clipped to the stroke. This is the ⌂ as it
+           looks with a pointer on it on hausfold.co, held still.
+```
 
 `spectrum` is the default, and follows the flavour like everything
 else: the six are the Nebelung pastels in a dark flavour and their darker
@@ -1026,7 +1030,7 @@ Stroke width, as a fraction of the mark's own height.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.mark.weight</span></summary>
 
 The mark's SHAPE is the real U+2302, traced off the outline hausfold.co
 renders, and the default weight is now the site's too: that glyph's
@@ -1054,7 +1058,7 @@ The pixel size `minimal` is rendered at, `WIDTHxHEIGHT`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.size</span></summary>
 
 Set it to your display's NATIVE pixel count and macOS has nothing left
 to do: the picture lands one image pixel per screen pixel, which is the
@@ -1084,16 +1088,18 @@ Which desktop this machine wears, set at each home-manager activation
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.wallpaper.style</span></summary>
 
+```text
 minimal        GENERATED here — a flat field in your palette, the
-                 haus mark ⌂ at its centre, and nothing else. The one
-                 haus-themed look, and the one every option below tunes.
-  orbits         hand-made Nebelung PNGs, the palette baked into their
-  constellation  pixels — they do not follow haus.theme.flavor.
-  flow
-  bold           generated from haus.theme.accent alone (a diagonal
-                 accent→crust sweep), which predates `minimal`.
+               haus mark ⌂ at its centre, and nothing else. The one
+               haus-themed look, and the one every option below tunes.
+orbits         hand-made Nebelung PNGs, the palette baked into their
+constellation  pixels — they do not follow haus.theme.flavor.
+flow
+bold           generated from haus.theme.accent alone (a diagonal
+               accent→crust sweep), which predates `minimal`.
+```
 
 The default is `none`, and it is a real value rather than an absence:
 nothing here runs and whatever wallpaper you already have stays exactly
@@ -1149,7 +1155,7 @@ haus's type family, as Ghostty's `font-family` names it.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.fonts.mono.name</span></summary>
 
 It reaches the terminal AND the menu bar: every pill label and icon
 the bar draws is in this family, at sizes of its own (see
@@ -1237,7 +1243,7 @@ names `haus.fonts.mono` instead.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.fonts.sans.name</span></summary>
 
 The default is macOS's own system UI font, whose zero has no dot and is
 easier to tell from an 8 at a glance. That legibility is the entire
@@ -1276,7 +1282,7 @@ scroll the other way to come back.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.closeViewScrollWheelToggle</span></summary>
 
 The fastest zoom on the Mac and the one people forget exists. Worth
 having on a machine you demo, present or pair from, where the
@@ -1339,7 +1345,7 @@ KEYBOARD focus specifically, not the pointer.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.closeViewZoomFollowsFocus</span></summary>
 
 Needs a zoom to follow, so it does nothing on its own: pair it with
 `closeViewScrollWheelToggle` (or turn on Zoom in System Settings ▸
@@ -1410,7 +1416,7 @@ with a desktop built for colour-blind readability.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.differentiateWithoutColor</span></summary>
 
 null (the default) leaves whatever you have alone — this is a
 personal setting, so haus never picks a value for you.
@@ -1451,7 +1457,7 @@ restyles the tools haus colours, this reaches everything else.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.increaseContrast</span></summary>
 
 null (the default) leaves whatever you have alone — this is a
 personal setting, so haus never picks a value for you.
@@ -1491,7 +1497,7 @@ the normal pointer, 4.0 is the largest System Settings offers.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.mouseDriverCursorSize</span></summary>
 
 The one accessibility key here that is useful with no accessibility
 need at all: on a 5K display, or from across a desk, or in a
@@ -1565,7 +1571,7 @@ minimise/restore is stripped back.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.reduceMotion</span></summary>
 
 BIGGER THAN IT LOOKS, which is why it is here rather than inside
 `haus.animations`. This is the single flag every browser maps to the
@@ -1619,7 +1625,7 @@ it buys, and it pairs naturally with `increaseContrast`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.accessibility.reduceTransparency</span></summary>
 
 Worth knowing if you run the bar: bar paints its own background, so
 its pills look the same either way — what changes is the macOS menu
@@ -1916,7 +1922,7 @@ main       whichever display is currently main
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.displays</span></summary>
 
 Default is the empty set, and then nothing about your displays is touched.
 A key naming a display that isn't plugged in right now is skipped with a
@@ -1969,7 +1975,7 @@ largest-text          the smallest resolution the panel offers
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.displays.&lt;name>.uiScale</span></summary>
 
 Resolved per panel from the modes that panel actually reports, so the
 same value means the same *thing* on a 14" laptop and a 27" monitor
@@ -2036,7 +2042,7 @@ natural fit for haus; a GUI editor's CLI works too (e.g. "code" or
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.terminal.editor</span></summary>
 
 It defaults to the command for `haus.terminal.editorName`, so choosing an
 editor there is enough. Set this only for the case that option cannot
@@ -2079,7 +2085,7 @@ no edge at all.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.terminal.floatBorder</span></summary>
 
 - `accent` (the default) — `haus.theme.accent`, so a summoned window
   announces itself and the whole desktop keeps one accent.
@@ -2178,7 +2184,7 @@ Put your terminal windows back when Ghostty starts.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.terminal.restoreWindows</span></summary>
 
 Closing a window does not end its shell — every window is a `zmx`
 session that outlives it, so a ⌘W, a ⌘Q or a crash leaves the shells
@@ -2229,7 +2235,7 @@ Browser extensions to deploy into Zen, by a stable id of your choosing.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.zen.extensions</span></summary>
 
 The mechanism is Firefox's enterprise policies — haus renders an
 `ExtensionSettings` block — so it reaches Zen the way an IT department
@@ -2370,7 +2376,7 @@ win over haus's on a collision.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.zen.extraPolicies</span></summary>
 
 Write the policy names as Firefox documents them, nested: this becomes
 the top level of a plist beside `EnterprisePoliciesEnabled`, so
@@ -2404,7 +2410,7 @@ switch to the tab that is making noise.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.zen.tabBridge.enable</span></summary>
 
 This is what makes the media pill's ⌘ click land on the **tab** rather
 than just bringing Zen forward. Safari and the Chromium browsers need
@@ -2454,7 +2460,7 @@ the palette on real websites, with **no extension and no import click**.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.zen.userStyles</span></summary>
 
 These are the 134 styles nebelung ships for the Stylus extension,
 taken the other way round. They are LESS source, which is why the
@@ -2552,7 +2558,7 @@ in its desktop.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.developer.enable</span></summary>
 
 Coding agents left this pack on 2026-08-13 and are their own room
 now (`haus.ai.*`). The two rooms are independent: a desktop or host
@@ -2850,7 +2856,7 @@ want back: true is "always", false is "only in Stage Manager".
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.desktop.clickToReveal</span></summary>
 
 Worth knowing before you leave it on with a tiler: a click on the
 wallpaper is easy to make by accident on a workspace whose windows do
@@ -2889,7 +2895,7 @@ the wallpaper.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.desktop.hideIcons</span></summary>
 
 The natural companion to a generated `haus.wallpaper`, which you chose
 to look at rather than to be a filing cabinet.
@@ -2926,7 +2932,7 @@ clock/calendar/weather widgets macOS 14 let you park on the desktop.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.desktop.hideWidgets</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off": these are settings people have usually already made by hand,
@@ -2973,7 +2979,7 @@ recently populated one instead of leaving you on a blank screen.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.gravity</span></summary>
 
 It fires only for a workspace you EMPTIED — never for one you
 deliberately navigated to that happens to be empty — so in ordinary use
@@ -3021,7 +3027,7 @@ Zoom the window **under the pointer** with a modifier + a click.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.mouseFullscreen</span></summary>
 
 The keyboard's `<mod>f` can only ever reach the window you are already
 in; this is its pointer twin, so zooming a window on the other monitor
@@ -3079,7 +3085,7 @@ On (macOS's own default) unless you say otherwise.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.nativeTiling.edgeDrag</span></summary>
 
 THE ONE TO TURN OFF IF YOU TILE. With `haus.windows.enable` on,
 AeroSpace already owns where windows go, and this is the setting that
@@ -3122,7 +3128,7 @@ windows the TILER placed.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.nativeTiling.margins</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off": these are settings people have usually already made by hand,
@@ -3155,7 +3161,7 @@ Hold ⌥ while dragging to tile a window.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.nativeTiling.optionAccelerator</span></summary>
 
 READ THIS WITH `edgeDrag`, not instead of it. These are two
 independent keys and macOS ships both on, so turning this on does NOT
@@ -3202,7 +3208,7 @@ gets dragged PAST, on the way to somewhere else.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.nativeTiling.topEdgeFullscreen</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off": these are settings people have usually already made by hand,
@@ -3239,7 +3245,7 @@ browser's tab shortcuts use.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.numberedWorkspaces</span></summary>
 
 Each one gets three leader bindings (the digit focuses it, ⇧+the digit
 throws the focused window there and follows, ⌥⇧+the digit throws
@@ -3272,7 +3278,7 @@ of keeping it on screen. Only does anything while Stage Manager is on.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.stageManager.autoHideStrip</span></summary>
 
 The setting that buys back the width Stage Manager costs you on a
 laptop display.
@@ -3309,7 +3315,7 @@ side of the screen, one app in the middle at a time.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.stageManager.enable</span></summary>
 
 Turning this on while `haus.windows.enable` is also on gives you two
 window managers with different ideas about where a window belongs —
@@ -3352,7 +3358,7 @@ of that app's windows forward together (true) or one at a time
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.stageManager.groupWindows</span></summary>
 
 True is what you want for an app you keep several windows of and read
 side by side; false keeps the middle of the screen to a single window,
@@ -3391,7 +3397,7 @@ hides them always.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.stageManager.hideDesktopIcons</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off": these are settings people have usually already made by hand,
@@ -3425,7 +3431,7 @@ Stage-Manager-only twin of `haus.windows.desktop.hideWidgets`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.windows.stageManager.hideWidgets</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off": these are settings people have usually already made by hand,
@@ -3612,7 +3618,7 @@ empty set draws an empty strip, which the module warns about.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.bottom.enable</span></summary>
 
 SketchyBar has no two-bars-in-one-process mode — an instance is named
 after `basename(argv[0])` and keys both its lock file and its mach
@@ -3645,7 +3651,7 @@ same readout.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.bottom.items</span></summary>
 
 Each value is `false` (not on this bar), one of `"left"`, `"center"`,
 `"right"` — the bar's three groups — or `true`, which is `"right"`:
@@ -4063,7 +4069,7 @@ and the pill owns the query for that kind.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.github.sources</span></summary>
 
 It is typed rather than one free-form query string because the two
 questions have no common shape. A `search` is a GitHub search filter and
@@ -4181,7 +4187,7 @@ out rather than letting a truncated list read as a complete one.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.github.sources.*.search</span></summary>
 
 Each row it draws carries its own MERGE VERDICT, from the same request
 that counted them: whether the pull request conflicts, what its head
@@ -4269,7 +4275,7 @@ haus.bar.items = {
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items</span></summary>
 
 A pill set false is never created (its update script doesn't run either).
 The focus (Do-Not-Disturb) pill is separate — it rides
@@ -4306,7 +4312,7 @@ A pill tracking your agent windows, marked with a robot, one mark and a count pe
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items.agents</span></summary>
 
 Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
@@ -4322,7 +4328,7 @@ A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, 
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items.aiUsage</span></summary>
 
 Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
@@ -4354,7 +4360,7 @@ The one meeting you have to be at next, and one gesture to join it. It reads "in
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items.calendar</span></summary>
 
 For `haus.bar.calendar.imminent` minutes either side of the start the whole pill FILLS with the accent — a shape change rather than a colour change, so it catches the eye you aren't pointing at it. RIGHT-CLICK joins: it opens the event's conferencing link, found in the invite's url, location or notes (Meet, Zoom, Teams, Webex, Jitsi, Whereby and friends out of the box; `haus.bar.calendar.joinHosts` adds your own). LEFT-CLICK opens the day as a timeline — what's DONE in the last `haus.bar.calendar.past` hours, what's on NOW, and what's NEXT — each event carrying its day, clock time, length and who it's with, the next one boxed, and a `Join` affordance on every row that has a link. Your own address is dropped from the "with" line automatically: a CalDAV calendar is named for the account it syncs, so the pill can work out which attendee is you with no configuration (`haus.bar.calendar.me` for the cases where it can't). A name too long for the pill sweeps past only while you HOVER it — nothing here starts a marquee on its own — and `haus.bar.calendar.width` sets how much room it gets before that applies. Pulls in `ical-buddy` automatically and reads Calendar, so macOS prompts for Calendar access on first run.
 
@@ -4402,7 +4408,7 @@ One number from GitHub, and the rows behind it. The pill is configured as a list
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items.github</span></summary>
 
 With nothing to report it draws no number at all rather than a zero, because a number you never act on is a number you stop seeing. The pill is TWO-TONE: the number is how many, coloured by the source it counts, and the octocat beside it is how bad, coloured by the worst single row anywhere — so five open PRs of which one conflicts reads as a neutral `5` under a peach logo, rather than as five bad things or as nothing wrong. The tones are one ladder: grey is no verdict (a draft, an issue), green is fine (and, approved-and-green, ready to press the button), sky is in flight (checks still running — the machine's turn), peach wants a human on one pull request (it conflicts, its checks came back red, or a reviewer asked for changes), and RED is reserved for a red DEFAULT BRANCH. Nothing one of your PRs can do turns the pill red, because a red that fires for every work-in-progress is a red you stop reading; the only other way to reach it is a source you declared `bad` yourself. Green is not a resting state: with nothing open there are no rows at all and the logo keeps the number's own grey, so a green octocat means "there is a queue, and every row in it is fine". LEFT-CLICK opens the dropdown, one section per source, each row clicking through to the PR or repo on github.com; RIGHT-CLICK refreshes now, as does the `Refresh` row at the bottom of the dropdown, which also says how old the numbers are. The `ci` source is the one thing gh-dash cannot show you: GitHub's search index carries no workflow runs, so "did main's last run pass" is only reachable as the check rollup of the default branch's head commit, in GraphQL — which is exactly what that source asks for, in one query for the whole owner. Needs `haus.developer.git.enable` (an assertion enforces it) for the `gh` it queries through, and a `gh auth login` you have run: not logged in, the pill says `auth` and its dropdown hands you that command rather than drawing a silent zero. Never fetches on the bar's tick — the tick renders a cache and detaches the network call — so a slow GitHub costs a stale number, never a stalled bar.
 
@@ -4426,7 +4432,7 @@ The now-playing track — auto-hides when nothing plays, dims when paused, and c
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.items.media</span></summary>
 
 The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.bar.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
 
@@ -4495,7 +4501,7 @@ What the logo pill does when clicked:
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.logo.gestures</span></summary>
 
 All three are drawn by the **launcher**, so all three need
 `haus.launcher.enable` (which the hacker desktop turns on). With the
@@ -4524,7 +4530,7 @@ solid house.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.logo.icon</span></summary>
 
 It has to hold up at 28pt with a pill's padding around it, which rules
 out more glyphs than you would expect. In particular **`⌂` (`U+2302`),
@@ -4582,7 +4588,7 @@ something without being clicked:
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.logo.status</span></summary>
 
 Red is the one that matters. It is the same check `haus doctor` opens
 with — `nix-daemon`, plus each of AeroSpace / SketchyBar / pounce whose
@@ -4614,7 +4620,7 @@ colour at a time, animated.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.logo.sweep</span></summary>
 
 It only runs from the resting accent. A pill sitting at yellow or red
 has something to say, and a rainbow running over that is a pill saying
@@ -4686,7 +4692,7 @@ A bundle id wins over a kind.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.media.icons</span></summary>
 
 This exists because of one hard limit: **nothing on the machine can tell
 you which site a browser tab is playing.** macOS's now-playing session
@@ -4778,7 +4784,7 @@ Every pill on the bar, including the bundled ones — the open form of
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.widgets</span></summary>
 
 A widget is one script, run on a timer, whose output is the pill's
 label. Nothing else is required:
@@ -4852,7 +4858,7 @@ without drawing an empty box.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.bar.widgets.&lt;name>.command</span></summary>
 
 It runs as you, with SketchyBar's own variables in the
 environment (`$NAME` is this widget's item id, `$BUTTON` and
@@ -4994,7 +5000,7 @@ wouldn't list, calls the quit off.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.autoQuit.delay</span></summary>
 
 Two seconds is the responsive end of that trade. It is deliberately not
 enough for a cold IDE reopening a project — that is a case for
@@ -5019,7 +5025,7 @@ the app to quit.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.autoQuit.enable</span></summary>
 
 *Asked*, not killed — it is the same Quit event ⌘Q sends, so an app
 with unsaved work puts its sheet up and stays. Nothing here can lose
@@ -5096,7 +5102,7 @@ haus does by default, with haus.launcher.items."mode:emoji".hotkey = "fn".
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.fnKey</span></summary>
 
 `tap` reads Fn with an event tap. It needs Pounce's Accessibility grant,
 and it SHARES the key with macOS: HIToolbox carries its own Globe handler
@@ -5176,14 +5182,16 @@ key, or list it only where it is useful (`workspaces` / `bundleIds`).
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.items</span></summary>
 
-"cmd:&lt;id>"                       a command, by script name without .sh
-  "app:/Applications/Foo.app"      an application, by path
-  "shortcut:&lt;uuid>"                a Shortcuts-library entry, by the id
-                                   `shortcuts list --show-identifiers` prints
-  "mode:&lt;name>"                    a built-in window — launcher, clipboard,
-                                   emoji, screenshots, camera, filesearch
+```text
+"cmd:<id>"                       a command, by script name without .sh
+"app:/Applications/Foo.app"      an application, by path
+"shortcut:<uuid>"                a Shortcuts-library entry, by the id
+                                 `shortcuts list --show-identifiers` prints
+"mode:<name>"                    a built-in window — launcher, clipboard,
+                                 emoji, screenshots, camera, filesearch
+```
 
 Those keys are the palette's own address space (the same strings its frecency
 store and `pounce run` use), so a key written here is also what you'd type
@@ -5310,7 +5318,7 @@ item has a `hotkey` — a row without a key has nothing to teach.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.items.&lt;name>.caption</span></summary>
 
 Defaults to a name derived from the key, which is right often
 enough to leave alone: `mode:clipboard` becomes "Clipboard
@@ -5373,7 +5381,7 @@ Empty — the default — means everywhere.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.items.&lt;name>.workspaces</span></summary>
 
 A bare name matches that page AND its children, the same rule
 the ⌃⇥ page walk's prefix uses: `"T"` covers T and every
@@ -5415,7 +5423,7 @@ Files, the cheatsheet and the window switcher.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.scale</span></summary>
 
 Follows haus.ui.scale by default, so you rarely set this directly.
 It exists as its own option for the case where the palette wants a
@@ -5449,7 +5457,7 @@ it so a macOS Accessibility (TCC) grant survives rebuilds. List yours:
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.signingIdentity</span></summary>
 
 Prefer a "Developer ID Application" identity passed BY NAME (e.g.
 "Developer ID Application: Jane Doe (TEAMID)"): its designated
@@ -5504,7 +5512,7 @@ a window parked on another workspace surfaces correctly.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.launcher.windowSwitcher</span></summary>
 
 Because the tiler is running here, a bare tap deliberately looks past the
 workspace you're on and takes the most recent window on a different
@@ -5577,7 +5585,7 @@ unless `haus.shelf.enable` is on, whatever this says.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.shelf.watchScreenshots</span></summary>
 
 It does NOT hand perch the folder — it cannot. A watched folder is a
 security-scoped bookmark, and only perch itself can mint one, out of a
@@ -5634,7 +5642,7 @@ optionally sets your Slack status, and runs your hooks.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.focus.enable</span></summary>
 
 The same switch generalises: `haus.focus.scenes.<name>` declares other
 named states (stay awake, this microphone, these apps, these hooks) and
@@ -5684,7 +5692,7 @@ running, so the Mac is only ever in one.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.focus.scenes</span></summary>
 
 `quiet` is the built-in — it is what `focus on`, the bar pill and the
 palette command already enter — so the name is reserved and defining it
@@ -5877,7 +5885,7 @@ scene's condition.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.focus.scenes.&lt;name>.when.displays</span></summary>
 
 A count rather than a display's name, on purpose: which panel
 is on your desk is a fact about one machine (the same reason
@@ -6051,7 +6059,7 @@ whichever one `ai.default` names, all of them through `holt new`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.clients</span></summary>
 
 A list rather than one bool per client, matching `developer.languages`
 — a client added later doesn't change this option's shape.
@@ -6102,7 +6110,7 @@ existing Codex or OpenCode task in Claude.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.default</span></summary>
 
 Must be one of `ai.clients` — see there.
 
@@ -6142,7 +6150,7 @@ agent-state plugin). Which clients get installed is `ai.clients`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.enable</span></summary>
 
 On, this room brings its clients, `holt` and the lifecycle wiring on its
 own. What it adds to OTHER rooms it adds only when they are present: the
@@ -6177,7 +6185,7 @@ in `ai.clients`, to the path that client actually reads:
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.instructions</span></summary>
 
 Write it client-neutrally: the same text reaches whichever agent the ⌘A
 pane spawns, so a line about a Claude-only skill or file path is noise
@@ -6222,7 +6230,7 @@ cost nothing for the three you don't use.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.repoRoots</span></summary>
 
 Each entry is read TWO ways, and which one applies is decided by the
 path itself:
@@ -6266,7 +6274,7 @@ rather than `git worktree`.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
 Three skills today: `haus` (this machine's setup), and holt's own two —
 `holt` (the lane lifecycle) and `handoff` (turning work into a brief a
@@ -6327,7 +6335,7 @@ many Electron apps).
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.snippets.enable</span></summary>
 
 Off by default: it installs the Espanso.app cask and needs a one-time
 macOS Accessibility grant (System Settings → Privacy & Security →
@@ -6405,7 +6413,7 @@ buttons is a curious middle ground.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.lock.login.hideRestart</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off" — and on this domain that matters more than most, because
@@ -6438,7 +6446,7 @@ Remove the Shut Down button from the login window.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.lock.login.hideShutDown</span></summary>
 
 For a machine that should stay up and reachable — a Mac serving
 something on the desk in the corner — where the only person pressing
@@ -6480,7 +6488,7 @@ locked.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.lock.login.hideSleep</span></summary>
 
 null (the default) writes nothing at all, which is not the same as
 "off" — and on this domain that matters more than most, because
@@ -6514,7 +6522,7 @@ null (the default) leaves whatever is there alone.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.lock.login.message</span></summary>
 
 The one genuinely useful thing to put here is how to reach you if
 the machine is lost — it is visible to somebody who cannot log in,
@@ -6551,7 +6559,7 @@ user pictures to click.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.lock.login.showNameField</span></summary>
 
 The shoulder-surfing setting: with the list, half the credential is
 already on screen for anyone who walks past. Worth true on a laptop
@@ -6679,7 +6687,7 @@ session macOS wipes when they log out.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.security.guestAccount</span></summary>
 
 Fresh Macs ship with this ON, which is the fact worth knowing: a
 machine you never configured lets a stranger who has it in their hands
@@ -6740,7 +6748,7 @@ rather than one that stops for a fingerprint you already gave.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.security.touchId.passwordlessRebuild</span></summary>
 
 Honest scope: this is a real root grant, and both commands take a path
 or flake ref you choose — so it means "anything I can build, I can
@@ -6775,7 +6783,7 @@ Manager), "awssm" (AWS Secrets Manager), "vault", "pass",
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.secrets.provider</span></summary>
 
 WHICH secrets exist is not declared here — that's each project's
 committed secretspec.toml. Cloud providers authenticate with their own
@@ -6816,7 +6824,7 @@ for the install itself, from any of four sources (`cask`, `brew`,
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.roster</span></summary>
 
 Every field except the id is optional, and WHICH fields you set is
 what the entry means. Set `key` and it joins the launcher; set none
@@ -7024,7 +7032,7 @@ identically.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.roster.&lt;name>.packageName</span></summary>
 
 This is the source a shared desktop can use — see `haus.apps.packs`,
 and `modules/apps/packs/writing.nix` for a saved collection written
@@ -7105,7 +7113,7 @@ members instead.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.workspaces</span></summary>
 
 The numbered workspaces (leader + a digit) are not part of this
 option — they always exist, independent of what any app claims, and
@@ -7150,7 +7158,7 @@ workspace.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.workspaces.&lt;name>.apps</span></summary>
 
 A plain list, not wrapped in `lib.mkDefault` even where haus
 itself contributes to it (ghostty → workspace `T`, say) — list
@@ -7218,7 +7226,7 @@ One number for "make the interface bigger". 1.0 is haus as tuned;
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.ui.scale</span></summary>
 
 It sets the DEFAULT of the sizes it drives, so anything you pin by hand
 still wins:
@@ -7298,9 +7306,9 @@ resizes.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.keys.leader</span></summary>
 
-- "caps" (default): Caps Lock. AeroSpace can't bind Caps Lock itself,
+  - "caps" (default): Caps Lock. AeroSpace can't bind Caps Lock itself,
     so haus remaps it to F18 with hidutil and binds that.
   - "alt-space": the leader without giving up Caps Lock. No remap at all.
   - "none": no leader. Caps Lock stays Caps Lock, launch mode is
@@ -7427,7 +7435,7 @@ leader then an arrow.
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.keys.windowNav</span></summary>
 
 "alt" (default) is ⌥. The alternatives are for **non-US keyboard
 layouts**, where ⌥+letter types accented characters — a machine that owns
@@ -7499,7 +7507,7 @@ can teach its own workflow without shipping scripts or reaching outside the
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.tour.steps</span></summary>
 
 Detection reuses signals haus already emits. `launch`, `workspace`,
 `navigate` and `resize` need windows; `palette` needs the launcher and
@@ -7606,7 +7614,7 @@ both qualifiers, 2026-08-08 — the counts match).
 
 <details className="hf-more">
 
-<summary>More detail</summary>
+<summary>More detail<span className="sr-only"> on haus.git.org</span></summary>
 
 It exists because a gh-dash PR section is a GitHub search filter
 scoped by `org:`. Set this **and** `haus.terminal.ghDash.enable` and
