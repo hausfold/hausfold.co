@@ -1999,21 +1999,34 @@ Example:
 
 #### `haus.displays.<name>.uiScale`
 
-`null or one of "more-space", "default", "larger-text", "largest-text"` · default `null`
+`null or one of "more-space", "default", "slightly-larger-text", "larger-text", "largest-text"` · default `null`
 
-The scaled resolution, as an intent rather than a pixel count — the
-same four positions System Settings ▸ Displays offers, named:
+The scaled resolution, as an intent rather than a pixel count —
+the positions System Settings ▸ Displays offers, named:
 
-  more-space     the largest resolution the panel offers (smallest UI)
-  default        the panel's own default mode
-  larger-text    between the default and the smallest resolution
-  largest-text   the smallest resolution the panel offers (biggest UI)
+  more-space            the largest resolution the panel offers
+                        (smallest UI)
+  default               the panel's own default mode
+  slightly-larger-text  between the default and larger-text
+  larger-text           between the default and the smallest
+                        resolution
+  largest-text          the smallest resolution the panel offers
+                        (biggest UI)
 
 Resolved per panel from the modes that panel actually reports, so the
 same value means the same *thing* on a 14" laptop and a 27" monitor
 rather than the same number of pixels. On the 14" MacBook Pro this was
-developed on that resolves to 1800x1169 · 1512x982 · 1147x745 ·
-1024x665.
+developed on that resolves to 1800x1169 · 1512x982 · 1352x878 ·
+1147x745 · 1024x665 — one name per position, matching that panel's
+five.
+
+`slightly-larger-text` earns its place on a big external panel, where
+the ladder is long and the jumps are not evenly spaced: a 27" 5K
+reports nine rungs, so `larger-text` lands four of them below the
+default (2560x1440 → 1440x810, a wall of pixels) while
+`slightly-larger-text` lands on 1920x1080. On a short ladder, where
+`larger-text` is already the very next rung down, the two names agree
+rather than inventing a rung that isn't there.
 
 Applied at each home-manager activation and set permanently, so it
 survives a reboot; re-applying an already-current mode is a no-op, so
@@ -5357,7 +5370,7 @@ what it did before this option existed.
 
 `attribute set of (submodule)` · default `{ }`
 
-**Desktop-safe per key** (`launcher-items`). Keys are plain item ids, since each one names a single row in the palette.
+**Desktop-safe per key** (`launcher-items`). Keys are palette addresses — `cmd:<id>`, `app:<path>`, `setting:<pane>[?<anchor>]` or `mode:<name>`, spelled as `modules/launcher/item-grammar.nix` spells them — because each one names a row pounce already has, and carrying no quote, backslash, `$`, backtick, newline or tab, because the key is written out beside the values it configures. `shortcut:<uuid>` is the one shape a desktop may not name: it identifies one entry in one Mac's Shortcuts library, the same reason a display UUID is host-only.
 
 Per-item palette settings, keyed by the item's own address. One entry is
 one row of the palette: hide it, give it a search shorthand, give it a
@@ -5803,8 +5816,10 @@ one every surface above already means.
 Honest scope: focus flips the built-in Do Not Disturb, not named Focus
 modes, and it doesn't manage which apps break through — curate that
 once in System Settings. The keypress needs an Accessibility grant on
-whatever app invokes focus (palette runs inherit pounce's; grant
-sketchybar once for the pill). `focus doctor` walks the one-time steps.
+whatever app invokes focus (palette runs inherit pounce's; the pill
+needs one on sketchybar itself, and TCC keys that to the binary — so
+it is asked again after a rebuild that moves it). `focus doctor` walks
+those steps.
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
@@ -6206,7 +6221,7 @@ Coding agents: which clients this machine installs, the worktree lifecycle aroun
 
 ### haus.ai
 
-The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, and the two files haus ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
+The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, where the palette looks for a repo to spawn one on, and the two files haus ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
 
 #### `haus.ai.clients`
 
@@ -6293,10 +6308,11 @@ Example:
 
 The AI room: coding-agent *tooling*. `holt` (agent worktrees),
 `agent-state` (the status writer behind the `agents` bar pill),
-the agent-worktree statusline, `holt`'s `tart` runtime adapter (SPEC.md
-§5.5 — `holt runtime up|enter|down --backend tart` stands a lane up in
-a macOS VM; installing `tart` itself and pulling a base image are
-still manual, one-time steps), and the client
+the agent-worktree statusline, `tart` and the adapter that drives it
+(SPEC.md §5.5 — `holt runtime up|enter|down --backend tart` stands a
+lane up in its own headless macOS, so an agent can feel-test a desktop
+change without touching the screen its user is sitting at; pulling a
+base image is still a manual, one-time step), and the client
 config the Terminal room writes (Claude Code's settings.json keys, opencode's
 agent-state plugin). Which clients get installed is `ai.clients`.
 
@@ -6359,21 +6375,65 @@ Example:
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
 
+#### `haus.ai.repoRoots`
+
+`list of string` · see below
+
+Where the palette's **Spawn Agent** finds repositories, most recently
+touched first. A leading `~/` is expanded; a path that does not exist is
+skipped in silence, so the default list can name four conventions and
+cost nothing for the three you don't use.
+
+Each entry is read TWO ways, and which one applies is decided by the
+path itself:
+
+- **a repo** (it has a `.git` directory) is offered as itself, and is
+  not descended into — that is how `~/.config/nix`, the config flake
+  this Mac is built from, is in the default list without `~/.config`
+  being scanned.
+- **anything else** is scanned two levels deep for main checkouts, so
+  both `~/code/thing` and a parent directory full of repos
+  (`~/code/workshop/thing`) resolve.
+
+Repos `holt` already knows are always offered too, whether or not they
+are under a root here — so a one-off repo you have agent'd before stays
+reachable, and this list is about the ones you have not.
+
+Example:
+
+```nix
+[
+  "~/code"
+  "~/work/clients"
+  "~/.config/nix"
+]
+```
+
+<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
+
 #### `haus.ai.skill`
 
 `boolean` · default `true`
 
-Install the `haus` skill for every client in `ai.clients`, so an
-agent asked to "install Slack" or "make everything bigger" edits your
-host file and runs `haus rebuild` instead of guessing at dotfiles and
-`brew install`.
+Install every hausfold tool's agent skill for each client in
+`ai.clients`, so an agent asked to "install Slack" or "make everything
+bigger" edits your host file and runs `haus rebuild` instead of guessing
+at dotfiles and `brew install` — and an agent asked "what worktrees do I
+have open?" or "hand this off to a fresh session" reaches for `holt`
+rather than `git worktree`.
+
+Three skills today: `haus` (this machine's setup), and holt's own two —
+`holt` (the lane lifecycle) and `handoff` (turning work into a brief a
+cold session can act on, ending on the clipboard or in a new lane). Each
+tool names its own skills; haus only decides that they are installed.
 
 One copy per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,
-`~/.config/opencode/skills/haus`. OpenCode also
+`~/.config/opencode/skills/haus`, and the same three directories again
+per skill. OpenCode also
 scans `~/.claude/skills`
 for Claude Code compatibility, and prefers its own copy when both
-exist — so a machine running both clients sees the skill once, not
+exist — so a machine running both clients sees each skill once, not
 twice.
 
 The skill's option reference is GENERATED from the haus revision this
