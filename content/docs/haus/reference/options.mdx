@@ -5744,9 +5744,11 @@ colors.
 
 #### `haus.shelf.watchScreenshots`
 
-`boolean` · default `true`
+`boolean` · default `config.haus.shelf.enable`
 
 Set this Mac up so new screenshots reach the shelf on their own.
+On with the shelf, off without it — and nothing here happens at all
+unless `haus.shelf.enable` is on, whatever this says.
 
 It does NOT hand perch the folder — it cannot. A watched folder is a
 security-scoped bookmark, and only perch itself can mint one, out of a
