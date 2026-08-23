@@ -336,12 +336,22 @@ The line it draws is not *is this dangerous*. It is:
 
 > does this change what is in front of my eyes, within about two seconds?
 
+Which is a question about the *target*, not the command. The guard splits a
+command at unquoted `;`, `&&`, `||`, `|` and newlines and drops the segments
+that run on another machine, so `ssh admin@vm 'haus rebuild'` is silent while
+the same words typed at your own shell are not. It is quote-aware — `ssh h 'a;
+b'` is one remote segment, not a remote one and a local `b` — and anything it
+cannot classify counts as local, so the failure mode is one extra prompt rather
+than a missed one.
+
 | Silent: no prompt | Asks first |
 |---|---|
 | `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position; looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
 | `defaults write`: invisible until something restarts | `killall Dock`: instantly visible |
 | `open -ga Ghostty`: the explicitly backgrounded form | `open` in its foregrounding form, which is its default |
 | every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
+| anything run over `ssh` on another machine — a lane's own headless VM above all; that desktop is not the one you are looking at | `ssh -X`/`-Y`, whose windows render on *this* display, and an `ssh` to `localhost`, which is this very Mac |
+| `tart run --no-graphics`: a lane's own macOS VM ([`holt runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
 | | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch`; the whole desktop redraws |
 
 Also on the ask side, for the same reason: `aerospace` focus/move/workspace
