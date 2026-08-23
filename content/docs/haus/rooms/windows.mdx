@@ -71,7 +71,7 @@ haus.keys.windowNav = "alt";
 | `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
 | `Z` | Reopen the last closed app |
 | `,` | macOS System Settings: the `⌘,` convention, one level up |
-| `.` | Cycle this workspace's tiling: spiral, grid, columns ([below](#spin-the-layout-until-its-right)) |
+| `.` | Flip this workspace's tiling: grid ↔ columns ([below](#spin-the-layout-until-its-right)) |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -290,19 +290,35 @@ no gravity either way.
 ## Spin the layout until it's right
 
 `⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* focused
-workspace at once, cycling it through three arrangements:
+workspace at once, flipping it between two arrangements:
 
 | Shape | What you get |
 |---|---|
-| **Spiral** | Nested splits that alternate orientation on every window, so the row keeps folding instead of getting narrower |
-| **Grid** | Evenly bucketed into √n columns, rounded up: five windows land as 2 / 2 / 1 |
+| **Grid** | √n columns, rounded up, with every column **widened in proportion to how many windows it holds** — so all of them end up the same size |
 | **Columns** | One flat row again, which is what a tiled workspace does on its own |
 
-Each press advances one rung and wraps around. The dial has **one position for
-the whole machine**, not one per workspace: the key reshapes whichever workspace
-is focused, but the shape that comes next is remembered globally, so pressing `.`
-somewhere you have never cycled continues the sequence rather than starting it.
-Keep pressing until it looks right. That is the whole interaction.
+The grid is an exact shape rather than a bucketing, and the same shape every
+time for a given number of windows:
+
+| Windows | What you get | | Windows | What you get |
+|---|---|---|---|---|
+| 2 | Side by side | | 6 | 3 × 2 |
+| 3 | One full-height third, then two stacked beside it | | 7 | A 2-stack, a 2-stack, a 3-stack |
+| 4 | 2 × 2 | | 8 | A 2-stack and two 3-stacks |
+| 5 | One full-height fifth, then a 2 × 2 | | 9 | 3 × 3 |
+
+Above nine it keeps going by the same rule — √n columns, rounded up, dealt as
+evenly as they divide — so there is no cliff, just more columns.
+
+The dial has **one position for the whole machine**, not one per workspace: the
+key reshapes whichever workspace is focused, but which shape is on is remembered
+globally, so pressing `.` somewhere you have never used it flips from wherever
+you left the dial. Press it again on a shape you already have and it reapplies
+fresh, which is the move once a new window has wandered in.
+
+The bar says which shape is on — a **Grid** / **Columns** pill beside the
+workspace and page pills, drawn only when the workspace holds more than one
+tiled window. Clicking it flips the shape, same as the key.
 
 Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
 between, so a resize you make afterwards stands until you press again, and
@@ -311,10 +327,14 @@ once a new window has wandered in).
 
 Two things worth knowing. It is a **tiles-only dial**, so on a machine running
 `defaultLayout = "accordion"` a press converts that workspace to tiles and `⌥,`
-is what puts it back. And it rebuilds the tree by moving every window out to a
-scratch workspace and straight back, which is the one reset AeroSpace honours
-reliably; the round trip is invisible in normal use, and the window you were
-looking at keeps focus throughout.
+is what puts it back. And **floating windows are left alone** — they are not in
+the tree the dial reshapes, so a terminal popup sitting over the tiling neither
+moves nor counts toward the shape.
+
+It is also a single reflow: the whole rearrangement is sent to AeroSpace as one
+batch, so the windows travel straight from where they were to where they belong
+rather than through every step on the way. Nothing takes focus, so the window
+you were looking at is still the one you are looking at.
 
 ## macOS has its own opinion about windows
 
