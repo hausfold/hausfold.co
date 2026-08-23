@@ -247,12 +247,15 @@ false` rather than an empty `tour.steps`, which is a type error.
 ## Bigger type
 
 `haus.appearance.largePrint = true` is one named answer to a whole-machine
-question, and it pulls two complementary levers. `haus.ui.scale` moves haus's own
+question, and it pulls four complementary levers. `haus.ui.scale` moves haus's own
 type together (the terminal, the palette, the bar, the Dock, Finder's sidebar,
-the tiling gaps), and `haus.displays.main.uiScale` moves the *display* one step
-toward larger text, which enlarges everything including apps haus knows nothing
-about. They multiply, which is the intended effect and a bigger jump than
-either alone. `hausdisp list` prints the persistent UUIDs if you want to name
+the tiling gaps); `haus.theme.contrast` and `haus.accessibility.increaseContrast`
+sharpen what that type sits on; and `haus.displays.main.uiScale = "larger-text"`
+moves the *display* itself, which enlarges everything including apps haus knows
+nothing about. How far that last one travels depends on the panel: on a short
+ladder it is the next rung down, on a 27-inch 5K it is four rungs. They
+multiply, which is the intended effect and a bigger jump than any one alone.
+Every value is a `mkDefault`, so naming any of them yourself wins. `hausdisp list` prints the persistent UUIDs if you want to name
 one display rather than "main".
 
 One limit is macOS's rather than haus's: **the menu bar's height.** There is no
