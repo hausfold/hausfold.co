@@ -310,20 +310,21 @@ time for a given number of windows:
 Above nine it keeps going by the same rule — √n columns, rounded up, dealt as
 evenly as they divide — so there is no cliff, just more columns.
 
-The dial has **one position for the whole machine**, not one per workspace: the
-key reshapes whichever workspace is focused, but which shape is on is remembered
-globally, so pressing `.` somewhere you have never used it flips from wherever
-you left the dial. Press it again on a shape you already have and it reapplies
-fresh, which is the move once a new window has wandered in.
+**Each workspace remembers its own shape.** The key reshapes whichever
+workspace is focused, and that workspace is what remembers which shape is on, so
+pressing `.` somewhere you have never used it deals a grid rather than
+continuing a sequence you started elsewhere. Press it again on a shape you
+already have and it reapplies fresh, which is the move once a new window has
+wandered in.
 
 The bar says which shape is on — a **Grid** / **Columns** pill beside the
 workspace and page pills, drawn only when the workspace holds more than one
-tiled window. Clicking it flips the shape, same as the key.
+tiled window. Clicking it flips the shape, same as the key. Because the memory
+is per workspace, that pill is only ever describing the workspace you are
+looking at.
 
 Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
-between, so a resize you make afterwards stands until you press again, and
-landing back on a shape you already picked reapplies it fresh (the point of it,
-once a new window has wandered in).
+between, so a resize you make afterwards stands until you press again.
 
 Two things worth knowing. It is a **tiles-only dial**, so on a machine running
 `defaultLayout = "accordion"` a press converts that workspace to tiles and `⌥,`
