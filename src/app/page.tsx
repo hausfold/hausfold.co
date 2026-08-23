@@ -48,7 +48,7 @@ const organization = {
   url: 'https://hausfold.co/',
   description:
     'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
-  email: 'hi@hausfold.co',
+  email: 'julien@hausfold.co',
   sameAs: ['https://github.com/hausfold'],
 };
 
