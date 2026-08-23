@@ -376,7 +376,7 @@ than a missed one.
 |---|---|
 | `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position; looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
 | `defaults write`: invisible until something restarts | `killall Dock`: instantly visible |
-| `open -ga Ghostty`: the explicitly backgrounded form | `open` in its foregrounding form, which is its default |
+| `open -ga Ghostty`: the explicitly backgrounded form, which takes no focus — see the note under this table, because it does not promise a *window* | `open` in its foregrounding form, which is its default |
 | every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
 | anything run over `ssh` on another machine — a lane's own headless VM above all; that desktop is not the one you are looking at | `ssh -X`/`-Y`, whose windows render on *this* display, and an `ssh` to `localhost`, which is this very Mac |
 | `tart run --no-graphics`: a lane's own macOS VM ([`holt runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
@@ -386,10 +386,22 @@ Also on the ask side, for the same reason: `aerospace` focus/move/workspace
 commands, `sketchybar --reload`, `launchctl kickstart`, writing your clipboard,
 and teaching a computer-use step.
 
+<Callout type="warn" title="`open -g` is quiet, not visible">
+The guard lets `-g` through because it takes no **focus**, which is all the
+guard polices. It is not a way to *see* something: a backgrounded app need not
+open a window at all — measured 2026-08-23, `open -g -na Ghostty.app --args
+--initial-command=…` leaves a live process with no window, ever, and the
+command never runs. `open` exits 0 either way, because it returns the moment
+LaunchServices accepts, so nothing downstream can tell the difference. Reach
+for `-g` when you need something **running**, and for a VM when you need to
+**see** it.
+</Callout>
+
 The hook has a written counterpart, and it is opt-in: **if you set
 [`ai.instructions`](/docs/haus/reference/options#ai)**, haus prepends a short
 **screen etiquette** section to the file every client reads: prefer looking to
-touching, never foreground an app just to see it, hand feel-tests back to the
+touching, never foreground an app just to see it (and don't expect `open -g` to
+show it to you either), hand feel-tests back to the
 person at the keyboard. Leave that option empty (the default) and haus writes no
 instructions file at all, so you get the hook and none of the prose. The
 etiquette is what keeps the hook from firing; the hook is what catches the times
