@@ -25,6 +25,22 @@ const docs = defineDocs({
     // `src/app/global.css`.
     schema: pageSchema.extend({
       accent: z.enum(accents).optional(),
+      // How deep the "On this page" rail goes. Fumadocs has no such key — it
+      // renders every heading — and the generated options reference carried
+      // this frontmatter unread since the Starlight port, which is where the
+      // shape comes from. It is read now, in `src/app/docs/[[...slug]]/page.tsx`.
+      //
+      // It exists for one page and would be wrong on any other: a reference
+      // rendered from a module system has one h4 per option, and 318 of them
+      // made a rail that wrapped `haus.apps.videoPlayer.enable` over three
+      // lines and reached nothing a reader could aim at. Stopping at the
+      // namespace gives back a list you can read; the leaf names live beside
+      // the prose instead, as each namespace's own index of links.
+      //
+      // ⚠️ Absent, nothing is filtered. Don't reach for it to shorten an
+      // ordinary page's rail — a hand-written page with too many headings is
+      // a page with too many headings.
+      tableOfContents: z.object({ maxHeadingLevel: z.number().int() }).optional(),
       // The page's way-onward cards, moved out of the MDX body on 2026-08-16
       // (the user's call) so they can render BELOW the prev/next pair, which
       // the layout draws after the body. They are navigation rather than

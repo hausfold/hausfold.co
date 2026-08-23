@@ -34,6 +34,14 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   // it installs rather than as the layer was the thing the user cut. See
   // "the borrowed accent" in `global.css`.
   const tree = page.slugs[0];
+  // Frontmatter's `tableOfContents.maxHeadingLevel`, honoured. Only the
+  // generated options reference sets one — see the key's note in
+  // `src/lib/source.ts` for why it exists and why it should stay there.
+  const maxHeadingLevel = page.data.tableOfContents?.maxHeadingLevel;
+  const toc =
+    maxHeadingLevel === undefined
+      ? page.data.toc
+      : page.data.toc.filter((item) => item.depth <= maxHeadingLevel);
   // The tree's own node, for its name and its glyph. A root folder's `$id`
   // is its directory under `content/docs`, which is also the page's first
   // slug — the trees are the only folders directly under the root, so
@@ -59,7 +67,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     <DocsPage
       data-tree={tree}
       data-accent={page.data.accent}
-      toc={page.data.toc}
+      toc={toc}
       full={page.data.full}
       // The prev/next pair fumadocs puts at the foot of a page, given a
       // class so it can be styled as two doorways rather than two grey

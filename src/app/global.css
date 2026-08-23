@@ -1121,6 +1121,188 @@ figure.shiki button:hover {
   margin-bottom: 0.75rem;
 }
 
+/* --- the options reference -------------------------------------------- */
+
+/* One page in the docs is not written but RENDERED — `reference/options` is
+   318 options out of haus's module system, and it is the only page here
+   whose shape is a list of records rather than an argument. Everything in
+   this block is scoped to it through `.hf-options`, an empty marker div the
+   generator emits once (see `scripts/gen-options.mjs`), because every rule
+   below would be wrong on a page someone wrote by hand: nowhere else does
+   an h4 mean "here is the next record".
+
+   What it fixes, in order of how much it mattered: the option's NAME was a
+   washed chip sitting on top of two more washed chips (its type and its
+   default), so the three read as one texture and nothing looked like a
+   title; and nothing separated one option from the next, so a namespace of
+   sixty arrived as one column of undifferentiated prose. */
+.hf-options {
+  display: none;
+}
+
+/* A namespace is a chapter here. Give it the air an h2 gets elsewhere,
+   since on this page an h2 is a whole room. */
+.prose:has(.hf-options) h3 {
+  margin-top: 4rem;
+}
+
+/* One option, one ruled row. The hairline above is the divider; the name
+   sits on it in mono at reading size, in `--ink`, with nothing behind it. */
+.prose:has(.hf-options) h4 {
+  margin-top: 2.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 1rem;
+}
+
+.prose:has(.hf-options) h4 code {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1em;
+  color: var(--ink);
+}
+
+/* The type and the default, which the generator always emits as the
+   paragraph immediately after the name. It is metadata about the row, not
+   the first thing to read in it — so it goes quiet and small and tucks up
+   under the name rather than competing with it. */
+.prose:has(.hf-options) h4 + p {
+  margin-top: 0.35rem;
+  margin-bottom: 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--ink-3);
+}
+
+.prose:has(.hf-options) h4 + p code {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1em;
+  color: var(--ink-2);
+}
+
+/* `Declared in …`, the row's footer. */
+.prose:has(.hf-options) small {
+  display: block;
+  margin-top: 0.9rem;
+  font-size: 0.74rem;
+  color: var(--ink-3);
+}
+
+.prose:has(.hf-options) small code {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1em;
+}
+
+/* Each namespace's own index, under its blurb: every option it owns, by
+   leaf name, as a row of links. It is what the "On this page" rail used to
+   try to be and couldn't — 318 rows deep, wrapping `haus.apps.videoPlayer.
+   enable` over three lines. The rail now stops at the namespace
+   (`tableOfContents.maxHeadingLevel` in the page's frontmatter, read in
+   `src/app/docs/[[...slug]]/page.tsx`) and the leaves live here, beside
+   the prose they point into and short because the namespace is named
+   directly above them.
+
+   Flex rather than inline chips on a tall line-height: the markdown emits
+   one paragraph of links separated by spaces, and a whitespace-only run
+   between two flex items is not rendered — so the gap is the gap, at every
+   wrap, with no baseline to fight. */
+.hf-optindex p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.5rem;
+}
+
+.hf-optindex a {
+  padding: 0.15em 0.45em;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hf-optindex a:hover,
+.hf-optindex a:focus-visible {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+
+.hf-optindex a code {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1em;
+  color: inherit;
+}
+
+/* The rest of a long description. haus's option descriptions run to 2,000
+   characters and more, and this page may not rewrite a word of them — so
+   the opening paragraph stays open and the remainder waits behind this.
+   Nothing is hidden from search, from `llms-full.txt` or from find-in-page,
+   which opens a `<details>` to reach what is inside it.
+
+   Open, the folded half takes a left rule: it is the same option's text
+   continuing, not a new one starting. */
+.hf-more {
+  margin: 0.9rem 0 0;
+}
+
+.hf-more > summary {
+  display: block;
+  width: fit-content;
+  cursor: pointer;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hf-more > summary::marker,
+.hf-more > summary::-webkit-details-marker {
+  content: '';
+  display: none;
+}
+
+.hf-more > summary::before {
+  content: '+';
+  display: inline-block;
+  width: 1em;
+  color: var(--accent-quiet);
+}
+
+.hf-more[open] > summary::before {
+  content: '−';
+}
+
+.hf-more > summary:hover,
+.hf-more > summary:focus-visible {
+  color: var(--accent);
+}
+
+.hf-more[open] {
+  border-left: 1px solid var(--rule);
+  padding-left: 1rem;
+  margin-left: -1px;
+}
+
+.hf-more[open] > summary {
+  margin-bottom: 0.6rem;
+}
+
 /* --- housekeeping ---------------------------------------------------- */
 
 /* The site's "no motion" rule, enforced rather than asserted. Fumadocs ships
