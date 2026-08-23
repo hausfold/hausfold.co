@@ -1,6 +1,6 @@
 ---
 title: Changing your Mac with an agent
-description: "Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely: the skill haus ships, the loop it follows, and the one rebuild it refuses."
+description: "Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely: the skills haus ships, the loop they follow, and the one rebuild they refuse."
 icon: wand
 related:
   - title: "AI"
@@ -25,7 +25,7 @@ machine an agent can reconfigure without it being reckless.
 
 The safety was always there; the missing half was knowledge. So haus ships it.
 
-## The skill haus writes
+## The skills haus writes
 
 Every rebuild writes a **skill** called `haus` into the skills directory of each
 client in `haus.ai.clients`: `~/.claude/skills/haus` for Claude Code,
@@ -46,6 +46,15 @@ on a machine running a client haus didn't install. One body, one copy per client
 The option reference being *generated* is the point: it can only describe
 options that exist on your revision (a confidently-wrong option name costs you
 a failed build), and `haus update` regenerates it with the rest.
+
+**`haus` is not the only skill installed.** Every hausfold tool the layer ships
+names its own, and `haus.ai.skill` puts all of them beside each other in the
+same per-client directory — today `holt` (the agent-worktree lifecycle: what's
+open, resume a parked lane, set work aside without `git stash`) and `handoff`
+(turning a piece of work into a brief a cold session can act on, ending on the
+clipboard or in a new lane). Each tool owns and versions its own skill; haus
+only decides that they are installed, so a lock bump can bring a better one
+without a change here.
 
 <Callout type="tip" title="Check it's there">
 `haus doctor` has an **Agents** section: whether the skill is installed (it
@@ -190,8 +199,9 @@ Write it **client-neutrally**: the same text reaches whichever agent your ⌘⏎
 spawned, so a line about one client's flags is noise in the other two. Empty (the
 default) writes nothing at all, so a hand-managed instructions file is never
 touched. *Setting* it on a machine that already has one, though, moves yours
-aside to `<file>.backup`. And `haus.ai.skill = false;` stops the skill being written
-at all, for when you'd rather own each client's skills directory yourself.
+aside to `<file>.backup`. And `haus.ai.skill = false;` stops every one of those
+skills being written, for when you'd rather own each client's skills directory
+yourself.
 
 (Both were `haus.claude.globalMd` and `haus.claude.skill` until August 2026; the
 old names still evaluate, with a warning.)
