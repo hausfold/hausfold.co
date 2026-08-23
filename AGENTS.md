@@ -151,6 +151,20 @@ the token out in prose instead of writing `--something`.
   bare hyphen. Two carve-outs: code comments and this file are not copy, and
   `reference/options.mdx` is generated from haus's own option descriptions, so
   its em dashes are fixed upstream or not at all.
+- 🚨 **The contact address is `julien@hausfold.co`, and that is deliberate — do
+  not "upgrade" it to `support@`.** It reads informal for a page that talks
+  about privacy, and a later session will want to fix it. It is the address
+  that actually routes; `support@hausfold.co` has never existed and isn't going
+  to, and if one is ever added it will be an alias onto `julien@`, which
+  changes nothing here. It was `hi@hausfold.co` (settled 2026-08-09) until
+  2026-08-22 — `hi@` named nobody and was read by one person, which is what
+  `julien@` says out loud. The decision record is the workshop's
+  `notes/go-to-market.md` §6; this bullet is the copy of it that binds here.
+  **This rule lived in this file until #117 slimmed the seller's surface out**,
+  which left a single code comment carrying it — it is back because AGENTS.md
+  is what a pre-PR reviewer actually reads. Three places carry the address and
+  they move together or not at all: the colophon (`src/components/sheet.tsx`),
+  `/perch/privacy`, and the `Organization` JSON-LD in `src/app/page.tsx`.
 - **Greyscale at rest on the landing pages, and every colour is borrowed.**
   (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
   *borrowed* half binds everywhere: both halves spend the same six `--a-*` and
