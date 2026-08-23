@@ -110,10 +110,16 @@ How you commit the prompt picks what happens next:
 | `↵` | Spawn on what you typed |
 | `⇧↵` | Newline; a task is usually a list, not a sentence |
 | `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
+| `⌃↵` | Spawn **in the background**: the checkout, the branch, the window and the agent all happen, but nothing takes the screen — you stay where you are and a notification says the lane is running |
 | `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
 
 Codex receives the screenshot as an image; Claude Code and OpenCode get its path
 in the first prompt.
+
+`⌃↵` is for the spawn you are *not* about to sit and watch: start it, keep
+reading what you were reading, and go to it when you're ready with `⌃⇥`, the
+**Lanes** command or the bar's agents pill. The lane is an ordinary lane in
+every other respect — same name, same window, same tile on that repo's page.
 
 ## Which client gets spawned
 
