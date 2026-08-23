@@ -379,6 +379,27 @@ the sidebar group.
 **A room page documents the room** — the haus wiring, the options, what turns
 on. Everything about the app itself lives in the app's own tree.
 
+### The one generated page
+
+`reference/options.mdx` is not written, it is **rendered** —
+`scripts/gen-options.mjs`, from haus's committed `docs/site-data/`. It is the
+only page here whose shape is a list of records, and the only one carrying a
+layout of its own. Four things it does that no other page may, each with its
+rule:
+
+| It does | Because | Don't |
+|---|---|---|
+| Sets **`tableOfContents.maxHeadingLevel`** in frontmatter (read in `src/app/docs/[[...slug]]/page.tsx`) | one h4 per option meant a rail one row deep per option, wrapping `haus.apps.videoPlayer.enable` over three lines | reach for the key on a hand-written page — too many headings there is a page problem, not a rail problem |
+| Emits an empty **`<div className="hf-options" />`**, which every rule under "the options reference" in `src/app/global.css` that restyles an ORDINARY element (`h4`, `h4 + p`, `small`) scopes to via `:has()` | on this page an h4 means "the next record", and nowhere else does | style `.prose h4` globally to fix this page. (`.hf-optindex` and `.hf-more` are bare class selectors, like `.hf-card` and `.hf-next` — they name things only this page emits) |
+| **Prints a shared description once.** haus declares each bar pill twice (`haus.bar.items.<pill>` and `haus.bar.bottom.items.<pill>`) from one description; the longer copy cross-references the shorter name | it was ~12,000 characters of exact duplication, and the same 400-word essay met twice under two names | special-case the bar. The rule is *identical description text over 240 characters*, and knows nothing about pills |
+| **Folds a long description** after its first paragraph, behind `More detail` | over half the descriptions run past 500 characters and a couple of dozen past 2,000 | read it as permission to cut. Nothing is removed: the text is in the HTML, the search index, `llms-full.txt` and the page's Markdown |
+
+🚨 **The prose on that page is haus's, and this repo may not edit a word of
+it** — `--check` re-renders and fails on a hand edit. A description that is too
+long is fixed in its `.nix` declaration in `hausfold/haus`, and the page gets
+quietly shorter when it is: under the fold threshold, an option renders whole
+again with nothing to change here.
+
 ### Colour
 
 ⚠️ **The docs do NOT follow the landing pages' greyscale rule.** The

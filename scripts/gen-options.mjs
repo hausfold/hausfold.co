@@ -173,6 +173,43 @@ function mdxText(value) {
     .join('');
 }
 
+// haus writes examples and little aligned tables inside its descriptions as
+// indented blocks — two spaces, the way a Nix `''` string reads in an editor.
+// Markdown needs FOUR to call that a code block, so all of them arrived here
+// as running prose with their newlines collapsed: `haus.bar.bottom.items`'s
+// five-line sample rendered as one 100-character line, and the two-column
+// tables under `haus.displays` and `haus.appearance.largePrint` lost the
+// column that made them tables.
+//
+// A paragraph whose every line is indented is fenced instead. Two exclusions
+// keep it honest: a bulleted list is already valid Markdown at two spaces and
+// is left alone, and a block only claims to be `nix` when every line of it
+// closes the way Nix closes — on `;`, `{` or `}`, discounting a trailing
+// comment. Everything else is fenced as plain text, which is what an aligned
+// table wants anyway: a monospace box that keeps its columns.
+const LIST_ITEM = /^\s*(?:[-*+]\s|\d+[.)]\s)/;
+const NIX_LINE = /(?:[;{}])$/;
+
+function promoteIndentedBlocks(text) {
+  return text
+    .split(/\n[ \t]*\n/)
+    .map((paragraph) => {
+      const body = paragraph.split('\n').filter((line) => line.trim());
+      if (body.length === 0) return paragraph;
+      if (!body.every((line) => /^ {2,}\S/.test(line))) return paragraph;
+      if (LIST_ITEM.test(body[0])) return paragraph;
+      const indent = Math.min(...body.map((line) => line.match(/^ */)[0].length));
+      const dedented = paragraph
+        .split('\n')
+        .map((line) => line.slice(indent))
+        .join('\n')
+        .replace(/^\n+|\n+$/g, '');
+      const nix = body.every((line) => NIX_LINE.test(line.replace(/\s+#.*$/, '').trimEnd()));
+      return `\`\`\`${nix ? 'nix' : 'text'}\n${dedented}\n\`\`\``;
+    })
+    .join('\n\n');
+}
+
 function docsLinks(value) {
   return value.replaceAll('](/internals/flakes/', '](/docs/haus/internals/flakes/');
 }
@@ -212,20 +249,233 @@ function renderSafety(option) {
   return rule ? `${named} ${rule}` : named;
 }
 
+// --- anchors ---------------------------------------------------------
+//
+// Every option heading carries an explicit id (fumadocs' `[#id]` suffix)
+// rather than taking the slugger's. Two reasons, both practical: the slugger
+// DROPS dots, so `haus.bar.items.agents` came out `#hausbaritemsagents` and
+// a hand-written link to one was unreadable and easy to get wrong; and this
+// file has to emit links to those anchors itself — the per-namespace index
+// and the cross-references below — which means it needs to know the id
+// rather than guess it.
+//
+// Nothing outside this page linked to an option anchor when they changed;
+// the room anchors those pages DO link to (`options#bar`) are h2s, and are
+// deliberately left on the slugger.
+const anchors = new Map();
+{
+  const taken = new Set();
+  for (const option of [...options].sort((a, b) => a.name.localeCompare(b.name))) {
+    // `<name>` and `*` stand in for keys nobody declared; they are legal in
+    // an option's name and not in an id.
+    const base = option.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    let id = base;
+    for (let n = 2; taken.has(id); n += 1) id = `${base}-${n}`;
+    taken.add(id);
+    anchors.set(option.name, id);
+  }
+}
+const anchorOf = (name) => anchors.get(name);
+
+// --- one description, two options ------------------------------------
+//
+// haus declares some options from a shared description on purpose: every
+// pill on the menu bar (`haus.bar.items.<pill>`) is also offered on the
+// optional second bar (`haus.bar.bottom.items.<pill>`), and both leaves get
+// the same paragraphs out of the module system because they describe the
+// same readout. Rendered twice that is ~12,000 characters of exact
+// duplication on one page, and — worse for a reader scrolling it — the same
+// four-hundred-word essay met twice under two names.
+//
+// So a description that appears more than once is rendered ONCE, under the
+// shortest of the names that share it, and the others cross-reference it.
+// The rule is the description, not the namespace: this knows nothing about
+// bars or pills, and a future pair of options sharing prose folds the same
+// way with no change here.
+//
+// Only LONG shared descriptions fold. `The battery pill.` is shorter than
+// the sentence that would point at it, and sending a reader up the page for
+// four words is a worse page than printing them twice.
+const SHARED_FOLD_OVER = 240;
+const canonical = new Map();
+{
+  const byDescription = new Map();
+  for (const option of options) {
+    const key = (option.description ?? '').trim();
+    if (key.length < SHARED_FOLD_OVER) continue;
+    if (!byDescription.has(key)) byDescription.set(key, []);
+    byDescription.get(key).push(option.name);
+  }
+  for (const names of byDescription.values()) {
+    if (names.length < 2) continue;
+    // Shortest name wins, alphabetical on a tie: the shorter address is the
+    // plainer one (`haus.bar.items.agents` over `haus.bar.bottom.items.agents`),
+    // which is the one a reader arrives at first from anywhere but this page.
+    const owner = [...names].sort((a, b) => a.length - b.length || a.localeCompare(b))[0];
+    for (const name of names) if (name !== owner) canonical.set(name, owner);
+  }
+}
+
+// --- long descriptions -----------------------------------------------
+//
+// The prose on this page is haus's own: every paragraph under every option
+// is that option's `description` in its `.nix` declaration, and this file
+// may not rewrite a word of it. What it CAN do is decide how much of it a
+// reader meets at once. Over half of haus's option descriptions run past 500
+// characters and a couple of dozen past 2,000 — a reference page that opens
+// every one of them at full length is a page you scroll past rather than
+// read.
+//
+// So: the opening paragraph stays open, and the rest goes behind a
+// disclosure. Nothing is removed — the text is in the HTML, in the search
+// index, in `llms-full.txt` and in the page's Markdown. (Whether a browser's
+// own find-in-page opens a closed `<details>` is the browser's call and not
+// uniform, which is why the page promises search rather than ⌘F.)
+//
+// The real fix for a 2,000-character option description is upstream, in the
+// `.nix` file that declares it. This is what makes the page readable in the
+// meantime, and it gets quietly better as those descriptions get shorter:
+// under the threshold, an option renders exactly as it always did.
+const FOLD_OVER = 700;
+const FOLD_MIN_REST = 240;
+const LEDE_MIN = 260;
+const PARAGRAPH_SPLIT_OVER = 900;
+
+// A period that ends a sentence, and not one of the ones that don't. Inline
+// code is masked first, so `media-control test` exits… cannot be a boundary.
+const ABBREVIATION = /(?:\b(?:e\.g|i\.e|etc|vs|cf|approx|Mr|Mrs|Ms|Dr|St|no|al|Inc|Ltd)|\s[A-Z])\.$/;
+
+function sentences(text) {
+  // Inline code is masked with a sentinel that cannot occur in the prose, so
+  // a period inside `media-control test` is not a sentence boundary, and
+  // unmasking cannot collide with a number that was always in the text.
+  const spans = [];
+  const masked = text.replace(/`[^`\n]*`/g, (span) => {
+    spans.push(span);
+    return `\uE000${spans.length - 1}\uE000`;
+  });
+  const unmask = (value) => value.replace(/\uE000(\d+)\uE000/g, (_, index) => spans[index]);
+
+  const out = [];
+  const boundary = /[.!?]["')\]]?\s+/g;
+  let start = 0;
+  let match;
+  while ((match = boundary.exec(masked))) {
+    const head = masked.slice(start, match.index + 1);
+    if (ABBREVIATION.test(head)) continue;
+    if (!/[A-Z0-9"“(\uE000]/.test(masked[boundary.lastIndex] ?? '')) continue;
+    out.push(unmask(masked.slice(start, boundary.lastIndex).trimEnd()));
+    start = boundary.lastIndex;
+  }
+  if (start < masked.length) out.push(unmask(masked.slice(start)).trim());
+  return out.filter(Boolean);
+}
+
+// Blank lines off either end, INDENTATION left alone. A plain `.trim()` here
+// takes the leading spaces off the first line of whichever half it lands on,
+// and an indented block that starts a half then stops looking indented to
+// `promoteIndentedBlocks` — which is how four aligned tables came out as one
+// run-on paragraph inside a `<details>`.
+const trimBlankLines = (value) => value.replace(/^(?:[ \t]*\n)+/, '').replace(/\s+$/, '');
+
+// What stays open, and what goes behind the disclosure. Returns `[lede, rest]`
+// with an empty `rest` meaning "render it as one piece, as before".
+function fold(description) {
+  const text = trimBlankLines(description);
+  // A fenced block is the one thing that cannot be cut in half by accident.
+  // None of haus's descriptions carries one today; if one ever does, it
+  // renders whole rather than wrongly.
+  if (text.length <= FOLD_OVER || text.includes('```')) return [text, ''];
+
+  const paragraphs = text.split(/\n\s*\n/);
+  // A paragraph ending in a colon is announcing the next one — `haus.bar.logo.
+  // gestures` opens "What the logo pill does when clicked:" and the list of
+  // what it does is the paragraph after it. Folding between the two leaves a
+  // sentence pointing at nothing, so keep taking paragraphs until one closes.
+  let taken = 1;
+  while (taken < paragraphs.length && /:$/.test(paragraphs[taken - 1].trimEnd())) taken += 1;
+  let lede = trimBlankLines(paragraphs.slice(0, taken).join('\n\n'));
+  let rest = trimBlankLines(paragraphs.slice(taken).join('\n\n'));
+
+  // 17 of the long ones are a single unbroken paragraph, and they are the
+  // longest on the page. Cut those at a sentence instead.
+  if (!rest && lede.length > PARAGRAPH_SPLIT_OVER) {
+    const parts = sentences(lede);
+    let kept = 0;
+    while (kept < parts.length - 1 && parts.slice(0, kept + 1).join(' ').length < LEDE_MIN) {
+      kept += 1;
+    }
+    const head = parts.slice(0, kept + 1).join(' ');
+    const tail = parts.slice(kept + 1).join(' ');
+    if (tail.length >= FOLD_MIN_REST) {
+      lede = head;
+      rest = tail;
+    }
+  }
+
+  if (rest.length < FOLD_MIN_REST) return [text, ''];
+  return [lede, rest];
+}
+
+// An example that fits on the metadata line goes on it. The large majority of
+// the examples on this page are one short token — `false`, `"24h"`, `12` —
+// and each was arriving as a paragraph reading "Example:" over a bordered,
+// syntax-highlighted figure with a copy button in the corner: five lines of
+// furniture around one word, over and over. The handful that are a real Nix
+// snippet still get the block, which is what the block is for.
+const EXAMPLE_INLINE_MAX = 40;
+const inlineExample = (example) =>
+  example !== undefined && !example.includes('\n') && example.trim().length <= EXAMPLE_INLINE_MAX
+    ? example.trim()
+    : undefined;
+
 function renderOption(option) {
-  const lines = [
-    `#### \`${option.name}\``,
-    '',
-    `\`${option.type}\` · ${renderDefault(option)}`,
-    '',
-  ];
+  const anchor = anchorOf(option.name);
+  const example = literal(option.example);
+  const inline = inlineExample(example);
+  const meta = [`\`${option.type}\``, renderDefault(option)];
+  if (inline !== undefined) meta.push(`e.g. \`${inline}\``);
+  const lines = [`#### \`${option.name}\` [#${anchor}]`, '', meta.join(' · '), ''];
   const safety = renderSafety(option);
   if (safety) lines.push(mdxText(safety), '');
-  lines.push(mdxText((option.description ?? '').trimEnd()), '');
-  const example = literal(option.example);
-  if (example !== undefined) {
-    lines.push('Example:', '', '```nix', example.trimEnd(), '```', '');
+
+  const owner = canonical.get(option.name);
+  if (owner) {
+    lines.push(
+      `Described under [\`${owner}\`](#${anchorOf(owner)}). haus declares both ` +
+        'from one description, and this page prints it once.',
+      '',
+    );
+  } else {
+    // Fold on the raw text, THEN fence its indented blocks: `fold` refuses to
+    // cut a description that already carries a fence, and promoting first
+    // would hand it one on every option that has a sample in it.
+    const [lede, rest] = fold(option.description ?? '');
+    lines.push(mdxText(promoteIndentedBlocks(lede)), '');
+    if (rest) {
+      lines.push(
+        '<details className="hf-more">',
+        '',
+        // 100-odd disclosures on one page would otherwise share one
+        // accessible name, and a screen reader's controls list would be a
+        // column of identical "More detail" rows. The visible label stays
+        // two words.
+        `<summary>More detail<span className="sr-only"> on ${mdxText(option.name)}</span></summary>`,
+        '',
+        mdxText(promoteIndentedBlocks(rest)),
+        '',
+        '</details>',
+        '',
+      );
+    }
+    if (example !== undefined && inline === undefined) {
+      lines.push('Example:', '', '```nix', example.trimEnd(), '```', '');
+    }
   }
+
   const declaration = option.declarations?.[0];
   if (declaration) {
     lines.push(`<small>Declared in [\`${declaration}\`](${REPO}/${declaration}).</small>`, '');
@@ -233,11 +483,36 @@ function renderOption(option) {
   return lines.join('\n');
 }
 
+// The namespace's own contents, as one line of links under its blurb. It is
+// what the table of contents used to be: with every option in the sidebar
+// the rail was one row per option and wrapped `haus.apps.videoPlayer.enable`
+// across three lines, which is a list nobody reads. The TOC now stops at the
+// namespace (`maxHeadingLevel: 3` in the frontmatter, honoured by the docs
+// page), and the leaf names live here instead — beside the prose they point
+// into, short because the namespace is already named above them.
+//
+// Under four options it is skipped: an index of three things sitting on top
+// of the three things is furniture, not navigation.
+const INDEX_OVER = 3;
+
+function renderIndex(group, groupOptions) {
+  if (groupOptions.length <= INDEX_OVER) return [];
+  const prefix = `${PREFIX}.${group}.`;
+  const links = groupOptions.map((option) => {
+    const leaf = option.name.startsWith(prefix) ? option.name.slice(prefix.length) : option.name;
+    // No `mdxText` here: the leaf goes inside a code span, and MDX does not
+    // read JSX inside one — escaping `<name>` there prints the entity.
+    return `[\`${leaf}\`](#${anchorOf(option.name)})`;
+  });
+  return ['<div className="hf-optindex">', '', links.join(' '), '', '</div>', ''];
+}
+
 function renderNamespace(group) {
   const heading = [`### ${PREFIX}.${group}`, ''];
   const blurb = NAMESPACES[group]?.blurb;
-  if (blurb) heading.push(docsLinks(mdxText(blurb)), '', '');
+  if (blurb) heading.push(docsLinks(mdxText(blurb)), '');
   const groupOptions = groups.get(group).sort((a, b) => a.name.localeCompare(b.name));
+  heading.push(...renderIndex(group, groupOptions), '');
   return heading.join('\n') + groupOptions.map(renderOption).join('\n');
 }
 
@@ -255,7 +530,7 @@ title: ${PREFIX}.* options
 description: Every option you can set in your host file — types, defaults, and what each one changes.
 icon: options
 tableOfContents:
-  maxHeadingLevel: 2
+  maxHeadingLevel: 3
 related:
   - title: "Customize a desktop"
     description: "The practical guide to choosing settings, switching rooms off, and overriding a desktop from your host file."
@@ -287,8 +562,19 @@ around — and each room lists the \`${PREFIX}.*\` namespaces it owns. A room
 can own more than one: the Bar room is \`${PREFIX}.bar\` (its own bar) *and*
 \`${PREFIX}.menuBar\` (macOS's).
 
-Apply changes with \`haus rebuild\`. Each option lists its **type** and
-**default** under its name, and links to the file that declares it.
+Apply changes with \`haus rebuild\`. Each option lists its **type**, its
+**default** and, where it fits on the line, an example under its name, and
+links to the file that declares it. A long description opens on its first
+paragraph and keeps the rest behind **More detail**; nothing is cut, and
+search finds what is inside it.
+
+{/* The scope hook for this page's layout. Every rule that turns an option
+    heading into a ruled row hangs off \`.prose:has(.hf-options)\` in
+    src/app/global.css, so nothing here reaches an ordinary docs page. The
+    div draws nothing. */}
+
+<div className="hf-options" />
+
 
 A few also carry a line about what a **shared desktop** may do with them.
 *Host-only* means [a desktop](/docs/haus/desktops/creating) may not set it, and
