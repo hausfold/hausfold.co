@@ -140,7 +140,7 @@ bar](/docs/haus/rooms/bar) lists them.
 haus.homebrew.cleanup = "none";    # none | uninstall | zap: what a rebuild does to undeclared apps
 haus.homebrew.autoUpdate = false;  # brew update before each rebuild
 haus.homebrew.upgrade = false;     # upgrade outdated packages each rebuild
-haus.homebrew.adopt = true;        # adopt an already-installed app instead of failing on it
+haus.homebrew.adopt = true;        # adopt an already-installed app instead of failing on it (see below)
 ```
 
 `cleanup` is `"none"` so nothing you installed by hand is ever removed; `"zap"`
@@ -162,9 +162,13 @@ Homebrew — gets tracked into Homebrew's bookkeeping instead of failing
 activation with "there is already an App at …". That app is now genuinely
 brew-managed: if you later remove its roster entry on a `cleanup = "zap"`
 machine, the next rebuild zaps it like any other undeclared cask, even though
-you never installed it through haus. Turn `adopt` off if you'd rather activation
-fail loudly on a name collision than start managing an app you brought
-yourself.
+you never installed it through haus.
+
+Setting `adopt = false` used to buy you the other behaviour, activation failing
+loudly on a name collision. It no longer does anything: current Homebrew adopts
+every such cask on its own, having dropped the `--adopt` flag `brew bundle
+install` used to take, and the only switch left (`--force`) overwrites rather
+than refuses. The option stays for the day Homebrew grows a real way back.
 </Callout>
 
 ## Turning rooms off

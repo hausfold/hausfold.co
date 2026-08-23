@@ -55,7 +55,11 @@ Mac warns you if you do it anyway.
 Set it from your **host file**, not from a desktop: a private room is the one
 thing a shared desktop may never name, since whoever runs that desktop does not
 have the room. A room you go on to *publish* drops the prefix and claims a plain
-`haus.<name>` like any other: the prefix is for what stays on one Mac.
+`haus.<name>` like any other: the prefix is for what stays on one Mac. That is
+also the name a stranger types, because
+[`haus add --room --namespace <ns>`](/docs/haus/reference/haus#pinning-a-room)
+is how a published room reaches their machine, and it won't guess the namespace
+for them.
 
 Everything below is about a room that lands in
 [`hausfold/haus`](https://github.com/hausfold/haus), where the cost of the
