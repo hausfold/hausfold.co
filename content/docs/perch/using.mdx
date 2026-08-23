@@ -35,9 +35,9 @@ originals are only ever read.
 
 | | |
 |---|---|
-| **Right-click** | **Add to Perch Shelf** is a top-level item in Finder's context menu, with nothing to enable, and appears in any other app's Services menu for a selection or a link |
+| **Right-click** | **Add to Perch Shelf** sits under **Services** in Finder's context menu, with nothing to enable, and in any other app's Services menu for a selection or a link. perch doesn't have to be running: the Service starts it |
 | **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed |
-| **Your iPhone** | The companion app's Share sheet, over your own network, if you paired one |
+| **Your iPhone** | The companion app's Share sheet, if you paired one: over your network, or peer-to-peer with no network at all |
 | **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. Screenshots have their own switch in that pane — **Shelf my screenshots** opens the folder panel already pointed at wherever this Mac saves captures, so you don't have to know |
 
 What's already sitting in a folder when you add it stays put; only later
@@ -81,5 +81,6 @@ dragged in.
 |---|---|
 | **Expiry** | Off by default. Turn it on to have the shelf empty itself after a set time |
 | **Release check** | An hourly look at perch's own release tag, and the only thing it sends anywhere. Turn it off and perch never opens a connection |
-| **iPhone** | perch listens on your own network for an iPhone you paired yourself, encrypted end to end. Off if you don't want it |
+| **iPhone** | perch listens for an iPhone you paired yourself, encrypted end to end, over your network or peer-to-peer if there isn't one. Off if you don't want it |
+| **Every display** | On by default: each screen gets its own shelf at the notch. Off keeps it to one |
 | **Appearance** | Follows your Mac's Light/Dark, or a fixed polarity. On a haus machine, `haus.shelf.followSystemAppearance` is the same switch |
