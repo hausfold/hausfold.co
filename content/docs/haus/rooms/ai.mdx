@@ -116,6 +116,28 @@ How you commit the prompt picks what happens next:
 Codex receives the screenshot as an image; Claude Code and OpenCode get its path
 in the first prompt.
 
+### Which repos it offers
+
+`haus.ai.repoRoots` is the list, most recently touched first. Each entry is read
+one of two ways, decided by the path itself: an entry that **is** a repo is
+offered as itself and never descended into, and anything else is scanned two
+levels deep, so both `~/code/thing` and a parent directory full of repos
+(`~/code/workshop/thing`) resolve. A path that doesn't exist is skipped in
+silence.
+
+The default covers the usual four conventions plus `~/.config/nix` — the config
+flake this Mac is built from, which is a repo like any other and the one you
+most often want an agent in:
+
+```nix
+haus.ai.repoRoots = [ "~/code" "~/src" "~/Developer" "~/Projects" "~/.config/nix" ];
+```
+
+Naming the list replaces it rather than adding to it, so keep the entries you
+still want. Repos `holt` already knows are always offered too, whether or not
+they're under a root here — a one-off repo you've agent'd before stays
+reachable, and this list is about the ones you haven't.
+
 `⌃↵` is for the spawn you are *not* about to sit and watch: start it, keep
 reading what you were reading, and go to it when you're ready with `⌃⇥`, the
 **Lanes** command or the bar's agents pill. The lane is an ordinary lane in

@@ -6221,7 +6221,7 @@ Coding agents: which clients this machine installs, the worktree lifecycle aroun
 
 ### haus.ai
 
-The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, and the two files haus ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
+The AI room: whether this machine runs coding agents at all, which clients it installs, which one the agent keybinding spawns, where the palette looks for a repo to spawn one on, and the two files haus ships into every one of their homes — your instructions, and the `haus` skill. Spelled `haus.agents.*` before 2026-08-13, with the switch under `haus.developer.agents`; both are gone rather than aliased.
 
 #### `haus.ai.clients`
 
@@ -6371,6 +6371,42 @@ Example:
   # How I work
   Ship small, verified changes; ask before anything hard to reverse…
 ''
+```
+
+<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
+
+#### `haus.ai.repoRoots`
+
+`list of string` · see below
+
+Where the palette's **Spawn Agent** finds repositories, most recently
+touched first. A leading `~/` is expanded; a path that does not exist is
+skipped in silence, so the default list can name four conventions and
+cost nothing for the three you don't use.
+
+Each entry is read TWO ways, and which one applies is decided by the
+path itself:
+
+- **a repo** (it has a `.git` directory) is offered as itself, and is
+  not descended into — that is how `~/.config/nix`, the config flake
+  this Mac is built from, is in the default list without `~/.config`
+  being scanned.
+- **anything else** is scanned two levels deep for main checkouts, so
+  both `~/code/thing` and a parent directory full of repos
+  (`~/code/workshop/thing`) resolve.
+
+Repos `holt` already knows are always offered too, whether or not they
+are under a root here — so a one-off repo you have agent'd before stays
+reachable, and this list is about the ones you have not.
+
+Example:
+
+```nix
+[
+  "~/code"
+  "~/work/clients"
+  "~/.config/nix"
+]
 ```
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
