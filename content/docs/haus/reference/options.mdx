@@ -6806,7 +6806,7 @@ One list of everything this machine has — apps, fonts, command-line tools. Eac
 
 <div className="hf-optindex">
 
-[`haus.roster`](#haus-roster) [`<name>.appId`](#haus-roster-name-appid) [`<name>.appStoreId`](#haus-roster-name-appstoreid) [`<name>.brew`](#haus-roster-name-brew) [`<name>.cask`](#haus-roster-name-cask) [`<name>.enable`](#haus-roster-name-enable) [`<name>.float`](#haus-roster-name-float) [`<name>.installedBy`](#haus-roster-name-installedby) [`<name>.key`](#haus-roster-name-key) [`<name>.label`](#haus-roster-name-label) [`<name>.name`](#haus-roster-name-name) [`<name>.order`](#haus-roster-name-order) [`<name>.package`](#haus-roster-name-package) [`<name>.packageName`](#haus-roster-name-packagename) [`<name>.scope`](#haus-roster-name-scope) [`<name>.titleRegex`](#haus-roster-name-titleregex)
+[`haus.roster`](#haus-roster) [`<name>.appId`](#haus-roster-name-appid) [`<name>.appStoreId`](#haus-roster-name-appstoreid) [`<name>.bin`](#haus-roster-name-bin) [`<name>.binPath`](#haus-roster-name-binpath) [`<name>.brew`](#haus-roster-name-brew) [`<name>.cask`](#haus-roster-name-cask) [`<name>.enable`](#haus-roster-name-enable) [`<name>.float`](#haus-roster-name-float) [`<name>.installedBy`](#haus-roster-name-installedby) [`<name>.key`](#haus-roster-name-key) [`<name>.label`](#haus-roster-name-label) [`<name>.name`](#haus-roster-name-name) [`<name>.order`](#haus-roster-name-order) [`<name>.package`](#haus-roster-name-package) [`<name>.packageName`](#haus-roster-name-packagename) [`<name>.scope`](#haus-roster-name-scope) [`<name>.titleRegex`](#haus-roster-name-titleregex)
 
 </div>
 
@@ -6897,6 +6897,64 @@ source that can't be fully automated: `mas` has no sign-in
 command, and it cannot buy a paid app for the first time. Free
 apps it can fetch; paid ones you purchase once in App Store.app
 and every machine afterwards can install them.
+
+<small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
+
+#### `haus.roster.<name>.bin` [#haus-roster-name-bin]
+
+`null or string` · default `null` · e.g. `"icalBuddy"`
+
+The executable this entry installs, when it is not the roster key.
+`ical-buddy` ships `icalBuddy`; most entries ship their own name and
+leave this null.
+
+Only `binPath` reads it. It is not a source and it installs nothing —
+set it when a room has to RUN this entry rather than launch its
+bundle.
+
+<small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
+
+#### `haus.roster.<name>.binPath` [#haus-roster-name-binpath]
+
+`null or string` · default `null`
+
+**Host-only.** A shared desktop may not set it; only your host file can. haus sets this itself, so the roster can still say which module put an app on disk. It is a generated fact about this machine rather than an input anyone writes.
+
+Where this entry's executable lands — **computed, not set.** The
+answer `scope` implies, spelled once, so a room that runs a tool
+names this instead of hardcoding a profile path:
+
+```text
+haus.roster.sketchybar.binPath
+  → "/run/current-system/sw/bin/sketchybar"     scope = "system"
+  → "/etc/profiles/per-user/<you>/bin/sketchybar"  scope = "user"
+```
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.roster.&lt;name>.binPath</span></summary>
+
+null when nothing here installs an executable at a path haus can
+name: a `cask`, an `appStoreId` or an `installedBy` entry puts an
+.app somewhere rather than a binary. **That null is the point** — a
+room can assert on it, where a hardcoded string would simply be
+wrong and stay wrong.
+
+Why it exists: `scope` reads as metadata about reach and is also a
+filesystem contract, because "system" is what puts a package at
+`/run/current-system/sw/bin`. Before this option, the one live case
+— sketchybar, addressed by its launchd agent, `barpop`, `bar-bottom`,
+`aerospace-notify.sh` and the bar plugins — spelled that path by hand
+at sixteen call sites in nine files across three rooms, and moving
+the entry between sources was a sixteen-spelling sweep that no check
+could see. A host writing `scope = "user"` picked a documented value
+and the bar stopped drawing, with nothing anywhere saying why.
+
+The generalisable form: any roster entry another module addresses by
+path has a scope precondition, and this is the registry carrying it
+rather than each room re-deriving it.
+
+</details>
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
@@ -7055,6 +7113,10 @@ other, so pairing it with `cask` is the same mistake as pairing
 
 Which profile `package` installs into.
 
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.roster.&lt;name>.scope</span></summary>
+
 - "user" (default): home-manager's `home.packages`. Right for
   anything you run as yourself — apps, editors, CLI tools.
 - "system": nix-darwin's `environment.systemPackages`. Installed
@@ -7066,6 +7128,26 @@ Which profile `package` installs into.
   under sudo either way.)
 
 Ignored when `package` is null — Homebrew has no such split.
+
+**It is also a path, wherever a module addresses the binary.**
+"system" is what puts the package at
+`/run/current-system/sw/bin/<name>`, and a room that runs a tool
+from launchd — where nothing nix-shaped is on PATH — has to spell
+that path out. `sketchybar` is the live case: its launchd agent,
+`barpop`, `bar-bottom` and every bar plugin name it that way, so
+moving that entry to "user" leaves the bar pointing at nothing and
+drawing nothing. Two neighbouring edits do the same thing without
+touching `scope` at all — dropping its nixpkgs source
+(`package = lib.mkForce null` with no `packageName`; merely ADDING
+a `brew` does not, since the bar sets `package` at `mkDefault`),
+and `enable = false`, which filters the entry out before anything
+installs it.
+
+So an entry haus itself declares and addresses by path is not the
+plain metadata it looks like: the bar room asserts on all three,
+and a room of yours that names a path should too.
+
+</details>
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
@@ -7824,11 +7906,11 @@ combination, not a mistake.
 
 ### haus.power
 
-Sleep timers and Low Power Mode, said separately for battery and charger — which is the whole point, and why this is built on `pmset` rather than on nix-darwin's own power options.
+Sleep timers and Low Power Mode, said separately for battery and charger — which is the whole point, and why this is built on `pmset` rather than on nix-darwin's own power options. Plus the lid: whether closing this Mac is allowed to end a run that agents are still in the middle of.
 
 <div className="hf-optindex">
 
-[`computerSleep.battery`](#haus-power-computersleep-battery) [`computerSleep.charger`](#haus-power-computersleep-charger) [`diskSleep.battery`](#haus-power-disksleep-battery) [`diskSleep.charger`](#haus-power-disksleep-charger) [`displaySleep.battery`](#haus-power-displaysleep-battery) [`displaySleep.charger`](#haus-power-displaysleep-charger) [`lowPowerMode.battery`](#haus-power-lowpowermode-battery) [`lowPowerMode.charger`](#haus-power-lowpowermode-charger)
+[`computerSleep.battery`](#haus-power-computersleep-battery) [`computerSleep.charger`](#haus-power-computersleep-charger) [`diskSleep.battery`](#haus-power-disksleep-battery) [`diskSleep.charger`](#haus-power-disksleep-charger) [`displaySleep.battery`](#haus-power-displaysleep-battery) [`displaySleep.charger`](#haus-power-displaysleep-charger) [`lidAwake.enable`](#haus-power-lidawake-enable) [`lidAwake.linger`](#haus-power-lidawake-linger) [`lidAwake.maxHold`](#haus-power-lidawake-maxhold) [`lidAwake.requirePower`](#haus-power-lidawake-requirepower) [`lidAwake.while`](#haus-power-lidawake-while) [`lowPowerMode.battery`](#haus-power-lowpowermode-battery) [`lowPowerMode.charger`](#haus-power-lowpowermode-charger)
 
 </div>
 
@@ -7913,6 +7995,99 @@ Minutes of idleness before the display sleeps while on the charger, or
 
 A desktop Mac has no battery profile to write, so `pmset` warns
 and the rebuild carries on — set the `charger` half there.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.power.lidAwake.enable` [#haus-power-lidawake-enable]
+
+`boolean` · default `false` · e.g. `true`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+Let this Mac keep working with its lid shut.
+
+Off by default, and deliberately: closing the lid is the one
+gesture everybody reads as "stop", so haus will not quietly
+redefine it. Turn it on and a root daemon holds macOS's
+`disablesleep` -- the only lever over lid-close sleep, which
+`awake`'s caffeinate assertion cannot reach -- for as long as
+`while` says to.
+
+What it cannot save you from: with the lid shut and no external
+display there is no display at all, so an agent that takes
+screenshots or drives the UI goes blind. Work that has to SEE
+something belongs in a headless VM, whose display is virtual and
+never depended on this one.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.power.lidAwake.linger` [#haus-power-lidawake-linger]
+
+`unsigned integer, meaning >=0` · default `5` · e.g. `1`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+Minutes to keep holding after the last agent stops.
+
+Only `while = "agents"` has anything to linger for. The gap
+between two turns is seconds, and sleeping inside it
+would end the run you were trying to protect. This only ever
+extends a hold that already exists; it never starts one. 0 sleeps
+the moment the last agent goes idle.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.power.lidAwake.maxHold` [#haus-power-lidawake-maxhold]
+
+`positive integer, meaning >0, or value "never" (singular enum)` · default `480` · e.g. `"never"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+Minutes one unbroken hold may last, or `"never"` for no cap.
+
+The failsafe. A client that dies without reporting leaves a hold
+behind, and without this the Mac would simply never sleep again
+with nothing on screen to say why. Past the cap the hold releases
+and refuses to re-arm until the signal has actually cleared, so a
+stuck hold costs one window rather than forever. 8 hours by
+default -- long enough for an overnight run.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.power.lidAwake.requirePower` [#haus-power-lidawake-requirepower]
+
+`boolean` · default `true` · e.g. `false`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+Only hold the lid awake while plugged in.
+
+On by default. A closed laptop on battery is the bad case and the
+invisible one: no screen to tell you it is still working, a
+battery going down, and in a bag nowhere for the heat to go. On
+means unplugging is also how you say stop -- the hold releases
+and the Mac sleeps normally.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.power.lidAwake.while` [#haus-power-lidawake-while]
+
+`one of "agents", "always"` · default `"agents"` · e.g. `"always"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+When to hold the lid open, so to speak.
+
+`agents` (the default) holds only while an agent is actually
+mid-turn, and lets the Mac sleep once the last one stops -- the
+answer to "let them finish, then behave normally". The signal is
+the one the bar's agents pill already draws, reported by every
+client haus knows (Claude Code, Codex, OpenCode), so nothing has
+to be discovered or polled. An agent sitting at a permission
+prompt does NOT hold: it is blocked on a human who is not there.
+
+`always` is plain closed-display mode -- this Mac never sleeps on
+a lid close, agents or no agents.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
