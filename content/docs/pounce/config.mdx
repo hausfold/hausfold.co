@@ -310,8 +310,10 @@ bounce above.
 
 Hold a modifier, tap a key, step through the **non-empty** AeroSpace workspaces
 under a prefix in most-recent-first order: ⌘Tab's muscle memory, aimed at
-workspaces instead of windows. Release and you land. There is no overlay: the
-screen you are stepping through is the feedback.
+workspaces instead of windows. Keep holding and a HUD comes up: a row per page,
+with the windows on it listed underneath, so you pick a page by recognising
+what is on it rather than by remembering its name. **Nothing is focused until
+you land** on the release; ↵ lands early, ⎋ leaves you where you were.
 
 ```jsonc
 "pages": { "enabled": true, "prefix": "T", "modifiers": ["ctrl"], "key": "tab" }
@@ -319,7 +321,7 @@ screen you are stepping through is the feedback.
 
 `prefix` matches a workspace named `T` or anything under `T/`. Recency comes
 from `mruFile`, a newest-first list your window manager's workspace-change hook
-pushes onto; a walk repairs its own trail on release, so passing through three
+pushes onto; because the walk visits nothing on the way, passing through three
 pages doesn't rank them above where you started. That file has a second reader:
 its head line is how the palette answers "which page am I on" when an item
 carries [`workspaces`](#rows-that-only-exist-where-they-work), which is why it

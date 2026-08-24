@@ -414,6 +414,57 @@ long unattended run where forty prompts is the problem. It mirrors bench's
 hangs one on; the etiquette text, when you have any, goes to all of them.
 </Callout>
 
+### A VM, so it doesn't have to be your screen
+
+"Don't touch the screen" is only half an answer when the thing being changed
+**is** a desktop: nobody feel-tests a tiling keybind by reading a diff. So the
+room ships [`tart`](https://tart.run), and a lane can stand up a second,
+disposable macOS of its own:
+
+```sh
+holt runtime up    my-lane --backend tart   # clone the image, boot it headless
+holt runtime enter my-lane --backend tart   # ssh in
+holt runtime down  my-lane --backend tart   # delete the clone
+```
+
+Headless, so nothing it draws reaches your display, and real enough to run
+`haus rebuild` inside. `HOLT_TART_BASE` names the image it clones; a bare
+`ghcr.io/cirruslabs/macos-tahoe-base` boots but has no haus in it to test, so
+the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
+agent skill spells the whole recipe out, which is why nothing here has to.
+
+## Letting a run finish with the lid shut
+
+Closing the lid sleeps a Mac whatever [`awake`](/docs/haus/rooms/bar) is
+holding: caffeinate does not cross a lid close. So an overnight run ends when
+you shut the laptop, which is exactly the gesture you would use to walk away
+from one.
+
+```nix
+haus.power.lidAwake.enable = true;
+```
+
+Off by default, deliberately: closing the lid is the one gesture everybody
+reads as "stop". Turn it on and a root daemon holds macOS's `disablesleep` for
+as long as an agent is actually mid-turn, and lets the Mac sleep normally once
+the last one stops. The signal is the same one the [bar's agents
+pill](/docs/haus/rooms/bar) draws, so every client haus knows already reports
+it, and an agent parked at a permission prompt does **not** hold: it is waiting
+on a human who, the lid being shut, is not there.
+
+Three settings shape it, and the defaults are the cautious ones:
+`while = "always"` makes it plain closed-display mode, agents or no agents;
+`requirePower` (on) means unplugging is also how you say stop; `maxHold`
+(8 hours) caps one unbroken hold, so a client that dies without reporting
+costs you one window rather than a Mac that never sleeps again.
+
+<Callout type="warn" title="Shut lid, no display, blind agent">
+With the lid down and nothing external plugged in there is no display at all,
+so an agent that takes screenshots or drives the UI has nothing to look at.
+Work that has to *see* something wants the VM above, whose display was never
+this one.
+</Callout>
+
 ## Command summary
 
 | Command | What it does |

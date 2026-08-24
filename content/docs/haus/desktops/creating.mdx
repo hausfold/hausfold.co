@@ -197,7 +197,10 @@ powerful:
 - a `pkgs` value, or a `/nix/store` path;
 - activation hooks and shell commands;
 - a display UUID: `haus.displays.main` says "the screen this Mac is using"
-  without naming anyone's hardware.
+  without naming anyone's hardware. A `shortcut:<uuid>` palette row is refused
+  on the same argument: it names one entry in one Mac's Shortcuts library. The
+  other palette addresses (`cmd:`, `app:`, `setting:`, `mode:`) a desktop may
+  set freely.
 - a private room: `haus.my.*` is the prefix reserved for rooms that live on one
   Mac, so a file other people run may not name one.
 

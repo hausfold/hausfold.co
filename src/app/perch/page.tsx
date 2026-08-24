@@ -146,8 +146,9 @@ export default function Perch() {
           <dt>offline</dt>
           <dd>
             the only thing perch sends to the internet is an hourly look at its own release tag, and
-            Settings turns that off. It also listens on your own network for an iPhone you paired
-            yourself: encrypted end to end, and off in Settings if you don&apos;t want it
+            Settings turns that off. It also listens for an iPhone you paired yourself, over your
+            network or peer-to-peer if there isn&apos;t one: encrypted end to end, and off in
+            Settings if you don&apos;t want it
           </dd>
         </dl>
       </section>
