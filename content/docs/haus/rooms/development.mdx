@@ -64,23 +64,26 @@ terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
 `⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
 it.)
 
-Two of them do nothing at all, on purpose:
+There are **no tabs and no splits**, and that is what freed two of those keys:
+a tab or a split would nest a second layout model inside one tile, when the
+tiler already tiles.
 
-- **`⌘T` / `⌘⇧T`.** There are no tabs: a tab would nest a second layout model
-  inside one tile. `⌘N` is "a new window here", which is what `⌘⇧T` used to mean.
-- **`⌘D` / `⌘⇧D`.** Ghostty's defaults there split the surface, and splits go
-  unused for the same reason: the tiler already tiles. It's an easy chord to hit
-  by accident coming from iTerm, so the keys do nothing rather than something
-  else.
+- **`⌘T`** is a new *terminal* here rather than a new tab — the neutral one, in
+  your home directory and on no repo's page. `⌘⇧T` does nothing; "a new window
+  here" is what `⌘N` means.
+- **`⌘D` / `⌘⇧D`** do nothing at all. Ghostty's defaults there split the
+  surface. It's an easy chord to hit by accident coming from iTerm, so the keys
+  do nothing rather than something else.
 
 | Keys | What happens |
 |---|---|
-| `⌘N` / `⌘⇧N` | New shell **window**, in the focused window's directory, and on its **lane page**, when that is where you pressed it. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put. |
+| `⌘N` / `⌘⇧N` | New shell **window**, in **this page's repo** and on this page. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put — in the worktree *and* on the repo the focused window is looking at, since both halves of that key mean "don't move me". |
+| `⌘T` | New **neutral** terminal: your home directory, no repo, on the base workspace rather than the lane page you were standing on. The way out from under a page. |
 | `⌘W` | Close the window, which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
 | `⌃D` / `exit` | End the shell, which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
 | `⌘G` | Your GitHub review queue, if you turned it on |
-| `⌘⏎` | Spawn a coding agent in its own worktree, on the repo this window is looking at |
+| `⌘⏎` | Spawn a coding agent in its own worktree, on **this page's repo** |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
 | `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
 | `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord |
@@ -141,19 +144,44 @@ gains a **Lanes** command beside them: fuzzy over every lane with its state,
 `↵` focusing that lane's window or waking a parked one, `/` plus a word
 searching what the agents are *saying* across every live session.
 
-A `⌘N` shell window follows the pages too: pressed on a repo's page it opens
-**there**, beside the lane you asked it from, rather than on the shared `T` two
-pages away. Pressed anywhere else (on `T` itself, or on a workspace you had
-dragged a terminal to), it lands on `T`, which is where plain terminal windows
-live. One caveat: a shell window carries no name saying which page is its own,
-so the next **re-sort everything** (`caps` then `` ` ``) sends it home to `T`.
-The lanes stay where they belong.
+### The page owns the repo
+
+Standing on `T/<repo>` is a statement about which repo you are working in, and
+both spawn chords obey it. `⌘⏎` opens its lane on **that** repo and `⌘N` opens
+its shell in it, on that page, beside the lanes already there — whatever the
+window under your cursor happens to be looking at.
+
+That matters because the window is a weaker signal than it looks. A plain shell
+you dragged onto the page, a session whose directory could only be read as
+*where it was born*, or focus that hasn't caught up with a page you just walked
+to: each of them used to answer with some other repo, and then `⌘⏎` opened a
+lane in it.
+
+It's a correction, not a takeover. The window still picks the exact directory
+whenever that directory already belongs to the page's repo — `⌘N` in a
+subdirectory still opens there, `⌘⏎` inside a lane's worktree still spawns a
+sibling lane. Only a directory belonging to a *different* repo (or to none) is
+overridden, with that repo's main checkout. Off a page, nothing changes: the
+focused window decides, as before.
+
+`⌘⇧N` opts out of the whole thing, because it already means "don't move me": it
+keeps the focused window's directory whatever page you are on, the same way it
+already declines the hop out of an agent worktree.
+
+One caveat on where a `⌘N` window ends up: it carries no name saying which page
+is its own, so the next **re-sort everything** (`caps` then `` ` ``) sends it
+home to `T`. The lanes stay where they belong.
+
+**`⌘T` is the way out.** With both spawn chords belonging to a repo, there was
+no chord left that meant "a terminal about nothing" — a scratch shell, an `ssh`,
+a `haus doctor`. `⌘T` goes to the base workspace *taking you with it*, then
+opens a shell in your home directory with nothing handed down.
 
 ⌘⏎ and ⌘N have palette rows as well as chords, and those rows are
 [listed on the terminal pages only](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only):
-both inherit the focused window's directory, so neither has anything to work
-with from a browser. **Spawn Agent** asks which repo instead of inheriting one,
-so it is the row that still works from anywhere.
+off a page both are back to inheriting the focused window's directory, so
+neither has anything to work with from a browser. **Spawn Agent** asks which
+repo instead of inheriting one, so it is the row that still works from anywhere.
 
 A **Pages** command covers the pages themselves: `↵` goes to one, `⌥↵` throws
 the focused window onto it and follows it there. The [bar](/docs/haus/rooms/bar)'s

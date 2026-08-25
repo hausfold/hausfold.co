@@ -57,10 +57,11 @@ rest of the house without a second theme setting.
 ### Rows that are listed on some pages only
 
 haus scopes three rows this way: **New Agent Lane** (⌘⏎), **New Shell Window**
-(⌘N) and its `⇧` twin. All three act on **the window you were looking at**, so
-from a browser they have nothing to read: the lane finds no repo and refuses out
-loud, the shell opens in `$HOME`. They are listed on the terminal pages only,
-`T` and every `T/<repo>` lane page:
+(⌘N) and its `⇧` twin. All three act on **the page you are standing on**, and
+fall back to the window you were looking at when that page names no repo — so
+from a browser they have nothing to read either way: the lane finds no repo and
+refuses out loud, the shell opens in `$HOME`. They are listed on the terminal
+pages only, `T` and every `T/<repo>` lane page:
 
 ```nix
 # hand it back everywhere:
@@ -75,7 +76,9 @@ haus.launcher.items."cmd:lane-here".bundleIds = [ "com.mitchellh.ghostty" ];
 
 **Spawn Agent** is untouched and stays everywhere, because it asks which repo
 rather than inheriting one. That makes it the row to reach for from a browser,
-where the lane chord cannot go.
+where the lane chord cannot go. **New Terminal Window** (⌘T) stays everywhere
+too, for the opposite reason: it inherits nothing at all, so there is no page it
+needs to be on to work.
 
 Both keys work on any item, and they scope the **row** and never a `hotkey` on
 the same item, so ⌘⏎ and ⌘N keep working wherever Ghostty is frontmost. What
@@ -136,6 +139,8 @@ may not set it.
 - **[Development](/docs/haus/rooms/development)**: **Lanes** jumps to an agent
   lane or searches what the agents are saying, **New Agent Lane** is ⌘⏎ and
   **New Shell Window** is ⌘N (both listed on the terminal pages, as above).
+  **New Terminal Window** is ⌘T — the neutral one, home directory and no page —
+  and is listed everywhere.
 - **[Windows](/docs/haus/rooms/windows)**: the opt-in `⌘Tab` window switcher,
   which groups its rows by AeroSpace workspace.
 

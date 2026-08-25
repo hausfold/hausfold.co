@@ -278,15 +278,22 @@ haus.windows.gravity = false;
 ```
 
 **Gravity** is what pulls you back to the most recently populated workspace when
-a ⌘Q leaves the one you're on empty. It fires only for a workspace you *emptied*,
-never for one you deliberately walked onto that happened to be empty. Turn it off
-if a screen changing without you touching it is worse than a blank one:
+the one you're on loses its last window. Both ways of emptying one count: a ⌘Q
+that takes every window of an app at once, and closing the *last* window on a
+page — a ⌘W on a lane, a ⌃D that ends a shell — while that app carries on in
+windows elsewhere. The second matters most on the `T/<repo>` lane pages, which
+are not persistent: without it you were left standing on a page that appears in
+no list, with nothing on it.
+
+It fires only for a workspace you *emptied*, never for one you deliberately
+walked onto that happened to be empty. Turn it off if a screen changing without
+you touching it is worse than a blank one:
 [`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) decides that
 for you, since it is the largest unasked movement haus makes.
 
-It needs the [bar](/docs/haus/rooms/bar) as well as this room: a ⌘Q announces
-itself through the bar's event stream and nowhere else, so with no bar there is
-no gravity either way.
+It needs the [bar](/docs/haus/rooms/bar) as well as this room: both tells live in
+the bar's event stream and nowhere else, so with no bar there is no gravity
+either way.
 
 ## Spin the layout until it's right
 
