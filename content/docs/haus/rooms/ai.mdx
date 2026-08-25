@@ -468,30 +468,60 @@ Headless, so nothing it draws reaches your display, and real enough to run
 the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
 agent skill spells the whole recipe out, which is why nothing here has to.
 
-## Letting a run finish with the lid shut
+## Letting a run finish
 
-Closing the lid sleeps a Mac whatever [`awake`](/docs/haus/rooms/bar) is
-holding: caffeinate does not cross a lid close. So an overnight run ends when
-you shut the laptop, which is exactly the gesture you would use to walk away
-from one.
+A Mac left alone sleeps, and a sleeping Mac is not running your agent. Two
+different things end an overnight run, and they need two different answers:
+
+- **Nobody touches the keyboard.** `haus.power.displaySleep` and
+  `haus.power.computerSleep` run down and the Mac idle-sleeps — lid open, agent
+  mid-turn, nothing closed.
+- **You close the lid.** A separate path in macOS, which no `caffeinate`
+  assertion can cross — [`awake`](/docs/haus/rooms/bar) included, and its own
+  usage text says so.
+
+One switch covers both, in two stops:
 
 ```nix
-haus.power.lidAwake.enable = true;
+haus.ai.keepAwake = "idle";   # survive an untouched keyboard
+haus.ai.keepAwake = "lid";    # survive that, and a closed lid
 ```
 
-Off by default, deliberately: closing the lid is the one gesture everybody
-reads as "stop". Turn it on and a root daemon holds macOS's `disablesleep` for
-as long as an agent is actually mid-turn, and lets the Mac sleep normally once
-the last one stops. The signal is the same one the [bar's agents
-pill](/docs/haus/rooms/bar) draws, so every client haus knows already reports
-it, and an agent parked at a permission prompt does **not** hold: it is waiting
-on a human who, the lid being shut, is not there.
+`idle` holds a `caffeinate` assertion for exactly as long as an agent is
+mid-turn. It needs no privilege and it is safe on battery, because closing the
+lid still sleeps the Mac — so the closed-laptop-cooking-in-a-bag case cannot
+happen.
 
-Three settings shape it, and the defaults are the cautious ones:
-`while = "always"` makes it plain closed-display mode, agents or no agents;
-`requirePower` (on) means unplugging is also how you say stop; `maxHold`
-(8 hours) caps one unbroken hold, so a client that dies without reporting
-costs you one window rather than a Mac that never sleeps again.
+`lid` adds the deep lever: it turns on `haus.power.lidAwake`, whose root daemon
+holds macOS's `disablesleep`, the only thing that crosses a lid close. That is
+the stop you name deliberately — closing the lid is the one gesture everybody
+reads as "stop", so haus will not quietly redefine it for you.
+
+The signal is the same one the [bar's agents pill](/docs/haus/rooms/bar) draws,
+so every client haus knows already reports it, and an agent parked at a
+permission prompt does **not** hold: it is waiting on a human who is not there.
+
+<Callout title="Your host file always wins">
+`lid` *asks* for `haus.power.lidAwake.enable` rather than forcing it. If your
+own configuration sets that option to `false`, your value stands and the
+rebuild warns that the two disagree — you keep the `idle` half, so a run still
+survives an untouched keyboard. Overriding a haus default never needs
+`lib.mkForce`, and that includes overriding one room's opinion about another.
+</Callout>
+
+### Shaping the hold
+
+The knobs live with the machinery, in
+[`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable),
+and both stops read them — `haus.ai.keepAwake` is a switch, not a second copy
+of the dial. The defaults are the cautious ones:
+
+| | |
+|---|---|
+| `linger` (5 min) | keeps holding past the last turn, so the gap between two turns cannot sleep the Mac |
+| `maxHold` (8 hours) | caps one unbroken hold. A client that dies without reporting costs you one window, not a Mac that never sleeps again — and a genuinely new agent starting work lifts the cap early |
+| `requirePower` (on) | the **lid** hold only: unplugging is also how you say stop. The `idle` hold ignores it, because an unplugged laptop sitting open on a desk is the case that is plainly safe |
+| `while = "always"` | plain closed-display mode, agents or no agents |
 
 <Callout type="warn" title="Shut lid, no display, blind agent">
 With the lid down and nothing external plugged in there is no display at all,
