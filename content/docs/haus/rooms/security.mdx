@@ -96,7 +96,42 @@ haus.secrets.provider = "keychain";      # where secret values come from
 
 The firewall is off on a fresh Mac; it is the setting to turn on for a laptop
 that joins networks you don't own. Secrets themselves never live in your
-config; haus declares which exist and fetches them at runtime.
+config; haus declares which exist and fetches them at runtime — which is the
+next section.
+
+## Secrets your rooms need
+
+Some rooms need a value haus cannot invent: the shared secret that signs the
+GitHub deliveries this Mac receives, the Slack token that lets *quiet* reach
+your phone. **The room asks for it, not you.** Each one declares the value it
+needs and why it needs it; haus collects every declaration on your machine into
+one list and asks you for the values once:
+
+```bash
+haus-secret --list     # what this Mac is asking for, and where to get each one
+haus-secret --check    # enter what's missing
+haus-secret --status   # which ones have a value (it prints no values)
+```
+
+The values go into whatever `haus.secrets.provider` names — this Mac's login
+keychain by default, or 1Password, Bitwarden, Google Secret Manager, Vault —
+never into your config, a dotfile or the Nix store. `haus doctor` tells you
+when one is still empty, and so does `haus permissions`, the walkthrough for
+everything on a fresh Mac that needs a person.
+
+The list follows your configuration: turn a room off and its secret stops being
+asked for, roll back and it leaves with the generation. Nothing asks you for a
+value that nothing on the machine reads.
+
+<Callout title="Two lists of secrets, and they are not the same one">
+  A *project* declares its own secrets in a `secretspec.toml` you commit beside
+  its code, and [secretspec](https://secretspec.dev) finds that one by itself
+  when you run `secretspec run -- npm start` inside the project. The list above
+  is about the **machine**, and only `haus-secret` reads it. They are separate
+  namespaces in your provider, so the same name in both is two values — set
+  `haus.secrets.project` to the project name you already use if you would
+  rather have one.
+</Callout>
 
 ## The login window
 
@@ -152,8 +187,8 @@ haus.security.touchId.enable = false;
 being written but keep whatever value they last had: unsetting an option stops
 managing a macOS setting rather than restoring the one before it.
 
-`haus.secrets.provider` is host-only: where a machine keeps its secrets is a
-fact about that machine.
+`haus.secrets.provider` and `haus.secrets.project` are host-only: where a
+machine keeps its secrets, and under which name, are facts about that machine.
 
 ## Options
 

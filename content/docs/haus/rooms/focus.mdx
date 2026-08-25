@@ -85,23 +85,22 @@ It's off by default because it needs a personal Slack token:
    `users.profile:write` and `dnd:write`, then **Install to Workspace** and
    copy the **User OAuth Token** (`xoxp-…`).
 
-3. Stash it in your Keychain; no secret ever touches your config or the
-   Nix store:
-
-   ```bash
-   security add-generic-password -s focus-slack -a "$USER" -w 'xoxp-…'
-   ```
-
-4. Point focus at it in your host file:
+3. Turn the Slack leg on in your host file:
 
    ```nix
    haus.focus.slack = {
      enable = true;
-     tokenCommand = "security find-generic-password -s focus-slack -w";
      statusText = "heads down";
      statusEmoji = ":no_bell:";
      snooze = true;                 # silence Slack push on all devices
    };
+   ```
+
+4. Rebuild, then hand haus the token once. No secret ever touches your config
+   or the Nix store — the room only declares that it needs one:
+
+   ```bash
+   haus-secret --check      # asks for SLACK_USER_TOKEN, stores it in your provider
    ```
 
 </Steps>
@@ -309,7 +308,9 @@ The pill, the command, the CLI and any scenes go. The Do Not Disturb chord this 
 one macOS ships disabled, so switching the room off leaves a spare binding
 rather than taking one away, the opposite of the launcher's ⌘Space.
 
-`haus.focus.slack.tokenCommand` is host-only: it names a secret on one machine.
+`haus.focus.slack.tokenCommand` is host-only, and you only need it to fetch the
+token some other way — left empty, haus asks you for it and keeps it wherever
+[`haus.secrets.provider`](/docs/haus/rooms/security) points.
 
 ## Options
 
