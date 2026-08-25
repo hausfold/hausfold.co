@@ -205,7 +205,22 @@ awake off
 
 It holds the Mac awake; it does not hold the **lid**, because caffeinate has no
 reach over lid-close sleep. Letting a run survive a closed laptop is
-[`haus.power.lidAwake`](/docs/haus/rooms/ai#letting-a-run-finish).
+[`haus.ai.keepAwake`](/docs/haus/rooms/ai#letting-a-run-finish).
+
+The pill also draws a hold that **you** did not ask for. With
+[`haus.ai.keepAwake`](/docs/haus/rooms/ai#letting-a-run-finish) on, a coding
+agent mid-turn holds the Mac awake by itself, and the cup says so:
+
+| | |
+|---|---|
+| dim cup, no label | nothing is holding |
+| accent cup, `ai` | an agent is holding; it ends when the turn does |
+| filled cup, countdown | your own `awake`, whatever agents are doing |
+| filled cup + accent icon | both — yours keeps the label, because yours is the one you can act on |
+
+Right-click means "allow sleep" and it can only ever speak for *your*
+assertion, so when an agent hold is the only thing holding, it tells you that
+instead of running a command that would change nothing.
 
 The **focus** (Do Not Disturb) pill is separate: whether it exists is
 `haus.focus.enable`, not `haus.bar.items`. Where it goes is still a bar
