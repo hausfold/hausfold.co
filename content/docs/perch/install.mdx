@@ -23,6 +23,10 @@ Prefer a download? The [latest release](https://hausfold.co/download/perch) is
 the same build, signed with our Apple Developer ID and notarized, so it opens
 straight away with no Gatekeeper prompt and no quarantine hack.
 
+On Nix, the flake wraps that same notarized build: add
+`github:hausfold/perch` as an input and its `overlays.default` puts `perch` in
+your pkgs.
+
 ## Turn one macOS setting off
 
 In **System Settings ▸ Desktop & Dock**, turn *off* **"Drag windows to top of
@@ -30,7 +34,8 @@ screen to enter Mission Control"**.
 
 macOS arms that top-edge trigger for the whole of any drag, files included,
 and it fires over the same band the shelf lives in. Leave it on and the Dock
-steals the drop. It's the only thing perch asks of your Mac.
+steals the drop. It's the only thing perch asks of your Mac, and a haus
+machine flips it for you.
 
 ## What it needs
 
@@ -72,6 +77,13 @@ upgrade. [The Shelf room](/docs/haus/rooms/shelf) has the one option it adds.
 
 ## Updating
 
-perch checks its own release tag hourly and tells you when there's a newer one;
-applying it is always your keystroke, and Settings turns the check off
-altogether. On a haus machine, `haus update` carries it with everything else.
+perch checks its own release tag once an hour. When there's a newer one, the
+open shelf grows a quiet strip along its bottom edge and the menu bar menu
+grows a matching row; dismissing a version dismisses that version, and the
+next release asks again.
+
+It never installs the update itself. Instead the button knows how you
+installed perch and does the right thing for that install: it copies
+`brew upgrade --cask perch`, `haus update` or `nix flake update perch`, or
+opens the release page for a drag install. Settings ▸ Updates turns the check
+off altogether.
