@@ -2,7 +2,6 @@ import { createElement, type ReactNode } from 'react';
 import type { LucideProps } from 'lucide-react';
 import {
   Bell,
-  BellOff,
   Blocks,
   Bot,
   Boxes,
@@ -21,6 +20,7 @@ import {
   ListChecks,
   Monitor,
   MonitorCog,
+  Moon,
   Palette,
   PanelTop,
   RefreshCw,
@@ -88,7 +88,7 @@ const icons = {
   launcher: { icon: Command },
   terminal: { icon: Terminal },
   fingerprint: { icon: Fingerprint },
-  bellOff: { icon: BellOff },
+  moon: { icon: Moon },
   agent: { icon: Bot },
   wand: { icon: Wand2 },
   sync: { icon: RefreshCw },
