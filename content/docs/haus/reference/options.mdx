@@ -2804,10 +2804,8 @@ with more of the stack peeking out; `0` hides the neighbours
 completely, which makes an accordion workspace look like a fullscreen
 one.
 
-Only read while a workspace is in the accordion layout — whether it
-got there from haus.windows.defaultLayout, from the layout chord, or
-from the leader-key tiling dial, which carries accordion as one of its
-three stops.
+Only read while a workspace is in the accordion layout, whether it got
+there from haus.windows.defaultLayout or from the layout chord.
 
 Only meaningful with haus.windows.enable.
 
@@ -3782,7 +3780,7 @@ Described under [`haus.bar.items.github`](#haus-bar-items-github). haus declares
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-Described under [`haus.bar.items.harvest`](#haus-bar-items-harvest). haus declares both from one description, and this page prints it once.
+A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4422,7 +4420,7 @@ With nothing to report it draws no number at all rather than a zero, because a n
 
 `boolean` · default `false`
 
-A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide. Click to stop the running timer or restart the last one. Like the Elgato pill it draws dim when Harvest can't be reached, keeping the label that names what was running — an API it can't ask is not the same thing as a timer that isn't running, and the two used to look identical.
+A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -6047,7 +6045,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
@@ -6218,53 +6216,6 @@ Example:
   Ship small, verified changes; ask before anything hard to reverse…
 ''
 ```
-
-<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
-
-#### `haus.ai.keepAwake` [#haus-ai-keepawake]
-
-`one of "off", "idle", "lid"` · default `"off"` · e.g. `"idle"`
-
-Let agents hold this Mac awake while they are mid-turn.
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.ai.keepAwake</span></summary>
-
-Three stops, each one deeper than the last:
-
-`off` (the default) -- agents get no say. macOS sleeps on its own
-schedule and a run that was still going is simply over.
-
-`idle` -- a `caffeinate` assertion for exactly as long as an agent is
-working. This is the gap most people actually hit: with the lid OPEN
-and nobody at the keyboard, `haus.power.displaySleep` and
-`haus.power.computerSleep` end an overnight run without anything having
-closed. Needs no privilege, and works on battery, because closing the
-lid still sleeps the Mac -- so the laptop-cooking-in-a-bag case this
-cannot happen.
-
-`lid` -- the above, plus turning on `haus.power.lidAwake`, whose root
-daemon holds macOS's `disablesleep`. That is the only lever that
-crosses a lid close, and shutting the lid is the one gesture everybody
-reads as "stop", so it is the stop you have to name deliberately.
-
-The signal is the one the bar's agents pill already draws, reported by
-every client haus knows, and an agent parked at a permission prompt
-does NOT hold: it is blocked on a human who is not there.
-
-What this sets rather than owns: `lid` writes
-`haus.power.lidAwake.enable` at `mkDefault`, so a host that names that
-option itself always wins and is told, in a warning, that it did. How
-long a hold lingers past the last turn, how long one may last, and
-whether it needs the charger stay where the machinery is
-(`haus.power.lidAwake.linger`, `.maxHold`, `.requirePower`) -- this is
-a switch, not a second copy of the dial.
-
-Needs `ai.enable`: the hold signal is written by the agent hooks this
-room installs, so with the room off nothing would ever report a turn.
-
-</details>
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
 
@@ -8152,11 +8103,9 @@ Minutes one unbroken hold may last, or `"never"` for no cap.
 The failsafe. A client that dies without reporting leaves a hold
 behind, and without this the Mac would simply never sleep again
 with nothing on screen to say why. Past the cap the hold releases
-and stays off until either the holds clear or an agent starts a
-fresh turn -- so a stuck hold costs one window rather than
-forever, and a leaked one, which nothing will ever remove, still
-gets out of a real agent's way. 8 hours by default -- long enough
-for an overnight run.
+and refuses to re-arm until the signal has actually cleared, so a
+stuck hold costs one window rather than forever. 8 hours by
+default -- long enough for an overnight run.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
