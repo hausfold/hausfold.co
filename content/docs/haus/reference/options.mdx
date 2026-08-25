@@ -4314,7 +4314,7 @@ A pill tracking your agent windows, marked with a robot, one mark and a count pe
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.agents</span></summary>
 
-Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `holt hook notify` entry appended beside yours on Notification/Stop, which raises a trill banner when a lane blocks on you or finishes — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 </details>
 
@@ -6045,7 +6045,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
@@ -6216,6 +6216,51 @@ Example:
   Ship small, verified changes; ask before anything hard to reverse…
 ''
 ```
+
+<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
+
+#### `haus.ai.namer` [#haus-ai-namer]
+
+`string` · default `""` · e.g. `"api"`
+
+The holt namer adapter that turns a lane's first-turn brief into the
+lane's name — `mobile-nav-jitter` instead of `cozy-otter`. Empty, the
+default, means no namer: an unnamed lane keeps taking a random word
+pair, which is what every install had before the key existed.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.ai.namer</span></summary>
+
+`claude` is holt's one built-in, and it costs 8-12s per lane — almost
+all of it the client's own start-up rather than the model. Any other id
+is a file you write: `~/.config/holt/adapters/namer/<id>.toml`, naming
+a program that takes the brief on argv and prints one name. That file
+is the HOST's, not the layer's, because it is where the model, the key
+and its location get decided; haus deliberately carries only the id, so
+a machine that hasn't written the adapter degrades to random names
+rather than failing to build.
+
+It cannot cost you a lane. Every failure — no adapter file, a missing
+program, a timeout at holt's 30s ceiling, prose instead of a name — is
+a warning and a fall back to the random pair.
+
+**The offline floor is the adapter's to honour.** The palette's Spawn
+Agent has always named the lane itself, from a stopword slug of your
+prompt, and it stops doing that when this is set — so it hands the slug
+down as `HOLT_NAMER_FALLBACK` and expects an adapter that cannot reach
+its model to print that instead of failing. holt neither sets nor reads
+that variable; it only passes the environment through. An adapter that
+ignores it makes an offline spawn fall to the random pair, which is
+worse than the slug the palette would have used.
+
+`claude` is excluded from the palette path for exactly that reason: its
+argv is fixed and reads no environment, so it cannot meet the contract —
+and at 8-12s it would outlive the palette's own 8-second chain fade.
+Set it and hand-run `holt spawn` still asks it; Spawn Agent keeps its
+slug.
+
+</details>
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
 
@@ -6950,9 +6995,13 @@ the entry between sources was a sixteen-spelling sweep that no check
 could see. A host writing `scope = "user"` picked a documented value
 and the bar stopped drawing, with nothing anywhere saying why.
 
-The generalisable form: any roster entry another module addresses by
-path has a scope precondition, and this is the registry carrying it
-rather than each room re-deriving it.
+That is the failure this retired, and it retired it outright rather
+than turning it into a rule: with every address computed from here,
+`scope = "user"` was measured on 2026-08-24 to give a fully working
+bar. So the generalisable form is not "a roster entry addressed by
+path has a scope precondition" — it is that such an entry has ONE
+address, computed here, and the only thing left for a room to refuse
+is a null one.
 
 </details>
 
@@ -7131,21 +7180,27 @@ Ignored when `package` is null — Homebrew has no such split.
 
 **It is also a path, wherever a module addresses the binary.**
 "system" is what puts the package at
-`/run/current-system/sw/bin/<name>`, and a room that runs a tool
-from launchd — where nothing nix-shaped is on PATH — has to spell
-that path out. `sketchybar` is the live case: its launchd agent,
-`barpop`, `bar-bottom` and every bar plugin name it that way, so
-moving that entry to "user" leaves the bar pointing at nothing and
-drawing nothing. Two neighbouring edits do the same thing without
-touching `scope` at all — dropping its nixpkgs source
-(`package = lib.mkForce null` with no `packageName`; merely ADDING
-a `brew` does not, since the bar sets `package` at `mkDefault`),
-and `enable = false`, which filters the entry out before anything
-installs it.
+`/run/current-system/sw/bin/<name>`, "user" at
+`/etc/profiles/per-user/<you>/bin/<name>`, and a room that runs a
+tool from launchd — where nothing nix-shaped is on PATH — has to
+spell one of them out. `sketchybar` is the live case: its launchd
+agent, `barpop`, `bar-bottom` and every bar plugin name it, and
+they name it through `binPath`, so they FOLLOW this rather than
+being pinned. Moving that entry to "user" was measured end to end
+on 2026-08-24 and the bar drew, ticked, reloaded and dismissed its
+dropdowns — the agent is a LaunchAgent in the user's own session,
+so the per-user profile is in reach. What it does cost is
+`/run/current-system/sw/bin/<name>` no longer existing, which
+breaks anything OUTSIDE haus still spelling that literal.
 
-So an entry haus itself declares and addresses by path is not the
-plain metadata it looks like: the bar room asserts on all three,
-and a room of yours that names a path should too.
+What DOES leave the bar pointing at nothing is losing the source:
+`package = lib.mkForce null` with no `packageName` and no `brew`
+(merely ADDING a `brew` does not, since the bar sets `package` at
+`mkDefault` and follows it to /opt/homebrew/bin), or
+`enable = false`, which filters the entry out before anything
+installs it. Both land as `binPath == null`, which is what the bar
+room asserts on — and what a room of yours that names a path
+should assert on too. `scope` is not the thing to refuse.
 
 </details>
 
