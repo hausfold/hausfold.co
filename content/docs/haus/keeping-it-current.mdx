@@ -163,8 +163,8 @@ A handful of things never enter your config, on purpose. Walk this list once per
 machine:
 
 - **Secrets.** Your config declares *which* secrets exist, never their values.
-  `secretspec check` lists what's still missing and `secretspec set <NAME>` fills
-  one in. By default they live in this Mac's login keychain, which is exactly why
+  `haus-secret --check` asks for the ones the rooms on this Mac need, one after
+  the other; `secretspec check` does the same inside a project of your own. By default they live in this Mac's login keychain, which is exactly why
   they don't ride along in the clone; point `haus.secrets.provider` at a cloud
   vault and they follow you instead, at the cost of one login to bootstrap it.
 - **Commit signing keys.** Your config names the key *id*; the key *material* is

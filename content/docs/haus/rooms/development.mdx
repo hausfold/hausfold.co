@@ -334,7 +334,6 @@ the octocat pill, whose interval was five minutes, now moves inside one.
 ```nix
 haus.github = {
   enable = true;
-  secretCommand = "secretspec get GITHUB_WEBHOOK_SECRET";
   hooks = [ { scope = "org:your-org"; } ];
   tunnel = {
     enable = true;
@@ -343,6 +342,11 @@ haus.github = {
   };
 };
 ```
+
+The shared secret behind that signature is the one thing you have to supply:
+the room declares it, `haus-secret --check` asks you for it after the first
+rebuild, and the same value goes into the hook's settings on GitHub. Until it
+has one the receiver stays dormant and says so in its log.
 
 The signature on each delivery is the whole authentication story — there is no
 token anywhere in this room, and nothing in it can change anything on GitHub.

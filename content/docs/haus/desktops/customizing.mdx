@@ -307,8 +307,9 @@ declares which secrets exist and fetches them at runtime through
 [secretspec](https://secretspec.dev):
 
 ```sh
-secretspec check          # what's declared and still missing
-secretspec set <NAME>     # fill one in
+haus-secret --list        # what the ROOMS on this Mac need, and why
+haus-secret --check       # fill those in
+secretspec check          # the same, for a project you are standing in
 ```
 
 By default they live in this Mac's login keychain, which is why they don't ride
