@@ -1,6 +1,6 @@
 ---
 title: Development
-description: The terminal, the shell, session persistence and the editor, plus Git tooling, the CLI toolbelt and language runtimes. The command line haus sets up, and the keys that drive it.
+description: The terminal, the shell, session persistence and the editor, plus Git tooling, the CLI toolbelt, language runtimes and the GitHub webhook bridge. The command line haus sets up, and the keys that drive it.
 icon: shell
 related:
   - title: "Appearance"
@@ -317,6 +317,69 @@ haus.terminal.editor = "code -w";                 # points at it; installs nothi
 - **`Ctrl Tab` really works**, which it usually doesn't on macOS: the OS eats it
   for focus navigation before any app sees it, so the chord is caught one layer
   above.
+
+## GitHub, without the polling
+
+Three things on a haus machine watch GitHub: the bar's octocat pill, the PR
+column in the agent statusline, and the lanes popup. All three *ask* — every
+few seconds, forever — because asking is the only thing that works when GitHub
+has no way to reach you.
+
+`haus.github` gives it one. A Cloudflare tunnel points a hostname you own at a
+receiver on this Mac; GitHub posts each event to it; the three surfaces poll on
+a slow backstop instead and refresh when something actually happens. Far less
+traffic while nothing is happening, at no worse latency when something is — and
+the octocat pill, whose interval was five minutes, now moves inside one.
+
+```nix
+haus.github = {
+  enable = true;
+  secretCommand = "secretspec get GITHUB_WEBHOOK_SECRET";
+  hooks = [ { scope = "org:your-org"; } ];
+  tunnel = {
+    enable = true;
+    id = "the-uuid-cloudflared-printed";
+    hostname = "hooks.example.com";
+  };
+};
+```
+
+The signature on each delivery is the whole authentication story — there is no
+token anywhere in this room, and nothing in it can change anything on GitHub.
+That is also why `hooks` above creates nothing: it *declares* what should exist,
+and `haus doctor` diffs it against the hooks that really do, then prints the one
+`gh` command that closes the gap for you to run. A rebuild you started for an
+unrelated reason should not be able to reach into an account.
+
+<Callout title="It will tell you what you're missing">
+The most useful thing this check does is catch a hook subscribed to four of the
+five events you care about. That hook looks completely healthy from every angle
+— it is active, it is delivering, GitHub is happy — and the one state you check
+most simply never arrives. Ours was missing `pull_request_review`, so approvals
+had never once been delivered.
+</Callout>
+
+Nothing here removes a poll; it only slows one down. GitHub sends no heartbeat,
+so "nothing happened" and "the tunnel is dead" look exactly alike from this
+side. So every surface keeps a slow poll underneath the bridge
+(`haus.github.backstop`), and the machine's belief that a repository is covered
+*expires* if it stops being able to confirm it with GitHub — a laptop that loses
+the tunnel quietly goes back to polling rather than going quiet.
+
+`github-signal status` is the whole picture in one screen: is the receiver
+listening, is each declared hook healthy, when did the last delivery land, and
+which scopes are actually covered right now.
+
+Deliveries can be handed on, byte for byte, to anything else on the machine that
+speaks GitHub webhooks:
+
+```nix
+haus.github.forwardTo = [ "127.0.0.1:42787" ];   # trill's own bridge
+```
+
+The signature header rides along untouched, so the far end verifies the delivery
+itself and does not have to trust the receiver in front of it — which is what
+lets you put one there without changing the app at all.
 
 ## Works with
 
