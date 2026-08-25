@@ -71,7 +71,7 @@ haus.keys.windowNav = "alt";
 | `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
 | `Z` | Reopen the last closed app |
 | `,` | macOS System Settings: the `⌘,` convention, one level up |
-| `.` | Flip this workspace's tiling: grid ↔ columns ([below](#spin-the-layout-until-its-right)) |
+| `.` | Cycle this workspace's tiling: columns → grid → accordion ([below](#spin-the-layout-until-its-right)) |
 | `` ` `` | Re-sort every window to its workspace |
 | `/` | The cheatsheet |
 | `Esc` | Out |
@@ -253,8 +253,9 @@ haus.windows.accordionPadding   = 80;           # points left for the neighbours
 haus.windows.defaultOrientation = "auto";       # auto | horizontal | vertical
 ```
 
-These are defaults, not locks: `⌥/` and `⌥,` still switch the workspace you are
-on. `defaultOrientation = "auto"` picks per monitor from its shape, side by side
+These are defaults, not locks: `⌥/` and `⌥,` still switch the workspace you
+are on, and so does the ⇪ `.` dial ([below](#spin-the-layout-until-its-right)),
+which carries accordion as one of its three stops. `defaultOrientation = "auto"` picks per monitor from its shape, side by side
 on a wide screen and stacked on a tall one, which is right almost always; the
 other two are for a machine that should split the same way whatever display it
 wakes up on.
@@ -290,12 +291,16 @@ no gravity either way.
 ## Spin the layout until it's right
 
 `⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* focused
-workspace at once, flipping it between two arrangements:
+workspace at once, advancing it one stop round three arrangements:
 
 | Shape | What you get |
 |---|---|
 | **Grid** | √n columns, rounded up, with every column **widened in proportion to how many windows it holds** — so all of them end up the same size |
+| **Accordion** | One flat row still, but the focused window takes the space and its neighbours are left as slivers either side — `accordionPadding` is how wide those slivers are |
 | **Columns** | One flat row again, which is what a tiled workspace does on its own |
+
+The order is columns → grid → accordion → columns, so from a plain workspace
+one press deals a grid, two gets you the accordion, and three puts it back.
 
 The grid is an exact shape rather than a bucketing, and the same shape every
 time for a given number of windows:
@@ -317,19 +322,23 @@ continuing a sequence you started elsewhere. Press it again on a shape you
 already have and it reapplies fresh, which is the move once a new window has
 wandered in.
 
-The bar says which shape is on — a **Grid** / **Columns** pill beside the
-workspace and page pills, drawn only when the workspace holds more than one
-tiled window. Clicking it flips the shape, same as the key. Because the memory
-is per workspace, that pill is only ever describing the workspace you are
-looking at.
+The bar says which shape is on — a **Grid** / **Accordion** / **Columns** pill
+beside the workspace and page pills, drawn only when the workspace holds more
+than one tiled window. Clicking it advances the dial, same as the key. Because
+the memory is per workspace, that pill is only ever describing the workspace you
+are looking at.
 
 Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
 between, so a resize you make afterwards stands until you press again.
 
-Two things worth knowing. It is a **tiles-only dial**, so on a machine running
-`defaultLayout = "accordion"` a press converts that workspace to tiles and `⌥,`
-is what puts it back. And **floating windows are left alone** — they are not in
-the tree the dial reshapes, so a terminal popup sitting over the tiling neither
+Two things worth knowing. The accordion stop is **AeroSpace's own layout**
+rather than a shape haus deals, which is why it is the one the bar reads live:
+it is a fact about the workspace, so it holds for every window you open
+afterwards instead of drifting the way a grid does. On a machine running
+`defaultLayout = "accordion"` a fresh workspace therefore starts where the dial
+would put it — one press from there deals a grid, and the second brings the
+accordion back. And **floating windows are left alone** — they are not in the
+tree the dial reshapes, so a terminal popup sitting over the tiling neither
 moves nor counts toward the shape.
 
 It is also a single reflow: the whole rearrangement is sent to AeroSpace as one
