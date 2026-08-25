@@ -501,6 +501,10 @@ The signal is the same one the [bar's agents pill](/docs/haus/rooms/bar) draws,
 so every client haus knows already reports it, and an agent parked at a
 permission prompt does **not** hold: it is waiting on a human who is not there.
 
+That is also why this needs `haus.ai.enable`: the turn is reported by the agent
+hooks this room installs, so with the room off nothing would ever say a turn had
+started. Setting it anyway warns rather than failing the rebuild.
+
 <Callout title="Your host file always wins">
 `lid` *asks* for `haus.power.lidAwake.enable` rather than forcing it. If your
 own configuration sets that option to `false`, your value stands and the
