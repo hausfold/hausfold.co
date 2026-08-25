@@ -116,6 +116,41 @@ How you commit the prompt picks what happens next:
 Codex receives the screenshot as an image; Claude Code and OpenCode get its path
 in the first prompt.
 
+### What names the lane
+
+Out of the box the name is built from your own words with the filler dropped, so
+"can you look into why the bar pill flickers" becomes `bar-pill-flickers`. It is
+instant and it is never wrong, but it can only reuse words you typed.
+
+`haus.ai.namer` hands the job to a model instead, which can name the *subject*
+rather than echo the sentence — "the agents pill stops updating after the popup
+is closed twice in a row" becomes `agents-pill-wedge`:
+
+```nix
+haus.ai.namer = "api";
+```
+
+The value is an id, and the id is a file you write:
+`~/.config/holt/adapters/namer/<id>.toml`, naming a program that takes the brief
+as an argument and prints one name. haus ships no such file on purpose — the
+adapter is where the model, the API key and the key's location get decided, and
+those are yours, not the layer's. A key belongs in the login keychain via
+[secrets](/docs/haus/rooms/secrets), never beside the script.
+
+Two things keep it from being a risk:
+
+- **It cannot cost you a lane.** No adapter file, a program that isn't
+  installed, no network, a timeout — every one of them is a warning, and the
+  lane is still created.
+- **It cannot make naming worse.** Spawn Agent hands its own word-slug down to
+  the adapter, and an adapter that can't reach its model prints that instead of
+  failing. Offline you get the name you would have had anyway.
+
+`claude` is a special case: it is holt's built-in namer, so it needs no adapter
+file, but it costs 8–12 seconds — longer than the palette will wait — so Spawn
+Agent keeps its own name and doesn't ask. Set it if you want hand-run `holt
+spawn` named; for the palette, write an adapter.
+
 ### Which repos it offers
 
 `haus.ai.repoRoots` is the list, most recently touched first. Each entry is read
