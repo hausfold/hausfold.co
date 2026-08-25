@@ -27,9 +27,19 @@ launchctl kickstart -k "gui/$(id -u)/com.hausfold.pounce"
 Inside haus, a rebuild does that bounce for you when one of those keys moves.
 
 ```sh
+pounce settings         # the same settings, as a window
 pounce config init      # writes ~/.config/pounce/config.json
 pounce config print     # …or just look at it, touching nothing
 ```
+
+`pounce settings` (also the **Pounce Settings** row in the palette, or
+`mode:settings` for a hotkey of your own) opens panes of cards built from the
+same table that writes the annotated config, showing the value pounce will
+actually use rather than what the file says before clamping. There is no second
+copy of your settings: a click rewrites exactly **one line** of `config.json`,
+so your comments, your ordering and any key pounce has never heard of survive.
+Setting something back to its default comments its line out again, which is this
+file's own grammar for "unset".
 
 `init` writes **every** setting at its default, one commented-out line each
 with a sentence above it. Nothing changes until you uncomment a line, and you
@@ -39,8 +49,10 @@ overwrites an existing config (it writes `config.json.new` beside it instead;
 
 <Callout type="warn" title="Inside haus, `config init` refuses">
 Your `config.json` is generated from `haus.launcher.*`, and the next rebuild
-would put the generated one straight back. Change it in your host file
-instead; see [the Launcher room](/docs/haus/rooms/launcher).
+would put the generated one straight back. The Settings window says the same
+thing a different way: it opens read-only, every control showing what your host
+file chose. Change it in your host file instead; see [the Launcher
+room](/docs/haus/rooms/launcher).
 </Callout>
 
 Comments and trailing commas are fine (JSON5); unknown keys are ignored, so an

@@ -2618,6 +2618,321 @@ stay: these are the *tools*, not the appearance.
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
+### haus.github
+
+This machine's GitHub webhook endpoint: the tunnel, the receiver, and the hooks it wants to exist. Rooms that watch GitHub read its signal and poll on a long backstop instead of a short one. haus never writes to GitHub — it holds no token, and `haus doctor` prints the `gh` command that closes a gap rather than running it.
+
+<div className="hf-optindex">
+
+[`backstop`](#haus-github-backstop) [`coverageRefresh`](#haus-github-coveragerefresh) [`enable`](#haus-github-enable) [`forwardTo`](#haus-github-forwardto) [`hooks`](#haus-github-hooks) [`hooks.*.events`](#haus-github-hooks-events) [`hooks.*.scope`](#haus-github-hooks-scope) [`port`](#haus-github-port) [`secretCommand`](#haus-github-secretcommand) [`tunnel.credentialsFile`](#haus-github-tunnel-credentialsfile) [`tunnel.enable`](#haus-github-tunnel-enable) [`tunnel.hostname`](#haus-github-tunnel-hostname) [`tunnel.id`](#haus-github-tunnel-id)
+
+</div>
+
+#### `haus.github.backstop` [#haus-github-backstop]
+
+`integer between 60 and 3600 (both inclusive)` · default `300` · e.g. `900`
+
+How long a covered surface may go without asking GitHub anyway, in
+seconds.
+
+Push shortens a poll; it never removes one. Nothing distinguishes "no
+deliveries because nothing happened" from "no deliveries because the
+tunnel died" — GitHub sends no heartbeat — so every consumer keeps a
+slow poll under the bridge and this is it. Raise it if you trust the
+tunnel and want the quiet; lower it toward the un-bridged interval if a
+stale readout would cost you something.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.coverageRefresh` [#haus-github-coveragerefresh]
+
+`integer between 300 and 86400 (both inclusive)` · default `3600` · e.g. `21600`
+
+How often, in seconds, to re-ask GitHub what the declared hooks look
+like — are they active, what events are they subscribed to, did the last
+delivery land.
+
+Slow on purpose. It is the answer to "may I stop polling", which changes
+on a human cadence (someone edits a hook) rather than a machine one, and
+it costs an authenticated API call per declared hook. Consumers never
+make this call themselves; they read its cached answer.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.enable` [#haus-github-enable]
+
+`boolean` · default `false`
+
+Receive GitHub webhook deliveries on this machine.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.github.enable</span></summary>
+
+GitHub → a Cloudflare tunnel → a loopback receiver here, which proves
+the delivery's signature, writes down that it happened, forwards the raw
+bytes to anything in `forwardTo`, and wakes whichever rooms asked to
+hear about it. Nothing on GitHub changes: there is no token anywhere in
+this room.
+
+What it buys is latency and quiet. The surfaces that watch GitHub — the
+bar's octocat pill, the agent statusline's PR column, the lanes popup —
+all poll, because a poll is the only thing that works with no bridge.
+With one, they poll on a long backstop and refresh the moment something
+actually happens, which is both faster to notice a merge and far less
+traffic on your API budget.
+
+The delivery signature is the entire auth story, so the receiver needs
+the shared secret before it will start: this room declares
+GITHUB_WEBHOOK_SECRET to the secrets room and `haus-secret --check`
+asks you for it once. Until it has one the receiver stays dormant and
+says so in its log — the build is fine, the bridge simply isn't up.
+`secretCommand` is there for fetching that value some other way.
+
+</details>
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.forwardTo` [#haus-github-forwardto]
+
+`list of string` · default `[ ]`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names a device on your own network by host or IP, which is a fact about your desk. Left empty, the pill discovers the device itself, and that is what a shared desktop should leave it doing.
+
+Where to repeat each verified delivery, verbatim — same body, same
+`X-Hub-Signature-256`, same event and delivery headers — as `host:port`.
+
+Verbatim is the point. The far end verifies the signature itself and
+trusts nothing about this process, so putting haus's receiver in front
+of an app that already speaks GitHub webhooks changes nothing about that
+app. `127.0.0.1:42787` is trill's own bridge, which is the case this
+exists for: trill keeps mapping deliveries into banners exactly as it
+did when GitHub called it directly.
+
+Fire-and-forget, five second timeout, and never waited on: a slow
+forward target must not be able to spend GitHub's delivery timeout.
+
+Example:
+
+```nix
+[
+  "127.0.0.1:42787"
+]
+```
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.hooks` [#haus-github-hooks]
+
+`list of (submodule)` · default `[ ]`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names something inside one person's GitHub or Cloudflare account — an organisation whose repositories this Mac watches, a hostname you own, the tunnel that carries traffic to your desk. A desktop that set it would point a stranger's machine at your account, and in the webhook's case would tell them where to send deliveries.
+
+The hooks this machine WANTS to exist on GitHub. Declaring one creates
+nothing: haus holds no token and never writes to GitHub. What the
+declaration does is make two questions answerable.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.github.hooks</span></summary>
+
+The first is coverage. A room only stops polling a repository once
+something says deliveries for it will actually arrive, and "an active
+hook whose scope covers this repository, whose event list includes what
+I read, and whose last delivery GitHub did not record as failed" is that
+something. `github-signal` asks GitHub for those facts on a slow timer
+and caches the answer; the surfaces read the cache.
+
+The second is drift. `haus doctor` diffs this list against the hooks
+that really exist and prints the `gh api` command that closes the gap —
+a missing event being the failure worth catching, because a hook
+subscribed to four of the five events you care about looks entirely
+healthy from every side.
+
+</details>
+
+Example:
+
+```nix
+[
+  {
+    events = [
+      "pull_request"
+      "workflow_run"
+    ];
+    scope = "org:hausfold";
+  }
+]
+```
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.hooks.*.events` [#haus-github-hooks-events]
+
+`list of string` · see below
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names something inside one person's GitHub or Cloudflare account — an organisation whose repositories this Mac watches, a hostname you own, the tunnel that carries traffic to your desk. A desktop that set it would point a stranger's machine at your account, and in the webhook's case would tell them where to send deliveries.
+
+The GitHub event names the hook should be subscribed to, spelled
+as GitHub spells them.
+
+The default is the set the surfaces in this house actually read:
+pull request lifecycle and reviews for "is this landable", CI
+runs for "is main red", comments for "did someone say my name".
+`pull_request_review` earns its place specifically — approvals
+are what turn a row green, and a hook without it looks like it
+is working while the one state you check most never arrives.
+
+Example:
+
+```nix
+[
+  "pull_request"
+]
+```
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.hooks.*.scope` [#haus-github-hooks-scope]
+
+`string` · no default · e.g. `"org:hausfold"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names something inside one person's GitHub or Cloudflare account — an organisation whose repositories this Mac watches, a hostname you own, the tunnel that carries traffic to your desk. A desktop that set it would point a stranger's machine at your account, and in the webhook's case would tell them where to send deliveries.
+
+What the hook is attached to: `org:<name>` for an organisation
+hook (which covers every repository in it, including ones
+created later) or `repo:<owner>/<name>` for a single repository.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.port` [#haus-github-port]
+
+`16 bit unsigned integer; between 0 and 65535 (both inclusive)` · default `42786` · e.g. `8099`
+
+The loopback port the receiver binds. Never exposed: the public leg is
+the tunnel's, and the socket is 127.0.0.1 only.
+
+It is an option because it has to agree with two other things — the
+tunnel's ingress (which this room writes, so that half is automatic) and
+whatever else on the Mac already wants the port. trill's own GitHub
+bridge listens on 42787, which is why the default sits one below it:
+the usual arrangement is deliveries landing here and being forwarded
+there, and the two cannot share a socket.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.secretCommand` [#haus-github-secretcommand]
+
+`string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in, so it belongs to one person on one Mac.
+
+Shell printing the webhook's HMAC secret on stdout — the same string
+entered in GitHub's hook settings. Run when the receiver starts, and
+its output is cached in `~/.local/state/haus/github/secret` (mode 600),
+which is what the receiver reads.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.github.secretCommand</span></summary>
+
+A command rather than a value so the secret never enters the Nix store,
+where it would be world-readable and preserved in every generation.
+
+EMPTY (the default) means haus holds it: this room declares
+GITHUB_WEBHOOK_SECRET to the secrets room, `haus-secret --check` asks
+you for it once, and `haus.secrets.provider` decides where it is kept.
+Set this only to fetch the value some other way — and note that doing
+so withdraws the declaration, since a manifest entry nothing reads is a
+value the wizard would ask for and never use.
+
+Either way an absent value is a dormant receiver, not a broken build:
+it exits 78 (EX_CONFIG) and says so in its log, because there is no
+reduced-function receiver that skips signature checks and there should
+not be.
+
+</details>
+
+Example:
+
+```nix
+"op read op://private/github-webhook/secret"
+```
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.tunnel.credentialsFile` [#haus-github-tunnel-credentialsfile]
+
+`string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names a path on this disk, so it is a fact about one filesystem rather than an opinion a shared desktop can hold about every machine.
+
+The tunnel credentials `cloudflared tunnel create` wrote. Defaults to
+`~/.cloudflared/<id>.json`, which is where it puts them.
+
+Named rather than inlined because it is a secret cloudflared owns and
+rotates on its own terms — haus points at it and never reads it. The
+agent is also gated on this file existing, so a machine that has not run
+the one-time bootstrap gets a dormant agent rather than a crash loop.
+
+Example:
+
+```nix
+"/Users/you/.cloudflared/6209f5f4-f8a2-4501-8af9-a8bb24777a89.json"
+```
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.tunnel.enable` [#haus-github-tunnel-enable]
+
+`boolean` · default `false`
+
+Run `cloudflared` for the hook's public hostname, pointed at the
+receiver's loopback port.
+
+haus writes the ingress config (hostname → `127.0.0.1:<port>`) so the
+port stays a single number in one place, but it never creates the
+tunnel or its credentials: `cloudflared tunnel login`, `tunnel create`
+and `tunnel route dns` are a one-time errand with a browser in it, and
+`haus doctor` carries the card that says so. Until the credentials file
+exists the agent stays dormant rather than crash-looping.
+
+Separate from `enable` because the two are genuinely separable: a Mac
+reachable some other way (a static address, someone else's tunnel, a
+relay) wants the receiver without this.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.tunnel.hostname` [#haus-github-tunnel-hostname]
+
+`string` · default `""` · e.g. `"hooks.example.com"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names something inside one person's GitHub or Cloudflare account — an organisation whose repositories this Mac watches, a hostname you own, the tunnel that carries traffic to your desk. A desktop that set it would point a stranger's machine at your account, and in the webhook's case would tell them where to send deliveries.
+
+The public hostname the tunnel answers on — the same URL entered in
+GitHub's hook settings, minus the scheme and path.
+
+It must already be routed to the tunnel (`cloudflared tunnel route dns
+&lt;tunnel> &lt;hostname>`), which is part of the same one-time errand as
+creating it.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
+#### `haus.github.tunnel.id` [#haus-github-tunnel-id]
+
+`string` · default `""` · e.g. `"6209f5f4-f8a2-4501-8af9-a8bb24777a89"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names something inside one person's GitHub or Cloudflare account — an organisation whose repositories this Mac watches, a hostname you own, the tunnel that carries traffic to your desk. A desktop that set it would point a stranger's machine at your account, and in the webhook's case would tell them where to send deliveries.
+
+The Cloudflare tunnel's UUID, as `cloudflared tunnel create` printed it.
+
+The UUID rather than the name: the name is a label that can be reused
+across accounts, and the credentials file is named for the UUID, so this
+is the one spelling where the config and the credentials cannot end up
+describing different tunnels.
+
+<small>Declared in [`modules/github/options.nix`](https://github.com/hausfold/haus/blob/main/modules/github/options.nix).</small>
+
 ## Windows
 
 Tiling, window navigation, hot corners, and the leader key that launches an app or throws it somewhere — plus macOS's own Stage Manager, edge-drag tiling and desktop clutter, which answer the same question the tiler does. The workspaces themselves (`haus.workspaces`) and the keys haus claims (`haus.keys`) are shared surfaces below, because the bar and the launcher read them too.
@@ -2804,8 +3119,10 @@ with more of the stack peeking out; `0` hides the neighbours
 completely, which makes an accordion workspace look like a fullscreen
 one.
 
-Only read while a workspace is in the accordion layout, whether it got
-there from haus.windows.defaultLayout or from the layout chord.
+Only read while a workspace is in the accordion layout — whether it
+got there from haus.windows.defaultLayout, from the layout chord, or
+from the leader-key tiling dial, which carries accordion as one of its
+three stops.
 
 Only meaningful with haus.windows.enable.
 
@@ -2974,16 +3291,23 @@ haus.keys.windowNav = "none" instead of turning the room off.
 
 `boolean` · default `true` · e.g. `false`
 
-When a ⌘Q leaves the focused workspace empty, pull back to the most
+When the focused workspace loses its last window, pull back to the most
 recently populated one instead of leaving you on a blank screen.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.windows.gravity</span></summary>
 
+Both ways a workspace empties count: a ⌘Q that takes every window of an
+app at once, and the close of the LAST window on a page — a ⌘W on a lane,
+a ⌃D that ends a shell — while that app carries on in windows elsewhere.
+The second matters most on the `T/<repo>` lane pages, which are not
+persistent: without it you were left standing on a page that no longer
+appears in any list, with nothing on it.
+
 It fires only for a workspace you EMPTIED — never for one you
 deliberately navigated to that happens to be empty — so in ordinary use
-it is the difference between quitting the last app on a space and then
+it is the difference between closing the last thing on a space and then
 having to find your way off it.
 
 Turn it off if a screen that changes without you touching it is worse
@@ -2992,7 +3316,7 @@ your behalf: it is the largest movement haus makes that you did not ask
 for, and one whole display's worth of content replaced in a blink is
 exactly what a vestibular trigger looks like.
 
-Needs both `haus.windows.enable` and `haus.bar.enable`: the quit is
+Needs both `haus.windows.enable` and `haus.bar.enable`: the emptying is
 detected from the bar's own event stream (see
 modules/bar/sketchybar/plugins/empty_workspace.sh for why there is no
 AeroSpace hook for it), so with no bar there is no gravity either way.
@@ -3578,7 +3902,7 @@ The menu bar, and which pills it draws.
 
 <div className="hf-optindex">
 
-[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement)
+[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.trill`](#haus-bar-bottom-items-trill) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.trill`](#haus-bar-items-trill) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement)
 
 </div>
 
@@ -3675,8 +3999,9 @@ no workspace pills, no front-app slot, and no notch across its middle.
 
 The set is the five core pills (`clock`, `weather`, `media`, `battery`,
 `wifi`) plus the `haus.bar.items` extras (`cpu`, `memory`, `volume`,
-`calendar`, `caffeinate`, `agents`, `aiUsage`, `elgato`, `harvest`), plus
-the Focus pill when `haus.focus.enable` is on. The whole left side
+`calendar`, `caffeinate`, `trill`, `github`, `agents`, `aiUsage`,
+`elgato`, `harvest`), plus the Focus pill when `haus.focus.enable` is
+on. The whole left side
 (workspace pills, front app, the leader picker) and the tour stay on the
 menu bar.
 
@@ -3764,7 +4089,7 @@ Described under [`haus.bar.items.elgato`](#haus-bar-items-elgato). haus declares
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-The Focus (Do-Not-Disturb) pill. Needs `haus.focus.enable`; setting this moves the pill but does not enable the Focus room by itself.
+The Focus (Do-Not-Disturb) pill, drawn as a moon: a plain crescent while notifications are getting through, a crescent-and-stars on mauve while the Mac is quiet. It wore a bell until the `trill` pill above wanted one — a bell is what a notification IS, and two bells side by side (one struck) made the bar ask you to remember which was which, where every operating system that has ever shipped a Do-Not-Disturb switch has drawn it as a moon. Needs `haus.focus.enable`; setting this moves the pill but does not enable the Focus room by itself.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3780,7 +4105,7 @@ Described under [`haus.bar.items.github`](#haus-bar-items-github). haus declares
 
 `boolean or one of "left", "center", "right"` · default `false`
 
-A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
+Described under [`haus.bar.items.harvest`](#haus-bar-items-harvest). haus declares both from one description, and this page prints it once.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -3797,6 +4122,14 @@ Described under [`haus.bar.items.media`](#haus-bar-items-media). haus declares b
 `boolean or one of "left", "center", "right"` · default `false`
 
 Described under [`haus.bar.items.memory`](#haus-bar-items-memory). haus declares both from one description, and this page prints it once.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.bottom.items.trill` [#haus-bar-bottom-items-trill]
+
+`boolean or one of "left", "center", "right"` · default `false`
+
+Described under [`haus.bar.items.trill`](#haus-bar-items-trill). haus declares both from one description, and this page prints it once.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4260,9 +4593,9 @@ The dropdown section's heading. Empty derives one: the owner and
 
 Which SketchyBar pills to draw, one bool each. The core pills —
 `clock`, `weather`, `media`, `battery`, `wifi` — default true; the extras
-— the readouts `cpu`, `memory`, `volume`, `calendar`, `caffeinate`
-and the personal `agents`, `aiUsage`, `elgato`, `harvest` —
-default false. Set
+— the readouts `cpu`, `memory`, `volume`, `calendar`, `caffeinate`, the
+doors `trill` and `github`, and the personal `agents`, `aiUsage`,
+`elgato`, `harvest` — default false. Set
 only what you want to change:
 
 ```nix
@@ -4314,7 +4647,7 @@ A pill tracking your agent windows, marked with a robot, one mark and a count pe
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.agents</span></summary>
 
-Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `holt hook notify` entry appended beside yours on Notification/Stop, which raises a trill banner when a lane blocks on you or finishes — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `holt hook notify` entry appended beside yours on four events: Notification/Stop raise a trill banner when a lane blocks on you or finishes, UserPromptSubmit/PostToolUse take that banner back down once you have answered — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 </details>
 
@@ -4420,7 +4753,7 @@ With nothing to report it draws no number at all rather than a zero, because a n
 
 `boolean` · default `false`
 
-A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide.
+A Harvest time-tracking pill; needs a ~/.config/sketchybar/harvest_secrets.sh you provide. Click to stop the running timer or restart the last one. Like the Elgato pill it draws dim when Harvest can't be reached, keeping the label that names what was running — an API it can't ask is not the same thing as a timer that isn't running, and the two used to look identical.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -4445,6 +4778,22 @@ The title scrolls for a few seconds after a track changes and then settles, so n
 `boolean` · default `false`
 
 Memory in use, drawn as a graph pill. It counts what Activity Monitor counts — app memory + wired + compressed — and deliberately NOT the file cache: macOS fills idle RAM with cache on purpose, and the old reading counted that as used, which is why it sat near 90% on a machine doing nothing. The pill's COLOUR is the kernel's own pressure level (green normal, amber warning, red critical) rather than the percentage, because 60% of RAM in use is a Mac working correctly and a pill that goes amber for it is a pill you learn to ignore. LEFT-CLICK opens a dropdown with used/total, the cache, compressed and swap figures and then the biggest footprints per app, each row clicking through to that app's window. RIGHT-CLICK opens Activity Monitor on its Memory tab.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.items.trill` [#haus-bar-items-trill]
+
+`boolean` · default `false`
+
+Opens trill's inbox — the notification compositor's history window — in one click, from a bar that is always on screen. It exists because the alternative doesn't work here: trill's own menu-bar item lives in macOS's menu bar, which `haus.bar.enable` hides (`_HIHideMenuBar`), so on a Mac running this desktop the inbox is only reachable by hover-revealing a bar that is meant to stay out of the way.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.bar.items.trill</span></summary>
+
+LEFT-CLICK opens the inbox, RIGHT-CLICK (or ⌥-click) opens it filtered to the asks — the questions parked on trill's ledge that are still waiting on you. The pill draws nothing at all when Trill.app isn't installed, because a control for an app you don't have is noise rather than an invitation; with the app installed but its daemon down it draws dim, which is the same distinction the elgato and harvest pills already make between "switched off" and "can't be reached". It carries no count yet: trill's inbox grew unread state in hausfold/trill#25, but no CLI verb reads it back out, and a badge computed by reading another app's SQLite behind its back is exactly the kind of claim that rots when the schema moves.
+
+</details>
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -5617,6 +5966,52 @@ affordances than have screenshots shelved.
 
 <small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
 
+## Trill
+
+The notification compositor: quiet, scriptable banners with their own rules file, drawn instead of macOS's. haus has *drawn through* trill since `haus-notify` landed — finding it at runtime and falling back to Apple's banner when it isn't there — so this switch is the narrower question of whether haus installs and pins the bundle, at a fixed path its Full Disk Access grant can survive.
+
+### haus.trill
+
+The notification compositor haus already draws through. Trill is the app behind it; this switch is whether haus owns the bundle.
+
+#### `haus.trill.enable` [#haus-trill-enable]
+
+`boolean` · default `false`
+
+The trill notification compositor, installed from its own flake and
+copied to a fixed `/Applications/Trill.app`.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.trill.enable</span></summary>
+
+haus has drawn its banners through trill since `haus-notify` landed, but
+by *finding* it at runtime — PATH, then `~/Applications`, then
+`/Applications` — and falling back to Apple's banner when nothing
+answered. That still works and is still the fallback. What this switch
+adds is the other half: the bundle actually being there, at a path that
+does not move, pinned by this machine's flake lock like every other room.
+
+Why the path is fixed rather than a store path: trill's whole
+`trill doctor` and System Mirror surface is a **Full Disk Access** grant,
+and macOS keys a TCC grant per app *path* and signing identity. A store
+path changes on every version bump, so the grant would drop on the
+rebuild that installed the fix you wanted. `/Applications/Trill.app` is
+where a drag-install or a cask would have put it, so an existing grant
+carries over rather than being asked for again.
+
+Off by default, and not only out of taste: there is no `trill` cask and
+the `trill` command already resolves without this room, so turning it on
+is a decision to have haus own the bundle.
+
+It does **not** put `trill` on PATH — `modules/core/trill.sh` already
+does, for every install source including this one, and a second
+`bin/trill` would be a build-time collision rather than a redundancy.
+
+</details>
+
+<small>Declared in [`modules/trill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/trill/options.nix).</small>
+
 ## Focus
 
 One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges — plus the named states (`scenes`) around it, of which quiet is the built-in one. A scene can carry a `when` (a daily window, a network, the power source, the screens) and be entered for you, on a rule that never overrides a state you chose.
@@ -5968,8 +6363,9 @@ Example:
 
 Also set a Slack status and snooze Slack notifications (all devices,
 phone included) while quiet. Off by default: it needs a personal
-Slack user token (scopes users.profile:write + dnd:write) provided
-via tokenCommand. The previous status is saved and restored on
+Slack user token (scopes users.profile:write + dnd:write), which haus
+asks you for once (`haus-secret --check`) unless tokenCommand names
+another way to fetch it. The previous status is saved and restored on
 turning it off.
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
@@ -6002,19 +6398,18 @@ Slack status text while quiet.
 
 #### `haus.focus.slack.tokenCommand` [#haus-focus-slack-tokencommand]
 
-`string` · default `""`
+`string` · default `""` · e.g. `"op read op://private/slack/token"`
 
 **Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in, so it belongs to one person on one Mac.
 
 Shell command that prints the Slack user token (xoxp-…) to stdout.
-Keychain-first so no secret ever lands in the store or a dotfile:
-  security add-generic-password -s focus-slack -a $USER -w 'xoxp-…'
+A command rather than a value so no secret ever lands in the store or
+a dotfile.
 
-Example:
-
-```nix
-"security find-generic-password -s focus-slack -w"
-```
+EMPTY (the default) means haus holds it: with `slack.enable` on, this
+room declares SLACK_USER_TOKEN to the secrets room, `haus-secret
+--check` asks for it once, and `haus.secrets.provider` decides where
+it is kept. Set this only to fetch the token some other way.
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
@@ -6045,7 +6440,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
@@ -6216,6 +6611,67 @@ Example:
   Ship small, verified changes; ask before anything hard to reverse…
 ''
 ```
+
+<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
+
+#### `haus.ai.keepAwake` [#haus-ai-keepawake]
+
+`one of "off", "idle", "lid"` · default `"off"` · e.g. `"idle"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Sleep and power behaviour depends on the machine underneath it: whether it has a battery at all, and how this particular one is carried around.
+
+Let agents hold this Mac awake while they are mid-turn.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.ai.keepAwake</span></summary>
+
+Three stops, each one deeper than the last:
+
+`off` (the default) -- agents get no say. macOS sleeps on its own
+schedule and a run that was still going is simply over.
+
+`idle` -- a `caffeinate` assertion for exactly as long as an agent is
+working. This is the gap most people actually hit: with the lid OPEN
+and nobody at the keyboard, `haus.power.displaySleep` and
+`haus.power.computerSleep` end an overnight run without anything having
+closed. Needs no privilege, and works on battery, because closing the
+lid still sleeps the Mac, so the closed-laptop-cooking-in-a-bag case
+this stop cannot cause.
+
+`lid` -- the above, plus turning on `haus.power.lidAwake`, whose root
+daemon holds macOS's `disablesleep`. That is the only lever that
+crosses a lid close, and shutting the lid is the one gesture everybody
+reads as "stop", so it is the stop you have to name deliberately.
+
+The signal is the one the bar's agents pill already draws, reported by
+every client haus knows, and an agent parked at a permission prompt
+does NOT hold: it is blocked on a human who is not there.
+
+What this sets rather than owns: `lid` writes
+`haus.power.lidAwake.enable` at `mkDefault`, so a host that names that
+option itself always wins and is told, in a warning, that it did. How
+long a hold lingers past the last turn and how long one may last stay
+where the machinery is (`haus.power.lidAwake.linger` and `.maxHold`),
+and both stops read them -- this is a switch, not a second copy of the
+dial.
+
+Two knobs there do NOT reach this option. `requirePower` guards the
+**lid** hold only: its argument is that nothing can stop a closed
+laptop cooking in a bag, and at the `idle` stop the lid still sleeps
+the Mac, so an unplugged laptop sitting open on a desk is exactly the
+case worth protecting. And `while = "always"` -- plain closed-display
+mode -- shapes the lid daemon alone; this option means "while my agents
+work" at both stops and never turns into an unconditional hold.
+
+Host-only, so a shared desktop may not set it: `lid` reaches into
+`haus.power.*`, which is a namespace about one machine's hardware, and
+starts a root daemon there.
+
+Needs `ai.enable`: the hold signal is written by the agent hooks this
+room installs, so with the room off nothing would ever report a turn.
+
+</details>
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
 
@@ -6810,6 +7266,24 @@ password when `enable` is false) and nothing else changes.
 
 Where secret values come from on this machine.
 
+#### `haus.secrets.project` [#haus-secrets-project]
+
+`string matching the pattern [A-Za-z0-9_-]+` · default `"haus"` · e.g. `"nix"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in, so it belongs to one person on one Mac.
+
+The secretspec PROJECT name the room-declared manifest carries, which
+is the namespace its values are stored under: on the keyring provider
+two projects asking for GITHUB_TOKEN are two separate keychain items.
+
+The default keeps this machine's rooms in their own namespace, which
+is what you want on a fresh Mac. Point it at a project you already
+have — the name in your config flake's own secretspec.toml, usually —
+and any value already entered there under the same secret NAME is
+found straight away, with nothing to re-enter and nothing duplicated.
+
+<small>Declared in [`modules/secrets/options.nix`](https://github.com/hausfold/haus/blob/main/modules/secrets/options.nix).</small>
+
 #### `haus.secrets.provider` [#haus-secrets-provider]
 
 `null or string` · default `"keyring"` · e.g. `"gcsm"`
@@ -6830,8 +7304,10 @@ Manager), "awssm" (AWS Secrets Manager), "vault", "pass",
 
 <summary>More detail<span className="sr-only"> on haus.secrets.provider</span></summary>
 
-WHICH secrets exist is not declared here — that's each project's
-committed secretspec.toml. Cloud providers authenticate with their own
+WHICH secrets a PROJECT needs is still that project's own committed
+secretspec.toml. What the ROOMS on this machine need is declared by
+the rooms themselves and rendered to ~/.config/haus/secretspec.toml —
+see `haus-secret --list`. Cloud providers authenticate with their own
 credentials, configured outside Nix (e.g. `gcloud auth
 application-default login` for gcsm); that login is the one manual
 step on a new Mac. null skips writing the config file entirely — run
@@ -8103,9 +8579,11 @@ Minutes one unbroken hold may last, or `"never"` for no cap.
 The failsafe. A client that dies without reporting leaves a hold
 behind, and without this the Mac would simply never sleep again
 with nothing on screen to say why. Past the cap the hold releases
-and refuses to re-arm until the signal has actually cleared, so a
-stuck hold costs one window rather than forever. 8 hours by
-default -- long enough for an overnight run.
+and stays off until either the holds clear or an agent starts a
+fresh turn -- so a stuck hold costs one window rather than
+forever, and a leaked one, which nothing will ever remove, still
+gets out of a real agent's way. 8 hours by default -- long enough
+for an overnight run.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
