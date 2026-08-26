@@ -367,16 +367,22 @@ perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix. holt
 clears the bar and has no tree yet; nebelung (a palette) and a desktop do not
 clear it at all.
 
-> 🚨 **`trill` is a tab that does NOT clear that bar** — it is there on the
-> user's explicit instruction. Record it as the exception it is, don't cite it
-> as precedent. trill has no release, no download and no cask, so there is
-> nothing a stranger can install. (`haus.trill.enable` exists as of
-> hausfold/haus#515, and installs the release ZIP that does not exist yet, so it
-> moves nothing about the bar this tree has to clear.) Its tree is **one page**
-> whose first paragraph
-> is a `warn` callout saying exactly that, which is the condition on the
-> exception. **Don't grow it past that page** without something to install, and
-> don't read it as lowering the bar for a fifth tab.
+> 🚨 **`trill` is a tab that was admitted WITHOUT clearing that bar** — it is
+> there on the user's explicit instruction. Record it as the exception it is,
+> don't cite it as precedent. It went in when trill had no release, no download
+> and no cask, so there was nothing a stranger could install; its tree is **one
+> page** whose first paragraph is a `warn` callout saying exactly that, which is
+> the condition on the exception. `haus.notifications.compositor` (hausfold/haus
+> #515, renamed out of `haus.trill.enable` in #521) installs the bundle, which
+> moved nothing about the bar either way.
+>
+> ⚠️ **That condition has since moved and nobody has ruled on it.** trill cut
+> notarized releases on 2026-08-25 and 2026-08-26, so the download half of "no
+> release, no download, no cask" is no longer true and the tree's `warn` callout
+> and `content/docs/trill/index.mdx` both still say it is. Whether the tab now
+> clears the bar on its own, and what the callout should say, is the user's call
+> and not a tidy-up. Until they make it: **don't grow the tree past that page**,
+> and don't read any of this as lowering the bar for a fifth tab.
 
 **A new tree owes four things**, each easy to forget separately: an entry in
 `content/docs/meta.json`'s `pages`; a `meta.json` of its own with `"root":
@@ -402,10 +408,10 @@ bare "see also"; and the prev/next pair the layout renders. **No page should end
 without a door out of it.** Length still costs.
 
 ⚠️ **Don't put a *count* of the rooms on a page.** `content/docs/haus/index.mdx`
-says twelve and lists twelve; `meta.json`'s `---Rooms---` group holds thirteen
-entries and always will hold more, because the last is `rooms/creating` — how to
-write a room, which is not one. Count the twelve in `index.mdx`'s table, never
-the sidebar group.
+says thirteen and lists thirteen; `meta.json`'s `---Rooms---` group holds
+fourteen entries and always will hold more, because the last is `rooms/creating`
+— how to write a room, which is not one. Count the rows in `index.mdx`'s table,
+never the sidebar group.
 
 **A room page documents the room** — the haus wiring, the options, what turns
 on. Everything about the app itself lives in the app's own tree.

@@ -103,6 +103,11 @@ const icons = {
   hammer: { icon: Hammer },
   display: { icon: MonitorCog },
   shelf: { icon: Inbox },
+  // The Notifications room, sharing the trill tree's Bell without its hue:
+  // the same pairing `shelf` already has with `perch`. The room page is a
+  // row inside the haus tree and takes its mauve; the hue belongs to the
+  // switcher glyph, which has to stay legible beside the other three.
+  notifications: { icon: Bell },
   expand: { icon: TextCursorInput },
   shield: { icon: ShieldCheck },
   choose: { icon: ListChecks },
