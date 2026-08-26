@@ -1,22 +1,25 @@
-import Link from 'next/link';
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
-// The three pieces of chrome every hand-written page repeated verbatim: the
-// breadcrumb, the colophon, and the GitHub mark inside it. They were copied
-// eight times because `public/` had no template; they are components now for
+// The pieces of chrome every hand-written page repeated verbatim: the
+// colophon and the GitHub mark inside it. (A `Crumbs` breadcrumb was the
+// third until 2026-08-26, when `/perch` — its last caller — was retired into
+// `/docs/perch`; `.crumbs` left `public/hausfold.css` in the same commit.)
+// They were copied eight times because `public/` had no template; they are
+// components now for
 // the same reason `src/lib/page-meta.ts` exists — AGENTS.md's "a change to one
 // is a change to all of them, and nothing checks" was a description of the
 // problem, not of a rule anyone could keep.
 //
 // The markup is unchanged, class for class. Every style these carry is in
-// `public/hausfold.css` (`.crumbs`, `.colophon`, `.colophon .gh`), which
+// `public/hausfold.css` (`.colophon`, `.colophon .gh`), which
 // `src/app/global.css` imports — so this is a move, not a restyle.
 
 /** The house's own GitHub link, in the colophon. Every `.sheet` route with a
  *  colophon carries it as of 2026-08-16, when `/terms` and `/refunds` were
  *  retired: they were the pages that pointed at the privacy policy instead,
- *  and `/perch` was the page that pointed at them. `/perch/privacy` is the one
- *  sheet with no colophon at all, and writes its own footer. */
+ *  and `/perch` was the page that pointed at them — itself retired on
+ *  2026-08-26. `/perch/privacy` is the one sheet with no colophon at all, and
+ *  writes its own footer. */
 export function GithubMark() {
   return (
     <a
@@ -49,21 +52,17 @@ const PRE_RELEASE_NOTE =
  *  mark until 2026-08-16, when the user cut it — the broadsheet conceit ends
  *  at the masthead now, and the stage mark pushes itself right.)
  *
- *  `note` overrides the pre-release sentence for a page that can make a more
- *  specific promise; `/perch` is the only one that does, because perch#57 let
- *  it say what the shelf actually does rather than the general thing. The
- *  bubble is drawn
+ *  There was a `note` prop here, overriding the sentence for a page that
+ *  could make a more specific promise. `/perch` was the only caller it ever
+ *  had — perch#57 let it say what the shelf actually does rather than the
+ *  general thing — and it went with that page on 2026-08-26. The sentence is
+ *  the same on every colophon again; `data-note` stays, because the bubble
+ *  still reads it. The bubble is drawn
  *  in the page (`.stage[data-note]` in `public/hausfold.css`), not by a native
  *  `title` — a `title` on a mark this small waits a second and then paints in
  *  OS chrome, which reads as broken. `tabIndex`/`aria-label` are what make it
  *  reachable without a mouse. */
-export function Colophon({
-  children,
-  note = PRE_RELEASE_NOTE,
-}: {
-  children?: ReactNode;
-  note?: string;
-}) {
+export function Colophon({ children }: { children?: ReactNode }) {
   return (
     <footer className="colophon">
       <a href="mailto:julien@hausfold.co">julien@hausfold.co</a>
@@ -72,8 +71,8 @@ export function Colophon({
         className="stage"
         tabIndex={0}
         role="note"
-        aria-label={`Pre-release. ${note}`}
-        data-note={note}
+        aria-label={`Pre-release. ${PRE_RELEASE_NOTE}`}
+        data-note={PRE_RELEASE_NOTE}
       >
         Pre-release
       </span>
@@ -81,30 +80,3 @@ export function Colophon({
   );
 }
 
-/** The breadcrumb an inner page opens on instead of the ⌂. `trail` is
- *  everything before the current page. Every remaining `.sheet--inner` page
- *  passes a single entry — hausfold, then the page. The three
- *  `/desktops/<name>` pages passed two (hausfold ▸ desktops), and were the
- *  only ones that ever did; they were deleted on 2026-08-14, so nothing here
- *  currently exercises a trail longer than one. It still takes a list. */
-export function Crumbs({
-  trail,
-  current,
-}: {
-  trail: { href: string; label: string }[];
-  current: string;
-}) {
-  return (
-    <nav className="crumbs" aria-label="Breadcrumb">
-      {trail.map((crumb) => (
-        <Fragment key={crumb.href}>
-          <Link href={crumb.href}>{crumb.label}</Link>
-          <span className="sep" aria-hidden="true">
-            /
-          </span>
-        </Fragment>
-      ))}
-      <span aria-current="page">{current}</span>
-    </nav>
-  );
-}

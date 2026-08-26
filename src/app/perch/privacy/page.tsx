@@ -89,8 +89,14 @@ export default function Privacy() {
               2026-08-08, which is AGENTS.md's "a link moves inward on the day
               the inward page exists" left unpaid for six days. The port
               carried it across untouched (it changed no copy anywhere), then
-              this went in on its own. */}
-          <Link href="/perch">hausfold.co/perch</Link>.
+              this went in on its own.
+
+              🚨 Retargeted 2026-08-26, when `/perch` was retired into the
+              docs tree. It is the App Store's own page: a link that leans on
+              the 301 would be advertising a URL that is not a page any more,
+              on the one surface here a third party requires to resolve. The
+              visible text changes with the href, always. */}
+          <Link href="/docs/perch">hausfold.co/docs/perch</Link>.
         </p>
       </footer>
     </main>

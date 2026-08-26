@@ -15,7 +15,7 @@ deploys it.
 
 | | |
 |---|---|
-| **the pages** — `/` the house, `/haus` the layer, `/perch` (`/perch/privacy`) | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own |
+| **the pages** — `/` the house, `/haus` the layer, `/perch/privacy` (perch's policy URL, linked from the App Store) | routes under `src/app/`. greyscale at rest, two faces, almost no script of our own. no product sheets: `/perch` was the last one and it retired into its docs tree on 2026-08-26 |
 | **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, plus a tree each for [pounce](https://hausfold.co/docs/pounce), [perch](https://hausfold.co/docs/perch) and [trill](https://hausfold.co/docs/trill) | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell them apart with the page upside down |
 | **the three routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
 

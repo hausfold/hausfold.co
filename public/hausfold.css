@@ -60,16 +60,16 @@
             Safari — same mark, same script, but --ink on crust with no
             accent sweep, so it stays outside this exception rather
             than extending it.
-   Shots:   the frames on /perch are placeholders on purpose — drawn in
-            CSS, no image files. /perch is the only page that has any as
-            of 2026-08-14: the landing page's catalogue was cut to one
-            sentence and a link, and the three /desktops/<name> pages
-            were deleted outright, so .gallery went with them. The
-            family's only real desktop capture is hausfold/assets/hero.png,
-            which the workshop's SHOTLIST.md still calls a placeholder
-            itself. A grey frame that says what it is beats a stale
-            screenshot that lies, and it keeps the site greyscale until
-            there's a shot worth spending colour on.
+   Shots:   there are none, anywhere, since 2026-08-26. The dashed
+            placeholder frames were /perch's alone, and that page was
+            retired into /docs/perch; .shot went with it, as .gallery went
+            with the /desktops/<name> pages before it. The family's only
+            real desktop capture is hausfold/assets/hero.png, which the
+            workshop's SHOTLIST.md still calls a placeholder itself. A
+            grey frame that says what it is beats a stale screenshot that
+            lies — and no frame at all beats both, which is where this
+            site is until there's a shot worth spending colour on. A real
+            capture belongs in the docs tree, as an image, not here.
    Column:  left-leaning, not centred — see .sheet. The measure is
             unchanged; only where it sits moved. It leaned RIGHT for a
             few hours on 2026-08-14 and the user reversed it the same
@@ -312,8 +312,11 @@ body {
   gap: clamp(3rem, 7vw, 4.75rem);
 }
 
-/* Subpages open on a breadcrumb rather than the ⌂, so the top of the
-   sheet is tighter than the landing page's masthead needs. */
+/* An inner page opens on a nav row rather than the ⌂, so the top of the sheet
+   is tighter than the landing page's masthead needs. `/haus` and its `.topnav`
+   are the only page spending this class since 2026-08-26, when `/perch` — the
+   last one to open on a `.crumbs` breadcrumb — was retired; see the breadcrumb
+   note below. */
 .sheet--inner {
   padding-top: clamp(2.25rem, 6vw, 4rem);
   gap: clamp(2.5rem, 6vw, 3.75rem);
@@ -328,16 +331,15 @@ body {
 }
 
 /* The landing half's nav, added 2026-08-14 for the front page's two words.
-   `.crumbs` is the same vocabulary — small mono, --ink-3, no box — because
-   this site has no nav bar and isn't getting one.
+   Small mono, --ink-3, no box, because this site has no nav bar and isn't
+   getting one.
 
    ⚠️ As of 2026-08-18 the front page carries none of this: `/` had shrunk
    to a single `github` link above a 5rem mark, and the user cut it (the
-   colophon has the same link). The one page left spending this class is
-   `/haus`, so it is live style, not dead style — but note the old
-   forward-vs-up split between this and `.crumbs` went with `/`'s nav:
-   `/haus`'s three words are a way back up AND two ways onward, which is
-   what an inner page that is also a front door needs.
+   colophon has the same link). `/haus` is the one page left spending this
+   class, so it is live style, not dead style — and since `/perch` was
+   retired on 2026-08-26 it is the only nav row on the landing half at all:
+   `.crumbs`, the up-only form, had no users left and was deleted.
 
    Left-aligned, onto the column's own left edge — the same axis the ⌂, the
    wordmark and every paragraph below it start on. It was flush RIGHT for
@@ -544,31 +546,16 @@ body {
 [data-accent="nebelung"] { --accent: var(--a-nebelung); }
 [data-accent="trill"] { --accent: var(--a-trill); }
 
-/* --- breadcrumb --------------------------------------------------- */
+/* --- breadcrumb: removed 2026-08-26 ------------------------------- */
 
-/* An inner page's whole navigation: two or three words of mono at the top,
-   with the current page not a link — enough to get back up, not a nav bar.
-   `.topnav` above is the roomier form, for a page that points onward as
-   well as up. Between them that is all the chrome this site has, and `/`
-   now has neither: the front door's nav went on 2026-08-18. */
-.crumbs {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.78rem;
-  color: var(--ink-3);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
-}
-
-.crumbs .sep {
-  color: var(--rule);
-  user-select: none;
-}
-
-.crumbs [aria-current="page"] {
-  color: var(--ink-2);
-}
+/* `.crumbs`, `.crumbs .sep` and `.crumbs [aria-current]` were an inner page's
+   whole navigation — two or three words of mono, the current page not a link.
+   `/perch` was the last page that opened on one, and it was retired into
+   `/docs/perch` on 2026-08-26; `/perch/privacy` writes its own eyebrow in
+   `privacy.module.css`, and `/haus` uses the roomier `.topnav` above because
+   it points onward as well as up. Zero users, so deleted rather than kept warm
+   — and `Crumbs` went out of `src/components/sheet.tsx` in the same commit,
+   because a component nothing renders is the same debt in another file. */
 
 /* --- the break-out plates: removed 2026-08-14 ---------------------- */
 
@@ -588,65 +575,20 @@ body {
    site that broke out of the 41rem measure; the geometry it needed is
    recorded at `.sheet` rather than kept as unrendered CSS.
 
-   What did NOT go: `.shot`, `.shots` and `.shot--wide` below, which /perch
-   still uses — inside the measure, stacked, because its frames sit inside an
-   argument the reader is mid-way through. */
+   `.shot`, `.shots` and `.shot--wide` outlived that day by twelve, because
+   /perch still used them; they went on 2026-08-26 with the page. See below. */
 
-/* --- the shot frames ---------------------------------------------- */
+/* --- the shot frames: removed 2026-08-26 -------------------------- */
 
-/* Deliberately empty. A dashed hairline and a mono caption saying what
-   the picture will be — never a fake screenshot, never a stock image.
-   When a real capture exists, drop an <img> inside and delete the
-   <span> label beside it. */
-.shot {
-  aspect-ratio: 16 / 10;
-  border: 1px dashed var(--rule);
-  border-radius: 3px;
-  background: var(--well);
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-}
-
-.shot span {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--ink-3);
-  text-align: center;
-  text-wrap: balance;
-  line-height: 1.5;
-}
-
-.shot img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
-/* Two small frames beside each other on anything wider than a phone,
-   stacked below. No carousel, no lightbox — they're pictures. This is
-   still what /perch uses: two or three views of an app,
-   inside the measure, where the reader is not going anywhere. (/pounce
-   used it too, until it became a docs tree on 2026-08-14.) */
-.shots {
-  display: grid;
-  gap: 0.9rem;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-}
-
-/* Letterbox, not a void. A 16:9 empty frame is 400px of nothing and
-   reads as a broken image; a banner-shaped one reads as a slot. Give
-   it 16:9 back on the day it holds a real capture. */
-.shot--wide {
-  aspect-ratio: 2.4 / 1;
-}
-
-.shots .shot--wide {
-  grid-column: 1 / -1;
-}
+/* `.shot`, `.shots` and `.shot--wide` were the dashed placeholder frames —
+   never a fake screenshot, never a stock image — and `/perch` was their last
+   user. That page was retired into `/docs/perch` on 2026-08-26 and the classes
+   went with it, on the same rule as the plates above: a class with zero users
+   is deleted rather than kept warm. `git log -- public/hausfold.css` has them.
+   The rule they encoded outlives them and is in AGENTS.md: a picture that lies
+   about what the app looks like today is worse than admitting there isn't one.
+   A real capture lands in the docs tree as an image, which is fumadocs' job,
+   not this file's. */
 
 /* --- sections ------------------------------------------------------ */
 

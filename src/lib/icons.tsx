@@ -68,8 +68,9 @@ const icons = {
   // `pounce` was an outward link to /pounce until that page was retired into
   // this tree; it is the same glyph and the same hue, promoted. `perch` was
   // the sidebar's way-out row to /perch and was promoted the same way when
-  // perch got a tree on 2026-08-14 — the product page stayed, so the row is
-  // gone and this glyph now means the tree.
+  // perch got a tree on 2026-08-14. The product page outlived the row by
+  // twelve days and was retired on 2026-08-26, so there is nothing outward
+  // left for either glyph to mean: both name a tree.
   layer: { icon: Layers, hue: 'nebelung' },
   pounce: { icon: Command, hue: 'pounce' },
   perch: { icon: Inbox, hue: 'perch' },

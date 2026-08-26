@@ -55,14 +55,15 @@ which is the tone these pages are for; a 1200×630 sheet with a wordmark centred
 on it is the tone they aren't. Every validator flags its absence. That flag is
 not a bug report.
 
-**The screenshot frames are empty**, drawn in CSS and labelled `[ shot not taken
-yet ]` — and `/perch` is the only page that still draws any, the desktop pages
-having been retired into the docs. There is no real capture of the hacker
-desktop yet, and a picture
-that lies about what the desktop looks like today is worse than a grey box that
-admits it hasn't got one. Drop an image in when one exists — note
-`images: { unoptimized: true }`, since `next/image`'s optimizer is a server and
-there isn't one.
+**There are no screenshots at all.** There were empty frames, drawn in CSS and
+labelled `[ shot not taken yet ]`; `/perch` was the last page that drew any, and
+when it retired into its docs tree on 2026-08-26 the `.shot` classes went with
+it. There is still no real capture of the hacker desktop, and a picture that
+lies about what the desktop looks like today is worse than a grey box that
+admits it hasn't got one — with no sheet left to reserve a slot on, no box beats
+both. A real capture, when one exists, goes in the docs tree it documents; if a
+landing page ever takes one, note `images: { unoptimized: true }`, since
+`next/image`'s optimizer is a server and there isn't one.
 
 There's a nice tension here worth naming: a real capture of hacker is
 wall-to-wall nebelung, so the day one lands is the day the site stops being

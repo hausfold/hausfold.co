@@ -104,8 +104,9 @@ export default async function Haus() {
     <main className="sheet sheet--inner">
       <header className="masthead">
         {/* Three words, in `/`'s own two-word vocabulary. The first is the way
-            back up, which is the job `.crumbs` does on every other inner
-            sheet — this page merges the two navs into one row rather than
+            back up, which was the job `.crumbs` did on the other inner sheets
+            until the last of them went on 2026-08-26 — this page merges the
+            two navs into one row rather than
             stacking a breadcrumb over a nav, because they are the same size,
             the same ink and the same axis, and two rows of micro-mono at the
             top of a page reads as chrome rather than as navigation.
