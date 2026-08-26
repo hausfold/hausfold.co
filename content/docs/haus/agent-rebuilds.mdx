@@ -52,9 +52,14 @@ names its own, and `haus.ai.skill` puts all of them beside each other in the
 same per-client directory. Today that is `holt` (the agent-worktree lifecycle:
 what's open, resume a parked lane, set work aside without `git stash`) and
 `handoff` (turning a piece of work into a brief a cold session can act on,
-ending on the clipboard or in a new lane). Each tool owns and versions its own
-skill; haus only decides that they are installed, so a lock bump can bring a
-better one without a change here.
+ending on the clipboard or in a new lane). A tool whose room is *optional* joins
+them only when you switch that room on: `trill` (sending a notification through
+the compositor) arrives with [`haus.trill.enable`](/docs/haus/reference/options),
+because a skill for an app your Mac doesn't have is worse than none. That switch
+is about the room rather than the app — `haus-notify` finds a Trill.app you
+installed yourself either way, but the skill waits for the room. Each tool owns
+and versions its own skill; haus only decides that they are installed, so a lock
+bump can bring a better one without a change here.
 
 <Callout type="tip" title="Check it's there">
 `haus doctor` has an **Agents** section: whether the `haus` skill is installed (it
