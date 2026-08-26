@@ -51,9 +51,14 @@ name = "hausfold"
 main = "worker.js"
 compatibility_date = "2026-08-04"
 
+# `perch.hausfold.co` is a SHORT URL, not a third site: worker.js 301s it to
+# /docs/perch/install/ (see SHORT_DOMAINS there, and the rule it obeys). It is a
+# custom domain for the same reason the two above are — the zone has no DNS
+# records, so wrangler has to create and proxy the record itself.
 routes = [
   { pattern = "hausfold.co", custom_domain = true },
   { pattern = "www.hausfold.co", custom_domain = true },
+  { pattern = "perch.hausfold.co", custom_domain = true },
 ]
 
 # `binding = "ASSETS"` is what lets worker.js hand a request it doesn't claim
@@ -63,6 +68,26 @@ routes = [
 directory = "./out"
 binding = "ASSETS"
 not_found_handling = "404-page"
+
+# 🚨 The ONE path where the Worker has to run before the asset server, and the
+# whole reason `perch.hausfold.co` works. Assets short-circuit by PATH and know
+# nothing about hostname, so `perch.hausfold.co/` matches `out/index.html` and
+# serves hausfold.co's landing page under the wrong domain — with worker.js
+# never invoked and its redirect never reached.
+#
+# Scoped to `/` rather than `true` on purpose: `true` would put the Worker in
+# front of every request to every page on the site, which the header above says
+# this config deliberately avoids. The cost of `["/"]` is one Worker invocation
+# on the site's own landing page, which is a route that does no fetching and
+# hands straight back to ASSETS.
+#
+# The residue: a DEEP path on the short domain (`perch.hausfold.co/docs/...`)
+# still matches an asset and is served rather than redirected, so the site is
+# reachable under two hostnames there. Every page carries an absolute canonical
+# pointing at hausfold.co (src/lib/page-meta.ts), which is the standard answer
+# to that. If it ever needs to be airtight, `run_worker_first = true` closes it
+# at the cost above.
+run_worker_first = ["/"]
 
 # Optional hard pin: uncomment and set REF to a tag to force every
 # `/<desktop>.sh` at that ref for everyone, regardless of the latest release.

@@ -1,6 +1,6 @@
 ---
 title: Install
-description: One brew command, or a signed download, and the one macOS setting that steals the drop if you leave it on.
+description: The one macOS setting to turn off first, a download or one brew command, and pairing the phone. Ten minutes, no terminal needed.
 icon: install
 related:
   - title: "Using the shelf"
@@ -13,67 +13,82 @@ related:
     icon: "shield"
 ---
 
+perch is two halves: the shelf on your Mac, and a free companion app that
+throws things at it from your phone. Do the Mac first — the phone pairs *to*
+it.
+
+You need **macOS 14** or newer, and **iOS 18** or newer for the phone half. A
+notch is nice, not required: the shelf works on any Mac and any display, and
+sits at the top middle of the screen where there's no camera housing. Nothing
+here needs a terminal.
+
+## 1. Turn one macOS setting off
+
+Do this before you install anything, or your very first drag will vanish and
+perch will look broken by the only gesture it has.
+
+In **System Settings ▸ Desktop & Dock**, scroll to **Mission Control** and turn
+*off* **"Drag windows to top of screen to enter Mission Control"**.
+
+macOS arms that top-edge trigger for the whole of any drag — files included,
+despite the setting's name — and it fires over the same band the shelf lives
+in. Leave it on and the Dock takes your drop into Mission Control before perch
+ever sees it. It's the only thing perch asks of your Mac, it's reversible in
+the same place, and a [haus](/docs/haus) machine flips it for you.
+
+## 2. Get perch
+
+The [**latest release**](https://hausfold.co/download/perch) is a signed,
+notarized download: unzip it and drag `Perch.app` into your **Applications**
+folder. Gatekeeper clears it, so you get macOS's ordinary *"downloaded from the
+Internet, are you sure?"* confirmation the first time you open it and nothing
+else — no *unidentified developer* block, no right-click-Open, no `xattr`.
+
+Or, if you have Homebrew:
+
 ```sh
 brew install --cask hausfold/tap/perch
 ```
 
-That's the whole install. No account, no sign-in, no licence key.
+Same build either way. No account, no sign-in, no licence key.
 
-Prefer a download? The [latest release](https://hausfold.co/download/perch) is
-the same build, signed with our Apple Developer ID and notarized, so it opens
-straight away with no Gatekeeper prompt and no quarantine hack.
+**There is no Dock icon** — that's deliberate. After you open it, look for a
+small tray icon in your menu bar, top right. That's perch, and it's how you
+reach Settings.
 
-On Nix, the flake wraps that same notarized build: add
-`github:hausfold/perch` as an input and its `overlays.default` puts `perch` in
-your pkgs.
+## 3. Turn on Launch at Login
 
-## Turn one macOS setting off
+Menu bar tray icon ▸ **Settings…** ▸ **General** ▸ **Launch at Login**.
 
-In **System Settings ▸ Desktop & Dock**, turn *off* **"Drag windows to top of
-screen to enter Mission Control"**.
+Without it perch is gone after your next restart, which is an odd way to find
+out you liked it. It comes back in the menu bar only: no window, no Dock icon.
 
-macOS arms that top-edge trigger for the whole of any drag, files included,
-and it fires over the same band the shelf lives in. Leave it on and the Dock
-steals the drop. It's the only thing perch asks of your Mac, and a haus
-machine flips it for you.
+## 4. Try it
 
-## What it needs
+Grab any file and start dragging it *up toward the notch*. A shelf drops down
+to catch it. Let go.
 
-- **macOS 14** or newer.
-- **A notch is nice, not required.** The shelf works on any Mac and on any
-  display.
-- **Nothing else.** perch asks for none of the permissions that make a Mac app
-  feel invasive: no Accessibility, no Input Monitoring, no Screen Recording.
+Pile in as much as you like, from as many places as you like, then drag a tile
+back out to wherever it's actually going. Your originals never move — perch
+copies in and copies out. [Using the shelf](/docs/perch/using) is what to read
+next.
 
-## The command line
+## 5. The phone half
 
-`perch add` ships **inside** the app, at
-`Perch.app/Contents/MacOS/perch-cli`, so it is signed and notarized with it and
-can never drift from the shelf it talks to. It isn't on your PATH by itself.
-Link it out once:
+[**Perch Companion**](https://apps.apple.com/app/id6799443735) is free on the
+App Store, for iPhone and iPad.
 
-```sh
-ln -s /Applications/Perch.app/Contents/MacOS/perch-cli /usr/local/bin/perch
-```
+To pair it, once:
 
-On a haus machine the Shelf room does that for you. [Using the
-shelf](/docs/perch/using) has what it does with a path once it has one.
+1. On the **Mac**: menu bar tray icon ▸ **Settings…** ▸ **Devices** ▸
+   **Pair a Device…**, which shows a QR code.
+2. On the **phone**: open Perch Companion and scan it.
 
-## On a haus machine
-
-If your Mac runs [haus](/docs/haus), let the Shelf room own perch instead; it
-installs it and keeps it current with everything else, and survives a rebuild:
-
-```nix
-haus.shelf.enable = true;
-```
-
-```sh
-haus rebuild
-```
-
-If you already installed it with Homebrew, letting the room own it is the
-upgrade. [The Shelf room](/docs/haus/rooms/shelf) has the one option it adds.
+After that, share anything from the phone — photos, files, links, text — and it
+lands on the Mac's shelf. It goes over your own network, or straight
+phone-to-Mac with no network at all, over the same radio AirDrop uses. Nothing
+passes through a server; there isn't one, and the link is encrypted end to end.
+Settings ▸ Devices tears the listener down if you'd rather it weren't there.
 
 ## Updating
 
@@ -87,3 +102,48 @@ installed perch and does the right thing for that install: it copies
 `brew upgrade --cask perch`, `haus update` or `nix flake update perch`, or
 opens the release page for a drag install. Settings ▸ Updates turns the check
 off altogether.
+
+## The terminal half
+
+Everything above is the whole app. These two are for people who want perch in a
+script.
+
+### `perch add`
+
+The command line ships **inside** the app, at
+`Perch.app/Contents/MacOS/perch-cli`, so it is signed and notarized with it and
+can never drift from the shelf it talks to.
+
+The cask and the Nix flake both put it on your PATH as `perch`, and on a haus
+machine the Shelf room does. If you installed by dragging the app, link it
+yourself, once:
+
+```sh
+ln -s /Applications/Perch.app/Contents/MacOS/perch-cli /usr/local/bin/perch
+```
+
+[Using the shelf](/docs/perch/using) has what it does with a path once it has
+one.
+
+### Nix
+
+The flake wraps the same notarized build rather than compiling from source: add
+`github:hausfold/perch` as an input and its `overlays.default` puts `perch` in
+your pkgs.
+
+## On a haus machine
+
+If your Mac runs [haus](/docs/haus), let the Shelf room own perch instead; it
+installs it, turns the Mission Control setting off for you, and keeps perch
+current with everything else, surviving a rebuild:
+
+```nix
+haus.shelf.enable = true;
+```
+
+```sh
+haus rebuild
+```
+
+If you already installed it with Homebrew, letting the room own it is the
+upgrade. [The Shelf room](/docs/haus/rooms/shelf) has the one option it adds.
