@@ -19,6 +19,14 @@
 # installer change before it becomes the install command, since those three are
 # the part of this site no local file shows.
 #
+# `run_worker_first` tracks it as well, and has to: without it the asset server
+# short-circuits every path it can match and `not_found_handling = "404-page"`
+# answers the rest, so `/hacker.sh` and friends 404 on the preview URL while
+# production serves them. That is the same failure #159 fixed in production and
+# the same one preview.yml's routes check exists to prevent a version of — a PR
+# whose installer change looks fine here precisely because the Worker never ran.
+# worker.yml asserts both configs carry it.
+#
 # ⚠️ One dimension it can NOT reproduce: Cloudflare's Cache API is a no-op on
 # workers.dev, so the ~1h release-tag cache never holds here and every preview
 # request hits api.github.com unauthenticated. Past the shared-IP rate limit
@@ -34,3 +42,4 @@ workers_dev = true
 directory = "./out"
 binding = "ASSETS"
 not_found_handling = "404-page"
+run_worker_first = true

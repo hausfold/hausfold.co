@@ -73,7 +73,8 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      # 🚨 The check that `npm test` structurally cannot do.
+      # The check that `npm test` structurally cannot do — when the edge lets
+      # it run.
       #
       # Every route below lives in worker.js, and whether the Worker is REACHED
       # is decided by wrangler.toml (`run_worker_first`) and by Cloudflare's
@@ -82,58 +83,128 @@ jobs:
       # gets there. On 2026-08-26 `run_worker_first = ["/"]` shipped green and
       # 404'd every route in this list at once, the four installers included.
       #
-      # `curl | bash` URLs are the last thing on this site that may ever 404, so
-      # this runs against the LIVE site immediately after the deploy that could
-      # have broken it, and fails the workflow if any of them stops answering.
+      # 🚨 **A challenged request is inconclusive, not a failure, and this step
+      # is challenged today.** Cloudflare scores a GitHub runner as a bot on the
+      # strength of its datacenter IP and its TLS fingerprint — a browser
+      # `User-Agent` changes nothing — and serves the managed challenge BEFORE
+      # the Worker runs. Measured 2026-08-26 across three runs: all ten URLs
+      # 403, `cf-mitigated: challenge`, body `Just a moment...`, on a site that
+      # was serving every one of them correctly. `perch.hausfold.co/` was among
+      # them, and only worker.js can write that 301, so nothing had reached the
+      # Worker at all.
+      #
+      # So a `cf-mitigated` response warns and is skipped; every other wrong
+      # answer still fails the deploy. The step stays wired up because it costs
+      # nothing and becomes real the day the zone lets CI through — a WAF custom
+      # rule skipping Bot Fight Mode for the `x-hausfold-smoke` header below is
+      # all it needs. ⚠️ Until someone adds one, the guard against #159's
+      # regression is the static `run_worker_first` check in worker.yml, NOT
+      # this step. Don't delete that one as a duplicate of this.
       - name: Smoke-test the Worker routes against the live site
         run: |
           set -uo pipefail
           fail=0
+          blocked=0
+          BODY=$(mktemp); HEAD=$(mktemp)
+
+          # A browser UA is not enough on its own (see above), but it costs
+          # nothing and it is what a WAF skip rule would be written against
+          # alongside the header.
+          UA='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+
+          # One request per URL. Body lands in $BODY, headers in $HEAD, and the
+          # status and redirect target in $probe_code / $probe_loc. Redirects
+          # are never followed: where a route sends you is half of what is being
+          # asserted.
+          probe() {
+            : >"$BODY"; : >"$HEAD"
+            probe_code=000; probe_loc=""
+            local out
+            out=$(curl -sS --max-time 20 -A "$UA" -H 'x-hausfold-smoke: deploy' \
+                  -o "$BODY" -D "$HEAD" \
+                  -w '%{http_code} %{redirect_url}' "$1" 2>>"$BODY") || out=""
+            if [ -n "$out" ]; then
+              probe_code=${out%% *}
+              probe_loc=${out#* }
+            fi
+          }
+
+          # Cloudflare stamps `cf-mitigated` on anything it challenged or
+          # blocked. Nothing this site serves carries that header.
+          challenged() { grep -qi '^cf-mitigated:' "$HEAD"; }
+
+          # Enough to tell the two apart by eye. An `x-hausfold-*` header means
+          # the Worker answered and the route itself is wrong; a Cloudflare
+          # 403 with a cf-ray and none of ours means the edge never let us
+          # through; a 404 from the asset server is #159's regression.
+          why() {
+            echo "      status: $probe_code"
+            grep -iE '^(cf-ray|cf-mitigated|content-type|location|server|x-hausfold-[a-z-]+):' "$HEAD" \
+              | sed 's/^/      /'
+            echo "      body: $(head -c 200 "$BODY" | tr '\r\n' '  ')"
+          }
+
+          # $1 is the one-line account of what went wrong.
+          verdict() {
+            if challenged; then
+              echo "skip  $1 (Cloudflare challenged this runner)"
+              blocked=$((blocked + 1))
+            else
+              echo "::error::$1"
+              why
+              fail=1
+            fi
+          }
 
           # `curl | bash` installers: must be 200 and must be a shell script,
           # not the 404 page dressed as one.
           for name in haus hacker minimal everyday; do
-            body=$(curl -fsS --max-time 20 "https://hausfold.co/$name.sh" || true)
-            if printf '%s' "$body" | head -1 | grep -q '^#!'; then
+            probe "https://hausfold.co/$name.sh"
+            if [ "$probe_code" = 200 ] && head -1 "$BODY" | grep -q '^#!'; then
               echo "ok    /$name.sh"
             else
-              echo "::error::/$name.sh did not return a shell script — the Worker is not being reached"
-              fail=1
+              verdict "/$name.sh did not return a shell script — the Worker is not being reached"
             fi
           done
 
           # Download + release metadata: a 302 to GitHub, and JSON naming a tag.
           for app in perch pounce; do
-            code=$(curl -s -o /dev/null --max-time 20 -w '%{http_code}' "https://hausfold.co/download/$app")
-            loc=$(curl -s -o /dev/null --max-time 20 -w '%{redirect_url}' "https://hausfold.co/download/$app")
-            case "$code:$loc" in
-              30?:https://github.com/hausfold/$app/releases/download/*) echo "ok    /download/$app -> $loc" ;;
-              *) echo "::error::/download/$app answered $code -> ${loc:-<none>}"; fail=1 ;;
+            probe "https://hausfold.co/download/$app"
+            case "$probe_code:$probe_loc" in
+              30?:https://github.com/hausfold/$app/releases/download/*)
+                echo "ok    /download/$app -> $probe_loc" ;;
+              *)
+                verdict "/download/$app answered $probe_code -> ${probe_loc:-<none>}" ;;
             esac
 
-            if curl -fsS --max-time 20 "https://hausfold.co/api/release/$app" | grep -q '"tag":"v'; then
+            probe "https://hausfold.co/api/release/$app"
+            if [ "$probe_code" = 200 ] && grep -q '"tag":"v' "$BODY"; then
               echo "ok    /api/release/$app"
             else
-              echo "::error::/api/release/$app did not return release JSON"
-              fail=1
+              verdict "/api/release/$app did not return release JSON"
             fi
           done
 
           # The short domain: a 301 to the install page, never a page of its own.
-          loc=$(curl -s -o /dev/null --max-time 20 -w '%{redirect_url}' "https://perch.hausfold.co/")
-          if [ "$loc" = "https://hausfold.co/docs/perch/install/" ]; then
-            echo "ok    perch.hausfold.co/ -> $loc"
+          probe "https://perch.hausfold.co/"
+          if [ "$probe_loc" = "https://hausfold.co/docs/perch/install/" ]; then
+            echo "ok    perch.hausfold.co/ -> $probe_loc"
           else
-            echo "::error::perch.hausfold.co/ went to '${loc:-<nowhere>}' instead of the install page"
-            fail=1
+            verdict "perch.hausfold.co/ went to '${probe_loc:-<nowhere>}' instead of the install page"
           fi
 
           # And the site itself still serves, so a passthrough regression shows
           # up here rather than as a quiet outage.
-          curl -fsS --max-time 20 -o /dev/null "https://hausfold.co/" \
-            && echo "ok    hausfold.co/" \
-            || { echo "::error::hausfold.co/ did not answer"; fail=1; }
+          probe "https://hausfold.co/"
+          if [ "$probe_code" = 200 ]; then
+            echo "ok    hausfold.co/"
+          else
+            verdict "hausfold.co/ did not answer"
+          fi
 
+          if [ "$blocked" -gt 0 ]; then
+            echo "::warning::Cloudflare challenged $blocked of this step's requests, so those routes went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
+          fi
           exit "$fail"
 
       # Every page URL is un-hashed — `/`, `/perch`, `/docs/…` all keep their
