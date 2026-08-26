@@ -200,7 +200,11 @@ the token out in prose instead of writing `--something`.
     `--nb-token-*` ramp, including inline `<code>`. The dark fork for the
     landing half is in `src/app/global.css` under `prefers-color-scheme` +
     `body:has(.sheet)`, because those pages carry neither `data-theme` nor the
-    docs' `.dark` class. Prose and chrome still don't take a hue.
+    docs' `.dark` class. ⚠️ **It has had no caller since `/haus` retired on
+    2026-08-26** and is kept deliberately: it is the rule, not that page's
+    style, and without it the next landing page with a highlighted block
+    reintroduces hexes. `<Command>`'s `html` prop is warm for the same reason.
+    Prose and chrome still don't take a hue.
 
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
@@ -249,7 +253,7 @@ the token out in prose instead of writing `--something`.
   `margin-inline: var(--sheet-inset) auto`, hanging off the left of an implied
   `--page-max` (78rem) page. Text inside stays left-aligned: **the column leans,
   the paragraph does not**, and nothing here is ever set ragged-left. Leaning
-  left puts every line of type on one axis — masthead, `.topnav`, each
+  left puts every line of type on one axis — masthead, `.crumbs`, each
   paragraph's first character, the ⌂ — at the page's own left edge.
   - `--sheet-inset` is `max(0px, (100cqw - var(--page-max)) / 2)`: **up to
     ~1250px** it is 0 and the column is flush left less its `--gutter`, so a
@@ -686,7 +690,7 @@ Three things are **not** small, because they're positioning and not code:
   `.nix` file, with an un-hued icon in `src/lib/icons.tsx` and an entry in
   `content/docs/haus/meta.json` under `---Desktops---`; and a row in
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table. ⚠️
-  **No landing page** — `/` is the only one left and it names no desktop. 🚨 **`blank`
+  **No landing page** — no `.sheet` route names a desktop. 🚨 **`blank`
   deliberately has no `DESKTOPS` row and no installer URL**: it is the null
   selection for someone assembling rooms by hand, so `hausfold.co/blank.sh`
   would promise a machine it does not produce. It has a docs page, which is the

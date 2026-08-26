@@ -670,23 +670,11 @@ body {
   max-width: 62ch;
 }
 
-/* A sidenote with weight: full ink where a .block paragraph sits at --ink-2,
-   and a heavier left rule so the eye stops on it. Added 2026-08-16 for the
-   haus section's agent line, and greyscale at rest like everything else on
-   the landing half — the emphasis is structure, not colour. (`.block .note`
-   rather than `.note`: `.block p` outranks a bare class, and this rule
-   exists to beat exactly that one.) */
-.block .note {
-  font-size: 0.92rem;
-  color: var(--ink);
-  /* A step more than the block's 1.05rem gap: the rule makes the note read
-     as its own object, and an object flush against the paragraph above it
-     read as glued to it (the user's read, 2026-08-16). */
-  margin: 0.5rem 0 0;
-  max-width: 58ch;
-  padding-left: 0.9rem;
-  border-left: 2px solid var(--ink-2);
-}
+/* `.block .note` lived here from 2026-08-16 and is gone as of 2026-08-26. It
+   was a sidenote with weight — full ink, a heavier left rule — written for
+   one paragraph, `/haus`'s agent line, and it went with that page into
+   `/docs/haus`, where the line is a `## Why bother` bullet. Same call as
+   `.topnav` above: one page's style, deleted with the page. */
 
 .aside code,
 .block p code,
@@ -747,12 +735,12 @@ body {
   font-size: 0.88rem;
 }
 
-/* Same correction, wherever an .index-name sits inside an .aside. One place
-   on the landing page now: the haus section's pointer at the docs. (It was
-   written for the closing "also from hausfold" line, which became a proper
-   .index list of its own when the page was cut down, and the desktops line
-   inherited it until that line stopped naming desktops.)
-   .index-name's 0.92rem is an absolute rem, so
+/* Same correction, wherever an .index-name sits inside an .aside. No page
+   spends it today — the last was `/haus`'s pointer at the docs, gone
+   2026-08-26 — and it is two declarations of defence rather than a layout,
+   so it stays: an .aside is the one place a stray .index-name would look
+   wrong and not obviously be wrong. .index-name's 0.92rem is an absolute
+   rem, so
    without this it renders BIGGER and at brighter ink than the
    0.86rem/--ink-3 note around it — a link that outshouts its own
    sentence. Relative units here, like `.aside code` already uses. */

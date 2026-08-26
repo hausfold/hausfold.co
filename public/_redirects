@@ -53,15 +53,15 @@
 # Cloudflare reads this file ahead of the assets, so these two lines are what
 # make the route a redirect: `src/app/haus/` is deleted, and if a page ever
 # comes back at this path they have to go in the same commit.
-#
+/haus         /docs/haus/  301
+/haus/        /docs/haus/  301
+
 # /docs itself is the redirect now, added 2026-08-17. It was a doorway page
 # listing the four trees, and it went the same way `/` did: an index of the
 # same four things, one click from a front page that already indexes them. The
 # trees are unaffected — this is an exact path, so /docs/haus and everything
 # under it is untouched — and the target is the layer's tree, which is the one
 # a reader who typed /docs is most often after.
-/haus         /docs/haus/  301
-/haus/        /docs/haus/  301
 /docs         /docs/haus/  301
 /docs/        /docs/haus/  301
 

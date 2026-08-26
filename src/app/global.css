@@ -981,12 +981,20 @@ article h1,
 
 /* The landing half never carries the `.dark` class and never sets
    `data-theme` — its dark mode is the media query alone (only /docs has the
-   toggle). So the fork above never fires there, and the landing page's Shiki
-   output (the haus example block on / and the two inline commands in its
-   aside, all highlighted at build time) needs
-   the same nebelung values under `prefers-color-scheme`. Scoped to
-   `body:has(.sheet)` so it can only ever match the landing half: a docs page
-   toggled to light keeps its class-keyed fork, untouched by this block. */
+   toggle). So the fork above never fires there, and any Shiki output on a
+   `.sheet` page needs the same nebelung values under `prefers-color-scheme`.
+   Scoped to `body:has(.sheet)` so it can only ever match the landing half: a
+   docs page toggled to light keeps its class-keyed fork, untouched by this
+   block.
+
+   ⚠️ Nothing on the landing half is highlighted today. `/haus`'s example
+   block and the two inline commands in its aside were the callers, and they
+   went into `/docs/haus` on 2026-08-26 (`/perch`'s one `<Command>` passes a
+   plain string). This is kept anyway, unlike `.topnav`, which went in the
+   same commit: that class was one page's nav row, and this is AGENTS.md's
+   standing rule that code is Shiki's everywhere it appears. Delete it and
+   the next landing page with a fenced block quietly renders in ink, or
+   reintroduces hexes. */
 @media (prefers-color-scheme: dark) {
   body:has(.sheet) {
     --nb-foreground: var(--nebelung-text);
