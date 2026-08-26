@@ -89,6 +89,27 @@ tiler already tiles.
 | `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `⌥/` / `⌥,` | Tiles layout / accordion layout |
+| `⌘⌥R` | Un-break a terminal whose display has gone cursed — see [below](#when-the-terminal-goes-cursed) |
+
+### When the terminal goes cursed
+
+A program that dies mid-draw can leave the terminal unusable: garbage where
+text should be, nothing echoed as you type, the mouse spraying escape codes
+into your prompt. Two keys undo it, and which one you reach for depends only on
+how far gone it is.
+
+**`reset`** is the one you type. It is a shell *function* here rather than the
+system command, because macOS's `reset` is a link to `tset(1)` — which still
+carries a one-second sleep added in 1979 so mechanical printer-and-ink
+terminals could settle down. This one repairs both halves of the damage (the
+kernel's idea of your terminal, and the terminal's own display state) in about
+**8 milliseconds** instead of a second. Give it arguments and the real `tset`
+takes over, sleep and all.
+
+**`⌘⌥R`** is the one for when you *can't* type: a shell stuck in raw mode with
+no echo, an editor that died inside its own full-screen buffer. It is Ghostty's
+own reset, so it needs nothing from the shell — it hands back a readable
+screen, and typing `reset` into that finishes the repair.
 
 ### Your windows come back
 
