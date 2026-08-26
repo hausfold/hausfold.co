@@ -4,22 +4,22 @@
 # why none of them do).
 #
 # /desktops was a page until 2026-08-12, then the landing page's first
-# section; since 2026-08-14 that section is one sentence and one link, and
-# the comparison lives at /docs/haus/desktops/choosing. ⚠️ The target moved on
-# 2026-08-17 and the section moved with it: the site split into the house (`/`)
-# and the layer (`/haus`), and Desktops is a fact about the layer. The id is
-# unchanged, so this is the same anchor one floor down — and it stays that way
-# whatever #desktops becomes, because this URL has been shared since
-# 2026-08-08. Both spellings are listed because the
-# no-slash form only 307s to the slash form while an index.html exists at
-# that path, and it no longer does.
+# section; from 2026-08-14 that section was one sentence and one link, and it
+# followed the layer's pitch to /haus on 2026-08-17. On 2026-08-26 /haus itself
+# was retired into /docs/haus, so this stopped being an anchor: the target is
+# now the page that actually answers "which of these is mine?". That is one
+# fewer fragment nothing checks, and one click shorter than the section that
+# only ever pointed at it. This URL has been shared since 2026-08-08 and keeps
+# resolving forever. Both spellings are listed because the no-slash form only
+# 307s to the slash form while an index.html exists at that path, and it no
+# longer does.
 #
 # 🚨 Exact paths only, never `/desktops/*`. The three deep pages below need
 # three DIFFERENT targets, so a wildcard could not serve them even now that
 # they are all redirects — and the day one of them comes back as a page, a
 # wildcard would 301 it away from itself.
-/desktops     /haus/#desktops   301
-/desktops/    /haus/#desktops   301
+/desktops     /docs/haus/desktops/choosing/   301
+/desktops/    /docs/haus/desktops/choosing/   301
 
 # The three desktop pages, deleted 2026-08-14 — hours after `everyday` and
 # `minimal` landed, and the same day the catalogue in front of them was cut.
@@ -43,13 +43,16 @@
 /desktops/minimal     /docs/haus/desktops/minimal/     301
 /desktops/minimal/    /docs/haus/desktops/minimal/     301
 
-# 🚨 /haus and /haus/ were 301s to /docs/haus/ from 2026-08-14 to 2026-08-17,
-# and those two lines are DELETED rather than retargeted. The URL is a real
-# page again: the site split into the house and the layer, and everything the
-# landing page said about haus moved to `/haus`. Cloudflare reads this file
-# ahead of the assets, so leaving the redirect in place would have 301'd the
-# new page away from itself — a route existing does not beat a rule pointing
-# elsewhere. If /haus is ever retired a second time, the lines come back.
+# /haus is a redirect for the second time. It 301'd here from 2026-08-14 to
+# 2026-08-17, was a real page again while `/` was the house's index and the
+# layer needed a floor of its own, and went back on 2026-08-26 for the reason
+# that retired it the first time: a reader arriving at the docs — which is most
+# of them — never saw the argument the sheet was carrying, and keeping the two
+# accounts in step was the standing cost. Everything the sheet said is in
+# content/docs/haus/index.mdx now, word for word where the words were better.
+# Cloudflare reads this file ahead of the assets, so these two lines are what
+# make the route a redirect: `src/app/haus/` is deleted, and if a page ever
+# comes back at this path they have to go in the same commit.
 #
 # /docs itself is the redirect now, added 2026-08-17. It was a doorway page
 # listing the four trees, and it went the same way `/` did: an index of the
@@ -57,6 +60,8 @@
 # trees are unaffected — this is an exact path, so /docs/haus and everything
 # under it is untouched — and the target is the layer's tree, which is the one
 # a reader who typed /docs is most often after.
+/haus         /docs/haus/  301
+/haus/        /docs/haus/  301
 /docs         /docs/haus/  301
 /docs/        /docs/haus/  301
 

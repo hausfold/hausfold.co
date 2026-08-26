@@ -48,10 +48,10 @@ export function baseOptions(): BaseLayoutProps {
     // `---Desktops---`. The way back to the site is the `⌂` in the nav
     // above, which is where a reader looks for it.
     //
-    // ⚠️ The `#desktops` anchor is still load-bearing — the
-    // `/desktops` 301 and `src/app/not-found.tsx` both land on it. This row
-    // going does not free it, and neither did its move from `/` to `/haus`
-    // on 2026-08-17, when the whole Desktops section went there.
+    // The `#desktops` anchor those callers used is finally gone: `/haus`
+    // retired into `/docs/haus` on 2026-08-26, and the `/desktops` 301 and
+    // `src/app/not-found.tsx` now both land on `haus/desktops/choosing`
+    // itself — the page this row was one hop short of all along.
     githubUrl: `https://github.com/${gitConfig.user}`,
   };
 }

@@ -43,8 +43,8 @@ by hand, and open all the way down."**
 | Want to change… | Where |
 |---|---|
 | the landing page — the house's index of what it makes | `src/app/page.tsx` |
-| what the site says about **haus**, the layer — hero, Rooms, Desktops, the one file | `src/app/haus/page.tsx` |
-| a **desktop's own page** | the docs, `content/docs/haus/desktops/<name>.mdx`. There is no desktops catalogue on this site — `/haus/#desktops` is one paragraph and one link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx) |
+| what the site says about **haus**, the layer — what it is, the rooms, desktops, the one file | the docs, `content/docs/haus/index.mdx`. There is no `/haus` sheet; the URL 301s to `/docs/haus/` |
+| a **desktop's own page** | the docs, `content/docs/haus/desktops/<name>.mdx`. There is no desktops catalogue on this site — `index.mdx`'s `## Desktops` is three sentences and one link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), which is where the `/desktops` 301 lands |
 | **the docs** (`/docs/*`) | `content/docs/` — Fumadocs MDX. ⚠️ There is no `/docs` page, only the four trees under it; `/docs` 301s to `/docs/haus/` |
 | the install one-liner — the URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
@@ -68,29 +68,42 @@ Every page is a Next route; `public/` is assets only.
 
 | Route | Source | What it is, and the rule that isn't obvious |
 |---|---|---|
-| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no `.topnav` — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs on `/haus`, so a paragraph here explaining the layer is in the wrong page |
-| `/haus` | `src/app/haus/page.tsx` | **the layer's page**: the hero paragraph, `Rooms`, `#desktops` (one short paragraph and one link, naming no desktop) and `One file` (the example, Shiki-highlighted at build time). Its `.topnav` is three words — `hausfold` back up, then `/docs/haus` and `hausfold/haus`. A `.sheet--inner`, so no ⌂ and no standfirst. 🚨 **It must not become a second account of the docs** — if it starts listing commands or restating the rooms table, cut rather than keep in step |
+| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and since 2026-08-26 a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
-**Load-bearing ids**: `#desktops` on `/haus` (the `/desktops` 301 and
-`not-found.tsx` both land on it) and `#made` on `/` (the four `/terms` and
-`/refunds` 301s). Rename either and a published URL starts scrolling to the
-masthead instead of to its answer.
+**One load-bearing id is left**: `#made` on `/`, where the four `/terms` and
+`/refunds` 301s land. Rename it and a published URL starts scrolling to the
+masthead instead of to its answer. (`#desktops` was the other, on `/` and then
+on `/haus`; it retired with that page on 2026-08-26 and its two callers now
+point at `desktops/choosing`, a page rather than a fragment.)
 
 **A page that a docs tree also covers does not stay in step with it** — that is
-why `/haus`-as-a-manual, `/pounce`, the three `/desktops/<name>` sheets and
-finally `/perch` were all retired into docs trees, and why rebuilding any of
-them is wrong. `/perch` held out as the one exemption — a one-read pitch for a
-stranger deciding in ninety seconds is a shape a manual can't take — on the
-strength of a policy URL and a price that was coming. perch went back to MIT
-with no paid tier on 2026-08-15, `/terms` and `/refunds` went the day after,
-and on **2026-08-26 the user retired the page**: every fact on it was already
-in `/docs/perch`, which is the duplicate the rule was written about. The pitch
+why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` (twice:
+as a manual on 2026-08-14, and as the layer's front door on 2026-08-26) were all
+retired into docs trees, and why rebuilding any of them is wrong.
+
+🚨 **`/haus` is the one to learn from**, because the second version was built
+deliberately *not* to be a manual and became a second account anyway: it grew a
+Rooms section, a Desktops section and a One file example, all of which
+`/docs/haus` already carried, and most readers arrive at the tree without
+passing the sheet. Its copy is in `content/docs/haus/index.mdx` now.
+
+`/perch` held out as the one exemption — a one-read pitch for a stranger
+deciding in ninety seconds is a shape a manual can't take — on the strength of
+a policy URL and a price that was coming. perch went back to MIT with no paid
+tier on 2026-08-15, `/terms` and `/refunds` went the day after, and on
+**2026-08-26 the user retired the page**: every fact on it was already in
+`/docs/perch`, which is the duplicate the rule was written about. The pitch
 itself was not thrown away — it opens `/docs/perch`, where the manual starts
-with the dance and the install command. **There is no product sheet on this
-site now**, and adding one back is a decision, not a tidy-up.
+with the dance and the install command.
+
+🚨 **Nothing on this site argues for a product, or for the layer, outside the
+docs any more.** Both retirements landed on the same day and they say the same
+thing: a sheet beside a tree is a second account of one subject, whoever wrote
+it and however carefully it was scoped. Adding one back is a decision, not a
+tidy-up.
 
 **Don't write down how many landing routes there are.** A count in a comment
 rots faster than the thing it counts — say "every `.sheet` route".
@@ -211,12 +224,14 @@ the token out in prose instead of writing `--something`.
   🚨 **Don't move `<Provider>` back up** to satisfy a component that asks for
   it — give that component its own boundary. The intended cost: the light/dark
   toggle is a `/docs` affordance, and the landing pages follow
-  `prefers-color-scheme`. Our own script is exactly one piece, `<Command>`
-  (`src/components/command.tsx`), used on `/haus` alone since `/perch` was
-  retired on 2026-08-26: the button
-  renders `hidden` in the exported HTML and unhides only where
-  `navigator.clipboard` exists — **pure enhancement, nothing lost without it**.
-  That is the bar for a second one.
+  `prefers-color-scheme`. Our own script was exactly one piece, `<Command>`
+  (`src/components/command.tsx`), until 2026-08-26, when `/perch` and `/haus`
+  retired within hours of each other and took its last two callers with them.
+  **The landing half now ships none of our own script at all**, and the
+  component and its `.cmd` styles went with the pages. The bar for bringing one
+  back is the bar that component met: the button rendered `hidden` in the
+  exported HTML and unhid only where `navigator.clipboard` exists — **pure
+  enhancement, nothing lost without it**.
 - **No screenshots at all, and never a stale one.** `/perch` was the last page
   that drew a placeholder frame — shot slots in CSS labelled `[ shot not taken
   yet ]`, no image files — and both the page and the `.shot` family went on
@@ -377,10 +392,6 @@ page opens with what the thing *is* and ends with a way onward: a lede a
 stranger can finish, then the detail; a `<Cards>` pair at the foot instead of a
 bare "see also"; and the prev/next pair the layout renders. **No page should end
 without a door out of it.** Length still costs.
-
-⚠️ **`index.mdx`'s `## What's in the box` heading is a URL**, not just a
-heading: `/haus`'s Rooms section links `/docs/haus/#whats-in-the-box`, and
-nothing checks a fragment. Reword it and repoint `src/app/haus/page.tsx`.
 
 ⚠️ **Don't put a *count* of the rooms on a page.** `content/docs/haus/index.mdx`
 says twelve and lists twelve; `meta.json`'s `---Rooms---` group holds thirteen
@@ -591,8 +602,8 @@ first, and check both themes.
 - Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
   asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
   **and `worker.js`**. Worth it for anything touching a URL: `/desktops` should
-  301 to `/haus/#desktops`, `/docs` to `/docs/haus/`, `/haus` should be a page
-  rather than a redirect, and a nonexistent path should 404 rather than 200.
+  301 to `/docs/haus/desktops/choosing/`, and `/docs` and `/haus` both to
+  `/docs/haus/`, and a nonexistent path should 404 rather than 200.
 - Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
   `wrangler dev` loop, because the one thing the unit tests can't prove is that
   a request reaches the Worker at all: `curl -sI localhost:8787/hacker.sh` must
@@ -675,7 +686,7 @@ Three things are **not** small, because they're positioning and not code:
   `.nix` file, with an un-hued icon in `src/lib/icons.tsx` and an entry in
   `content/docs/haus/meta.json` under `---Desktops---`; and a row in
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table. ⚠️
-  **No landing page** — neither `/` nor `/haus` names a desktop. 🚨 **`blank`
+  **No landing page** — `/` is the only one left and it names no desktop. 🚨 **`blank`
   deliberately has no `DESKTOPS` row and no installer URL**: it is the null
   selection for someone assembling rooms by hand, so `hausfold.co/blank.sh`
   would promise a machine it does not produce. It has a docs page, which is the
