@@ -95,6 +95,18 @@ dragged in.
 | **Devices** | The iPhone listener and the **Pair a Device…** button. Off tears the listener down; pairings are remembered for when it comes back |
 | **Check for new releases** | An hourly look at perch's own release tag, and the only thing it ever sends to the internet. Off means it never checks again |
 
+Every one of those switches is a line in a file rather than a hidden `defaults`
+key, and Settings names the path at the bottom of **General**. Edit the file and
+perch follows without a relaunch; write only the keys you care about, and a file
+that isn't valid JSON changes nothing rather than resetting you.
+
+`~/.config/perch/config.json` is the other half, and it wins. Name a key there
+(plus `launchAtLogin`, which lives nowhere else) and that value is the one perch
+uses: the row goes read-only in Settings with a padlock and a line saying where
+it came from. That is how a machine you manage, or a haus desktop, pins a
+setting. Delete the key and the switch is yours again. perch only ever reads
+that file; the one it writes lives inside its own sandbox container.
+
 There is no theme picker in that list, on purpose. The shelf paints from
 [nebelung](https://github.com/hausfold/nebelung) and follows macOS Light/Dark
 by itself; on a haus machine it follows your desktop's flavor and accent too,

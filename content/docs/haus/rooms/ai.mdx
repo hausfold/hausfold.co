@@ -336,10 +336,13 @@ deliberately leaves them alone.
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
 `WorktreeCreate` and `WorktreeRemove`, pointing at `holt hook create` /
 `holt hook remove`; the **`PreToolUse`** hook that runs
-[`agent-desktop-guard`](#the-screen-belongs-to-you); plus the statusline,
-`permissions.defaultMode` and a few TUI keys. It merges into the file rather
-than replacing it, leaves the four agent-state hooks and your own `PreToolUse`
-entries alone (the two worktree events are the ones it owns outright), and
+[`agent-desktop-guard`](#the-screen-belongs-to-you); one `holt hook notify`
+entry appended to **`Notification`** and **`Stop`**, which raises a
+[trill](/docs/trill) banner when a lane blocks on you or finishes; plus the
+statusline, `permissions.defaultMode` and a few TUI keys. It merges into the
+file rather than replacing it, leaves the four agent-state hooks and your own
+`PreToolUse`, `Notification` and `Stop` entries alone (the two worktree events
+are the ones it owns outright), and
 re-asserts on every rebuild, because Claude Code rewrites its own
 settings on its own schedule and a hand-written hook can go with them. You'd find
 that out at pane close, by losing a lane's parking.

@@ -31,9 +31,25 @@ place to say *this one matters, that one can wait until I look*.
 - **It was called `flick`** while it incubated in the workshop, so both names
   appear in older writing.
 
+## What haus already does with it
+
+haus speaks through trill wherever trill answers, and works the same when it
+doesn't. Every banner the desktop draws goes through one command, `haus-notify`,
+which hands the event to trill when the Mac has it and falls back to Apple's own
+banner when it doesn't, so no room waits on trill being installed. Two surfaces
+go further when it is there: the [bar](/docs/haus/rooms/bar)'s `trill` pill
+opens the inbox, and an [agent lane](/docs/haus/rooms/ai) that blocks on you or
+finishes raises a banner that takes you to its window.
+
+`haus.trill.enable` is the room that puts the bundle at a fixed
+`/Applications/Trill.app`, the path a drag install would have used, so a Full
+Disk Access grant survives the next version bump instead of being asked for
+again. It is off by default, and turning it on gets you nothing yet: the flake
+installs a notarized release ZIP and trill has not cut its first release.
+
 ## What it isn't yet
 
-No install command, no `haus.trill.*` options, no room. When there is something
-a stranger can run, this tree grows the pages to say so. The [Focus
+No install command, no cask, no download, nothing a stranger can run. When there
+is, this tree grows the pages to say so. The [Focus
 room](/docs/haus/rooms/focus), which is haus's answer to "go quiet" today, is
 where that story starts.

@@ -27,11 +27,13 @@ pounce run mode:emoji             # emoji + symbols picker
 pounce run mode:screenshots       # screenshot browser
 pounce run mode:camera            # live camera preview
 pounce run mode:filesearch        # file/folder search (Spotlight index)
+pounce run mode:settings          # the Settings window
 pounce run app:/Applications/Ghostty.app
 pounce --cheatsheet [path]        # cheatsheet overlay
 pounce --transform 'tr a-z A-Z'   # rewrite the selected text through a shell filter
 
 # settings
+pounce settings                   # open the Settings window
 pounce config print               # print the annotated config, touching nothing
 pounce config init                # write ~/.config/pounce/config.json
 
@@ -62,6 +64,7 @@ pounce --help / --version
 | Subcommand | Purpose |
 |---|---|
 | `run <item-key>` | Run one item by the key `items` uses, for binders that own the keystroke |
+| `settings` | Open the Settings window: panes of cards over the same table `config print` writes, and a click rewrites one line of your `config.json` |
 | `config print` / `config init` | Print the annotated config, or write one |
 | `doctor` | Report the daemon, the grant, and every binding actually armed |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
