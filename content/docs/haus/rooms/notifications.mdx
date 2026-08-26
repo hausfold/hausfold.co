@@ -1,0 +1,163 @@
+---
+title: Notifications
+description: "Where this desktop's banners come from. haus draws through trill wherever trill answers; this room is the switch that makes haus own the bundle, at a fixed path a Full Disk Access grant can survive."
+icon: notifications
+related:
+  - title: "What trill is"
+    description: "The compositor itself: one place for the things that interrupt you, and a filter in front of it."
+    href: "/docs/trill"
+    icon: "trill"
+  - title: "Focus"
+    description: "The other half of interruptions: one switch for Do Not Disturb, your Slack status and your own hooks."
+    href: "/docs/haus/rooms/focus"
+    icon: "moon"
+---
+
+Every banner this desktop draws goes through one command, `haus-notify`: the bar
+reloading, a rebuild finishing, an agent lane blocking on you. That command hands
+the event to **[trill](/docs/trill)** when trill answers on its socket, and falls
+back to Apple's own banner when nothing does. It runs on every haus machine, so
+no room waits on trill being installed.
+
+Which makes this room the narrower question, and only that one: **does haus own
+the bundle?** Switch it on and Trill.app is installed from its own flake, pinned
+by your `flake.lock` like every other room, and kept at a path that does not
+move.
+
+<Callout type="info" title="There is no haus.notifications.enable">
+The missing name is deliberate. `haus.notifications.enable = false` would read as
+"this Mac draws no haus notifications", and that is false on every machine:
+`haus-notify` runs either way and Apple's banner is always the floor.
+`compositor` is the one question the room actually answers.
+</Callout>
+
+## Enable it
+
+```nix
+haus.notifications.compositor = true;
+```
+
+```sh
+haus rebuild
+```
+
+It is off by default, and not only out of taste. There is no `trill` cask, and
+the `trill` command already resolves without this room (see [What it does not
+do](#what-it-does-not-do)), so turning it on is a decision to let haus own the
+bundle rather than a step you were missing.
+
+## Why the path is fixed
+
+The bundle is copied to **`/Applications/Trill.app`** and never run from the Nix
+store. That is the room's whole design, and it is not tidiness.
+
+trill's `trill doctor`, its System Mirror and its "Silence Native Banners" helper
+all rest on a **Full Disk Access** grant, and macOS keys a TCC grant to an app's
+*path* plus its signing identity. A store path changes on every version bump, so
+a store-run trill would lose the grant on exactly the rebuild that installed the
+fix you wanted. `/Applications/Trill.app` is where a cask or a drag install would
+have put it, so a grant you have already given carries over instead of being
+asked for again.
+
+The other half of that key is the signature, and nothing here disturbs it: the
+release `.app` is Developer-ID signed and notarized, and the copy preserves both
+the signature and the stapled ticket. There is no re-signing step in your
+rebuild.
+
+## What a rebuild does
+
+trill is an ordinary background app rather than a launchd daemon. It draws no
+Dock icon, and it registers *itself* as a login item the first time it runs, so
+nothing but a login (or you) ever starts it. The rebuild has to pay for that:
+swapping the bundle under a running compositor would leave the Mac drawing
+Apple's banners for the rest of the session.
+
+So a rebuild with a new trill to install stops the running one on purpose, swaps
+the bundle, and starts it again in your GUI session without stealing focus. Then
+it waits for trill's socket to answer, because a launch being accepted is not the
+same thing as a compositor being up.
+
+**A trill you quit on purpose stays quit.** The rebuild only brings back a
+compositor that was running when it looked, or one this Mac has never had before,
+and it tells you which happened:
+
+| The line | What it means |
+|---|---|
+| `trill: installing /nix/store/… → /Applications/Trill.app` | a new version is going in |
+| `trill: compositor back up (its socket answers)` | it was running, and it is running again |
+| `trill: left quit …` | it was not running when the rebuild looked, so nothing was started |
+| `warning: trill: the compositor did not answer on its socket after three tries` | the bundle is in place, but nothing is behind the socket |
+| `trill: … was installed by another activation while this one waited` | two rebuilds at once; the other one did the work |
+| `trill: ditto failed; leaving any existing /Applications/Trill.app in place` | the copy failed, and your old bundle was not touched |
+
+Two of those leave you without a compositor (`left quit`, and the socket
+warning), and both have the same answer: `open -g /Applications/Trill.app`, or
+leave it and it comes back at your next login.
+
+<Callout type="warn" title="What a Mac with no compositor loses">
+`haus-notify` falls back to Apple's banner, so you still get told things. What
+goes quiet is everything trill adds: your `rules.json` stops applying, the bar's
+`trill` pill draws dim, and any question parked on trill's ledge sits
+unanswered. The ledge is drawn by the app, so while it is down there is nothing
+on screen to click.
+</Callout>
+
+## What it does not do
+
+Three things, each left out on purpose:
+
+- **It does not put `trill` on your PATH.** haus answers `trill` on every
+  machine, room or no room: a small wrapper resolves `$TRILL_APP`, then
+  `~/Applications/Trill.app`, then `/Applications/Trill.app`, and execs the
+  binary inside whichever it finds. (Trill.app *is* the CLI. One signed
+  executable serves the daemon and every verb.) The wrapper has to resolve at run
+  time, because whether a bundle exists is a runtime fact and a build-time
+  symlink into one that is missing would be a `trill` your shell finds and every
+  call fails on. A second `bin/trill` from this room would collide with it rather
+  than back it up.
+- **It does not decide what happens to any one notification.** Routing, batching,
+  quieting and dropping by `source` all live in `~/.config/trill/rules.json`,
+  which trill reloads when you save it. Every `haus-notify` send carries a
+  `--source` (`haus.bar`, `haus.lane`, one per room), so "stop telling me about
+  the bar reloading" is a line in that file rather than a rebuild. haus
+  deliberately puts no second dial in front of it.
+- **It does not theme or configure the app.** `~/.config/trill/config.json` stays
+  yours. trill refuses to move a toggle when that file is a symlink into the Nix
+  store, and says so in its own Settings rather than flipping a switch a rebuild
+  would revert. Which keys haus should own is a real design question, and this
+  room has not answered it.
+
+## Works with
+
+- **[Bar](/docs/haus/rooms/bar)**: the `trill` pill opens the inbox in one click,
+  and right-click (or ⌥-click) opens it filtered to the asks still waiting on
+  you. That pill draws nothing at all unless Trill.app is installed, which is
+  what this room guarantees.
+- **[AI](/docs/haus/rooms/ai)**: with this room on, trill's own agent skill is
+  installed beside `haus` and holt's, so an agent asked to "tell me when this
+  finishes" reaches for `trill` rather than guessing. The skill follows the
+  *room*, not the app: a Mac with a hand-installed Trill.app and this room off
+  gets no skill, because a skill for an app the machine may not have is worse
+  than none.
+- **[Apps](/docs/haus/rooms/apps)**: Trill joins `haus.roster` as an app haus
+  installed, so `haus.roster.trill.key` gives it a launcher letter without your
+  host file restating where the app came from.
+- **[Focus](/docs/haus/rooms/focus)**: the other half of interruptions. Focus
+  decides whether anything gets through; this room decides who draws what does.
+
+## Remove it
+
+```nix
+haus.notifications.compositor = false;
+```
+
+The room stops installing and updating it. The copy already at
+`/Applications/Trill.app` stays until you delete it: a rebuild never takes an app
+out of your Applications folder behind your back. `haus-notify` and the `trill`
+command go on finding it there, which is what "the room is about ownership, not
+about the app" means in practice.
+
+## Options
+
+Every setting, with types and defaults:
+[`haus.notifications`](/docs/haus/reference/options#notifications).

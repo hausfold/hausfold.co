@@ -29,6 +29,7 @@
     "rooms/launcher",
     "rooms/shelf",
     "rooms/focus",
+    "rooms/notifications",
     "rooms/ai",
     "rooms/text-expansion",
     "rooms/security",

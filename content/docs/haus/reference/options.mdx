@@ -5966,15 +5966,15 @@ affordances than have screenshots shelved.
 
 <small>Declared in [`modules/shelf/options.nix`](https://github.com/hausfold/haus/blob/main/modules/shelf/options.nix).</small>
 
-## Trill
+## Notifications
 
-The notification compositor: quiet, scriptable banners with their own rules file, drawn instead of macOS's. haus has *drawn through* trill since `haus-notify` landed — finding it at runtime and falling back to Apple's banner when it isn't there — so this switch is the narrower question of whether haus installs and pins the bundle, at a fixed path its Full Disk Access grant can survive.
+How this desktop's own banners get drawn. haus has *drawn through* trill since `haus-notify` landed — finding it at runtime and falling back to Apple's banner when it isn't there — and that is unconditional, in ../core, whatever this room says. What lives HERE is the narrower question of whether haus installs and pins the bundle, at a fixed path its Full Disk Access grant can survive. Named for the subject rather than the app, like every other room since the 2026-08-16 sweep (../moved.nix).
 
-### haus.trill
+### haus.notifications
 
-The notification compositor haus already draws through. Trill is the app behind it; this switch is whether haus owns the bundle.
+The notification compositor haus already draws through. Trill is the app behind it; this switch is whether haus owns the bundle. It is NOT where a banner's routing lives — that is `~/.config/trill/rules.json`, and haus deliberately puts no second dial in front of it.
 
-#### `haus.trill.enable` [#haus-trill-enable]
+#### `haus.notifications.compositor` [#haus-notifications-compositor]
 
 `boolean` · default `false`
 
@@ -5983,14 +5983,15 @@ copied to a fixed `/Applications/Trill.app`.
 
 <details className="hf-more">
 
-<summary>More detail<span className="sr-only"> on haus.trill.enable</span></summary>
+<summary>More detail<span className="sr-only"> on haus.notifications.compositor</span></summary>
 
 haus has drawn its banners through trill since `haus-notify` landed, but
 by *finding* it at runtime — PATH, then `~/Applications`, then
 `/Applications` — and falling back to Apple's banner when nothing
-answered. That still works and is still the fallback. What this switch
-adds is the other half: the bundle actually being there, at a path that
-does not move, pinned by this machine's flake lock like every other room.
+answered. That still works, is still the fallback, and is not gated on
+this switch. What this adds is the other half: the bundle actually being
+there, at a path that does not move, pinned by this machine's flake lock
+like every other room.
 
 Why the path is fixed rather than a store path: trill's whole
 `trill doctor` and System Mirror surface is a **Full Disk Access** grant,
@@ -6008,9 +6009,14 @@ It does **not** put `trill` on PATH — `modules/core/trill.sh` already
 does, for every install source including this one, and a second
 `bin/trill` would be a build-time collision rather than a redundancy.
 
+It does **not** decide what happens to any individual notification
+either. Routing, dropping and rewriting by `source` all live in
+`~/.config/trill/rules.json`, hot-reloaded, and haus deliberately puts
+no second dial in front of it.
+
 </details>
 
-<small>Declared in [`modules/trill/options.nix`](https://github.com/hausfold/haus/blob/main/modules/trill/options.nix).</small>
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
 
 ## Focus
 
@@ -6777,10 +6783,19 @@ rather than `git worktree`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Three skills today: `haus` (this machine's setup), and holt's own two —
-`holt` (the lane lifecycle) and `handoff` (turning work into a brief a
-cold session can act on, ending on the clipboard or in a new lane). Each
-tool names its own skills; haus only decides that they are installed.
+Three skills on any machine: `haus` (this machine's setup), and holt's
+own two — `holt` (the lane lifecycle) and `handoff` (turning work into a
+brief a cold session can act on, ending on the clipboard or in a new
+lane). A tool whose room is OPTIONAL adds its own only when that room is
+on: `trill` (sending a notification) arrives with
+`haus.notifications.compositor`,
+because a skill for an app this Mac doesn't have is worse than none.
+That switch is about the ROOM, not about the app: `haus-notify` and the
+`trill` command find a hand-installed Trill.app at runtime whatever this
+option says, and such a machine gets no `trill` skill until the room is
+switched on.
+Each tool names its own skills; haus only decides that they are
+installed.
 
 One copy per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,

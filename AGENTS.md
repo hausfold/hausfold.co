@@ -370,8 +370,8 @@ clear it at all.
 > 🚨 **`trill` is a tab that does NOT clear that bar** — it is there on the
 > user's explicit instruction. Record it as the exception it is, don't cite it
 > as precedent. trill has no release, no download and no cask, so there is
-> nothing a stranger can install. (`haus.trill.enable` exists as of
-> hausfold/haus#515, and installs the release ZIP that does not exist yet, so it
+> nothing a stranger can install. (`haus.notifications.compositor` exists as of
+> hausfold/haus#515 and #521, and installs the release ZIP that does not exist yet, so it
 > moves nothing about the bar this tree has to clear.) Its tree is **one page**
 > whose first paragraph
 > is a `warn` callout saying exactly that, which is the condition on the
