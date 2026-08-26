@@ -104,10 +104,20 @@ The table is `SHORT_DOMAINS` in `worker.js`, the route is one line in
 `wrangler.toml`, and every path other than `/` 301s to the same path on
 hausfold.co so the subdomain can never become a second copy of the site.
 
-⚠️ **`run_worker_first = ["/"]` in `wrangler.toml` is what makes it work at
+⚠️ **`run_worker_first = true` in `wrangler.toml` is what makes it work at
 all.** The assets binding matches on PATH and knows nothing about hostname, so
 without it `perch.hausfold.co/` short-circuits to `out/index.html` — the landing
 page under the wrong domain — and `worker.js` never runs.
+
+🚨 **It must be `true`, never an array.** An array is an *allowlist*: every path
+outside it is answered by the asset server, including its 404 page, so the
+Worker's own routes stop being reached at all. `["/"]` shipped for one deploy on
+2026-08-26 and took out `/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`,
+`/download/*` and `/api/release/*` at once — the four installers being the URLs
+this file calls the last thing here that may ever 404. **`npm test` passes under
+either value**, because the Worker's unit tests call `worker.fetch` directly and
+never reach the asset server; the guard is the post-deploy smoke check in
+`.github/workflows/deploy.yml`.
 
 🚨 **`/haus` is the one to learn from**, because the second version was built
 deliberately *not* to be a manual and became a second account anyway: it grew a

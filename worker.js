@@ -121,10 +121,18 @@ const DOWNLOADABLE = new Set(["pounce", "perch"]);
 // Every other path on a short domain 301s to the same path on hausfold.co, so
 // the subdomain can never quietly become a second copy of the site.
 //
-// ⚠️ This only runs because `run_worker_first = ["/"]` is set in wrangler.toml.
+// ⚠️ This only runs because `run_worker_first = true` is set in wrangler.toml.
 // Without it the assets binding short-circuits `perch.hausfold.co/` to
 // `out/index.html` — the landing page under the wrong hostname — and the
-// Worker never sees the request. See the note there.
+// Worker never sees the request.
+//
+// 🚨 It must be `true` and never an array. An array is an ALLOWLIST: every path
+// outside it is answered by the asset server, including its 404 page, so the
+// Worker's OWN routes stop being reached. `["/"]` shipped for one deploy on
+// 2026-08-26 and 404'd `/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`,
+// `/download/*` and `/api/release/*` simultaneously. The full note is in
+// wrangler.toml; the guard is the post-deploy smoke check in deploy.yml,
+// because the tests in this repo pass under either value.
 const SHORT_DOMAINS = { "perch.hausfold.co": "/docs/perch/install/" };
 // The human-facing artifact, most-preferred first. A DMG outranks the archive
 // on purpose: pounce's release ships BOTH — the tarball is the Homebrew
