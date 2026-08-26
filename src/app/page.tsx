@@ -75,11 +75,12 @@ export default function Home() {
               (`/perch/privacy` writes its own footer and has none — see
               `src/components/sheet.tsx`.)
 
-              🚨 This is `/`'s rule alone, at the user's instruction. An
-              inner page still owes a way back up, and `/perch` pays it with
-              `.crumbs`. (`/haus` paid it with a three-word `.topnav`; that
-              page and that class both went on 2026-08-26 — see the note
-              where `.topnav` used to be in `public/hausfold.css`.) */}
+              🚨 It stopped being `/`'s rule alone on 2026-08-26: `/perch`
+              and `/haus` both retired into their docs trees that day, and
+              `.crumbs` and `.topnav` went with them. No page on this site
+              opens on a nav row now. An inner page that comes back still
+              owes a way back up — the two tombstones in
+              `public/hausfold.css` carry the shapes. */}
 
           <div className="mark" aria-hidden="true">
             ⌂

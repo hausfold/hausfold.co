@@ -200,11 +200,12 @@ the token out in prose instead of writing `--something`.
     `--nb-token-*` ramp, including inline `<code>`. The dark fork for the
     landing half is in `src/app/global.css` under `prefers-color-scheme` +
     `body:has(.sheet)`, because those pages carry neither `data-theme` nor the
-    docs' `.dark` class. ⚠️ **It has had no caller since `/haus` retired on
-    2026-08-26** and is kept deliberately: it is the rule, not that page's
-    style, and without it the next landing page with a highlighted block
-    reintroduces hexes. `<Command>`'s `html` prop is warm for the same reason.
-    Prose and chrome still don't take a hue.
+    docs' `.dark` class. ⚠️ **The landing half's half of that fork was
+    deleted on 2026-08-26**, when `/haus` and `/perch` retired and took the
+    site's last two highlighted blocks with them; the tombstone in
+    `src/app/global.css` says how to put it back, and putting it back is what
+    a landing page with a fenced block owes. Prose and chrome still don't take
+    a hue.
 
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
@@ -253,8 +254,8 @@ the token out in prose instead of writing `--something`.
   `margin-inline: var(--sheet-inset) auto`, hanging off the left of an implied
   `--page-max` (78rem) page. Text inside stays left-aligned: **the column leans,
   the paragraph does not**, and nothing here is ever set ragged-left. Leaning
-  left puts every line of type on one axis — masthead, `.crumbs`, each
-  paragraph's first character, the ⌂ — at the page's own left edge.
+  left puts every line of type on one axis — the masthead, each paragraph's
+  first character, the ⌂ — at the page's own left edge.
   - `--sheet-inset` is `max(0px, (100cqw - var(--page-max)) / 2)`: **up to
     ~1250px** it is 0 and the column is flush left less its `--gutter`, so a
     phone and a laptop lose nothing; **above that** it grows at half the
@@ -275,9 +276,12 @@ the token out in prose instead of writing `--something`.
     `max-width`.** `body` is `flex flex-col`, so `.sheet` is a flex item, and a
     flex item with an `auto` margin in the cross axis is **not stretched** — the
     lean's auto inline margin turned the column shrink-to-fit, so on a 390px
-    phone the document came out 624px wide and scrolled sideways. (`min-width:
-    0` on `.cmd code` is not the fix and never was: `overflow-x: auto` already
-    zeroes a flex item's automatic minimum size. It stays as insurance.)
+    phone the document came out 624px wide and scrolled sideways. The
+    unbreakable thing was `.cmd code`, deleted 2026-08-26 with the last page
+    that framed a command — but **the rule stays**: the next long inline
+    `<code>` or URL reproduces it exactly. (`min-width: 0` was never the fix,
+    whatever that comment used to claim: `overflow-x: auto` already zeroes a
+    flex item's automatic minimum size.)
   - `--measure` is a *reading* measure; every text block inside `.sheet` is
     separately capped at 58/62ch, so widening it just unmoors the column from
     the masthead. `--gutter` exists so `.sheet`'s padding and anything measuring

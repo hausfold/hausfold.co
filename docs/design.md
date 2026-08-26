@@ -79,8 +79,10 @@ landing page the search context, the ⌘K binding and a lazy fetch of the ~457 K
 search index. Measured after moving it down: a landing page is 8 chunks / 173 KB
 gzip, a docs page 16 / 398 KB.
 
-Our own script is one component: `<Command>`, the copy button beside a fenced
-command. It renders `hidden` in the exported HTML and unhides only where
-`navigator.clipboard` exists, so the command is plain selectable text with JS
-off. Pure enhancement, nothing lost without it — and that's the bar for a second
-one.
+Since 2026-08-26 we ship none of our own. The one component there ever was is
+`<Command>`, the copy button beside a fenced command; `/haus` and `/perch` were
+its last two callers and both retired into docs trees that day, where a fenced
+block is MDX and gets fumadocs' own copy button. It set the bar for a second
+one: it rendered `hidden` in the exported HTML and unhid only where
+`navigator.clipboard` exists, so the command was plain selectable text with JS
+off. Pure enhancement, nothing lost without it.

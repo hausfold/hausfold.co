@@ -312,15 +312,12 @@ body {
   gap: clamp(3rem, 7vw, 4.75rem);
 }
 
-/* An inner page opens on a nav row rather than the ⌂, so the top of the sheet
-   is tighter than the landing page's masthead needs. `/haus` and its `.topnav`
-   are the only page spending this class since 2026-08-26, when `/perch` — the
-   last one to open on a `.crumbs` breadcrumb — was retired; see the breadcrumb
-   note below. */
-.sheet--inner {
-  padding-top: clamp(2.25rem, 6vw, 4rem);
-  gap: clamp(2.5rem, 6vw, 3.75rem);
-}
+/* `.sheet--inner` is gone as of 2026-08-26, with the nav classes it existed
+   for. It tightened the top of a sheet that opened on a row of mono words
+   rather than on the ⌂ — `padding-top: clamp(2.25rem, 6vw, 4rem)` and `gap:
+   clamp(2.5rem, 6vw, 3.75rem)`, against the fuller values above. `/perch` and
+   `/haus` were its last two callers and both retired into docs trees that day.
+   A page that opens on a nav row again wants those two numbers back. */
 
 /* --- masthead ------------------------------------------------- */
 
