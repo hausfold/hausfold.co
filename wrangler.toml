@@ -4,12 +4,16 @@
 # /refunds (retired 2026-08-16: hausfold sells nothing) — is a 301 now; see
 # public/_redirects.
 #
-# Since 2026-08-14 there IS a `main`: `worker.js` carries the three routes that
-# can't be files — `/<desktop>.sh`, `/download/<app>` and `/api/release/<app>`
-# — and nothing else. Static assets still short-circuit first, so every page on
-# the site is served without the Worker running at all; only a path that
-# matches no asset reaches `worker.js`, and everything it doesn't claim goes
-# straight back out through the `ASSETS` binding.
+# Since 2026-08-14 there IS a `main`: `worker.js` carries the routes that can't
+# be files — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` and, since
+# 2026-08-26, the `perch.hausfold.co` redirect.
+#
+# ⚠️ Assets no longer short-circuit ahead of it. `run_worker_first = true` below
+# puts the Worker in front of every request, because the asset server matches on
+# path and cannot see the hostname a short domain needs. Everything the Worker
+# doesn't claim goes straight back out through the `ASSETS` binding, which is a
+# route-table miss and a passthrough — cheap, but not free the way "the Worker
+# never ran" was.
 #
 # The assets are BUILT (since 2026-08-12) — `npm run build` (Next + Fumadocs,
 # `output: 'export'`) writes ./out, and Next copies ./public into it verbatim on
@@ -69,25 +73,35 @@ directory = "./out"
 binding = "ASSETS"
 not_found_handling = "404-page"
 
-# 🚨 The ONE path where the Worker has to run before the asset server, and the
-# whole reason `perch.hausfold.co` works. Assets short-circuit by PATH and know
-# nothing about hostname, so `perch.hausfold.co/` matches `out/index.html` and
-# serves hausfold.co's landing page under the wrong domain — with worker.js
-# never invoked and its redirect never reached.
+# 🚨 Worker in front of EVERY request, and it has to be `true`.
 #
-# Scoped to `/` rather than `true` on purpose: `true` would put the Worker in
-# front of every request to every page on the site, which the header above says
-# this config deliberately avoids. The cost of `["/"]` is one Worker invocation
-# on the site's own landing page, which is a route that does no fetching and
-# hands straight back to ASSETS.
+# Measured in production 2026-08-26, the hard way. This was `["/"]` for one
+# deploy — an attempt to pay for the Worker only on the site root, which is the
+# only path that needs the hostname check for perch.hausfold.co. **An array is
+# an ALLOWLIST, not an addition**: every path NOT in it is handed to the asset
+# server outright, and `not_found_handling = "404-page"` then ANSWERS an
+# unmatched path with 404.html instead of falling through to the Worker.
 #
-# The residue: a DEEP path on the short domain (`perch.hausfold.co/docs/...`)
-# still matches an asset and is served rather than redirected, so the site is
-# reachable under two hostnames there. Every page carries an absolute canonical
-# pointing at hausfold.co (src/lib/page-meta.ts), which is the standard answer
-# to that. If it ever needs to be airtight, `run_worker_first = true` closes it
-# at the cost above.
-run_worker_first = ["/"]
+# So `["/"]` 404'd every Worker route on the site at once — `/haus.sh`,
+# `/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/{perch,pounce}` and
+# `/api/release/*`. The four installers are the URLs AGENTS.md calls the last
+# thing here that may ever 404: they are in shell histories and in print.
+#
+# ⚠️ **`npm test` cannot catch this.** The Worker's own unit tests pass
+# identically under either value, because they call `worker.fetch` directly and
+# never go near the asset server. What catches it is the post-deploy smoke check
+# in .github/workflows/deploy.yml, added the same day and for this reason.
+#
+# The cost of `true` is one Worker invocation per request. The header above
+# describes the older shape, where assets short-circuited first; that is no
+# longer true, and the fast path is now a route match that falls straight
+# through to `env.ASSETS.fetch(request)`.
+#
+# Why it is needed at all: assets match on PATH and know nothing about
+# hostname, so `perch.hausfold.co/` matches `out/index.html` and would serve
+# hausfold.co's landing page under the wrong domain, with worker.js never
+# invoked and SHORT_DOMAINS never consulted.
+run_worker_first = true
 
 # Optional hard pin: uncomment and set REF to a tag to force every
 # `/<desktop>.sh` at that ref for everyone, regardless of the latest release.
