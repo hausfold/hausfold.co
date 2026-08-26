@@ -106,6 +106,26 @@ const RELEASE_TAG = /^v\d{4}\.\d{2}\.\d{2}(-\d+)?$/;
 // A slug here is a promise to keep serving that app's latest release, so only
 // apps the site actually presents belong in this set.
 const DOWNLOADABLE = new Set(["pounce", "perch"]);
+
+// Short domains: one hostname that stands for one page, and 301s to it.
+//
+// `perch.hausfold.co` is a URL to hand someone — the thing you text a friend
+// who wants perch on their Mac and their phone — and it is deliberately a
+// REDIRECT rather than a page of its own. AGENTS.md's rule is that a page a
+// docs tree also covers does not stay in step with it, which is why /perch,
+// /pounce, /haus and the three desktop sheets were all retired into docs
+// trees. A subdomain SERVING its own setup sheet would be exactly that mistake
+// wearing a nicer URL: /docs/perch/install already carries every fact such a
+// page would state. A redirect is the same short URL with nothing to drift.
+//
+// Every other path on a short domain 301s to the same path on hausfold.co, so
+// the subdomain can never quietly become a second copy of the site.
+//
+// ⚠️ This only runs because `run_worker_first = ["/"]` is set in wrangler.toml.
+// Without it the assets binding short-circuits `perch.hausfold.co/` to
+// `out/index.html` — the landing page under the wrong hostname — and the
+// Worker never sees the request. See the note there.
+const SHORT_DOMAINS = { "perch.hausfold.co": "/docs/perch/install/" };
 // The human-facing artifact, most-preferred first. A DMG outranks the archive
 // on purpose: pounce's release ships BOTH — the tarball is the Homebrew
 // formula's artifact (app + CLI scripts, brew wires the daemon), the DMG is the
@@ -285,6 +305,12 @@ async function serveInstaller(desktop, url, env) {
 const hausfold = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Before anything else: a short domain is a redirect and never a page, so
+    // it must not fall through to a route below and answer with one.
+    if (Object.hasOwn(SHORT_DOMAINS, url.hostname)) {
+      const path = url.pathname === "/" ? SHORT_DOMAINS[url.hostname] : url.pathname;
+      return Response.redirect(`https://hausfold.co${path}${url.search}`, 301);
+    }
     // A desktop installer. The match is deliberately narrow — an unknown name
     // falls through to the assets binding and 404s like any other missing
     // path, rather than becoming a fetch of a repo nobody vouched for.

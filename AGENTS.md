@@ -84,6 +84,31 @@ why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` (twice:
 as a manual on 2026-08-14, and as the layer's front door on 2026-08-26) were all
 retired into docs trees, and why rebuilding any of them is wrong.
 
+### Short domains
+
+`perch.hausfold.co` is the first of these, added 2026-08-26. **A short domain is
+a 301 and never a page.** It exists so there is something short to hand a
+non-technical person — you text them `perch.hausfold.co` and they land on
+`/docs/perch/install/`, which is written to be followed in order.
+
+🚨 **Do not "upgrade" one into a page.** The proposal that produced this one was
+a standalone setup sheet served at the subdomain, and it was exactly the mistake
+the rule above describes, wearing a nicer URL: every fact it stated was already
+in `/docs/perch/install`. What went in instead was a redirect plus a rewrite of
+that page — the ordered path (the macOS setting first, then the download, Launch
+at Login, the phone and pairing) now lives THERE, in the one account of it.
+Making the setup path better for a beginner is a docs edit; it is never a new
+page.
+
+The table is `SHORT_DOMAINS` in `worker.js`, the route is one line in
+`wrangler.toml`, and every path other than `/` 301s to the same path on
+hausfold.co so the subdomain can never become a second copy of the site.
+
+⚠️ **`run_worker_first = ["/"]` in `wrangler.toml` is what makes it work at
+all.** The assets binding matches on PATH and knows nothing about hostname, so
+without it `perch.hausfold.co/` short-circuits to `out/index.html` — the landing
+page under the wrong domain — and `worker.js` never runs.
+
 🚨 **`/haus` is the one to learn from**, because the second version was built
 deliberately *not* to be a manual and became a second account anyway: it grew a
 Rooms section, a Desktops section and a One file example, all of which

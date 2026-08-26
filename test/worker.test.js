@@ -455,6 +455,52 @@ describe('/download and /api/release', () => {
   });
 });
 
+describe('short domains (perch.hausfold.co)', () => {
+  const on = (host, path) => new Request(`https://${host}${path}`);
+
+  it('301s the root to the install page rather than serving one', async () => {
+    // The whole point: a short URL to hand someone, not a second account of
+    // /docs/perch/install. If this ever answers 200, the page came back.
+    const res = await worker.fetch(on('perch.hausfold.co', '/'), {});
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://hausfold.co/docs/perch/install/');
+  });
+
+  it('never reaches the ASSETS binding, even though / is a real asset', async () => {
+    const assets = { fetch: vi.fn(async () => new Response('landing page')) };
+    await worker.fetch(on('perch.hausfold.co', '/'), { ASSETS: assets });
+    expect(assets.fetch).not.toHaveBeenCalled();
+  });
+
+  it('sends every other path to the same path on hausfold.co', async () => {
+    // So the subdomain can never quietly become a second copy of the site.
+    const res = await worker.fetch(on('perch.hausfold.co', '/perch/privacy/'), {});
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://hausfold.co/perch/privacy/');
+  });
+
+  it('keeps the query string', async () => {
+    const res = await worker.fetch(on('perch.hausfold.co', '/docs/perch/?q=notch'), {});
+    expect(res.headers.get('location')).toBe('https://hausfold.co/docs/perch/?q=notch');
+  });
+
+  it('does not claim a Worker route on the short domain', async () => {
+    // /download/perch is a Worker route on hausfold.co. On the short domain it
+    // is a redirect like anything else — one host, one job, no second door that
+    // has to be kept in step.
+    const res = await worker.fetch(on('perch.hausfold.co', '/download/perch'), {});
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe('https://hausfold.co/download/perch');
+  });
+
+  it('leaves hausfold.co itself alone', async () => {
+    const assets = { fetch: vi.fn(async () => new Response('landing page')) };
+    const res = await worker.fetch(req('/'), { ASSETS: assets });
+    expect(assets.fetch).toHaveBeenCalledOnce();
+    expect(res.status).toBe(200);
+  });
+});
+
 describe('router', () => {
   it('delegates everything else to the ASSETS binding', async () => {
     const assets = { fetch: vi.fn(async () => new Response('site', { status: 200 })) };
