@@ -56,5 +56,18 @@ jobs:
             # would satisfy a bare grep and bind nothing the Worker can reach.
             sed -n '/^\[assets\]/,/^\[/p' "$f" | grep -q '^binding = "ASSETS"' \
               || { echo "::error file=$f::$f must set binding = \"ASSETS\" inside [assets] — worker.js hands unclaimed paths back through it."; exit 1; }
+            # 🚨 `true`, never an array. An array is an ALLOWLIST: every path
+            # outside it goes to the asset server, whose `not_found_handling`
+            # then answers it, so the Worker's own routes stop being reached.
+            # `["/"]` shipped on 2026-08-26 (#159) and 404'd all four installers
+            # plus /download/* and /api/release/* at once. This is a text check
+            # because nothing else can be: the unit tests call `worker.fetch`
+            # directly and pass under either value, and the live smoke check in
+            # deploy.yml is answered with a Cloudflare challenge from a runner.
+            # Scoped to [assets] for the same reason as the binding above: it is
+            # an [assets] key, and a top-level one would satisfy a bare grep
+            # while doing nothing.
+            sed -n '/^\[assets\]/,/^\[/p' "$f" | grep -q '^run_worker_first = true$' \
+              || { echo "::error file=$f::$f must set run_worker_first = true. An array is an allowlist — every path outside it is answered by the asset server and the Worker's routes stop being reached (see #159)."; exit 1; }
           done
-          echo "Both configs run worker.js with the ASSETS binding."
+          echo "Both configs run worker.js with the ASSETS binding, Worker first."

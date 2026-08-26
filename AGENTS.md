@@ -116,8 +116,15 @@ Worker's own routes stop being reached at all. `["/"]` shipped for one deploy on
 `/download/*` and `/api/release/*` at once — the four installers being the URLs
 this file calls the last thing here that may ever 404. **`npm test` passes under
 either value**, because the Worker's unit tests call `worker.fetch` directly and
-never reach the asset server; the guard is the post-deploy smoke check in
-`.github/workflows/deploy.yml`.
+never reach the asset server.
+
+The guard is a grep for `run_worker_first = true` in `worker.yml`, over BOTH
+wrangler configs. It looks crude beside a real test and it is what there is:
+deploy.yml's post-deploy smoke check hits the live URLs, but Cloudflare answers
+a GitHub runner with a managed challenge whatever User-Agent it sends, so that
+step warns and skips rather than proving anything. ⚠️ **Don't delete the grep as
+a duplicate of the smoke check** — today it is the only thing standing between
+this repo and a repeat of 2026-08-26.
 
 🚨 **`/haus` is the one to learn from**, because the second version was built
 deliberately *not* to be a manual and became a second account anyway: it grew a
@@ -672,11 +679,24 @@ CI, by what a PR touches:
   step prints per-file sizes and 320 bytes around the first differing byte, so
   the next occurrence names the cause.
 - **Worker** (`worker.yml`, on `worker.js` `test/` or either wrangler config):
-  `npm test`, plus a check that both wrangler configs name the same `main` and
-  the same `ASSETS` binding. That second one catches an invisible failure — a
-  `main` in `wrangler.toml` and none in `wrangler.preview.toml` means a PR's
-  installer change looks fine on the preview URL precisely *because* the route
-  isn't running there.
+  `npm test`, plus a check that both wrangler configs name the same `main`, the
+  same `ASSETS` binding and `run_worker_first = true`. Those three catch one
+  invisible failure between them: any of them missing from
+  `wrangler.preview.toml` means a PR's installer change looks fine on the
+  preview URL precisely *because* the route isn't running there. ⚠️
+  `run_worker_first` was missing from the preview config from the day it was
+  written until 2026-08-26, which is exactly that.
+- **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, purges
+  the cache, then smoke-tests nine live Worker routes plus the site root. It is
+  **last on purpose** — a red smoke check must not skip the purge, which is what
+  keeps un-hashed pages from sitting stale in front of visitors. Which also
+  means it is an alarm, not a brake: it runs after the deploy, so a failure
+  reddens the job with the bad code already live. ⚠️ **It cannot currently prove
+  anything**: Cloudflare serves a GitHub runner the managed challenge
+  (`cf-mitigated: challenge`) ahead of the Worker, on every URL, so it warns and
+  skips. A WAF custom rule skipping Bot Fight Mode for its `x-hausfold-smoke`
+  header would make it real; the comment above the step says so. Any wrong
+  answer that isn't a challenge still fails the job.
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.

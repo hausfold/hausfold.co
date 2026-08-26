@@ -89,13 +89,17 @@ not_found_handling = "404-page"
 #
 # ⚠️ **`npm test` cannot catch this.** The Worker's own unit tests pass
 # identically under either value, because they call `worker.fetch` directly and
-# never go near the asset server. What catches it is the post-deploy smoke check
-# in .github/workflows/deploy.yml, added the same day and for this reason.
+# never go near the asset server.
 #
-# The cost of `true` is one Worker invocation per request. The header above
-# describes the older shape, where assets short-circuited first; that is no
-# longer true, and the fast path is now a route match that falls straight
-# through to `env.ASSETS.fetch(request)`.
+# What catches it is worker.yml's grep, over this file and wrangler.preview.toml
+# both, for the literal `run_worker_first = true` inside `[assets]`. A grep is
+# crude and it is what there is: deploy.yml's post-deploy smoke check hits the
+# live URLs, but Cloudflare answers a GitHub runner with a managed challenge
+# ahead of the Worker whatever User-Agent it sends, so that step warns and skips
+# rather than proving anything. 🚨 Don't delete the grep as a duplicate of it.
+#
+# The cost of `true` is one Worker invocation per request, whose fast path is a
+# route-table miss falling straight through to `env.ASSETS.fetch(request)`.
 #
 # Why it is needed at all: assets match on PATH and know nothing about
 # hostname, so `perch.hausfold.co/` matches `out/index.html` and would serve

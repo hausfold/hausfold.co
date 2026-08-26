@@ -131,8 +131,10 @@ const DOWNLOADABLE = new Set(["pounce", "perch"]);
 // Worker's OWN routes stop being reached. `["/"]` shipped for one deploy on
 // 2026-08-26 and 404'd `/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`,
 // `/download/*` and `/api/release/*` simultaneously. The full note is in
-// wrangler.toml; the guard is the post-deploy smoke check in deploy.yml,
-// because the tests in this repo pass under either value.
+// wrangler.toml; the guard is worker.yml's grep for the literal
+// `run_worker_first = true`, because the tests in this repo pass under either
+// value and deploy.yml's live smoke check is answered with a Cloudflare
+// challenge from a GitHub runner.
 const SHORT_DOMAINS = { "perch.hausfold.co": "/docs/perch/install/" };
 // The human-facing artifact, most-preferred first. A DMG outranks the archive
 // on purpose: pounce's release ships BOTH — the tarball is the Homebrew
