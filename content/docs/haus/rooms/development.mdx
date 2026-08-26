@@ -62,7 +62,9 @@ Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purp
 those keys mean here what they mean in every other app rather than what a
 terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
 `⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
-it.)
+it. Nor is `⌘⌥R` — that one is Ghostty's *because* it has to be: it works when
+nothing else in the window is listening. See
+[when the terminal goes cursed](#when-the-terminal-goes-cursed).)
 
 There are **no tabs and no splits**, and that is what freed two of those keys:
 a tab or a split would nest a second layout model inside one tile, when the
@@ -103,8 +105,9 @@ system command, because macOS's `reset` is a link to `tset(1)` — which still
 carries a one-second sleep added in 1979 so mechanical printer-and-ink
 terminals could settle down. This one repairs both halves of the damage (the
 kernel's idea of your terminal, and the terminal's own display state) in about
-**8 milliseconds** instead of a second. Give it arguments and the real `tset`
-takes over, sleep and all.
+**8 milliseconds** instead of a second, and throws away whatever you mashed at
+the dead terminal in the meantime rather than running it the moment the prompt
+comes back. Give it arguments and the real `tset` takes over, sleep and all.
 
 **`⌘⌥R`** is the one for when you *can't* type: a shell stuck in raw mode with
 no echo, an editor that died inside its own full-screen buffer. It is Ghostty's
