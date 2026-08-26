@@ -64,7 +64,10 @@ jobs:
             # because nothing else can be: the unit tests call `worker.fetch`
             # directly and pass under either value, and the live smoke check in
             # deploy.yml is answered with a Cloudflare challenge from a runner.
-            grep -q '^run_worker_first = true$' "$f" \
+            # Scoped to [assets] for the same reason as the binding above: it is
+            # an [assets] key, and a top-level one would satisfy a bare grep
+            # while doing nothing.
+            sed -n '/^\[assets\]/,/^\[/p' "$f" | grep -q '^run_worker_first = true$' \
               || { echo "::error file=$f::$f must set run_worker_first = true. An array is an allowlist — every path outside it is answered by the asset server and the Worker's routes stop being reached (see #159)."; exit 1; }
           done
           echo "Both configs run worker.js with the ASSETS binding, Worker first."

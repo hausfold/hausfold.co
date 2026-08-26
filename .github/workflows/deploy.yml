@@ -73,10 +73,41 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      # Every page URL is un-hashed — `/`, `/perch`, `/docs/…` all keep their
+      # URL when their contents change — so a deploy with no purge can
+      # leave the old copy in front of visitors for as long as Cloudflare's
+      # default cache decides. The worst case is a cached page still asking for
+      # a `/_next/static/*` bundle the new build renamed: that reads as broken
+      # rather than old. Purging is the only way to make a content change land
+      # immediately.
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_ZONE_ID" ]; then
+            echo "::warning::CLOUDFLARE_ZONE_ID not set — skipping cache purge. Add the secret (and give the token Zone → Cache Purge) to enable it."
+            exit 0
+          fi
+          resp=$(curl -fsS -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+          echo "$resp"
+          echo "$resp" | grep -q '"success":true' \
+            || { echo "::error::Cloudflare cache purge failed (see response above)"; exit 1; }
+          echo "Purged the hausfold.co cache."
+
       # The check that `npm test` structurally cannot do — when the edge lets
-      # it run.
+      # it run. ⚠️ It runs AFTER the deploy and after the purge, so a red one
+      # does not stop anything: the bad code is already live and the job going
+      # red is the alarm, not the brake.
       #
-      # Every route below lives in worker.js, and whether the Worker is REACHED
+      # Nine of the ten URLs below are worker.js routes; the tenth is the site
+      # root, which is asset passthrough and is here so a passthrough regression
+      # shows up as a failure rather than as a quiet outage. Whether the Worker
+      # is REACHED
       # is decided by wrangler.toml (`run_worker_first`) and by Cloudflare's
       # asset server — neither of which the unit tests touch. They call
       # `worker.fetch` directly, so they pass whether or not a real request ever
@@ -105,7 +136,10 @@ jobs:
           set -uo pipefail
           fail=0
           blocked=0
-          BODY=$(mktemp); HEAD=$(mktemp)
+          # $ERR is separate from $BODY on purpose: curl's stderr in the same
+          # file as the body would let a transport error satisfy — or break —
+          # the `^#!` and `"tag":"v` assertions that read it.
+          BODY=$(mktemp); HEAD=$(mktemp); ERR=$(mktemp)
 
           # A browser UA is not enough on its own (see above), but it costs
           # nothing and it is what a WAF skip rule would be written against
@@ -117,12 +151,12 @@ jobs:
           # are never followed: where a route sends you is half of what is being
           # asserted.
           probe() {
-            : >"$BODY"; : >"$HEAD"
+            : >"$BODY"; : >"$HEAD"; : >"$ERR"
             probe_code=000; probe_loc=""
             local out
             out=$(curl -sS --max-time 20 -A "$UA" -H 'x-hausfold-smoke: deploy' \
                   -o "$BODY" -D "$HEAD" \
-                  -w '%{http_code} %{redirect_url}' "$1" 2>>"$BODY") || out=""
+                  -w '%{http_code} %{redirect_url}' "$1" 2>"$ERR") || out=""
             if [ -n "$out" ]; then
               probe_code=${out%% *}
               probe_loc=${out#* }
@@ -142,6 +176,7 @@ jobs:
             grep -iE '^(cf-ray|cf-mitigated|content-type|location|server|x-hausfold-[a-z-]+):' "$HEAD" \
               | sed 's/^/      /'
             echo "      body: $(head -c 200 "$BODY" | tr '\r\n' '  ')"
+            [ -s "$ERR" ] && echo "      curl: $(head -c 200 "$ERR" | tr '\r\n' '  ')"
           }
 
           # $1 is the one-line account of what went wrong.
@@ -206,29 +241,3 @@ jobs:
             echo "::warning::Cloudflare challenged $blocked of this step's requests, so those routes went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
           fi
           exit "$fail"
-
-      # Every page URL is un-hashed — `/`, `/perch`, `/docs/…` all keep their
-      # URL when their contents change — so a deploy with no purge can
-      # leave the old copy in front of visitors for as long as Cloudflare's
-      # default cache decides. The worst case is a cached page still asking for
-      # a `/_next/static/*` bundle the new build renamed: that reads as broken
-      # rather than old. Purging is the only way to make a content change land
-      # immediately.
-      - name: Purge Cloudflare cache
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: |
-          if [ -z "$CLOUDFLARE_ZONE_ID" ]; then
-            echo "::warning::CLOUDFLARE_ZONE_ID not set — skipping cache purge. Add the secret (and give the token Zone → Cache Purge) to enable it."
-            exit 0
-          fi
-          resp=$(curl -fsS -X POST \
-            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}')
-          echo "$resp"
-          echo "$resp" | grep -q '"success":true' \
-            || { echo "::error::Cloudflare cache purge failed (see response above)"; exit 1; }
-          echo "Purged the hausfold.co cache."

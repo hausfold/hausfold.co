@@ -686,13 +686,17 @@ CI, by what a PR touches:
   preview URL precisely *because* the route isn't running there. ⚠️
   `run_worker_first` was missing from the preview config from the day it was
   written until 2026-08-26, which is exactly that.
-- **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, then
-  smoke-tests the ten live Worker URLs and purges the cache. ⚠️ **The smoke step
-  cannot currently prove anything**: Cloudflare serves a GitHub runner the
-  managed challenge (`cf-mitigated: challenge`) ahead of the Worker, on every
-  URL, so it warns and skips. A WAF custom rule skipping Bot Fight Mode for its
-  `x-hausfold-smoke` header would make it real; the comment above the step says
-  so. It still fails the deploy on any wrong answer that isn't a challenge.
+- **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, purges
+  the cache, then smoke-tests nine live Worker routes plus the site root. It is
+  **last on purpose** — a red smoke check must not skip the purge, which is what
+  keeps un-hashed pages from sitting stale in front of visitors. Which also
+  means it is an alarm, not a brake: it runs after the deploy, so a failure
+  reddens the job with the bad code already live. ⚠️ **It cannot currently prove
+  anything**: Cloudflare serves a GitHub runner the managed challenge
+  (`cf-mitigated: challenge`) ahead of the Worker, on every URL, so it warns and
+  skips. A WAF custom rule skipping Bot Fight Mode for its `x-hausfold-smoke`
+  header would make it real; the comment above the step says so. Any wrong
+  answer that isn't a challenge still fails the job.
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.
