@@ -62,7 +62,9 @@ Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purp
 those keys mean here what they mean in every other app rather than what a
 terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
 `⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
-it.)
+it. Nor is `⌘⇧R` — that one is Ghostty's *because* it has to be: it works when
+nothing else in the window is listening. See
+[when the terminal goes cursed](#when-the-terminal-goes-cursed).)
 
 There are **no tabs and no splits**, and that is what freed two of those keys:
 a tab or a split would nest a second layout model inside one tile, when the
@@ -89,6 +91,28 @@ tiler already tiles.
 | `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `⌥/` / `⌥,` | Tiles layout / accordion layout |
+| `⌘⇧R` | Un-break a terminal whose display has gone cursed — see [below](#when-the-terminal-goes-cursed) |
+
+### When the terminal goes cursed
+
+A program that dies mid-draw can leave the terminal unusable: garbage where
+text should be, nothing echoed as you type, the mouse spraying escape codes
+into your prompt. Two keys undo it, and which one you reach for depends only on
+how far gone it is.
+
+**`reset`** is the one you type. It is a shell *function* here rather than the
+system command, because macOS's `reset` is a link to `tset(1)` — which still
+carries a one-second sleep added in 1979 so mechanical printer-and-ink
+terminals could settle down. This one repairs both halves of the damage (the
+kernel's idea of your terminal, and the terminal's own display state) in about
+**8 milliseconds** instead of a second, and throws away whatever you mashed at
+the dead terminal in the meantime rather than running it the moment the prompt
+comes back. Give it arguments and the real `tset` takes over, sleep and all.
+
+**`⌘⇧R`** is the one for when you *can't* type: a shell stuck in raw mode with
+no echo, an editor that died inside its own full-screen buffer. It is Ghostty's
+own reset, so it needs nothing from the shell — it hands back a readable
+screen, and typing `reset` into that finishes the repair.
 
 ### Your windows come back
 
