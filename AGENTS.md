@@ -418,13 +418,14 @@ clear it at all.
 > #515, renamed out of `haus.trill.enable` in #521) installs the bundle, which
 > moved nothing about the bar either way.
 >
-> ⚠️ **That condition has since moved and nobody has ruled on it.** trill cut
-> notarized releases on 2026-08-25 and 2026-08-26, so the download half of "no
-> release, no download, no cask" is no longer true and the tree's `warn` callout
-> and `content/docs/trill/index.mdx` both still say it is. Whether the tab now
-> clears the bar on its own, and what the callout should say, is the user's call
-> and not a tidy-up. Until they make it: **don't grow the tree past that page**,
-> and don't read any of this as lowering the bar for a fifth tab.
+> ⚠️ **That condition has moved, and only its false half has been fixed.** trill
+> cut notarized releases on 2026-08-25 and 2026-08-26, so "no release, no
+> download, no cask" was two thirds wrong; the 2026-08-26 docs sweep corrected
+> the callout and the page to what is true today (releases exist, no cask and no
+> one-line install, the Notifications room is the only front door). That was a
+> correction, not a ruling. **Whether the tab still clears the bar is the user's
+> call and nobody has made it.** Until they do: **don't grow the tree past that
+> page**, and don't read any of this as lowering the bar for a fifth tab.
 
 **A new tree owes four things**, each easy to forget separately: an entry in
 `content/docs/meta.json`'s `pages`; a `meta.json` of its own with `"root":

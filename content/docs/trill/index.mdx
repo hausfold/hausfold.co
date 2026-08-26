@@ -1,6 +1,6 @@
 ---
 title: What trill is
-description: "A notification compositor for macOS: one place for what interrupts you, and a filter in front of it. In the incubator; nothing to install yet."
+description: "A notification compositor for macOS: one place for what interrupts you, and a filter in front of it. In the incubator: there are releases, there is no install command."
 icon: trill
 related:
   - title: "Focus"
@@ -10,9 +10,11 @@ related:
 ---
 
 <Callout type="warn" title="trill is in the incubator">
-There is nothing to install, no release and no download. This page exists so
-the idea has an address while it is being built. Everything below is intent,
-not a shipped feature, and any of it may change or be dropped.
+There are signed, notarized releases now, and still no way to install one in a
+line: no cask, no `curl`, nothing on this site's download route. A haus machine
+can have it (below); everyone else is dragging a ZIP out of GitHub. This page
+exists so the idea has an address while it is being built, and any of it may
+change or be dropped.
 </Callout>
 
 **trill** is a notification compositor for macOS: one place for the things that
@@ -45,12 +47,16 @@ The [Notifications room](/docs/haus/rooms/notifications)
 (`haus.notifications.compositor`) is what puts the bundle at a fixed
 `/Applications/Trill.app`, the path a drag install would have used, so a Full
 Disk Access grant survives the next version bump instead of being asked for
-again. It is off by default, and turning it on gets you nothing yet: the flake
-installs a notarized release ZIP and trill has not cut its first release.
+again. It is off by default, which is a question about who owns the bundle
+rather than a step you missed: `haus-notify` and the `trill` command both work
+without it. Switch it on and your `flake.lock` pins a notarized release the way
+it pins everything else.
 
 ## What it isn't yet
 
-No install command, no cask, no download, nothing a stranger can run. When there
-is, this tree grows the pages to say so. The [Focus
+No cask, no install command, nothing a stranger can run in one line. The
+[Notifications room](/docs/haus/rooms/notifications) is the only front door
+that exists; off a haus machine you are dragging a ZIP. When there's a real
+one, this tree grows the pages to say so. The [Focus
 room](/docs/haus/rooms/focus), which is haus's answer to "go quiet" today, is
 where that story starts.

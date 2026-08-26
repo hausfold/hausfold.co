@@ -146,8 +146,9 @@ export default function Home() {
             GitHub, which is all either has so far. trill is still the
             workshop-stage name AGENTS.md allows on the condition the
             register accounts for it — the page it lands on opens by saying
-            there is nothing to install, so the link makes no claim the row
-            doesn't. */}
+            there is no way to install it in a line, so the link makes no
+            claim the row doesn't. (It said "nothing to install" until the
+            2026-08-26 sweep; trill has releases now, just no front door.) */}
         {/* 🚨 `#made` is load-bearing: the four /terms and /refunds 301s land
             on it, because this paragraph is where "nothing to buy" is said.
             It was `#apps` until 2026-08-17, when the section stopped being
