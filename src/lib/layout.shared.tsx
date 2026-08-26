@@ -34,10 +34,11 @@ export function baseOptions(): BaseLayoutProps {
     // out of the docs that lands back in the docs is not a way out, it is
     // the tree switcher at the top of this same sidebar.** `haus` pointed at
     // `/haus` and `pounce` at `/pounce`, both retired into trees; `perch`
-    // pointed at `/perch`, which is NOT retired, but perch got a tree of its
-    // own the same day and a sidebar that names one product twice spends two
-    // rows to offer one thing. Every one of those glyphs lives in the
-    // switcher now — see `src/lib/icons.tsx`.
+    // pointed at `/perch`, which was still a page then, but perch got a tree
+    // of its own the same day and a sidebar that names one product twice
+    // spends two rows to offer one thing. That page has since gone the same
+    // way (2026-08-26), so the row would now point at a redirect. Every one of
+    // those glyphs lives in the switcher — see `src/lib/icons.tsx`.
     //
     // The fourth was `desktops` → `/#desktops`, removed 2026-08-16 at the
     // user's instruction, for the reason that survives the other three: a

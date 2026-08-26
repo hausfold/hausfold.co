@@ -362,8 +362,9 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 /* --- the chrome: mono, small, quiet --------------------------------- */
 
 /* Nav, sidebar and table of contents are apparatus, not prose. They take
-   the mono face at the sizes the hand-written pages use for `.meta` and
-   `.crumbs`, so the docs read as more pages of the same publication. */
+   the mono face at the size the landing half uses for `.topnav`, so the docs
+   read as more pages of the same publication. (`.meta` and `.crumbs` set the
+   same size and were the original reference; both are deleted.) */
 #nd-sidebar,
 #nd-toc,
 #nd-nav,

@@ -70,8 +70,7 @@ Every page is a Next route; `public/` is assets only.
 |---|---|---|
 | `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no `.topnav` — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs on `/haus`, so a paragraph here explaining the layer is in the wrong page |
 | `/haus` | `src/app/haus/page.tsx` | **the layer's page**: the hero paragraph, `Rooms`, `#desktops` (one short paragraph and one link, naming no desktop) and `One file` (the example, Shiki-highlighted at build time). Its `.topnav` is three words — `hausfold` back up, then `/docs/haus` and `hausfold/haus`. A `.sheet--inner`, so no ⌂ and no standfirst. 🚨 **It must not become a second account of the docs** — if it starts listing commands or restating the rooms table, cut rather than keep in step |
-| `/perch` | `src/app/perch/page.tsx` | perch's product page: the dance, install, the one system setting, how it behaves. ⚠️ **The one product with a sheet AND a docs tree** — a behaviour fixed on one is fixed on the other in the same commit, or in neither |
-| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css` |
+| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and since 2026-08-26 a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
@@ -81,11 +80,17 @@ Every page is a Next route; `public/` is assets only.
 masthead instead of to its answer.
 
 **A page that a docs tree also covers does not stay in step with it** — that is
-why `/haus`-as-a-manual, `/pounce` and the three `/desktops/<name>` sheets were
-all retired into docs trees, and why rebuilding any of them is wrong. `/perch`
-is the one exemption: a policy URL plus a one-read pitch for a stranger deciding
-in ninety seconds is a shape a manual can't take. That exemption is the user's
-to revisit, and it is the reason the duplicate-fact rule above binds.
+why `/haus`-as-a-manual, `/pounce`, the three `/desktops/<name>` sheets and
+finally `/perch` were all retired into docs trees, and why rebuilding any of
+them is wrong. `/perch` held out as the one exemption — a one-read pitch for a
+stranger deciding in ninety seconds is a shape a manual can't take — on the
+strength of a policy URL and a price that was coming. perch went back to MIT
+with no paid tier on 2026-08-15, `/terms` and `/refunds` went the day after,
+and on **2026-08-26 the user retired the page**: every fact on it was already
+in `/docs/perch`, which is the duplicate the rule was written about. The pitch
+itself was not thrown away — it opens `/docs/perch`, where the manual starts
+with the dance and the install command. **There is no product sheet on this
+site now**, and adding one back is a decision, not a tidy-up.
 
 **Don't write down how many landing routes there are.** A count in a comment
 rots faster than the thing it counts — say "every `.sheet` route".
@@ -96,7 +101,7 @@ The three things every page shares, and where they live:
 |---|---|
 | canonical, the six `og:` tags, `twitter:card` | `src/lib/page-meta.ts`, called once per page |
 | both `theme-color`s, both `<link rel=icon>`, `og:site_name`/`type`/`locale` | `src/app/layout.tsx` — every route in the build, docs included |
-| the breadcrumb, the colophon, the GitHub mark | `src/components/sheet.tsx` |
+| the colophon and the GitHub mark inside it | `src/components/sheet.tsx` |
 | a fenced command with its copy button | `src/components/command.tsx` |
 
 **A new page that forgets `pageMetadata` has no canonical and no `og:` tags** —
@@ -207,20 +212,21 @@ the token out in prose instead of writing `--something`.
   it — give that component its own boundary. The intended cost: the light/dark
   toggle is a `/docs` affordance, and the landing pages follow
   `prefers-color-scheme`. Our own script is exactly one piece, `<Command>`
-  (`src/components/command.tsx`), used on `/haus` and `/perch`: the button
+  (`src/components/command.tsx`), used on `/haus` alone since `/perch` was
+  retired on 2026-08-26: the button
   renders `hidden` in the exported HTML and unhides only where
   `navigator.clipboard` exists — **pure enhancement, nothing lost without it**.
   That is the bar for a second one.
-- **Placeholder frames, never a stale screenshot.** `/perch` is the only page
-  that draws one — shot slots in CSS labelled `[ shot not taken yet ]`, no image
-  files. A picture that lies about what the desktop looks like today is worse
-  than a grey box that admits it doesn't have one. **One frame is a reserved
-  slot; three are a gallery that failed to load.** A shot frame belongs on a
-  landing page that is *about* one app — `/perch` and nothing else. Neither `/`,
-  nor `/haus`, nor a docs page holds one, and **no images on the front page
-  until the site's velocity slows**. When a real capture exists, drop an
-  `<Image>` in and delete the `.shot span` label — note `images: { unoptimized:
-  true }` in `next.config.mjs`, because `next/image`'s optimizer is a server and
+- **No screenshots at all, and never a stale one.** `/perch` was the last page
+  that drew a placeholder frame — shot slots in CSS labelled `[ shot not taken
+  yet ]`, no image files — and both the page and the `.shot` family went on
+  2026-08-26. A picture that lies about what the app looks like today is worse
+  than a grey box that admits it doesn't have one, and no box at all beats
+  both once there is no sheet to reserve a slot on. **The landing half stays
+  imageless**: no images on the front page until the site's velocity slows, and
+  a real capture, when one exists, belongs in the docs tree it documents rather
+  than back here. If a landing page ever does hold one, note `images: {
+  unoptimized: true }` in `next.config.mjs`, because `next/image`'s optimizer is a server and
   there isn't one. The scene to reshoot is the workshop's `assets/SHOTLIST.md`
   slot-2 cell.
 - **The column leans LEFT, and the measure is 41rem.** `.sheet` is the same
@@ -298,9 +304,12 @@ the token out in prose instead of writing `--something`.
   not before. What still points out of `#made` is `holt` and `nebelung`, which
   have no page here yet, plus GitHub. Three mechanical consequences: an internal
   link is a `<Link>` from `next/link` and an external one stays a plain `<a>`
-  (`eslint-config-next` enforces it, and a `<Link>` to a route that doesn't
-  exist is a build-time failure); `trailingSlash: true` means `<Link
-  href="/perch">` renders `/perch/`; and 🚨 **a `worker.js` route is internal
+  (`eslint-config-next` enforces it; ⚠️ **a `<Link>` to a route that
+  doesn't exist is NOT caught** — `typedRoutes` is off, so `build`,
+  `types:check` and `lint` all pass on one, and a retired page's inbound links
+  are yours to find. Measured 2026-08-26, when the privacy page's footer still
+  pointed at the just-deleted `/perch` through four green checks); `trailingSlash: true` means `<Link
+  href="/haus">` renders `/haus/`; and 🚨 **a `worker.js` route is internal
   but NOT a Next route** — `/download/<app>`, `/hacker.sh` and
   `/api/release/<app>` take a plain `<a>`, because `next/link` would
   client-navigate to a page the router has never heard of. ⚠️ **In MDX the trap

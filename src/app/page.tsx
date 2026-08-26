@@ -190,8 +190,11 @@ export default function Home() {
               </Link>
               , a launcher you teach your own commands.
             </li>
+            {/* Pointed at `/perch` until 2026-08-26, when the last product
+                sheet was retired into its own tree the way `/pounce` was.
+                Every row in this list now lands on a docs tree or a repo. */}
             <li data-accent="perch">
-              <Link className="index-name" href="/perch">
+              <Link className="index-name" href="/docs/perch">
                 perch
               </Link>
               , a place for files to park on their way somewhere else.

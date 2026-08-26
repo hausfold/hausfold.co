@@ -19,11 +19,11 @@ const serverSnapshot = () => false;
 
 // The fenced command with a copy button — the twelve lines that used to sit at
 // the foot of `/haus`, `/perch`, `/pounce` and `/desktops/hacker` as four
-// identical `<script>` blocks. Three of those four pages are gone: `/haus` and
-// `/pounce` were retired into docs trees and the desktop pages were deleted
-// outright, all on 2026-08-14. In a tree a fenced block is MDX and gets
-// fumadocs' own copy button; this component serves the landing half, which is
-// now `/` and `/perch`.
+// identical `<script>` blocks. `/pounce` and the desktop pages went on
+// 2026-08-14 and `/perch` on 2026-08-26, all of them into docs trees. In a
+// tree a fenced block is MDX and gets fumadocs' own copy button; this
+// component serves the landing half, where `/haus`'s `haus.*` example is the
+// one caller left.
 //
 // The bar AGENTS.md sets for script on these pages is kept exactly: **pure
 // enhancement, nothing lost without it**. The button renders `hidden` in the

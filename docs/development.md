@@ -23,17 +23,17 @@ than a redirect, and a made-up path should 404 rather than answer 200.
 src/app/                          the routes
   page.tsx                        the house's door — github, the masthead, #made (one list)
   haus/                           the layer's page — the hero, rooms, #desktops, the one file
-  perch/                          the product page; perch/privacy/ is linked from the App
-                                  Store, so don't move or rename that URL. (desktops/,
-                                  terms/ and refunds/ used to be here; every desktop is a
-                                  docs page now and the seller's pages are gone, with
-                                  301s in _redirects for all of them)
+  perch/privacy/                  perch's policy URL, linked from the App Store — don't
+                                  move or rename it. (perch's own product page was here
+                                  until 2026-08-26, as were desktops/, terms/ and refunds/;
+                                  the sheets are all docs pages now and the seller's pages
+                                  are gone, with 301s in _redirects for all of them)
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
   docs/                           the Fumadocs shell; /docs itself 301s to /docs/haus/
   global.css                      Fumadocs re-pointed at hausfold.css's tokens
 src/components/
-  sheet.tsx                       the breadcrumb, the colophon, the ⌂ mark
+  sheet.tsx                       the colophon and the GitHub mark inside it
   command.tsx                     a fenced command with its copy button
   mdx.tsx, page-actions.tsx       what the docs render, and the "Open in…" menu
 src/lib/

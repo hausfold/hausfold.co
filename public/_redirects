@@ -139,3 +139,18 @@
 /terms/     /#made  301
 /refunds    /#made  301
 /refunds/   /#made  301
+
+# /perch, retired 2026-08-26 — the last product sheet to go, and it goes the
+# way /pounce did on 2026-08-14. It was exempted then for a reason that has
+# since expired twice over: a sales sheet needed a policy URL and a price, and
+# perch went back to MIT with no paid tier on 2026-08-15 (hausfold/perch#67)
+# while /terms and /refunds went the day after. What was left was a one-read
+# pitch whose every fact was also in /docs/perch — the duplicate-fact risk
+# AGENTS.md warned about, with nothing on the other side of the ledger.
+#
+# ⚠️ /perch/privacy is NOT affected and must never be: it is the App Store
+# listing's policy URL. Exact paths only is what keeps that true — a
+# `/perch/*` wildcard here would 301 the one URL on this site that a
+# third party requires to resolve.
+/perch      /docs/perch/   301
+/perch/     /docs/perch/   301
