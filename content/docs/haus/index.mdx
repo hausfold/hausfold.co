@@ -17,13 +17,19 @@ related:
     icon: "hacker"
 ---
 
-**haus** is a layer for macOS. You describe the machine you want in one text
-file: apps, window management, the bar, the shell, the colours, the macOS
-settings you always change by hand. Then one command makes the Mac match it.
+A Mac out of the box is somebody else's idea of a Mac. **haus** is a layer for
+macOS that rebuilds it into yours: the windows, the bar, the shell, the keys,
+the apps, the settings you always change by hand. You describe the machine you
+want in one text file, and one command makes the Mac match it, on any machine
+you own.
 
 ```nix
-haus.theme.accent = "sapphire";
+haus.theme.accent = "sapphire";  # one hue, everywhere
+haus.windows.enable = true;      # tiling, Caps Lock as leader
+haus.focus.enable = true;        # Do Not Disturb, one switch
 haus.terminal.editorName = "neovim";
+
+# Slack, installed, on Caps Lock + s
 haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
 ```
 
@@ -31,8 +37,9 @@ haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
 haus rebuild
 ```
 
-Slack is installed and bound to a launcher key, your terminal is themed, and
-the change is a line in git you can read six months later.
+Your windows tile, your terminal is themed, Slack is installed and bound to a
+launcher key, and every one of those is a line in git you can read six months
+later.
 
 That is the whole idea. The rest of these pages are the detail.
 
@@ -47,6 +54,9 @@ That is the whole idea. The rest of these pages are the detail.
   read the same value.
 - **Nothing is buried.** Every knob is a documented option with a default, and
   `haus edit` opens the file that sets them.
+- **An agent can drive it.** The whole machine in one file, every rebuild
+  reversible: a haus Mac is the rare Mac an agent can reconfigure
+  [quickly, confidently, and safely](/docs/haus/agent-rebuilds).
 
 You do **not** need to know [Nix](https://nixos.org) going in. It is what makes
 this reproducible, and the installer sets it up for you. You will pick some of
@@ -55,7 +65,9 @@ it up over time, and that's the whole curve.
 ## What's in the box
 
 haus is organised into twelve **rooms**, each one a capability you can turn on,
-off, or leave alone. Turn on the ones you want; the rest cost you nothing.
+off, or leave alone. An app store stops at the app; a room also wires the keys
+and the macOS settings around it, so the pieces already know each other. Turn
+on the ones you want; the rest cost you nothing.
 
 | Room | What it does |
 |---|---|
@@ -77,9 +89,18 @@ Homebrew policy and the `haus` CLI itself. The [full
 reference](/docs/haus/reference/options) lists every option in every room, with
 its type and default.
 
-Which rooms are on is your **desktop's** decision, and disagreeing with it is one
-line in your host file. Each piece also stands alone: you can take the whole
-thing, or just [pounce](/docs/pounce), or just the palette.
+Each piece also stands alone: you can take the whole thing, or just
+[pounce](/docs/pounce), or just the palette.
+
+## Desktops
+
+A **desktop** is a complete setup, written down: which rooms are on, how it
+looks, what it installs. A Mac runs exactly one, and disagreeing with it is one
+line in your host file.
+
+A desktop is just a file, so it travels: make your own, or run one a friend
+swears by. [Choosing a desktop](/docs/haus/desktops/choosing) covers the four
+that ship and how to tell them apart.
 
 ## The shape of a haus machine
 

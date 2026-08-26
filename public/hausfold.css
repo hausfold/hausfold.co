@@ -279,18 +279,18 @@ body {
    margin in the cross axis is NOT stretched — so the moment the lean landed,
    whichever side the `auto` was on, `.sheet` stopped being viewport-wide and
    became shrink-to-fit, which means its width follows its own min-content.
-   That is the widest unbreakable thing on the page, and on the landing page
-   that is `<code>` inside `.cmd` (`white-space: pre`, one line that measured
-   545px the day this was written). On a desktop nobody saw it, because that is
-   under the 41rem measure. On a 390px phone the document came out 624px wide:
-   free space is negative, so the auto margin resolves to zero, the column
-   sits at the left edge and the page scrolls sideways with the right of every
-   paragraph past the glass. Nothing on the code could have prevented that —
-   nothing *lowers* an element's min-content contribution; what a definite
-   width on the ancestor does is stop the ancestor's own width from being
-   derived from it in the first place. (The `min-width: 0` down at .cmd code
-   was long described as the thing standing between this page and that, which
-   is where this session looked first. See the note there.)
+   That is the widest unbreakable thing on the page, which at the time was
+   `<code>` inside `.cmd` (`white-space: pre`, one line that measured 545px the
+   day this was written; the class went with the last page that used it on
+   2026-08-26). On a desktop nobody saw it, because that is under the 41rem
+   measure. On a 390px phone the document came out 624px wide: free space is
+   negative, so the auto margin resolves to zero, the column sits at the left
+   edge and the page scrolls sideways with the right of every paragraph past
+   the glass. Nothing on the code could have prevented that — nothing *lowers*
+   an element's min-content contribution; what a definite width on the ancestor
+   does is stop the ancestor's own width from being derived from it in the
+   first place. ⚠️ **Keep this rule even with no `.cmd` on the site**: the next
+   unbreakable thing (a long inline `<code>`, a URL) reproduces it exactly.
    `width: 100%` gives the sheet one, so the column is the viewport again, the
    max-width clamps it, the start inset holds the lean, and the auto end margin
    still absorbs whatever is left over.
@@ -312,15 +312,12 @@ body {
   gap: clamp(3rem, 7vw, 4.75rem);
 }
 
-/* An inner page opens on a nav row rather than the ⌂, so the top of the sheet
-   is tighter than the landing page's masthead needs. `/haus` and its `.topnav`
-   are the only page spending this class since 2026-08-26, when `/perch` — the
-   last one to open on a `.crumbs` breadcrumb — was retired; see the breadcrumb
-   note below. */
-.sheet--inner {
-  padding-top: clamp(2.25rem, 6vw, 4rem);
-  gap: clamp(2.5rem, 6vw, 3.75rem);
-}
+/* `.sheet--inner` is gone as of 2026-08-26, with the nav classes it existed
+   for. It tightened the top of a sheet that opened on a row of mono words
+   rather than on the ⌂ — `padding-top: clamp(2.25rem, 6vw, 4rem)` and `gap:
+   clamp(2.5rem, 6vw, 3.75rem)`, against the fuller values above. `/perch` and
+   `/haus` were its last two callers and both retired into docs trees that day.
+   A page that opens on a nav row again wants those two numbers back. */
 
 /* --- masthead ------------------------------------------------- */
 
@@ -330,38 +327,21 @@ body {
   gap: 1.6rem;
 }
 
-/* The landing half's nav, added 2026-08-14 for the front page's two words.
-   Small mono, --ink-3, no box, because this site has no nav bar and isn't
-   getting one.
+/* `.topnav` lived here from 2026-08-14 and is gone as of 2026-08-26, the same
+   day as `.crumbs` below and for the same reason. It was the landing half's
+   roomier nav: a row of small mono words for a page that pointed onward as
+   well as up. `/` shed it on 2026-08-18 and `/haus` was the last caller, so it
+   went with that page into `/docs/haus`.
 
-   ⚠️ As of 2026-08-18 the front page carries none of this: `/` had shrunk
-   to a single `github` link above a 5rem mark, and the user cut it (the
-   colophon has the same link). `/haus` is the one page left spending this
-   class, so it is live style, not dead style — and since `/perch` was
-   retired on 2026-08-26 it is the only nav row on the landing half at all:
-   `.crumbs`, the up-only form, had no users left and was deleted.
-
-   Left-aligned, onto the column's own left edge — the same axis the ⌂, the
-   wordmark and every paragraph below it start on. It was flush RIGHT for
-   the few hours the column leaned right, for the same reason stated the
-   other way round; when the lean reversed, a right-aligned pair of words
-   became the one object on the page floating away from the axis, with the
-   empty field beyond it. The rule is the axis, not the side. */
-.topnav {
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 0.3rem 1.1rem;
-  margin-bottom: 0.4rem;
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.78rem;
-  color: var(--ink-3);
-}
-
-.topnav a:hover,
-.topnav a:focus-visible {
-  color: var(--ink);
-}
+   ⚠️ **The landing half now has no nav vocabulary at all.** `/` carries the
+   colophon's GitHub link and nothing else; `/perch/privacy` writes its own
+   eyebrow in `privacy.module.css`. A page that needs one is writing a new
+   class, and should read the axis rule first: both forms were left-aligned
+   onto the column's own left edge, the same axis the ⌂, the wordmark and every
+   paragraph start on. `.topnav` was flush RIGHT for the few hours the column
+   leaned right; when the lean reversed, a right-aligned pair of words became
+   the one object floating away from the axis with the empty field beyond it.
+   The rule is the axis, not the side. */
 
 .mark {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
@@ -552,10 +532,11 @@ body {
    whole navigation — two or three words of mono, the current page not a link.
    `/perch` was the last page that opened on one, and it was retired into
    `/docs/perch` on 2026-08-26; `/perch/privacy` writes its own eyebrow in
-   `privacy.module.css`, and `/haus` uses the roomier `.topnav` above because
-   it points onward as well as up. Zero users, so deleted rather than kept warm
-   — and `Crumbs` went out of `src/components/sheet.tsx` in the same commit,
-   because a component nothing renders is the same debt in another file. */
+   `privacy.module.css`. Zero users, so deleted rather than kept warm — and
+   `Crumbs` went out of `src/components/sheet.tsx` in the same commit, because
+   a component nothing renders is the same debt in another file. (`.topnav`,
+   the onward-pointing form, went hours later with `/haus`; see the note where
+   it used to be, under the masthead.) */
 
 /* --- the break-out plates: removed 2026-08-14 ---------------------- */
 
@@ -640,103 +621,44 @@ body {
    viewport. Not the sheet's full padding: a fragment SHOULD sit higher than
    the top of the document, just not touching it.
 
-   #desktops is the Desktops section — one sentence and one link since
-   2026-08-14, a catalogue of plates before that — and it is where every
-   /desktops link already in the wild lands: the 301 in _redirects and the
-   404. ⚠️ It moved from `/` to `/haus` on 2026-08-17 with the section it
-   names, when the site split into the house and the layer; the id is
-   unchanged and both callers were repointed in the same commit. Whatever
-   that section becomes next, the id stays.
+   #made is the landing page's index of everything hausfold makes, and as of
+   2026-08-26 it is the only fragment target the landing half has: the four
+   /terms and /refunds 301s land on it. It was #apps until the house/layer
+   split on 2026-08-17.
 
-   #made is the landing page's index of everything hausfold makes. It was
-   #apps until the same split, and it is a fragment target for the same kind
-   of reason: the four /terms and /refunds 301s land on it.
-
-   Both used to have neighbours here, #first-moves and #keys on
-   /desktops/hacker. That page is gone and the anchors went with it — the
-   first-moves half is /docs/haus/desktops/hacker#first-moves now, which is
-   the docs half of the site and scrolls under fumadocs' own rules. */
-#desktops,
+   Three ids used to sit here beside it and all of them left with their
+   pages. #desktops was the last, on 2026-08-26: it lived on `/`, then on
+   `/haus`, and when that page retired into the docs its two callers (the
+   /desktops 301 and the 404) were repointed at
+   /docs/haus/desktops/choosing — a page rather than a fragment, which is
+   what they were reaching for. #first-moves and #keys went with
+   /desktops/hacker on 2026-08-14; the first-moves half is
+   /docs/haus/desktops/hacker#first-moves now, which is the docs half of the
+   site and scrolls under fumadocs' own rules. */
 #made {
   scroll-margin-top: clamp(1.5rem, 4vw, 2.5rem);
 }
 
-/* --- the command --------------------------------------------------- */
+/* --- the command: removed 2026-08-26 -------------------------------- */
 
-.cmd {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem 0.9rem;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  background: var(--well);
-  padding: 0.85rem 1rem;
-}
+/* `.cmd`, `.cmd code`, `.copy` and `.copy[hidden]` framed a fenced command
+   with a copy button beside it. `/haus`'s `haus.*` example and `/perch`'s
+   `brew install` line were the last two callers and both pages retired into
+   docs trees within hours of each other, so the styles went with them and
+   `src/components/command.tsx` went with the styles: the landing half ships
+   none of our own script now. In a tree a fenced block is MDX and gets
+   fumadocs' own copy button, which is the whole reason neither page needed
+   this once its copy moved.
 
-.cmd code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.82rem;
-  line-height: 1.6;
-  color: var(--ink);
-  overflow-x: auto;
-  white-space: pre;
-  /* The command is long and a phone is narrow, and what lets it scroll inside
-     its own frame rather than set the width of the box around it is
-     `overflow-x: auto` above: a flex item whose main-axis overflow is not
-     `visible` has an automatic minimum size of zero (Flexbox §4.5).
-     `min-width: 0` below spells the same thing out and, measured, changes
-     nothing on its own — it is insurance for the day someone takes the
-     overflow off, not the thing doing the work.
-
-     ⚠️ This comment claimed the opposite twice. It called `min-width: 0`
-     "the load-bearing half", which is where the session that found the phone
-     break looked first; the actual cause was `.sheet` going shrink-to-fit
-     (an auto inline margin on a flex item suppresses stretch), which let this
-     545px line set the width of the whole document — 624px on a 390px phone.
-     Nothing here could have prevented that: nothing *lowers* an element's
-     min-content contribution. The fix is `width: 100%` on `.sheet`; see the
-     note there. */
-  flex: 1 1 12rem;
-  min-width: 0;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Hidden in markup and revealed by the script, so a page with no JS
-   shows a plain selectable command and not a button that does nothing.
-
-   `align-self: flex-start` opts it out of `.cmd`'s centered cross axis:
-   beside the multi-line example it floated at mid-height, and a copy
-   button's place is the top-right corner (the user's call, 2026-08-16).
-   Beside a one-line command the button is usually the tallest thing in
-   the row, so this moves nothing there — except under classic scrollbars
-   (Windows, or macOS "always show"), where an overflowing one-line
-   command grows a scrollbar strip and the button pins to the top of the
-   slightly taller row. Accepted: top-aligned is the point. */
-.copy {
-  align-self: flex-start;
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 0.3rem 0.6rem;
-  cursor: pointer;
-  flex: 0 0 auto;
-}
-
-.copy:hover,
-.copy:focus-visible {
-  color: var(--ink);
-  border-color: var(--ink-3);
-}
-
-.copy[hidden] {
-  display: none;
-}
+   Two things paid for here, if the frame ever comes back. The button was
+   `align-self: flex-start`, because beside a multi-line example a centred one
+   floats at mid-height and a copy button's place is the top-right corner. And
+   the code's `overflow-x: auto` is what let a long command scroll inside its
+   own frame rather than set the width of the document: a flex item whose
+   main-axis overflow is not `visible` has an automatic minimum size of zero
+   (Flexbox 4.5). ⚠️ `min-width: 0` was NOT the load-bearing half, though the
+   comment claimed so twice; the 390px-phone break was `.sheet` going
+   shrink-to-fit, and the fix is the `width: 100%` noted there. */
 
 .aside {
   font-size: 0.86rem;
@@ -745,23 +667,11 @@ body {
   max-width: 62ch;
 }
 
-/* A sidenote with weight: full ink where a .block paragraph sits at --ink-2,
-   and a heavier left rule so the eye stops on it. Added 2026-08-16 for the
-   haus section's agent line, and greyscale at rest like everything else on
-   the landing half — the emphasis is structure, not colour. (`.block .note`
-   rather than `.note`: `.block p` outranks a bare class, and this rule
-   exists to beat exactly that one.) */
-.block .note {
-  font-size: 0.92rem;
-  color: var(--ink);
-  /* A step more than the block's 1.05rem gap: the rule makes the note read
-     as its own object, and an object flush against the paragraph above it
-     read as glued to it (the user's read, 2026-08-16). */
-  margin: 0.5rem 0 0;
-  max-width: 58ch;
-  padding-left: 0.9rem;
-  border-left: 2px solid var(--ink-2);
-}
+/* `.block .note` lived here from 2026-08-16 and is gone as of 2026-08-26. It
+   was a sidenote with weight — full ink, a heavier left rule — written for
+   one paragraph, `/haus`'s agent line, and it went with that page into
+   `/docs/haus`, where the line is a `## Why bother` bullet. Same call as
+   `.topnav` above: one page's style, deleted with the page. */
 
 .aside code,
 .block p code,
@@ -822,12 +732,12 @@ body {
   font-size: 0.88rem;
 }
 
-/* Same correction, wherever an .index-name sits inside an .aside. One place
-   on the landing page now: the haus section's pointer at the docs. (It was
-   written for the closing "also from hausfold" line, which became a proper
-   .index list of its own when the page was cut down, and the desktops line
-   inherited it until that line stopped naming desktops.)
-   .index-name's 0.92rem is an absolute rem, so
+/* Same correction, wherever an .index-name sits inside an .aside. No page
+   spends it today — the last was `/haus`'s pointer at the docs, gone
+   2026-08-26 — and it is two declarations of defence rather than a layout,
+   so it stays: an .aside is the one place a stray .index-name would look
+   wrong and not obviously be wrong. .index-name's 0.92rem is an absolute
+   rem, so
    without this it renders BIGGER and at brighter ink than the
    0.86rem/--ink-3 note around it — a link that outshouts its own
    sentence. Relative units here, like `.aside code` already uses. */

@@ -12,21 +12,21 @@ npm run types:check && npm run lint  # what CI runs first
 `npm run dev` is the loop for everything with a URL. Reach for `wrangler dev`
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
-`worker.js` behave. `/desktops` should 301 to `/haus/#desktops`,
-`/desktops/hacker` to `/docs/haus/desktops/hacker/`, `/docs` to
-`/docs/haus/`, `/pounce` to `/docs/pounce/`, `/haus` should be a page rather
-than a redirect, and a made-up path should 404 rather than answer 200.
+`worker.js` behave. `/desktops` should 301 to `/docs/haus/desktops/choosing/`,
+`/desktops/hacker` to `/docs/haus/desktops/hacker/`, `/docs` and `/haus` both
+to `/docs/haus/`, `/pounce` to `/docs/pounce/`, and a made-up path should 404
+rather than answer 200.
 
 ## the map
 
 ```
 src/app/                          the routes
   page.tsx                        the house's door — github, the masthead, #made (one list)
-  haus/                           the layer's page — the hero, rooms, #desktops, the one file
   perch/privacy/                  perch's policy URL, linked from the App Store — don't
-                                  move or rename it. (perch's own product page was here
-                                  until 2026-08-26, as were desktops/, terms/ and refunds/;
-                                  the sheets are all docs pages now and the seller's pages
+                                  move or rename it. (haus/ and perch/ were both here
+                                  until 2026-08-26, as were desktops/, terms/ and
+                                  refunds/; the layer's page is content/docs/haus/index.mdx
+                                  now, every sheet is a docs page and the seller's pages
                                   are gone, with 301s in _redirects for all of them)
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
@@ -49,10 +49,11 @@ worker.js  test/                  the three code routes, and their tests
 scripts/                          generators — not deployed
 ```
 
-🚨 **Two ids are load-bearing**, and both are the target of a 301 someone
-already holds: `#made` on `/` (`/terms`, `/refunds`) and `#desktops` on
-`/haus` (`/desktops`, plus the 404's row). Renaming either means editing
-`public/_redirects` in the same commit.
+🚨 **One id is load-bearing**, and it is the target of a 301 someone already
+holds: `#made` on `/` (`/terms`, `/refunds`). Renaming it means editing
+`public/_redirects` in the same commit. (`#desktops` was the other, on `/` and
+then on `/haus`; it went with that page on 2026-08-26, and its two callers now
+land on `desktops/choosing` itself.)
 
 Two conventions the linter enforces and one it can't: an internal link is
 `<Link>`, an external one a plain `<a>` — and a `worker.js` route

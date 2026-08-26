@@ -362,9 +362,10 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 /* --- the chrome: mono, small, quiet --------------------------------- */
 
 /* Nav, sidebar and table of contents are apparatus, not prose. They take
-   the mono face at the size the landing half uses for `.topnav`, so the docs
-   read as more pages of the same publication. (`.meta` and `.crumbs` set the
-   same size and were the original reference; both are deleted.) */
+   the mono face at 0.78rem, the size the landing half set its chrome in, so
+   the docs read as more pages of the same publication. (`.meta`, `.crumbs`
+   and `.topnav` were the reference and all three are deleted; the size
+   outlived them because the docs are where the chrome is now.) */
 #nd-sidebar,
 #nd-toc,
 #nd-nav,
@@ -979,28 +980,22 @@ article h1,
   --nb-token-link: var(--nebelung-teal);
 }
 
-/* The landing half never carries the `.dark` class and never sets
-   `data-theme` — its dark mode is the media query alone (only /docs has the
-   toggle). So the fork above never fires there, and the landing page's Shiki
-   output (the haus example block on / and the two inline commands in its
-   aside, all highlighted at build time) needs
-   the same nebelung values under `prefers-color-scheme`. Scoped to
-   `body:has(.sheet)` so it can only ever match the landing half: a docs page
-   toggled to light keeps its class-keyed fork, untouched by this block. */
-@media (prefers-color-scheme: dark) {
-  body:has(.sheet) {
-    --nb-foreground: var(--nebelung-text);
-    --nb-token-keyword: var(--nebelung-mauve);
-    --nb-token-string: var(--nebelung-green);
-    --nb-token-string-expression: var(--nebelung-green);
-    --nb-token-function: var(--nebelung-blue);
-    --nb-token-constant: var(--nebelung-peach);
-    --nb-token-parameter: var(--nebelung-maroon);
-    --nb-token-comment: var(--nebelung-overlay0);
-    --nb-token-punctuation: var(--nebelung-overlay2);
-    --nb-token-link: var(--nebelung-teal);
-  }
-}
+/* The landing half's `--nb-token-*` fork is gone as of 2026-08-26, with the
+   last code it had to colour. It was the ten mappings above repeated under
+   `@media (prefers-color-scheme: dark)` and scoped to `body:has(.sheet)`,
+   because a `.sheet` page carries neither the `.dark` class nor `data-theme`
+   — only /docs has the toggle — so the class-keyed fork above never fires
+   there. `/haus`'s Shiki-highlighted example and the two inline commands in
+   its aside were the callers, and they went into `/docs/haus` the same day
+   `/perch` went into `/docs/perch`, taking `<Command>` and `.cmd` with them.
+
+   🚨 A landing page that highlights code again needs this back, and nothing
+   will say so: Shiki emits `var(--nb-token-*)` rather than hexes, so without
+   the fork the block renders in whatever the light values are, on a dark
+   ground. Copy the `:root[data-theme='dark']` block above verbatim into
+   `@media (prefers-color-scheme: dark) { body:has(.sheet) { … } }`. Do not
+   reach for hexes instead: AGENTS.md's colour rule is that code keeps
+   nebelung's ramp wherever it appears. */
 
 /* A comment is the one token that carries an italic, and nebelung's ramp is
    where the grey comes from — dim enough to skip, legible enough to read.

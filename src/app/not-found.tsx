@@ -38,19 +38,20 @@ export default function NotFound() {
             the layer everything sits in borrows every colour and owns none.
             A desktop is not a product and never had one either.
 
-            🚨 The middle row is `/haus/#desktops`, NOT bare `/haus`, and the
-            anchor is the point: this page is one of the two callers
-            `public/_redirects` and AGENTS.md name for that id, and dropping it
-            here would leave the `/desktops` 301 holding it alone while four
-            files still said otherwise. It moved from `/#desktops` to
-            `/haus/#desktops` on 2026-08-17, with the section itself. */}
+            The middle row went `/#desktops` → `/haus/#desktops` → here, and
+            the last move (2026-08-26, when /haus retired into the docs) is
+            what ended the id: `desktops/choosing` is the page that answers
+            "which of these is mine?", so the row now lands on the answer
+            rather than on a fragment three sentences above a link to it.
+            `public/_redirects`' /desktops 301 points at the same page, and
+            these two are its only callers — move one, move both. */}
         <ul className="index" role="list">
           <li>
             <Link className="index-name" href="/">
               hausfold
             </Link>
             , the house.{' '}
-            <Link className="index-name" href="/haus/#desktops">
+            <Link className="index-name" href="/docs/haus/desktops/choosing">
               desktops
             </Link>
             , the ones you can run.{' '}

@@ -18,11 +18,16 @@ import { pageMetadata } from '@/lib/page-meta';
 // explains rather than points belongs one floor down — on the thing's own
 // page, or in `/docs`, and in exactly one of them.
 //
-// 🚨 Two ids used to be load-bearing here and only one still is. `#desktops`
-// went to `/haus` with its section (the /desktops 301 and the 404 now point
-// at /haus/#desktops); `#apps` became `#made`, because the list is no longer
-// only apps — the four /terms and /refunds 301s were repointed in the same
-// commit. See `public/_redirects`.
+// `/haus` was that floor until 2026-08-26, when it retired into
+// `content/docs/haus/index.mdx`: most readers reach the tree without passing
+// the sheet, so the argument was being made to the smaller half of the
+// audience and kept in step for the other. haus's row below points at the
+// docs now, which is what the rule in the paragraph above always asked for.
+//
+// 🚨 One id is load-bearing here. `#apps` became `#made`, because the list is
+// no longer only apps — the four /terms and /refunds 301s were repointed in
+// the same commit. (`#desktops` was the other; it went to `/haus` with its
+// section and retired with it.) See `public/_redirects`.
 //
 // The head is `pageMetadata` and the `theme-color`/favicon pair comes from
 // `src/app/layout.tsx`.
@@ -70,11 +75,12 @@ export default function Home() {
               (`/perch/privacy` writes its own footer and has none — see
               `src/components/sheet.tsx`.)
 
-              🚨 This is `/`'s rule alone, at the user's instruction. `/haus`
-              keeps its three-word `.topnav` — an inner page owes a way back
-              up, and the layer's own docs and repo are the two destinations
-              its rows can't be. `.topnav` in `public/hausfold.css` is
-              therefore still live; don't delete it as dead style. */}
+              🚨 It stopped being `/`'s rule alone on 2026-08-26: `/perch`
+              and `/haus` both retired into their docs trees that day, and
+              `.crumbs` and `.topnav` went with them. No page on this site
+              opens on a nav row now. An inner page that comes back still
+              owes a way back up — the two tombstones in
+              `public/hausfold.css` carry the shapes. */}
 
           <div className="mark" aria-hidden="true">
             ⌂
@@ -83,7 +89,8 @@ export default function Home() {
           <p className="standfirst">We rebuild the Mac.</p>
           {/* Half the length of the paragraph it replaced, and about a
               different subject: that one explained haus and moved to
-              `/haus` still explaining it. This one says who is speaking.
+              `/haus`, then into `/docs/haus`, still explaining it. This one
+              says who is speaking.
               It names the two tiers — the layer, and the tools — without
               teaching either, because both are one row away and every row
               is a door.
@@ -107,9 +114,9 @@ export default function Home() {
 
               What replaced it names the macOS pain instead of a stance:
               **nothing by hand**. That is the site's own recurring phrase
-              for the thing people actually resent (`/haus`'s lede and
-              `docs/haus` both say "the settings you always change by
-              hand"), and it is a promise the layer keeps rather than a
+              for the thing people actually resent (`docs/haus`'s lede
+              says "the settings you always change by hand"), and it is a
+              promise the layer keeps rather than a
               personality it claims. "native" came out in the same edit: it
               was already in the sentence, two clauses earlier. */}
           <div className="lede">
@@ -179,7 +186,7 @@ export default function Home() {
                 vocabulary: the six accents belong to products, and a
                 seventh is not available to invent.) */}
             <li>
-              <Link className="index-name" href="/haus">
+              <Link className="index-name" href="/docs/haus">
                 haus
               </Link>
               , the layer your whole Mac is written in.
