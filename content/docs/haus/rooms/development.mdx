@@ -62,7 +62,7 @@ Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purp
 those keys mean here what they mean in every other app rather than what a
 terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
 `⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
-it. Nor is `⌘⌥R` — that one is Ghostty's *because* it has to be: it works when
+it. Nor is `⌘⇧R` — that one is Ghostty's *because* it has to be: it works when
 nothing else in the window is listening. See
 [when the terminal goes cursed](#when-the-terminal-goes-cursed).)
 
@@ -91,7 +91,7 @@ tiler already tiles.
 | `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord |
 | `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
 | `⌥/` / `⌥,` | Tiles layout / accordion layout |
-| `⌘⌥R` | Un-break a terminal whose display has gone cursed — see [below](#when-the-terminal-goes-cursed) |
+| `⌘⇧R` | Un-break a terminal whose display has gone cursed — see [below](#when-the-terminal-goes-cursed) |
 
 ### When the terminal goes cursed
 
@@ -109,7 +109,7 @@ kernel's idea of your terminal, and the terminal's own display state) in about
 the dead terminal in the meantime rather than running it the moment the prompt
 comes back. Give it arguments and the real `tset` takes over, sleep and all.
 
-**`⌘⌥R`** is the one for when you *can't* type: a shell stuck in raw mode with
+**`⌘⇧R`** is the one for when you *can't* type: a shell stuck in raw mode with
 no echo, an editor that died inside its own full-screen buffer. It is Ghostty's
 own reset, so it needs nothing from the shell — it hands back a readable
 screen, and typing `reset` into that finishes the repair.
