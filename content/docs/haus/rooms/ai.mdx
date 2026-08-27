@@ -228,6 +228,72 @@ beside it. Two derivations shipping the same `bin/claude` collide in one profile
 and the rebuild fails with `two given paths contain a conflicting subpath`.
 </Callout>
 
+## One subscription, every agent
+
+Claude Code talks to your Claude subscription. Everything else — pi, OpenCode, an
+editor plugin, anything speaking the Anthropic wire format — wants an API key,
+which is metered, which means the same work costs twice depending on which pane
+you did it in.
+
+`haus.ai.meridian` closes that gap with a proxy on loopback:
+
+```nix
+haus.ai.meridian.enable = true;
+```
+
+It runs [meridian](https://github.com/rynfar/meridian) as a login agent on
+`http://127.0.0.1:3456` and answers Anthropic API requests by driving Claude Code
+under your existing subscription. Point any tool at it with any API key:
+
+```console
+$ ANTHROPIC_BASE_URL=http://127.0.0.1:3456 ANTHROPIC_API_KEY=x <your tool>
+```
+
+`haus.ai.meridian.port` moves the number if something already owns 3456. There is
+no option for the bind address, on purpose: a proxy that answers for your
+subscription without asking who is calling is safe on loopback and is an open
+account on any other interface, so haus does not ship the leaf that would make
+that a one-word change.
+
+### It is an endpoint, not an agent
+
+`haus.ai.meridian.enable` does **not** follow `haus.ai.enable`. The proxy is
+useful to clients haus never installed — a plugin in your editor, a script, a
+container on this machine — so turning the agent room off does not take it away.
+
+For the same reason, **haus points nothing at it.** Which endpoint a client uses
+lives in that client's own file (`~/.pi/agent/models.json`,
+OpenCode's config, and so on), and those files are yours: haus writes your
+instructions and the `haus` skill into each client's home and stops there. This
+room's job ends at "the port answers".
+
+### The one sign-in
+
+meridian has no credential of its own — it re-uses the OAuth token Claude Code
+already keeps in your login keychain. So it is a **user** agent rather than a
+system one (root has no login keychain and would fail every request), and the
+sign-in is a card in `haus permissions` rather than something a rebuild does:
+
+```console
+$ claude          # then /login, once
+$ curl -s http://127.0.0.1:3456/health
+{"status":"healthy","auth":{"loggedIn":true,"subscriptionType":"max"}}
+```
+
+Until you have signed in, the proxy answers 401 and the clients pointed at it
+look broken rather than signed out — which is exactly what the card exists to
+tell you before you go looking. `http://127.0.0.1:3456/telemetry` is meridian's
+own dashboard for what has been going through it; the log is
+`~/Library/Logs/haus-meridian.log`.
+
+<Callout type="warn" title="Already running meridian by hand?">
+If you installed meridian yourself — an `npm install -g` and a LaunchAgent plist
+you wrote — turning this room on **evicts that agent**, because two of them
+racing for the same port means one loses the bind and retries forever. haus boots
+the old label out and removes its plist; it leaves the npm prefix alone and tells
+you where it is.
+</Callout>
+
 ## Never `git stash`: park instead
 
 `git stash` looks like it belongs to the checkout you're standing in. It doesn't.
