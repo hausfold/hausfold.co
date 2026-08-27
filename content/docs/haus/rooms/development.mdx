@@ -166,10 +166,11 @@ Ghostty is frontmost, so `⌘⏎` still sends in Slack, `⌘N` still opens a new
 window in your browser, and `⌃⇥` still walks that app's own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, and
 gains a **Lanes** command beside them: fuzzy over every lane with its state,
 `↵` focusing that lane's window or waking a parked one, `/` plus a word
-searching what the agents are *saying* across every live session. The list is
-served from a warm copy that can lag by up to fifteen minutes, so `⌘↵` forces a
-live read when you can see it is behind: a lane you just landed still reading
-live, or one you spawned in a terminal missing entirely.
+searching what the agents are *saying* across every live session. Live sessions
+are read every time, so a lane you spawned seconds ago is always listed; what
+can lag by up to fifteen minutes is everything the picker knows *about* a lane,
+its branch, its commit subject and whether its work has landed. `⌘↵` forces a
+live read when you can see that half is behind.
 
 ### The page owns the repo
 

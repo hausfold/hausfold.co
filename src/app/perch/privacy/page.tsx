@@ -53,8 +53,10 @@ export default function Privacy() {
           <li>No account, no email, no sign-in of any kind.</li>
           <li>No analytics SDK and no crash reporter.</li>
           <li>
-            No network destination other than a device you paired by hand. Perch never talks to a
-            server we run, because we don&apos;t run one.
+            Perch never talks to a server we run, because we don&apos;t run one. Two destinations
+            exist and neither carries anything about you: a device you paired by hand, and
+            GitHub, for the hourly look at perch&apos;s own release tag and for downloading a
+            release when you ask it to update. Settings turns the release check off.
           </li>
           <li>
             No licence check of any kind. Perch is free and MIT, so there is nothing to verify and

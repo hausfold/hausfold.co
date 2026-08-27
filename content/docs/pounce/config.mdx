@@ -153,8 +153,10 @@ bigger. Values outside 0.8–2.0 clamp rather than reject. On haus, `scale` is
 written for you from `haus.ui.scale`.
 
 `stage` is [what you see before you type](/docs/pounce/using#before-you-type):
-`false` gives you the flat list Pounce has always shown, and `tiles` clamps to
-1–8 rather than rejecting. `"windowMode": "compact"` has no stage at all, so
+`"stage": { "enabled": false }` gives you the flat list Pounce has always shown,
+and `tiles` clamps to 1–8 rather than rejecting. A bare `"stage": false` is not
+that: the block is only read as an object, so it is ignored in silence and the
+stage stays on. `"windowMode": "compact"` has no stage at all, so
 the key does nothing there: compact means an empty query shows *nothing* until
 you type, and a strip of tiles is emphatically something.
 

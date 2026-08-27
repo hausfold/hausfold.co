@@ -191,11 +191,15 @@ sel=$(list_repos | pounce -p "Repo:" --dial "model=sonnet|opus|haiku")
 ```
 
 The committed values arrive as **one extra middle field**, so field 2 is the
-dials and field 3 is the row. Only callers that passed `--dial` ever see three
-fields; everything else keeps the two-field shape forever. Split for the middle
-field being absent anyway: a resident daemon older than the flag ignores it and
-answers in two. Each dial reopens on the value it committed last time, per
-option set, and cycling then pressing Esc changes nothing.
+dials and field 3 is the row. `--dial` is repeatable, and several dials share
+that one field as `name=value;name=value` in the order you declared them, so
+an option value can contain neither `;` nor `=` nor `|` nor a tab.
+
+Only callers that passed `--dial` ever see three fields; everything else keeps
+the two-field shape forever. Split for the middle field being absent anyway: a
+resident daemon older than the flag ignores it and answers in two. Each dial
+reopens on the value it committed last time, per option set, and cycling then
+pressing Esc changes nothing.
 
 ## Reading real ones
 

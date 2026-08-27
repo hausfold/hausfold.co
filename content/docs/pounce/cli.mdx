@@ -71,7 +71,7 @@ pounce --help / --version
 | `settings` | Open the Settings window: panes of cards over the same table `config print` writes, and a click rewrites one line of your `config.json` |
 | `config print` / `config init` | Print the annotated config, or write one |
 | `doctor` | Report the daemon, the grant, and every binding actually armed |
-| `report [--print]` | Open Pounce's bug form with `doctor`'s whole report, the version, your macOS build and which of the four installs this copy is already filled in. `--print` writes the block and the URL to stdout and opens nothing, for a Mac you reached over ssh. There is no telemetry in Pounce, so that form is the only way anything gets back to us |
+| `report [--print]` | Open Pounce's bug form with `doctor`'s whole report already in it, above the version, your macOS build, your Mac model and which install route this copy came from. `--print` writes the block and the URL to stdout and opens nothing, for a Mac you reached over ssh. There is no telemetry in Pounce, so that form is the only way anything gets back to us |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
 | `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear`. Files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
 
