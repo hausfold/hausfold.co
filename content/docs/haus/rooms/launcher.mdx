@@ -114,6 +114,28 @@ daemon, so a rebuild can't drop it and Fn stays remapped (and inert) while
 the palette is stopped. Or hand the key back with
 `haus.launcher.items."mode:emoji".hotkey = null`.
 
+### Copy Text from Screen
+
+**⌘⇧2** — beside macOS's own ⌘⇧3/4/5 capture family, but the crop's **text** is
+the product: the same drag-an-area crosshair, then the text inside it lands on
+the clipboard. Recognition is Apple's Vision framework, entirely offline, and
+the image is deleted either way — nothing is ever saved. Esc during the drag
+cancels quietly; a capture with nothing legible in it says so as a
+notification instead of leaving you to paste and find out.
+
+The first capture makes macOS ask for **Screen Recording** for Pounce — one
+click. If that dialog got dismissed, `haus permissions` has the card: without
+the grant, captures quietly come back wallpaper-only and every crop reads as
+"No text found".
+
+It is a palette row like any other (`⌘Space` → "copy text"), so the key follows
+the item rules:
+
+```nix
+haus.launcher.items."cmd:copy-text".hotkey = "cmd+shift+6";  # move it
+haus.launcher.items."cmd:copy-text".hotkey = null;           # palette row only
+```
+
 <Callout title="Keeping the Accessibility grant">
 ```nix
 haus.launcher.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
