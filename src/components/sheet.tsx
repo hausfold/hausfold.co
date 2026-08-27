@@ -46,9 +46,8 @@ const PRE_RELEASE_NOTE =
 /** The foot of every sheet. `julien@hausfold.co` first, then the pre-release
  *  mark at the right-hand end — AGENTS.md is explicit that the address is
  *  deliberate, and that it is not to be "upgraded" to `support@`. It was
- *  `hi@hausfold.co` (settled 2026-08-09) until 2026-08-22; the decision record
- *  is the workshop's notes/go-to-market.md §6. Whatever a page puts between
- *  them is its own. (An "Issue YYYY.MM" line sat beside the
+ *  `hi@hausfold.co` (settled 2026-08-09) until 2026-08-22. Whatever a page puts
+ *  between them is its own. (An "Issue YYYY.MM" line sat beside the
  *  mark until 2026-08-16, when the user cut it — the broadsheet conceit ends
  *  at the masthead now, and the stage mark pushes itself right.)
  *

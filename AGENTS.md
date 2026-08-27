@@ -52,7 +52,8 @@ by hand, and open all the way down."**
 | a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo under `github.com/hausfold` |
 | a product's **documentation** | **here** — pounce, perch and trill each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| the family's strategy notes | `notes/` in the workshop |
+| a family-wide standard (the agent surface, the issue forms, the drift catalogue) | `docs/` in the workshop |
+| the launch plan, or anything still to be decided | `todo/` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 
 🚨 **A published `curl \| bash` URL is the last thing on this site that may ever
 404** — it is in shell histories, in the docs, and in print. A desktop that
@@ -218,8 +219,7 @@ the token out in prose instead of writing `--something`.
   to, and if one is ever added it will be an alias onto `julien@`, which
   changes nothing here. It was `hi@hausfold.co` (settled 2026-08-09) until
   2026-08-22 — `hi@` named nobody and was read by one person, which is what
-  `julien@` says out loud. The decision record is the workshop's
-  `notes/go-to-market.md` §6; this bullet is the copy of it that binds here.
+  `julien@` says out loud. This bullet is the rule that binds here.
   **This rule lived in this file until #117 slimmed the seller's surface out**,
   which left a single code comment carrying it — it is back because AGENTS.md
   is what a pre-PR reviewer actually reads. Three places carry the address and
