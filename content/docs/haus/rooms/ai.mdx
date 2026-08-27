@@ -107,10 +107,10 @@ How you commit the prompt picks what happens next:
 
 | Key | Does |
 |---|---|
-| `↵` | Spawn **in the background**: the checkout, the branch, the window and the agent all happen on that repo's page, but nothing takes the screen. The box closes at once and a notification says the lane is running |
+| `↵` | Spawn **in the background**: the checkout, the branch and the agent all happen, and **no window opens anywhere** — nothing flashes and nothing takes the screen. The box closes at once and a notification says the lane is running; click it (or use the agents pill, or **Lanes**) and the window opens then, tiled on that repo's page |
 | `⇧↵` | Newline; a task is usually a list, not a sentence |
 | `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
-| `⌃↵` | Spawn **and follow it**: the lane window comes to you and stays, for the one you're about to sit and work in |
+| `⌃↵` | Spawn **and follow it**: the window opens now, on that repo's page, and you go with it — for the lane you're about to sit and work in |
 | `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
 
 `⇧↵` isn't in the action bar — four chords along the bottom of the box crowded
@@ -180,13 +180,21 @@ reachable, and this list is about the ones you haven't.
 
 Because of what a spawn *is*: you describe a job in a sentence and hand it to
 somebody else. Almost none of those are the thing you're about to sit and
-watch — so the palette gets out of the way completely (box closes, screen back,
-banner when the lane is actually up) and you go to it when you're ready with
-`⌃⇥`, the **Lanes** command or the bar's agents pill.
+watch — so the palette gets out of the way completely (box closes, nothing
+appears, banner when the lane is actually up) and you go to it when you're ready
+with the banner, the **Lanes** command or the bar's agents pill.
 
-`⌃↵` is the other one: the lane you *are* about to work in, so its window comes
-to you. Both are the same code path and the same lane — same name, same window,
-same tile on that repo's page. Only the focus differs.
+"Nothing appears" is literal: a background lane opens **no window**. It is its
+own detached terminal session with the agent already working in it, and the
+window is built the first time something goes looking — which is why a lane you
+haven't visited yet isn't on that repo's page for `⌃⇥` to find. Going to it any
+of the three ways above opens the window properly placed, on the live session,
+mid-conversation.
+
+`⌃↵` is the other one: the lane you *are* about to work in, so its window is
+opened now and you go with it. Both are the same code path and the same lane —
+same name, same session, same tile once a window exists. Only the window
+differs.
 
 ## Which client gets spawned
 
