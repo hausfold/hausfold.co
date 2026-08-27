@@ -1,6 +1,6 @@
 ---
 title: AI
-description: "Coding agents as a room: the clients this machine installs, holt giving each agent its own checkout, and the lifecycle around them. Any git repo, any client."
+description: "Coding agents as a room: the clients this machine installs, scruff giving each agent its own checkout, and the lifecycle around them. Any git repo, any client."
 icon: agent
 related:
   - title: "Changing your Mac with an agent"
@@ -15,7 +15,7 @@ related:
 
 Run two coding agents in the same checkout and they fight: one switches the
 branch out from under the other, uncommitted edits collide, and closing a pane
-mid-thought can lose work. **`holt`** fixes that by giving every agent its own
+mid-thought can lose work. **`scruff`** fixes that by giving every agent its own
 checkout, and haus puts it on your `PATH`, wired to a keybind.
 
 Press **⌘⏎** (from any terminal window, a pane or another agent's lane alike) and you get a fresh
@@ -25,7 +25,7 @@ agent session in an isolated git worktree: its own checkout on a
 working tree stays clean and no build tool trips over it. It starts on whatever
 repo the focused window is looking at.
 
-holt calls what that makes a **lane** (one agent's branch, checkout and
+scruff calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
 Not a *worktree*: a parked lane has no checkout on disk and is still a lane you
 can resume. (For an agent in the checkout you already have, with no worktree and
@@ -46,7 +46,7 @@ build time rather than a refusal. What you lose is placement (the per-repo
 </Callout>
 
 It works on **any git repo**, and it isn't really a haus feature: it's
-[its own tool](https://github.com/hausfold/holt), which haus takes as an input
+[its own tool](https://github.com/hausfold/scruff), which haus takes as an input
 and puts on your `PATH`. You don't have to be a haus user to run it.
 
 <Callout type="tip" title="Closing a window never loses work">
@@ -67,29 +67,29 @@ haus.ai = {
 };
 ```
 
-That brings the clients you named, `holt`, and the worktree lifecycle wiring.
+That brings the clients you named, `scruff`, and the worktree lifecycle wiring.
 Nothing else in the house has to be on for it to work.
 
 ## Resuming
 
 Because the work is on the branch and the chat is in your client's transcript, a
-closed window is never a dead end. Run `holt` bare to see everything you can pick
+closed window is never a dead end. Run `scruff` bare to see everything you can pick
 back up, across every repo:
 
 ```
-🌫  lanes you can resume (holt <name>, or <repo>/<name>)
+🌫  lanes you can resume (scruff <name>, or <repo>/<name>)
   repo         name         state  agent  last commit
   nebelung     sparkle      parked claude 2 hours ago — wip: auto-saved on lane close
   pounce       quick-emoji  live   codex  10 min ago — add fuzzy weights
 ```
 
-Name one and holt rebuilds the checkout and picks the conversation back up
+Name one and scruff rebuilds the checkout and picks the conversation back up
 through whichever client that lane was made with:
 
 ```sh
-holt sparkle           # resume it
-holt nebelung/sparkle  # qualify when the name exists in two repos
-holt sparkle --pick    # choose from that client's session list instead
+scruff sparkle           # resume it
+scruff nebelung/sparkle  # qualify when the name exists in two repos
+scruff sparkle --pick    # choose from that client's session list instead
 ```
 
 By default it continues the newest conversation. `--pick` opens the client's own
@@ -134,7 +134,7 @@ haus.ai.namer = "api";
 ```
 
 The value is an id, and the id is a file you write:
-`~/.config/holt/adapters/namer/<id>.toml`, naming a program that takes the brief
+`~/.config/scruff/adapters/namer/<id>.toml`, naming a program that takes the brief
 as an argument and prints one name. haus ships no such file on purpose — the
 adapter is where the model, the API key and the key's location get decided, and
 those are yours, not the layer's. A key belongs in the login keychain via
@@ -149,9 +149,9 @@ Two things keep it from being a risk:
   the adapter, and an adapter that can't reach its model prints that instead of
   failing. Offline you get the name you would have had anyway.
 
-`claude` is a special case: it is holt's built-in namer, so it needs no adapter
+`claude` is a special case: it is scruff's built-in namer, so it needs no adapter
 file, but it costs 8–12 seconds — longer than the palette will wait — so Spawn
-Agent keeps its own name and doesn't ask. Set it if you want hand-run `holt
+Agent keeps its own name and doesn't ask. Set it if you want hand-run `scruff
 spawn` named; for the palette, write an adapter.
 
 ### Which repos it offers
@@ -172,7 +172,7 @@ haus.ai.repoRoots = [ "~/code" "~/src" "~/Developer" "~/Projects" "~/.config/nix
 ```
 
 Naming the list replaces it rather than adding to it, so keep the entries you
-still want. Repos `holt` already knows are always offered too, whether or not
+still want. Repos `scruff` already knows are always offered too, whether or not
 they're under a root here — a one-off repo you've agent'd before stays
 reachable, and this list is about the ones you haven't.
 
@@ -211,20 +211,20 @@ exists. `clients` defaults to an empty list, which is exempt from that check
 The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
 (OpenCode) and `pi` (pi). All four come from nixpkgs, so `haus update` is what
 moves them — except `pi`, which haus holds one release ahead of nixpkgs on
-purpose. `--` (end-of-options) reached pi in 0.84.3, and holt puts a `--` before
+purpose. `--` (end-of-options) reached pi in 0.84.3, and scruff puts a `--` before
 a lane's first-turn prompt because a task typed into **Spawn Agent** very often
 starts with a dash. On an older pi that prompt is read as a flag and the pane
 dies before the agent draws, so the rebuild refuses rather than letting you find
 out one lane at a time.
 
-All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
+All of it hangs off one master switch, `haus.ai.enable`: scruff on your `PATH`, the
 ⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
 independent, so the switch is yours (or your desktop's) to set; hacker turns
 it on and names both options above. Turn the room off and `ai.clients` is ignored
 whole rather than half-wiring the machine, so a host can drop the room without
 having to blank the list its desktop set.
 
-holt records the client **with the lane**, so changing the option only affects new
+scruff records the client **with the lane**, so changing the option only affects new
 spawns: a parked Codex task still reopens through `codex resume --last`, an
 OpenCode one through `opencode --continue`, and a pi one through `pi --continue`.
 
@@ -247,32 +247,32 @@ never seen those files, and `stash@{1}` is no safer, being positional.
 So park instead:
 
 ```sh
-holt park "half-done refactor"  # whole dirty tree → one wip: commit on THIS branch
-holt unpark                     # rewind it: changes back, uncommitted
+scruff park "half-done refactor"  # whole dirty tree → one wip: commit on THIS branch
+scruff unpark                     # rewind it: changes back, uncommitted
 ```
 
-`holt park` commits everything (tracked edits, untracked files, deletions) as a
+`scruff park` commits everything (tracked edits, untracked files, deletions) as a
 single `wip:` commit on the branch only this pane has checked out. Ignored files
 are never swept in, so parking can't smuggle a secret into history. It's the same
-thing the pane-close hook does, on demand, and `holt` lists the result as a
+thing the pane-close hook does, on demand, and `scruff` lists the result as a
 resumable lane rather than a numbered entry in a shared pile.
 
 <Callout type="warn" title="unpark won't rewrite what you've pushed">
 If the `wip:` commit has already been pushed (it's visible in an open PR),
-`holt unpark` refuses, because rewinding it locally turns a file restore into a
+`scruff unpark` refuses, because rewinding it locally turns a file restore into a
 force-push. It prints the escape hatch (`git reset --mixed HEAD^`) and leaves the
 commit alone. Parking on a branch that isn't an agent branch works, but says so:
 a `wip:` commit shouldn't drift onto a branch you push.
 </Callout>
 
-## Working on another repo: `holt child`
+## Working on another repo: `scruff child`
 
 Sometimes an agent in one repo has to change **another** one. Don't reach for a
-raw `git worktree add`: that skips holt's registry, so the statusline never
+raw `git worktree add`: that skips scruff's registry, so the statusline never
 learns to track the lane and its PR goes invisible.
 
 ```sh
-cd "$(holt child ~/code/other-repo)"
+cd "$(scruff child ~/code/other-repo)"
 ```
 
 That makes a lane on the other repo, registers it as a **child of your current
@@ -286,25 +286,25 @@ activation an agent is refused.
 
 ## Cleaning up
 
-Most cleanup is automatic: closing a pane reaps a merged branch, and every `holt`
+Most cleanup is automatic: closing a pane reaps a merged branch, and every `scruff`
 listing self-heals first by sweeping parked branches whose PR has since merged.
 Some things end a pane without the graceful hook, though: a reboot, a crash, or
-a `holt child` checkout, which no pane owns. For those, sweep on demand:
+a `scruff child` checkout, which no pane owns. For those, sweep on demand:
 
 ```sh
-holt reap
+scruff reap
 ```
 
-`holt reap` is deliberately conservative. It leaves anything **dirty**, anything
+`scruff reap` is deliberately conservative. It leaves anything **dirty**, anything
 **unmerged**, and any checkout a **pane is still open in**: the one you're
 standing in included, and any other session's too, because a just-merged branch
 looks exactly like a finished one while its agent is still sitting in it. Only
 landed work nobody is standing in gets removed.
 
 Every deletion is written to a ledger before the branch dies, so a sweep is
-never the end of anything: `holt reaped` prints what went, why, and the
+never the end of anything: `scruff reaped` prints what went, why, and the
 `git branch` line that brings it back. And a lane that will *never* land (its
-PR closed unmerged, the repo archived) is `holt drop <name>`, which waives the
+PR closed unmerged, the repo archived) is `scruff drop <name>`, which waives the
 merged-branch requirement and nothing else.
 
 ## When a session outran its PR
@@ -314,13 +314,13 @@ Those commits are now in an odd place: the PR that covered them is closed, and
 GitHub deleted the branch's remote counterpart when it merged, so they're
 committed, unpushed, unreviewed, on a branch nothing is watching.
 
-holt never reaps such a branch, and it says so everywhere: the listing marks the
-row **`live+3`** (three commits past the merge), `holt reap` names it instead of
+scruff never reaps such a branch, and it says so everywhere: the listing marks the
+row **`live+3`** (three commits past the merge), `scruff reap` names it instead of
 sweeping it, and the statusline shows an orange `3^`. One command clears it:
 
 ```sh
-holt reship          # push this branch, open the follow-up PR
-holt reship sparkle  # …or name one, from anywhere
+scruff reship          # push this branch, open the follow-up PR
+scruff reship sparkle  # …or name one, from anywhere
 ```
 
 It re-creates the remote GitHub deleted and opens a PR against the default
@@ -328,7 +328,7 @@ branch, listing what's new. If a PR is already open, it just pushes to it.
 
 The lookalike is marked differently and wants the opposite treatment: **`~3`**
 means the branch has *diverged*: its tip doesn't build on what merged, so the
-checkout is stale rather than ahead. `holt reship` refuses it. Remove that lane
+checkout is stale rather than ahead. `scruff reship` refuses it. Remove that lane
 instead of pushing it.
 
 ## Knowing which agent needs you
@@ -361,9 +361,9 @@ the pill.
 
 <Callout type="info" title="What haus does write into `~/.claude/settings.json`">
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
-`WorktreeCreate` and `WorktreeRemove`, pointing at `holt hook create` /
-`holt hook remove`; the **`PreToolUse`** hook that runs
-[`agent-desktop-guard`](#the-screen-belongs-to-you); one `holt hook notify`
+`WorktreeCreate` and `WorktreeRemove`, pointing at `scruff hook create` /
+`scruff hook remove`; the **`PreToolUse`** hook that runs
+[`agent-desktop-guard`](#the-screen-belongs-to-you); one `scruff hook notify`
 entry appended to **`Notification`** and **`Stop`**, which raises a
 [trill](/docs/trill) banner when a lane blocks on you or finishes; plus the
 statusline, `permissions.defaultMode` and a few TUI keys. It merges into the
@@ -401,7 +401,7 @@ key) and `trust.json` are yours.
 
 ### The statusline HUD
 
-haus points Claude Code's status bar at a small HUD driven off holt's registry, so
+haus points Claude Code's status bar at a small HUD driven off scruff's registry, so
 you can see where every agent stands without leaving the pane. **Row one is this
 session's own lane**: a status token, its GitHub PR pill, then its name. **The
 rows below are the lanes this session spawned**, across whatever repos they live
@@ -415,7 +415,7 @@ The status token is one mutually-exclusive slot:
 |---|---|
 | `⏏` | the branch has landed; closing the pane reaps the lane |
 | `N^` | `N` commits on the branch, not merged yet |
-| `N^` *(orange)* | the PR merged and `N` commits landed since, covered by nothing; `holt reship` |
+| `N^` *(orange)* | the PR merged and `N` commits landed since, covered by nothing; `scruff reship` |
 | `+A -D` | uncommitted line changes, when nothing's committed yet |
 | `●` *(muted)* | nothing to report: clean tree, nothing ahead, including a lane that hasn't committed yet |
 
@@ -468,7 +468,7 @@ than a missed one.
 | `open -ga Ghostty`: the explicitly backgrounded form, which takes no focus — see the note under this table, because it does not promise a *window* | `open` in its foregrounding form, which is its default |
 | every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
 | anything run over `ssh` on another machine — a lane's own headless VM above all; that desktop is not the one you are looking at | `ssh -X`/`-Y`, whose windows render on *this* display, and an `ssh` to `localhost`, which is this very Mac |
-| `tart run --no-graphics`: a lane's own macOS VM ([`holt runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
+| `tart run --no-graphics`: a lane's own macOS VM ([`scruff runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
 | | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch`; the whole desktop redraws |
 
 Also on the ask side, for the same reason: `aerospace` focus/move/workspace
@@ -511,9 +511,9 @@ room ships [`tart`](https://tart.run), and a lane can stand up a second,
 disposable macOS of its own:
 
 ```sh
-holt runtime up    my-lane --backend tart   # clone the image, boot it headless
-holt runtime enter my-lane --backend tart   # ssh in
-holt runtime down  my-lane --backend tart   # delete the clone
+scruff runtime up    my-lane --backend tart   # clone the image, boot it headless
+scruff runtime enter my-lane --backend tart   # ssh in
+scruff runtime down  my-lane --backend tart   # delete the clone
 ```
 
 Headless, so nothing it draws reaches your display, and real enough to run
@@ -592,20 +592,20 @@ this one.
 
 | Command | What it does |
 |---|---|
-| `holt` | List every parked and live lane across all repos (self-heals first) |
-| `holt <name>` | Resume one: rebuild its checkout, pick its conversation back up |
-| `holt reap` | Sweep every landed lane now (keeps dirty, unmerged, and any open pane) |
-| `holt reaped` | The ledger of what was swept, why, and the one line that brings a branch back |
-| `holt drop <name>` | Retire a lane that will never land: a PR closed unmerged, an archived repo |
-| `holt child <repo>` | A lane on another repo, as a child of this pane |
-| `holt park [label]` | Set the dirty tree aside as a `wip:` commit; use instead of `git stash` |
-| `holt unpark` | Undo it: changes back in the working tree, uncommitted |
-| `holt reship [name]` | The PR merged and the branch kept going: push it, open the follow-up PR |
-| `holt new [name]` | A lane on **this** repo, with the default client opened in it |
-| `holt spawn <repo> <name>` | A named lane for a spawner with no pane of its own; what Spawn Agent calls |
+| `scruff` | List every parked and live lane across all repos (self-heals first) |
+| `scruff <name>` | Resume one: rebuild its checkout, pick its conversation back up |
+| `scruff reap` | Sweep every landed lane now (keeps dirty, unmerged, and any open pane) |
+| `scruff reaped` | The ledger of what was swept, why, and the one line that brings a branch back |
+| `scruff drop <name>` | Retire a lane that will never land: a PR closed unmerged, an archived repo |
+| `scruff child <repo>` | A lane on another repo, as a child of this pane |
+| `scruff park [label]` | Set the dirty tree aside as a `wip:` commit; use instead of `git stash` |
+| `scruff unpark` | Undo it: changes back in the working tree, uncommitted |
+| `scruff reship [name]` | The PR merged and the branch kept going: push it, open the follow-up PR |
+| `scruff new [name]` | A lane on **this** repo, with the default client opened in it |
+| `scruff spawn <repo> <name>` | A named lane for a spawner with no pane of its own; what Spawn Agent calls |
 
 Add `--json` to the listing for a machine-readable version, `--version` for
-holt's own.
+scruff's own.
 
 
 ## Works with
@@ -626,7 +626,7 @@ of them switching that room on for you:
 haus.ai.enable = false;
 ```
 
-The clients, `holt` and the wiring go, including from a desktop that named
+The clients, `scruff` and the wiring go, including from a desktop that named
 clients, because the room's switch is what decides, not the list. What stays is
 everything on disk: the worktrees you created and their branches are ordinary
 git, and removing the room never deletes work.

@@ -34,7 +34,7 @@
             latte: nebelung's pastels are built for a dark ground and
             wash out on paper.
    Accents: the dark values ARE nebelung's — hacker pink, pounce peach,
-            perch green, nebelung mauve. holt and trill have no row
+            perch green, nebelung mauve. scruff and trill have no row
             upstream yet, so teal and yellow are provisional choices
             of ours from nebelung's palette rather than assignments it
             makes; reconcile them if those two get a row.
@@ -148,7 +148,7 @@
   /* borrowed accents, light ground */
   --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
-  --a-holt: #0f7268;
+  --a-scruff: #0f7268;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
   --a-trill: #8a6512;
@@ -182,7 +182,7 @@
 
     --a-hacker: var(--nebelung-pink);
     --a-pounce: var(--nebelung-peach);
-    --a-holt: var(--nebelung-teal);
+    --a-scruff: var(--nebelung-teal);
     --a-perch: var(--nebelung-green);
     --a-nebelung: var(--nebelung-mauve);
     --a-trill: var(--nebelung-yellow);
@@ -200,7 +200,7 @@
 
   --a-hacker: var(--nebelung-pink);
   --a-pounce: var(--nebelung-peach);
-  --a-holt: var(--nebelung-teal);
+  --a-scruff: var(--nebelung-teal);
   --a-perch: var(--nebelung-green);
   --a-nebelung: var(--nebelung-mauve);
   --a-trill: var(--nebelung-yellow);
@@ -217,7 +217,7 @@
 
   --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
-  --a-holt: #0f7268;
+  --a-scruff: #0f7268;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
   --a-trill: #8a6512;
@@ -392,7 +392,7 @@ body {
     background-image: conic-gradient(
       from var(--mark-ang, 0deg) at 50% 42%,
       var(--a-nebelung),
-      var(--a-holt),
+      var(--a-scruff),
       var(--a-perch),
       var(--a-trill),
       var(--a-pounce),
@@ -489,9 +489,9 @@ body {
    little extra air under a one-row list holding haus — the landing page
    was one index of seven names in two tiers, and the tier was carried by
    whitespace because a heading over the lower half would have had to name
-   rows it couldn't (nebelung doesn't run on haus, haus consumes it; holt
+   rows it couldn't (nebelung doesn't run on haus, haus consumes it; scruff
    runs anywhere). The page was sectioned instead, and the regrouping is
-   what made the headings honest: holt and nebelung came out of the `Apps`
+   what made the headings honest: scruff and nebelung came out of the `Apps`
    list, so what was left under it really was apps. They became an `.index`
    of their own under `Also from hausfold` on 2026-08-14 — same class, own
    heading, and the tier a heading rather than whitespace.
@@ -521,7 +521,7 @@ body {
 
 [data-accent="hacker"] { --accent: var(--a-hacker); }
 [data-accent="pounce"] { --accent: var(--a-pounce); }
-[data-accent="holt"] { --accent: var(--a-holt); }
+[data-accent="scruff"] { --accent: var(--a-scruff); }
 [data-accent="perch"] { --accent: var(--a-perch); }
 [data-accent="nebelung"] { --accent: var(--a-nebelung); }
 [data-accent="trill"] { --accent: var(--a-trill); }

@@ -142,7 +142,7 @@ export default function Home() {
 
             Each row points at the fullest thing that exists for it: haus and
             perch to their own pages, pounce and trill to their docs trees
-            (pounce's sheet was retired 2026-08-14), holt and nebelung to
+            (pounce's sheet was retired 2026-08-14), scruff and nebelung to
             GitHub, which is all either has so far. trill is still the
             workshop-stage name AGENTS.md allows on the condition the
             register accounts for it — the page it lands on opens by saying
@@ -213,9 +213,9 @@ export default function Home() {
               </Link>
               , your notifications without the noise. In incubator.
             </li>
-            <li data-accent="holt">
-              <a className="index-name" href="https://github.com/hausfold/holt">
-                holt
+            <li data-accent="scruff">
+              <a className="index-name" href="https://github.com/hausfold/scruff">
+                scruff
               </a>
               , parallel coding agents that never collide.
             </li>

@@ -461,7 +461,7 @@ unchanged.
 ### One repo, five agents, five servers
 
 The reason this is in haus rather than in one project's `devDependencies` is
-lanes. `holt` puts each agent in its own worktree of the *same* repo, so five
+lanes. `scruff` puts each agent in its own worktree of the *same* repo, so five
 agents running the same dev script want the same port five times. Four of them
 lose — and the one that quietly takes 3001 instead is worse than the ones that
 die, because every hardcoded URL in the project still says 3000 and now points

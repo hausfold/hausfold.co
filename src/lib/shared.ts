@@ -34,7 +34,7 @@ export const themeColor = {
 export const accents = [
   'hacker',
   'pounce',
-  'holt',
+  'scruff',
   'perch',
   'nebelung',
   'trill',

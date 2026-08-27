@@ -49,7 +49,7 @@ by hand, and open all the way down."**
 | the install one-liner — the URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (checkout `./haus` in the workshop — **not** `./hausfold.co`, which is this repo) |
-| a product's **code** (pounce, perch, nebelung, holt, trill) | that product's own repo under `github.com/hausfold` |
+| a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
 | a product's **documentation** | **here** — pounce, perch and trill each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a family-wide standard (the agent surface, the issue forms, the drift catalogue) | `docs/` in the workshop |
@@ -69,7 +69,7 @@ Every page is a Next route; `public/` is assets only.
 
 | Route | Source | What it is, and the rule that isn't obvious |
 |---|---|---|
-| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, holt, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
+| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and since 2026-08-26 a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
@@ -252,7 +252,7 @@ the token out in prose instead of writing `--something`.
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
   an `accent:`. A hue hausfold keeps *at rest* would compete with nebelung's
-  palette, which is the one brand asset the family shares. `holt` and `trill`
+  palette, which is the one brand asset the family shares. `scruff` and `trill`
   have no accent assigned upstream, so teal and yellow are our pick rather than
   nebelung's and should be reconciled if they get a row.
 - **No motion, with one hover-only exception**: the mark's iridescent sheen
@@ -366,7 +366,7 @@ the token out in prose instead of writing `--something`.
   out loud, once, in `What we make`; everything else is silence rather than a
   promise.
 - **Links go inward.** A link moves inward on the day the inward page exists,
-  not before. What still points out of `#made` is `holt` and `nebelung`, which
+  not before. What still points out of `#made` is `scruff` and `nebelung`, which
   have no page here yet, plus GitHub. Three mechanical consequences: an internal
   link is a `<Link>` from `next/link` and an external one stays a plain `<a>`
   (`eslint-config-next` enforces it; ⚠️ **a `<Link>` to a route that
@@ -405,7 +405,7 @@ is two pages.
 
 **Adding a tab is a positioning change, not a file.** The test is: **can a
 stranger install this without haus?** pounce is MIT and one `brew install`;
-perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix. holt
+perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix. scruff
 clears the bar and has no tree yet; nebelung (a palette) and a desktop do not
 clear it at all.
 
@@ -654,7 +654,7 @@ first, and check both themes.
   > `NEXT_TELEMETRY_DISABLED=1`, and that prefix is load-bearing.** On exit,
   > `next dev` spawns a *detached* `telemetry/detached-flush.js`; when that POST
   > hangs the node process outlives the session with its cwd still inside the
-  > checkout. `holt` reaps on an `lsof -d cwd` sweep, so one stuck flusher pins
+  > checkout. `scruff` reaps on an `lsof -d cwd` sweep, so one stuck flusher pins
   > a merged lane as occupied. Don't drop the prefix.
 - Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
   asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
