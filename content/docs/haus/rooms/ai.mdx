@@ -583,7 +583,7 @@ scruff runtime down  my-lane --backend tart   # delete the clone
 ```
 
 Headless, so nothing it draws reaches your display, and real enough to run
-`haus rebuild` inside. `HOLT_TART_BASE` names the image it clones; a bare
+`haus rebuild` inside. `SCRUFF_TART_BASE` names the image it clones; a bare
 `ghcr.io/cirruslabs/macos-tahoe-base` boots but has no haus in it to test, so
 the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
 agent skill spells the whole recipe out, which is why nothing here has to.

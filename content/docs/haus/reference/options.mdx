@@ -2162,9 +2162,20 @@ theme.css + manifest.json into each vault's .obsidian/themes/Nebelung/
 directory, selects Nebelung's dark appearance in appearance.json, and
 removes the obsolete "nebelung" CSS snippet from the enabled list.
 
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.terminal.obsidianVaults</span></summary>
+
 Empty (the default) leaves every vault untouched. Paths must be
 relative to the user's home, may not contain "..", and are skipped
 with a warning unless their .obsidian directory already exists.
+
+A vault whose appearance.json iCloud has evicted, or that holds JSON
+Terminal cannot parse, gets the theme files but keeps its own
+appearance settings, with a warning naming the vault. Activation
+never fails over a vault.
+
+</details>
 
 Example:
 
@@ -2564,7 +2575,7 @@ to share an origin.
 
 <summary>More detail<span className="sr-only"> on haus.portless.enable</span></summary>
 
-The reason it is in haus at all is agent lanes. `holt` puts N agents in
+The reason it is in haus at all is agent lanes. `scruff` puts N agents in
 N worktrees of the SAME repo, so N copies of `npm run dev` want the
 same port — the second one dies, or quietly takes 3001 and every
 hardcoded URL now points at the wrong lane. portless already knows
@@ -2596,7 +2607,7 @@ right setting if you want the naming without the certificate.
 
 `boolean` · default `config.haus.ai.enable`
 
-In a `holt` lane, register the lane's dev server under
+In a `scruff` lane, register the lane's dev server under
 `<lane>.<repo>.localhost` — `wiggly-crane.haus.localhost` — rather
 than the name portless infers on its own.
 
@@ -2606,7 +2617,7 @@ than the name portless infers on its own.
 
 It infers a good one already: inside a git worktree it prefixes the
 branch, so a lane lands on `<branch>.<project>.localhost` with no help
-from us. The gap is cosmetic and entirely holt's fault — holt's
+from us. The gap is cosmetic and entirely scruff's fault — scruff's
 branches are `worktree-<lane>` and portless splits a branch on `/`,
 so the prefix comes out as the whole `worktree-wiggly-crane` rather
 than the lane name you actually call it. This registers the shorter
@@ -4045,11 +4056,11 @@ The menu bar, and which pills it draws.
 
 #### `haus.bar.aiUsage.provider` [#haus-bar-aiusage-provider]
 
-`one of "latest", "claude", "codex", "opencode"` · default `"latest"` · e.g. `"claude"`
+`one of "latest", "claude", "codex", "opencode", "pi"` · default `"latest"` · e.g. `"claude"`
 
 Which AI provider to display in the main pill: `latest` (default, automatically
 shows whichever provider reported most recently), or one of
-`claude`, `codex`, `opencode`.
+`claude`, `codex`, `opencode`, `pi`.
 Clicking the pill always displays the full dropdown with all reporting providers.
 
 Note this is about *usage readouts*, not about which client `scruff` can
@@ -6583,21 +6594,25 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`namer`](#haus-ai-namer) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`meridian.enable`](#haus-ai-meridian-enable) [`meridian.port`](#haus-ai-meridian-port) [`namer`](#haus-ai-namer) [`pi.packages`](#haus-ai-pi-packages) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
 #### `haus.ai.clients` [#haus-ai-clients]
 
-`list of (one of "claude", "codex", "opencode")` · default `[ ]`
+`list of (one of "claude", "codex", "opencode", "pi")` · default `[ ]`
 
 Which coding-agent clients to install. `claude` is Claude Code, `codex`
-is OpenAI Codex, `opencode` is OpenCode. The ⌘↵ lane chord starts
-whichever one `ai.default` names, all of them through `scruff new`.
+is OpenAI Codex, `opencode` is OpenCode, `pi` is pi. The ⌘↵ lane chord
+starts whichever one `ai.default` names, all of them through
+`scruff new`.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.ai.clients</span></summary>
+
+`pi` brings one thing the other three don't: `ai.pi.packages`, the
+third-party resources it loads. See there before installing it.
 
 A list rather than one bool per client, matching `developer.languages`
 — a client added later doesn't change this option's shape.
@@ -6610,9 +6625,9 @@ be a member of this list, so the same mistake fails the rebuild
 instead, with both values named.
 
 Override a client's package the usual Nix way — an overlay on
-`claude-code`, `codex` or `opencode` — rather than dropping the client
-here and installing your own copy alongside; two derivations shipping
-the same `bin/` name collide in one profile.
+`claude-code`, `codex`, `opencode` or `pi-coding-agent` — rather than
+dropping the client here and installing your own copy alongside; two
+derivations shipping the same `bin/` name collide in one profile.
 
 Ignored entirely when `ai.enable` is off — see `haus._ai.clients`, the
 resolved list every room actually installs from. Before step 4 this was
@@ -6638,7 +6653,7 @@ Example:
 
 #### `haus.ai.default` [#haus-ai-default]
 
-`one of "claude", "codex", "opencode"` · default `"claude"` · e.g. `"codex"`
+`one of "claude", "codex", "opencode", "pi"` · default `"claude"` · e.g. `"codex"`
 
 The coding agent started by the ⌘↵ lane chord, by the palette's
 **Spawn Agent** command and by the `c` shell
@@ -6662,11 +6677,27 @@ registry entry from the outside — and the lane stays resumable, because
 Claude keys a transcript to the directory it started in.
 Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
-session for that cwd. They share one `scruff` branch/parking/reap
-lifecycle, and they all light up the `agents` bar pill — the opencode
+session for that cwd, and `pi` continues the newest session in that
+checkout (`pi --continue`, with `pi --resume`'s picker behind it). They
+share one `scruff` branch/parking/reap
+lifecycle.
+
+Three of the four light up the `agents` bar pill — the opencode
 plugin and the codex hooks are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
-settings.json (see `haus.bar.items.agents`).
+settings.json (see `haus.bar.items.agents`). `pi` is the exception and
+will stay one until somebody writes the extension: it reports its
+state through an extension API rather than a hook file, so a pi lane
+spawns, resumes and reaps like any other and simply does not appear in
+the pill. It reports no usage either, so naming it in
+`haus.bar.aiUsage.provider` selects a row that never has a number.
+
+Two of them ask before reading a folder they have not seen, and a lane's
+checkout is always one — so `scruff` copies the decision you already made
+about the repo onto the worktree it just made: Claude Code's
+`hasTrustDialogAccepted`, and pi's `~/.pi/agent/trust.json`. It only
+ever propagates a yes; an untrusted repo still prompts, which is
+correct.
 
 </details>
 
@@ -6719,7 +6750,7 @@ Your always-on, cross-project operating context — the "instructions"
 slot every client has under a different name. Written once per client
 in `ai.clients`, to the path that client actually reads:
 `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md`.
+`~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md`.
 
 <details className="hf-more">
 
@@ -6818,6 +6849,59 @@ room installs, so with the room off nothing would ever report a turn.
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
 
+#### `haus.ai.meridian.enable` [#haus-ai-meridian-enable]
+
+`boolean` · default `false`
+
+Serve your Claude Max subscription to every Anthropic-compatible client
+on this Mac, from a proxy on loopback. Point a tool at
+`http://127.0.0.1:3456` with any API key and it talks to your
+subscription rather than to a metered API key — which is what makes an
+agent that is not Claude Code (pi, opencode, crush, an editor plugin)
+cost what the subscription already costs instead of billing per token.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.ai.meridian.enable</span></summary>
+
+It is not an agent and does not need one: `haus.ai.enable` is about
+whether this machine runs coding agents, and this is an ENDPOINT that is
+useful to anything speaking the Anthropic wire format. So the two
+switches are independent — turning agents off never takes the proxy away
+from a client haus does not install.
+
+The credential is Claude Code's. meridian reads the OAuth token out of
+the login keychain (`Claude Code-credentials`) or
+`~/.claude/.credentials.json`, which is why this is a per-user launchd
+agent rather than a daemon: a root daemon can see neither. Signing in is
+a card in `haus permissions` — until you have, the proxy answers 401 and
+the clients pointed at it look broken.
+
+haus does not point anything at it. The file that tells a client to use
+the proxy is that client's own (`~/.pi/agent/models.json`,
+`~/.config/opencode/…`) and haus writes none of them — see the AI room's
+`clientScopeNote`. This room's job ends at "the port answers".
+
+</details>
+
+<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
+
+#### `haus.ai.meridian.port` [#haus-ai-meridian-port]
+
+`16 bit unsigned integer; between 0 and 65535 (both inclusive)` · default `3456`
+
+The port the proxy listens on, upstream's default. Every client you
+point at it names this number, so moving it means editing each of those
+files by hand — it is here for the machine that already has something on
+3456, not as a thing to tune.
+
+The bind address is 127.0.0.1 and is not an option. A proxy that answers
+for your subscription with no authentication is safe on loopback and is
+an open account on any other interface, so this room does not offer the
+leaf that would make that a one-word change.
+
+<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
+
 #### `haus.ai.namer` [#haus-ai-namer]
 
 `string` · default `""` · e.g. `"api"`
@@ -6880,6 +6964,53 @@ and at 8-12s it is asked before the worktree exists, so the whole wait
 lands between Return and the lane with nothing on screen.
 Set it and hand-run `scruff spawn` still asks it; Spawn Agent keeps its
 slug.
+
+</details>
+
+<small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
+
+#### `haus.ai.pi.packages` [#haus-ai-pi-packages]
+
+`list of string` · see below · e.g. `[ ]`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs, and a desktop is a file you can read to know what it does. A leaf carrying a command is exactly what stops that being true.
+
+pi packages — extensions, skills, prompt templates and themes — merged
+into `packages` in `~/.pi/agent/settings.json` at every rebuild.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.ai.pi.packages</span></summary>
+
+The four in the default are what make pi comparable to the other
+clients in this room rather than a smaller thing beside them. pi ships
+deliberately without sub-agents, a todo list, a way to ask its user a
+question mid-turn, or web access, and says so: its answer is that you
+install a package or have it write you one. So a haus machine that
+installed pi and stopped would be handing you a client that visibly
+cannot do what the pane next to it does.
+
+- `pi-web-access` — fetch and read a URL.
+- `pi-subagents` — spawn sub-agents for fan-out work.
+- `@juicesharp/rpiv-ask-user-question` — a mid-turn question with
+  options, instead of guessing.
+- `@juicesharp/rpiv-todo` — the visible task list a long turn needs.
+
+Set to `[ ]` for a pi with nothing but its own built-in tools. haus
+MERGES rather than owns: anything you added with `pi install` stays,
+and this list is added beside it, so the file is still yours. The
+consequence of merging is that removing an entry from this list does
+NOT uninstall it — run `pi remove <source>` once, and it will not come
+back.
+
+Cost, stated plainly: each entry is an npm fetch the first time pi
+starts after a rebuild, and pi runs an extension's code in its own
+process. That is the same trust you extend to the client itself, but it
+is a second decision and this option is where you make it.
+
+Host-only, and this is the one leaf in the room where that matters
+most: a shared desktop naming a package here would be shipping code
+that runs on your machine inside a file you read as data.
 
 </details>
 
@@ -6958,12 +7089,14 @@ installed.
 
 One copy per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,
-`~/.config/opencode/skills/haus`, and the same three directories again
+`~/.config/opencode/skills/haus`, `~/.pi/agent/skills/haus`, and the
+same four directories again
 per skill. OpenCode also
 scans `~/.claude/skills`
 for Claude Code compatibility, and prefers its own copy when both
 exist — so a machine running both clients sees each skill once, not
-twice.
+twice. pi reads `~/.agents/skills` on top of its own directory for the
+same reason, and deduplicates the same way.
 
 The skill's option reference is GENERATED from the haus revision this
 machine is pinned to, so it can only ever describe options that
