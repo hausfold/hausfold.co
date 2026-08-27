@@ -97,11 +97,21 @@ open shelf grows a quiet strip along its bottom edge and the menu bar menu
 grows a matching row; dismissing a version dismisses that version, and the
 next release asks again.
 
-It never installs the update itself. Instead the button knows how you
-installed perch and does the right thing for that install: it copies
-`brew upgrade --cask perch`, `haus update` or `nix flake update perch`, or
-opens the release page for a drag install. Settings ▸ Updates turns the check
-off altogether.
+The button knows how you installed perch and does the right thing for that
+install. Three of the four are owned by something that already updates them, so
+the button hands you the command: `brew upgrade --cask perch`, `haus update` or
+`nix flake update perch`. Swapping the bundle under Homebrew or haus would only
+be undone by their next run.
+
+A copy you dragged in yourself has no such owner, and it gets **Update Now**:
+one click downloads the release, checks it is a build of ours that Apple
+notarized, replaces the app and reopens it, in about as long as the download
+takes. Your shelf survives it, because staged items live in perch's own
+container rather than in the app bundle. If anything fails, perch says so in the
+strip and the button goes back to opening the release page. It never leaves you
+without an app.
+
+Settings ▸ Updates turns the check off altogether.
 
 ## The terminal half
 

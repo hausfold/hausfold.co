@@ -160,6 +160,43 @@ title <TAB> subtitle <TAB> icon <TAB> actions <TAB> group
 are modifier combos); `group` is an optional section header, as Force Quit does
 with *Applications* / *Background*.
 
+Pass `--grid` and the same lines are drawn as a two-column card grid instead: a
+rectangle per option with its icon and description, which is the shape a step
+that offers *things* wants (projects, machines, images). Nothing else changes,
+so a script switches between the two by adding or removing one flag. Group
+headers are the one thing a grid drops; a header is a full-width band and a card
+has no full width to give one.
+
+### What a picker hands back
+
+One line on stdout, tab-separated, and exit 1 with no output when the user
+dismisses:
+
+```
+<action>	<the whole raw line you piped in>
+```
+
+`action` is `enter` / `cmd` / `opt` / `ctrl`, whichever key committed, so the
+row's own text is field **2** and a `case` on field 1 sees the verb.
+
+`--dial` is the one flag that changes that shape. A dial is a small set of
+mutually exclusive values the step carries alongside whatever is being typed or
+chosen, drawn as a chip in the action bar and stepped in place with `⇥` / `⇧⇥`
+(`⌃⇥` moves between dials). It exists for the side-question too small to deserve
+a picker of its own and too real to hardcode:
+
+```sh
+sel=$(list_repos | pounce -p "Repo:" --dial "model=sonnet|opus|haiku")
+# enter	model=opus	hausfold/pounce
+```
+
+The committed values arrive as **one extra middle field**, so field 2 is the
+dials and field 3 is the row. Only callers that passed `--dial` ever see three
+fields; everything else keeps the two-field shape forever. Split for the middle
+field being absent anyway: a resident daemon older than the flag ignores it and
+answers in two. Each dial reopens on the value it committed last time, per
+option set, and cycling then pressing Esc changes nothing.
+
 ## Reading real ones
 
 The [built-in

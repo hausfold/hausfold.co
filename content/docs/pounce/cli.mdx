@@ -19,6 +19,8 @@ pounce --max-empty 7              # rows to show before you type
 pounce -p "Pick:"                 # generic picker; reads lines from stdin
 pounce -i "sf.symbol.name"        # icon for the picker
 pounce -p "Search:" --chain       # picker whose free-text Enter feeds another pounce step
+pounce -p "Project:" --grid       # the same rows as a two-column card grid
+pounce -p "Ask:" --dial "model=sonnet|opus|haiku"   # a chip the user cycles with ⇥
 pounce run cmd:emoji              # run one item by its key (for external binders)
 
 # built-in windows (items, not flags)
@@ -52,6 +54,8 @@ pounce --help / --version
 | `-i`, `--icon` | SF Symbol icon for the picker |
 | `--chain [keys]` | Mark a free-text commit as feeding another `pounce` step. Optional comma-separated action list (`--chain enter,opt`); bare `--chain` means `enter` |
 | `--actions <spec>` | Label the action bar on a rowless step: `"Go\|shift:New line\|cmd:Screenshot\|opt:Drafts"` |
+| `--grid` | Draw the step's rows as a two-column card grid instead of a list: a rectangle each, with an icon and a line of description. Same stdin, same output, same exit code. `--launcher` ignores it |
+| `--dial <spec>` | A small set of values the user cycles in place with `⇥` / `⇧⇥`: `"model=sonnet\|opus\|haiku"`. Repeatable. **Adds a middle field to the output** ([what a picker hands back](/docs/pounce/writing-commands#what-a-picker-hands-back)) |
 | `--draft <key>` | Keep typed text on any non-commit dismissal, filed under `<key>` |
 | `--query <text>` | Open with the box pre-filled, caret at the end |
 | `--transform <filter>` | Pipe the current selection through a shell filter and paste the result back (needs Accessibility) |
@@ -67,6 +71,7 @@ pounce --help / --version
 | `settings` | Open the Settings window: panes of cards over the same table `config print` writes, and a click rewrites one line of your `config.json` |
 | `config print` / `config init` | Print the annotated config, or write one |
 | `doctor` | Report the daemon, the grant, and every binding actually armed |
+| `report [--print]` | Open Pounce's bug form with `doctor`'s whole report, the version, your macOS build and which of the four installs this copy is already filled in. `--print` writes the block and the URL to stdout and opens nothing, for a Mac you reached over ssh. There is no telemetry in Pounce, so that form is the only way anything gets back to us |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
 | `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear`. Files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
 
