@@ -442,6 +442,30 @@ know better. `haus plan` says which grant a rebuild wants before it runs.
 [Changing your Mac with an agent](/docs/haus/agent-rebuilds) has the
 detail.
 
+## Colour, and what a pipe gets
+
+`haus` paints its output for a terminal and stops painting for anything else.
+Colour is written only when its output *is* a terminal and `NO_COLOR` is unset;
+`CLICOLOR_FORCE=1` forces it back on through a pipe, when you want the colour in
+`less -R`.
+
+```sh
+haus status                    # painted
+haus status | tee status.txt   # plain text, no escapes in the file
+NO_COLOR=1 haus status         # plain text, on the terminal too
+CLICOLOR_FORCE=1 haus status | less -R
+```
+
+A rebuild's phase lines follow the same fence. On a terminal they are a live
+region: one line per phase, folded to the window and repainted in place as each
+finishes, down to a single glyph in a window too narrow for anything else.
+Anywhere else — a pipe, a file, CI, an agent pane, `ssh mac haus rebuild` —
+they degrade to one plain line per phase: no cursor escapes in the file, and
+nothing truncated to a width the file does not have.
+
+`haus show` and `haus-activate` obey the same rule, so a publisher's CI log and
+a failed activation's message are both plain text by default.
+
 ## The other CLIs
 
 `haus` is the only command an end user needs. One more arrives with the room
