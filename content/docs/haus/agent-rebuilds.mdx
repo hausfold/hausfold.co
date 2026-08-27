@@ -29,7 +29,8 @@ The safety was always there; the missing half was knowledge. So haus ships it.
 
 Every rebuild writes a **skill** called `haus` into the skills directory of each
 client in `haus.ai.clients`: `~/.claude/skills/haus` for Claude Code,
-`~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode.
+`~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode,
+`~/.pi/agent/skills/haus` for pi.
 Name no clients at all (or turn the room off, which resolves to the same empty
 list) and the copies are written anyway, so the skill is never the missing piece
 on a machine running a client haus didn't install. One body, one copy per client:
@@ -168,7 +169,8 @@ it's your repo:
 
 ```sh
 # whichever of these exists on your machine; the copies are identical:
-#   ~/.claude/skills/haus · ~/.codex/skills/haus · ~/.config/opencode/skills/haus
+#   ~/.claude/skills/haus · ~/.codex/skills/haus
+#   ~/.config/opencode/skills/haus · ~/.pi/agent/skills/haus
 skill=~/.claude/skills/haus
 install -m 644 "$skill"/consumer-AGENTS.md ~/.config/nix/AGENTS.md
 install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
@@ -190,7 +192,8 @@ else. Copy one and you orient some of your tools and not others.
 `haus.ai.instructions` is the other half of what haus writes into an agent's
 home: your always-on operating context, rendered once per installed client at
 the path that client reads (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md`), under a short generated preamble.
+`~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md`), under a short
+generated preamble.
 
 ```nix
 haus.ai.instructions = ''

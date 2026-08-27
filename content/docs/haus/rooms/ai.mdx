@@ -200,9 +200,14 @@ isn't rather than failing later, inside the pane, after the checkout already
 exists. `clients` defaults to an empty list, which is exempt from that check
 (there's nothing to be absent from) and means haus installs no client itself.
 
-The three names are `claude` (Claude Code), `codex` (OpenAI Codex) and
-`opencode` (OpenCode). All three come from nixpkgs, so `haus update` is what
-moves them.
+The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
+(OpenCode) and `pi` (pi). All four come from nixpkgs, so `haus update` is what
+moves them — except `pi`, which haus holds one release ahead of nixpkgs on
+purpose. `--` (end-of-options) reached pi in 0.84.3, and holt puts a `--` before
+a lane's first-turn prompt because a task typed into **Spawn Agent** very often
+starts with a dash. On an older pi that prompt is read as a flag and the pane
+dies before the agent draws, so the rebuild refuses rather than letting you find
+out one lane at a time.
 
 All of it hangs off one master switch, `haus.ai.enable`: holt on your `PATH`, the
 ⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
@@ -212,12 +217,13 @@ whole rather than half-wiring the machine, so a host can drop the room without
 having to blank the list its desktop set.
 
 holt records the client **with the lane**, so changing the option only affects new
-spawns: a parked Codex task still reopens through `codex resume --last` and an
-OpenCode one through `opencode --continue`.
+spawns: a parked Codex task still reopens through `codex resume --last`, an
+OpenCode one through `opencode --continue`, and a pi one through `pi --continue`.
 
 <Callout type="warn" title="Overlay a client, don't add one">
 Want a patched build of a client? **Overlay the package** (`claude-code`,
-`codex`, `opencode`) rather than putting your own derivation in `home.packages`
+`codex`, `opencode`, `pi-coding-agent`) rather than putting your own derivation
+in `home.packages`
 beside it. Two derivations shipping the same `bin/claude` collide in one profile,
 and the rebuild fails with `two given paths contain a conflicting subpath`.
 </Callout>
@@ -340,7 +346,10 @@ bar's popup to answer.
 Both are reported by each client's own lifecycle hooks: the agent says what it's
 doing; nothing scrapes the screen for it. haus wires OpenCode's plugin and
 Codex's hooks for you. **Claude Code's four are yours to wire**, and haus
-deliberately leaves them alone.
+deliberately leaves them alone. **pi doesn't report at all yet** — it exposes an
+extension API rather than a hook file, and nobody has written the extension — so
+a pi lane spawns, resumes and reaps like any other and simply doesn't appear in
+the pill.
 
 <Callout type="info" title="What haus does write into `~/.claude/settings.json`">
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
@@ -356,6 +365,30 @@ are the ones it owns outright), and
 re-asserts on every rebuild, because Claude Code rewrites its own
 settings on its own schedule and a hand-written hook can go with them. You'd find
 that out at pane close, by losing a lane's parking.
+</Callout>
+
+<Callout type="info" title="What haus writes into `~/.pi/agent/settings.json`">
+Two keys are **re-asserted** every rebuild, because they are how a lane looks
+rather than what you think about it: `tuiMode = "fullscreen"` (matching Claude
+Code's, so two panes side by side are the same shape) and `quietStartup`.
+
+Two are **seeded once** and never argued with again — `hideThinkingBlock` and
+`modelThinkingLevels` — because pi lets you change both from its own
+`/settings` mid-session, and a rebuild that reverted what you just chose would
+be the rice overruling you.
+
+And `packages` is **unioned**: `haus.ai.pi.packages` is added beside whatever
+`pi install` put there. It defaults to four — sub-agents, a todo list, a way to
+ask you a question mid-turn, and web access — which is what makes pi comparable
+to the client in the next pane; pi ships without them on purpose. They are npm
+sources pi fetches on first start and then runs in its own process, so it is a
+second trust decision after the client itself: set `haus.ai.pi.packages = [ ]`
+for a pi with nothing but its built-in tools. Removing an entry from the list
+does not uninstall it — haus never deletes from that array. Run
+`pi remove <source>` once and it will not come back.
+
+haus writes none of pi's other files: `models.json` (which provider, which
+key) and `trust.json` are yours.
 </Callout>
 
 ### The statusline HUD
