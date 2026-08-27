@@ -765,7 +765,7 @@ everything the flake pins. Off by default.
 
 #### `haus.wallpaper.debug.inputs` [#haus-wallpaper-debug-inputs]
 
-`list of string` · default `[ "self" "nebelung" "pounce" "perch" "holt" ]`
+`list of string` · default `[ "self" "nebelung" "pounce" "perch" "scruff" ]`
 
 Which flake inputs the band names, in the order it prints them. `self`
 is haus itself and prints as `haus`; every other entry is an input
@@ -966,7 +966,7 @@ ink        the palette's text colour, for a mark meant to be read
            rather than noticed.
 accent     haus.theme.accent's hex, flat.
 spectrum   the whole family at once: a conic sweep through the six
-           product accents — nebelung, holt, perch, trill, pounce,
+           product accents — nebelung, scruff, perch, trill, pounce,
            hacker — clipped to the stroke. This is the ⌂ as it
            looks with a pointer on it on hausfold.co, held still.
 ```
@@ -1933,7 +1933,8 @@ Why this option exists at all: display scaling is the only lever macOS 26
 gives us for "make EVERYTHING bigger", system-wide, including apps haus
 knows nothing about. macOS's own text-size setting writes a value no running
 app re-reads, while the accessibility scalars that do work affect contrast
-or motion rather than system-wide size — measured, not assumed (`docs/macos-settings.md` records the sweep). So
+or motion rather than system-wide size — measured, not assumed (haus's
+`docs/macos-settings.md` records the sweep). So
 `haus.ui.scale` and `haus.fonts` make *haus's own tools* bigger, and
 this makes the *Mac* bigger.
 
@@ -4051,7 +4052,7 @@ shows whichever provider reported most recently), or one of
 `claude`, `codex`, `opencode`.
 Clicking the pill always displays the full dropdown with all reporting providers.
 
-Note this is about *usage readouts*, not about which client `holt` can
+Note this is about *usage readouts*, not about which client `scruff` can
 spawn: a provider reports here whenever it has data for your account —
 Codex notably does so from a ChatGPT login alone, with no CLI installed
 — so it is deliberately not tied to `haus.ai.clients`.
@@ -4783,7 +4784,7 @@ A pill tracking your agent windows, marked with a robot, one mark and a count pe
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.agents</span></summary>
 
-Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `holt` lane — its repo and PR status: merged, `+N unshipped` (exactly what `holt reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `holt hook notify` entry appended beside yours on four events: Notification/Stop raise a trill banner when a lane blocks on you or finishes, UserPromptSubmit/PostToolUse take that banner back down once you have answered — as does simply focusing that lane's window, which the windows room reports — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `scruff` lane — its repo and PR status: merged, `+N unshipped` (exactly what `scruff reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `scruff hook notify` entry appended beside yours on four events: Notification/Stop raise a trill banner when a lane blocks on you or finishes, UserPromptSubmit/PostToolUse take that banner back down once you have answered — as does simply focusing that lane's window, which the windows room reports — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 </details>
 
@@ -5095,7 +5096,7 @@ shows the worst thing true about the machine.
 `boolean` · default `true`
 
 Sweep the logo through the six hausfold accents — mauve, teal, green,
-yellow, peach, pink, the order the site runs them (nebelung → holt →
+yellow, peach, pink, the order the site runs them (nebelung → scruff →
 perch → trill → pounce → hacker) — while the pointer is over it,
 then settle back.
 It is the bar's copy of the mark on hausfold.co, where hovering the `⌂`
@@ -6592,7 +6593,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 Which coding-agent clients to install. `claude` is Claude Code, `codex`
 is OpenAI Codex, `opencode` is OpenCode. The ⌘↵ lane chord starts
-whichever one `ai.default` names, all of them through `holt new`.
+whichever one `ai.default` names, all of them through `scruff new`.
 
 <details className="hf-more">
 
@@ -6653,15 +6654,15 @@ Must be one of `ai.clients` — see there.
 
 This option chooses the client and nothing else about how a lane opens.
 `claude` can make its own worktree (its native `--worktree` flag, which
-fires `holt hook create`), but haus does not use it: that flag runs the
-client in the pane it was launched from and never asks holt's `[hooks]
+fires `scruff hook create`), but haus does not use it: that flag runs the
+client in the pane it was launched from and never asks scruff's `[hooks]
 open`, which is the seam a lane's own window arrives through. So every
-client goes through `holt new`, producing the same checkout, branch and
+client goes through `scruff new`, producing the same checkout, branch and
 registry entry from the outside — and the lane stays resumable, because
 Claude keys a transcript to the directory it started in.
 Resuming follows the client too: `codex` reopens
 its cwd-filtered `codex resume` picker, `opencode` continues its latest
-session for that cwd. They share one `holt` branch/parking/reap
+session for that cwd. They share one `scruff` branch/parking/reap
 lifecycle, and they all light up the `agents` bar pill — the opencode
 plugin and the codex hooks are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
@@ -6675,10 +6676,10 @@ settings.json (see `haus.bar.items.agents`).
 
 `boolean` · default `false`
 
-The AI room: coding-agent *tooling*. `holt` (agent worktrees),
+The AI room: coding-agent *tooling*. `scruff` (agent worktrees),
 `agent-state` (the status writer behind the `agents` bar pill),
 the agent-worktree statusline, `tart` and the adapter that drives it
-(SPEC.md §5.5 — `holt runtime up|enter|down --backend tart` stands a
+(SPEC.md §5.5 — `scruff runtime up|enter|down --backend tart` stands a
 lane up in its own headless macOS, so an agent can feel-test a desktop
 change without touching the screen its user is sitting at; pulling a
 base image is still a manual, one-time step), and the client
@@ -6689,7 +6690,7 @@ agent-state plugin). Which clients get installed is `ai.clients`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.enable</span></summary>
 
-On, this room brings its clients, `holt` and the lifecycle wiring on its
+On, this room brings its clients, `scruff` and the lifecycle wiring on its
 own. What it adds to OTHER rooms it adds only when they are present: the
 `c` alias arrives with the terminal, the
 `agents` pill with the bar, the agent commands with the launcher. None
@@ -6728,8 +6729,8 @@ Write it client-neutrally: the same text reaches whichever agent the ⌘A
 pane spawns, so a line about a Claude-only skill or file path is noise
 to the others. When set, haus prepends three short sections of its
 own — a note that the file is generated and where to actually edit it
-(with THAT client's path), the `holt` worktree etiquette, since haus
-ships `holt` and that rule is what keeps it working, and the screen
+(with THAT client's path), the `scruff` worktree etiquette, since haus
+ships `scruff` and that rule is what keeps it working, and the screen
 etiquette that pairs with `agent-desktop-guard` — then your text.
 
 Empty (the default) writes nothing at all, for any client, so a
@@ -6821,7 +6822,7 @@ room installs, so with the room off nothing would ever report a turn.
 
 `string` · default `""` · e.g. `"api"`
 
-The holt namer adapter that turns a lane's first-turn brief into the
+The scruff namer adapter that turns a lane's first-turn brief into the
 lane's name — `mobile-nav-jitter` instead of `cozy-otter`. Empty, the
 default, means no namer: an unnamed lane keeps taking a random word
 pair, which is what every install had before the key existed.
@@ -6830,9 +6831,9 @@ pair, which is what every install had before the key existed.
 
 <summary>More detail<span className="sr-only"> on haus.ai.namer</span></summary>
 
-`claude` is holt's one built-in, and it costs 8-12s per lane — almost
+`claude` is scruff's one built-in, and it costs 8-12s per lane — almost
 all of it the client's own start-up rather than the model. Any other id
-is a file you write: `~/.config/holt/adapters/namer/<id>.toml`, naming
+is a file you write: `~/.config/scruff/adapters/namer/<id>.toml`, naming
 a program that takes the brief on argv and prints one name. That file
 is the HOST's, not the layer's, because it is where the model, the key
 and its location get decided; haus deliberately carries only the id, so
@@ -6840,23 +6841,44 @@ a machine that hasn't written the adapter degrades to random names
 rather than failing to build.
 
 It cannot cost you a lane. Every failure — no adapter file, a missing
-program, a timeout at holt's 30s ceiling, prose instead of a name — is
+program, a timeout at scruff's 30s ceiling, prose instead of a name — is
 a warning and a fall back to the random pair.
 
 **The offline floor is the adapter's to honour.** The palette's Spawn
 Agent has always named the lane itself, from a stopword slug of your
 prompt, and it stops doing that when this is set — so it hands the slug
-down as `HOLT_NAMER_FALLBACK` and expects an adapter that cannot reach
-its model to print that instead of failing. holt neither sets nor reads
+down as `SCRUFF_NAMER_FALLBACK` and expects an adapter that cannot reach
+its model to print that instead of failing. scruff neither sets nor reads
 that variable; it only passes the environment through. An adapter that
 ignores it makes an offline spawn fall to the random pair, which is
 worse than the slug the palette would have used.
+
+For one release the slug also goes down as `HOLT_NAMER_FALLBACK`, the
+spelling this variable had before the rename, so an adapter you wrote
+against the old name keeps its floor without an edit.
+
+⚠️ **The DIRECTORY is not that forgiving, and it moves the first time
+you rebuild.** scruff picks `~/.config/scruff` the moment it exists and
+`~/.config/holt` only while it is the one holding your files — an
+either/or stat, not a search path — and adapters resolve under whichever
+it picked. haus now writes `~/.config/scruff/config.toml`, so an adapter
+still sitting at `~/.config/holt/adapters/namer/<id>.toml` stops being
+found on that rebuild, and every lane silently takes a random word pair
+again (the warning goes to a launchd stderr nobody reads). Move it in
+the same change:
+
+```text
+mkdir -p ~/.config/scruff
+mv ~/.config/holt/adapters ~/.config/scruff/adapters
+```
+
+…and re-point any absolute path inside the `.toml` at its new home.
 
 `claude` is excluded from the palette path for exactly that reason: its
 argv is fixed and reads no environment, so it cannot meet the contract —
 and at 8-12s it is asked before the worktree exists, so the whole wait
 lands between Return and the lane with nothing on screen.
-Set it and hand-run `holt spawn` still asks it; Spawn Agent keeps its
+Set it and hand-run `scruff spawn` still asks it; Spawn Agent keeps its
 slug.
 
 </details>
@@ -6887,7 +6909,7 @@ path itself:
   both `~/code/thing` and a parent directory full of repos
   (`~/code/workshop/thing`) resolve.
 
-Repos `holt` already knows are always offered too, whether or not they
+Repos `scruff` already knows are always offered too, whether or not they
 are under a root here — so a one-off repo you have agent'd before stays
 reachable, and this list is about the ones you have not.
 
@@ -6913,15 +6935,15 @@ Install every hausfold tool's agent skill for each client in
 `ai.clients`, so an agent asked to "install Slack" or "make everything
 bigger" edits your host file and runs `haus rebuild` instead of guessing
 at dotfiles and `brew install` — and an agent asked "what worktrees do I
-have open?" or "hand this off to a fresh session" reaches for `holt`
+have open?" or "hand this off to a fresh session" reaches for `scruff`
 rather than `git worktree`.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Three skills on any machine: `haus` (this machine's setup), and holt's
-own two — `holt` (the lane lifecycle) and `handoff` (turning work into a
+Three skills on any machine: `haus` (this machine's setup), and scruff's
+own two — `scruff` (the lane lifecycle) and `handoff` (turning work into a
 brief a cold session can act on, ending on the clipboard or in a new
 lane). A tool whose room is OPTIONAL adds its own only when that room is
 on: `trill` (sending a notification) arrives with
