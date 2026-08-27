@@ -107,11 +107,14 @@ How you commit the prompt picks what happens next:
 
 | Key | Does |
 |---|---|
-| `↵` | Spawn on what you typed |
+| `↵` | Spawn **in the background**: the checkout, the branch, the window and the agent all happen on that repo's page, but nothing takes the screen. The box closes at once and a notification says the lane is running |
 | `⇧↵` | Newline; a task is usually a list, not a sentence |
 | `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
-| `⌃↵` | Spawn **in the background**: the checkout, the branch, the window and the agent all happen, but nothing takes the screen — you stay where you are and a notification says the lane is running |
+| `⌃↵` | Spawn **and follow it**: the lane window comes to you and stays, for the one you're about to sit and work in |
 | `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
+
+`⇧↵` isn't in the action bar — four chords along the bottom of the box crowded
+it, and a newline is the one thing you'd try without being told.
 
 Codex receives the screenshot as an image; Claude Code and OpenCode get its path
 in the first prompt.
@@ -173,10 +176,17 @@ still want. Repos `holt` already knows are always offered too, whether or not
 they're under a root here — a one-off repo you've agent'd before stays
 reachable, and this list is about the ones you haven't.
 
-`⌃↵` is for the spawn you are *not* about to sit and watch: start it, keep
-reading what you were reading, and go to it when you're ready with `⌃⇥`, the
-**Lanes** command or the bar's agents pill. The lane is an ordinary lane in
-every other respect — same name, same window, same tile on that repo's page.
+### Why background is the default
+
+Because of what a spawn *is*: you describe a job in a sentence and hand it to
+somebody else. Almost none of those are the thing you're about to sit and
+watch — so the palette gets out of the way completely (box closes, screen back,
+banner when the lane is actually up) and you go to it when you're ready with
+`⌃⇥`, the **Lanes** command or the bar's agents pill.
+
+`⌃↵` is the other one: the lane you *are* about to work in, so its window comes
+to you. Both are the same code path and the same lane — same name, same window,
+same tile on that repo's page. Only the focus differs.
 
 ## Which client gets spawned
 
