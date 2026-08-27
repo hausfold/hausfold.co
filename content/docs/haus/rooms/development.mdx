@@ -437,10 +437,64 @@ The signature header rides along untouched, so the far end verifies the delivery
 itself and does not have to trust the receiver in front of it — which is what
 lets you put one there without changing the app at all.
 
+## Ports have names now
+
+Every dev server you have ever run asked you to remember a number. Two projects
+both default to 3000, so the second one dies on `EADDRINUSE`. You restart the
+first and the tab you had open is now pointed at the other project's app, with
+that project's cookies, because a browser thinks `localhost:3000` is one origin
+no matter what is behind it.
+
+`haus.portless` gives each one a name instead:
+
+```nix
+haus.portless.enable = true;
+```
+
+One proxy on `:443` owns the machine's ports. Each app registers a hostname
+against a port the proxy assigned, and you open `https://myapp.localhost` — no
+number, real HTTPS, no browser warning. Different names mean different origins,
+so cookies and `localStorage` stop leaking between projects that used to share
+one. Run `portless` where you would have run `npm run dev`; everything else is
+unchanged.
+
+### One repo, five agents, five servers
+
+The reason this is in haus rather than in one project's `devDependencies` is
+lanes. `holt` puts each agent in its own worktree of the *same* repo, so five
+agents running the same dev script want the same port five times. Four of them
+lose — and the one that quietly takes 3001 instead is worse than the ones that
+die, because every hardcoded URL in the project still says 3000 and now points
+at somebody else's work.
+
+Inside a lane, run `portless-lane`:
+
+```console
+$ portless-lane npm run dev
+portless-lane: wiggly-crane.myapp.localhost -> :5402
+```
+
+Each lane gets its own hostname and its own port, derived from the lane's name
+so they are the same every time you restart it — which is what lets you leave a
+tab open on `wiggly-crane.myapp.localhost` for the life of the lane. Outside a
+worktree the command is plain `portless`, so it is safe to put in a script that
+runs in both places.
+
+### The one click
+
+HTTPS means a certificate, and a certificate means an authority your browser
+believes. portless generates one on your Mac, and haus will **not** install it
+for you during a rebuild: a CA that vouches for any name is not something that
+should arrive while you are looking the other way. It is a card in
+`haus permissions` instead — one click, and `portless clean` takes it back out.
+
+Until you click it, everything works and every page opens on a warning.
+
 ## Works with
 
 - **[AI](/docs/haus/rooms/ai)**: with both rooms on, agent windows get their
-  chords and the worktree lifecycle around them.
+  chords and the worktree lifecycle around them — and each lane's dev server
+  gets its own hostname, which is what `portless-lane` above is for.
 - **[Appearance](/docs/haus/rooms/appearance)**: the whole stack is painted
   from the same palette.
 - **[Launcher](/docs/haus/rooms/launcher)**: it hosts every terminal chord in
