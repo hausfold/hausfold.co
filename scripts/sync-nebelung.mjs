@@ -155,7 +155,7 @@ const FROM_NEBELUNG = {
   "--rule": "surface1",
   "--a-hacker": "pink",
   "--a-pounce": "peach",
-  "--a-holt": "teal",
+  "--a-scruff": "teal",
   "--a-perch": "green",
   "--a-nebelung": "mauve",
   "--a-trill": "yellow",
@@ -166,7 +166,7 @@ const FROM_NEBELUNG = {
  * Reading left to right is reading the mark clockwise from its apex. */
 const RING = [
   "mauve", /* nebelung  */
-  "teal", /*  holt      */
+  "teal", /*  scruff    */
   "green", /* perch     */
   "yellow", /* trill    */
   "peach", /*  pounce   */

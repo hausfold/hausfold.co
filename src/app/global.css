@@ -318,7 +318,7 @@ body:has([data-tree='trill']) {
 /* A page's own declaration, last, so it beats the tree it sits in. */
 body:has([data-accent='hacker']) { --accent: var(--a-hacker); }
 body:has([data-accent='pounce']) { --accent: var(--a-pounce); }
-body:has([data-accent='holt']) { --accent: var(--a-holt); }
+body:has([data-accent='scruff']) { --accent: var(--a-scruff); }
 body:has([data-accent='perch']) { --accent: var(--a-perch); }
 body:has([data-accent='nebelung']) { --accent: var(--a-nebelung); }
 body:has([data-accent='trill']) { --accent: var(--a-trill); }
@@ -331,7 +331,7 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
    `src/lib/icons.tsx` for which icons carry one. */
 [data-hue='hacker'] { color: var(--a-hacker); }
 [data-hue='pounce'] { color: var(--a-pounce); }
-[data-hue='holt'] { color: var(--a-holt); }
+[data-hue='scruff'] { color: var(--a-scruff); }
 [data-hue='perch'] { color: var(--a-perch); }
 [data-hue='nebelung'] { color: var(--a-nebelung); }
 [data-hue='trill'] { color: var(--a-trill); }
@@ -963,7 +963,7 @@ article h1,
   --nb-token-parameter: #9b3d5e;
   --nb-token-comment: #8a8781;
   --nb-token-punctuation: #7b7873;
-  --nb-token-link: var(--a-holt);
+  --nb-token-link: var(--a-scruff);
 }
 
 .dark,

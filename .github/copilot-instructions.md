@@ -19,7 +19,7 @@ The short version:
   `hausfold/ops`, and must not be summarised here either: the gaps are the
   sensitive half.
 - **Many changes belong in another repo.** Product behaviour goes to that
-  product's repo (pounce, perch, nebelung, holt, trill), and `haus.*` options,
+  product's repo (pounce, perch, nebelung, scruff, trill), and `haus.*` options,
   the desktop's opinions and `bootstrap.sh` itself go to `hausfold/haus`. The
   docs and the install one-liner's *route* are here. `AGENTS.md`'s routing table
   decides.

@@ -8,7 +8,7 @@ related:
     href: "/docs/haus/internals/flakes"
     icon: "flake"
   - title: "AI"
-    description: "holt in full: a worktree per agent, parking work instead of losing it, and resuming a parked session."
+    description: "scruff in full: a worktree per agent, parking work instead of losing it, and resuming a parked session."
     href: "/docs/haus/rooms/ai"
     icon: "agent"
 ---
@@ -29,7 +29,7 @@ cd workshop
 ./bench clone
 ```
 
-You end up with `haus/`, `nebelung/`, `pounce/`, `perch/`, `holt/` and the rest
+You end up with `haus/`, `nebelung/`, `pounce/`, `perch/`, `scruff/` and the rest
 as independent git repos, with `bench` sitting above them.
 
 ## Where a change goes
@@ -43,7 +43,7 @@ logic in the launcher is in the wrong one even when it works:
 | colours, the palette, how a tool is themed | [`nebelung`](https://github.com/hausfold/nebelung) |
 | the launcher app, or a generic command script | [`pounce`](https://github.com/hausfold/pounce) |
 | the notch file shelf | [`perch`](https://github.com/hausfold/perch) |
-| how agent worktrees are made, parked or reaped | [`holt`](https://github.com/hausfold/holt) |
+| how agent worktrees are made, parked or reaped | [`scruff`](https://github.com/hausfold/scruff) |
 | the quiet notification banners | [`trill`](https://github.com/hausfold/trill) |
 | the Homebrew formula and cask | [`homebrew-tap`](https://github.com/hausfold/homebrew-tap) (CI-owned; a hand-edit is overwritten) |
 | `bench` itself | the workshop |
@@ -61,7 +61,7 @@ merely *use* haus:
 | Command | Reach for it to… | Ships in |
 |---|---|---|
 | **`haus`** | drive your own Mac: [rebuild, update, roll back, diagnose](/docs/haus/reference/haus) | haus, always |
-| **`holt`** | manage [agent worktrees](/docs/haus/rooms/ai) in any git repo | haus, with `haus.ai.enable` on |
+| **`scruff`** | manage [agent worktrees](/docs/haus/rooms/ai) in any git repo | haus, with `haus.ai.enable` on |
 | **`bench`** | move a change across the family repos | the workshop (contributors only) |
 
 `haus` knows only *your machine*; `bench` knows only *the family repos*.
@@ -101,7 +101,7 @@ it works for any repo; two things are specific to a *family* one.
   repo's override points at *your branch*, so a branch can prove it builds before
   anyone merges it. It substitutes one lane, and only for a repo in the ripple
   chain; from a *workshop* worktree it overrides nothing. When a change spans
-  repos, `bench try lane` builds your lane together with every `holt child` lane
+  repos, `bench try lane` builds your lane together with every `scruff child` lane
   spawned from the same pane, in one rebuild and with no PR.
 - **`bench try switch` works from a worktree too**, and is the only way to feel
   one unmerged branch alone. The gate is on **who, not where**: a person at the
@@ -184,8 +184,8 @@ and fast-forwards your checkout on green; `--ship` ripples the new lock edge in
 the same breath.
 
 A haus release is what the install one-liner serves, so a user-visible haus
-change isn't *out* until it's tagged. And **holt is the exception, forced**:
-`bench release holt 0.2.0` takes a semver and refuses to run without one, because
+change isn't *out* until it's tagged. And **scruff is the exception, forced**:
+`bench release scruff 0.2.0` takes a semver and refuses to run without one, because
 its SDKs publish to registries where a number, once published, can never be
 withdrawn.
 </Callout>
@@ -200,6 +200,6 @@ start there when you open one.
 - [Catppuccin](https://github.com/catppuccin), the framework nebelung is derived from
 - the terminal stack: [Ghostty](https://ghostty.org), [zmx](https://github.com/neurosnap/zmx), [yazi](https://yazi-rs.github.io), [helix](https://helix-editor.com), [starship](https://starship.rs)
 
-haus, nebelung, pounce, perch and trill are MIT; **holt** is Apache-2.0. Read
+haus, nebelung, pounce, perch and trill are MIT; **scruff** is Apache-2.0. Read
 it, build it, change it, ship it. Each repository's `LICENSE` file is the
 authority, not this paragraph.
