@@ -33,18 +33,6 @@ no lane, type `c` in that window's shell; it is the client `ai.default` names.)
 A lane's terminal is its own zmx session in its own window, which
 the [Development](/docs/haus/rooms/development) room sets up.
 
-<Callout type="warn" title="Why the chord isn't ⌘A">
-A chord that runs a command cannot live in the terminal: Ghostty has no keybind
-action that shells out: 85 actions, and not one of them. ⌘⏎ is held by
-[pounce](/docs/pounce/config#chords-that-only-exist-over-one-app-apphotkeys)
-instead, scoped to Ghostty: consumed only while a terminal window is
-frontmost, so ⌘⏎ still means *send* in Slack and everywhere else. ⌘A is plain
-select-all again. [windows](/docs/haus/rooms/windows) no longer has to be on:
-without it a lane opens as an ordinary macOS window, which is a warning at
-build time rather than a refusal. What you lose is placement (the per-repo
-`T/<repo>` pages and the `⌃⇥` walk between them), not the lane.
-</Callout>
-
 It works on **any git repo**, and it isn't really a haus feature: it's
 [its own tool](https://github.com/hausfold/scruff), which haus takes as an input
 and puts on your `PATH`. You don't have to be a haus user to run it.
@@ -112,12 +100,6 @@ How you commit the prompt picks what happens next:
 | `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
 | `⌃↵` | Spawn **and follow it**: the window opens now, on that repo's page, and you go with it — for the lane you're about to sit and work in |
 | `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
-
-`⇧↵` isn't in the action bar — four chords along the bottom of the box crowded
-it, and a newline is the one thing you'd try without being told.
-
-Codex receives the screenshot as an image; Claude Code and OpenCode get its path
-in the first prompt.
 
 ### What names the lane
 
