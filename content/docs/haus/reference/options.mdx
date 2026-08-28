@@ -5983,12 +5983,13 @@ Example:
 
 #### `haus.launcher.windowMode` [#haus-launcher-windowmode]
 
-`one of "default", "compact"` · default `"compact"`
+`one of "default", "compact"` · default `"default"`
 
-The palette's proportions. `compact` is narrower with tighter rows and
-keeps its list hidden until you type — haus's tuned look, and what it
-shipped before this option existed. `default` is the palette's roomier layout,
-which shows the top results the moment it opens.
+The palette's proportions. `default` is the palette's roomier layout,
+which shows the top results the moment it opens — pounce's own default,
+and haus's. `compact` is narrower with tighter rows and keeps its list
+hidden until you type; it also turns off the Stage, whose tiles are
+exactly the "something on an empty query" compact exists to avoid.
 
 This is shape, not size: how BIG the palette is drawn is
 haus.launcher.scale. The two compose — a compact palette at scale 1.4

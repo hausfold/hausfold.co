@@ -1,6 +1,6 @@
 ---
 title: Using the palette
-description: Summoning it, the keys that move you around, how ranking picks the first row, and the questions it answers inline.
+description: Summoning it, what an empty palette shows before you type, the keys that move you around, how ranking picks the first row, and the questions it answers inline.
 icon: keys
 related:
   - title: "Beyond launching"
@@ -27,12 +27,31 @@ related:
 Not opening at all? [Install](/docs/pounce/install#one-key-to-free-up) covers
 the ⌘Space collision with Spotlight, which fails silently.
 
+## Before you type
+
+An empty palette is three zones rather than one list: a **strip of tiles** for
+the handful of things you actually reach for, the **familiar list** beneath it,
+and a quiet **glance line** with the time and the date, plus what you last
+copied if clipboard history is on. Type a single character and the whole thing
+yields to ranked results; search itself is untouched.
+
+A tile is not a new kind of thing, it is a row promoted: same frecency ranking,
+same [per-item](/docs/pounce/config#per-item-settings-items) alias and hotkey,
+same `⏎`. `←` / `→` walk the strip, `↓` drops into the list, `↑` comes back.
+The list keeps its full length, so turning the stage on never costs you rows.
+
+`"stage": { "enabled": false }` in [config](/docs/pounce/config#config-file)
+gives you the flat list instead, and `"stage": { "tiles": 3 }` makes them fewer
+and wider. In `"windowMode": "compact"` there is no stage: compact's whole
+promise is that an empty query shows nothing.
+
 ## Navigating
 
 | Key | Action |
 |---|---|
 | Type | Fuzzy-search in real time |
 | `↑` / `↓` | Move the selection |
+| `←` / `→` | Walk the tile strip, before you type |
 | `Return` | Run the default action |
 | `⇧Return` | Insert a newline; the query field is multi-line |
 | `⌘Return` | The modifier action (often "Reveal in Finder" for apps) |
