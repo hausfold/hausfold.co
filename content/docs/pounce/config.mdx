@@ -380,6 +380,14 @@ puts it back. It needs [AeroSpace](https://github.com/nikitabobko/AeroSpace) (th
 action shells out to `aerospace fullscreen --window-id`) and the Accessibility
 grant every consuming tap needs, and it is read once at daemon start.
 
+One deliberate no-op: a window **alone** on its workspace does not zoom. It
+already fills the workspace, so the click would change nothing you can see while
+arming AeroSpace's fullscreen mode against windows that do not exist yet, and the
+next one to open there would open behind it. Zooming back **out** always works,
+even for a window whose siblings have closed since. The guard needs AeroSpace to
+answer a window listing; when it does not, the chord fires ungated rather than
+leaving you with a chord that does nothing.
+
 The click is consumed over *every* app, so the chord you pick is a chord you give
 up everywhere:
 
