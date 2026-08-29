@@ -140,10 +140,13 @@ live agent conversations stay exactly where they are, and because every
 window's shell lives in a session that outlives the window, even one that does
 restart comes back to the same scrollback.
 
-<Callout title="No extra tooling for this">
-Ghostty has no plugins and watches a store symlink happily, so there is nothing
-to scratch-session, nothing to reinstall by activation script and no fourth CLI
-in the loop. Edit, rebuild, keep working.
+<Callout title="Why some config files need an activation script">
+Ghostty watches a store symlink happily, so this loop needs no extra tooling:
+edit, rebuild, keep working. Not everything does. A program that decides "the
+config changed" by file mtime never reloads from a home-manager symlink, because
+every `/nix/store` file is stamped epoch 1, so each rebuild looks *older* than
+what the program already read. Such a file has to be **installed by an
+activation script rather than linked**.
 </Callout>
 
 ## The whole life of a change

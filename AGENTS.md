@@ -76,7 +76,7 @@ Every page is a Next route; `public/` is assets only.
 
 **One load-bearing id is left**: `#made` on `/`, where the four `/terms` and
 `/refunds` 301s land. Rename it and a published URL starts scrolling to the
-masthead instead of to its answer. (`#desktops` is not one: its two callers
+masthead instead of to its answer. (`#desktops` does not exist: its two callers
 point at `desktops/choosing`, a page rather than a fragment.)
 
 **A page that a docs tree also covers does not stay in step with it.** That is
@@ -85,8 +85,8 @@ why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` are all
 
 ### Short domains
 
-`perch.hausfold.co` is the one of these that exists. **A short domain is
-a 301 and never a page.** It exists so there is something short to hand a
+`perch.hausfold.co` is the only one. **A short domain is a 301 and never a
+page.** It exists so there is something short to hand a
 non-technical person — you text them `perch.hausfold.co` and they land on
 `/docs/perch/install/`, which is written to be followed in order.
 
@@ -113,8 +113,9 @@ outside it is answered by the asset server, including its 404 page, so the
 Worker's own routes stop being reached at all. `["/"]` takes out `/haus.sh`,
 `/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/*` and `/api/release/*`
 at once — the four installers being the URLs this file calls the last thing here
-that may ever 404. **`npm test` passes under either value**, because the Worker's unit tests call `worker.fetch` directly and
-never reach the asset server.
+that may ever 404. **`npm test` passes under either value**, because the
+Worker's unit tests call `worker.fetch` directly and never reach the asset
+server.
 
 The guard is a grep for `run_worker_first = true` in `worker.yml`, over BOTH
 wrangler configs. It looks crude beside a real test and it is what there is:
@@ -214,8 +215,9 @@ the token out in prose instead of writing `--something`.
   it names nobody, while the mail is read by one person, which is what `julien@`
   says out loud. This bullet is the rule that binds, and it lives here rather
   than in a code comment because AGENTS.md is what a pre-PR reviewer actually
-  reads. Three places carry the address and they move together or not at all: the colophon (`src/components/sheet.tsx`),
-  `/perch/privacy`, and the `Organization` JSON-LD in `src/app/page.tsx`.
+  reads. Three places carry the address and they move together or not at all:
+  the colophon (`src/components/sheet.tsx`), `/perch/privacy`, and the
+  `Organization` JSON-LD in `src/app/page.tsx`.
 - **Greyscale at rest on the landing pages, and every colour is borrowed.**
   (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
   *borrowed* half binds everywhere: both halves spend the same six `--a-*` and
@@ -231,13 +233,12 @@ the token out in prose instead of writing `--something`.
     outside it: `--ink` on crust, no sweep;
   - **code, wherever it is code** — Shiki-highlighted at build time with the
     `--nb-token-*` ramp, including inline `<code>`. The dark fork for the
-    landing half is in `src/app/global.css` under `prefers-color-scheme` +
+    landing half belongs in `src/app/global.css` under `prefers-color-scheme` +
     `body:has(.sheet)`, because those pages carry neither `data-theme` nor the
-    docs' `.dark` class. ⚠️ **The landing half of that fork is not in the
-    tree**: no landing page carries a highlighted block, so nothing needs it.
-    The tombstone in `src/app/global.css` says how to put it back, and putting
-    it back is what a landing page with a fenced block owes. Prose and chrome
-    don't take a hue.
+    docs' `.dark` class. ⚠️ **It is not in the tree**: no landing page carries a
+    highlighted block, so nothing needs it, and only a tombstone in
+    `src/app/global.css` says how to write it. Putting it back is what a
+    landing page with a fenced block owes. Prose and chrome don't take a hue.
 
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
@@ -402,6 +403,10 @@ clear it at all.
 > exist, there is no cask and no one-line install, and
 > `haus.notifications.compositor` — the Notifications room — is the only front
 > door. That callout is the condition on the exception.
+>
+> `haus.notifications.compositor` is the option's current spelling;
+> `haus.trill.enable` is an older name for it, and neither this repo nor haus
+> aliases it, so a config still carrying that line does not evaluate.
 >
 > ⚠️ **Whether the tab clears the bar is the user's call and nobody has made
 > it.** Until they do: **don't grow the tree past that page**, and don't read
@@ -666,8 +671,9 @@ CI, by what a PR touches:
   invisible failure between them: any of them missing from
   `wrangler.preview.toml` means a PR's installer change looks fine on the
   preview URL precisely *because* the route isn't running there. ⚠️
-  `run_worker_first` missing from the preview config is exactly that, and it is
-  invisible on the preview URL by construction.
+  `run_worker_first = true` is in `wrangler.preview.toml` for exactly that
+  reason; drop it and nothing goes red, because the failure is invisible on the
+  preview URL by construction.
 - **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, purges
   the cache, then smoke-tests nine live Worker routes plus the site root. It is
   **last on purpose** — a red smoke check must not skip the purge, which is what
