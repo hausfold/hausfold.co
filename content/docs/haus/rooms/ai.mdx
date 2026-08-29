@@ -331,6 +331,11 @@ That makes a lane on the other repo and registers it as a **child of your
 current pane**, which is what puts its PR in the HUD beside the work that
 spawned it.
 
+It is this pane's second checkout, not a second agent: no window, no chat of its
+own, and so no row in the **Lanes** picker, which exists to take you to a window.
+`scruff` lists it, its PR sits under this pane in the statusline, and its branch
+lands through its own PR like any other.
+
 Pointing agents at haus itself rather than at your own projects?
 [Contributing](/docs/haus/internals/contributing) covers what's different in a
 family repo: building a lane's branch without merging it, and the one

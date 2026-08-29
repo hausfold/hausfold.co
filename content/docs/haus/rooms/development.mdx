@@ -164,9 +164,13 @@ Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
 work don't pile onto one screen. `⌘N`, `⌘⏎` and `⌃⇥` are only taken while
 Ghostty is frontmost, so `⌘⏎` still sends in Slack, `⌘N` still opens a new
 window in your browser, and `⌃⇥` still walks that app's own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, and
-gains a **Lanes** command beside them: fuzzy over every lane with its state,
-`↵` focusing that lane's window or waking a parked one, `/` plus a word
-searching what the agents are *saying* across every live session. Live sessions
+gains a **Lanes** command beside them: fuzzy over every lane with a window of
+its own, with its state, `↵` focusing that window or waking a parked one, `/`
+plus a word searching what the agents are *saying* across every live session.
+A checkout `scruff child` opened so one lane could edit a second repo is not on
+the list — its conversation lives in the pane that made it, so there is no
+window here to go to; `scruff` still lists it, and its PR still shows in the
+statusline under the pane that owns it. Live sessions
 are read every time, so a lane you spawned seconds ago is always listed; what
 can lag by up to fifteen minutes is everything the picker knows *about* a lane,
 its branch, its commit subject and whether its work has landed. `⌘↵` forces a
