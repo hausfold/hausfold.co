@@ -69,6 +69,12 @@ older Pounce never chokes on a config written by a newer one.
     "enabled": true,
     "tiles": 7               // how many tiles the strip holds (1-12)
   },
+  "ranking": {               // how the launcher learns, see below
+    "learnFromQueries": true,
+    "stickyTiles": true,
+    "useContext": true,
+    "predictNext": true
+  },
   "hotkey": {
     "enabled": true,
     "key": "space",          // "space", "return", "tab", "escape", "a"–"z", "0"–"9"
@@ -160,6 +166,27 @@ that: the block is only read as an object, so it is ignored in silence and the
 stage stays on. `"windowMode": "compact"` has no stage at all, so
 the key does nothing there: compact means an empty query shows *nothing* until
 you type, and a strip of tiles is emphatically something.
+
+## How it learns (`ranking`)
+
+Four switches, all on, and together they are most of the difference between a
+palette that ranks and one that is shaped by the person using it. Turn them all
+off and you have fuzzy match plus frecency, which is what pounce did before they
+existed. [How ranking works](/docs/pounce/using#how-ranking-works) is the same
+story from the other side.
+
+| Key | On means |
+|---|---|
+| `learnFromQueries` | The row you keep taking for a query, and for each prefix of it, wins the next time you type it. The only signal that can surface a row the search itself rejected, so `mail` can come to mean Superhuman. Two picks, never one |
+| `stickyTiles` | Tiles hold their positions across summons, so `⌘3` is the same thing next week. Slots go to habit alone and change one at a time, only when a challenger clearly outgrows the weakest. Off, the strip is the ranked list's first few rows again and moves whenever the list does |
+| `useContext` | A small tilt towards what you reach for from *here*: the app in front, the workspace, the part of the day, weekday or weekend. Promotion only, in proportion to how much likelier an item is here than in general |
+| `predictNext` | The **NEXT** info card, offering what usually follows what you just did. `⇥` takes it, `⏎` never does, and it appears only when the pairing is strong |
+
+<Callout title="A fresh pounce has no tiles">
+`stickyTiles` gives slots to habits, and a pounce nobody has used yet has none,
+so the strip starts empty and fills as you work. That is the intended shape: the
+alternative is opening on seven alphabetical accidents you then have to unlearn.
+</Callout>
 
 ## Themes
 

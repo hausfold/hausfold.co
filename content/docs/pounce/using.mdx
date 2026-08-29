@@ -31,19 +31,29 @@ the ⌘Space collision with Spotlight, which fails silently.
 
 An empty palette is three zones rather than one list: a **strip of tiles** for
 the handful of things you actually reach for, the **familiar list** beneath it,
-and a quiet **glance line** with the time and the date, plus what you last
-copied if clipboard history is on. Type a single character and the whole thing
-yields to ranked results; search itself is untouched.
+and a row of **info cards** along the bottom. Type a single character and the
+whole thing yields to ranked results; search itself is untouched.
 
-A tile is not a new kind of thing, it is a row promoted: same frecency ranking,
-same [per-item](/docs/pounce/config#per-item-settings-items) alias and hotkey,
-same `⏎`. `←` / `→` walk the strip, `↓` drops into the list, `↑` comes back.
-The list keeps its full length, so turning the stage on never costs you rows.
+A tile is still a row, with the same [per-item](/docs/pounce/config#per-item-settings-items)
+alias and hotkey and the same `⏎`, but the strip is not the list's own head. Slots go
+to habit alone and then **hold still**, changing one tile at a time and only when
+something new clearly outgrows the weakest tile, which is what makes `⌘1`–`⌘9`
+worth learning: the third tile is the same thing next week. `←` / `→` walk the
+strip, `↓` drops into the list, `↑` comes back. The list keeps its full length,
+so turning the stage on never costs you rows. A pounce with no history yet has
+no tiles at all; the strip grows as habits form.
+
+A card draws only when it has something to say, so the row is news rather than
+furniture: **NEXT** is what usually follows what you just did (`⇥` takes it),
+**CLIPBOARD** is your last copy, and **TODAY** is the resting face when neither
+has anything, with the date and the time.
 
 `"stage": { "enabled": false }` in [config](/docs/pounce/config#config-file)
-gives you the flat list instead, and `"stage": { "tiles": 3 }` makes them fewer
-and wider. In `"windowMode": "compact"` there is no stage: compact's whole
-promise is that an empty query shows nothing.
+gives you the flat list instead, and `"stage": { "tiles": 3 }` makes them fewer.
+Each tile is sized to its own title and a strip longer than the window scrolls,
+so the count is a ceiling rather than a fitting problem. In
+`"windowMode": "compact"` there is no stage: compact's whole promise is that an
+empty query shows nothing.
 
 ## Navigating
 
@@ -52,6 +62,8 @@ promise is that an empty query shows nothing.
 | Type | Fuzzy-search in real time |
 | `↑` / `↓` | Move the selection |
 | `←` / `→` | Walk the tile strip, before you type |
+| `⌘1` – `⌘9` | Fire the tile in that position, before you type |
+| `⇥` | Take the suggested next action, when a NEXT card is showing one |
 | `Return` | Run the default action |
 | `⇧Return` | Insert a newline; the query field is multi-line |
 | `⌘Return` | The modifier action (often "Reveal in Finder" for apps) |
@@ -63,18 +75,43 @@ selected row.
 
 ## How ranking works
 
-Three signals decide the order, so the thing you want is usually already on
-top:
+Match quality leads, and then a few things about you decide the near-ties, so
+the thing you want is usually already on top:
 
 - **Fuzzy match quality**: consecutive runs, word-boundary hits, and titles
   counting double subtitles.
-- **Frecency**: frequency × recency, on a 72-hour half-life.
+- **Habit, on two clocks.** Every use is counted twice: once against a 24-hour
+  half-life (what you're doing *today*) and once against a 30-day one (who you
+  are). A burst this afternoon can outrank a daily habit without erasing it, and
+  a quiet week is not evidence against one. Each use decays from its own moment,
+  so a click adds one use rather than reviving every use you ever made.
+- **The row you keep taking for those letters.** Pounce remembers the query, and
+  every prefix of it, against what you picked: take Cursor for `vs` twice and
+  `vs` means Cursor, however tightly something else matches. It is the only
+  signal that can surface a row the search itself rejected, which is how `mail`
+  comes to mean Superhuman. Two confident picks, never one.
+- **Where you are.** The app you pressed the key over, the workspace in front of
+  you, the part of the day, weekday or weekend. An item is lifted only in
+  proportion to how much likelier it is *here* than in general, and never sunk
+  for being new somewhere: it settles near-ties, and typing a name still means
+  that name.
 - **A freshly-installed boost** for anything installed in the last week,
   halving every two days.
+
+The last three are switches (`ranking` in [config](/docs/pounce/config#how-it-learns-ranking));
+turn them all off and you have fuzzy match plus frecency, which is what pounce
+did before they existed.
 
 An app you'd rather never see can be hidden or sunk with `apps.hideBundleIds` /
 `apps.demoteBundleIds`, and any row can take a search shorthand; see
 [per-item settings](/docs/pounce/config#per-item-settings-items).
+
+**What comes next** is deliberately not one of them. Two things you keep doing
+in that order, within a few minutes, become the NEXT card on an empty palette,
+taken with `⇥`, never `⏎`, which belongs to the selection. It never moves
+anything in the list, and it only appears when the pairing is strong, so most
+summons show nothing at all: a wrong guess costs a glance and can't displace the
+row you were reaching for.
 
 ## Quick answers
 
