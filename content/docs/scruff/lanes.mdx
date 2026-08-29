@@ -78,6 +78,11 @@ cd "$(scruff child ~/code/other-repo review-api)"   # named, if you like
 is what lets a status bar show its PR beside the work that spawned it. It prints
 only the path, same as `new`.
 
+It is that pane's second checkout rather than a second agent: no window and no
+conversation of its own. `scruff` lists it under the lane that made it, and
+`--json` says so in [`chat`](/docs/scruff/json) — which is what a picker should
+read before deciding a lane has nowhere to go to.
+
 `spawn` is `child` for a caller with no pane of its own: a launcher, a cron job,
 an orchestrator.
 
@@ -102,12 +107,17 @@ scruff
   pounce      smart-ranking          live   claude launcher: fixes from the p…
   nebelung    sparkle                parked claude wip: auto-saved on lane close
   haus        omit-child-lanes       live+3 claude bar: the draft PR colour
+  perch       └ omit-child-lanes     live   claude cli: the shelf takes a path
 ```
 
 Every repo, in one list. The state column is `live`, `parked` or `stray`, and it
 can carry a suffix: `live+3` is [three commits past a merged
 PR](/docs/scruff/landing#when-a-lane-outran-its-pr), `~3` is the lookalike that
 wants the opposite treatment.
+
+A lane sits **under the one that spawned it**, marked `└`. It is nested rather
+than hidden: its branch and its PR are its own, closing the parent's pane does
+not reap it, and this listing is where it surfaces once that pane is gone.
 
 `scruff --json` is the same listing for machines, and its shape is
 [a frozen contract](/docs/scruff/json).
