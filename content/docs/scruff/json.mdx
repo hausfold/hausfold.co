@@ -1,0 +1,151 @@
+---
+title: The JSON API
+description: One envelope for the snapshot, one NDJSON stream for the changes, and the five traps that have caught every consumer so far.
+icon: json
+related:
+  - title: "SDKs"
+    description: "Five languages over this exact wire format, sharing one version number."
+    href: "/docs/scruff/sdks"
+    icon: "sdk"
+  - title: "Hooks and seams"
+    description: "The other machine surface: replacing one of scruff's decisions with a program."
+    href: "/docs/scruff/seams"
+    icon: "seams"
+---
+
+```sh
+scruff --json          # a snapshot. Same bytes as `scruff list --json`
+scruff watch --json    # the changes, one NDJSON object per line
+```
+
+## The envelope
+
+```json
+{ "scruff": "1.3.0", "schema": 2, "warnings": [], "lanes": [ … ] }
+```
+
+`scruff` is the version, `schema` the payload version. Check `schema` rather
+than sniffing for fields.
+
+Each lane:
+
+| Field | Meaning |
+|---|---|
+| `name` | the lane's name |
+| `repo` / `main` | the repo's remote slug, and the main checkout's path |
+| `branch` | the full branch name |
+| `path` | the checkout path on disk. **Empty once parked** |
+| `parent` | the pane that spawned it via `scruff child`, or `""` |
+| `agent` | the client: `claude`, `codex`, `opencode`, `pi` |
+| `state` | `live`, `parked` or `stray`. A closed set |
+| `occupied` / `dirty` | nullable. **`null` means undetermined, not false** |
+| `occupied_by` | the evidence behind `occupied: true`: `[{pid, command, path, via}]`, `via` being `lsof` or `leases`. Absent entirely when nothing holds the lane |
+| `landed` | `{verdict, via, confidence}`. See [the four verdicts](/docs/scruff/landing#the-four-verdicts) |
+| `post_merge_ahead` | `{commits, pr, diverged}`: work done after the PR merged |
+| `last_commit` | the most recent commit's subject |
+
+## The five traps
+
+<Callout type="warn" title="null is not false">
+`occupied` and `dirty` are **three-state**. `null` means scruff could not
+determine it: no `lsof`, no forge, a cache miss. Reading it as falsy is how you
+tell somebody a lane is clean when scruff had no idea. Every consumer bug in the
+predecessor's status bar came from exactly this.
+</Callout>
+
+- **`state` and `landed.verdict` are closed sets.** Additions are a minor
+  version, removals a major one, and an unknown value must resolve to the safe
+  direction: an unrecognised `verdict` or `via` is **not landed**.
+- **`landed.verdict: "fresh"` is not `yes`.** It means the branch has never
+  carried a commit of its own. Render it as *nothing yet*, never as *merged*.
+- **`warnings` is the only place a degraded run explains itself.** Under
+  `--json` the human-readable notes are suppressed, so a consumer that ignores
+  `warnings` will silently report a partial sweep as a complete one.
+- **`occupied` says a process is standing there, not that a pane is.** A dev
+  server or an orphaned daemon holds a lane exactly as hard as a live agent.
+  Read `occupied_by` before telling somebody to go and close a window that may
+  not exist.
+- **`post_merge_ahead.pr` is a plain int**, and absent is `0`, never `null`.
+  `diverged` is what separates "committed after the merge" (reshippable, `+N`)
+  from "this tip never built on what merged" (stale or sideways, `~N`).
+
+<Callout type="warn" title="A listing is not read-only">
+`scruff` and `scruff --json` also sweep landed parked branches on the way past.
+Harmless, and the invariants still hold, but don't poll it thinking you are only
+looking.
+</Callout>
+
+## The stream
+
+```sh
+scruff watch --json
+```
+
+One JSON object per line. A `hello` header first, then one `sync` per lane
+already alive, then `ready`, then the changes as they happen:
+
+```json
+{"kind":"hello","seq":0,"scruff":"1.3.0","schema":2,"capabilities":["registry"]}
+{"kind":"sync","seq":1,"ts":"…","source":"registry","lane":{…}}
+{"kind":"ready","seq":2}
+{"kind":"created","seq":3,"ts":"…","source":"registry","lane":{…}}
+```
+
+`kind` is `sync`, `ready`, `created`, `parked`, `resumed`, `reaped`, `changed`
+or `warning`, and it is a closed set on the same terms as the others: **treat an
+unknown kind as noise, not as an error.** `seq` is monotonic across the whole
+stream, `hello` included, so a consumer fanning this out over its own transport
+can detect a dropped line without scruff knowing anything about that transport.
+`lane` carries the exact same shape `--json` uses, so one schema serves the
+snapshot and the stream alike.
+
+### Why it does not poll the forge
+
+`created`, `resumed` and `reaped` are registry mutations, so the file changing
+is a complete signal and they arrive instantly. `parked` gets a plain local
+rescan timer as a backstop, because the common case (an unlanded pane closing)
+never touches the registry at all.
+
+`landed` and `post_merge_ahead` are deliberately **not** in the stream. They
+change at the forge, and nothing local fires when a PR merges. Folding a `gh`
+poll into a stream meant to run for hours, across however many lanes and repos
+one consumer holds leases on, is a rate-limit generator on a schedule nobody
+chose. A consumer that wants landedness polls `--json` at a cadence it can
+afford and tune.
+
+That decision is not foreclosed, though: every event carries `source`
+(`"registry"` today, `"forge"` reserved) and `hello` carries `capabilities`, so
+a consumer can ask *will this stream ever emit a forge-derived event?* rather
+than guessing from which kinds have happened to show up. Adding one later costs
+nobody a rewrite.
+
+## What is frozen
+
+Four things are versioned and breaking-change-gated, because downstreams pin
+them within a day: the **registry schema**, this **`--json` output**, the **hook
+protocol**, and the **exit codes**. So are the user-facing command names and
+flags. Changing one is a semver major conversation, not a refactor.
+
+Field **additions** are non-breaking, which means the other half of the deal is
+yours: **ignore unknown keys.**
+
+## Why the registry is a file and not a URL
+
+The obvious next question is whether the registry could live at an https
+address. It could not, and the reason is the thesis: a URL should address
+*scruff*, not the registry file. Object storage holds a blob. It cannot run an
+occupancy provider, cannot emit a lifecycle event, and cannot enforce a single
+one of the three invariants, so every SDK written against a shared blob would
+reimplement park, landed-detection and reap, which is four copies of the logic
+that *is* the product, and four copies of its bugs.
+
+It also fails on its own terms. The rows hold **absolute paths on one machine**,
+so machine B checking whether machine A's branch is alive gets `false` and
+deletes it: invariant 1, violated silently. There is no `flock` over HTTP, so a
+plain PUT loses an update every time two panes close at once. A status bar
+shells the listing on every redraw, and a network round trip per redraw is not a
+cost, it is a defect. And invariant 2 says uncertainty resolves to keep, so a
+pane closing must not fail because the Wi-Fi dropped.
+
+A remote **transport** speaking this same protocol is a different question, and
+an open one.

@@ -35,9 +35,13 @@
             wash out on paper.
    Accents: the dark values ARE nebelung's — hacker pink, pounce peach,
             perch green, nebelung mauve. scruff and trill have no row
-            upstream yet, so teal and yellow are provisional choices
+            upstream yet, so maroon and yellow are provisional choices
             of ours from nebelung's palette rather than assignments it
-            makes; reconcile them if those two get a row.
+            makes; reconcile them if those two get a row. scruff asked
+            for pink and nebelung has two: `pink` is hacker's and is
+            also what --color-fd-error spends in the docs, so scruff
+            takes `maroon`, the rose one, and the two stay tellable
+            apart in the mark's six-wedge sweep.
    Type:    New York (ui-serif) + SF Mono. The Mac's own faces, which
             is the thesis of the site set in the site.
    Mark:    grey until you hover it, then all six product accents fold
@@ -148,7 +152,7 @@
   /* borrowed accents, light ground */
   --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
-  --a-scruff: #0f7268;
+  --a-scruff: #b0355c;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
   --a-trill: #8a6512;
@@ -182,7 +186,7 @@
 
     --a-hacker: var(--nebelung-pink);
     --a-pounce: var(--nebelung-peach);
-    --a-scruff: var(--nebelung-teal);
+    --a-scruff: var(--nebelung-maroon);
     --a-perch: var(--nebelung-green);
     --a-nebelung: var(--nebelung-mauve);
     --a-trill: var(--nebelung-yellow);
@@ -200,7 +204,7 @@
 
   --a-hacker: var(--nebelung-pink);
   --a-pounce: var(--nebelung-peach);
-  --a-scruff: var(--nebelung-teal);
+  --a-scruff: var(--nebelung-maroon);
   --a-perch: var(--nebelung-green);
   --a-nebelung: var(--nebelung-mauve);
   --a-trill: var(--nebelung-yellow);
@@ -217,7 +221,7 @@
 
   --a-hacker: #a83a8b;
   --a-pounce: #a8570f;
-  --a-scruff: #0f7268;
+  --a-scruff: #b0355c;
   --a-perch: #2e7a37;
   --a-nebelung: #6a3fb0;
   --a-trill: #8a6512;

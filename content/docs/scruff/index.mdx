@@ -1,0 +1,116 @@
+---
+title: What scruff is
+description: Give every coding agent its own branch, its own checkout and its own pane. scruff owns the whole life of that lane, from created to swept, and is built to never lose your work.
+icon: compass
+related:
+  - title: "Install"
+    description: "One nix run, one go install, or nothing at all if you are on a haus machine."
+    href: "/docs/scruff/install"
+    icon: "install"
+  - title: "Working in lanes"
+    description: "The handful of commands you will actually type: new, child, spawn, resume, focus."
+    href: "/docs/scruff/lanes"
+    icon: "lanes"
+---
+
+Run two coding agents in one checkout and they fight. One switches the branch
+out from under the other, uncommitted edits collide, and closing a pane
+mid-thought can take work with it.
+
+The fix is a worktree each, and every vendor now ships one: `claude --worktree`,
+the Claude Agent SDK's `isolation: worktree`, Cursor, Copilot CLI. Every one of
+them stops at *create*. Nobody owns the rest of the life: the branch still alive
+after the pane died, the checkout nobody is sitting in, the tree with forty
+uncommitted minutes in it, the branch whose PR merged yesterday and which has
+kept committing since.
+
+**scruff** owns that. It is one Go binary, it works on any git repo with any
+client, and if you have ever run `git worktree list` through a graveyard trying
+to remember which of those you can safely delete, it is the thing that makes the
+graveyard go away.
+
+```sh
+cd "$(scruff new fix-flaky-test)"  # a lane on this repo: new checkout, new branch, path on stdout
+scruff                             # every lane you have going, live or parked, across every repo
+scruff fix-flaky-test              # back later: rebuild the checkout, reopen the agent, where you left off
+scruff reap                        # sweep every lane whose branch landed and nobody is standing in
+```
+
+It is [MIT licensed](https://github.com/hausfold/scruff/blob/main/LICENSE), it
+installs standalone with no Nix, and it has nothing to sign in to.
+
+## A lane
+
+The unit is a **lane**: one agent's branch, checkout and pane, from create to
+reaped.
+
+Not a *worktree*, git's word for the checkout on disk, because a parked lane has
+no checkout at all and the branch is what survives. Not an *agent*, which here
+means the client a lane runs (`claude`, `codex`, `opencode`, `pi`). Not a
+*session*, which belongs to your multiplexer. The overload was the bug, so the
+three words are reserved and a lane is a lane.
+
+```
+create ──▶ live ──▶ parked ──▶ live ──▶ landed ──▶ reaped
+             │        │                    ▲
+             └────────┴────────────────────┘
+```
+
+The **branch is the durable artifact and the directory is disposable**. That one
+sentence explains most of scruff's behaviour: closing a pane can delete a
+checkout without anybody losing anything, and `scruff <name>` builds it back.
+
+## Three invariants, in this order
+
+scruff's product is not "makes worktrees". It is this state machine and the three
+promises it keeps, in priority order:
+
+1. **Never lose work.** Every destructive path parks first. The failure
+   direction is always *a branch lingers*, never *a tree vanished*.
+2. **Never reap what is in use.** Occupied, dirty, or not provably landed means
+   keep. Uncertainty resolves to keep, including when GitHub is unreachable.
+3. **The registry is truth.** Not the filesystem, not `git worktree list`. Those
+   are derived, and they lie: stray directories, half-removed checkouts, parked
+   branches with no directory at all.
+
+<Callout type="info" title="Exit 2 is scruff working, not scruff failing">
+A command that refuses with **exit 2** has decided that keeping was safer than
+removing. It is not an error to route around: don't reach for `git worktree
+remove`, ask it why. [Every exit code](/docs/scruff/cli#exit-codes) means a
+different recovery.
+</Callout>
+
+## What it will not do
+
+The thesis is **substrate, not orchestrator**, and the non-goals are
+load-bearing: no scheduling, no agent supervision or restart, no fullscreen TUI,
+no hosted anything, no knowledge of your build system or package manager or CI,
+no merge conflict *resolution*, and no opinion about which agent you run. The
+actions at each transition belong to you.
+
+It is also repo-agnostic and client-agnostic all the way down. It knows nothing
+about the family that wrote it, and where one of its answers is a house rule
+wearing a universal name ("landed means merged into the default branch",
+"resume means become the client process"), that answer is a
+[seam](/docs/scruff/seams) you can replace with a program of your own.
+
+## Made for agents
+
+scruff is a CLI with a frozen JSON contract, which is exactly the shape an agent
+drives well: `scruff --json` for the whole picture, `scruff watch --json` for a
+live NDJSON feed, six exit codes that each mean a different recovery, and
+[five SDKs](/docs/scruff/sdks) over one wire format.
+
+It also ships **two agent skills** in the repo, so a session that has never seen
+scruff still drives it correctly the first time: `scruff` teaches the lifecycle,
+and `handoff` teaches the one thing with no verb, writing a brief a cold session
+can act on. [For coding agents](/docs/scruff/agents) is what is in them and how
+to install them.
+
+## Inside a haus machine
+
+scruff runs perfectly well on its own, and that is how most people meet it. It is
+also what the **AI room** in [haus](/docs/haus) stands on: the layer takes scruff
+as a flake input, puts it on your `PATH`, and binds **⌘⏎** to open a lane on
+whatever repo the focused window is looking at. Same binary, same lanes; only
+the wiring differs. See [the AI room](/docs/haus/rooms/ai).

@@ -1,0 +1,170 @@
+---
+title: Hooks and seams
+description: scruff ships its answers as defaults rather than as the mechanism. Six decisions are programs you can replace, and a broken one costs you the override, never the operation.
+icon: seams
+related:
+  - title: "Config"
+    description: "Where the [hooks] table lives, and the environment a seam is handed."
+    href: "/docs/scruff/config"
+    icon: "dials"
+  - title: "The JSON API"
+    description: "The other machine surface: one envelope, one NDJSON stream, both frozen."
+    href: "/docs/scruff/json"
+    icon: "json"
+---
+
+scruff grew out of one machine, and it inherited that machine's answers to
+questions that only *look* universal. "Landed" means merged into the default
+branch. "Resume" means become the client process. Every one of those is a house
+rule wearing a universal name, and every one of them is wrong somewhere: a shop
+that merges into a release train, a machine that can enumerate its own panes
+better than `lsof` can, a multiplexer user who wants a new pane rather than a
+hijacked one.
+
+The fix is not more configuration keys. It is to name each decision, ship
+scruff's answer as the **default** rather than the **mechanism**, and let you
+replace it. That is the difference between a tool and a substrate.
+
+## The protocol
+
+A seam is a **program, not an expression language**. scruff execs your argv and
+reads the answer off the exit code.
+
+| exit | a predicate means | an action means |
+|---|---|---|
+| `0` | yes | handled, scruff does nothing further |
+| `1` | no | failed |
+| `2` | no, **refused for safety** (propagates as scruff's own exit 2) | refused |
+| `3` | **no opinion, use the built-in** | declined, run the built-in |
+| anything else, or would not exec | defer, **and warn** | defer, **and warn** |
+
+0, 1 and 2 mean what they mean in [scruff's own exit-code
+table](/docs/scruff/cli#exit-codes), so a hook and a wrapper script speak one
+language. `3` is the only addition, and it is deliberately not 0, 1 or 2 so that
+the ways a script dies **by accident** (a `1` from `set -e`, `126` from a lost
+executable bit, `127` from a typo) can never be mistaken for an opinion.
+
+**Every failure mode defers.** A broken hook costs you the override, never the
+operation, because scruff is in the path of every pane open and a stale store
+path must not be able to close that door. It costs you the override *loudly*: a
+policy that silently stopped applying is worse than one that never existed,
+because you still believe it is in force.
+
+```toml
+# ~/.config/scruff/config.toml
+[hooks]
+resume = "/usr/local/bin/my-resume"                    # a bare program
+landed = ["/usr/local/bin/my-landed", "--release-train"]  # or an argv
+```
+
+## The six shipped seams
+
+| Seam | Kind | Answers | Built-in |
+|---|---|---|---|
+| `agent` | predicate | which client a new lane opens in | the `agent` config key, then `SCRUFF_AGENT`, then claude |
+| `landed` | predicate | has this branch's work reached the default branch? | [the ladder](/docs/scruff/landing#landed-across-every-merge-shape) |
+| `preserve` | predicate | does this dirty tree need a `wip:` commit before removal? | yes, unless it is untracked scratch on a branch that already landed |
+| `resume` | action | reopen this lane's session | chdir and exec the client |
+| `open` | action | open a session in a freshly created lane | chdir and exec the client |
+| `focus` | action | put the window this lane is already running in in front | fall back to `resume`, the only go-to scruff has without a window layer |
+
+A predicate may also print a JSON object on stdout to enrich its yes or no. A
+`landed` hook naming its own rule keeps a reap **attributable**: `via:
+"release-train"` beats `via: "hook"` when you are working out why a branch went
+away. Prose on stdout is not an error; the exit code already answered.
+
+Action seams get the terminal, but their **stdout is redirected to stderr**.
+Both are the same tty for an interactive hook, so a TUI still draws, and scruff's
+own stdout carries data under a contract other programs parse.
+
+## What a seam is handed
+
+The situation arrives **twice**, so a seam can be a program with a JSON parser
+or three lines of shell without either having to become the other: as a JSON
+object on stdin, and as environment variables.
+
+The environment is `SCRUFF_HOOK` plus `SCRUFF_*` for every template variable:
+`SCRUFF_PATH`, `SCRUFF_MAIN`, `SCRUFF_REPO`, `SCRUFF_NAME`, `SCRUFF_BRANCH`,
+`SCRUFF_PARENT`, `SCRUFF_CWD`. Three fields are spelled apart from scruff's own
+variables, all for the same reason: **a hook leaks its environment into every
+pane it spawns**, so a field that reused one of those names would hand scruff
+back its own input.
+
+| the lane's | not | because that is scruff's |
+|---|---|---|
+| `SCRUFF_BASE_BRANCH` | `SCRUFF_BASE` | checkout base directory |
+| `SCRUFF_LANE_STATE` | `SCRUFF_STATE` | state directory |
+| `SCRUFF_LANE_AGENT` | `SCRUFF_AGENT` | one-invocation client override |
+
+The two seams that open a session, `resume` and `open`, get three more, because
+a hook that spawns a pane has to reproduce a decision scruff already made:
+
+- **`SCRUFF_CHAT`**, the cwd the conversation lives in. For a lane spawned by
+  `scruff child` that is the **parent's** checkout, not the lane's. Getting it
+  wrong is how a resumed child lane opens an empty session.
+- **`SCRUFF_LANE_STATE`**, the lane's lifecycle state.
+- **`SCRUFF_COMMAND`**, the exact client invocation scruff was about to run,
+  already resolved to continue-the-newest or open-the-picker. A hook that
+  re-derives it instead lands its new pane on the picker scruff just spared the
+  user.
+
+`SCRUFF_COMMAND` is a command **string, shell-quoted per argument**, and a hook
+should run it through a shell rather than word-splitting it. That was invisible
+while every invocation was two bare words; `--prompt` put a whole task in there,
+and a brief spans lines and is full of quotes and `$`.
+
+<Callout type="info" title="A seam inherits the caller's whole environment too">
+On top of those fields, `cmd.Env` is `os.Environ()` plus them. That is the seam
+by which a caller asks for something only this machine's hook can decide: how
+loudly to open a window, which display to land on, whether to take the screen at
+all. scruff neither sets nor reads any of it, and a hook that does not know a
+spelling ignores it, so such a request costs nothing where it is not understood.
+
+Keep those names out of scruff. A variable scruff would have to know is a flag,
+and a flag only one consumer can honour belongs in that consumer.
+</Callout>
+
+## What is deliberately not a seam
+
+**`reapable` is absent, and it was built, tested and pulled back out.**
+Reapability reaches through *three* of scruff's inherited opinions at once,
+occupancy, dirtiness and landedness, and a seam over the lot of them is a bigger
+commitment than the six above, because a `yes` on a dirty tree is the one answer
+that destroys work. Overriding `landed` already moves the rung that matters
+most.
+
+Two more are about scruff not sawing off the branch it is sitting on, rather than
+about policy, and no seam can reach them: the checkout scruff is being **run
+from** is never swept, and a **stray** is only ever reported.
+
+## Client hooks: the other direction
+
+The seams above are scruff calling out. These are clients calling **in**. Same
+shape every time: JSON on stdin, and the "only the path on stdout" rule is
+load-bearing.
+
+```
+scruff hook create   < JSON on stdin  →  the new checkout path on stdout, nothing else
+scruff hook remove   < JSON on stdin  →  human text on stderr, nothing on stdout
+scruff hook notify   < JSON on stdin  →  a banner, exit 0 always
+```
+
+`create` and `remove` are what Claude Code's `WorktreeCreate` and
+`WorktreeRemove` hooks call, so a hand-run `claude --worktree` still lands in the
+registry and still gets parked rather than deleted. They accept a set of
+**aliases per logical field**, first hit wins, because the client's own docs and
+releases have disagreed about the spelling; which alias fired is logged, so a
+future bump is diagnosable rather than silent. The same JSON from a Codex or
+OpenCode plugin gets the same behaviour.
+
+`scruff hook notify` turns client events into a [trill](/docs/trill) banner for
+the lane, which is how you tell which of eight agents needs you:
+
+- **Notification** hangs an `ask` on the ledge when a lane blocks on its user.
+- **Stop** replaces it with a `done` when the turn finishes.
+- **UserPromptSubmit** and **PostToolUse** take an answered `ask` back down: the
+  session moved again, so the question did too.
+
+Every banner is keyed by lane, so one lane never hangs two, and clicking one
+runs `scruff focus` on that lane. It exits 0 always and is a silent no-op
+without trill installed.

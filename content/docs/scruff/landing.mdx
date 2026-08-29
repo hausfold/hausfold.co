@@ -1,0 +1,189 @@
+---
+title: Landing and cleanup
+description: How scruff proves a branch's work reached the default branch across every merge shape, the sweep that only ever takes finished work, and the ledger that makes every deletion reversible.
+icon: landed
+related:
+  - title: "The JSON API"
+    description: "landed, post_merge_ahead and occupied, as the fields a consumer actually reads."
+    href: "/docs/scruff/json"
+    icon: "json"
+  - title: "Hooks and seams"
+    description: "landed is a house rule wearing a universal name. Replace it with a program of your own."
+    href: "/docs/scruff/seams"
+    icon: "seams"
+---
+
+`landed` is the predicate the whole safety story rests on: it decides whether a
+branch **dies**. Getting it wrong in the permissive direction destroys work, so
+scruff spends more effort here than anywhere else in the binary.
+
+## Landed, across every merge shape
+
+The question is "did this branch's work reach the default branch", not "was
+there a merge commit". Six shapes get there, and each is caught by something
+different:
+
+| How the work got there | Caught by |
+|---|---|
+| fast-forward, or a merge commit | ancestry: the tip is already in the default branch |
+| **rebase-and-merge** on the forge (new SHAs) | the PR's `headRefOid` still equals your local tip |
+| **squash-and-merge** (one new commit) | the same |
+| **cherry-picked** commit by commit | patch equivalence: `git cherry` marks every commit as already upstream |
+| a local squash and a direct push, no PR at all | an empty merge tree: the branch adds nothing to the default branch |
+| merged, then the lane **kept committing** | the PR is merged and `headRefOid` is behind the tip. See [below](#when-a-lane-outran-its-pr) |
+
+The default branch is resolved from `refs/remotes/origin/HEAD`, never from
+whatever the main checkout happens to have checked out. A branch merged into a
+side branch is not a branch that landed.
+
+## The four verdicts
+
+`landed.verdict` is a closed set, and each carries a `via` (which signal
+answered) and a `confidence`.
+
+| | |
+|---|---|
+| `yes` | it reached the default branch. Reapable |
+| `no` | it did not, or nothing could prove it did. **Kept** |
+| `fresh` | the branch has never carried a commit of its own, so there is nothing here to have landed |
+| `contained` | the branch adds nothing to the default branch, by an empty merge tree. A heuristic, and not a reap trigger |
+
+<Callout type="warn" title="fresh is not yes">
+A lane cut from the default branch five seconds ago is trivially *contained in*
+the default branch, because it **is** the default branch. Before `fresh` existed,
+every consumer that rendered a verdict rendered a brand-new lane as **merged**.
+Render it as *nothing yet*.
+
+It is a label, not a gate: a never-committed branch has nothing to lose, so it
+is still sweepable. That is why the first thing to do in a new lane is commit
+something.
+</Callout>
+
+`contained` is deliberately not enough to delete on. An empty merge tree is true
+of a squash merge, of a manual re-implementation, and of an empty branch alike,
+so it is surfaced with a `?` in the listing and left alone.
+
+## Uncertainty resolves to keep
+
+No `gh`, no network, a rate limit, an archived repo: every one of those means
+scruff **cannot prove** the branch landed, and every one of them keeps the
+branch. The run exits **3**, says so in `warnings`, and shows a marker in the
+listing. Silent degradation is how a user learns to distrust a tool, so scruff
+does not do it.
+
+## Sweeping
+
+```sh
+scruff reap
+```
+
+Most cleanup already happened: closing a pane reaps a merged branch, and every
+listing sweeps parked branches whose PR has since landed. `reap` is the
+idempotent backstop for the endings that skip the hook, a reboot, a crash, or a
+`scruff child` checkout that no pane owns.
+
+It is deliberately conservative and it tells you why, lane by lane. It keeps
+anything **dirty**, anything **not provably landed**, and any checkout somebody
+is **standing in**, including the one you are standing in right now. Two things
+no seam and no flag can override: the checkout scruff is being run **from** is
+never swept, and a **stray** (a directory git has disowned, from an interrupted
+`git worktree remove`) is only ever reported.
+
+```
+reaped nebelung/sparkle
+kept pounce/smart-ranking — something is standing in the checkout: node (pid 46864)
+nothing reaped — see above for what held each lane back.
+```
+
+### Getting one back
+
+Every branch deletion writes a line to a ledger **before** the delete: when,
+repo, name, branch, SHA, why, and the PR.
+
+```sh
+scruff reaped
+```
+
+This exists because a branch deletion destroys its own evidence. `git branch -D`
+takes the branch's reflog with it, so a lane that vanished between two listings
+leaves a repo where the only honest answer is "something deleted it, and the
+record of what died with the thing it recorded". The ledger outlives git's own
+reflog entry, which makes every reap **reversible** rather than merely
+attributable, and `scruff reaped` prints the `git branch` line that brings one
+back.
+
+### Work that will never land
+
+Two lanes can never land, and neither of them is "not landed yet": a branch
+whose PR was **closed unmerged**, and a branch in a repo that has been
+**archived**. Both read exactly like an in-flight branch, so they used to outlive
+everything around them with no signal at all.
+
+`reap` names them and refuses to take them, on purpose. The asymmetry is the
+design: **`reap` is automatic, so it may only ever take landed work; `drop` is a
+human typing one lane's name, so it may take anything.**
+
+```sh
+scruff drop that-rejected-idea
+```
+
+`drop` waives the landed requirement and nothing else. It still refuses a lane
+somebody is standing in, and it refuses a dirty tree with no PR to fall back on
+rather than deciding for you: park it first. And it writes the same ledger line,
+so a drop is as reversible as a reap.
+
+## When a lane outran its PR
+
+You merge the PR, keep talking to the agent, and it makes a few more commits.
+Those commits are now in an odd place: the PR that covered them is closed, and
+the forge deleted the branch's remote counterpart when it merged, so they are
+committed, unpushed, unreviewed, on a branch nothing is watching.
+
+scruff never reaps that, and it says so everywhere. The listing marks the row
+**`live+3`**, `reap` names it instead of sweeping it, and one command clears it:
+
+```sh
+scruff reship            # push this branch, open the follow-up PR
+scruff reship sparkle    # or name one, from anywhere
+```
+
+It re-creates the remote the forge deleted and opens a PR against the default
+branch. If a PR is already open at that tip, the marker was never there in the
+first place: an open PR standing at this exact tip covers everything since the
+merge, so the lane is simply in flight.
+
+<Callout type="warn" title="`~3` is the lookalike, and it wants the opposite">
+`~3` means the branch has **diverged**: its tip does not build on what merged,
+so the checkout is stale or sideways (a second local copy of the branch, an
+amend after the merge) rather than ahead. `reship` refuses it, because pushing
+would send content the merge already superseded. Remove that lane instead.
+
+A rebase is **not** this case, whatever it does to your SHAs. The question is
+settled by asking whether `origin/<default>` is an ancestor of the tip first,
+which is what stops "squash-merge, rebase onto main, keep working" (the lane
+that did exactly the right thing) from being told its work is stale.
+</Callout>
+
+## Who is standing here
+
+`reap` needs to know a checkout is in use. On a human's machine `lsof` answers
+that. Anything else, a container, a CI runner, an orchestrator holding one
+session per lane, says so itself:
+
+```sh
+scruff heartbeat            # this checkout is in use while the calling process lives
+scruff heartbeat --release  # done with it
+```
+
+A lease naming a live pid **self-expires the moment that process dies**, so a
+crash cannot leave a lane pinned forever. Where there is no local process to
+watch, use `--pid 0` and refresh inside the 90 second TTL. A lease can only ever
+*save* a lane from the sweep, never condemn one.
+
+<Callout type="info" title="occupied is not the same as a pane">
+What scruff observes is a process with its cwd in the checkout, and a dev
+server, a file watcher or a daemon orphaned to pid 1 is not a pane. So
+`occupied` means "something is standing here", and `occupied_by` names it. A
+refusal that says *a pane is open* about a stray daemon sends you looking for a
+window that does not exist.
+</Callout>

@@ -1,0 +1,91 @@
+---
+title: Commands
+description: Every verb, the flags that matter, and what each of the six exit codes means for what you do next.
+icon: terminal
+related:
+  - title: "The JSON API"
+    description: "The listing, for machines: one frozen envelope and a live NDJSON stream."
+    href: "/docs/scruff/json"
+    icon: "json"
+  - title: "Config"
+    description: "The default client, the namer, the environment, and where checkouts live."
+    href: "/docs/scruff/config"
+    icon: "dials"
+---
+
+`scruff --help` is the exhaustive list and it prints to **stderr**. This page is
+the same surface, grouped by what you are trying to do.
+
+## Lanes
+
+| | |
+|---|---|
+| `scruff` | list every live and parked lane, across all repos |
+| `scruff <name>` | resume one: rebuild its checkout, reopen its agent. `<repo>/<name>` to qualify · `--pick` to choose the session instead of the newest |
+| `scruff focus <name>` | go to the window a lane is already running in. Falls back to resume without a `focus` hook |
+| `scruff new [name]` | a lane on **this** repo, path on stdout · `--open [agent]` / `--agent <id>` / `--cmd '<command>'` |
+| `… --prompt '<task>'` | open it on a first turn instead of a blank pane · `--prompt-file <file\|->` for a brief · `--image <file>` |
+| `scruff child <repo>` | a lane on **another** repo, as a child of this pane |
+| `scruff spawn <repo> <name>` | a named lane for a spawner with no pane of its own. Opened through `[hooks] open`, so **exit 3** means the lane exists and nothing put a window on it. `<name>` is optional with a `--prompt` and a namer configured |
+
+## The tree
+
+| | |
+|---|---|
+| `scruff park [label]` | set the working tree aside as a `wip:` commit on this branch |
+| `scruff unpark` | put the last parked commit's changes back, uncommitted |
+
+## Cleanup
+
+| | |
+|---|---|
+| `scruff reap` | sweep every landed lane nobody is standing in |
+| `scruff reaped` | what scruff has reaped, why, and the SHA to get it back |
+| `scruff drop <name>` | retire a lane whose work will never land (closed PR, archived repo). Recorded, undoable |
+| `scruff reship [name]` | push a branch that outran its merged PR, and open the follow-up |
+
+## Machines
+
+| | |
+|---|---|
+| `scruff --json` | the listing, machine-readable. Same as `scruff list --json` |
+| `scruff watch --json` | lifecycle events on stdout, one NDJSON object per line |
+| `scruff heartbeat [path]` | hold the occupancy lease on a lane, so `reap` spares it · `--pid N` (`0` for TTL-only) · `--release` |
+| `scruff hook create` | open a lane from a client's hook: JSON on stdin, path on stdout |
+| `scruff hook remove` | retire one without losing work: JSON on stdin |
+| `scruff hook notify` | client events into a [trill](/docs/trill) banner for the lane. Exit 0 always, silent no-op without trill |
+
+## Runtimes
+
+| | |
+|---|---|
+| `scruff runtime up <name> --backend <id>` | stand up a lane's isolation backend. `--backend` is required, always |
+| `scruff runtime enter <name> --backend <id>` | drop into it interactively |
+| `scruff runtime down <name> --backend <id>` | tear it down |
+| `scruff runtime eject tart` | print the built-in backend as an adapter file to edit |
+
+## Maintenance
+
+| | |
+|---|---|
+| `scruff doctor` | where the base lives, and what a move would cost |
+| `scruff doctor --migrate-base` | move the base to `~/.cache/scruff`. Refuses with exit 2 while any lane is occupied, repairs every checkout, leaves the old path a symlink |
+| `scruff --version` | print the version |
+
+## Exit codes
+
+Six, and they are a [frozen contract](/docs/scruff/json#what-is-frozen). Each
+one means a different next move:
+
+| | | what to do |
+|---|---|---|
+| **0** | success, including "nothing to do" | report what happened |
+| **1** | usage or precondition error | fix the invocation |
+| **2** | **refused for safety**: occupied, dirty, or not provably landed | this is scruff working. Don't force it, ask why |
+| **3** | degraded: it completed, but a signal was unavailable | report the caveat |
+| **4** | conflict found | a finding, not an error. Somebody resolves it |
+| **5** | the registry is locked by another scruff | another scruff is mid-operation. Retry shortly |
+
+`2` versus `1` is the distinction the whole table exists for: a wrapper script
+has to be able to tell "you asked wrong" apart from "I declined to destroy
+something".

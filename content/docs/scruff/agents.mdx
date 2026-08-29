@@ -1,0 +1,104 @@
+---
+title: For coding agents
+description: Two skills ship in the repo, so a session that has never seen scruff drives it correctly the first time. What is in them, what they refuse to do, and how to install them.
+icon: agent
+related:
+  - title: "The JSON API"
+    description: "The payload the skill spends half its length warning about, in full."
+    href: "/docs/scruff/json"
+    icon: "json"
+  - title: "SDKs"
+    description: "The other embedding surface: five clients, one wire format, one version number."
+    href: "/docs/scruff/sdks"
+    icon: "sdk"
+---
+
+scruff is a CLI with a frozen JSON contract and six exit codes that each mean a
+different recovery, which is already a shape an agent drives well. The gap is
+knowledge: a session on a stranger's machine has never heard of `scruff park`,
+so when their human says *"stash this"* it reaches for `git stash` and pops
+somebody else's work into a tree that never asked for it.
+
+Two skills close that gap. Both live in the repo and both are ≤150 lines,
+because a skill nobody loads is a skill nobody has.
+
+| | teaches |
+|---|---|
+| [`ai/SKILL.md`](https://github.com/hausfold/scruff/blob/main/ai/SKILL.md) | the lifecycle: the verbs, the six exit codes, the `--json` fields, and when the right answer is to do nothing |
+| [`ai/handoff/SKILL.md`](https://github.com/hausfold/scruff/blob/main/ai/handoff/SKILL.md) | the one thing with no verb: how to write a brief a **cold** session can act on, ending on the clipboard or in `scruff spawn --prompt-file` |
+
+## What the lifecycle skill is actually for
+
+Most of it is not a command list. `scruff --help` is the command list. The skill
+spends its length on the three things an agent gets wrong:
+
+- **Never `git stash` in a repo the user owns.** The stash stack is shared
+  across every worktree of a repo, so parallel agents pop each other's entries.
+  The skill's own `description` says this out loud, precisely so it loads on the
+  word "stash".
+- **Exit 2 is scruff working, not scruff failing.** An agent that reads *refused
+  for safety* as an error and reaches for `git worktree remove` has defeated
+  invariant 2 from the outside. The skill says so twice.
+- **The `--json` payload's traps.** `state` is a closed set, `landed.verdict`'s
+  `fresh` does not mean `yes`, `occupied` and `dirty` are nullable with `null`
+  meaning *undetermined*, and `warnings` is the only channel a degraded run has.
+  Every consumer bug in the predecessor's status bar came from collapsing `null`
+  into `false`.
+
+It also carries the one instruction an agent on a Mac needs most: when you have
+to **see** a desktop change work, boot [a lane's own headless
+macOS](/docs/scruff/runtimes) and drive that, rather than asking to take the
+screen its user is sitting at.
+
+## Why handoff is scruff's skill and not somebody else's
+
+The lane it opens is scruff's unit and `--prompt` is scruff's flag. The brief is
+that flag's argument, and an argument nobody knows how to write is a flag nobody
+uses well.
+
+It stays inside the non-goals: it describes handing work **over** and stops
+there. No scheduling, no supervision, no opinion about what the receiving agent
+then does. The day it starts telling that agent how to do the work, it has
+become an orchestrator and belongs somewhere else.
+
+It is also the one skill here a person invokes by name (`/handoff`), and its
+**default ending is the harmless one**: the clipboard. Spawning costs a branch,
+a window and another agent's context, so it takes an explicit word. A skill that
+spawned on an ambiguous ask would be the wrong kind of surprise.
+
+## Installing them
+
+On Nix, the skills are their own derivation, so a machine can take them with no
+Go toolchain and no binary:
+
+```nix
+inputs.scruff.packages.${system}.scruff-skill
+```
+
+It lays out `$out/scruff/SKILL.md` and `$out/handoff/SKILL.md`, one directory
+per skill, which is the family's own layout: link the directory somewhere your
+client reads skills from and it is already called the right thing. Otherwise
+copy the two files. They are plain markdown with YAML frontmatter, and every
+skill-reading client (Claude Code, Codex, OpenCode) can load them as they are.
+
+On a [haus](/docs/haus) machine both are already installed, along with every
+other skill in the family.
+
+## The bar they are held to
+
+Both are bound by the family's [agent surface
+standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md):
+at most 150 lines, no flag dumps, and a `description` that names **the phrases a
+user says** rather than the features the tool has. A description written as a
+feature summary is true, well written, and never loads.
+
+The build enforces the mechanical half: it fails if the frontmatter is missing
+or unterminated, if `name:` disagrees with the directory, or if the file passes
+150 lines. Each of those produces a skill that installs, lists, and is never
+loaded.
+
+And every claim in them has to be runnable. The skills quote two of scruff's
+four frozen contracts, `--json` output and exit codes, plus the command names
+and flags, so a verb or a field that changes changes the skill in the same pull
+request. They are not documentation that drifted; they are downstream consumers
+of the freeze.

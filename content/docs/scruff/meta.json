@@ -1,0 +1,24 @@
+{
+  "title": "scruff",
+  "description": "A lane per agent",
+  "icon": "scruff",
+  "root": true,
+  "pages": [
+    "---Start---",
+    "index",
+    "install",
+    "lanes",
+    "---The lifecycle---",
+    "parking",
+    "landing",
+    "runtimes",
+    "---Wiring---",
+    "config",
+    "seams",
+    "agents",
+    "---Reference---",
+    "cli",
+    "json",
+    "sdks"
+  ]
+}

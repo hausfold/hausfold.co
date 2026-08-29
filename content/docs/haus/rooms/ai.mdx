@@ -3,6 +3,10 @@ title: AI
 description: "Coding agents as a room: the clients this machine installs, scruff giving each agent its own checkout, and the lifecycle around them. Any git repo, any client."
 icon: agent
 related:
+  - title: "scruff, in full"
+    description: "The lane lifecycle as its own manual: parking, landing, seams, the JSON API and five SDKs."
+    href: "/docs/scruff"
+    icon: "scruff"
   - title: "Changing your Mac with an agent"
     description: "The other half: the skills haus writes, the rebuild loop an agent follows, and the one rebuild it refuses."
     href: "/docs/haus/agent-rebuilds"
@@ -15,19 +19,17 @@ related:
 
 Run two coding agents in the same checkout and they fight: one switches the
 branch out from under the other, uncommitted edits collide, and closing a pane
-mid-thought can lose work. **`scruff`** fixes that by giving every agent its own
-checkout, and haus puts it on your `PATH`, wired to a keybind.
+mid-thought can lose work. **[scruff](/docs/scruff)** fixes that by giving every
+agent its own checkout, and haus puts it on your `PATH`, wired to a keybind.
 
 Press **⌘⏎** (from any terminal window, a pane or another agent's lane alike) and you get a fresh
 agent session in an isolated git worktree: its own checkout on a
 `worktree-<name>` branch, branched from the repo's local `HEAD`, living
 **outside** the repo under `~/.cache/scruff/<repo>/<name>` so your working tree
 stays clean and no build tool trips over it. It starts on whatever repo the
-focused window is looking at. (That is the base on a machine set up since scruff
-1.1.0. An older one keeps its whole base at `~/.cache/claude-worktrees`, new
-lanes included, for as long as that is the path holding the registry. `scruff
-doctor --migrate-base` moves it in one go, and wants every lane closed while it
-does.)
+focused window is looking at. (A machine set up before scruff 1.1.0 keeps its
+whole base at the older path; `scruff doctor --migrate-base` moves it, and
+[Config](/docs/scruff/config#where-the-checkouts-live) is that story.)
 
 scruff calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
@@ -38,8 +40,8 @@ A lane's terminal is its own zmx session in its own window, which
 the [Development](/docs/haus/rooms/development) room sets up.
 
 It works on **any git repo**, and it isn't really a haus feature: it's
-[its own tool](https://github.com/hausfold/scruff), which haus takes as an input
-and puts on your `PATH`. You don't have to be a haus user to run it.
+[its own tool](/docs/scruff), which haus takes as an input and puts on your
+`PATH`. You don't have to be a haus user to run it.
 
 <Callout type="tip" title="Closing a window never loses work">
 `⌘W` only detaches: the zmx session stays up and the agent keeps thinking. When
@@ -71,8 +73,8 @@ back up, across every repo:
 ```
 🌫  lanes you can resume (scruff <name>, or <repo>/<name>)
   repo         name         state  agent  last commit
-  nebelung     sparkle      parked claude 2 hours ago — wip: auto-saved on lane close
-  pounce       quick-emoji  live   codex  10 min ago — add fuzzy weights
+  nebelung     sparkle      parked claude wip: auto-saved on lane close
+  pounce       quick-emoji  live   codex  add fuzzy weights
 ```
 
 Name one and scruff rebuilds the checkout and picks the conversation back up
@@ -81,11 +83,11 @@ through whichever client that lane was made with:
 ```sh
 scruff sparkle           # resume it
 scruff nebelung/sparkle  # qualify when the name exists in two repos
-scruff sparkle --pick    # choose from that client's session list instead
 ```
 
-By default it continues the newest conversation. `--pick` opens the client's own
-picker, for when a lane has more than one.
+[Working in lanes](/docs/scruff/lanes#pick-one-back-up) is the rest of it:
+choosing a different session, going to a window a lane is already running in,
+and opening a lane on a repo that isn't this one.
 
 ## Spawning from the launcher
 
@@ -304,9 +306,9 @@ you where it is.
 
 `git stash` looks like it belongs to the checkout you're standing in. It doesn't.
 The stash is one ref in the repo's shared `.git` directory, so **every worktree
-of a repo, and the main checkout, push and pop the same stack.** Two agents
-stashing at once means either can pop the other's entry into a tree that has
-never seen those files, and `stash@{1}` is no safer, being positional.
+of a repo, and the main checkout, push and pop the same stack** — and on a
+machine running several lanes at once, either agent can pop the other's work
+into a tree that never asked for it.
 
 So park instead:
 
@@ -315,19 +317,9 @@ scruff park "half-done refactor"  # whole dirty tree → one wip: commit on THIS
 scruff unpark                     # rewind it: changes back, uncommitted
 ```
 
-`scruff park` commits everything (tracked edits, untracked files, deletions) as a
-single `wip:` commit on the branch only this pane has checked out. Ignored files
-are never swept in, so parking can't smuggle a secret into history. It's the same
-thing the pane-close hook does, on demand, and `scruff` lists the result as a
-resumable lane rather than a numbered entry in a shared pile.
-
-<Callout type="warn" title="unpark won't rewrite what you've pushed">
-If the `wip:` commit has already been pushed (it's visible in an open PR),
-`scruff unpark` refuses, because rewinding it locally turns a file restore into a
-force-push. It prints the escape hatch (`git reset --mixed HEAD^`) and leaves the
-commit alone. Parking on a branch that isn't an agent branch works, but says so:
-a `wip:` commit shouldn't drift onto a branch you push.
-</Callout>
+It's the same thing the pane-close hook does, on demand.
+[Parking work](/docs/scruff/parking) is the whole account: what it sweeps in,
+what it refuses, and why `unpark` can never become a force-push.
 
 ## Working on another repo: `scruff child`
 
@@ -339,9 +331,9 @@ learns to track the lane and its PR goes invisible.
 cd "$(scruff child ~/code/other-repo)"
 ```
 
-That makes a lane on the other repo, registers it as a **child of your current
-pane** so its PR shows up where you're working, and prints only the new checkout
-path, hence the `cd "$(…)"`.
+That makes a lane on the other repo and registers it as a **child of your
+current pane**, which is what puts its PR in the HUD beside the work that
+spawned it.
 
 Pointing agents at haus itself rather than at your own projects?
 [Contributing](/docs/haus/internals/contributing) covers what's different in a
@@ -359,17 +351,10 @@ a `scruff child` checkout, which no pane owns. For those, sweep on demand:
 scruff reap
 ```
 
-`scruff reap` is deliberately conservative. It leaves anything **dirty**, anything
-**unmerged**, and any checkout a **pane is still open in**: the one you're
-standing in included, and any other session's too, because a just-merged branch
-looks exactly like a finished one while its agent is still sitting in it. Only
-landed work nobody is standing in gets removed.
-
-Every deletion is written to a ledger before the branch dies, so a sweep is
-never the end of anything: `scruff reaped` prints what went, why, and the
-`git branch` line that brings it back. And a lane that will *never* land (its
-PR closed unmerged, the repo archived) is `scruff drop <name>`, which waives the
-merged-branch requirement and nothing else.
+It only ever takes landed work nobody is standing in, and every deletion is
+written to a ledger before the branch dies, so `scruff reaped` can bring one
+back. [Landing and cleanup](/docs/scruff/landing) is what *landed* means across
+six merge shapes, and what to do with the two lanes that never will.
 
 ## When a session outran its PR
 
@@ -378,22 +363,18 @@ Those commits are now in an odd place: the PR that covered them is closed, and
 GitHub deleted the branch's remote counterpart when it merged, so they're
 committed, unpushed, unreviewed, on a branch nothing is watching.
 
-scruff never reaps such a branch, and it says so everywhere: the listing marks the
-row **`live+3`** (three commits past the merge), `scruff reap` names it instead of
-sweeping it, and the statusline shows an orange `3^`. One command clears it:
+scruff never reaps such a branch, and haus shows you where it is: the listing
+marks the row **`live+3`** and the statusline shows an orange `3^`. One command
+clears it:
 
 ```sh
 scruff reship          # push this branch, open the follow-up PR
 scruff reship sparkle  # …or name one, from anywhere
 ```
 
-It re-creates the remote GitHub deleted and opens a PR against the default
-branch, listing what's new. If a PR is already open, it just pushes to it.
-
-The lookalike is marked differently and wants the opposite treatment: **`~3`**
-means the branch has *diverged*: its tip doesn't build on what merged, so the
-checkout is stale rather than ahead. `scruff reship` refuses it. Remove that lane
-instead of pushing it.
+The lookalike, **`~3`**, wants the opposite treatment and `reship` refuses it;
+[that distinction](/docs/scruff/landing#when-a-lane-outran-its-pr) is worth
+reading once before you meet it.
 
 ## Knowing which agent needs you
 
@@ -613,7 +594,9 @@ Headless, so nothing it draws reaches your display, and real enough to run
 `haus rebuild` inside. `SCRUFF_TART_BASE` names the image it clones; a bare
 `ghcr.io/cirruslabs/macos-tahoe-base` boots but has no haus in it to test, so
 the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
-agent skill spells the whole recipe out, which is why nothing here has to.
+agent skill spells the whole recipe out, which is why nothing here has to, and
+[Runtimes](/docs/scruff/runtimes) is the backend itself: what it shares into the
+guest, and how to write one of your own.
 
 ## Letting a run finish
 
@@ -687,19 +670,13 @@ this one.
 |---|---|
 | `scruff` | List every parked and live lane across all repos (self-heals first) |
 | `scruff <name>` | Resume one: rebuild its checkout, pick its conversation back up |
-| `scruff reap` | Sweep every landed lane now (keeps dirty, unmerged, and any open pane) |
-| `scruff reaped` | The ledger of what was swept, why, and the one line that brings a branch back |
-| `scruff drop <name>` | Retire a lane that will never land: a PR closed unmerged, an archived repo |
+| `scruff park [label]` / `unpark` | Set the dirty tree aside as a `wip:` commit, and put it back |
 | `scruff child <repo>` | A lane on another repo, as a child of this pane |
-| `scruff park [label]` | Set the dirty tree aside as a `wip:` commit; use instead of `git stash` |
-| `scruff unpark` | Undo it: changes back in the working tree, uncommitted |
+| `scruff reap` / `reaped` | Sweep every landed lane, and the ledger that undoes one |
 | `scruff reship [name]` | The PR merged and the branch kept going: push it, open the follow-up PR |
-| `scruff new [name]` | A lane on **this** repo, with the default client opened in it |
-| `scruff spawn <repo> <name>` | A named lane for a spawner with no pane of its own; what Spawn Agent calls |
 
-Add `--json` to the listing for a machine-readable version, `--version` for
-scruff's own.
-
+Every verb and flag, and what each exit code means, is
+[Commands](/docs/scruff/cli).
 
 ## Works with
 

@@ -1,0 +1,129 @@
+---
+title: SDKs
+description: Five thin clients over one binary, in TypeScript, Python, Rust, Go and Swift. They share a wire format and a version number, on purpose.
+icon: sdk
+related:
+  - title: "The JSON API"
+    description: "The wire format all five of them speak, and the traps it has for a consumer."
+    href: "/docs/scruff/json"
+    icon: "json"
+  - title: "For coding agents"
+    description: "The other embedding surface: teaching the agent your product spawns that scruff exists."
+    href: "/docs/scruff/agents"
+    icon: "agent"
+---
+
+| | install | source |
+|---|---|---|
+| **TypeScript** | `bun add @hausfold/scruff` | [`sdk/ts`](https://github.com/hausfold/scruff/tree/main/sdk/ts) |
+| **Python** | `uv add hausfold-scruff` | [`sdk/python`](https://github.com/hausfold/scruff/tree/main/sdk/python) |
+| **Rust** | `cargo add hausfold-scruff` | [`sdk/rust`](https://github.com/hausfold/scruff/tree/main/sdk/rust) |
+| **Go** | `go get github.com/hausfold/scruff/sdk/go` | [`sdk/go`](https://github.com/hausfold/scruff/tree/main/sdk/go) |
+| **Swift** | [`hausfold/scruff-swift`](https://github.com/hausfold/scruff-swift) | [`sdk/swift`](https://github.com/hausfold/scruff/tree/main/sdk/swift) |
+
+All five wrap the same CLI: `list`, `watch` as a native async stream,
+`child`/`spawn`, `park`/`unpark`/`reap`/`reship`, and occupancy leases. `scruff`
+itself has to be on `PATH`, or you pass its path in.
+
+## scruff stays a binary
+
+There is no daemon, no port, no auth, no supervisor and no socket semantics to
+pin before a single consumer exists. The SDKs shell out, and the frozen contract
+is [the `--json` envelope](/docs/scruff/json), not the registry file. Adding a
+`scruff serve` later is purely additive, because the protocol would be the same
+either way.
+
+```ts
+import { ScruffClient } from "@hausfold/scruff";
+
+const scruff = new ScruffClient();
+
+for (const lane of (await scruff.list()).lanes) {
+  // occupied/dirty are `boolean | null`. null means "not determined".
+  console.log(lane.name, lane.state, lane.occupied);
+}
+```
+
+## Two shapes of usage
+
+**Programmatic**, for a web backend or an orchestrator. Every method except the
+two ending in `Interactive` captures the child's stdout and returns, so it is
+safe from a server with many concurrent sessions.
+
+```ts
+// Create a lane WITHOUT attaching an agent to it: the orchestrator primitive.
+const dir = await scruff.child("/path/to/some-repo", "task-42");
+// ...now launch your own agent process against `dir`.
+```
+
+**Interactive**, for a real terminal app. `newInteractive` and
+`resumeInteractive` inherit the calling process's stdio, so scruff execs the
+client and takes over the terminal; control returns when that session ends.
+
+<Callout type="warn" title="Don't call the Interactive pair from a server">
+They exec the client unconditionally, without checking for a TTY, so piped stdio
+blocks forever. Use `resume()` instead: it detects a piped stdout and prints the
+reopen command as text rather than exec'ing.
+</Callout>
+
+## Live updates instead of polling
+
+```ts
+for await (const line of scruff.watch()) {
+  if (line.kind === "created") notifyUI(line.lane);
+}
+
+// …or scoped to the one lane this session holds: no hello/ready framing,
+// and nothing about anybody else's lanes.
+for await (const event of scruff.watchLane(dir)) {
+  if (event.kind === "reaped") endSession();
+}
+```
+
+## Leases, because callbacks would have needed a daemon
+
+The obvious SDK shape has scruff calling back into your program mid-sweep:
+`isStillActiveInPane: () => boolean`. That needs bidirectional RPC in every
+language, and it makes the sweep's correctness depend on a stranger's event loop
+being responsive.
+
+Invert it. **The client reports; scruff consumes.** A lease is a file, every
+language can write one, and a lease naming a live pid maintains itself.
+
+```ts
+const lease = scruff.lease(laneDir);  // refreshes inside the 90s TTL
+// ... serve the session ...
+await lease.release();
+```
+
+A lease can only ever *save* a lane from the sweep, never condemn one. It also
+generalises past the case `lsof` was built around: a server's session is a
+connection, not a cwd, and only the server can see it.
+
+The callback shape does have a home, as [an `occupied`
+seam](/docs/scruff/seams): a program scruff execs, which works identically from
+every language. Leases are for a client reporting on *itself*, per session, at
+connection speed; a hook is for a machine that can answer for everyone at once.
+
+## Five clients, one number
+
+They all carry the same version, and it is forced rather than chosen: npm, PyPI
+and crates.io are immutable registries that already hold published numbers, so
+the version is a **compatibility contract** read by people who pinned against
+it, not a date. Five clients agreeing about one wire format is the invariant the
+whole arrangement exists to protect, and five drifting version lines would hide
+a divergence instead of surfacing it. A breaking change in the Rust client alone
+bumps all five.
+
+<Callout type="info" title="Go's module path has moved twice">
+`github.com/nebelhaus/holt` through `v0.2.8`, `github.com/hausfold/holt`
+through `v0.5.0`, and `github.com/hausfold/scruff` from `v1.0.0`. Go's proxy is
+immutable, so each old path stays resolvable **at the tags published under it**
+and at nothing after. An importer on an old path either edits its import line or
+pins that path's last tag.
+</Callout>
+
+The Swift package ships from a generated mirror, `hausfold/scruff-swift`,
+because SwiftPM requires `Package.swift` at a repository root. Send changes to
+`sdk/swift` in the main repo; the mirror is overwritten wholesale on the next
+sync.

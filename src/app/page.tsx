@@ -140,10 +140,11 @@ export default function Home() {
             taxonomy before they have met a single name. The rows say which
             is which in their own words, and the order does the rest.
 
-            Each row points at the fullest thing that exists for it: haus and
-            perch to their own pages, pounce and trill to their docs trees
-            (pounce's sheet was retired 2026-08-14), scruff and nebelung to
-            GitHub, which is all either has so far. trill is still the
+            Each row points at the fullest thing that exists for it: four
+            of the five products to their own docs trees, and nebelung to
+            GitHub, which is all it has so far. scruff turned inward on
+            2026-08-29, when its tree landed — the link moves on the day the
+            inward page exists, not before. trill is still the
             workshop-stage name AGENTS.md allows on the condition the
             register accounts for it — the page it lands on opens by saying
             there is no way to install it in a line, so the link makes no
@@ -214,9 +215,9 @@ export default function Home() {
               , your notifications without the noise. In incubator.
             </li>
             <li data-accent="scruff">
-              <a className="index-name" href="https://github.com/hausfold/scruff">
+              <Link className="index-name" href="/docs/scruff">
                 scruff
-              </a>
+              </Link>
               , parallel coding agents that never collide.
             </li>
             <li data-accent="nebelung">

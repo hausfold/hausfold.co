@@ -16,7 +16,7 @@ deploys it.
 | | |
 |---|---|
 | **the pages** — `/` the house, `/perch/privacy` (perch's policy URL, linked from the App Store) | routes under `src/app/`. greyscale at rest, two faces, and no script of our own at all. no sheets either — every one is a docs page, with a 301 onto it |
-| **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, plus a tree each for [pounce](https://hausfold.co/docs/pounce), [perch](https://hausfold.co/docs/perch) and [trill](https://hausfold.co/docs/trill) | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell them apart with the page upside down |
+| **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, plus a tree each for [pounce](https://hausfold.co/docs/pounce), [perch](https://hausfold.co/docs/perch), [trill](https://hausfold.co/docs/trill) and [scruff](https://hausfold.co/docs/scruff) | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell them apart with the page upside down |
 | **the three routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
 
 Everything else is a file: `npm run build` writes `out/`, Next copies `public/`
