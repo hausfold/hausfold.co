@@ -23,11 +23,11 @@ rather than answer 200.
 src/app/                          the routes
   page.tsx                        the house's door — github, the masthead, #made (one list)
   perch/privacy/                  perch's policy URL, linked from the App Store — don't
-                                  move or rename it. (haus/ and perch/ were both here
-                                  until 2026-08-26, as were desktops/, terms/ and
-                                  refunds/; the layer's page is content/docs/haus/index.mdx
-                                  now, every sheet is a docs page and the seller's pages
-                                  are gone, with 301s in _redirects for all of them)
+                                  move or rename it. It is the only route here
+                                  besides the door: every sheet is a docs page
+                                  (the layer's is content/docs/haus/index.mdx)
+                                  and the seller's pages don't exist, with 301s
+                                  in _redirects for all of them
   not-found.tsx                   the 404; Next's export always writes out/404.html from this
   layout.tsx                      the head every route carries — icons, both theme-colours
   docs/                           the Fumadocs shell; /docs itself 301s to /docs/haus/
@@ -51,9 +51,8 @@ scripts/                          generators — not deployed
 
 🚨 **One id is load-bearing**, and it is the target of a 301 someone already
 holds: `#made` on `/` (`/terms`, `/refunds`). Renaming it means editing
-`public/_redirects` in the same commit. (`#desktops` was the other, on `/` and
-then on `/haus`; it went with that page on 2026-08-26, and its two callers now
-land on `desktops/choosing` itself.)
+`public/_redirects` in the same commit. (`#desktops` does not exist: its two
+callers land on `desktops/choosing` itself, a page rather than a fragment.)
 
 Two conventions the linter enforces and one it can't: an internal link is
 `<Link>`, an external one a plain `<a>` — and a `worker.js` route

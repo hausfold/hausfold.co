@@ -21,7 +21,7 @@ The table below is only what's wired in *this* repo.
 |---|---|---|
 | `AGENTS.md` | Codex, OpenCode, Cursor, Zed, Amp, Copilot-in-editor, and anything else that speaks [agents.md](https://agents.md) | **The source of truth.** Every project rule — including what may and may not be said on a public page. |
 | `CLAUDE.md` | Claude Code (CLI, desktop, web) | `@AGENTS.md` import + a table of Claude-only wiring. Claude Code reads only `CLAUDE.md`, so the import is how it gets the real file. |
-| `GEMINI.md` | Gemini CLI | Symlink → `AGENTS.md`. ⚠️ **It was a hand-mirrored copy from #4 until 2026-08-16**, while this row claimed otherwise, so Gemini was reading a rulebook three commits stale: it was missing the em-dash ban outright. Restored to an actual symlink. If a harness genuinely can't follow one, it gets the Copilot treatment below (a short pointer, not a mirror) — a full copy of this file drifts and nothing checks. |
+| `GEMINI.md` | Gemini CLI | Symlink → `AGENTS.md`, and it has to stay one. ⚠️ **A hand-mirrored copy here goes stale silently** — nothing checks it, so the harness reading it loses whatever rule landed last (the em-dash ban is the one that went missing that way). If a harness genuinely can't follow a symlink, it gets the Copilot treatment below: a short pointer, never a mirror. |
 | `opencode.json` | OpenCode | Names `AGENTS.md` explicitly. Belt and braces — OpenCode finds it anyway. |
 | `.github/copilot-instructions.md` | GitHub Copilot coding agent + code review | A **real file**, not a symlink: Copilot reads through the GitHub API, where a symlink is just a path string. Short pointer + the invariants a drive-by reviewer needs. |
 | `.agents/setup.sh` | all of them, via the hooks below | Installs Determinate Nix in a bare cloud container, persists `PATH` + `NIX_SSL_CERT_FILE`. No-ops on macOS and where Nix already exists. |
@@ -40,9 +40,9 @@ repos and belong to the workshop. If this repo grows one of its own it goes in
   fail first, which is the property that makes instructions load-bearing here.
   A bad merge is public immediately; the recovery is a revert plus a CI run.
 - **The Nix bootstrap is for one script, not for the build.** This repo has no
-  flake, and its build (`npm run build` — Next, since the docs landed on
-  2026-08-12) never touches Nix; `scripts/sync-nebelung.mjs` shells out to `nix
-  build` to vendor nebelung's CSS port, and the Palette workflow installs Nix
+  flake, and its build (`npm run build`, Next) never touches Nix;
+  `scripts/sync-nebelung.mjs` shells out to `nix build` to vendor nebelung's
+  CSS port, and the Palette workflow installs Nix
   for that one reason. Everything else needs node and a static server.
 - **Public repo, public previews.** A PR from a branch *in this repo* gets an
   unauthenticated preview Worker on a workers.dev URL (fork PRs don't — the

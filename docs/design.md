@@ -55,12 +55,10 @@ which is the tone these pages are for; a 1200×630 sheet with a wordmark centred
 on it is the tone they aren't. Every validator flags its absence. That flag is
 not a bug report.
 
-**There are no screenshots at all.** There were empty frames, drawn in CSS and
-labelled `[ shot not taken yet ]`; `/perch` was the last page that drew any, and
-when it retired into its docs tree on 2026-08-26 the `.shot` classes went with
-it. There is still no real capture of the hacker desktop, and a picture that
-lies about what the desktop looks like today is worse than a grey box that
-admits it hasn't got one — with no sheet left to reserve a slot on, no box beats
+**There are no screenshots at all**, and no `.shot` classes to draw an empty
+frame with. There is no real capture of the hacker desktop either, and a picture
+that lies about what the desktop looks like today is worse than a grey box that
+admits it hasn't got one — with no sheet to reserve a slot on, no box beats
 both. A real capture, when one exists, goes in the docs tree it documents; if a
 landing page ever takes one, note `images: { unoptimized: true }`, since
 `next/image`'s optimizer is a server and there isn't one.
@@ -79,10 +77,9 @@ landing page the search context, the ⌘K binding and a lazy fetch of the ~457 K
 search index. Measured after moving it down: a landing page is 8 chunks / 173 KB
 gzip, a docs page 16 / 398 KB.
 
-Since 2026-08-26 we ship none of our own. The one component there ever was is
-`<Command>`, the copy button beside a fenced command; `/haus` and `/perch` were
-its last two callers and both retired into docs trees that day, where a fenced
-block is MDX and gets fumadocs' own copy button. It set the bar for a second
-one: it rendered `hidden` in the exported HTML and unhid only where
-`navigator.clipboard` exists, so the command was plain selectable text with JS
-off. Pure enhancement, nothing lost without it.
+We ship none of our own. There is nothing to ship it for: a fenced block in
+MDX gets fumadocs' own copy button, and no landing page draws one. The bar for a
+second component is the bar the last one met — a copy button that rendered
+`hidden` in the exported HTML and unhid only where `navigator.clipboard` exists,
+so the command was plain selectable text with JS off. Pure enhancement, nothing
+lost without it.

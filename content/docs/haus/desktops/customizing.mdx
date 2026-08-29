@@ -164,11 +164,11 @@ brew-managed: if you later remove its roster entry on a `cleanup = "zap"`
 machine, the next rebuild zaps it like any other undeclared cask, even though
 you never installed it through haus.
 
-Setting `adopt = false` used to buy you the other behaviour, activation failing
-loudly on a name collision. It no longer does anything: current Homebrew adopts
-every such cask on its own, having dropped the `--adopt` flag `brew bundle
-install` used to take, and the only switch left (`--force`) overwrites rather
-than refuses. The option stays for the day Homebrew grows a real way back.
+Setting `adopt = false` does nothing. Current Homebrew adopts every such cask
+on its own: `brew bundle install` takes no `--adopt` flag, and the only switch
+left (`--force`) overwrites rather than refuses, so there is no way to ask for
+the other behaviour, activation failing loudly on a name collision. The option
+stays for the day Homebrew grows a real way back.
 </Callout>
 
 ## Turning rooms off

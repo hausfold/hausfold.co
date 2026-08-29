@@ -73,14 +73,12 @@ document, and these are big: github and youtube together are ~320 KB.
 Zen reads that file **once, at startup**, so a rebuild alone leaves an open
 browser on the old colours: quit Zen and reopen it.
 
-There used to be a second way: until 2026-08-20 haus stamped nebelung's
-userstyle bundle from your accent, flavor and contrast, and you imported it into
-the **Stylus** extension by hand. What that click bought is exactly what the
-compiled sheet gives up: per-site toggles, styles that update themselves, and
-adding one without a rebuild. None of it survived contact with a
-rebuild-driven setup, so it is retired. `haus.zen.extensions.stylus = { };`
-still deploys the extension; it just arrives unthemed now, with no bundle and no
-import nudge.
+**haus stamps no userstyle bundle.** `haus.zen.extensions.stylus = { };`
+deploys the extension, but it arrives unthemed: nothing is generated from your
+accent, flavor and contrast, and nothing nudges you to import anything. Doing it
+by hand buys exactly what the compiled sheet gives up, per-site toggles, styles
+that update themselves, and adding one without a rebuild, and none of that
+survives contact with a rebuild-driven setup.
 
 If you do run both, keep a given site in one or the other, and not because it
 is a close-run thing. The compiled sheet is a *user* stylesheet, which loses to
