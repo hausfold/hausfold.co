@@ -66,6 +66,22 @@ doesn't lose it.
   an iPhone you paired yourself, encrypted end to end, over your network or
   peer-to-peer if there isn't one, and off in Settings if you don't want it.
 
+## Made for agents
+
+The shelf has a command line, and the command line means **coding agents can
+hand you things**. `perch add <file>` puts anything on the shelf from any
+script or terminal, so an agent that just rendered a chart, exported a report
+or built an installer can leave it where your hand already is, instead of
+naming a path in a wall of text for you to copy out.
+
+perch ships an **agent skill**:
+[`ai/SKILL.md`](https://github.com/hausfold/perch/blob/main/ai/SKILL.md) in the
+repo, teaching Claude Code, Codex or any skill-reading agent when to
+reach for the shelf, and just as deliberately what perch *won't* do for it
+(nothing can list or clear your shelf from a script; that stays yours). Every
+hausfold app ships a skill, written to one
+[family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
+
 ## Questions
 
 **Where do my files live?** Where they already were. perch keeps its copies

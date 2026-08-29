@@ -52,6 +52,27 @@ rather than a step you missed: `haus-notify` and the `trill` command both work
 without it. Switch it on and your `flake.lock` pins a notarized release the way
 it pins everything else.
 
+## Made for agents
+
+trill's loudest early users aren't apps; they're **coding agents**. Anything
+that can run a command can put a banner on screen, which is the missing half
+of leaving an agent to work: `trill send` when the build lands, `trill send
+--progress` for one card that fills up instead of a feed you have to watch,
+and `trill ask` to put an actual question on your screen (*"Push to
+origin?"*, two buttons) and block until you answer, from anywhere in the
+house. The unix philosophy did the design work: one CLI, one JSON rules file
+you write, exit codes an agent can branch on.
+
+trill ships an **agent skill**:
+[`ai/SKILL.md`](https://github.com/hausfold/trill/blob/main/ai/SKILL.md) in
+the repo, teaching Claude Code, Codex or any skill-reading agent those
+verbs and their traps. On a haus machine with the
+[Notifications room](/docs/haus/rooms/notifications) on, `haus rebuild`
+installs that skill into every agent client automatically: your agents arrive
+already knowing how to tell you they're done. Every hausfold app ships a
+skill, written to one
+[family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
+
 ## What it isn't yet
 
 No cask, no install command, nothing a stranger can run in one line. The

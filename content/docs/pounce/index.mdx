@@ -27,6 +27,11 @@ Pounce takes the other road. Its whole personality is one idea: **every command
 is a file.** Drop a shell script in a folder and it's in the palette: five
 lines, two comments, no plugin API, no extension store, no account.
 
+That one idea has a second audience now: a **coding agent** can extend pounce
+the same way you do, by writing a file. Say what you want in a sentence, and
+the command exists before you've finished the coffee. [Made for
+agents](#made-for-agents), below, is the short version of why.
+
 It is [MIT licensed](https://github.com/hausfold/pounce/blob/main/LICENSE)
 (every feature in these pages, no paid tier), and it installs standalone from
 Homebrew with **no Nix required**.
@@ -66,6 +71,26 @@ beside them.
 - **Diagnosable.** `pounce doctor` answers the three questions that go wrong:
   is the daemon up, is Accessibility granted, is something else eating your
   hotkey.
+
+## Made for agents
+
+Pounce is built on the unix philosophy (everything is a file, everything is a
+CLI), and that turns out to be exactly the shape a coding agent drives well.
+Commands are shell scripts in a folder, [config](/docs/pounce/config) is one
+JSON file, and `pounce run`, `pounce drafts` and `pounce doctor` reach the
+palette from any terminal. There is no extension SDK to teach an agent and no
+API key to mint: an agent that can write a five-line script can put a new
+command in your palette, and one that can read a folder can tell you what's
+already there.
+
+Pounce also ships its own **agent skill**:
+[`ai/SKILL.md`](https://github.com/hausfold/pounce/blob/main/ai/SKILL.md) in
+the repo, a short file that teaches Claude Code, Codex or any skill-reading
+agent how to drive pounce well. The best trick in it: mid-task, an agent can
+put a **native picker** on your screen and let you choose from a list it
+generated, instead of making you type an answer into a terminal. Every
+hausfold app ships a skill like this, written to one
+[family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
 
 ## Questions
 

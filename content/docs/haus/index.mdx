@@ -62,6 +62,28 @@ You do **not** need to know [Nix](https://nixos.org) going in. It is what makes
 this reproducible, and the installer sets it up for you. You will pick some of
 it up over time, and that's the whole curve.
 
+## Made for agents
+
+"An agent can drive it" is underselling it. The whole family is built on the
+unix philosophy (everything is a file, everything is a CLI), which happens to
+be exactly what a coding agent needs, and haus leans into it three ways:
+
+- **The machine is a file an agent can edit.** "Make my terminal look like
+  yours" is a diff, a build that refuses to activate if it's broken, and an
+  atomic rollback if you hate it.
+  [Changing your Mac with an agent](/docs/haus/agent-rebuilds) is the loop.
+- **Agents are a room.** The [AI room](/docs/haus/rooms/ai) installs your
+  agent clients and gives every agent its own checkout of whatever repo it's
+  working on: press **⌘⏎**, get an isolated lane; run five in parallel and
+  they never fight over a branch.
+- **Skills arrive on rebuild.** The hausfold apps each ship an agent skill,
+  the file that teaches Claude Code, Codex or any skill-reading agent to
+  drive them, written to one
+  [family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
+  haus writes skills into each client's home automatically: the haus skill
+  itself, scruff's lane and handoff skills, trill's when its room is on. Your
+  agents already know the house when they wake up in it.
+
 ## What's in the box
 
 haus is organised into thirteen **rooms**, each one a capability you can turn
