@@ -67,7 +67,7 @@ older Pounce never chokes on a config written by a newer one.
   "scale": 1.0,              // 0.8-2.0: how big the whole UI is drawn
   "stage": {                 // what an empty query shows, see below
     "enabled": true,
-    "tiles": 5               // how many tiles the strip holds (1-8)
+    "tiles": 7               // how many tiles the strip holds (1-12)
   },
   "hotkey": {
     "enabled": true,
@@ -82,6 +82,7 @@ older Pounce never chokes on a config written by a newer one.
   },
   "quickAnswers": { "currency": true },   // ECB rates, so "100 usd in eur" answers inline
   "updates": { "check": true },           // nudge (never install) when a release is out
+  "shortcuts": { "enabled": true },       // your Shortcuts library, as rows
   "fileSearch": {
     "enabled": true,
     "homeOnly": true,        // scope to ~ instead of the whole Spotlight index
@@ -154,7 +155,7 @@ written for you from `haus.ui.scale`.
 
 `stage` is [what you see before you type](/docs/pounce/using#before-you-type):
 `"stage": { "enabled": false }` gives you the flat list Pounce has always shown,
-and `tiles` clamps to 1–8 rather than rejecting. A bare `"stage": false` is not
+and `tiles` clamps to 1–12 rather than rejecting. A bare `"stage": false` is not
 that: the block is only read as an object, so it is ignored in silence and the
 stage stays on. `"windowMode": "compact"` has no stage at all, so
 the key does nothing there: compact means an empty query shows *nothing* until
@@ -170,7 +171,12 @@ Any `theme` value that isn't built-in resolves to
 `~/.config/pounce/themes/<name>.json`: a flat catppuccin-style `name → "#hex"`
 map ([nebelung's](https://github.com/hausfold/nebelung) `palette/*.hex.json`
 files verbatim), which is how a desktop's `theme.flavor` / `theme.contrast`
-reach Pounce without a rebuild:
+reach Pounce without a rebuild. Pounce reads `base`,
+`surface0`–`surface2`, `text`, `subtext0`, `overlay0`, `mauve` and `blue`; a
+file missing any of them falls back to the built-in default. A file also
+*shadows* a built-in of the same name, so `themes/nebelung.json` wins over the
+compiled-in one. Window chrome follows the **palette's** own lightness rather
+than the system's, so a light palette in Dark Mode still draws a light panel.
 
 ```sh
 mkdir -p ~/.config/pounce/themes
@@ -212,6 +218,21 @@ shorthand that wins over whatever app fuzzy-matches the same letters. `hotkey`
 runs the item directly, skipping the palette: the last segment is the key, the
 rest modifiers, and the object form `{"key": …, "modifiers": …}` works too.
 
+Two more decorate the row rather than change what it does:
+
+- **`hint`** draws a keycap chip on the row's right edge and binds nothing. It
+  is for keys something *else* carries: a window manager's launch mode, a
+  page-scoped binding, any external binder. An item whose own `hotkey` is
+  registered draws its chord automatically, so this is only for the bindings
+  pounce cannot see; where both exist, `hint` wins.
+- **`state`** is a read-only command whose first stdout line becomes a live
+  badge beside the row: `"cmd:focus": { "state": "pounce focus status" }` shows
+  **On** or **Off**. It never runs on the keystroke that opens the palette:
+  results are cached 30s, a stale one refreshes in the background under a 1.5s
+  cap, and the row simply appears without a badge until one lands. The command
+  runs with the daemon's grants, repeatedly, so it must be `status`-shaped and
+  never `toggle`.
+
 ### Rows that only exist where they work
 
 `enabled` is a decision you make once. `workspaces` and `bundleIds` are asked
@@ -231,7 +252,9 @@ filters nothing**, deliberately: a Mac that cannot answer the question would
 otherwise hide the row forever.
 
 `bundleIds` takes bundle ids and lists the row only while one of them is
-frontmost, also ignoring case. Set both and the row wants both, which is worth
+frontmost, also ignoring case. To read a bundle id off any running app:
+`osascript -e 'id of app "Notes"'`. The same string is what
+`apps.hideBundleIds`, `apps.demoteBundleIds` and `autoQuit.exclude` want. Set both and the row wants both, which is worth
 knowing before you add one to a row that already carries the other.
 
 Either way it scopes the **row**, never a `hotkey` on the same item, the same
@@ -306,6 +329,27 @@ keyboard doesn't expose Fn. Standalone it is applied while the daemon runs and
 removed when it exits; [inside haus](/docs/haus/rooms/launcher#the-fnglobe-key)
 it is declared instead, so it outlives the daemon. `pounce doctor` reports
 which of the two is carrying the key.
+
+Three things to know before you turn `remap` on:
+
+- **F19 is a real key on the full-size Magic Keyboard**, the last of the F row,
+  so on that keyboard it fires this binding too. Every key below F13 is one
+  people actually bind, which makes F19 the least-bad choice rather than a free
+  one.
+- **A keyboard that re-enumerates loses the mapping.** Unplugging and replugging
+  an external keyboard, and some sleep/wake cycles, drop it, and the binding
+  then quietly stops working. `pounce doctor` says so; restarting the daemon
+  reinstalls it.
+- **The HID mapping is one shared list.** Pounce merges into whatever is already
+  there (a Karabiner rule, a Caps-to-F18 leader) and puts back what it found on
+  exit, and it refuses to write at all if it couldn't read the list first. What
+  it cannot do is preserve a mapping something *else* added mid-session, so
+  re-apply that one afterwards. To look or to clear by hand:
+
+```sh
+hidutil property --get UserKeyMapping
+hidutil property --set '{"UserKeyMapping":[]}'   # clears ALL mappings, not just ours
+```
 
 ## Chords that only exist over one app (`appHotkeys`)
 

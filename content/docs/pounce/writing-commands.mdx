@@ -27,6 +27,13 @@ osascript -e 'display notification "🐾" with title "Pounce"'
 
 Put it in `~/.config/pounce/commands/`, summon the palette, type `hello`.
 
+That `osascript` line is the whole API speaking: a command is any executable,
+and Pounce neither knows nor cares how it draws. The commands **shipped in
+Pounce itself** go through a `notify()` helper instead, so they render through
+[trill](https://github.com/hausfold/trill) on a Mac that has it and fall back to
+exactly the line above on one that doesn't. Copy that helper if you want the
+same, and keep the one-liner if you don't.
+
 The registry re-scans every time you summon. Scripts don't need the executable
 bit (Pounce runs them with `bash` either way), but they **must** end in `.sh`,
 or Pounce never lists them.

@@ -45,6 +45,27 @@ list **in place**, with no window flicker. That is not a special capability;
 it's a script calling `pounce` again. See [writing your own
 command](/docs/pounce/writing-commands#submenus-and-chaining).
 
+## Your Shortcuts, as rows
+
+Every entry in your Shortcuts library is an ordinary launcher row: type its
+name, press `⏎`, it runs. No mode, no prefix, no submenu. They rank by frecency
+like everything else and take the same [per-item](/docs/pounce/config#per-item-settings-items)
+`alias` / `hotkey` / `enabled` overrides under the key `shortcut:<uuid>` (from
+`shortcuts list --show-identifiers`). `"shortcuts": { "enabled": false }` turns
+the whole source off.
+
+They start at the bottom on purpose: a shortcut carries a small negative rank so
+a sixty-entry library can't take over an empty query's rows on the day you
+install Pounce. Typed search is unaffected, and using one once lifts it out.
+
+<Callout title="This is also how you reach an app's Spotlight action">
+macOS 26's Spotlight fires an app's **App Intents** directly, and Pounce cannot:
+there is no public API for running one. The bridge is a shortcut. In
+Shortcuts.app, make one whose single action is the app's intent, name it what
+you'd type, and it becomes a library entry Pounce shows and runs like any other
+row.
+</Callout>
+
 ## The plugin shelf
 
 A shelf of plugins ships **off by default**, because each assumes a specific

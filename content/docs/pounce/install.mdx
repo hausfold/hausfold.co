@@ -38,6 +38,15 @@ asks.
 With Nix, without installing anything:
 `nix run github:hausfold/pounce -- --help`.
 
+<Callout title="Building it yourself needs Xcode Command Line Tools 16">
+Only `brew install --build-from-source` and `nix build` take that path; the
+ordinary install is a prebuilt binary. Pounce overrides two `NSResponder`
+methods that the macOS 15 SDK is the first to declare, and an older SDK fails
+with `method does not override any method from its superclass`, which does not
+otherwise explain itself. `xcode-select --install` is the fix. That is the SDK
+you *build* with; the app still runs on macOS 14.
+</Callout>
+
 ## What it needs
 
 | | |
