@@ -96,7 +96,7 @@ chord would have worked on some digits and not others.
 |---|---|
 | `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
 | `⌥,` | Accordion layout |
-| `⌥F` | Fullscreen, and the bar says so |
+| `⌥F` | Fullscreen, and the bar says so ([unless the window is alone](#a-window-on-its-own-does-not-zoom)) |
 | `⌥` + right-click | Fullscreen the window **under the pointer** ([below](#zoom-the-window-youre-pointing-at)) |
 | `⌥⇧Tab` | Move this workspace to the next monitor |
 | `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧←↓↑→` joins a neighbour |
@@ -113,7 +113,8 @@ haus.windows.mouseFullscreen = "right";   # right | left | none
 **⌥ + right-click** now zooms whichever window is under the cursor to fill its
 own workspace, including one on another monitor, which by keyboard would mean
 going there first. It's the same AeroSpace fullscreen, so it's a toggle: the
-same click puts the window back.
+same click puts the window back. ([Not a window on its
+own](#a-window-on-its-own-does-not-zoom), same as `⌥F`.)
 
 The modifier isn't separately settable: it follows `haus.keys.windowNav`, so
 the click and `⌥F` stay one vocabulary and a machine that moved the modifier for
@@ -157,6 +158,22 @@ window that came back floating at some arbitrary size joins the tiles again.
 for any time a window ends up somewhere or some size it shouldn't be. Apps you
 told to float stay floating.
 </Callout>
+
+## A window on its own does not zoom
+
+Fullscreen is a *mode*, not a size. Arm it on a workspace holding one window and
+nothing looks different, because that window already fills the workspace. What
+would change is invisible: the workspace would be flagged fullscreen from then
+on, the next window you opened there would open *behind* this one, and the bar
+would wear the fullscreen glyph the whole time for a mode that meant nothing.
+
+So both paths decline it. `⌥F` and `⌥` + right-click zoom a window only when
+AeroSpace says it has company on its workspace. Turning fullscreen back **off** is always allowed,
+including for a window whose siblings have since closed, because that is the way
+out of the mode.
+
+If a press looks like it did nothing, count the windows on that workspace. One is
+the answer.
 
 ## Not fond of these keys?
 

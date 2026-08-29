@@ -21,9 +21,13 @@ checkout, and haus puts it on your `PATH`, wired to a keybind.
 Press **⌘⏎** (from any terminal window, a pane or another agent's lane alike) and you get a fresh
 agent session in an isolated git worktree: its own checkout on a
 `worktree-<name>` branch, branched from the repo's local `HEAD`, living
-**outside** the repo under `~/.cache/claude-worktrees/<repo>/<name>` so your
-working tree stays clean and no build tool trips over it. It starts on whatever
-repo the focused window is looking at.
+**outside** the repo under `~/.cache/scruff/<repo>/<name>` so your working tree
+stays clean and no build tool trips over it. It starts on whatever repo the
+focused window is looking at. (That is the base on a machine set up since scruff
+1.1.0. An older one keeps its whole base at `~/.cache/claude-worktrees`, new
+lanes included, for as long as that is the path holding the registry. `scruff
+doctor --migrate-base` moves it in one go, and wants every lane closed while it
+does.)
 
 scruff calls what that makes a **lane** (one agent's branch, checkout and
 terminal, as a single thing you can name), and that's the word its output uses.
