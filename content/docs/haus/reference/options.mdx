@@ -4795,7 +4795,7 @@ A pill tracking your agent windows, marked with a robot, one mark and a count pe
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.agents</span></summary>
 
-Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `scruff` lane — its repo and PR status: merged, `+N unshipped` (exactly what `scruff reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin and Codex's ~/.codex/hooks.json are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `scruff hook notify` entry appended beside yours on four events: Notification/Stop raise a trill banner when a lane blocks on you or finishes, UserPromptSubmit/PostToolUse take that banner back down once you have answered — as does simply focusing that lane's window, which the windows room reports — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
+Click for the per-agent breakdown, sorted the same way (waiting first, then working, then idle, longest-elapsed first within each), each block showing the client, how long it's sat in that state, and — when the window's checkout is a `scruff` lane — its repo and PR status: merged, `+N unshipped` (exactly what `scruff reship` fixes), not yet landed, or a dirty-tree footnote. A summary header totals the counts once more than one agent is running. Left-click a row to jump to that window, ⌥/right-click for a live peek at what it is saying (`zmx tail`) — except a desktop session, whose transcript is not readable from outside the app, so that row raises the app on either click. Fed by each client's own lifecycle hooks, which all call `agent-state` (also installed as ~/.config/sketchybar/plugins/agents-hook.sh): Opencode's plugin, Codex's ~/.codex/hooks.json and pi's ~/.pi/agent/extensions/haus-agent-state.ts are written for you (Codex asks you to trust its hooks the first time it sees them), while Claude Code's four agent-state hooks stay yours to point at it in ~/.claude/settings.json — Claude owns that file and rewrites it, so haus merges in only the keys it must and never touches those four. (The two worktree hooks — and a `scruff hook notify` entry appended beside yours on four events: Notification/Stop raise a trill banner when a lane blocks on you or finishes, UserPromptSubmit/PostToolUse take that banner back down once you have answered — as does simply focusing that lane's window, which the windows room reports — ARE declared, in terminal: they point at a haus-controlled path and self-heal on rebuild.) pi's extension is the one wiring that reports BOTH halves — the four states and the same `scruff hook notify` banners — because pi has no hook file to append a second command to. A row lives as labels on the window's own zmx session, so it disappears the moment that session does — which is what stands in for the session-end event Codex doesn't have. A session in Claude Code's DESKTOP app has no window of its own, so it is tracked by its conversation id instead and a click raises the app — every conversation there is a tab of the one window. Its row drops off when the session ends, and, since a force-quit fires no such event, whenever the app itself is not running. Subagents are deliberately not rows: they sit inside a session that already has one. Dormant until a client fires.
 
 </details>
 
@@ -6668,6 +6668,15 @@ existing Codex or OpenCode task in Claude.
 
 Must be one of `ai.clients` — see there.
 
+It is the DEFAULT, not the only answer, in one place: Spawn Agent's
+prompt box carries a `⇥` chip that cycles between the clients actually
+on `PATH`, so a single lane can open in another one without changing
+this. The chip is the exception that proves the rule — the lane still
+records what it was made with, and every other door uses this value.
+Naming a client this Mac does not have is not fatal there either: the
+command spawns with one it does have and puts a banner on screen saying
+which, rather than refusing.
+
 This option chooses the client and nothing else about how a lane opens.
 `claude` can make its own worktree (its native `--worktree` flag, which
 fires `scruff hook create`), but haus does not use it: that flag runs the
@@ -6683,15 +6692,16 @@ checkout (`pi --continue`, with `pi --resume`'s picker behind it). They
 share one `scruff` branch/parking/reap
 lifecycle.
 
-Three of the four light up the `agents` bar pill — the opencode
-plugin and the codex hooks are written for
+All four light up the `agents` bar pill — the opencode plugin, the
+codex hooks and pi's extension are written for
 you; only Claude Code's stay yours to wire, because Claude owns its own
-settings.json (see `haus.bar.items.agents`). `pi` is the exception and
-will stay one until somebody writes the extension: it reports its
-state through an extension API rather than a hook file, so a pi lane
-spawns, resumes and reaps like any other and simply does not appear in
-the pill. It reports no usage either, so naming it in
-`haus.bar.aiUsage.provider` selects a row that never has a number.
+settings.json (see `haus.bar.items.agents`). pi reports through an
+extension API rather than a hook file, so its wiring is a file
+(`~/.pi/agent/extensions/haus-agent-state.ts`) — and being pi's one
+seam it carries the trill lane banners as well, where the other clients
+get theirs from a second hook beside the state one. pi still reports no
+usage, so naming it in `haus.bar.aiUsage.provider` selects a row that
+never has a number.
 
 Two of them ask before reading a folder they have not seen, and a lane's
 checkout is always one — so `scruff` copies the decision you already made
@@ -6938,22 +6948,11 @@ that variable; it only passes the environment through. An adapter that
 ignores it makes an offline spawn fall to the random pair, which is
 worse than the slug the palette would have used.
 
-⚠️ **The DIRECTORY is not that forgiving.** scruff reads
-`~/.config/scruff` and nothing else as of 1.1.0 — the 1.0.x binary
-still answered to `~/.config/holt` while that was the one holding your
-files, but that either/or is gone, and adapters resolve under the
-scruff-named directory only. haus writes `~/.config/scruff/config.toml`,
-so an adapter still sitting at `~/.config/holt/adapters/namer/<id>.toml`
-stops being found at the first rebuild, and every lane silently takes a
-random word pair again (the warning goes to a launchd stderr nobody
-reads). Move it in the same change:
-
-```text
-mkdir -p ~/.config/scruff
-mv ~/.config/holt/adapters ~/.config/scruff/adapters
-```
-
-…and re-point any absolute path inside the `.toml` at its new home.
+⚠️ **The DIRECTORY is exact.** scruff resolves adapters under
+`~/.config/scruff` and nowhere else, and haus writes
+`~/.config/scruff/config.toml`. An adapter file anywhere else is not
+found, and every lane silently takes a random word pair instead — the
+warning goes to a launchd stderr nobody reads.
 
 `claude` is excluded from the palette path for exactly that reason: its
 argv is fixed and reads no environment, so it cannot meet the contract —
