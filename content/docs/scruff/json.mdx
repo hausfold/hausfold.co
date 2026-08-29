@@ -1,6 +1,6 @@
 ---
 title: The JSON API
-description: One envelope for the snapshot, one NDJSON stream for the changes, and the five traps that have caught every consumer so far.
+description: One envelope for the snapshot, one NDJSON stream for the changes, and the six traps that have caught every consumer so far.
 icon: json
 related:
   - title: "SDKs"
@@ -35,7 +35,8 @@ Each lane:
 | `repo` / `main` | the repo's remote slug, and the main checkout's path |
 | `branch` | the full branch name |
 | `path` | the checkout path on disk. **Empty once parked** |
-| `parent` | the pane that spawned it via `scruff child`, or `""` |
+| `parent` | the checkout of the pane that spawned it: its own main checkout for an ordinary lane, another **lane's** checkout for one made by `scruff child` or opened from inside a lane's pane. `""` if unrecorded |
+| `chat` | the checkout whose conversation `scruff <name>` opens. Equal to `path` when the lane holds a chat of its own, the **parent's** path when it doesn't, `""` when scruff could not tell |
 | `agent` | the client: `claude`, `codex`, `opencode`, `pi` |
 | `state` | `live`, `parked` or `stray`. A closed set |
 | `occupied` / `dirty` | nullable. **`null` means undetermined, not false** |
@@ -44,7 +45,7 @@ Each lane:
 | `post_merge_ahead` | `{commits, pr, diverged}`: work done after the PR merged |
 | `last_commit` | the most recent commit's subject |
 
-## The five traps
+## The six traps
 
 <Callout type="warn" title="null is not false">
 `occupied` and `dirty` are **three-state**. `null` means scruff could not
@@ -65,6 +66,14 @@ common way to get this payload wrong.
   server or an orphaned daemon holds a lane exactly as hard as a live agent.
   Read `occupied_by` before telling somebody to go and close a window that may
   not exist.
+- **`chat`, not `parent`, says whether a lane has a pane of its own.** A lane
+  made by `scruff child` and a lane opened from *inside* another lane's pane
+  record the same `parent`, and only the second has a window and a conversation
+  — so a picker that hides lanes on `parent` hides a running agent. `chat` is
+  measured: equal to `path` when the lane holds its own chat, the parent's path
+  when it doesn't. `""` means scruff could not tell (a client whose transcripts
+  it cannot cheaply probe) and must be read as **show it**, the same safe
+  direction `null` occupancy takes.
 - **`post_merge_ahead.pr` is a plain int**, and absent is `0`, never `null`.
   `diverged` is what separates "committed after the merge" (reshippable, `+N`)
   from "this tip never built on what merged" (stale or sideways, `~N`).
