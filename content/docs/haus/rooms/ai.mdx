@@ -104,6 +104,18 @@ How you commit the prompt picks what happens next:
 | `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
 | `⌃↵` | Spawn **and follow it**: the window opens now, on that repo's page, and you go with it — for the lane you're about to sit and work in |
 | `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
+| `⇥` | Cycle the **client** chip beside the buttons — which agent *this one lane* opens in (`⇧⇥` goes back) |
+
+The client chip appears once you have more than one of `claude`, `codex`,
+`opencode` and `pi` installed, and it offers exactly the ones that are: it reads
+what is on `PATH`, not what `haus.ai.clients` asked for, so nothing on it can
+fail to start. It opens on your [`haus.ai.default`](/docs/haus/reference/options)
+the first time and on whatever you last spawned with after that — cycling it and
+pressing `esc` changes nothing. The lane records the client it was made with, so
+a `pi` lane still reopens in pi however the chip happens to sit next time.
+
+The repo step is a grid of cards rather than a list, most recently touched first
+— `↑↓` moves a row, `←→` a card once you are past the ends of what you typed.
 
 ### What names the lane
 
