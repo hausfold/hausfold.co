@@ -54,19 +54,12 @@ long as the calling process lives. See
 
 ## Inside a haus machine
 
-If you run [haus](/docs/haus), scruff is already there. `haus.ai.enable` puts it
-on your `PATH`, binds **⌘⏎** to open a lane on whatever repo the focused window
-is looking at, and wires the client hooks and the statusline around it. Nothing
-on these pages changes: it is the same binary and the same lanes.
+If you run [haus](/docs/haus), scruff is already there: one option puts it on
+your `PATH`, binds **⌘⏎** to open a lane on whatever repo the focused window is
+looking at, and wires the client hooks and the statusline around it. Nothing on
+these pages changes; it is the same binary and the same lanes.
 
-```nix
-haus.ai.enable = true;
-haus.ai.clients = [ "claude" "codex" ];
-haus.ai.default = "claude";
-```
-
-[The AI room](/docs/haus/rooms/ai) is that half: the keybind, the clients, the
-banners and the bar.
+[The AI room](/docs/haus/rooms/ai) is that half, and owns the option names.
 
 ## As a flake input
 

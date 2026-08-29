@@ -42,26 +42,21 @@ spends its length on the three things an agent gets wrong:
 - **The `--json` payload's traps.** `state` is a closed set, `landed.verdict`'s
   `fresh` does not mean `yes`, `occupied` and `dirty` are nullable with `null`
   meaning *undetermined*, and `warnings` is the only channel a degraded run has.
-  Every consumer bug in the predecessor's status bar came from collapsing `null`
-  into `false`.
+  [The JSON API](/docs/scruff/json#the-five-traps) is the long form.
 
 It also carries the one instruction an agent on a Mac needs most: when you have
 to **see** a desktop change work, boot [a lane's own headless
 macOS](/docs/scruff/runtimes) and drive that, rather than asking to take the
 screen its user is sitting at.
 
-## Why handoff is scruff's skill and not somebody else's
+## What handoff does, and where it stops
 
-The lane it opens is scruff's unit and `--prompt` is scruff's flag. The brief is
+The lane it opens is scruff's unit and `--prompt` is scruff's flag; the brief is
 that flag's argument, and an argument nobody knows how to write is a flag nobody
-uses well.
+uses well. So the skill teaches the brief, and stops: no scheduling, no
+supervision, no opinion about what the receiving agent then does.
 
-It stays inside the non-goals: it describes handing work **over** and stops
-there. No scheduling, no supervision, no opinion about what the receiving agent
-then does. The day it starts telling that agent how to do the work, it has
-become an orchestrator and belongs somewhere else.
-
-It is also the one skill here a person invokes by name (`/handoff`), and its
+It is the one skill here a person invokes by name (`/handoff`), and its
 **default ending is the harmless one**: the clipboard. Spawning costs a branch,
 a window and another agent's context, so it takes an explicit word. A skill that
 spawned on an ambiguous ask would be the wrong kind of surprise.

@@ -140,11 +140,10 @@ export default function Home() {
             taxonomy before they have met a single name. The rows say which
             is which in their own words, and the order does the rest.
 
-            Each row points at the fullest thing that exists for it: four
-            of the five products to their own docs trees, and nebelung to
-            GitHub, which is all it has so far. scruff turned inward on
-            2026-08-29, when its tree landed — the link moves on the day the
-            inward page exists, not before. trill is still the
+            Each row points at the fullest thing that exists for it: every
+            row but the last to a docs tree, and nebelung to GitHub, which is
+            all it has so far. A link turns inward on the day the inward page
+            exists, not before. trill is still the
             workshop-stage name AGENTS.md allows on the condition the
             register accounts for it — the page it lands on opens by saying
             there is no way to install it in a line, so the link makes no

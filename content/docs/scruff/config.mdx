@@ -114,10 +114,8 @@ unpredictable and undebuggable, so scruff does not do it.
 
 <Callout type="warn" title="Repo-local adapters do not exist, deliberately">
 A repo that could contribute command templates would make `git clone` plus a
-worktree create into a remote-code-execution path. Per-user adapters cover every
-real case. Loosening this later behind a trust prompt would be a minor release;
-tightening it after teams had committed a `.scruff/` directory would be
-breaking, so scruff shipped tight.
+worktree create into a remote-code-execution path, so there is no `.scruff/`
+directory to put one in. Per-user adapters cover every real case.
 </Callout>
 
 ### Template variables

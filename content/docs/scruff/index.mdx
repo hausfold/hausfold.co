@@ -17,12 +17,11 @@ Run two coding agents in one checkout and they fight. One switches the branch
 out from under the other, uncommitted edits collide, and closing a pane
 mid-thought can take work with it.
 
-The fix is a worktree each, and every vendor now ships one: `claude --worktree`,
-the Claude Agent SDK's `isolation: worktree`, Cursor, Copilot CLI. Every one of
-them stops at *create*. Nobody owns the rest of the life: the branch still alive
-after the pane died, the checkout nobody is sitting in, the tree with forty
-uncommitted minutes in it, the branch whose PR merged yesterday and which has
-kept committing since.
+The fix is a worktree each, and making one is table stakes: your client probably
+has a flag for it already. What nothing owns is the rest of the life. The branch
+still alive after the pane died. The checkout nobody is sitting in. The tree
+with forty uncommitted minutes in it. The branch whose PR merged yesterday and
+which has kept committing since.
 
 **scruff** owns that. It is one Go binary, it works on any git repo with any
 client, and if you have ever run `git worktree list` through a graveyard trying

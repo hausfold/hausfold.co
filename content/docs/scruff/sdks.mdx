@@ -80,15 +80,12 @@ for await (const event of scruff.watchLane(dir)) {
 }
 ```
 
-## Leases, because callbacks would have needed a daemon
+## Leases: telling scruff a session is live
 
-The obvious SDK shape has scruff calling back into your program mid-sweep:
-`isStillActiveInPane: () => boolean`. That needs bidirectional RPC in every
-language, and it makes the sweep's correctness depend on a stranger's event loop
-being responsive.
-
-Invert it. **The client reports; scruff consumes.** A lease is a file, every
-language can write one, and a lease naming a live pid maintains itself.
+There is no callback for "is this lane still in use?", because there is no
+daemon to call back into. **The client reports; scruff consumes.** A lease is a
+file, every language can write one, and a lease naming a live pid maintains
+itself.
 
 ```ts
 const lease = scruff.lease(laneDir);  // refreshes inside the 90s TTL
@@ -96,14 +93,13 @@ const lease = scruff.lease(laneDir);  // refreshes inside the 90s TTL
 await lease.release();
 ```
 
-A lease can only ever *save* a lane from the sweep, never condemn one. It also
-generalises past the case `lsof` was built around: a server's session is a
-connection, not a cwd, and only the server can see it.
+A lease can only ever *save* a lane from the sweep, never condemn one. Reach for
+one whenever the thing holding a lane is not visible as a cwd: a server's
+session is a connection, and only the server can see it.
 
-The callback shape does have a home, as [an `occupied`
-seam](/docs/scruff/seams): a program scruff execs, which works identically from
-every language. Leases are for a client reporting on *itself*, per session, at
-connection speed; a hook is for a machine that can answer for everyone at once.
+A whole machine that can answer for everyone at once wants the other shape, [an
+`occupied` seam](/docs/scruff/seams). Leases are per session, at connection
+speed; a seam replaces `lsof` outright.
 
 ## Five clients, one number
 

@@ -83,10 +83,9 @@ const icons = {
   pounce: { icon: Command, hue: 'pounce' },
   perch: { icon: Inbox, hue: 'perch' },
   trill: { icon: Bell, hue: 'trill' },
-  // The fifth tree, 2026-08-29. A branch, because a lane's durable artifact
-  // IS the branch — the checkout is the disposable half — and because it is
-  // the one glyph in the switcher that says "this tree is about git" before
-  // you have read a word of it.
+  // A branch, because a lane's durable artifact IS the branch (the checkout is
+  // the disposable half), and because it is the one glyph in the switcher that
+  // says "this tree is about git" before you have read a word of it.
   scruff: { icon: GitBranch, hue: 'scruff' },
 
   // Pages. No hue: they take the tree's.
@@ -129,9 +128,9 @@ const icons = {
   // and three identical glyphs in one sidebar stop saying anything.
   blocks: { icon: Blocks },
 
-  // The scruff tree's pages. `agent`, `install`, `compass`, `terminal`,
-  // `dials` and `wrench` above already say what these pages need; these six
-  // are the ones with nothing to borrow.
+  // The scruff tree's pages. `compass`, `install`, `agent`, `dials` and
+  // `terminal` above already said what several of its pages are; these are the
+  // ones with nothing to borrow.
   lanes: { icon: Route },
   park: { icon: Bookmark },
   landed: { icon: CircleCheckBig },

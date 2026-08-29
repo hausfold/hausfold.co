@@ -396,8 +396,8 @@ is two pages.
 **Adding a tab is a positioning change, not a file.** The test is: **can a
 stranger install this without haus?** pounce is MIT and one `brew install`;
 perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix; scruff is
-one `nix run` or one `go install`, and its tree landed 2026-08-29. nebelung (a
-palette) and a desktop do not clear it at all.
+one `nix run` or one `go install`. nebelung (a palette) and a desktop do not
+clear it at all.
 
 > 🚨 **`trill` is a tab that was admitted WITHOUT clearing that bar** — it is
 > there on the user's explicit instruction. Record it as the exception it is,

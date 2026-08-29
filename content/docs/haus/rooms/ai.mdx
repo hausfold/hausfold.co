@@ -304,13 +304,9 @@ you where it is.
 
 ## Never `git stash`: park instead
 
-`git stash` looks like it belongs to the checkout you're standing in. It doesn't.
-The stash is one ref in the repo's shared `.git` directory, so **every worktree
-of a repo, and the main checkout, push and pop the same stack** — and on a
-machine running several lanes at once, either agent can pop the other's work
-into a tree that never asked for it.
-
-So park instead:
+**The stash stack is shared across every worktree of a repo**, so on a machine
+running several lanes at once either agent can pop the other's work into a tree
+that never asked for it. Park instead:
 
 ```sh
 scruff park "half-done refactor"  # whole dirty tree → one wip: commit on THIS branch
@@ -318,8 +314,8 @@ scruff unpark                     # rewind it: changes back, uncommitted
 ```
 
 It's the same thing the pane-close hook does, on demand.
-[Parking work](/docs/scruff/parking) is the whole account: what it sweeps in,
-what it refuses, and why `unpark` can never become a force-push.
+[Parking work](/docs/scruff/parking) is why the stash is shared, what a park
+sweeps in, and why `unpark` can never become a force-push.
 
 ## Working on another repo: `scruff child`
 

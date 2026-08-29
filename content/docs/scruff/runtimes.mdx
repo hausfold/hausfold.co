@@ -61,12 +61,9 @@ which is what every cirruslabs base image ships.
 Needs [`tart`](https://tart.run) on `PATH`. Without it the verb **degrades**
 with the install command rather than failing.
 
-### Why this one is built in when nothing else is
-
-`setup` for tart is a clone, a backgrounded boot and a wait-for-address, which
-one argv slot cannot hold. Leaving it to a file meant everybody writing the same
-script before they could use the verb at all. It changes nothing about the
-mechanism: a `tart.toml` of your own still wins wholesale, and
+It is built in only because its `setup` is three commands and a wait, which one
+argv slot cannot hold. Nothing else about it is privileged: a `tart.toml` of
+your own still wins wholesale, and
 
 ```sh
 scruff runtime eject tart

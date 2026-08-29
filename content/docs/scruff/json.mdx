@@ -49,8 +49,8 @@ Each lane:
 <Callout type="warn" title="null is not false">
 `occupied` and `dirty` are **three-state**. `null` means scruff could not
 determine it: no `lsof`, no forge, a cache miss. Reading it as falsy is how you
-tell somebody a lane is clean when scruff had no idea. Every consumer bug in the
-predecessor's status bar came from exactly this.
+tell somebody a lane is clean when scruff had no idea, and it is the single most
+common way to get this payload wrong.
 </Callout>
 
 - **`state` and `landed.verdict` are closed sets.** Additions are a minor
@@ -99,25 +99,17 @@ can detect a dropped line without scruff knowing anything about that transport.
 `lane` carries the exact same shape `--json` uses, so one schema serves the
 snapshot and the stream alike.
 
-### Why it does not poll the forge
+### Landedness is not on the stream
 
-`created`, `resumed` and `reaped` are registry mutations, so the file changing
-is a complete signal and they arrive instantly. `parked` gets a plain local
-rescan timer as a backstop, because the common case (an unlanded pane closing)
-never touches the registry at all.
+`landed` and `post_merge_ahead` change at the forge, and nothing local fires
+when a PR merges, so they are deliberately not events: a consumer that wants
+them **polls `--json`** at a cadence it can afford. Everything else is a
+registry mutation and arrives at once (`parked` has a local rescan timer behind
+it, because an unlanded pane closing never touches the registry).
 
-`landed` and `post_merge_ahead` are deliberately **not** in the stream. They
-change at the forge, and nothing local fires when a PR merges. Folding a `gh`
-poll into a stream meant to run for hours, across however many lanes and repos
-one consumer holds leases on, is a rate-limit generator on a schedule nobody
-chose. A consumer that wants landedness polls `--json` at a cadence it can
-afford and tune.
-
-That decision is not foreclosed, though: every event carries `source`
+If that ever changes you will not have to guess: every event carries `source`
 (`"registry"` today, `"forge"` reserved) and `hello` carries `capabilities`, so
-a consumer can ask *will this stream ever emit a forge-derived event?* rather
-than guessing from which kinds have happened to show up. Adding one later costs
-nobody a rewrite.
+you can ask the stream what it can ever send.
 
 ## What is frozen
 
@@ -129,23 +121,13 @@ flags. Changing one is a semver major conversation, not a refactor.
 Field **additions** are non-breaking, which means the other half of the deal is
 yours: **ignore unknown keys.**
 
-## Why the registry is a file and not a URL
+## The registry is local, and stays local
 
-The obvious next question is whether the registry could live at an https
-address. It could not, and the reason is the thesis: a URL should address
-*scruff*, not the registry file. Object storage holds a blob. It cannot run an
-occupancy provider, cannot emit a lifecycle event, and cannot enforce a single
-one of the three invariants, so every SDK written against a shared blob would
-reimplement park, landed-detection and reap, which is four copies of the logic
-that *is* the product, and four copies of its bugs.
+Two things follow from that, and both bite a consumer rather than scruff. The
+rows hold **absolute paths on one machine**, so a lane is not meaningful on a
+different box: don't ship one across. And mutation takes an exclusive lock, so
+two writers meet **exit 5** rather than losing an update.
 
-It also fails on its own terms. The rows hold **absolute paths on one machine**,
-so machine B checking whether machine A's branch is alive gets `false` and
-deletes it: invariant 1, violated silently. There is no `flock` over HTTP, so a
-plain PUT loses an update every time two panes close at once. A status bar
-shells the listing on every redraw, and a network round trip per redraw is not a
-cost, it is a defect. And invariant 2 says uncertainty resolves to keep, so a
-pane closing must not fail because the Wi-Fi dropped.
-
-A remote **transport** speaking this same protocol is a different question, and
-an open one.
+Pointing `SCRUFF_STATE` at a network share does not make scruff distributed, it
+makes the lock a lie. A remote transport speaking this same protocol is a
+different question, and an open one.
