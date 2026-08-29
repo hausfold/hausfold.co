@@ -404,12 +404,9 @@ state, not the colour, and there's no count: how many agents a tab holds is the
 bar's popup to answer.
 
 Both are reported by each client's own lifecycle hooks: the agent says what it's
-doing; nothing scrapes the screen for it. haus wires OpenCode's plugin and
-Codex's hooks for you. **Claude Code's four are yours to wire**, and haus
-deliberately leaves them alone. **pi doesn't report at all yet** — it exposes an
-extension API rather than a hook file, and nobody has written the extension — so
-a pi lane spawns, resumes and reaps like any other and simply doesn't appear in
-the pill.
+doing; nothing scrapes the screen for it. haus wires OpenCode's plugin,
+Codex's hooks and pi's extension for you. **Claude Code's four are yours to
+wire**, and haus deliberately leaves them alone.
 
 <Callout type="info" title="What haus does write into `~/.claude/settings.json`">
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
@@ -425,6 +422,34 @@ are the ones it owns outright), and
 re-asserts on every rebuild, because Claude Code rewrites its own
 settings on its own schedule and a hand-written hook can go with them. You'd find
 that out at pane close, by losing a lane's parking.
+</Callout>
+
+<Callout type="info" title="What haus writes into `~/.pi/agent/extensions/`">
+pi has no hook file, so its whole wiring is one extension haus writes,
+`haus-agent-state.ts`. Being pi's one seam, it carries both halves at once: the
+four states above, **and** the same [trill](/docs/trill) lane banners Claude
+Code gets from a second hook. It hands `scruff hook notify` the same payload, so
+a pi lane's banner is keyed, clickable and taken back down by the identical code
+path: an **ask** when it blocks on you, a **done** when it finishes its turn,
+and both cleared when you answer.
+
+"Blocked on you" needs a definition here that it doesn't need elsewhere: pi has
+no permission modes and so no permission prompt. The stand-in is a tool whose
+execution *is* a question (`ask_user_question`, one of the four packages below),
+which also makes the banner cheaper to take down than Claude Code's, where every
+tool call in every pane has to check.
+
+Two pi events have no Claude counterpart and get a banner of their own, each
+with its own `source` so you can silence one in `rules.json` without the other:
+a **failed compaction** (`haus.ai.pi.compact`; the turn that triggered it is
+usually dead) and the model provider **refusing the session** with a 401/402/403
+(`haus.ai.pi.auth`, once). That second one matters on a machine running
+[meridian](/docs/haus/rooms/ai): it authenticates off Claude Code's keychain
+token, and when that goes stale every pi lane stops and says so nowhere.
+
+Everything above is gated on pi running as a real pane: a `pi -p` in a script
+inherits the terminal session it was run from, and reporting would repaint
+*that* lane's pill and banner a turn nobody asked about.
 </Callout>
 
 <Callout type="info" title="What haus writes into `~/.pi/agent/settings.json`">
@@ -448,7 +473,12 @@ does not uninstall it — haus never deletes from that array. Run
 `pi remove <source>` once and it will not come back.
 
 haus writes none of pi's other files: `models.json` (which provider, which
-key) and `trust.json` are yours.
+key) and `trust.json` are yours. `trust.json` is also why the banners
+deliberately say nothing about pi's *trust dialog*: pi asks its extensions
+before it reads that file, so nothing could tell "about to ask you" from
+"answered months ago" without second-guessing pi. `scruff` closes that case from
+the other end anyway, by copying the yes you already gave a repo onto each lane
+it makes.
 </Callout>
 
 ### The statusline HUD
