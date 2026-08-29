@@ -109,16 +109,14 @@ is for rooms that never leave one Mac. Until haus can record which input claimed
 a name, a machine that installs your room warns once per rebuild that nothing
 there says where it came from; that record is coming, and the name is right.
 
-<Callout type="info" title="App packs were the third format, and are gone">
-Until 2026-08-17 there was a data-only file narrowed to `haus.roster`, imported
-through `haus.lib.pack` and self-tested with `checkPack`. Both helpers, and
-`haus.packFiles` / `haus.packs`, have been removed: two formats over two trust
-classes is the whole model, and a third sitting across the line earned its own
-prompt and its own docs for no one: nobody had published a pack.
+<Callout type="info" title="There is no third format: app packs do not exist">
+`haus.lib.pack`, `checkPack`, `haus.packFiles` and `haus.packs` are not options.
+If a config you are reading names one, delete the line. Two formats over two
+trust classes is the whole model, and a third that sits across the line would
+earn its own prompt and its own docs for nobody.
 
-Nothing you can do got smaller except that. The saved collections haus itself
-ships are untouched, still one line each
-(`haus.apps.packs.writing.enable = true`); they were never the published format.
+The saved collections haus itself ships are a different thing and are
+unaffected, still one line each (`haus.apps.packs.writing.enable = true`).
 </Callout>
 
 ## Before you share

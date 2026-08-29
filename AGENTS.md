@@ -70,24 +70,22 @@ Every page is a Next route; `public/` is assets only.
 | Route | Source | What it is, and the rule that isn't obvious |
 |---|---|---|
 | `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD organization record**. Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
-| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and since 2026-08-26 a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
+| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
 **One load-bearing id is left**: `#made` on `/`, where the four `/terms` and
 `/refunds` 301s land. Rename it and a published URL starts scrolling to the
-masthead instead of to its answer. (`#desktops` was the other, on `/` and then
-on `/haus`; it retired with that page on 2026-08-26 and its two callers now
+masthead instead of to its answer. (`#desktops` is not one: its two callers
 point at `desktops/choosing`, a page rather than a fragment.)
 
-**A page that a docs tree also covers does not stay in step with it** — that is
-why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` (twice:
-as a manual on 2026-08-14, and as the layer's front door on 2026-08-26) were all
-retired into docs trees, and why rebuilding any of them is wrong.
+**A page that a docs tree also covers does not stay in step with it.** That is
+why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` are all
+301s onto docs trees, and why rebuilding any of them is wrong.
 
 ### Short domains
 
-`perch.hausfold.co` is the first of these, added 2026-08-26. **A short domain is
+`perch.hausfold.co` is the one of these that exists. **A short domain is
 a 301 and never a page.** It exists so there is something short to hand a
 non-technical person — you text them `perch.hausfold.co` and they land on
 `/docs/perch/install/`, which is written to be followed in order.
@@ -112,11 +110,10 @@ page under the wrong domain — and `worker.js` never runs.
 
 🚨 **It must be `true`, never an array.** An array is an *allowlist*: every path
 outside it is answered by the asset server, including its 404 page, so the
-Worker's own routes stop being reached at all. `["/"]` shipped for one deploy on
-2026-08-26 and took out `/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`,
-`/download/*` and `/api/release/*` at once — the four installers being the URLs
-this file calls the last thing here that may ever 404. **`npm test` passes under
-either value**, because the Worker's unit tests call `worker.fetch` directly and
+Worker's own routes stop being reached at all. `["/"]` takes out `/haus.sh`,
+`/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/*` and `/api/release/*`
+at once — the four installers being the URLs this file calls the last thing here
+that may ever 404. **`npm test` passes under either value**, because the Worker's unit tests call `worker.fetch` directly and
 never reach the asset server.
 
 The guard is a grep for `run_worker_first = true` in `worker.yml`, over BOTH
@@ -124,27 +121,23 @@ wrangler configs. It looks crude beside a real test and it is what there is:
 deploy.yml's post-deploy smoke check hits the live URLs, but Cloudflare answers
 a GitHub runner with a managed challenge whatever User-Agent it sends, so that
 step warns and skips rather than proving anything. ⚠️ **Don't delete the grep as
-a duplicate of the smoke check** — today it is the only thing standing between
-this repo and a repeat of 2026-08-26.
+a duplicate of the smoke check** — it is the only thing standing between this
+repo and every installer URL 404ing at once.
 
-🚨 **`/haus` is the one to learn from**, because the second version was built
-deliberately *not* to be a manual and became a second account anyway: it grew a
-Rooms section, a Desktops section and a One file example, all of which
-`/docs/haus` already carried, and most readers arrive at the tree without
-passing the sheet. Its copy is in `content/docs/haus/index.mdx` now.
+🚨 **`/haus` is the one to learn from.** A sheet built deliberately *not* to be a
+manual becomes a second account anyway: that one grew a Rooms section, a
+Desktops section and a One file example, all of which `/docs/haus` already
+carried, and most readers arrive at the tree without passing the sheet. Its copy
+is `content/docs/haus/index.mdx`.
 
-`/perch` held out as the one exemption — a one-read pitch for a stranger
-deciding in ninety seconds is a shape a manual can't take — on the strength of
-a policy URL and a price that was coming. perch went back to MIT with no paid
-tier on 2026-08-15, `/terms` and `/refunds` went the day after, and on
-**2026-08-26 the user retired the page**: every fact on it was already in
-`/docs/perch`, which is the duplicate the rule was written about. The pitch
-itself was not thrown away — it opens `/docs/perch`, where the manual starts
-with the dance and the install command.
+The strongest case for an exemption is `/perch`'s — a one-read pitch for a
+stranger deciding in ninety seconds is a shape a manual can't take — and it does
+not hold either: every fact on it was already in `/docs/perch`, which is the
+duplicate the rule is about. The pitch itself is not thrown away. It opens
+`/docs/perch`, where the manual starts with the dance and the install command.
 
 🚨 **Nothing on this site argues for a product, or for the layer, outside the
-docs any more.** Both retirements landed on the same day and they say the same
-thing: a sheet beside a tree is a second account of one subject, whoever wrote
+docs.** A sheet beside a tree is a second account of one subject, whoever wrote
 it and however carefully it was scoped. Adding one back is a decision, not a
 tidy-up.
 
@@ -217,13 +210,11 @@ the token out in prose instead of writing `--something`.
   about privacy, and a later session will want to fix it. It is the address
   that actually routes; `support@hausfold.co` has never existed and isn't going
   to, and if one is ever added it will be an alias onto `julien@`, which
-  changes nothing here. It was `hi@hausfold.co` (settled 2026-08-09) until
-  2026-08-22 — `hi@` named nobody and was read by one person, which is what
-  `julien@` says out loud. This bullet is the rule that binds here.
-  **This rule lived in this file until #117 slimmed the seller's surface out**,
-  which left a single code comment carrying it — it is back because AGENTS.md
-  is what a pre-PR reviewer actually reads. Three places carry the address and
-  they move together or not at all: the colophon (`src/components/sheet.tsx`),
+  changes nothing here. `hi@` is the other tempting rewrite and is worse still:
+  it names nobody, while the mail is read by one person, which is what `julien@`
+  says out loud. This bullet is the rule that binds, and it lives here rather
+  than in a code comment because AGENTS.md is what a pre-PR reviewer actually
+  reads. Three places carry the address and they move together or not at all: the colophon (`src/components/sheet.tsx`),
   `/perch/privacy`, and the `Organization` JSON-LD in `src/app/page.tsx`.
 - **Greyscale at rest on the landing pages, and every colour is borrowed.**
   (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
@@ -242,12 +233,11 @@ the token out in prose instead of writing `--something`.
     `--nb-token-*` ramp, including inline `<code>`. The dark fork for the
     landing half is in `src/app/global.css` under `prefers-color-scheme` +
     `body:has(.sheet)`, because those pages carry neither `data-theme` nor the
-    docs' `.dark` class. ⚠️ **The landing half's half of that fork was
-    deleted on 2026-08-26**, when `/haus` and `/perch` retired and took the
-    site's last two highlighted blocks with them; the tombstone in
-    `src/app/global.css` says how to put it back, and putting it back is what
-    a landing page with a fenced block owes. Prose and chrome still don't take
-    a hue.
+    docs' `.dark` class. ⚠️ **The landing half of that fork is not in the
+    tree**: no landing page carries a highlighted block, so nothing needs it.
+    The tombstone in `src/app/global.css` says how to put it back, and putting
+    it back is what a landing page with a fenced block owes. Prose and chrome
+    don't take a hue.
 
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
@@ -271,20 +261,17 @@ the token out in prose instead of writing `--something`.
   🚨 **Don't move `<Provider>` back up** to satisfy a component that asks for
   it — give that component its own boundary. The intended cost: the light/dark
   toggle is a `/docs` affordance, and the landing pages follow
-  `prefers-color-scheme`. Our own script was exactly one piece, `<Command>`
-  (`src/components/command.tsx`), until 2026-08-26, when `/perch` and `/haus`
-  retired within hours of each other and took its last two callers with them.
-  **The landing half now ships none of our own script at all**, and the
-  component and its `.cmd` styles went with the pages. The bar for bringing one
-  back is the bar that component met: the button rendered `hidden` in the
-  exported HTML and unhid only where `navigator.clipboard` exists — **pure
-  enhancement, nothing lost without it**.
-- **No screenshots at all, and never a stale one.** `/perch` was the last page
-  that drew a placeholder frame — shot slots in CSS labelled `[ shot not taken
-  yet ]`, no image files — and both the page and the `.shot` family went on
-  2026-08-26. A picture that lies about what the app looks like today is worse
-  than a grey box that admits it doesn't have one, and no box at all beats
-  both once there is no sheet to reserve a slot on. **The landing half stays
+  `prefers-color-scheme`. **The landing half ships none of our own script at
+  all**, and no component or `.cmd` styles wait in the tree for a caller. The
+  bar for bringing one back is the bar the last one met: a copy button that
+  rendered `hidden` in the exported HTML and unhid only where
+  `navigator.clipboard` exists — **pure enhancement, nothing lost without
+  it**.
+- **No screenshots at all, and never a stale one.** There is no `.shot` family
+  in the CSS and no placeholder frame anywhere: a picture that lies about what
+  the app looks like today is worse than a grey box that admits it doesn't have
+  one, and with no sheet to reserve a slot on, no box at all beats both.
+  **The landing half stays
   imageless**: no images on the front page until the site's velocity slows, and
   a real capture, when one exists, belongs in the docs tree it documents rather
   than back here. If a landing page ever does hold one, note `images: {
@@ -319,11 +306,10 @@ the token out in prose instead of writing `--something`.
     flex item with an `auto` margin in the cross axis is **not stretched** — the
     lean's auto inline margin turned the column shrink-to-fit, so on a 390px
     phone the document came out 624px wide and scrolled sideways. The
-    unbreakable thing was `.cmd code`, deleted 2026-08-26 with the last page
-    that framed a command — but **the rule stays**: the next long inline
-    `<code>` or URL reproduces it exactly. (`min-width: 0` was never the fix,
-    whatever that comment used to claim: `overflow-x: auto` already zeroes a
-    flex item's automatic minimum size.)
+    thing that broke it was a framed command in inline `<code>`, and nothing in
+    the tree draws one today — but **the rule stays**: the next long inline
+    `<code>` or URL reproduces it exactly. (`min-width: 0` is not the fix:
+    `overflow-x: auto` already zeroes a flex item's automatic minimum size.)
   - `--measure` is a *reading* measure; every text block inside `.sheet` is
     separately capped at 58/62ch, so widening it just unmoors the column from
     the masthead. `--gutter` exists so `.sheet`'s padding and anything measuring
@@ -372,8 +358,8 @@ the token out in prose instead of writing `--something`.
   (`eslint-config-next` enforces it; ⚠️ **a `<Link>` to a route that
   doesn't exist is NOT caught** — `typedRoutes` is off, so `build`,
   `types:check` and `lint` all pass on one, and a retired page's inbound links
-  are yours to find. Measured 2026-08-26, when the privacy page's footer still
-  pointed at the just-deleted `/perch` through four green checks); `trailingSlash: true` means `<Link
+  are yours to find: a page footer pointing at a deleted route ships through four
+  green checks); `trailingSlash: true` means `<Link
   href="/haus">` renders `/haus/`; and 🚨 **a `worker.js` route is internal
   but NOT a Next route** — `/download/<app>`, `/hacker.sh` and
   `/api/release/<app>` take a plain `<a>`, because `next/link` would
@@ -411,21 +397,16 @@ clear it at all.
 
 > 🚨 **`trill` is a tab that was admitted WITHOUT clearing that bar** — it is
 > there on the user's explicit instruction. Record it as the exception it is,
-> don't cite it as precedent. It went in when trill had no release, no download
-> and no cask, so there was nothing a stranger could install; its tree is **one
-> page** whose first paragraph is a `warn` callout saying exactly that, which is
-> the condition on the exception. `haus.notifications.compositor` (hausfold/haus
-> #515, renamed out of `haus.trill.enable` in #521) installs the bundle, which
-> moved nothing about the bar either way.
+> don't cite it as precedent. Its tree is **one page**, whose first paragraph is
+> a `warn` callout stating what a stranger can and can't do: notarized releases
+> exist, there is no cask and no one-line install, and
+> `haus.notifications.compositor` — the Notifications room — is the only front
+> door. That callout is the condition on the exception.
 >
-> ⚠️ **That condition has moved, and only its false half has been fixed.** trill
-> cut notarized releases on 2026-08-25 and 2026-08-26, so "no release, no
-> download, no cask" was two thirds wrong; the 2026-08-26 docs sweep corrected
-> the callout and the page to what is true today (releases exist, no cask and no
-> one-line install, the Notifications room is the only front door). That was a
-> correction, not a ruling. **Whether the tab still clears the bar is the user's
-> call and nobody has made it.** Until they do: **don't grow the tree past that
-> page**, and don't read any of this as lowering the bar for a fifth tab.
+> ⚠️ **Whether the tab clears the bar is the user's call and nobody has made
+> it.** Until they do: **don't grow the tree past that page**, and don't read
+> any of this as lowering the bar for a fifth tab. Keeping the callout accurate
+> is a correction; deciding the tab is not.
 
 **A new tree owes four things**, each easy to forget separately: an entry in
 `content/docs/meta.json`'s `pages`; a `meta.json` of its own with `"root":
@@ -580,10 +561,10 @@ than a guess:
 - **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
   box in the prose" puts a doorway's rule on a callout.
 - **`Separator`** (`src/components/sidebar-parts.tsx`) renders the sidebar's
-  group label with `.hf-group`. It used to be `#nd-sidebar p`, which also
-  matched the tree switcher's `<p>`s. **Don't reach for a bare element selector
-  inside fumadocs' chrome** — the same element is three different things in
-  three places.
+  group label with `.hf-group`, rather than `#nd-sidebar p`, which also matches
+  the tree switcher's `<p>`s. **Don't reach for a bare element selector inside
+  fumadocs' chrome** — the same element is three different things in three
+  places.
 
 The third is a decision rather than a class:
 
@@ -685,8 +666,8 @@ CI, by what a PR touches:
   invisible failure between them: any of them missing from
   `wrangler.preview.toml` means a PR's installer change looks fine on the
   preview URL precisely *because* the route isn't running there. ⚠️
-  `run_worker_first` was missing from the preview config from the day it was
-  written until 2026-08-26, which is exactly that.
+  `run_worker_first` missing from the preview config is exactly that, and it is
+  invisible on the preview URL by construction.
 - **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, purges
   the cache, then smoke-tests nine live Worker routes plus the site root. It is
   **last on purpose** — a red smoke check must not skip the purge, which is what

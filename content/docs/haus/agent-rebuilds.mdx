@@ -139,13 +139,12 @@ changed, and your edit is still on disk.
 
 The way past it is always to stop writing the domain by hand.
 `haus.accessibility.*` reaches every key in it that macOS actually honours
-(seven of them, which since August 2026 is **every key nix-darwin types there**,
-so the raw form no longer reaches anything the safe one doesn't) with a
+(seven of them, which is **every key nix-darwin types there**, so the raw form
+reaches nothing the safe one doesn't) with a
 **guarded** write, so without the grant you lose that setting and nothing else,
 and the rebuild runs from anywhere. Otherwise:
 run it from an app that holds the grant, or set `HAUS_FDA_ANYWAY=1` when you know
-better (`HAUS_AGENT_REBUILD=1`, the name this had while the check was
-agent-scoped, still works).
+better (`HAUS_AGENT_REBUILD=1` is an accepted alias for it).
 
 `haus plan` tells you which grant a rebuild wants *before* it runs, and `haus
 doctor`'s **Permissions** section says whether this app has it.

@@ -325,7 +325,7 @@ haus add --print git+https://git.example.org/ada/desktop     # show the edit, wr
 haus add -y github:ada/writer-desktop                         # skip the prompt
 ```
 
-`--vendor` is the old by-hand path (`curl`, `mv`, `git add`) done for you: the
+`--vendor` is the by-hand path (`curl`, `mv`, `git add`) done for you: the
 file lands at `desktops/<name>.nix` in your config instead of becoming a flake
 input, which is the right call for a one-off you plan to edit yourself.
 Pinning is the default because it is how you get `haus update <name>` later.

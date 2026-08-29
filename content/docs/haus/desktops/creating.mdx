@@ -65,12 +65,12 @@ A host runs **exactly one**, so yours is not a diff against hacker; it is
 the complete selection. Whatever you don't say, the rooms' own neutral defaults
 decide, which for every optional room means **off**.
 
-That is the one thing to check twice when you port something that used to be a
-layer stacked on another desktop: the values it silently inherited are now
-values it has to state. haus's own `everyday` is the worked example: it names
-`security.passwordlessRebuild` and `focus.enable` explicitly, because inheriting
-them quietly was how the old preset worked and losing them quietly is how the
-port would have failed.
+That is the one thing to check twice when you port a layer that was stacked on
+another desktop: the values it silently inherited are values it now has to
+state. haus's own `everyday` is the worked example. It names
+`security.passwordlessRebuild` and `focus.enable` explicitly, because a layered
+preset inherits them quietly, and a port that drops them drops them just as
+quietly.
 
 Say what your desktop is **for** in a comment at the top, and say what it
 deliberately leaves out. The reason a room is off is the part a reader can't
