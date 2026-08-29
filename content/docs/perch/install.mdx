@@ -3,6 +3,10 @@ title: Install
 description: The one macOS setting to turn off first, a download or one brew command, and pairing the phone. Ten minutes, no terminal needed.
 icon: install
 related:
+  - title: "What perch is"
+    description: "The shelf that drops out of the notch mid-drag, in one read."
+    href: "/docs/perch"
+    icon: "compass"
   - title: "Using the shelf"
     description: "Catching a drag, the other ways onto the shelf, carrying the stack out, and what stays there."
     href: "/docs/perch/using"
@@ -14,7 +18,7 @@ related:
 ---
 
 perch is two halves: the shelf on your Mac, and a free companion app that
-throws things at it from your phone. Do the Mac first — the phone pairs *to*
+throws things at it from your phone. Do the Mac first: the phone pairs *to*
 it.
 
 You need **macOS 14** or newer, and **iOS 18** or newer for the phone half. A
@@ -30,8 +34,8 @@ perch will look broken by the only gesture it has.
 In **System Settings ▸ Desktop & Dock**, scroll to **Mission Control** and turn
 *off* **"Drag windows to top of screen to enter Mission Control"**.
 
-macOS arms that top-edge trigger for the whole of any drag — files included,
-despite the setting's name — and it fires over the same band the shelf lives
+macOS arms that top-edge trigger for the whole of any drag (files included,
+despite the setting's name), and it fires over the same band the shelf lives
 in. Leave it on and the Dock takes your drop into Mission Control before perch
 ever sees it. It's the only thing perch asks of your Mac, it's reversible in
 the same place, and a [haus](/docs/haus) machine flips it for you.
@@ -41,8 +45,8 @@ the same place, and a [haus](/docs/haus) machine flips it for you.
 The [**latest release**](https://hausfold.co/download/perch) is a signed,
 notarized download: unzip it and drag `Perch.app` into your **Applications**
 folder. Gatekeeper clears it, so you get macOS's ordinary *"downloaded from the
-Internet, are you sure?"* confirmation the first time you open it and nothing
-else — no *unidentified developer* block, no right-click-Open, no `xattr`.
+Internet, are you sure?"* confirmation the first time you open it, and nothing
+else: no *unidentified developer* block, no right-click-Open, no `xattr`.
 
 Or, if you have Homebrew:
 
@@ -52,13 +56,13 @@ brew install --cask hausfold/tap/perch
 
 Same build either way. No account, no sign-in, no licence key.
 
-**There is no Dock icon** — that's deliberate. After you open it, look for a
-small tray icon in your menu bar, top right. That's perch, and it's how you
-reach Settings.
+**Open it once from your Applications folder.** No window opens and **there is
+no Dock icon**: that's deliberate. Look for a small tray icon in your menu bar,
+top right. That's perch, and it's how you reach everything else on this page.
 
 ## 3. Turn on Launch at Login
 
-Menu bar tray icon ▸ **Settings…** ▸ **General** ▸ **Launch at Login**.
+Menu bar tray icon ▸ **Settings…** ▸ **General** ▸ **Launch Perch at login**.
 
 Without it perch is gone after your next restart, which is an odd way to find
 out you liked it. It comes back in the menu bar only: no window, no Dock icon.
@@ -69,7 +73,7 @@ Grab any file and start dragging it *up toward the notch*. A shelf drops down
 to catch it. Let go.
 
 Pile in as much as you like, from as many places as you like, then drag a tile
-back out to wherever it's actually going. Your originals never move — perch
+back out to wherever it's actually going. Your originals never move: perch
 copies in and copies out. [Using the shelf](/docs/perch/using) is what to read
 next.
 
@@ -80,22 +84,24 @@ App Store, for iPhone and iPad.
 
 To pair it, once:
 
-1. On the **Mac**: menu bar tray icon ▸ **Settings…** ▸ **Devices** ▸
+1. On the **Mac**: menu bar tray icon ▸ **Settings…** ▸ **iPhone & iPad** ▸
    **Pair a Device…**, which shows a QR code.
-2. On the **phone**: open Perch Companion and scan it.
+2. On the **phone**: open the app (its icon says **Perch**), tap
+   **Pair a Mac**, and point it at the code.
 
-After that, share anything from the phone — photos, files, links, text — and it
+After that, share anything from the phone (photos, files, links, text) and it
 lands on the Mac's shelf. It goes over your own network, or straight
 phone-to-Mac with no network at all, over the same radio AirDrop uses. Nothing
 passes through a server; there isn't one, and the link is encrypted end to end.
-Settings ▸ Devices tears the listener down if you'd rather it weren't there.
+Settings ▸ iPhone & iPad tears the listener down if you'd rather it weren't
+there.
 
 <Callout title="Turning Wi-Fi off doesn't take the link down">
 Control Center's Wi-Fi toggle deliberately leaves AWDL (the direct radio link)
 up, which is why your phone still finds a Mac that looks offline. Airplane
 Mode, or **System Settings ▸ Wi-Fi ▸ Off**, is what actually ends it; so does
-Settings ▸ Devices in perch. All the link ever needs is the Wi-Fi radio on at
-both ends: no router, and not the same one.
+Settings ▸ iPhone & iPad in perch. All the link ever needs is the Wi-Fi radio
+on at both ends: no router, and not the same one.
 </Callout>
 
 ## Updating
