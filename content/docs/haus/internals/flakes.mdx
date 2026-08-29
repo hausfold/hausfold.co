@@ -66,9 +66,31 @@ installer writes for you), and `extraModules` is the seam for any other
 nix-darwin module. Eight of haus's modules (`core`,
 `terminal`, `windows`, `bar`, `security`, `launcher`, `focus`, `secrets`) are also
 exported on their own under `darwinModules`, alongside a `default` holding the
-lot. Reach for one of those only with the builder still around it: a module
-declares no options of its own and takes the username from `mkHaus`, so on
-its own it doesn't evaluate.
+lot. That is how you take the tiling or the bar into a flake of your own and
+leave the rest of the house behind:
+
+```nix
+inputs.haus.darwinModules.windows   # just the tiling
+inputs.haus.darwinModules.bar       # just the bar
+```
+
+Each export is the bare foundation plus that one room, so it needs no desktop
+and switches no neighbour on. What it does need is the scaffolding `mkHaus`
+would otherwise have supplied: your own `darwinSystem` call with
+`nixpkgs.hostPlatform` (a room won't pick a platform for you),
+`system.primaryUser`, `system.stateVersion`, the palette and app overlays,
+home-manager, and two arguments the modules read: `username` in `specialArgs`
+and `nebelung` in `home-manager.extraSpecialArgs`. haus's own
+[`flake.nix`](https://github.com/hausfold/haus/blob/main/flake.nix) has the
+whole thing spelled out as `standaloneSystem`, which is not an example but the
+fixture: a flake check builds every export through it, so a room that quietly
+started asking for more than that fails in haus's CI rather than in your flake.
+
+Rooms with no export of their own ride along with the full house instead. Which
+ones those are is a fact about `flake.nix`, not about the room: read the
+`darwinModules` block there rather than a list here. `apps` is the one that
+could never have an export, because it needs the roster resolver beside it to
+install anything.
 
 ## The inputs
 

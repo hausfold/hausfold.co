@@ -90,6 +90,14 @@ phone-to-Mac with no network at all, over the same radio AirDrop uses. Nothing
 passes through a server; there isn't one, and the link is encrypted end to end.
 Settings ▸ Devices tears the listener down if you'd rather it weren't there.
 
+<Callout title="Turning Wi-Fi off doesn't take the link down">
+Control Center's Wi-Fi toggle deliberately leaves AWDL (the direct radio link)
+up, which is why your phone still finds a Mac that looks offline. Airplane
+Mode, or **System Settings ▸ Wi-Fi ▸ Off**, is what actually ends it; so does
+Settings ▸ Devices in perch. All the link ever needs is the Wi-Fi radio on at
+both ends: no router, and not the same one.
+</Callout>
+
 ## Updating
 
 perch checks its own release tag once an hour. When there's a newer one, the

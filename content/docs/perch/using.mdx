@@ -45,10 +45,34 @@ originals are only ever read.
 | **Your iPhone** | [**Perch Companion**](https://apps.apple.com/app/id6799443735), free on the App Store, once you've [paired it](/docs/perch/install). Its Share sheet sends over your network, or peer-to-peer with no network at all, and the phone can pull shelf items back down too |
 | **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. Screenshots have their own switch in that pane: **Shelf my screenshots** opens the folder panel already pointed at wherever this Mac saves captures, so you don't have to know |
 
+### What a watched folder counts as new
+
 What's already sitting in a folder when you add it stays put; only later
 arrivals land, including ones that happened while perch wasn't running. A
 half-written download waits until it's finished and renamed, so nothing reaches
-the shelf mid-write.
+the shelf mid-write, and any other file is imported only once its size has
+stopped changing for a moment.
+
+**Replacing a file's contents counts as a new arrival.** Save over one twice and
+you get two tiles: what is there now is a different file wearing the old name.
+Renaming doesn't: the tile you already have is that file, whatever it is called
+now. Dragging an item *out* of the shelf into a watched folder doesn't put it
+back either; perch recognises what it just wrote.
+
+**Shelf my screenshots** is the same thing with the finding-out done for you: it
+opens the folder panel already pointed at wherever this Mac saves captures.
+perch cannot simply read that setting, because a sandboxed app is not shown
+another app's preferences and cannot grant itself the folder, so the click *is*
+the permission. Switching it back off takes that folder out of the watched list
+altogether, grant and all.
+
+<Callout type="warn" title="Turn the floating screenshot thumbnail off too">
+It doesn't preview a saved file, it *holds* the capture and writes it out about
+five seconds later, so a watched folder catches every screenshot five seconds
+after you took it. System Settings has no switch; the screenshot toolbar's
+**Options ▸ Show Floating Thumbnail** does, and a haus machine turns it off for
+you.
+</Callout>
 
 ## Carrying it out
 
@@ -82,8 +106,15 @@ is **off** unless you turn it on in Settings, so a pile you left there
 yesterday is still a pile today.
 
 Your originals are untouched throughout: perch stages a copy inside its own
-sandbox container and never moves, renames, edits or deletes the thing you
-dragged in.
+sandbox container (under `~/Library/Containers/com.hausfold.perch/`, one
+directory per import, so two files of the same name never have to be renamed)
+and never moves, renames, edits or deletes the thing you dragged in. The
+manifest records the staged copies and their metadata; **the path you dragged
+from is never written down**, not to that file and not to a log.
+
+Clearing an item deletes its whole import directory outright rather than moving
+it to the Trash, which is why **Clear asks twice**: the shelf's button arms and
+wants a second click, and the menu bar's *Clear Shelf…* raises an alert.
 
 ## Settings worth knowing
 
@@ -109,7 +140,31 @@ that file; the one it writes lives inside its own sandbox container.
 
 There is no theme picker in that list, on purpose. The shelf paints from
 [nebelung](https://github.com/hausfold/nebelung) and follows macOS Light/Dark
-by itself; on a haus machine it follows your desktop's flavor and accent too,
-and a standalone Mac can drop any Catppuccin-shaped palette into
-`~/.config/perch`
-([the format](https://github.com/hausfold/perch/blob/main/docs/reference.md#colors)).
+by itself; on a haus machine it follows your desktop's flavor and accent too.
+
+### Painting it yourself
+
+A standalone Mac can drop any Catppuccin-shaped palette into the same
+`~/.config/perch` directory:
+
+```text
+~/.config/perch/
+  config.json          { "themeDark": "nebelung", "themeLight": "nebelung-latte",
+                         "accent": "mauve" }
+  themes/<name>.json   flat "role": "#hex" map: a nebelung *.hex.json verbatim
+```
+
+A file in `themes/` **shadows** a built-in of the same name, so a palette bump
+lands without a new release. perch needs `base`, `crust`, `overlay0`, `text`,
+`subtext0`, `green` and `red`, plus whichever role `accent` names, and ignores
+the rest; a missing or malformed file falls back to built-in nebelung rather
+than failing.
+
+`accent` is the one colour the shelf *emphasises* with: the ember's pips under
+the notch, a pinned tile, the filled button on a notice. It takes a Catppuccin
+role name (resolved against whichever palette is in force, so the hue follows
+the flavour and the polarity by itself) or a literal `"#rrggbb"`. Leave it out
+and the shelf accents with the palette's own `green`, which under stock
+nebelung is the sage of the app icon. Label colour on a filled accent is chosen
+for contrast against the accent, not the panel. Changes are picked up the next
+time the shelf opens, with no relaunch.
