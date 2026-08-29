@@ -1,0 +1,87 @@
+---
+title: Install
+description: One binary, no runtime, no account. Nix or Go, the two optional tools that make it sharper, and the one line that proves it took.
+icon: install
+related:
+  - title: "Working in lanes"
+    description: "The commands you will type on day one, and the two you will type on day two."
+    href: "/docs/scruff/lanes"
+    icon: "lanes"
+  - title: "Config"
+    description: "The default client, naming a lane after its task, and where the checkouts live."
+    href: "/docs/scruff/config"
+    icon: "dials"
+---
+
+scruff is a single Go binary with no runtime, no daemon, no port and nothing to
+sign in to. Pick whichever of these you already have.
+
+```sh
+nix run github:hausfold/scruff                            # try it, install nothing
+nix profile install github:hausfold/scruff                # keep it
+go install github.com/hausfold/scruff/cmd/scruff@latest   # or, with Go 1.26+
+```
+
+Then, from inside any git repo:
+
+```sh
+scruff --version
+scruff            # an empty list is a working install
+```
+
+## What it needs
+
+**`git`, and that is the hard requirement.** Two more are optional and both make
+scruff sharper rather than possible:
+
+| | |
+|---|---|
+| [`gh`](https://cli.github.com) | proves a branch **landed**, across squash, rebase and cherry-pick merges. Without it scruff falls back to the offline signals: ancestry, patch equivalence, and an empty merge tree |
+| `lsof` | proves nobody is **standing in** a checkout. Without it, a lane says `occupied: null`, which means *undetermined* and never *free* |
+
+Missing either one **degrades toward keep, never toward delete.** The command
+still runs, exits **3** instead of 0, and says in `warnings` which signal it
+could not get. That is the whole safety model in one sentence: scruff would
+rather leave you a branch to tidy up than take one it could not prove was
+finished.
+
+<Callout type="info" title="A container or a CI runner has no lsof to ask">
+Anywhere the process holding a checkout is not visible as a cwd, say so
+yourself with a **lease**: `scruff heartbeat` marks the checkout in use for as
+long as the calling process lives. See
+[occupancy](/docs/scruff/landing#who-is-standing-here).
+</Callout>
+
+## Inside a haus machine
+
+If you run [haus](/docs/haus), scruff is already there: one option puts it on
+your `PATH`, binds **⌘⏎** to open a lane on whatever repo the focused window is
+looking at, and wires the client hooks and the statusline around it. Nothing on
+these pages changes; it is the same binary and the same lanes.
+
+[The AI room](/docs/haus/rooms/ai) is that half, and owns the option names.
+
+## As a flake input
+
+```nix
+inputs.scruff.url = "github:hausfold/scruff";
+```
+
+The flake exposes `packages.<system>.default` (the CLI) and
+`packages.<system>.scruff-skill`, which is the
+[agent surface](/docs/scruff/agents) on its own, so a machine can install the
+skills with no Go toolchain and no binary. An overlay ships both under
+`pkgs.scruff` and `pkgs.scruff-skill`.
+
+## From source
+
+```sh
+git clone https://github.com/hausfold/scruff && cd scruff
+make check      # gofmt, go vet, the unit tests and the bats acceptance suite
+make build      # ./scruff
+```
+
+`nix develop` gives you a shell with Go, bats and `gh` already in it.
+[`AGENTS.md`](https://github.com/hausfold/scruff/blob/main/AGENTS.md) in the repo
+is the rest: what the invariants mean for a change, which contracts are frozen,
+and why `make check` deliberately does not cover the SDKs.

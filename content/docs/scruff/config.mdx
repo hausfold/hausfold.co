@@ -1,0 +1,190 @@
+---
+title: Config
+description: One optional TOML file, five environment variables, and two kinds of adapter. Everything here has a working default, so an install with no config at all is the normal case.
+icon: dials
+related:
+  - title: "Hooks and seams"
+    description: "The other half of the config file: replacing a decision scruff would have made."
+    href: "/docs/scruff/seams"
+    icon: "seams"
+  - title: "Commands"
+    description: "Every verb and flag, and what each of the six exit codes means."
+    href: "/docs/scruff/cli"
+    icon: "terminal"
+---
+
+scruff runs with no configuration at all, and that is the common case. When you
+do want some, it is one file:
+
+```toml
+# ~/.config/scruff/config.toml
+agent = "codex"
+namer = "claude"
+
+[hooks]
+focus = "/usr/local/bin/my-focus"
+```
+
+`~/.config` on every platform, macOS included, rather than Application Support:
+this is a terminal tool and its config lives where the rest of a terminal user's
+config lives. `XDG_CONFIG_HOME` moves it.
+
+A line the parser cannot understand is **skipped with a warning**, never fatal. A
+config typo must not be able to stop a pane from opening.
+
+## The default client
+
+```toml
+agent = "codex"   # claude | codex | opencode | pi
+```
+
+`SCRUFF_AGENT` overrides it for one invocation, and `--agent` /
+`--open <client>` override it for one lane. A lane **records the client it was
+made with**, so changing this only affects new lanes: a parked Codex lane still
+reopens in Codex.
+
+## Naming a lane after its task
+
+A lane opened on a first-turn task ([`--prompt` /
+`--prompt-file`](/docs/scruff/lanes#opening-it-on-a-task-not-a-blank-pane)) with
+**no name of its own** can take its name from that task instead of from the
+animal list: `hud-draft-color` rather than `cozy-otter`.
+
+```toml
+namer = "claude"
+```
+
+That is the whole setup, and there is no key by default: without one, an unnamed
+lane still gets its random pair and no extra process runs at all. With one, the
+name argument becomes optional:
+
+```sh
+scruff spawn ~/code/bar --prompt-file brief.md
+scruff new --prompt 'the bar paints draft PRs in the merged green'
+```
+
+**scruff never talks to a model.** It runs one argv with the naming request as
+`{{.Prompt}}` (the instruction, the repo, the names already taken and the task,
+all composed by scruff) and reads the answer off stdout. There is no HTTP client
+here, no vendor and no API key for scruff to hold.
+
+`claude` is the one built-in namer, for the same reason `tart` is the one
+built-in runtime: it is the client a machine spawning agents already has. It
+runs the `claude` binary on `PATH`, so the naming call is authenticated exactly
+the way your agents are, on the cheapest model, with the machine's MCP servers
+switched off:
+
+```toml
+kind = "namer"
+id   = "claude"
+name = ["claude", "-p", "--model", "haiku", "--strict-mcp-config", "--disable-slash-commands", "--", "{{.Prompt}}"]
+```
+
+Every other namer is a file with that shape, and a `claude.toml` of your own
+shadows the built-in wholesale: a different model, a different client, a local
+model, or a script with no model in it at all.
+
+```toml
+# ~/.config/scruff/adapters/namer/ollama.toml
+kind = "namer"
+id   = "ollama"
+name = ["ollama", "run", "qwen3:4b", "{{.Prompt}}"]
+```
+
+| | |
+|---|---|
+| a name you passed | always wins. The namer is only ever asked about a lane that has none, so `scruff new fix` and the ⌘⏎ path never start a process |
+| the shape of a name | one to three lowercase `[a-z0-9-]` words, 24 characters at most, with the repo's own name dropped. A listing already tells you which repo a lane is in |
+| an answer that is not one | **rejected whole, never cleaned up**: prose, a flag, a path, a traversal, anything non-ASCII. The output is a model's text on its way to becoming a branch name and a path, so it is not trusted |
+| anything else going wrong | the same fallback to the random pair, with a warning. No adapter file, a namer that is not installed, a run over 30 seconds. **A namer can never cost you a lane**, only its name |
+| what it costs | one model call on the create path. The built-in returns in 8 to 12 seconds, most of it the client's own start-up |
+
+## Adapters
+
+Two kinds of adapter are files you can write: [`runtime`](/docs/scruff/runtimes)
+and `namer`. Resolution is two rungs, and there is no merging:
+
+```
+1. ~/.config/scruff/adapters/<kind>/<id>.toml   — yours
+2. the built-in                                 — shipped
+```
+
+A file with the same id as a built-in shadows it **wholesale**. Merged config is
+unpredictable and undebuggable, so scruff does not do it.
+
+<Callout type="warn" title="Repo-local adapters do not exist, deliberately">
+A repo that could contribute command templates would make `git clone` plus a
+worktree create into a remote-code-execution path, so there is no `.scruff/`
+directory to put one in. Per-user adapters cover every real case.
+</Callout>
+
+### Template variables
+
+Every adapter kind and every command template gets the same set. One table to
+learn:
+
+| | |
+|---|---|
+| `{{.Path}}` | the lane's checkout path |
+| `{{.Main}}` | the main checkout's path |
+| `{{.Repo}}` | remote slug, `owner/name` |
+| `{{.Name}}` | the lane's name (the branch minus its `worktree-` prefix) |
+| `{{.Branch}}` | the full branch name |
+| `{{.Base}}` | the repo's default branch |
+| `{{.Parent}}` | the spawning pane's cwd, or empty |
+| `{{.Agent}}` | the client recorded for this lane |
+| `{{.Prompt}}` | the first-turn task, or the naming request for a namer |
+| `{{.Image}}` | an attached image's path, or empty |
+
+Templates are Go `text/template` with **no shell interpretation**: each entry is
+an argv slice, executed directly. No string splitting, no quoting bugs, and no
+injection through a branch name that contains a space.
+
+## Environment
+
+One spelling. Every variable is `SCRUFF_*`, and nothing else is read.
+
+| | |
+|---|---|
+| `SCRUFF_AGENT` | the default client, for one invocation |
+| `SCRUFF_BASE` | where checkouts live. Default `~/.cache/scruff` |
+| `SCRUFF_STATE` | where machine state lives: the occupancy leases and the reap ledger. Default `$XDG_STATE_HOME/scruff`, else `~/.local/state/scruff` |
+| `SCRUFF_OCCUPANCY` | set to `lease` to declare that every session here is one this tool spawned, so a lane nobody leased is a lane nobody is in |
+| `SCRUFF_TART_BASE` / `SCRUFF_TART_USER` | the [tart backend's](/docs/scruff/runtimes) image and guest account |
+
+`SCRUFF_STATE` **must be absolute.** A relative value is refused with a warning
+and the default used: this state is machine-global, so resolving it against the
+current directory would scatter the lease and the ledger into whatever directory
+scruff happened to run from, routinely a git checkout, where they show up as an
+untracked directory and can be swept into a `wip:` commit by `scruff park`.
+
+<Callout type="info" title="A hook's variables are spelled apart from these">
+A [seam](/docs/scruff/seams) is handed the lane as `SCRUFF_*` too, and **none of
+the above is among them**. The lane's own fields are `SCRUFF_LANE_AGENT`,
+`SCRUFF_LANE_STATE` and `SCRUFF_BASE_BRANCH`, spelled apart on purpose: a hook
+leaks its whole environment into any pane it spawns, so a field that reused one
+of these names would hand every later `scruff` in that pane its own input back.
+</Callout>
+
+## Where the checkouts live
+
+`~/.cache/scruff/<repo>/<name>`, whichever client you are, where `<repo>` is the
+**remote slug** rather than the directory's basename. Two `api` checkouts under
+different orgs are the common case, not the exotic one, and a basename cannot
+tell them apart. No remote at all still works: scruff falls back to
+`local/<basename>` and says so.
+
+The bucket directory is **cosmetic**. Every command re-derives a lane's main
+checkout from the checkout itself, so nothing ever parses identity out of a
+path.
+
+```sh
+scruff doctor                  # where the base is, and what a move would cost
+scruff doctor --migrate-base   # move it to ~/.cache/scruff
+```
+
+A base at the old `~/.cache/claude-worktrees` path keeps working indefinitely,
+so nobody who skips the migration is broken. `--migrate-base` refuses with
+**exit 2** while anything is standing in the base, re-points every checkout with
+`git worktree repair`, rewrites the registry under the same lock, and leaves the
+old path a symlink so stale absolute paths still resolve.

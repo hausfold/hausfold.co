@@ -1,0 +1,176 @@
+---
+title: Working in lanes
+description: Open a lane on this repo or another one, hand it to an agent on a first-turn task, list what you have going, and pick any of it back up later.
+icon: lanes
+related:
+  - title: "Parking work"
+    description: "The stash-free way to set a dirty tree aside, and why git stash is the wrong one."
+    href: "/docs/scruff/parking"
+    icon: "park"
+  - title: "Landing and cleanup"
+    description: "What landed means across six merge shapes, and the sweep that only ever takes finished work."
+    href: "/docs/scruff/landing"
+    icon: "landed"
+---
+
+Everything here is one of four moves: **open** a lane, **list** them, **resume**
+one, or **go to** the window one is already running in.
+
+## Open one, on this repo
+
+```sh
+cd "$(scruff new)"                 # a random two-word name
+cd "$(scruff new fix-flaky-test)"  # or your own
+```
+
+`scruff new` prints **the new checkout path and nothing else** on stdout, which
+is what makes `cd "$(…)"` work. Every diagnostic goes to stderr. It is a
+contract, not a style choice.
+
+The checkout lands **outside** the repo, at
+`~/.cache/scruff/<repo>/<name>`, on a `worktree-<name>` branch cut from the
+repo's local `HEAD`. Your own working tree never gains a directory, so no build
+tool trips over it.
+
+To hand the pane straight to an agent instead of to your shell:
+
+```sh
+scruff new fix --open              # your default client
+scruff new fix --open codex        # or name one
+scruff new fix --agent opencode    # same choice, as a flag
+scruff new fix --cmd 'nvim .'      # or something that isn't an agent at all
+```
+
+### Opening it on a task, not a blank pane
+
+```sh
+scruff new --prompt 'the bar paints draft PRs in the merged green'
+scruff new --prompt-file brief.md   # or `-` for stdin
+scruff new --prompt '…' --image screenshot.png
+```
+
+A prompt implies `--open`: the client starts on a first turn rather than an
+empty prompt. `--prompt-file` is the one to reach for when the task is a
+*brief*, which is usually a markdown list several paragraphs long. scruff puts a
+`--` before the prompt when the client supports one, because a task that starts
+with a dash is otherwise read as a flag and the pane dies before the agent
+draws.
+
+<Callout type="info" title="A lane can name itself after the task">
+Give a lane a prompt and no name, set `namer = "claude"` in the config, and it
+comes out `hud-draft-color` instead of `cozy-otter`. One line of config, no API
+key, and it can never cost you a lane. See
+[naming a lane after its task](/docs/scruff/config#naming-a-lane-after-its-task).
+</Callout>
+
+## Open one on another repo
+
+An agent working in one repo often has to change **another** one. Never a raw
+`git worktree add`: that skips the registry, so nothing downstream ever learns
+the checkout exists.
+
+```sh
+cd "$(scruff child ~/code/other-repo)"
+cd "$(scruff child ~/code/other-repo review-api)"   # named, if you like
+```
+
+`child` records the new lane as a **child of the pane you ran it from**, which
+is what lets a status bar show its PR beside the work that spawned it. It prints
+only the path, same as `new`.
+
+`spawn` is `child` for a caller with no pane of its own: a launcher, a cron job,
+an orchestrator.
+
+```sh
+scruff spawn ~/code/other-repo task-42 --prompt-file brief.md
+```
+
+The lane is opened through the [`open` seam](/docs/scruff/seams), so **exit 3**
+means the lane exists and this machine simply has no hook to put a window on it.
+Report the command scruff printed rather than retrying. With a `--prompt` and a
+namer configured, the name argument is optional.
+
+## List what you have going
+
+```sh
+scruff
+```
+
+```
+🌫  lanes you can resume (scruff <name>, or <repo>/<name>)
+  repo        name                   state  agent  last commit
+  pounce      smart-ranking          live   claude launcher: fixes from the p…
+  nebelung    sparkle                parked claude wip: auto-saved on lane close
+  haus        omit-child-lanes       live+3 claude bar: the draft PR colour
+```
+
+Every repo, in one list. The state column is `live`, `parked` or `stray`, and it
+can carry a suffix: `live+3` is [three commits past a merged
+PR](/docs/scruff/landing#when-a-lane-outran-its-pr), `~3` is the lookalike that
+wants the opposite treatment.
+
+`scruff --json` is the same listing for machines, and its shape is
+[a frozen contract](/docs/scruff/json).
+
+<Callout type="warn" title="A listing is not read-only">
+Every `scruff` and `scruff --json` also sweeps parked branches that have since
+landed. It is harmless, the invariants still hold, but don't poll it under the
+impression that you are only looking.
+</Callout>
+
+## Pick one back up
+
+The work is on the branch and the conversation is in your client's own
+transcript, so a closed window is never a dead end.
+
+```sh
+scruff sparkle              # rebuild the checkout, reopen the agent
+scruff nebelung/sparkle     # qualify when the name exists in two repos
+scruff sparkle --pick       # choose from the client's session list instead
+```
+
+A parked lane has no checkout on disk; resuming builds it back from the branch.
+scruff reopens whichever client the lane was **made** with, so a Codex lane comes
+back in Codex however your default has moved since.
+
+By default it continues the **newest conversation in that checkout**, because a
+lane's own directory is one only that lane's agent ever ran in, and offering a
+picker there asks you to answer a question with one answer. `--pick` is for when
+the newest is not the one you wanted. The exception scruff makes for itself: a
+lane spawned by `scruff child`, whose conversation lives in a shared parent
+checkout full of unrelated sessions, gets the picker, because there scruff
+genuinely cannot name the right chat.
+
+Nothing records a session id, deliberately. A recorded id goes stale the moment
+a session is forked or compacted, and it fails **silently into the wrong chat**,
+which is worse than a picker.
+
+## Go to the one that is already open
+
+```sh
+scruff focus sparkle
+```
+
+`focus` is resume's narrower sibling: the lane is already running and the only
+question is which window to raise. scruff cannot answer that on its own, because
+the join from a lane to a window belongs to whatever opened it, so this is a
+[seam](/docs/scruff/seams) a desktop fills in. Without one it falls back to
+`resume`, which opens a window: a detached lane is running, not gone.
+
+Its usual caller is not a human. On a machine with
+[trill](/docs/trill), clicking a lane's notification runs exactly this.
+
+## The two traps on day one
+
+<Callout type="warn" title="Commit something immediately">
+A brand-new lane has **zero commits of its own**, so it is trivially contained
+in the default branch and another session's `scruff reap` may take it. scruff
+reports that state as `fresh` rather than `merged`, but the checkout is still
+sweepable. Make a commit and it stops being.
+</Callout>
+
+<Callout type="info" title="A missing directory is not lost work">
+Closing a pane parks the tree and deletes the checkout. That is the design, not
+a failure: the branch is the durable half. `scruff <name>` puts the directory
+back.
+</Callout>

@@ -314,6 +314,9 @@ body:has([data-tree='perch']) {
 body:has([data-tree='trill']) {
   --accent: var(--a-trill);
 }
+body:has([data-tree='scruff']) {
+  --accent: var(--a-scruff);
+}
 
 /* A page's own declaration, last, so it beats the tree it sits in. */
 body:has([data-accent='hacker']) { --accent: var(--a-hacker); }

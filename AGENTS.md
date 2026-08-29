@@ -45,12 +45,12 @@ by hand, and open all the way down."**
 | the landing page — the house's index of what it makes | `src/app/page.tsx` |
 | what the site says about **haus**, the layer — what it is, the rooms, desktops, the one file | the docs, `content/docs/haus/index.mdx`. There is no `/haus` sheet; the URL 301s to `/docs/haus/` |
 | a **desktop's own page** | the docs, `content/docs/haus/desktops/<name>.mdx`. There is no desktops catalogue on this site — `index.mdx`'s `## Desktops` is three sentences and one link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), which is where the `/desktops` 301 lands |
-| **the docs** (`/docs/*`) | `content/docs/` — Fumadocs MDX. ⚠️ There is no `/docs` page, only the four trees under it; `/docs` 301s to `/docs/haus/` |
+| **the docs** (`/docs/*`) | `content/docs/` — Fumadocs MDX. ⚠️ There is no `/docs` page, only the trees under it; `/docs` 301s to `/docs/haus/` |
 | the install one-liner — the URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (checkout `./haus` in the workshop — **not** `./hausfold.co`, which is this repo) |
 | a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
-| a product's **documentation** | **here** — pounce, perch and trill each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
+| a product's **documentation** | **here** — pounce, perch, trill and scruff each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a family-wide standard (the agent surface, the issue forms, the drift catalogue) | `docs/` in the workshop |
 | the launch plan, or anything still to be decided | `todo/` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
@@ -244,8 +244,11 @@ the token out in prose instead of writing `--something`.
   named on a landing page, and none of the `desktops/<name>` docs pages carries
   an `accent:`. A hue hausfold keeps *at rest* would compete with nebelung's
   palette, which is the one brand asset the family shares. `scruff` and `trill`
-  have no accent assigned upstream, so teal and yellow are our pick rather than
-  nebelung's and should be reconciled if they get a row.
+  have no accent assigned upstream, so maroon and yellow are our pick rather than
+  nebelung's and should be reconciled if they get a row. 🚨 scruff's is the rose
+  `maroon` and NOT nebelung's `pink`, which `hacker` already holds and which
+  `--color-fd-error` spends in the docs; "scruff should be pink" is satisfied by
+  the value, and swapping it onto the `pink` token repaints every error callout.
 - **No motion, with one hover-only exception**: the mark's iridescent sheen
   turns while the pointer is on it, fading over 0.7s. `prefers-reduced-motion`
   holds it still — it keeps the colour and drops the turn, because the colour is
@@ -353,8 +356,8 @@ the token out in prose instead of writing `--something`.
   out loud, once, in `What we make`; everything else is silence rather than a
   promise.
 - **Links go inward.** A link moves inward on the day the inward page exists,
-  not before. What still points out of `#made` is `scruff` and `nebelung`, which
-  have no page here yet, plus GitHub. Three mechanical consequences: an internal
+  not before. What still points out of `#made` is `nebelung`, which has no page
+  here yet, plus GitHub. Three mechanical consequences: an internal
   link is a `<Link>` from `next/link` and an external one stays a plain `<a>`
   (`eslint-config-next` enforces it; ⚠️ **a `<Link>` to a route that
   doesn't exist is NOT caught** — `typedRoutes` is off, so `build`,
@@ -380,9 +383,9 @@ the token out in prose instead of writing `--something`.
 runtime, no adapter. Content is MDX in `content/docs/`; everything else is a
 thin shell in `src/`.
 
-### The trees, four of them
+### The trees, five of them
 
-`content/docs/haus/`, `pounce/`, `perch/` and `trill/` are all **root folders**
+`content/docs/haus/`, `pounce/`, `perch/`, `trill/` and `scruff/` are all **root folders**
 (`"root": true` in their `meta.json`), which Fumadocs renders as the switcher at
 the head of the sidebar. That is the site's positioning made navigable: **`haus`
 is the layer, and the rest are apps that run on it — and without it.** A page
@@ -392,8 +395,8 @@ is two pages.
 
 **Adding a tab is a positioning change, not a file.** The test is: **can a
 stranger install this without haus?** pounce is MIT and one `brew install`;
-perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix. scruff
-clears the bar and has no tree yet; nebelung (a palette) and a desktop do not
+perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix; scruff is
+one `nix run` or one `go install`. nebelung (a palette) and a desktop do not
 clear it at all.
 
 > 🚨 **`trill` is a tab that was admitted WITHOUT clearing that bar** — it is
@@ -410,8 +413,9 @@ clear it at all.
 >
 > ⚠️ **Whether the tab clears the bar is the user's call and nobody has made
 > it.** Until they do: **don't grow the tree past that page**, and don't read
-> any of this as lowering the bar for a fifth tab. Keeping the callout accurate
-> is a correction; deciding the tab is not.
+> any of this as lowering the bar for the next tab. (scruff's tree, the fifth,
+> is not that precedent: it cleared the install test on its own.) Keeping the
+> callout accurate is a correction; deciding the tab is not.
 
 **A new tree owes four things**, each easy to forget separately: an entry in
 `content/docs/meta.json`'s `pages`; a `meta.json` of its own with `"root":
@@ -530,7 +534,7 @@ product's accent (`data-hue`) has to be constructed in one place. Fumadocs'
 deliberately not used.
 
 **A hued icon holds its colour anywhere**, including inside the tree switcher's
-popover, which React portals to the end of `<body>`. That is why the four tree
+popover, which React portals to the end of `<body>`. That is why the five tree
 glyphs have hues and page glyphs don't: page glyphs are tinted by their tree,
 and the trees have to stay distinguishable side by side in one menu. **Ask which
 side of the docs an icon points at before giving it a colour** — a hued page row

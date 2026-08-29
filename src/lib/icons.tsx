@@ -3,14 +3,20 @@ import type { LucideProps } from 'lucide-react';
 import {
   Bell,
   Blocks,
+  Bookmark,
   Bot,
   Boxes,
+  Braces,
+  Cable,
+  CircleCheckBig,
   Command,
   Compass,
+  Container,
   DoorOpen,
   Download,
   Fingerprint,
   Footprints,
+  GitBranch,
   Hammer,
   Inbox,
   Keyboard,
@@ -21,9 +27,11 @@ import {
   Monitor,
   MonitorCog,
   Moon,
+  Package,
   Palette,
   PanelTop,
   RefreshCw,
+  Route,
   Share2,
   ShieldCheck,
   SlidersHorizontal,
@@ -47,7 +55,7 @@ import type { Accent } from './shared';
 // file.
 //
 // `hue` is for the icons that must hold their own colour wherever they are
-// drawn, which since 2026-08-16 is the four tree icons and nothing else: they
+// drawn, which since 2026-08-16 is the tree icons and nothing else: they
 // appear side by side in the switcher's popover, where "the current page's
 // accent" would paint them the same. (It used to cover the sidebar's outward
 // product rows too; that list is empty now — see `src/lib/layout.shared.tsx`.)
@@ -60,10 +68,10 @@ type IconSpec = {
 };
 
 const icons = {
-  // The four trees. These are the switcher's glyphs, and the one place the
-  // sidebar tells you which quarter of the docs you are in at a glance. All
-  // four carry a hue, because they sit side by side in the switcher's popover
-  // where "the current page's accent" would paint them the same.
+  // The trees. These are the switcher's glyphs, and the one place the sidebar
+  // tells you which part of the docs you are in at a glance. Every one carries
+  // a hue, because they sit side by side in the switcher's popover where "the
+  // current page's accent" would paint them the same.
   //
   // `pounce` was an outward link to /pounce until that page was retired into
   // this tree; it is the same glyph and the same hue, promoted. `perch` was
@@ -75,6 +83,10 @@ const icons = {
   pounce: { icon: Command, hue: 'pounce' },
   perch: { icon: Inbox, hue: 'perch' },
   trill: { icon: Bell, hue: 'trill' },
+  // A branch, because a lane's durable artifact IS the branch (the checkout is
+  // the disposable half), and because it is the one glyph in the switcher that
+  // says "this tree is about git" before you have read a word of it.
+  scruff: { icon: GitBranch, hue: 'scruff' },
 
   // Pages. No hue: they take the tree's.
   compass: { icon: Compass },
@@ -115,6 +127,17 @@ const icons = {
   // done, but it is already what "Create a desktop" and "Contributing" wear,
   // and three identical glyphs in one sidebar stop saying anything.
   blocks: { icon: Blocks },
+
+  // The scruff tree's pages. `compass`, `install`, `agent`, `dials` and
+  // `terminal` above already said what several of its pages are; these are the
+  // ones with nothing to borrow.
+  lanes: { icon: Route },
+  park: { icon: Bookmark },
+  landed: { icon: CircleCheckBig },
+  runtime: { icon: Container },
+  seams: { icon: Cable },
+  json: { icon: Braces },
+  sdk: { icon: Package },
 
   // The four desktops, one page each under `haus/desktops/`. All four are the
   // SAME glyph, on purpose (2026-08-16, the user's call): they sit in one

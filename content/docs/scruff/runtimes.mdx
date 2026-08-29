@@ -1,0 +1,97 @@
+---
+title: Runtimes
+description: Hand one lane to a VM or a container and take it back again. Includes tart, a headless macOS per lane, so an agent can see a desktop change work without taking the screen you are sitting at.
+icon: runtime
+related:
+  - title: "Config"
+    description: "Where adapter files live, and the template variables every one of them shares."
+    href: "/docs/scruff/config"
+    icon: "dials"
+  - title: "For coding agents"
+    description: "The skill that teaches an agent to reach for a VM before it reaches for your pointer."
+    href: "/docs/scruff/agents"
+    icon: "agent"
+---
+
+```sh
+scruff runtime up    my-lane --backend tart
+scruff runtime enter my-lane --backend tart
+scruff runtime down  my-lane --backend tart
+```
+
+A runtime backend hands **one lane** to an isolation environment, a VM or a
+container, and takes it back out again.
+
+**Nothing here is automatic.** Creating and reaping a lane never touch a
+backend, there is no default one, and `--backend <id>` is required every single
+time. A lane pays a VM's boot and disk only when somebody asks for it by name.
+`enter` replaces scruff with the session; the backend keeps running until a
+separate `down`.
+
+## tart: the one that ships built in
+
+```sh
+export SCRUFF_TART_BASE=ghcr.io/cirruslabs/macos-tahoe-base:latest   # or your own image
+scruff runtime up    my-lane --backend tart    # clone it, boot it headless, wait for an address
+scruff runtime enter my-lane --backend tart    # ssh in as $SCRUFF_TART_USER (default: admin)
+scruff runtime down  my-lane --backend tart    # stop and delete the clone
+```
+
+A lane's guest is named `scruff-<lane>`, and the lane's worktree is **shared**
+into it at `/Volumes/My Shared Files/work`. Shared, not copied, so there is one
+copy of the work and no sync step to get wrong.
+
+The guest boots `--no-graphics`, which does not mean "no UI". It runs a full
+WindowServer and draws the real interface; it just draws it to nothing.
+
+<Callout type="info" title="This is how an agent sees a change without taking your screen">
+`screencapture -x` over ssh into that guest returns **real pixels**, and
+`osascript` sends real keystrokes. So an agent that has to look at a menu bar, a
+window animation or an installer can boot a disposable macOS and drive it as
+hard as it likes, while your pointer, your focus and your desktop stay yours.
+Prefer it over asking to drive the machine you are on.
+</Callout>
+
+Two environment variables and no config file. `SCRUFF_TART_BASE` is required and
+has no default on purpose: the images are tens of gigabytes and which one you
+want is a real choice, so scruff refuses (**exit 2**) rather than pulling one you
+did not ask for. `SCRUFF_TART_USER` is the guest account, `admin` by default,
+which is what every cirruslabs base image ships.
+
+Needs [`tart`](https://tart.run) on `PATH`. Without it the verb **degrades**
+with the install command rather than failing.
+
+It is built in only because its `setup` is three commands and a wait, which one
+argv slot cannot hold. Nothing else about it is privileged: a `tart.toml` of
+your own still wins wholesale, and
+
+```sh
+scruff runtime eject tart
+```
+
+prints the built-in as an adapter file to start from.
+
+## Every other backend is a file you write
+
+```toml
+# ~/.config/scruff/adapters/runtime/apple-container.toml
+kind     = "runtime"
+id       = "apple-container"
+setup    = ["container", "run", "-d", "--name", "scruff-{{.Name}}", "-v", "{{.Path}}:/work", "IMAGE"]
+enter    = ["container", "exec", "-it", "scruff-{{.Name}}", "bash"]
+teardown = ["container", "rm", "-f", "scruff-{{.Name}}"]
+```
+
+Each value is an **argv slice, not a command line**. It is executed directly,
+with no shell in the way, so a branch name with a space in it is one argument
+rather than a quoting bug. The `{{…}}` variables are
+[the set every adapter shares](/docs/scruff/config#template-variables).
+
+## Four failures worth telling apart
+
+| | |
+|---|---|
+| no such adapter file | **2**, refused, naming the path it looked for. `tart` is the one id that falls back to a built-in instead |
+| `--backend tart` with no `SCRUFF_TART_BASE` | **2**, refused, naming the image to pull |
+| the backend's own binary is not on `PATH` | **3**, degraded. Install it and the same command works |
+| the backend ran and exited non-zero | **1**. It attempted the thing and failed at it: a VM that already exists, a full disk, a bad image |

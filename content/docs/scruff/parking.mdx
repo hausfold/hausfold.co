@@ -1,0 +1,73 @@
+---
+title: Parking work
+description: Set a dirty tree aside as one wip commit on the branch only this pane has checked out. The reason git stash is the wrong tool the moment you have two agents.
+icon: park
+related:
+  - title: "Landing and cleanup"
+    description: "The sweep that only takes finished work, the ledger behind it, and how to get a branch back."
+    href: "/docs/scruff/landing"
+    icon: "landed"
+  - title: "Hooks and seams"
+    description: "preserve is the seam that decides whether a dirty tree needs a wip commit at all."
+    href: "/docs/scruff/seams"
+    icon: "seams"
+---
+
+```sh
+scruff park "mid-refactor on the retry logic"
+scruff unpark
+```
+
+`park` commits **the whole dirty tree** (tracked edits, untracked files,
+deletions) as a single `wip:` commit on the branch only this pane has checked
+out. `unpark` rewinds that commit and puts the changes back, uncommitted.
+
+That is the same thing the pane-close hook does, so a lane you close mid-thought
+is a lane you can resume mid-thought. Doing it on demand is for the other case:
+you need a clean tree for a minute, and you want it back.
+
+## Never `git stash`, once you have two agents
+
+This is the single most valuable thing scruff does, and it is worth being blunt
+about why.
+
+`git stash` looks like it belongs to the checkout you are standing in. **It does
+not.** The stash is one ref in the repo's shared `.git` directory, so every
+worktree of a repo *and* the main checkout push and pop the **same stack**. Two
+agents stashing at once means either can pop the other's work into a tree that
+has never seen those files. `stash@{1}` is no safer: it is positional, and the
+position moved when somebody else pushed.
+
+A park has none of that surface. It is a commit, on one branch, that one pane has
+checked out. Nobody else can pop it, and `scruff` lists the result as a
+resumable lane rather than as a numbered entry in a shared pile.
+
+## What it will and will not sweep in
+
+**Ignored files are never included.** A `.gitignore`d secret stays ignored, so
+parking cannot smuggle one into history. Everything else in the tree goes.
+
+<Callout type="warn" title="unpark will not rewrite what you have pushed">
+If the `wip:` commit is already on the remote (it is visible in an open PR),
+`unpark` refuses. Rewinding it locally would turn a file restore into a
+force-push, and by design that is a thing `unpark` can never become. It prints
+the escape hatch (`git reset --mixed HEAD^`) and leaves the commit alone.
+</Callout>
+
+Parking on a branch that is not an agent branch works, and says so: a `wip:`
+commit should not drift onto something you push.
+
+## Where parking happens without you asking
+
+Every destructive path parks first. That is invariant 1, and it is what makes
+the rest of scruff safe to automate:
+
+| | |
+|---|---|
+| a pane closes on unlanded work | the tree is parked, the checkout goes, the branch stays |
+| `scruff reap` meets a dirty lane | it **keeps** it and names what is in the way. An automatic sweep may only ever take *finished* work, so it never parks and sweeps in one motion |
+| `scruff drop` meets a dirty lane | it refuses with **exit 2** and tells you to park first. Dropping is deliberate, so it asks rather than deciding for you |
+
+The decision "does this dirty tree actually need a commit?" is the
+[`preserve` seam](/docs/scruff/seams#the-shipped-seams). The built-in answer is
+*yes, unless it is untracked scratch on a branch that already landed*.

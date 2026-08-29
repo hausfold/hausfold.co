@@ -1,0 +1,133 @@
+---
+title: The JSON API
+description: One envelope for the snapshot, one NDJSON stream for the changes, and the five traps that have caught every consumer so far.
+icon: json
+related:
+  - title: "SDKs"
+    description: "Five languages over this exact wire format, sharing one version number."
+    href: "/docs/scruff/sdks"
+    icon: "sdk"
+  - title: "Hooks and seams"
+    description: "The other machine surface: replacing one of scruff's decisions with a program."
+    href: "/docs/scruff/seams"
+    icon: "seams"
+---
+
+```sh
+scruff --json          # a snapshot. Same bytes as `scruff list --json`
+scruff watch --json    # the changes, one NDJSON object per line
+```
+
+## The envelope
+
+```json
+{ "scruff": "1.3.0", "schema": 2, "warnings": [], "lanes": [ … ] }
+```
+
+`scruff` is the version, `schema` the payload version. Check `schema` rather
+than sniffing for fields.
+
+Each lane:
+
+| Field | Meaning |
+|---|---|
+| `name` | the lane's name |
+| `repo` / `main` | the repo's remote slug, and the main checkout's path |
+| `branch` | the full branch name |
+| `path` | the checkout path on disk. **Empty once parked** |
+| `parent` | the pane that spawned it via `scruff child`, or `""` |
+| `agent` | the client: `claude`, `codex`, `opencode`, `pi` |
+| `state` | `live`, `parked` or `stray`. A closed set |
+| `occupied` / `dirty` | nullable. **`null` means undetermined, not false** |
+| `occupied_by` | the evidence behind `occupied: true`: `[{pid, command, path, via}]`, `via` being `lsof` or `leases`. Absent entirely when nothing holds the lane |
+| `landed` | `{verdict, via, confidence}`. See [the four verdicts](/docs/scruff/landing#the-four-verdicts) |
+| `post_merge_ahead` | `{commits, pr, diverged}`: work done after the PR merged |
+| `last_commit` | the most recent commit's subject |
+
+## The five traps
+
+<Callout type="warn" title="null is not false">
+`occupied` and `dirty` are **three-state**. `null` means scruff could not
+determine it: no `lsof`, no forge, a cache miss. Reading it as falsy is how you
+tell somebody a lane is clean when scruff had no idea, and it is the single most
+common way to get this payload wrong.
+</Callout>
+
+- **`state` and `landed.verdict` are closed sets.** Additions are a minor
+  version, removals a major one, and an unknown value must resolve to the safe
+  direction: an unrecognised `verdict` or `via` is **not landed**.
+- **`landed.verdict: "fresh"` is not `yes`.** It means the branch has never
+  carried a commit of its own. Render it as *nothing yet*, never as *merged*.
+- **`warnings` is the only place a degraded run explains itself.** Under
+  `--json` the human-readable notes are suppressed, so a consumer that ignores
+  `warnings` will silently report a partial sweep as a complete one.
+- **`occupied` says a process is standing there, not that a pane is.** A dev
+  server or an orphaned daemon holds a lane exactly as hard as a live agent.
+  Read `occupied_by` before telling somebody to go and close a window that may
+  not exist.
+- **`post_merge_ahead.pr` is a plain int**, and absent is `0`, never `null`.
+  `diverged` is what separates "committed after the merge" (reshippable, `+N`)
+  from "this tip never built on what merged" (stale or sideways, `~N`).
+
+<Callout type="warn" title="A listing is not read-only">
+`scruff` and `scruff --json` also sweep landed parked branches on the way past.
+Harmless, and the invariants still hold, but don't poll it thinking you are only
+looking.
+</Callout>
+
+## The stream
+
+```sh
+scruff watch --json
+```
+
+One JSON object per line. A `hello` header first, then one `sync` per lane
+already alive, then `ready`, then the changes as they happen:
+
+```json
+{"kind":"hello","seq":0,"scruff":"1.3.0","schema":2,"capabilities":["registry"]}
+{"kind":"sync","seq":1,"ts":"…","source":"registry","lane":{…}}
+{"kind":"ready","seq":2}
+{"kind":"created","seq":3,"ts":"…","source":"registry","lane":{…}}
+```
+
+`kind` is `sync`, `ready`, `created`, `parked`, `resumed`, `reaped`, `changed`
+or `warning`, and it is a closed set on the same terms as the others: **treat an
+unknown kind as noise, not as an error.** `seq` is monotonic across the whole
+stream, `hello` included, so a consumer fanning this out over its own transport
+can detect a dropped line without scruff knowing anything about that transport.
+`lane` carries the exact same shape `--json` uses, so one schema serves the
+snapshot and the stream alike.
+
+### Landedness is not on the stream
+
+`landed` and `post_merge_ahead` change at the forge, and nothing local fires
+when a PR merges, so they are deliberately not events: a consumer that wants
+them **polls `--json`** at a cadence it can afford. Everything else is a
+registry mutation and arrives at once (`parked` has a local rescan timer behind
+it, because an unlanded pane closing never touches the registry).
+
+If that ever changes you will not have to guess: every event carries `source`
+(`"registry"` today, `"forge"` reserved) and `hello` carries `capabilities`, so
+you can ask the stream what it can ever send.
+
+## What is frozen
+
+Four things are versioned and breaking-change-gated, because downstreams pin
+them within a day: the **registry schema**, this **`--json` output**, the **hook
+protocol**, and the **exit codes**. So are the user-facing command names and
+flags. Changing one is a semver major conversation, not a refactor.
+
+Field **additions** are non-breaking, which means the other half of the deal is
+yours: **ignore unknown keys.**
+
+## The registry is local, and stays local
+
+Two things follow from that, and both bite a consumer rather than scruff. The
+rows hold **absolute paths on one machine**, so a lane is not meaningful on a
+different box: don't ship one across. And mutation takes an exclusive lock, so
+two writers meet **exit 5** rather than losing an update.
+
+Pointing `SCRUFF_STATE` at a network share does not make scruff distributed, it
+makes the lock a lie. A remote transport speaking this same protocol is a
+different question, and an open one.
