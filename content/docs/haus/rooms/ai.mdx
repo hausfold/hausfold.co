@@ -466,12 +466,18 @@ does not uninstall it — haus never deletes from that array. Run
 `pi remove <source>` once and it will not come back.
 
 pi does that fetch by spawning `npm` at startup, so haus puts one on **pi's**
-PATH and nowhere else, taken from the very node it already runs pi with. Your
-shells still have no npm, and this is not a route to `pi install` — that stays
-imperative and outside nix. The fetch does want network on the first start
-after a rebuild, and a source pi cannot install is an error in pi rather than a
-package it skips; `PI_OFFLINE=1` is pi's own escape hatch if you would rather
-have a missing extension than a stopped client.
+PATH, taken from the very node it already runs pi with. It is **appended**, not
+prefixed, and that is the part worth knowing: pi has a shell tool, so anything
+a pi lane runs inherits that PATH, and a node in front would shadow the
+homebrew, fnm or volta one your project pins. Appended it is a floor — it
+answers pi where you have no npm at all, and loses to your own toolchain
+wherever you have one. Your interactive shells are untouched either way, and
+none of it is a route to `pi install`, which stays imperative and outside nix.
+
+The fetch does want network on the first start after a rebuild, and a source pi
+cannot install is an error in pi rather than a package it skips; `PI_OFFLINE=1`
+is pi's own escape hatch if you would rather have a missing extension than a
+stopped client.
 
 haus writes none of pi's other files: `models.json` (which provider, which
 key) and `trust.json` are yours. `trust.json` is also why the banners
