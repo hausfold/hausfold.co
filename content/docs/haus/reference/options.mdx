@@ -7004,6 +7004,29 @@ starts after a rebuild, and pi runs an extension's code in its own
 process. That is the same trust you extend to the client itself, but it
 is a second decision and this option is where you make it.
 
+pi does that fetch itself, by spawning `npm` at startup — so haus puts
+one on pi's PATH (`modules/lib/agent-packages.nix`), taking it from the
+very node nixpkgs already runs pi with. Without it pi does not warn and
+carry on: it dies on an uncaught `spawn npm ENOENT` before drawing
+anything, which made these four defaults fatal on a machine that never
+had npm. None of it is a route to `pi install`, which stays imperative
+and outside nix.
+
+It is APPENDED to pi's PATH, not prefixed, and that is what keeps it
+safe to do. pi has a shell tool, so every command a pi lane runs
+inherits that PATH — prefixed, this node would shadow a homebrew, fnm
+or volta one, and an agent working in a repo pinned to another version
+would silently get haus's. Appended, it is a floor: it answers pi where
+nothing else would, and loses to your own toolchain wherever you have
+one. Your interactive shells are untouched either way.
+
+The fetch still needs network on that first start, and a source pi
+cannot install — a typo, a 404, an offline machine — is an uncaught
+error in pi rather than a skipped package. `PI_OFFLINE=1` in the
+environment is pi's own escape hatch: it makes a missing package a
+silently absent one instead of a dead client, at the price of never
+installing anything.
+
 Host-only, and this is the one leaf in the room where that matters
 most: a shared desktop naming a package here would be shipping code
 that runs on your machine inside a file you read as data.
