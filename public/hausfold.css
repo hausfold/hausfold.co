@@ -620,6 +620,19 @@ body {
   max-width: 62ch;
 }
 
+/* Emphasis inside a block, and the one place on the landing half that
+   actually gets heavier. `.lede strong` does the opposite — it DE-weights
+   to 400 and lifts the colour, because the lede is already the page's
+   largest type and weight there would shout. Down here the prose sits at
+   --ink-2, so a phrase that has to stand out needs both: 600, which is
+   `.block h3`'s weight and the heaviest thing this page draws, and --ink.
+   Named rather than left to the UA's `bolder`, which resolves to 700 and
+   would be heavier than any heading above it. */
+.block strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
 /* The fragment target. A jump to one skips .sheet's whole top padding, so
    without this the heading arrives flush against the top edge of the
    viewport. Not the sheet's full padding: a fragment SHOULD sit higher than
