@@ -274,6 +274,16 @@ OpenCode's config, and so on), and those files are yours: haus writes your
 instructions and the `haus` skill into each client's home and stops there. This
 room's job ends at "the port answers".
 
+One thing it does add, and only to traffic you have already pointed here: pi's
+extension stamps pi's own session id on every request that already says
+`x-meridian-agent: pi`. Without it meridian never goes looking for a session to
+resume, so it replays the whole conversation each turn instead of sending the
+new one (measured across one three-message exchange: 4,414 cache-write tokens
+and none read, against 116 written and 4,312 read with the header). It points
+nothing at the proxy; it stops a client that already talks to it from buying
+the same context twice. `HAUS_PI_SESSION_AFFINITY=0` in the environment turns
+it off.
+
 ### The one sign-in
 
 meridian has no credential of its own — it re-uses the OAuth token Claude Code
@@ -454,7 +464,7 @@ Code's, so two panes side by side are the same shape) and `quietStartup`.
 Two are **seeded once** and never argued with again — `hideThinkingBlock` and
 `modelThinkingLevels` — because pi lets you change both from its own
 `/settings` mid-session, and a rebuild that reverted what you just chose would
-be the rice overruling you.
+be the desktop overruling you.
 
 And `packages` is **unioned**: `haus.ai.pi.packages` is added beside whatever
 `pi install` put there. It defaults to four — sub-agents, a todo list, a way to
