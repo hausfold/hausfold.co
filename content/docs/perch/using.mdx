@@ -42,7 +42,7 @@ originals are only ever read.
 |---|---|
 | **Right-click** | **Add to Perch Shelf** sits under **Services** in Finder's context menu, with nothing to enable, and in any other app's Services menu for a selection or a link. perch doesn't have to be running: the Service starts it |
 | **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed |
-| **Your iPhone** | [**Perch Companion**](https://apps.apple.com/app/id6799443735), free on the App Store, once you've [paired it](/docs/perch/install). Its Share sheet sends over your network, or peer-to-peer with no network at all, and the phone can pull shelf items back down too |
+| **Your iPhone** | [**Perch Companion**](https://apps.apple.com/app/id6799443735), free on the App Store, once you've [paired it](/docs/perch/install#5-the-phone-half). Its Share sheet sends over your network, or peer-to-peer with no network at all, and the phone can pull shelf items back down too |
 | **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. Screenshots have their own switch in that pane: **Shelf my screenshots** opens the folder panel already pointed at wherever this Mac saves captures, so you don't have to know |
 
 ### What a watched folder counts as new
@@ -121,9 +121,9 @@ wants a second click, and the menu bar's *Clear Shelf…* raises an alert.
 | | |
 |---|---|
 | **Discard items after** | *Never*, until you say otherwise. Turn it on and the shelf empties itself after a set time; pinned items stay |
-| **Every display** | On by default: each screen gets its own shelf at the notch. Off keeps it to your main display |
-| **Launch at login** | perch comes back in the menu bar after a restart: no window, no Dock icon |
-| **Devices** | The iPhone listener and the **Pair a Device…** button. Off tears the listener down; pairings are remembered for when it comes back |
+| **Show a drop target on every display** | On by default: each screen gets its own shelf at the notch. Off keeps it to your main display |
+| **Launch Perch at login** | perch comes back in the menu bar after a restart: no window, no Dock icon |
+| **iPhone & iPad** | The phone listener and the **Pair a Device…** button. Off tears the listener down; pairings are remembered for when it comes back |
 | **Check for new releases** | An hourly look at perch's own release tag, and the only thing it ever sends to the internet. Off means it never checks again |
 
 Every one of those switches is a line in a file rather than a hidden `defaults`
