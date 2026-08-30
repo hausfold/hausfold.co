@@ -176,8 +176,8 @@ export default function Home() {
           <p>
             haus is the machinery; the rest run on it, and run just as well on a Mac that has never
             heard of it. All small, all native, and each keeps its settings in a plain file you can
-            read and hand to an agent. Every one is free and open source: no account, no
-            subscription, nothing to buy, nothing you can&apos;t take with you.
+            read and <strong>hand to an agent</strong>. Every one is free and open source: no
+            account, no subscription, nothing to buy, nothing you can&apos;t take with you.
           </p>
           <ul className="index" role="list">
             {/* No data-accent, and it is the one row that couldn't have one:
