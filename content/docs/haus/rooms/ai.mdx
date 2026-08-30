@@ -465,6 +465,14 @@ for a pi with nothing but its built-in tools. Removing an entry from the list
 does not uninstall it — haus never deletes from that array. Run
 `pi remove <source>` once and it will not come back.
 
+pi does that fetch by spawning `npm` at startup, so haus puts one on **pi's**
+PATH and nowhere else, taken from the very node it already runs pi with. Your
+shells still have no npm, and this is not a route to `pi install` — that stays
+imperative and outside nix. The fetch does want network on the first start
+after a rebuild, and a source pi cannot install is an error in pi rather than a
+package it skips; `PI_OFFLINE=1` is pi's own escape hatch if you would rather
+have a missing extension than a stopped client.
+
 haus writes none of pi's other files: `models.json` (which provider, which
 key) and `trust.json` are yours. `trust.json` is also why the banners
 deliberately say nothing about pi's *trust dialog*: pi asks its extensions
