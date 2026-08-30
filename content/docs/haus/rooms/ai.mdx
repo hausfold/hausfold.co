@@ -418,13 +418,14 @@ that out at pane close, by losing a lane's parking.
 </Callout>
 
 <Callout type="info" title="What haus writes into `~/.pi/agent/extensions/`">
-pi has no hook file, so its whole wiring is one extension haus writes,
-`haus-agent-state.ts`. Being pi's one seam, it carries both halves at once: the
+pi has no hook file, so its wiring is extensions haus writes. The first,
+`haus-agent-state.ts`, carries both halves of the status at once: the
 four states above, **and** the same [trill](/docs/trill) lane banners Claude
 Code gets from a second hook. It hands `scruff hook notify` the same payload, so
 a pi lane's banner is keyed, clickable and taken back down by the identical code
 path: an **ask** when it blocks on you, a **done** when it finishes its turn,
-and both cleared when you answer.
+and both cleared when you answer. The second, `haus-desktop-guard.ts`, is
+pi's half of [the screen guard below](#the-screen-belongs-to-you).
 
 "Blocked on you" needs a definition here that it doesn't need elsewhere: pi has
 no permission modes and so no permission prompt. The stand-in is a tool whose
@@ -530,11 +531,12 @@ something just does it, while you are typing into something else. With several
 lanes running that lands as random focus theft, and no amount of prompt wording
 makes it never happen.
 
-**`agent-desktop-guard`** is the counterweight: a `PreToolUse` hook haus
-declares beside the worktree ones. It is **not** a blocklist: the only verdict
-it can return is *ask*. It re-opens the permission prompt for one thin slice of
-tool calls and returns no opinion on everything else, so auto-mode is untouched
-wherever it was already fine. Driving a GUI you asked for, recording a demo,
+**`agent-desktop-guard`** is the counterweight: one ruleset, reached two ways —
+a `PreToolUse` hook haus declares beside the worktree ones on Claude Code, and
+the `haus-desktop-guard.ts` extension on pi. It is **not** a blocklist: every
+verdict is a question, and every question has an Allow on it. It puts one thin
+slice of tool calls back in front of a human and returns no opinion on
+everything else, so auto-mode is untouched wherever it was already fine. Driving a GUI you asked for, recording a demo,
 rebuilding when you said to: all still there, one keypress away.
 
 The line it draws is not *is this dangerous*. It is:
@@ -574,21 +576,37 @@ for `-g` when you need something **running**, and for a VM when you need to
 **see** it.
 </Callout>
 
-The hook has a written counterpart, and it is opt-in: **if you set
+<Callout type="info" title="On pi, the question is a button on the banner">
+Claude Code has a permission prompt to re-open, so that is where its half of
+the guard puts the question. pi has none — no permission modes, no prompt, no
+sandbox — so its half raises a [trill](/docs/trill) **ask** with Allow and Deny
+pills *and* a dialog in the pane, at the same time. Whichever you answer first
+decides, and the other comes down.
+
+That matters because a lane has its own window precisely so nobody has to watch
+it. A question you can only answer by finding the pane is a lane parked until
+you go looking; a banner is one click from wherever you are, and an unanswered
+one parks on the screen edge rather than dropping. Only pi's half can **block**
+— Deny means the command does not run, and the agent is told to hand the step
+back to you rather than find another way round.
+</Callout>
+
+The guard has a written counterpart, and it is opt-in: **if you set
 [`ai.instructions`](/docs/haus/reference/options#ai)**, haus prepends a short
 **screen etiquette** section to the file every client reads: prefer looking to
 touching, never foreground an app just to see it (and don't expect `open -g` to
 show it to you either), hand feel-tests back to the
 person at the keyboard. Leave that option empty (the default) and haus writes no
-instructions file at all, so you get the hook and none of the prose. The
-etiquette is what keeps the hook from firing; the hook is what catches the times
-it doesn't.
+instructions file at all, so you get the guard and none of the prose. The
+etiquette is what keeps the guard from firing; the guard is what catches the
+times it doesn't.
 
 <Callout type="tip" title="Turning it off for one pane">
 `HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there, for a
 long unattended run where forty prompts is the problem. It mirrors bench's
-`BENCH_AGENT_SWITCH=1`: a reminder, not a jail. Only Claude Code gets the hook: the one client haus
-hangs one on; the etiquette text, when you have any, goes to all of them.
+`BENCH_AGENT_SWITCH=1`: a reminder, not a jail, and one variable for both
+clients. Claude Code and pi are the two that get the guard; the etiquette text,
+when you have any, goes to all of them.
 </Callout>
 
 ### A VM, so it doesn't have to be your screen
