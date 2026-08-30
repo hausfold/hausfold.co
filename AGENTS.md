@@ -664,11 +664,18 @@ CI, by what a PR touches:
   byte-reproducible today (`generateBuildId` in `next.config.mjs` is what makes
   it so), and without the check the day a Next or Fumadocs release introduces a
   timestamp is a day nothing tells you about. It also asserts `out/api/search`
-  isn't empty. ⚠️ **It has gone red once, intermittently**, on the ~2 MB
-  `reference/options` page; six cold builds locally were identical, so it is a
-  flake nobody has named. **Don't "fix" it by loosening the comparison** — the
-  step prints per-file sizes and 320 bytes around the first differing byte, so
-  the next occurrence names the cause.
+  isn't empty. **Don't "fix" a red diff by loosening the comparison** — the step
+  prints per-file sizes and 320 bytes around the first differing byte, and that
+  is what named the one cause it has ever caught. It was **not** a clock, a
+  random id or a path, which is what the step's own error message guesses:
+  Shiki caps tokenising at **500ms per line** by default, and a line that blows
+  the budget is returned half-scanned, rendering coarser rather than failing.
+  `src/lib/source.ts` sets `tokenizeTimeLimit: 0`; the comment there has the
+  whole account. 🚨 **The check is not a safety net for that class of bug** —
+  it only fires when the two builds disagree, so two builds that both run slow
+  degrade identically, pass, and deploy. An earlier red on the ~2 MB
+  `reference/options` page was never diagnosed and may or may not be the same
+  thing.
 - **Worker** (`worker.yml`, on `worker.js` `test/` or either wrangler config):
   `npm test`, plus a check that both wrangler configs name the same `main`, the
   same `ASSETS` binding and `run_worker_first = true`. Those three catch one

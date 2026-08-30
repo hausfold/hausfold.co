@@ -76,6 +76,35 @@ const docs = defineDocs({
         themes: { light: nebelungCssVars },
         defaultColor: 'light',
         defaultLanguage: 'text',
+        // 🚨 No guillotine on the tokenizer. Shiki defaults this to 500ms PER
+        // LINE, and vscode-textmate's `_tokenizeString` checks it against a
+        // wall clock: blow the budget and it returns what it has so far and
+        // stops scanning that line. The rest of the line keeps whatever scope
+        // was open, so the code still renders — just coarser. `const scruff =
+        // new ScruffClient();` comes out as `const` plus one undifferentiated
+        // run, and `for (const lane of …)` loses everything after `lane`.
+        // Nothing throws, nothing is logged, and the page looks plausible
+        // unless you know the palette.
+        //
+        // Which makes it a clock in the build output, and that is what the two
+        // cold builds in `docs.yml` kept catching: the same page, three
+        // different tokenizations across four runs, red about half the time.
+        // It never reproduces on an idle Mac. It needs a loaded 4-core runner
+        // with nine Next workers on it, tokenizing a grammar whose regexes are
+        // being compiled for the first time. `scruff/sdks` was always the
+        // victim because it holds the corpus's only `ts` blocks: `nix` and
+        // `sh` are warm from hundreds of fences by the time anything competes
+        // for a core.
+        //
+        // ⚠️ The failure it produced is worse than a red check, because the
+        // check only fires when the two builds disagree. Two builds that both
+        // run slow degrade the same way, pass, and deploy. Whichever
+        // tokenization a deploy happened to get is what visitors saw.
+        //
+        // 0 means unlimited. A slow line now takes as long as it takes and
+        // always produces the same bytes, which is the only property this
+        // build actually needs from it.
+        tokenizeTimeLimit: 0,
       },
     }),
     postprocess: {
