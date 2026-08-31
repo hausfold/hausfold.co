@@ -2022,7 +2022,7 @@ The shell and terminal experience.
 
 <div className="hf-optindex">
 
-[`editor`](#haus-terminal-editor) [`editorName`](#haus-terminal-editorname) [`floatBorder`](#haus-terminal-floatborder) [`ghDash.enable`](#haus-terminal-ghdash-enable) [`hijackFileAssociations`](#haus-terminal-hijackfileassociations) [`obsidianVaults`](#haus-terminal-obsidianvaults) [`restoreWindows`](#haus-terminal-restorewindows)
+[`editor`](#haus-terminal-editor) [`editorName`](#haus-terminal-editorname) [`floatBorder`](#haus-terminal-floatborder) [`floatOnTop`](#haus-terminal-floatontop) [`ghDash.enable`](#haus-terminal-ghdash-enable) [`hijackFileAssociations`](#haus-terminal-hijackfileassociations) [`obsidianVaults`](#haus-terminal-obsidianvaults) [`restoreWindows`](#haus-terminal-restorewindows)
 
 </div>
 
@@ -2108,6 +2108,47 @@ JankyBorders. Switch it with
 first, without a rebuild, outline any window by hand (the process name is
 lower-case — `pgrep -x Ghostty` matches nothing and rings nothing):
 `~/.config/haus/term/float-term.sh ring "$(pgrep -x ghostty | head -1)" '#cba6f7'`
+
+</details>
+
+<small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
+
+#### `haus.terminal.floatOnTop` [#haus-terminal-floatontop]
+
+`boolean` · default `true` · e.g. `false`
+
+Whether every floating terminal `float-term.sh` spawns — the ⌘Y yazi
+peek panel, ⌘G's gh-dash, the bar's agent peek, the palette's Rebuild
+System / Install App / Settings windows — stays above the tiled windows
+behind it, whatever you click next.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.terminal.floatOnTop</span></summary>
+
+`floating` in AeroSpace is a LAYOUT, not a stacking order: it keeps a
+window out of the tiling tree and says nothing about what is drawn on
+top of what. So without this, clicking any tiled window buries the popup
+you just summoned, and the only way back to it is Mission Control.
+
+Off restores that: popups open in front and then sink like ordinary
+windows.
+
+It works by setting the window's LEVEL — the same mechanism that makes a
+panel float above every app — which nothing outside the owning process
+can do. haus can therefore only pin the popups it spawns ITSELF; a
+floating FaceTime or System Settings window is beyond it. That is a
+macOS limit rather than a missing option: see
+modules/terminal/floatpin.swift for the measurements, including why
+raising the window instead does not work.
+
+The ask is an Apple event to the popup's own Ghostty process, so macOS
+gates it behind an Automation grant for whatever SPAWNED the popup, not
+for haus: Pounce for the chords and palette windows, and SketchyBar for
+the bar's agent peek, which summons its own. Both are one card in `haus
+permissions`. Decline either and those popups still open, still float
+and still take focus without waiting — they just sink like ordinary
+windows again.
 
 </details>
 
@@ -6892,6 +6933,14 @@ haus does not point anything at it. The file that tells a client to use
 the proxy is that client's own (`~/.pi/agent/models.json`,
 `~/.config/opencode/…`) and haus writes none of them — see the AI room's
 `clientScopeNote`. This room's job ends at "the port answers".
+
+One thing haus does add to traffic you have already pointed here: pi's
+extension stamps `x-session-affinity` on requests that already carry
+`x-meridian-agent: pi`, without which meridian replays the whole
+conversation every turn instead of resuming its SDK session — see
+`modules/terminal/pi/agent-state.ts`. It never makes a client address
+this proxy; it only stops one that already does from paying for every
+cache write twice. `HAUS_PI_SESSION_AFFINITY=0` turns it off.
 
 </details>
 
