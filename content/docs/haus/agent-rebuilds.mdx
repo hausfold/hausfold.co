@@ -152,6 +152,19 @@ doctor`'s **Permissions** section says whether this app has it.
 painted into the apps haus themes rather than into macOS, so it always applies.
 </Callout>
 
+## When the rebuild fails anyway
+
+The loop above assumes the agent is already in front of you. When a rebuild you
+ran yourself fails, haus offers the same help the other way round: rows under
+the error, or a **Fix it** notification if you have walked off, both running
+`haus fix` — one agent turn over the failing phase, the error and what changed
+in your config since the last good rebuild.
+
+It obeys everything on this page. It never activates, it works only in
+`~/.config/nix`, and its whole change is one commit, so `git -C ~/.config/nix
+revert HEAD` puts it back. See
+[When a rebuild fails](/docs/haus/reference/haus#when-a-rebuild-fails).
+
 ## What a rollback doesn't undo
 
 `haus rollback` rewinds everything Nix manages, instantly. It does **not** rewind

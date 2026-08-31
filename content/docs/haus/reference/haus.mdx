@@ -26,6 +26,7 @@ For the day-to-day shape of it, see
 | Command | What it does |
 |---|---|
 | `haus rebuild` | Build, then switch. Your everyday apply; a failed build never touches the running system. |
+| `haus fix` | Hand the rebuild that just failed to a coding agent. Needs [the AI room](/docs/haus/rooms/ai); see below. |
 | `haus update` | Move the haus pin in `~/.config/nix/flake.lock` forward, upgrade the family's Homebrew apps, then rebuild. |
 | `haus rollback [N]` | Return to the previous generation, or to generation `N`. |
 | `haus generations` | List the generations you can roll back to. |
@@ -425,6 +426,45 @@ HAUS_CONSUMER="$(git rev-parse --show-toplevel)" haus plan
 ```
 </Callout>
 
+## When a rebuild fails
+
+A rebuild that fails leaves you holding a Nix trace and a machine that did not
+change. If [the AI room](/docs/haus/rooms/ai) is on, haus offers to read that
+trace for you: rows under the error if you are sitting at the terminal, and a
+notification you can answer later if you have already walked away — one button,
+**Fix it**. That button runs `haus fix`, and so can you.
+
+```sh
+haus fix              # fix the rebuild that just failed
+haus fix --dry-run    # print what the agent would be told, and run nothing
+```
+
+It gives the client `haus.ai.default` names one turn in `~/.config/nix`, with
+the failing phase, the error, what changed in your config since the last good
+rebuild, and the haus revision you are pinned to. Then it checks the answer
+itself — the config has to evaluate again — and tells you which of three things
+happened: fixed, nothing changed, or still broken. The transcript is
+`~/.local/state/haus/fix.log`.
+
+Two things it will not do:
+
+- **It never activates.** Applying the fix is `haus rebuild`, and that stays
+  yours to run. The agent is told the same, in as many words.
+- **It never runs where there is no undo.** The agent works with its permission
+  prompts off, because the offer is meant to be answerable from a notification
+  when nobody is watching the terminal. What bounds it instead is that it works
+  in `~/.config/nix` and nowhere else, and leaves its whole change as one
+  commit:
+
+  ```sh
+  git -C ~/.config/nix revert HEAD    # undo everything it did
+  ```
+
+  So if `~/.config/nix` is not a git repository the offer is never made, and
+  `haus fix` refuses: there would be nothing to revert.
+
+`HAUS_NO_FIX=1` turns the offer off for a rebuild without turning the room off.
+
 ## The one rebuild it refuses
 
 If your host file writes `system.defaults.universalaccess.*` directly, `haus
@@ -470,4 +510,6 @@ a failed activation's message are both plain text by default.
 
 `haus` is the only command an end user needs. One more arrives with the room
 that wants it: `haus.ai.enable` brings **`scruff`**
-([the AI room](/docs/haus/rooms/ai)), agent worktrees for any repo.
+([the AI room](/docs/haus/rooms/ai)), agent worktrees for any repo. That room is
+also what puts `haus fix` on this list — without it, a failed rebuild prints its
+error and stops, exactly as it always did.
