@@ -21,7 +21,7 @@ the same surface, grouped by what you are trying to do.
 | | |
 |---|---|
 | `scruff` | list every live and parked lane, across all repos |
-| `scruff <name>` | resume one: rebuild its checkout, reopen its agent. `<repo>/<name>` to qualify · `--pick` to choose the session instead of the newest |
+| `scruff <name>` | resume one: rebuild its checkout, reopen its agent. `<repo>/<name>` to qualify · a **unique prefix of either part** works, so the name you can read off the listing resolves even where it cut the cell · `--pick` to choose the session instead of the newest |
 | `scruff focus <name>` | go to the window a lane is already running in. Falls back to resume without a `focus` hook |
 | `scruff new [name]` | a lane on **this** repo, path on stdout · `--open [agent]` / `--agent <id>` / `--cmd '<command>'` |
 | `… --prompt '<task>'` | open it on a first turn instead of a blank pane · `--prompt-file <file\|->` for a brief · `--image <file>` |
