@@ -405,7 +405,7 @@ wire**, and haus deliberately leaves them alone.
 The **worktree** hooks that Claude Code's own `--worktree` flag fires:
 `WorktreeCreate` and `WorktreeRemove`, pointing at `scruff hook create` /
 `scruff hook remove`; the **`PreToolUse`** hook that runs
-[`agent-desktop-guard`](#the-screen-belongs-to-you); one `scruff hook notify`
+[`agent-desktop-ask`](#the-screen-belongs-to-you); one `scruff hook notify`
 entry appended to **`Notification`** and **`Stop`**, which raises a
 [trill](/docs/trill) banner when a lane blocks on you or finishes; plus the
 statusline, `permissions.defaultMode` and a few TUI keys. It merges into the
@@ -576,20 +576,6 @@ for `-g` when you need something **running**, and for a VM when you need to
 **see** it.
 </Callout>
 
-<Callout type="info" title="On pi, the question is a button on the banner">
-Claude Code has a permission prompt to re-open, so that is where its half of
-the guard puts the question. pi has none — no permission modes, no prompt, no
-sandbox — so its half raises a [trill](/docs/trill) **ask** with Allow and Deny
-pills *and* a dialog in the pane, at the same time. Whichever you answer first
-decides, and the other comes down.
-
-That matters because a lane has its own window precisely so nobody has to watch
-it. A question you can only answer by finding the pane is a lane parked until
-you go looking; a banner is one click from wherever you are, and an unanswered
-one parks on the screen edge rather than dropping. Only pi's half can **block**
-— Deny means the command does not run, and the agent is told to hand the step
-back to you rather than find another way round.
-</Callout>
 
 The guard has a written counterpart, and it is opt-in: **if you set
 [`ai.instructions`](/docs/haus/reference/options#ai)**, haus prepends a short
