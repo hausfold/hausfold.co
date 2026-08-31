@@ -376,6 +376,34 @@ The lookalike, **`~3`**, wants the opposite treatment and `reship` refuses it;
 [that distinction](/docs/scruff/landing#when-a-lane-outran-its-pr) is worth
 reading once before you meet it.
 
+## When a rebuild fails
+
+This room is also what makes a broken `haus rebuild` recoverable without you
+reading the trace. A failed rebuild leaves the phase it died in, the error and
+the derivation on disk, then puts one offer in front of you — `gum` rows under
+the error if you are sitting at the terminal, a **Fix it** notification if you
+have already walked away. The notification survives you closing the window it
+failed in, which is the point: an error nobody is looking at is exactly the one
+worth handing off.
+
+The button runs `haus fix`, and so can you. It gives the client
+`haus.ai.default` names one turn in `~/.config/nix` — the failing phase, the
+error, what changed since the last good rebuild, the haus revision you pin —
+and then checks the answer itself rather than believing it, because an agent
+reporting success onto a config that still does not evaluate is the one failure
+that would make the feature worse than no feature.
+
+The agent runs with its permission prompts off, and the reason is the shape of
+the offer rather than a taste for danger: it starts from a notification, so
+there is nobody there to answer a prompt. What bounds it is the working
+directory and the commit — it works in `~/.config/nix` and nowhere else, and
+`git -C ~/.config/nix revert HEAD` undoes all of it. That is also why a
+`~/.config/nix` that is not a git repository never gets the offer at all.
+
+It never activates. Applying the fix is `haus rebuild`, and that stays yours.
+[The haus CLI](/docs/haus/reference/haus#when-a-rebuild-fails) has the full
+command; `HAUS_NO_FIX=1` turns the offer off without turning this room off.
+
 ## Knowing which agent needs you
 
 Run eight agents at once and the question is always the same one: which of them
@@ -695,6 +723,12 @@ this one.
 | `scruff child <repo>` | A lane on another repo, as a child of this pane |
 | `scruff reap` / `reaped` | Sweep every landed lane, and the ledger that undoes one |
 | `scruff reship [name]` | The PR merged and the branch kept going: push it, open the follow-up PR |
+
+One verb of the `haus` CLI arrives with this room too:
+
+| Command | What it does |
+|---|---|
+| `haus fix` | Hand the rebuild that just failed to a coding agent — one turn, one commit, no activation |
 
 Every verb and flag, and what each exit code means, is
 [Commands](/docs/scruff/cli).
