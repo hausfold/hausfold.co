@@ -485,8 +485,9 @@ function renderOption(option) {
 
 // The namespace's own contents, as one line of links under its blurb. It is
 // what the table of contents used to be: with every option in the sidebar
-// the rail was one row per option and wrapped `haus.apps.videoPlayer.enable`
-// across three lines, which is a list nobody reads. The TOC now stops at the
+// the rail was one row per option and wrapped
+// `haus.security.touchId.passwordlessRebuild` across three lines, which is a
+// list nobody reads. The TOC now stops at the
 // namespace (`maxHeadingLevel: 3` in the frontmatter, honoured by the docs
 // page), and the leaf names live here instead — beside the prose they point
 // into, short because the namespace is already named above them.

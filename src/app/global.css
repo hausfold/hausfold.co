@@ -1203,7 +1203,7 @@ figure.shiki button:hover {
 /* Each namespace's own index, under its blurb: every option it owns, by
    leaf name, as a row of links. It is what the "On this page" rail used to
    try to be and couldn't — one row per option, wrapping
-   `haus.apps.videoPlayer.enable` over three lines. The rail now stops at the namespace
+   `haus.security.touchId.passwordlessRebuild` over three lines. The rail now stops at the namespace
    (`tableOfContents.maxHeadingLevel` in the page's frontmatter, read in
    `src/app/docs/[[...slug]]/page.tsx`) and the leaves live here, beside
    the prose they point into and short because the namespace is named
