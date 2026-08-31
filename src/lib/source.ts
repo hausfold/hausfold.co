@@ -32,8 +32,8 @@ const docs = defineDocs({
       //
       // It exists for one page and would be wrong on any other: a reference
       // rendered from a module system has one h4 per option, and 318 of them
-      // made a rail that wrapped `haus.apps.videoPlayer.enable` over three
-      // lines and reached nothing a reader could aim at. Stopping at the
+      // made a rail that wrapped `haus.security.touchId.passwordlessRebuild`
+      // over three lines and reached nothing a reader could aim at. Stopping at the
       // namespace gives back a list you can read; the leaf names live beside
       // the prose instead, as each namespace's own index of links.
       //

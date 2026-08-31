@@ -37,7 +37,6 @@ The Apps room is always present: the roster is a list, and an empty one is a
 machine with nothing extra on it. What you switch on are the curated extras:
 
 ```nix
-haus.apps.videoPlayer.enable = true;   # IINA, and the file types it claims
 haus.apps.vscode.enable = true;        # Visual Studio Code
 haus.apps.cursor.enable = true;        # Cursor
 haus.apps.zed.enable = true;           # Zed
@@ -202,16 +201,18 @@ A handful of apps arrive because haus *chose* them for you rather than because a
 room needs them; those live in `haus.apps`, each behind one switch:
 
 ```nix
-haus.apps.videoPlayer.enable = false;          # don't install IINA
-haus.apps.videoPlayer.claimFileTypes = false;  # install it, rebind nothing
 haus.apps.vscode.enable = true;                # install VS Code as a cask
+haus.apps.packs.writing.enable = true;         # a whole saved collection
 ```
 
 What it installs is an ordinary roster entry, so you can key it like any other.
-File-type claims are the same user default Finder's *Get Info ▸ Change All*
-writes, so nothing there is hard to undo. But **only one haus-owned app may
-claim a type**, or macOS asks you to pick a winner on every rebuild. If you add
-an extension to one list, check it against the other by UTI, not by spelling.
+None of them claims a file type: the only thing haus binds is the opt-in editor
+hijack ([`haus.terminal.hijackFileAssociations`](/docs/haus/reference/options#haus-terminal-hijackfileassociations)),
+and it stays the only one on purpose. **Two haus-owned apps claiming one type
+never settles.** Both claims re-run on every activation, and macOS stops to ask
+you which app wins, every rebuild, forever. If a second list ever appears, check
+the two against each other by UTI, not by spelling: one UTI can carry several
+extensions.
 
 `vscode`, `cursor` and `zed` install as casks rather than from nixpkgs, on
 purpose: it's the source [`haus.homebrew.adopt`](/docs/haus/desktops/customizing#homebrew-behaviour)

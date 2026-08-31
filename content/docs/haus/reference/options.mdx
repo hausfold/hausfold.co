@@ -59,7 +59,7 @@ before a desktop is evaluated.
 
 ## Apps
 
-The apps a finished machine has: the curated picks, the packs that switch a whole set on in one line, the file types they claim, App Store policy, and what a rebuild does to anything you installed by hand. The list they all land in is `haus.roster`, a shared surface below.
+The apps a finished machine has: the curated picks, the packs that switch a whole set on in one line, App Store policy, and what a rebuild does to anything you installed by hand. The list they all land in is `haus.roster`, a shared surface below.
 
 ### haus.appStore
 
@@ -96,11 +96,11 @@ is already running as root, so it neither prompts nor wedges.
 
 ### haus.apps
 
-The apps haus picks for you, the saved collections you can switch on in one line, and the file types they claim — the ones a finished machine has rather than the ones a room needs to work. Each is one switch you can turn off; what it installs is a roster entry like any other, so you can retune or replace it by app id.
+The apps haus picks for you and the saved collections you can switch on in one line — the ones a finished machine has rather than the ones a room needs to work. Each is one switch you can turn off; what it installs is a roster entry like any other, so you can retune or replace it by app id.
 
 <div className="hf-optindex">
 
-[`cursor.enable`](#haus-apps-cursor-enable) [`packs.writing.enable`](#haus-apps-packs-writing-enable) [`videoPlayer.claimFileTypes`](#haus-apps-videoplayer-claimfiletypes) [`videoPlayer.enable`](#haus-apps-videoplayer-enable) [`vscode.enable`](#haus-apps-vscode-enable) [`zed.enable`](#haus-apps-zed-enable)
+[`cursor.enable`](#haus-apps-cursor-enable) [`packs.writing.enable`](#haus-apps-packs-writing-enable) [`vscode.enable`](#haus-apps-vscode-enable) [`zed.enable`](#haus-apps-zed-enable)
 
 </div>
 
@@ -139,72 +139,6 @@ workspace — a workspace names its own members, so give one to Obsidian
 in your host with `haus.workspaces`. The file is
 `modules/apps/packs/writing.nix`, and it is readable data: four casks
 and the keys to reach them.
-
-</details>
-
-<small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
-
-#### `haus.apps.videoPlayer.claimFileTypes` [#haus-apps-videoplayer-claimfiletypes]
-
-`boolean` · default `true`
-
-Make IINA the default handler for the everyday video extensions —
-mp4, m4v, mov, mpg, mpeg, mkv, webm, avi, wmv, flv, 3gp, ogv, vob —
-so double-clicking a video opens IINA instead of QuickTime Player, TV
-or a browser. Ignored unless the player is installed.
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.apps.videoPlayer.claimFileTypes</span></summary>
-
-A short list on purpose: it covers what you actually double-click,
-not everything IINA can decode. Dead, professional and DRM'd
-containers (qt, divx, asf, f4v, 3g2, ogm, rm, rmvb, mxf, dv, …) are
-left alone — they still play via Open With, they just don't get the
-default, and every extension haus claims is a binding it
-re-asserts on every rebuild.
-
-Video only. Audio (mp3, flac, m4a, wav, …), `.gif` and playlists
-keep whatever owns them today, since "open videos in IINA" rarely
-means "and my music library too". The transport-stream extensions
-`.ts`, `.mts` and `.m2ts` are excluded too: on a developer's machine
-they are TypeScript far more often than video, and
-`haus.terminal.hijackFileAssociations` claims them for the editor.
-Claiming them here as well made macOS stop and ask which app should
-win on every single rebuild, because `.mts` and `.m2ts` share one
-UTI.
-
-This sets the USER default (via `duti`) — the same record Finder's
-Get Info ▸ Change All writes, so it is undoable by hand. Set false to
-install the app and leave every association alone.
-
-</details>
-
-<small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
-
-#### `haus.apps.videoPlayer.enable` [#haus-apps-videoplayer-enable]
-
-`boolean` · default `false`
-
-Install IINA — haus's video player — as the roster entry `iina`.
-A nixpkgs build, so it lands in ~/Applications/Home Manager Apps
-rather than /Applications.
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.apps.videoPlayer.enable</span></summary>
-
-The hacker desktop turns this on, because macOS ships QuickTime
-Player, which refuses most of what you actually double-click (mkv,
-webm, and anything not in Apple's codec list) — so "a video player
-that plays videos" is part of what that desktop considers a finished
-machine. The bare layer installs nothing you didn't ask for.
-
-Set false and nothing is installed or rebound — bring your own
-player via the palette's "Install App" command or a roster
-entry. Once on it is a roster entry like any other: give it a leader
-letter with `haus.roster.iina.key`, or pin a different build
-with `haus.roster.iina.package`.
 
 </details>
 
