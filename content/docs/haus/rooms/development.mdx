@@ -313,6 +313,43 @@ window's corner curve, so a dark terminal on a dark window still has an edge:
 haus.terminal.floatBorder = "accent";  # the default; also "grey", any accent name, or "off"
 ```
 
+They also stay above the tiled windows behind them, whatever you click next.
+Floating in a tiler is a *layout* — it keeps a window out of the tiling tree and
+says nothing about what is drawn over what — so without this, the peek panel you
+just summoned disappears behind the first window you click, and Mission Control
+is the only way back to it:
+
+```nix
+haus.terminal.floatOnTop = true;  # the default
+```
+
+This works by raising the window's *level*, which only the app that owns a window
+can do. haus can therefore pin the terminals it summons itself and nothing else —
+a floating FaceTime or System Settings window is beyond it, and that is a macOS
+limit rather than a missing setting.
+
+macOS also gates the request behind an **Automation** grant, booked against
+whichever app summoned the popup rather than against haus: Pounce for the chords
+and the palette's own windows, and SketchyBar for the bar's agent peek, which
+summons its own. It asks the first time;   ✓ Xcode Command Line Tools
+  ✓ Accessibility — pounce
+  ⓘ Screen Recording — pounce — Copy Text from Screen and Spawn Agent's screenshot both run macOS's own area capture from the palette, and macOS books that against Pounce. It asks on the first capture; this card is for putting the grant back if that dialog was dismissed. Without it: captures quietly come back wallpaper-only — Copy Text always finds no text, the agent screenshot shows an empty desktop
+  ✗ Secret values — 1 this Mac's rooms asked for — Some rooms need a value haus cannot know or invent: a webhook's shared secret, a token for an account that is yours. Each room declared what it needs and why; the values themselves are entered once, into the store `haus.secrets.provider` names (keyring), and never land in a file this machine builds. Without it: the receiver refuses to start, so deliveries go nowhere and every surface that watches GitHub keeps polling
+     wanted: GITHUB_WEBHOOK_SECRET
+  ⓘ Accessibility — Espanso — Text expansion works by watching what you type and typing the replacement back. macOS calls both halves Accessibility, and there is no other route to either. Without it: no snippet ever fires, and Espanso puts up its own warning window instead
+  ✓ Sign in to Claude — meridian
+  ⓘ Calendar — the calendar pill — The calendar pill reads your events. macOS asks for this the first time the pill runs; every one of them degrades rather than breaking if you say no. Without it: the pill still draws, and the part of it that needs this stays empty
+  ⓘ Accessibility — the focus pill — The focus pill reads or drives another app's interface. macOS asks for this the first time the pill runs; every one of them degrades rather than breaking if you say no. Without it: the pill still draws, and the part of it that needs this stays empty
+  ⓘ Accessibility — the media pill — The media pill reads or drives another app's interface. macOS asks for this the first time the pill runs; every one of them degrades rather than breaking if you say no. Without it: the pill still draws, and the part of it that needs this stays empty
+  ⓘ Automation — the media pill — The media pill asks another app a question through AppleScript. macOS asks for this the first time the pill runs; every one of them degrades rather than breaking if you say no. Without it: the pill still draws, and the part of it that needs this stays empty
+  ✓ Webhook — GitHub
+  ✓ Tunnel — cloudflared
+  ⓘ Theme — the ports that need a click — Some apps only read their theme from their own settings, so haus put the file where they look and cannot choose it for them. One pick each, once. Without it: those apps stay on their stock colours while everything around them is themed
+     Slack — not installed — copy the comma-separated hex string → Slack ▸ Preferences ▸ Themes ▸ paste (rendered at /nix/store/jhw88pscy7a27igws1qd5q6rwpd9p8wj-nebelung-themes-1.0.0/slack/README.md)
+     Xcode — placed at ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Catppuccin Mocha.xccolortheme — pick it in the app's settings has the card if you
+dismissed it. Declined, those popups still open in front and still take focus —
+they just sink like ordinary windows again.
+
 ## Git aliases
 
 Plain zsh, no framework, and a finite set of shortcuts. The names follow the
