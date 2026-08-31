@@ -66,15 +66,17 @@ haus.shelf.watchScreenshots = true;  # the default wherever the shelf is on
 ```
 
 Screenshots are the thing people most want the shelf to catch by itself, and
-the hardest to set up — perch watches folders you hand it in a panel, and a
-sandboxed app is never told where macOS saves captures. This machine knows, so
-it says: the folder goes into `~/.config/perch/config.json`, and perch's
-**Shelf my screenshots** switch opens its folder panel already pointed there.
-One click grants it; nothing else can, because the grant *is* the click.
+the finding-out used to be the hard part — perch only watches folders you hand
+it in a panel. It reads macOS's own setting now, so it already knows which
+folder to offer: Settings ▸ Watched Folders names it, and one click opens the
+panel pointed straight at it. That click is still the grant, and nothing else
+can be, because knowing where a folder is isn't being given it.
 
-haus only knows the folder when it owns the setting
-(`haus.screenshots.location`). Leave that unset and perch falls back to the
-Desktop, which is macOS's own answer and right on most Macs.
+This option's remaining job is to say the same thing a second way: when this
+machine owns the setting (`haus.screenshots.location`) the folder also goes
+into `~/.config/perch/config.json`, which is what perch falls back to if macOS
+is silent. Silent on both counts means the Desktop, which is macOS's own answer
+and right on most Macs.
 
 The same option turns the floating screenshot thumbnail off
 (`haus.screenshots.thumbnail`, at `mkDefault` — name it in your host to put it
