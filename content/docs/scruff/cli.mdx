@@ -21,12 +21,19 @@ the same surface, grouped by what you are trying to do.
 | | |
 |---|---|
 | `scruff` | list every live and parked lane, across all repos |
-| `scruff <name>` | resume one: rebuild its checkout, reopen its agent. `<repo>/<name>` to qualify · a **unique prefix of either part** works, so the name you can read off the listing resolves even where it cut the cell · `--pick` to choose the session instead of the newest |
+| `scruff <name>` | resume one: rebuild its checkout, reopen its agent. `<repo>/<name>` to qualify · `--pick` to choose the session instead of the newest |
 | `scruff focus <name>` | go to the window a lane is already running in. Falls back to resume without a `focus` hook |
 | `scruff new [name]` | a lane on **this** repo, path on stdout · `--open [agent]` / `--agent <id>` / `--cmd '<command>'` |
 | `… --prompt '<task>'` | open it on a first turn instead of a blank pane · `--prompt-file <file\|->` for a brief · `--image <file>` |
 | `scruff child <repo>` | a lane on **another** repo, as a child of this pane |
 | `scruff spawn <repo> <name>` | a named lane for a spawner with no pane of its own. Opened through `[hooks] open`, so **exit 3** means the lane exists and nothing put a window on it. `<name>` is optional with a `--prompt` and a namer configured |
+
+**Type what the listing shows.** Every verb that takes a lane name
+(`scruff <name>`, `focus`, `drop`, `reship`, `runtime up|enter|down`) resolves
+it the same way: exact first, then a **unique prefix** of either part. The listing
+budgets its cells to your window, so a long name arrives cut; paste the cut cell
+back, ellipsis and all, and it still resolves. A prefix matching more than one
+lane refuses, and names them.
 
 ## The tree
 
