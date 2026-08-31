@@ -549,7 +549,10 @@ that run on another machine, so `ssh admin@vm 'haus rebuild'` is silent while
 the same words typed at your own shell are not. It is quote-aware — `ssh h 'a;
 b'` is one remote segment, not a remote one and a local `b` — and anything it
 cannot classify counts as local, so the failure mode is one extra prompt rather
-than a missed one.
+than a missed one. Wrappers are peeled for the same reason: `bash -c 'killall
+Dock'`, `sudo killall WindowServer` and `nohup open -a Ghostty` are read as the
+commands they wrap, so putting a gated one inside a shell is not a way round
+the question.
 
 | Silent: no prompt | Asks first |
 |---|---|
