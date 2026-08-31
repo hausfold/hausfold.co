@@ -440,6 +440,12 @@ stranger can finish, then the detail; a `<Cards>` pair at the foot instead of a
 bare "see also"; and the prev/next pair the layout renders. **No page should end
 without a door out of it.** Length still costs.
 
+**Behavior a reader would already expect gets zero words.** If a feature does
+what anyone would assume — closing the last window on a page lands you on its
+sibling — writing it down is noise; document only what would surprise. These
+docs are still overweight: an edit should leave its page shorter unless it adds
+a fact a reader acts on, or a warning.
+
 ⚠️ **Don't put a *count* of the rooms on a page.** `content/docs/haus/index.mdx`
 says thirteen and lists thirteen; `meta.json`'s `---Rooms---` group holds
 fourteen entries and always will hold more, because the last is `rooms/creating`
