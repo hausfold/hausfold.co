@@ -43,7 +43,7 @@ originals are only ever read.
 | **Right-click** | **Add to Perch Shelf** sits under **Services** in Finder's context menu, with nothing to enable, and in any other app's Services menu for a selection or a link. perch doesn't have to be running: the Service starts it |
 | **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed |
 | **Your iPhone** | [**Perch Companion**](https://apps.apple.com/app/id6799443735), free on the App Store, once you've [paired it](/docs/perch/install#5-the-phone-half). Its Share sheet sends over your network, or peer-to-peer with no network at all, and the phone can pull shelf items back down too |
-| **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. Screenshots have their own switch in that pane: **Shelf my screenshots** opens the folder panel already pointed at wherever this Mac saves captures, so you don't have to know |
+| **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. perch reads where this Mac saves screenshots and offers that folder at the top of the pane, so the one most people want is one click |
 
 ### What a watched folder counts as new
 
@@ -59,12 +59,14 @@ Renaming doesn't: the tile you already have is that file, whatever it is called
 now. Dragging an item *out* of the shelf into a watched folder doesn't put it
 back either; perch recognises what it just wrote.
 
-**Shelf my screenshots** is the same thing with the finding-out done for you: it
-opens the folder panel already pointed at wherever this Mac saves captures.
-perch cannot simply read that setting, because a sandboxed app is not shown
-another app's preferences and cannot grant itself the folder, so the click *is*
-the permission. Switching it back off takes that folder out of the watched list
-altogether, grant and all.
+**perch knows where your screenshots go**, and offers that folder at the top of
+the pane by name — including on a Mac that saves them somewhere other than the
+Desktop. One click opens the folder panel already pointed at it, and the offer
+goes away once you've taken it. The click is still the permission: knowing where
+a folder is isn't being given it, so the panel is what actually hands it over.
+
+What you get is an ordinary watched folder. Nothing treats it differently
+afterwards, and **Stop Watching** on its own row is the only way it leaves.
 
 <Callout type="warn" title="Turn the floating screenshot thumbnail off too">
 It doesn't preview a saved file, it *holds* the capture and writes it out about
