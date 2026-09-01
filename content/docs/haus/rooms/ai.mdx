@@ -468,9 +468,9 @@ pi's half of [the screen guard below](#the-screen-belongs-to-you).
 "Blocked on you" needs a definition here that it doesn't need elsewhere: pi has
 no permission modes and so no permission prompt. The stand-in is a tool whose
 execution *is* a question (`ask_user_question`, one of the four packages below),
-which also makes the banner cheaper to take down than Claude Code's answer, where
-every gated tool call holds on the pane's own permission prompt — one you have to
-walk to the pane to give.
+which also puts the Allow/Deny on the trill banner, answerable by one click
+from anywhere; Claude Code needs no stand-in — a gated call re-opens its own
+permission prompt, right in the pane.
 
 Two pi events have no Claude counterpart and get a banner of their own, each
 with its own `source` so you can silence one in `rules.json` without the other:
