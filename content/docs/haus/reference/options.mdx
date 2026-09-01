@@ -524,6 +524,12 @@ neutral ramp, same calmed accents, the other polarity. Light mode lands at
 7.0:1 for body text on its own, so it's legible before you reach for
 contrast = "high" (which takes it to 9.9:1).
 
+An enum rather than a place to supply your own colours, and that is the
+shape rather than an omission: nebelung renders each tool's port in a
+derivation, so a hand-written palette would either have to re-render all
+of them at rebuild time or reach only the tools haus injects colours into
+directly — never the ones it points at a rendered theme file.
+
 It composes with `contrast`: the two axes give four palettes, and nebelung's
 CI measures each one's contrast ratio rather than eyeballing it.
 
@@ -4896,7 +4902,7 @@ The now-playing track — auto-hides when nothing plays, dims when paused, and c
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.media</span></summary>
 
-The title scrolls for a few seconds after a track changes and then settles, so nothing moves in the corner of your eye forever; hovering brings the full title back. Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.bar.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
+Nothing moves in the corner of your eye on its own — a long title clips rather than scrolls, and hovering the pill is what sweeps it once, start to finish (`haus.bar.media.marquee`, which `haus.appearance.reduceMotion` turns off). Gestures: left click the dropdown, RIGHT click play/pause, ⌥ next, ⇧ previous, ⌘ jump to whatever is making the noise, scroll to seek ±10s. That ⌘ click reaches the browser TAB, not just the browser: the track's title is matched against the open tabs through Safari's and Chromium's AppleScript tab APIs, and on a Firefox fork (Zen among them) — which expose no tab list at all, neither to AppleScript nor to accessibility — through Firefox's own open-tab search in the address bar. Both routes ask for a permission the first time they run, Automation for the scriptable browsers and Accessibility for the Firefox forks, and both quietly fall back to just fronting the app if you say no. The dropdown carries the cover when the source published one, a scrubbable position slider, and transport rows — plus, for a source with no cover, a small app-icon badge floating in its bottom-right corner. It reads the same system-wide session Control Center does, so it follows a browser tab as readily as Apple Music or Spotify, and its icon says what KIND of thing is playing: an app it recognises gets that app's glyph, a browser gets video or music depending on whether an album was published. It cannot say which SITE — no URL reaches the now-playing session and none of window titles, artwork shape or the session's pid can recover one, so a wrong YouTube glyph on a Netflix tab is a guess this deliberately doesn't make; `haus.bar.media.icons` is the override for a machine that knows better. SketchyBar's own `media_change` event has been dead since macOS 15.4, where Apple started requiring an entitlement to talk to `mediaremoted`; the pill is fed instead by `media-control`, which does the read from inside the entitled `/usr/bin/perl`. That is a private-framework route Apple could close in any point release — `media-control test` exits non-zero once it has.
 
 </details>
 
@@ -6700,6 +6706,9 @@ correct.
 `boolean` · default `false`
 
 The AI room: coding-agent *tooling*. `scruff` (agent worktrees),
+`factory` (merge the pull requests a filter you typed can vouch for,
+while nobody is watching — its policy and its merge lease are
+machine-local files, never options here),
 `agent-state` (the status writer behind the `agents` bar pill),
 the agent-worktree statusline, `tart` and the adapter that drives it
 (SPEC.md §5.5 — `scruff runtime up|enter|down --backend tart` stands a
@@ -6880,7 +6889,11 @@ extension stamps `x-session-affinity` on requests that already carry
 conversation every turn instead of resuming its SDK session — see
 `modules/terminal/pi/agent-state.ts`. It never makes a client address
 this proxy; it only stops one that already does from paying for every
-cache write twice. `HAUS_PI_SESSION_AFFINITY=0` turns it off.
+cache write twice. `HAUS_PI_SESSION_AFFINITY=0` turns it off. The
+resume path has a degenerate mode — a session whose cache reads stop
+growing while every turn re-writes the tail — and
+`haus-cache-watchdog.ts` banners it; `HAUS_PI_CACHE_WATCHDOG=0` turns
+the banner off.
 
 </details>
 
@@ -7081,16 +7094,22 @@ rather than `git worktree`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Three skills on any machine: `haus` (this machine's setup), and scruff's
+Six skills on any machine: `haus` (this machine's setup), scruff's
 own two — `scruff` (the lane lifecycle) and `handoff` (turning work into a
 brief a cold session can act on, ending on the clipboard or in a new
-lane). A tool whose room is OPTIONAL adds its own only when that room is
-on: `trill` (sending a notification) arrives with
-`haus.notifications.compositor`,
-because a skill for an app this Mac doesn't have is worse than none.
-That switch is about the ROOM, not about the app: `haus-notify` and the
-`trill` command find a hand-installed Trill.app at runtime whatever this
-option says, and such a machine gets no `trill` skill until the room is
+lane) — factory's two: `factory` (the merge verbs) and `nightshift`
+(the loop that drives them while nobody is watching) — and `nebelung`
+(this machine's exact palette, rendered from the lock rather than
+remembered). A tool whose room is OPTIONAL adds its own only when that
+room is on: `trill` (sending a notification) with
+`haus.notifications.compositor`, `pounce` (driving the command palette)
+with `haus.launcher.enable`, `perch` (putting files on the notch shelf)
+with `haus.shelf.enable` — because a skill for an app this Mac doesn't
+have is worse than none.
+Those switches are about the ROOM, not about the app: `haus-notify` and
+the `trill` command find a hand-installed Trill.app at runtime whatever
+this option says, and a machine running a hand-installed pounce, perch
+or Trill.app with the room off gets no skill for it until the room is
 switched on.
 Each tool names its own skills; haus only decides that they are
 installed.

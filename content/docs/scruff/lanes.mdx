@@ -115,9 +115,12 @@ can carry a suffix: `live+3` is [three commits past a merged
 PR](/docs/scruff/landing#when-a-lane-outran-its-pr), `~3` is the lookalike that
 wants the opposite treatment.
 
-A lane sits **under the one that spawned it**, marked `└`. It is nested rather
-than hidden: its branch and its PR are its own, closing the parent's pane does
-not reap it, and this listing is where it surfaces once that pane is gone.
+A lane in **another repo** sits under the one that spawned it, marked `└`. It is
+nested rather than hidden: its branch and its PR are its own, closing the
+parent's pane does not reap it, and this listing is where it surfaces once that
+pane is gone. A lane in the *same* repo is a sibling however it was opened. It
+has its own window and its own branch off the same main, so it draws at the top
+level rather than under whichever pane pressed the key.
 
 `scruff --json` is the same listing for machines, and its shape is
 [a frozen contract](/docs/scruff/json).
