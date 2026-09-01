@@ -230,7 +230,11 @@ setting, which is why it can appear in `haus.bar.bottom.items` below.
 ## Writing your own pill
 
 `haus.bar.items` covers the pills haus ships. A pill it doesn't ship is
-`haus.bar.widgets` (one script, run on a timer, whose output is the label):
+`haus.bar.widgets`, which comes in two sizes: a **command**, when a line of text
+is the whole pill, and a **script**, when you want the same framework haus's own
+pills are written in.
+
+### A line of text
 
 ```nix
 haus.bar.widgets.backup = {
@@ -245,6 +249,55 @@ the pill hides for that tick, which is how a widget says "no news" without
 drawing an empty box. `placement = "bottom-left"` puts it on the second bar
 instead.
 
+### A real pill
+
+When you want a dropdown, a click gesture, a graph or a colour that means
+something, write it as a **barlib widget** — one self-describing file, the same
+shape the clock, the CPU graph and the GitHub pill are written in:
+
+```bash
+#!/bin/bash
+# widget: interval   = 60
+# widget: popup      = true
+
+BAR_ITEM=pomodoro
+source "$HOME/.config/sketchybar/barlib.sh"
+
+fetch()  { emit left="12m" tone=ok; }             # gather the world
+render() { pill --icon "" --label "$left" --tone "$tone"; }   # draw it
+
+on_click() { open -a Timer; }
+
+barlib_main "$@"
+```
+
+```nix
+haus.bar.widgets.pomodoro = {
+  script = ./pomodoro.sh;         # the file above, header and all
+  style."icon.color" = "$TEAL";   # its own hue, and nothing else
+};
+```
+
+The header at the top is the wiring — how often it ticks, what it listens for,
+whether it has a dropdown — and it's read when your Mac is built, so a key that
+doesn't exist fails the build naming your file rather than quietly doing
+nothing. `fetch` gathers, `render` draws, and the runtime does the rest:
+when nothing changed since the last tick, `render` never runs and the bar hears
+nothing at all.
+
+Two things are worth knowing before you write one. Colours are **tones**, not
+hexes — `ok`, `warn`, `bad`, `dim`, `accent` — so your pill follows the theme
+the rest of the bar follows; that's why `style` above carries only the icon's
+own hue, which is identity rather than state. And your widget draws its own
+icon in `render`, so `icon` is the other tier's setting and haus says so at
+build time instead of leaving you with a glyph that never appears.
+
+The file lands at `~/.config/sketchybar/widgets/<name>.sh`, which is also how
+you debug one: run it by hand with `BAR_ITEM=<name>` in front and watch what it
+prints. The full contract — every component, every row kind, what the runtime
+promises — is [`docs/bar-framework.md`](https://github.com/hausfold/haus/blob/main/docs/bar-framework.md)
+in the haus repository.
+
 Every bundled pill is declared here too, so you can retune one by name without
 turning it off and rebuilding it yourself:
 
@@ -258,12 +311,18 @@ haus.bar.widgets.cpu.placement = "bottom-right";
 shorter names, so both spellings work and you can keep whichever reads better.
 
 Some things a widget can't do, each refused at build rather than silently: you
-can't set `command` on a bundled pill (its dropdown, click gestures and colour
-rules are written against haus's own script, so replacing half of it would leave
-you with something neither of us can reason about; write your own under a new
-name and switch that one off), you can't place a pill on the bottom bar without
+can't set `command` or `script` on a bundled pill (its dropdown, click gestures
+and colour rules are written against haus's own script, so replacing half of it
+would leave you with something neither of us can reason about; write your own
+under a new name and switch that one off), you can't set both of them on one
+widget, you can't place a pill on the bottom bar without
 `haus.bar.bottom.enable`, and the name has to be a plain word the bar can
 address: letters, digits, `_` and `-`, and not one the bar already uses.
+
+`script` and `style` are settings for **your host file**, not for a desktop you
+publish: one runs code in your session on a timer and the other is a shell
+fragment. A desktop can still place, retune and switch off every pill on the
+bar — it just can't bring one that runs something.
 
 <Callout type="info" title="Say what it will ask for">
 `permissions = [ "full-disk-access" ]` declares what macOS will prompt your
