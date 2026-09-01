@@ -414,6 +414,39 @@ It never activates. Applying the fix is `haus rebuild`, and that stays yours.
 [The haus CLI](/docs/haus/reference/haus#when-a-rebuild-fails) has the full
 command; `HAUS_NO_FIX=1` turns the offer off without turning this room off.
 
+## When GitHub goes red
+
+The same idea, one surface over: the [bar](/docs/haus/rooms/bar)'s `github`
+pill already tells you *what* is broken, and this room adds the button that
+hands it off. Open the dropdown and any row an agent can actually pick up — a
+red default branch, a pull request whose checks came back red, a pull request
+that conflicts — carries a **Fix with AI** row under it.
+
+Clicking it opens a [lane](/docs/scruff/lanes) on that repo's local checkout,
+in the background, briefed with the one thing the transcript could not recover:
+which failure you clicked on. You get a banner saying it took; after that the
+lane is a lane, reachable from its notification and from the `agents` pill.
+
+Three things it deliberately does not do:
+
+- **It never appears on "changes requested".** That is a person waiting on a
+  person, and a row you have learned an agent will jump into is a row you stop
+  reading.
+- **It never fixes anything itself.** It spawns; the lane's client runs
+  interactively in its own checkout with its own permission gate, which is
+  where the undo question belongs — unlike the rebuild fixer above, which has
+  a notification and nobody to answer a prompt.
+- **It never guesses at a repo you don't have.** The checkout is found the way
+  [Spawn Agent](#spawning-from-the-launcher) finds one — under
+  `haus.ai.repoRoots`, plus anything you have ever opened a lane on — matched
+  on its directory name and confirmed against its `origin` remote. No local
+  clone is a banner that says so, not a lane on the wrong repo.
+
+The button is absent entirely on a machine with no coding agent installed: a
+button whose binary isn't there is worse than no button. `haus.ai.default` is
+the client it spawns, falling through to whichever one is actually on `PATH`
+if that one isn't.
+
 ## Knowing which agent needs you
 
 Run eight agents at once and the question is always the same one: which of them
