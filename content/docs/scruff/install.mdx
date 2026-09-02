@@ -29,6 +29,16 @@ scruff --version
 scruff            # an empty list is a working install
 ```
 
+One more line is worth typing once, because nothing else will do it for you:
+
+```sh
+scruff skill install   # teach the agents on this machine that scruff exists
+```
+
+Without it an agent reaches for `git worktree add` and `git stash`, which is the
+one footgun scruff exists to close. It is already done on a
+[haus](/docs/haus) machine. See [agent skills](/docs/scruff/agents).
+
 ## What it needs
 
 **`git`, and that is the hard requirement.** Two more are optional and both make

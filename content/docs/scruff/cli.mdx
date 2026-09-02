@@ -77,6 +77,8 @@ lane refuses, and names them.
 |---|---|
 | `scruff doctor` | where the base lives, and what a move would cost |
 | `scruff doctor --migrate-base` | move the base to `~/.cache/scruff`. Refuses with exit 2 while any lane is occupied, repairs every checkout, leaves the old path a symlink |
+| `scruff skill [<name>]` | print an [agent skill](/docs/scruff/agents) — scruff's own, or `handoff` |
+| `scruff skill install` | write every skill into every agent client on the machine. `--client claude\|codex\|opencode\|pi` or `--dir <path>` to name one |
 | `scruff --version` | print the version |
 
 ## Exit codes

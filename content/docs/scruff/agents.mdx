@@ -63,8 +63,23 @@ spawned on an ambiguous ask would be the wrong kind of surprise.
 
 ## Installing them
 
-On Nix, the skills are their own derivation, so a machine can take them with no
-Go toolchain and no binary:
+The binary carries them, so the copy you get is always the one that shipped with
+the `scruff` you are running:
+
+```sh
+scruff skill install
+```
+
+It finds every agent client on the machine and writes
+`<skills-dir>/<name>/SKILL.md` into each. `--client claude|codex|opencode|pi`
+or `--dir <path>` names one instead. It never overwrites: a file that already
+exists and differs is your edit, and a file behind a symlink belongs to whatever
+manages that link, so both are left alone and reported — and the run exits **2**,
+scruff's "refused for safety", rather than pretending it installed. `scruff
+skill` on its own prints one to stdout, for piping somewhere it cannot reach.
+
+On Nix, the skills are *also* their own derivation, so a machine can take them
+with no Go toolchain and no binary at all:
 
 ```nix
 inputs.scruff.packages.${system}.scruff-skill
