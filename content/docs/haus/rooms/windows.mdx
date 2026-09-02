@@ -179,6 +179,7 @@ the answer.
 None of it is baked in. Three options move the whole vocabulary at once:
 
 ```nix
+haus.keys.layout    = "qwerty";     # qwerty | azerty | dvorak | colemak
 haus.keys.leader    = "caps";       # caps | alt-space | none
 haus.keys.windowNav = "alt";        # alt | ctrl-alt | cmd-alt | none
 haus.keys.palette   = "cmd-space";  # cmd-space | alt-space | ctrl-space | none
@@ -188,12 +189,60 @@ The three reasons people change them:
 
 - **Keep Caps-Lock as Caps-Lock.** `leader = "alt-space"` gives you the launcher
   without remapping the key.
-- **A non-US layout.** On many layouts `⌥`+letter is how you type an accented
-  character, so a window manager owning `⌥` makes the keyboard unusable.
-  `windowNav = "ctrl-alt"` moves every chord in one go, and the cheatsheet
-  moves with it, because both are generated from the same table.
+- **A non-US layout.** Set `layout` to the keyboard your keys are *printed* on —
+  see below. `windowNav` is a separate question: it moves every window chord off
+  `⌥` in one go, and the cheatsheet moves with it, because both are generated
+  from the same table.
 - **Mouse-first.** `leader = "none"` with `windowNav = "none"` leaves the
   keyboard entirely alone: windows still tiles, but claims no chords.
+
+## A non-US keyboard
+
+Every key name in your config — a `haus.roster` entry's letter, a workspace key,
+launch mode's own `,` `.` `/` — names a **position on a US keyboard**, because a
+position is the only thing macOS names a key by. On AZERTY the key printed `A`
+is the one a US keyboard calls `Q`, so by default it launches whatever you put
+on `q`.
+
+`haus.keys.layout = "azerty"` moves the letters onto the keys that print them.
+Measured on `com.apple.keylayout.French` with the hacker desktop: without it
+five of the twenty-six leader letters open the wrong thing (`a`↔`q`, `z`↔`w`,
+and `m` does nothing) and launch mode's `,` opens the app on `m`; with it, all
+twenty-six letters land on the key that prints them, and `⇪ ,` opens System
+Settings as the cheatsheet says.
+
+<Callout type="warn" title="Three things it cannot move">
+AeroSpace maps a key *name* to a key, with no room for a modifier, and AZERTY
+hides all three of these behind `⇧`:
+
+- **The numbered workspaces.** `1`–`4` stay on the number-row keys, which AZERTY
+  prints `&` `é` `"` `'`. Pressing the key printed `1` is `⇧`+that key — which is
+  the **throw**, so it moves the focused window to that workspace instead of
+  going there. Use the unshifted key to go.
+- **`.` (tiling cycle) and `/` (the cheatsheet)**, which stay on the keys AZERTY
+  prints `:` and `=`.
+- **`-` / `=` (resize)**, which stay on the keys AZERTY prints `)` and `-` — so
+  the key printed `-` is the one that *grows*.
+</Callout>
+
+`⌥` itself is fine on French: all ten of the characters AZERTY hides behind it
+(`{` `}` `[` `]` `|` `\` `@` `#` `~` `€`) still type with `windowNav = "alt"`
+live, under either `layout`. The five chords haus claims cost four typographic
+characters there — `≠ … ƒ Ó` on `qwerty`, `≠ ∞ ƒ •` on `azerty` — and nothing
+structural. Check your own layout against that list before reaching for
+`ctrl-alt`.
+
+`dvorak` and `colemak` hand the job to AeroSpace's own presets. Only `qwerty`
+and `azerty` have been driven end to end on a real macOS guest.
+
+One thing `layout` does not touch: the Launch Mode cheatsheet still captions
+the tiling chord `/` and the tiling-cycle key `.`, which stay on the keys AZERTY
+prints `=` and `:`. The rows above are the translation.
+
+pounce's own hotkeys — the palette, and the Ghostty-scoped chords like `⌘F` —
+still name US positions. None of the ones haus ships sits on a key AZERTY moves,
+but a hotkey you add yourself on `a`, `q`, `z`, `w` or `m` will not follow
+`layout`.
 
 `palette = "none"` stops haus taking ⌘Space from Spotlight; it's the only value
 that takes it. On a machine that already ran with it, re-enable Spotlight's
