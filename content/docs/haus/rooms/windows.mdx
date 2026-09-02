@@ -205,10 +205,11 @@ is the one a US keyboard calls `Q`, so by default it launches whatever you put
 on `q`.
 
 `haus.keys.layout = "azerty"` moves the letters onto the keys that print them.
-Measured on `com.apple.keylayout.French` with the hacker desktop: without it six
-of the twenty-six leader letters open the wrong thing (`a`↔`q`, `z`↔`w`, `m`
-does nothing, and `,` opens the app on `m`); with it, all twenty-six land on the
-key that prints them, and `⇪ ,` opens System Settings as the cheatsheet says.
+Measured on `com.apple.keylayout.French` with the hacker desktop: without it
+five of the twenty-six leader letters open the wrong thing (`a`↔`q`, `z`↔`w`,
+and `m` does nothing) and launch mode's `,` opens the app on `m`; with it, all
+twenty-six letters land on the key that prints them, and `⇪ ,` opens System
+Settings as the cheatsheet says.
 
 <Callout type="warn" title="Three things it cannot move">
 AeroSpace maps a key *name* to a key, with no room for a modifier, and AZERTY
@@ -226,12 +227,17 @@ hides all three of these behind `⇧`:
 
 `⌥` itself is fine on French: all ten of the characters AZERTY hides behind it
 (`{` `}` `[` `]` `|` `\` `@` `#` `~` `€`) still type with `windowNav = "alt"`
-live. The five chords haus claims cost `≠` `…` `ƒ` and `Ó` there and nothing
+live, under either `layout`. The five chords haus claims cost four typographic
+characters there — `≠ … ƒ Ó` on `qwerty`, `≠ ∞ ƒ •` on `azerty` — and nothing
 structural. Check your own layout against that list before reaching for
 `ctrl-alt`.
 
 `dvorak` and `colemak` hand the job to AeroSpace's own presets. Only `qwerty`
 and `azerty` have been driven end to end on a real macOS guest.
+
+One thing `layout` does not touch: the Launch Mode cheatsheet still captions
+the tiling chord `/` and the tiling-cycle key `.`, which stay on the keys AZERTY
+prints `=` and `:`. The rows above are the translation.
 
 pounce's own hotkeys — the palette, and the Ghostty-scoped chords like `⌘F` —
 still name US positions. None of the ones haus ships sits on a key AZERTY moves,
