@@ -34,7 +34,7 @@ For the day-to-day shape of it, see
 | `haus edit` | Open your host file in `$EDITOR`. |
 | `haus set <path> <value>…` | Write a machine override, type-check it, rebuild once. |
 | `haus set` | With no arguments: search every option this machine has, then pick or type the value. |
-| `haus get [path]` | Print one declared value; with no path, list your overrides. |
+| `haus get [path]` | Print one declared value; with no path, list your overrides. `--json` for the same as data. |
 | `haus unset <path>…` | Set nullable options to `null`, then rebuild once. |
 | `haus reset <path>…` | Drop overrides and inherit the value underneath again. |
 | `haus plan` | What the next rebuild would change, read-only. |
@@ -44,6 +44,8 @@ For the day-to-day shape of it, see
 | `haus options` | Refresh `hosts/<host>/options.nix` (every `haus.*` option at its default, described and commented out) from the build this machine is running. |
 | `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, every permission and click still waiting on you, your secrets, agent readiness. |
 | `haus report` | File a bug: opens haus's issue form with this Mac's details and its whole `haus doctor` report already in the diagnostics field, so the only thing left to write is what happened. When that report is too long for a link (most finished machines), the form opens empty and hands you the block to paste instead. Either way the block is printed first so you can read every line of it, and nothing is sent until you press Submit. `--print` stops there, without opening a browser. |
+| `haus skill [name]` | Print haus's own agent skill, the file that teaches a coding agent to change this Mac. With a name, one of its reference pages instead; a name it hasn't got lists the ones it has. Always the copy rendered from the revision this machine pinned, so the option names in it are the ones you have. |
+| `haus skill install` | Write that skill into every agent client on this Mac that hasn't got it. `--client claude\|codex\|opencode\|pi` for one, `--dir <path>` for somewhere else. On a normal haus machine there is nothing to do: [`haus.ai.skill`](/docs/haus/rooms/ai) already installed it, and it says so rather than failing on a permission error. |
 | `haus permissions` | Walk everything on this Mac that needs a person — one card at a time, what it is for, and a button. `--list` reports without touching anything. See below. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |

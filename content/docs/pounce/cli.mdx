@@ -39,6 +39,12 @@ pounce settings                   # open the Settings window
 pounce config print               # print the annotated config, touching nothing
 pounce config init                # write ~/.config/pounce/config.json
 
+# reading the palette
+pounce list                       # every command on this Mac, and what it declares
+pounce list --json                # the same as data
+pounce skill                      # the agent skill compiled into the binary
+pounce skill install              # write it where this Mac's agents look
+
 # housekeeping
 pounce doctor                     # diagnose a dead/slow hotkey or binding
 pounce --request-accessibility / --check-accessibility
@@ -68,12 +74,42 @@ pounce --help / --version
 | Subcommand | Purpose |
 |---|---|
 | `run <item-key>` | Run one item by the key `items` uses, for binders that own the keystroke |
+| `list [--json]` | Every command script installed on this Mac: its item key, its name, [what its header declares](/docs/pounce/writing-commands#what-a-command-says-it-will-do) it will do, its description and the file it runs, so a command can be read before it is run. TSV by default. It asks the running daemon, whose command dirs are the ones ⌘Space actually sees, and falls back to discovering them from your shell; `--json` says which happened. Installed rather than on screen: a row a `whenFile` vetoes is left out, one your `items` map hides is still listed |
+| `skill` / `skill install` | Print the [agent skill](https://github.com/hausfold/pounce/blob/main/ai/SKILL.md) compiled into the binary, or write it where this Mac's agent clients look. `--client claude\|codex\|opencode\|pi` or `--dir <path>` for one destination. It refuses rather than clobbers, and skips anything haus already filled in |
 | `settings` | Open the Settings window: panes of cards over the same table `config print` writes, and a click rewrites one line of your `config.json` |
 | `config print` / `config init` | Print the annotated config, or write one |
 | `doctor` | Report the daemon, the grant, and every binding actually armed |
 | `report [--print]` | Open Pounce's bug form with `doctor`'s whole report already in it, above the version, your macOS build, your Mac model and which install route this copy came from. `--print` writes the block and the URL to stdout and opens nothing, for a Mac you reached over ssh. There is no telemetry in Pounce, so that form is the only way anything gets back to us |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
 | `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear`. Files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
+
+## Reading it as data
+
+`--json` is on the read verbs and the write receipts around them: `list`,
+`doctor`, `config`, `config print`, `focus status`, `autostart` and every
+`drafts` verb. It is strictly additive, so a script that already parses the
+plain output keeps working: `drafts list` still prints TSV, `focus status`
+still prints a bare `on`/`off`. Every record carries sorted keys, unescaped
+slashes and a schema number.
+
+Two shapes are worth knowing. `config print --json` answers a different
+question from `config print`: the **effective** settings, every key at the
+value pounce will actually use, plus `set`, the keys your file really names, so
+"unset" and "set to the default" stop looking alike. And `doctor --json` leaves
+a fact it couldn't reach as `null` rather than `false`, because "no grant" and
+"no daemon answered" are the two things that command exists to tell apart.
+
+## Exit codes
+
+| | |
+|---|---|
+| **0** | ok |
+| **1** | nothing came back: a dismissed picker, a draft index that isn't there, an item key `run` can't resolve, an unhealthy `doctor`, a daemon that isn't running |
+| **2** | usage: a verb, subcommand or flag pounce doesn't have |
+| **3** | refused: pounce won't do it *here*. A `config.json` haus generated, a skills directory something else manages. Nothing to retry |
+
+`focus` keeps its own finer table; it predates this one, and haus's hush
+scripts read it.
 
 ## Homebrew binaries
 

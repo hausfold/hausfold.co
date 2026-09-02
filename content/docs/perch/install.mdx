@@ -134,9 +134,9 @@ Settings ▸ Updates turns the check off altogether.
 ## The terminal half
 
 Everything above is the whole app. These two are for people who want perch in a
-script.
+script or a flake.
 
-### `perch add`
+### The `perch` command
 
 The command line ships **inside** the app, at
 `Perch.app/Contents/MacOS/perch-cli`, so it is signed and notarized with it and
@@ -150,8 +150,33 @@ yourself, once:
 ln -s /Applications/Perch.app/Contents/MacOS/perch-cli /usr/local/bin/perch
 ```
 
-[Using the shelf](/docs/perch/using) has what it does with a path once it has
-one.
+Four verbs, and only the first three touch the shelf:
+
+```sh
+perch add report.pdf shot.png     # put things on it
+perch list                        # what's on it, id first
+perch rm <item-id>                # take one off
+perch doctor                      # what this Mac and this copy are
+```
+
+`rm` takes ids and never names, because two tiles can share a display name and
+no removal should have to guess. It takes pinned items too, and, like
+everything else here, it only ever deletes the copy perch staged. `--json` on
+`add`, `list`, `rm` or `doctor` gives you the whole answer as one object, which
+is what makes emptying the shelf but keeping the pins a one-liner:
+
+```sh
+perch list --json | jq -r '.items[] | select(.pinned | not) | .id' | perch rm -
+```
+
+The shelf verbs launch perch and wait if it isn't running; `--no-launch` is how
+a script says it would rather fail. `doctor` is the one verb that answers with
+no perch running, and it deliberately never starts one: its first two lines are
+exactly what the [bug form](https://github.com/hausfold/perch/issues/new/choose)
+asks you to paste. `perch skill` prints the agent skill and `perch skill
+install` places it.
+
+[Using the shelf](/docs/perch/using) has what a path does once perch has it.
 
 ### Nix
 

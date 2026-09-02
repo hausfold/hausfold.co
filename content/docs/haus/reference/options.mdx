@@ -661,6 +661,16 @@ turn haus's, so those two end up following `flavor` transitively —
 which is usually what you wanted, but it does mean `followSystemAppearance`
 stops being an independent axis on this machine.
 
+There is deliberately no option pointing the other way — no
+desktop-wide "follow the system" that every themed tool obeys. What
+can follow appearance is a tool that owns its whole WINDOW, which is
+not the same set as "a tool": a terminal that flipped on its own would
+leave bat, delta, lsd and yazi rendering the other polarity inside it,
+since those read their palette once at start and stay pinned to
+`flavor`. One switch cannot say that, so following the system stays a
+per-tool opt-in — one option on each tool that can honestly carry it.
+modules/terminal/ghostty/config holds the mechanics where they bite.
+
 </details>
 
 <small>Declared in [`modules/theme/options.nix`](https://github.com/hausfold/haus/blob/main/modules/theme/options.nix).</small>
@@ -1063,11 +1073,11 @@ worse once chosen.
 
 ### haus.fonts
 
-The machine's type. One mono family drives the terminal AND the bar — the bar stopped keeping a hardcoded font of its own, though it keeps its own tuned sizes. The proportional family is one label's: the clock pill, when it opts out of mono.
+The machine's type. One mono family drives the terminal AND the bar — the bar stopped keeping a hardcoded font of its own, though it keeps its own tuned sizes. One proportional family drives everything else haus draws: the clock pill when it opts out of mono, and the text in pounce, perch and trill.
 
 <div className="hf-optindex">
 
-[`mono.baseSize`](#haus-fonts-mono-basesize) [`mono.name`](#haus-fonts-mono-name) [`mono.package`](#haus-fonts-mono-package) [`mono.packageName`](#haus-fonts-mono-packagename) [`mono.size`](#haus-fonts-mono-size) [`sans.name`](#haus-fonts-sans-name)
+[`mono.baseSize`](#haus-fonts-mono-basesize) [`mono.name`](#haus-fonts-mono-name) [`mono.package`](#haus-fonts-mono-package) [`mono.packageName`](#haus-fonts-mono-packagename) [`mono.size`](#haus-fonts-mono-size) [`sans.name`](#haus-fonts-sans-name) [`sans.package`](#haus-fonts-sans-package) [`sans.packageName`](#haus-fonts-sans-packagename)
 
 </div>
 
@@ -1175,30 +1185,76 @@ instead of dumping them all at the bottom), so any size is safe now —
 
 `string` · default `".AppleSystemUIFont"` · e.g. `"Atkinson Hyperlegible"`
 
-The proportional family the clock pill draws its date and time in.
-It applies only when `haus.bar.clock.monoFont` is false, and that pill
-is the whole of this layer's proportional type: everything else it
-draws — the terminal, every other pill, the wallpaper — is mono, and
-names `haus.fonts.mono` instead.
+The proportional family this layer's own surfaces draw in: the clock
+pill's date and time (when `haus.bar.clock.monoFont` is false), and
+the text in pounce, perch and trill — the launcher and its rows, the
+notch shelf, every notification banner and all three settings
+windows.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.fonts.sans.name</span></summary>
 
-The default is macOS's own system UI font, whose zero has no dot and is
-easier to tell from an 8 at a glance. That legibility is the entire
-reason the clock has an opt-out, so the default is also the answer for
-almost everybody.
+The default is macOS's own system UI font, whose zero has no dot and
+is easier to tell from an 8 at a glance. That legibility is the
+entire reason the clock has an opt-out, so the default is also the
+answer for almost everybody.
 
 Two things this does NOT do, both worth knowing before you set it.
-It does not change the system UI font: macOS has no supported knob for
-that, so menus, Finder and Safari keep drawing in SF Pro whatever this
-says. And haus installs nothing for it — there is no `package` here the
-way there is for `mono`, so name a family the machine already has, or
-install one through `haus.roster` first. A family that isn't installed
-falls back silently; there is no tofu to warn you.
+It does not change the system UI font — macOS has no supported knob
+for that, so menus, Finder and Safari are unmoved. And it does not
+touch monospaced text anywhere: a keycap, a timestamp, a source slug
+and a code preview stay mono, because a column that shifts is harder
+to read rather than easier.
+
+Name a family the machine has — macOS ships plenty, and `haus.roster`
+installs more — or one `package` / `packageName` puts there. A family
+that isn't there falls back to the system font **silently**: there is
+no tofu to see, and every surface goes on looking exactly as it did,
+so a misspelling reads as "the option does nothing". Check the
+spelling against Font Book if nothing moves.
 
 </details>
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.fonts.sans.package` [#haus-fonts-sans-package]
+
+`null or package` · default `null` · e.g. `pkgs.atkinson-hyperlegible`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It takes a `pkgs` value, and desktop data is evaluated with no module arguments to take one from. The `…Name` leaf beside it is the desktop-safe half of the pair.
+
+The package providing `name`. null (the default) installs nothing,
+which is correct for the default family: `.AppleSystemUIFont` is
+macOS's own and is on every Mac.
+
+Set this whenever you set `name` to something the machine doesn't
+already have, or the family simply won't exist and every surface
+falls back to the system font — which looks exactly like the setting
+not working. Unlike `fonts.mono`, haus does NOT warn about the
+combination: naming a proportional family the Mac already has is the
+ordinary case, so the warning would fire on correct configurations.
+
+A shared desktop can't set this one — it needs `pkgs`, and a
+data-only desktop has no arguments. Use `packageName` there.
+
+<small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
+
+#### `haus.fonts.sans.packageName` [#haus-fonts-sans-packagename]
+
+`null or string` · default `null` · e.g. `"atkinson-hyperlegible"`
+
+The same thing as `package`, NAMED rather than evaluated: an
+attribute path into nixpkgs, so "atkinson-hyperlegible" means
+`pkgs.atkinson-hyperlegible`.
+
+This exists so a data-only desktop can change the proportional family
+and not just name one it hopes is installed — reaching `pkgs` is
+precisely what that format forbids.
+
+Set one or the other, never both. A name that resolves to nothing, or
+to a set of packages rather than a package, fails at eval with the
+spelling to try instead.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
@@ -4037,7 +4093,7 @@ The menu bar, and which pills it draws.
 
 <div className="hf-optindex">
 
-[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.trill`](#haus-bar-bottom-items-trill) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.trill`](#haus-bar-items-trill) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement)
+[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.trill`](#haus-bar-bottom-items-trill) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.trill`](#haus-bar-items-trill) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement) [`widgets.<name>.script`](#haus-bar-widgets-name-script) [`widgets.<name>.style`](#haus-bar-widgets-name-style)
 
 </div>
 
@@ -4475,9 +4531,11 @@ instead — macOS's system UI font by default, whose zero has no dot and
 is easier to distinguish from an 8 at a glance. The calendar icon
 remains in the Nerd Font either way.
 
-This pill is the only place `haus.fonts.sans.name` is read, so the two
-options are really one switch: this one chooses the family, that one
-says which.
+This pill is the only place in the BAR that reads
+`haus.fonts.sans.name` — so within Bar the two options are really one
+switch: this one chooses the family, that one says which. Elsewhere on
+the machine that family also sets the text in pounce, perch and trill,
+and this switch has nothing to say about those.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -5355,6 +5413,10 @@ common way a pill silently stops updating.
 null on a bundled pill, whose behaviour is haus's own plugin, and
 setting one there is an error rather than an override.
 
+The other tier is `script`, and a widget is one or the other:
+setting both is an error, since only one of them can be what the
+bar runs.
+
 </details>
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
@@ -5382,7 +5444,9 @@ draws no icon and gives the label the whole pill.
 
 Ignored on a bundled pill: those set their own, and several change
 it to say something (the memory pill's pressure colour, the
-github pill's two-tone logo).
+github pill's two-tone logo). Ignored on a `script` widget for the
+same reason — it draws its own — and setting it on one is an error
+rather than a glyph that never appears.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -5398,7 +5462,8 @@ haus.bar.widgets.weather.interval = 1800;
 ```
 
 null keeps the widget's own default — for a bundled pill the rate
-it ships with, for yours a 60-second tick. A few pills are
+it ships with, for a `script` widget the `interval` in its own
+header, and for a `command` widget a 60-second tick. A few pills are
 push-driven rather than polled (`agents`) and a couple own
 their rate through an older option of their own
 (`haus.bar.calendar.refresh`); setting this on one of those is
@@ -5457,6 +5522,105 @@ never mentions this pill is the menu bar.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
+#### `haus.bar.widgets.<name>.script` [#haus-bar-widgets-name-script]
+
+`null or absolute path` · default `null` · e.g. `./my-widget.sh`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs, and a desktop is a file you can read to know what it does. A leaf carrying a command is exactly what stops that being true.
+
+A barlib FRAMEWORK widget — the richer tier, and the one haus's own
+pills are written in. Where `command` is a script whose stdout is a
+label, this is a file that sources
+`~/.config/sketchybar/barlib.sh`, defines `fetch`/`render` and
+whatever `on_*` handlers it wants, and ends with
+`barlib_main "$@"`. It gets everything a bundled pill gets: the
+state diff (a quiet tick costs zero traffic), the tone ladder, the
+identity marks, graphs, the dropdown row kinds, and one
+batched call per repaint. The whole contract — the header keys,
+the components, the tones, the dropdown row kinds — is
+&lt;hausfold.co/docs/haus/rooms/bar-widgets>, and
+`~/.config/sketchybar/barlib.sh` on this machine is the runtime it
+documents.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.bar.widgets.&lt;name>.script</span></summary>
+
+The file's own `# widget:` header is the WIRING — how often it
+ticks, what events it hears, whether it has a dropdown, whether it
+draws a graph — and it is read at build time, so a header key that
+does not exist fails the build naming your file rather than
+wiring nothing. The header is the reason this is a path and not a
+string: the file has to be readable while the configuration is
+being evaluated, and it is installed to
+`~/.config/sketchybar/widgets/<name>.sh`, which is where you go to
+run it by hand when it misbehaves — just the path, since the file
+names its own `BAR_ITEM` and the bar's own `$NAME` is what wins
+when the bar is the caller.
+
+`icon` is not read for one of these — a framework widget draws its
+own icon in `render`, which is the point of the tier — and the
+static half of its look is `style`.
+
+null on a bundled pill, whose script is haus's own, and setting one
+there is an error rather than an override.
+
+</details>
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.widgets.<name>.style` [#haus-bar-widgets-name-style]
+
+`attribute set of string` · default `{ }`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs, and a desktop is a file you can read to know what it does. A leaf carrying a command is exactly what stops that being true.
+
+The static half of a `script` widget's look: SketchyBar item
+properties, set once when the pill is created, as a plain
+`property = value` set.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.bar.widgets.&lt;name>.style</span></summary>
+
+It is the one thing a framework widget cannot say in its own file,
+and the reason is worth knowing before you reach for it: everything
+a pill draws that MEANS something — its label, its colour, whether
+it is showing at all — is the widget's `render`, which names a tone
+from the ladder and never a colour. What is left over is IDENTITY,
+which the ladder deliberately has no rung for: this widget's own
+hue, its padding, a font that is not the bar's. That is what
+belongs here, and a `style` doing more than that is usually a
+`render` that should have been doing it.
+
+One property is not optional: a widget whose header declares
+`graph` must name a `graph.color` here, because the line's colour
+is which readout it is and nothing else on the machine can answer
+that.
+
+Values are written into the bar's generated item file as they
+stand, so a palette name from `colors.sh` (`$TEAL`, `$SURFACE0`)
+reaches the theme, and anything with a space in it needs its own
+quotes — `"${config.haus.fonts.mono.name}:Bold:13"`. Host-only for
+exactly that reason: it is a shell fragment rather than data.
+
+Ignored on a `command` widget, and setting it on one is an error:
+the simple tier draws the same pill every other pill wears, and
+wanting to change that is what the framework tier is for.
+
+</details>
+
+Example:
+
+```nix
+{
+  "background.padding_left" = "8";
+  "icon.color" = "$TEAL";
+}
+```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
 ## Launcher
 
 The command palette: its daemon, its commands, and every Pounce setting haus exposes.
@@ -5467,7 +5631,7 @@ The ⌘Space command palette. Pounce is the app behind it.
 
 <div className="hf-optindex">
 
-[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`scale`](#haus-launcher-scale) [`signingIdentity`](#haus-launcher-signingidentity) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
+[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`plugins`](#haus-launcher-plugins) [`scale`](#haus-launcher-scale) [`signingIdentity`](#haus-launcher-signingidentity) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
 
 </div>
 
@@ -5896,6 +6060,55 @@ Example:
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
+#### `haus.launcher.plugins` [#haus-launcher-plugins]
+
+`list of string` · default `[ ]`
+
+Optional palette commands to install, by id. Each one assumes a
+specific tool, service or app it cannot provision, so the whole set is
+off until you name what you have:
+
+```text
+audio  bluetooth  caffeinate  docker  github
+perplexity  spotify  ssh  tailscale
+```
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.launcher.plugins</span></summary>
+
+Enabling one installs the command AND the plain CLI it shells out to —
+bluetooth pulls blueutil, audio pulls switchaudio-osx, github pulls gh
+— so the command stops guarding "not found" with no separate install.
+The ones that want an app or a daemon instead (Spotify, a Docker
+engine, tailscaled) stay yours to provide; those guard at runtime with
+an install hint.
+
+The ids are pounce's own `optional/` filenames without .sh, not a
+vocabulary haus invents on top. A typo fails the build naming the set
+that exists, which is why this is a plain list rather than an enum
+haus would have to keep in step with pounce's lock.
+
+This is the whole of what a "pack" is here, and the other two halves
+already exist: haus's own commands are gated by the feature that owns
+them (`bench-lane` by haus.developer.enable, `gh-dash` by
+haus.terminal.ghDash.enable, the lane commands by the AI room), and
+haus.launcher.items.&lt;addr>.listed = false hides a row you would rather
+reach only by key.
+
+</details>
+
+Example:
+
+```nix
+[
+  "docker"
+  "tailscale"
+]
+```
+
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
+
 #### `haus.launcher.scale` [#haus-launcher-scale]
 
 `integer or floating point number between 0.8 and 2.0 (both inclusive)` · default `haus.ui.scale, held inside the palette's 0.8-2.0` · e.g. `1.4`
@@ -6122,12 +6335,16 @@ copied to a fixed `/Applications/Trill.app`.
 <summary>More detail<span className="sr-only"> on haus.notifications.compositor</span></summary>
 
 haus has drawn its banners through trill since `haus-notify` landed, but
-by *finding* it at runtime — PATH, then `~/Applications`, then
-`/Applications` — and falling back to Apple's banner when nothing
+by *finding* it at runtime — PATH, then `/Applications`, then
+`~/Applications` — and falling back to Apple's banner when nothing
 answered. That still works, is still the fallback, and is not gated on
-this switch. What this adds is the other half: the bundle actually being
-there, at a path that does not move, pinned by this machine's flake lock
-like every other room.
+this switch. The bundle this room places wins that search against a
+hand-installed one, deliberately: a dev build left in `~/Applications`
+used to outrank it forever, because this room rewrites its own path on
+every activation and can never displace a copy sitting in front of it.
+What this adds is the other half: the bundle actually being there, at a
+path that does not move, pinned by this machine's flake lock like every
+other room.
 
 Why the path is fixed rather than a store path: trill's whole
 `trill doctor` and System Mirror surface is a **Full Disk Access** grant,
@@ -7883,17 +8100,26 @@ the hole. This is that comment, as data.
 `null or string` · default `null` · e.g. `"s"`
 
 The leader letter for this app: tap Caps Lock then this key to
-launch/focus it. Must be unique across the roster, and not one of
+launch/focus it. It names a POSITION on a US keyboard rather than
+the letter printed on your key — `haus.keys.layout` is what makes
+the two agree on AZERTY, where `a` is otherwise the key printed `Q`.
+Must be unique across the roster, and not one of
 launch mode's own: `v` `f` `z` `,` `.` `` ` `` `-` `=` `/` `esc`, the
 arrows and one digit per numbered workspace (`1`-`4` out of the box;
 see haus.windows.numberedWorkspaces) are taken, and a rebuild refuses
 them.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.roster.&lt;name>.key</span></summary>
 
 null (the default) means the entry is INSTALL-ONLY: it still
 brings its cask/formula/package, but claims no leader key, no
 cheatsheet row, and no launch-mode bubble. That is what lets one
 roster hold both the apps you reach for by keyboard and the ones
 you just want on the machine (and fonts, and CLI tools).
+
+</details>
 
 <small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
@@ -8147,7 +8373,9 @@ own id.
 
 Leader then ⇧&lt;key> throws the focused window to this workspace
 and follows it there (AeroSpace's `move-node-to-workspace
---focus-follows-window`). There is no bare &lt;key> binding for a
+--focus-follows-window`). Like a roster letter it is a US keyboard
+POSITION — `haus.keys.layout` reconciles that with what your key
+prints. There is no bare &lt;key> binding for a
 workspace — that namespace belongs to `haus.roster` app
 launch keys, one of which can double as this workspace's "open
 something here" action by being one of its `apps`. null means the
@@ -8238,9 +8466,63 @@ The keys haus owns — the leader, the palette, the window-chord modifier — an
 
 <div className="hf-optindex">
 
-[`leader`](#haus-keys-leader) [`leaderExtras`](#haus-keys-leaderextras) [`leaderExtras.*.caption`](#haus-keys-leaderextras-caption) [`leaderExtras.*.command`](#haus-keys-leaderextras-command) [`leaderExtras.*.key`](#haus-keys-leaderextras-key) [`palette`](#haus-keys-palette) [`windowNav`](#haus-keys-windownav)
+[`layout`](#haus-keys-layout) [`leader`](#haus-keys-leader) [`leaderExtras`](#haus-keys-leaderextras) [`leaderExtras.*.caption`](#haus-keys-leaderextras-caption) [`leaderExtras.*.command`](#haus-keys-leaderextras-command) [`leaderExtras.*.key`](#haus-keys-leaderextras-key) [`palette`](#haus-keys-palette) [`windowNav`](#haus-keys-windownav)
 
 </div>
+
+#### `haus.keys.layout` [#haus-keys-layout]
+
+`one of "qwerty", "azerty", "dvorak", "colemak"` · default `"qwerty"` · e.g. `"azerty"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. Language, region, units and keyboard layout are facts about the person at the keyboard; a desktop that set them would change what your Mac speaks.
+
+The keyboard your keys are PRINTED on. It doesn't change your macOS
+input source (that's `haus.locale.inputSources`) — it tells the window
+manager which physical key a name in this config means.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.keys.layout</span></summary>
+
+Every key name on this machine — a `haus.roster` entry's `key`, a
+`haus.workspaces` key, a `haus.keys.leaderExtras` key, the fixed
+launch-mode actions — is a POSITION on a US keyboard, because that is
+the only thing macOS names a key by. On AZERTY the key printed `A`
+is the one a US keyboard calls `Q`, so with the default `"qwerty"` a
+French keyboard's `A` launches whatever you put on `q`. Setting
+`"azerty"` moves every letter onto the key that prints it.
+
+Measured on `com.apple.keylayout.French`, hacker desktop: with
+`"qwerty"`, five of the twenty-six leader letters open the wrong thing
+(`a`↔`q`, `z`↔`w`, and `m` does nothing), and launch mode's `,` opens
+the app on `m`; with `"azerty"`, all twenty-six letters land on the key
+that prints them and `,` is System Settings again.
+
+Three things it cannot move, because AeroSpace maps a name to a key
+and not to a key-plus-⇧, and AZERTY hides all three behind ⇧:
+
+  - the numbered workspaces. `1`-`4` stay on the number-row keys, which
+    AZERTY prints `&` `é` `"` `'`. **Pressing the key printed `1` is
+    ⇧+that key, which is the THROW** — it moves the focused window to
+    that workspace instead of going there. Measured, not inferred.
+  - launch mode's `.` (tiling cycle) and `/` (the cheatsheet), which
+    stay on the keys AZERTY prints `:` and `=`.
+  - launch mode's `-`/`=` resize pair, which stay on the keys AZERTY
+    prints `)` and `-` — so the key printed `-` is the one that GROWS.
+
+`"dvorak"` and `"colemak"` hand the job to AeroSpace's own presets.
+Only `"qwerty"` and `"azerty"` have been driven end to end on a real
+macOS guest; the other two are one config line each and untested here.
+
+Only meaningful with haus.windows.enable — it is AeroSpace's key
+vocabulary this moves. pounce's own hotkeys (the palette, the
+Ghostty-scoped chords) still name US positions; none of the ones haus
+ships is on a key AZERTY moves, but a hotkey you add on `a`, `q`, `z`,
+`w` or `m` will not follow this option.
+
+</details>
+
+<small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
 
 #### `haus.keys.leader` [#haus-keys-leader]
 
@@ -8336,7 +8618,9 @@ Example:
 `string` · no default · e.g. `"enter"`
 
 The AeroSpace key name pressed after the leader (e.g. "enter",
-"space", "backslash", or a letter). Must not collide with a roster
+"space", "backslash", or a letter). A US keyboard POSITION,
+like every other key name here; `haus.keys.layout` is what
+moves the letters onto the keys that print them. Must not collide with a roster
 app's key or a built-in launch-mode key (one digit per
 numbered workspace — see haus.windows.numberedWorkspaces — plus
 the arrows, `-`/`=`, `v`/`f`/`z`, `,`, `.`, `` ` ``, `/`, esc) —
@@ -8385,9 +8669,26 @@ leader then an arrow.
 <summary>More detail<span className="sr-only"> on haus.keys.windowNav</span></summary>
 
 "alt" (default) is ⌥. The alternatives are for **non-US keyboard
-layouts**, where ⌥+letter types accented characters — a machine that owns
-⌥+letter is unusable on those, which is the concrete reason this option
-exists.
+layouts**, where ⌥ is a character layer of its own rather than a spare
+modifier — on AZERTY it is where `{` `}` `[` `]` `|` `\` `@` `#` `~`
+and `€` are typed, so a machine that owns too much of ⌥ cannot write
+code.
+
+Measured on `com.apple.keylayout.French` with the hacker desktop: all
+ten of those characters still type with "alt" live, under either
+`haus.keys.layout`. The five chords haus claims cost four typographic
+characters there (`≠ … ƒ Ó` under "qwerty", `≠ ∞ ƒ •` under "azerty")
+and nothing structural, so "alt" is usable on French AZERTY and the
+escapes are for a layout that is not — check yours against the list
+below before assuming you need one. (`⌥f` is the only ⌥+letter haus
+binds at all.)
+
+Every chord below names a US keyboard POSITION, not the character
+printed on the key — see haus.keys.layout, which moves the letters but
+cannot move `/`. On AZERTY `<mod>/` is the key printed `=` whatever you
+set; `<mod>,` and `<mod>⇧;` both follow `layout`, so they are the keys
+printed `m` and `;` under "qwerty" and the keys printed `,` and `;`
+under "azerty".
 
 Whatever you pick, AeroSpace claims those chords **globally**, so they
 stop reaching whatever owned them inside a terminal. The surface is
@@ -8664,6 +8965,11 @@ alone. List them with:
 ```
 hausax input-sources --all
 ```
+
+Choosing a non-QWERTY layout here does NOT move haus's own keys: a
+`haus.roster` letter, a workspace key and every launch-mode action
+name a physical position, so on AZERTY the key printed `A` still
+launches whatever sits on `q`. `haus.keys.layout` is the other half.
 
 THIS ONE OWNS THE LIST. Unlike every other option in §5.6's groups, a
 non-null value here is exhaustive: layouts you don't name get

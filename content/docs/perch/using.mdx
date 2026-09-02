@@ -41,7 +41,7 @@ originals are only ever read.
 | | |
 |---|---|
 | **Right-click** | **Add to Perch Shelf** sits under **Services** in Finder's context menu, with nothing to enable, and in any other app's Services menu for a selection or a link. perch doesn't have to be running: the Service starts it |
-| **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed |
+| **`perch add`** | From a shell, a Makefile or an agent: `perch add report.pdf`, or `find . -name '*.png' \| perch add -` for a list on stdin. The exit status distinguishes a shelf that never opened from a copy that failed. `perch list` and `perch rm` go the other way; [the terminal half](/docs/perch/install#the-perch-command) has all four verbs |
 | **Your iPhone** | [**Perch Companion**](https://apps.apple.com/app/id6799443735), free on the App Store, once you've [paired it](/docs/perch/install#5-the-phone-half). Its Share sheet sends over your network, or peer-to-peer with no network at all, and the phone can pull shelf items back down too |
 | **Watched folders** | Point Settings ▸ Watched Folders at `~/Downloads` or anywhere else things arrive, and anything **new** there lands on the shelf by itself. perch reads where this Mac saves screenshots and offers that folder at the top of the pane, so the one most people want is one click |
 
@@ -139,6 +139,13 @@ uses: the row goes read-only in Settings with a padlock and a line saying where
 it came from. That is how a machine you manage, or a haus desktop, pins a
 setting. Delete the key and the switch is yours again. perch only ever reads
 that file; the one it writes lives inside its own sandbox container.
+
+One key in it has no switch at all: `"fontFamily"` sets the proportional family
+the shelf, Settings and the pairing window are set in, and left out you get
+macOS's own. The shelf is a five-second surface, so there is no picker for the
+same reason there is none for the accent below: on a haus machine
+[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) writes it for you,
+and moves perch, pounce and trill together. A standalone Mac names it by hand.
 
 There is no theme picker in that list, on purpose. The shelf paints from
 [nebelung](https://github.com/hausfold/nebelung) and follows macOS Light/Dark

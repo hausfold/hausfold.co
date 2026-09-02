@@ -213,6 +213,42 @@ above need no permission at all, so a machine without the grant still gets all
 of them.
 </Callout>
 
+## Type
+
+Two families, and the split is what each one is for. `haus.fonts.mono` is what
+the machine is *drawn in*: the terminal and every pill label and icon in the
+bar. `haus.fonts.sans` is the proportional half, and one line moves all of it
+at once:
+
+```nix
+haus.fonts.sans.name        = "Atkinson Hyperlegible";
+haus.fonts.sans.packageName = "atkinson-hyperlegible";
+```
+
+That reaches the clock pill's date and time (when
+[`haus.bar.clock.monoFont`](/docs/haus/reference/options/#haus-bar-clock-monofont)
+is false) and the text in pounce, perch and trill: the launcher and its rows,
+the notch shelf, every notification banner and all three settings windows. The
+default is macOS's own system UI font, whose zero has no dot and is easier to
+tell from an 8 at a glance, which is the whole reason the clock has an opt-out.
+
+`package` takes a package and `packageName` takes its name in nixpkgs. Set one
+or the other, never both, and set one of them whenever you name a family the
+Mac hasn't already got. A desktop file can only use `packageName`, because
+reaching `pkgs` is what that format forbids.
+
+<Callout type="warn" title="A family that isn't there falls back silently">
+There is no tofu to see: every surface goes on looking exactly as it did, so a
+misspelling reads as "that option does nothing". Unlike the mono half, haus
+does not warn, because naming a proportional family the Mac already has is the
+ordinary case. If nothing moves, check the spelling against Font Book.
+
+It also does not change the **system** UI font. macOS has no supported knob for
+that, so menus, Finder and Safari are unmoved. And it never touches monospaced
+text: a keycap, a timestamp, a source slug and a code preview stay mono,
+because a column that shifts is harder to read rather than easier.
+</Callout>
+
 ## The desktop
 
 The wallpaper is generated on your machine rather than shipped as a picture, and
