@@ -52,7 +52,7 @@ by hand, and open all the way down."**
 | a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
 | a product's **documentation** | **here** — pounce, perch, trill and scruff each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| a family-wide standard (the agent surface, the issue forms, the drift catalogue) | `docs/` in the workshop |
+| a family-wide standard (the agent surface, the issue forms, the drift catalogue, the visual system) | `docs/` in the workshop |
 | the launch plan, or anything still to be decided | `todo/` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 
 🚨 **A published `curl \| bash` URL is the last thing on this site that may ever
@@ -243,9 +243,10 @@ the token out in prose instead of writing `--something`.
   🚨 **A desktop is not a product and does not get an accent** — no desktop is
   named on a landing page, and none of the `desktops/<name>` docs pages carries
   an `accent:`. A hue hausfold keeps *at rest* would compete with nebelung's
-  palette, which is the one brand asset the family shares. `scruff` and `trill`
-  have no accent assigned upstream, so maroon and yellow are our pick rather than
-  nebelung's and should be reconciled if they get a row. 🚨 scruff's is the rose
+  palette, a brand asset the whole family shares. The product hues are
+  assigned upstream in the workshop's `docs/design.md`, the family's visual
+  standard: trill's yellow is the family's own, while `scruff`'s maroon is
+  still this site's pick, recorded there as provisional. 🚨 scruff's is the rose
   `maroon` and NOT nebelung's `pink`, which `hacker` already holds and which
   `--color-fd-error` spends in the docs; "scruff should be pink" is satisfied by
   the value, and swapping it onto the `pink` token repaints every error callout.

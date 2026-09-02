@@ -13,6 +13,10 @@
 //                         instead of one hardcoded to go stale. ⚠️ Nothing on
 //                         this site calls it yet — it is here so the landing
 //                         pages have it when they become Next routes.
+//   /design.md          → PROXIES the workshop's docs/design.md — the
+//                         family's visual standard as one public URL any
+//                         coding agent can load before drawing something
+//                         that carries the brand
 //   everything else     → the static export in ./out (the [assets] binding)
 //
 // Two things about the shape, and both are decisions:
@@ -281,6 +285,25 @@ function pinDesktop(script, pin) {
   return inject.trimStart() + script;
 }
 
+// The family's visual standard at one public URL. The file itself lives in
+// the workshop's docs/ — the repo that owns family-wide standards — so this
+// PROXIES it from main rather than keeping a copy here that drifts. Same
+// shape as the installer proxy: byte-for-byte pass-through, edge-cached
+// ~5 min. `main`, not a release tag, on purpose: the workshop is never
+// released, and the standard's current text is the point.
+const DESIGN_MD = "https://raw.githubusercontent.com/hausfold/workshop/main/docs/design.md";
+
+async function serveDesign() {
+  const up = await fetch(DESIGN_MD, { cf: { cacheTtl: 300, cacheEverything: true } });
+  if (!up.ok) {
+    return text(`# could not fetch design.md (HTTP ${up.status})\n`, 502);
+  }
+  return text(await up.text(), 200, {
+    "content-type": "text/markdown; charset=utf-8",
+    "cache-control": "public, max-age=300",
+  });
+}
+
 async function serveInstaller(desktop, url, env) {
   const { repo, pin } = DESKTOPS[desktop];
   const pinned = url.searchParams.get("ref");
@@ -327,6 +350,11 @@ const hausfold = {
     const installer = url.pathname.match(/^\/([a-z0-9-]+)\.sh$/);
     if (installer && Object.hasOwn(DESKTOPS, installer[1])) {
       return serveInstaller(installer[1], url, env);
+    }
+    // The visual standard. Extensionful and exact, so nothing else markdown-
+    // shaped ever grows a route by accident.
+    if (url.pathname === "/design.md") {
+      return serveDesign();
     }
     // The trailing slash is optional because `trailingSlash: true` canonicalizes
     // every *page* on this site to one — a hand-typed /download/pounce/ that
