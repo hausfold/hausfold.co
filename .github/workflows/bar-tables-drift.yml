@@ -1,0 +1,41 @@
+# Fail when the bar's colour vocabulary moves past what bar-widgets.mdx says.
+#
+# The tone ladder and the mark set are data in haus, published as
+# `docs/site-data/bar-{tones,marks}.json`. The script holds this repository's
+# two tables to those names and that order exactly, and snapshots the wording so
+# a rewording upstream reaches a human here.
+name: bar tables drift
+
+on:
+  schedule:
+    - cron: '15 9 * * 1'
+  workflow_dispatch: {}
+  # The page is in the filter, unlike the keybinding tripwire's prose pages:
+  # this script PARSES bar-widgets.mdx, so an edit here can break the check on
+  # its own, with nothing upstream having moved.
+  push:
+    paths:
+      - 'scripts/check-bar-tables.mjs'
+      - 'src/data/bar-tables.json'
+      - 'content/docs/haus/rooms/bar-widgets.mdx'
+      - '.github/workflows/bar-tables-drift.yml'
+  pull_request:
+    paths:
+      - 'scripts/check-bar-tables.mjs'
+      - 'src/data/bar-tables.json'
+      - 'content/docs/haus/rooms/bar-widgets.mdx'
+      - '.github/workflows/bar-tables-drift.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: hausfold/haus
+          path: .haus
+      - run: node scripts/check-bar-tables.mjs --haus .haus

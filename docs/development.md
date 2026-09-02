@@ -79,15 +79,18 @@ The flake ref is **pinned** in the script, which is what keeps CI deterministic
 that morning. The price is that drift is *pulled*: `--latest` is the asking.
 (No node? `nix run nixpkgs#nodejs -- scripts/sync-nebelung.mjs`.)
 
-**The options reference** (`content/docs/haus/reference/options.mdx`) and **the
-keybinding snapshot** (`src/data/rice-bindings.json`) both read haus's committed
-`docs/site-data/`, so neither needs Nix:
+**The options reference** (`content/docs/haus/reference/options.mdx`), **the
+keybinding snapshot** (`src/data/rice-bindings.json`) and **the bar's two colour
+tables** (on `rooms/bar-widgets`) all read haus's committed `docs/site-data/`,
+so none of them needs Nix:
 
 ```sh
-npm run options -- --haus /path/to/haus          # regenerate
-npm run options:check -- --haus /path/to/haus    # is the committed page current?
-npm run bindings:check -- --haus /path/to/haus   # did haus's bindings move?
-npm run bindings:update -- --haus /path/to/haus  # accept them, after reviewing the prose
+npm run options -- --haus /path/to/haus             # regenerate
+npm run options:check -- --haus /path/to/haus       # is the committed page current?
+npm run bindings:check -- --haus /path/to/haus      # did haus's bindings move?
+npm run bindings:update -- --haus /path/to/haus     # accept them, after reviewing the prose
+npm run bar-tables:check -- --haus /path/to/haus    # do the tone/mark tables still match?
+npm run bar-tables:update -- --haus /path/to/haus   # accept a rewording, after reading it
 ```
 
 `gen-options.mjs` renders haus's prose, it never rewrites it. What it decides is
@@ -100,10 +103,18 @@ is fenced rather than flattened into a paragraph. All four get quietly smaller
 as haus's own descriptions do; none of them can be tuned from this side by
 editing the page.
 
-Two weekly workflows watch `hausfold/haus`, one per file — and both also fail on
-a PR that hand-edits the output. Options drift opens or updates one generated
-PR; keybinding drift only *fails*, on purpose — its fix is prose someone has to
+Three weekly workflows watch `hausfold/haus`, and all three also fail on a PR
+that hand-edits what they cover. Options drift opens or updates one generated
+PR; the other two only *fail*, on purpose — their fix is prose someone has to
 read, not a regeneration.
+
+Bar-tables drift is the one that reads a **written** page rather than a
+generated file or a snapshot alone. It parses the two tables under "Tones, not
+colours" and holds their row names and order to haus's lists exactly, then
+snapshots the `meaning` column separately. So the wording on that page stays
+this repo's; what is pinned is the vocabulary, its order, the first column's
+header word (`tone` / `mark` — that is how each table is found) and the fact
+that each is a plain markdown table.
 
 ## what CI checks
 
@@ -112,6 +123,7 @@ read, not a regeneration.
 | `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
 | `worker.yml` | `worker.js`, `test/`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS` |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
+| `bar-tables-drift.yml` | `scripts/check-bar-tables.mjs`, `src/data/bar-tables.json`, `rooms/bar-widgets.mdx` | `check-bar-tables.mjs` against haus's published tone ladder and mark set. The page is in that filter because this one *parses* it |
 
 The reproducible-build check is the one that isn't boilerplate. The export is
 byte-identical across cold builds today (`generateBuildId` in

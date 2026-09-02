@@ -9,6 +9,8 @@
     "options:check": "node scripts/gen-options.mjs --check",
     "bindings:check": "node scripts/check-rice-bindings.mjs",
     "bindings:update": "node scripts/check-rice-bindings.mjs --update",
+    "bar-tables:check": "node scripts/check-bar-tables.mjs",
+    "bar-tables:update": "node scripts/check-bar-tables.mjs --update",
     "palette": "node scripts/sync-nebelung.mjs",
     "palette:check": "node scripts/sync-nebelung.mjs --check",
     "types:check": "NEXT_TELEMETRY_DISABLED=1 next typegen && tsc --noEmit",
