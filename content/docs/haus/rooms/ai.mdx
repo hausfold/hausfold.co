@@ -567,8 +567,10 @@ it makes.
 haus points Claude Code's status bar at a small HUD driven off scruff's registry, so
 you can see where every agent stands without leaving the pane. **Row one is this
 session's own lane**: a status token, its GitHub PR pill, then its name. **The
-rows below are the lanes this session spawned**, across whatever repos they live
-in, eight at most with a `+N more` line under them. Rows that still need
+rows below are the lanes this session spawned in other repos**, eight at most
+with a `+N more` line under them. A ⌘⏎ lane in this pane's own repo is a sibling
+with a window of its own, not a child, so it keeps its rows for the lanes that
+have nowhere else to appear. Rows that still need
 attention sort above landed ones, so a clipped HUD can only ever hide something
 already reapable.
 

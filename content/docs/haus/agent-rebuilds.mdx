@@ -50,19 +50,27 @@ a failed build), and `haus update` regenerates it with the rest.
 
 **`haus` is not the only skill installed.** Every hausfold tool the layer ships
 names its own, and `haus.ai.skill` puts all of them beside each other in the
-same per-client directory. Today that is `scruff` (the agent-worktree lifecycle:
-what's open, resume a parked lane, set work aside without `git stash`),
-`handoff` (turning a piece of work into a brief a cold session can act on,
-ending on the clipboard or in a new lane), and factory's `factory` and
-`nightshift` (merging the pull requests a filter you typed can vouch for, and
-the loop that does it while nobody is watching). A tool whose room is *optional*
-joins them only when you switch that room on: `trill` (sending a notification through
-the compositor) arrives with [`haus.notifications.compositor`](/docs/haus/rooms/notifications),
-because a skill for an app your Mac doesn't have is worse than none. That switch
-is about the room rather than the app — `haus-notify` finds a Trill.app you
-installed yourself either way, but the skill waits for the room. Each tool owns
-and versions its own skill; haus only decides that they are installed, so a lock
-bump can bring a better one without a change here.
+same per-client directory. Five arrive beside `haus` on any machine: `scruff`
+(the agent-worktree lifecycle: what's open, resume a parked lane, set work aside
+without `git stash`), `handoff` (turning a piece of work into a brief a cold
+session can act on, ending on the clipboard or in a new lane), factory's
+`factory` and `nightshift` (merging the pull requests a filter you typed can
+vouch for, and the loop that does it while nobody is watching), and `nebelung`
+(this machine's exact palette, rendered from the revision you're pinned to
+rather than remembered).
+
+A tool whose room is *optional* joins them only when you switch that room on:
+`trill` (sending a notification through the compositor) with
+[`haus.notifications.compositor`](/docs/haus/rooms/notifications), `pounce`
+(driving the command palette) with
+[`haus.launcher.enable`](/docs/haus/rooms/launcher), and `perch` (putting a file
+on the notch shelf) with [`haus.shelf.enable`](/docs/haus/rooms/shelf), because
+a skill for an app your Mac doesn't have is worse than none. Those switches are
+about the room rather than the app: `haus-notify` finds a Trill.app you
+installed yourself either way, and a pounce or perch you installed by hand is
+the same, but the skill waits for the room. Each tool owns and versions its own
+skill; haus only decides that they are installed, so a lock bump can bring a
+better one without a change here.
 
 <Callout type="tip" title="Check it's there">
 `haus doctor` has an **Agents** section: whether the `haus` skill is installed (it
