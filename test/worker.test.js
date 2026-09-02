@@ -524,3 +524,31 @@ describe('router', () => {
     expect(await res.text()).toContain('hausfold.co');
   });
 });
+
+describe('/design.md — the visual standard, proxied from the workshop', () => {
+  const RAW = 'raw.githubusercontent.com/hausfold/workshop/main/docs/design.md';
+
+  it('proxies the doc byte-for-byte as markdown', async () => {
+    globalThis.fetch = makeFetch([{ match: RAW, body: '# The visual system\n' }]);
+    const res = await worker.fetch(req('/design.md'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('text/markdown; charset=utf-8');
+    expect(await res.text()).toBe('# The visual system\n');
+  });
+
+  it('answers 502, not a broken page, when the upstream fetch fails', async () => {
+    globalThis.fetch = makeFetch([{ match: RAW, status: 404 }]);
+    const res = await worker.fetch(req('/design.md'), {});
+    expect(res.status).toBe(502);
+  });
+
+  it('matches exactly — /DESIGN.md and /design.mdx fall through to assets', async () => {
+    const assets = { fetch: vi.fn(async () => new Response('site', { status: 200 })) };
+    globalThis.fetch = makeFetch([]);
+    for (const path of ['/DESIGN.md', '/design.mdx', '/docs/design.md']) {
+      await worker.fetch(req(path), { ASSETS: assets });
+    }
+    expect(assets.fetch).toHaveBeenCalledTimes(3);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+});
