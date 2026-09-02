@@ -455,7 +455,23 @@ never the sidebar group.
 **A room page documents the room** — the haus wiring, the options, what turns
 on. Everything about the app itself lives in the app's own tree.
 
-### The one generated page
+### The generated page, and the one that is only pinned
+
+Two pages take data from haus and they are not the same kind of thing.
+`rooms/bar-widgets` is **written**; only its two colour tables are *pinned*, by
+`scripts/check-bar-tables.mjs`, to `modules/bar/{tones,marks}.nix` as published.
+**The prose is yours** — the check reads names, never sentences, and snapshots
+haus's own wording separately so a rewording upstream arrives as a row to
+re-read rather than as text to paste. Four things there are not yours, and all
+four fail loud rather than quietly:
+
+- the rung **names**, and their **order** (the ladder runs quietest first)
+- the **first column's header word**, `tone` and `mark` — that is how each table
+  is found, anchored on the page's shape rather than on a heading you might move
+- each being a **plain markdown table** — turning one into a component, or
+  indenting it into a list item, hides it
+- the second column's caption ("what it claims", "for") is *not* pinned; reword
+  it freely
 
 `reference/options.mdx` is not written, it is **rendered** —
 `scripts/gen-options.mjs`, from haus's committed `docs/site-data/`. It is the
@@ -705,6 +721,14 @@ CI, by what a PR touches:
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.
+- **Drift tripwires** — three jobs reading haus's committed `docs/site-data/`,
+  each also on a Monday cron so a change upstream is found without a PR here:
+  `options-drift.yml` re-renders `reference/options.mdx` (and on the cron opens
+  one long-lived PR with the result), `keybindings-drift.yml` snapshots the
+  binding surface the keybinding pages describe in prose, and
+  `bar-tables-drift.yml` holds the two tables on `rooms/bar-widgets` to haus's
+  tone ladder and mark set. None of the three needs Nix — haus publishes JSON
+  precisely so this repository doesn't.
 
 Every PR touching `src/`, `content/`, `public/` or the build config gets its own
 preview Worker on a workers.dev URL, posted as a PR comment and deleted when it
