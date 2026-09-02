@@ -108,13 +108,23 @@ Three things, each left out on purpose:
 
 - **It does not put `trill` on your PATH.** haus answers `trill` on every
   machine, room or no room: a small wrapper resolves `$TRILL_APP`, then
-  `~/Applications/Trill.app`, then `/Applications/Trill.app`, and execs the
+  `/Applications/Trill.app`, then `~/Applications/Trill.app`, and execs the
   binary inside whichever it finds. (Trill.app *is* the CLI. One signed
   executable serves the daemon and every verb.) The wrapper has to resolve at run
   time, because whether a bundle exists is a runtime fact and a build-time
   symlink into one that is missing would be a `trill` your shell finds and every
   call fails on. A second `bin/trill` from this room would collide with it rather
   than back it up.
+
+  The bundle this room places is the one that wins, and that order is
+  deliberate: `/Applications` is where a cask, a drag-install and this room all
+  put the release, while `~/Applications` is where a build you were testing gets
+  left. Home-first meant that build outranked the pinned one *forever* — the
+  room rewrites its own path on every activation and can never displace a copy
+  sitting in front of it, so the Mac went on calling an old daemon and no
+  rebuild said a word. Point `$TRILL_APP` at a bundle to override the pair; it
+  is still tried first, and it is how you run a branch build without touching
+  the desktop.
 - **It does not decide what happens to any one notification.** Routing, batching,
   quieting and dropping by `source` all live in `~/.config/trill/rules.json`,
   which trill reloads when you save it. Every `haus-notify` send carries a
