@@ -26,6 +26,7 @@
     "rooms/development",
     "rooms/windows",
     "rooms/bar",
+    "rooms/bar-widgets",
     "rooms/launcher",
     "rooms/shelf",
     "rooms/focus",
