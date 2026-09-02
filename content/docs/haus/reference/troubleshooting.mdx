@@ -232,5 +232,11 @@ of this; the bootstrap installs Determinate for you.
   />
 </Cards>
 
-Still nothing? [Open an issue](https://github.com/hausfold/haus/issues) with the
-output of `haus doctor`.
+Still nothing? Run `haus report`. It opens haus's bug form with the output of
+`haus doctor`, your macOS build, your Mac model and the desktop you're on
+already in the diagnostics field, so all that's left to write is what happened.
+On a full machine that report is too long to ride in a link: the form opens with
+the field empty and the block goes to your terminal (or your clipboard, if you
+came from the palette) to paste in. Either way it prints the block first, and
+nothing is filed until you press Submit. `haus report --print` shows the same
+block and the same link without opening a browser.
