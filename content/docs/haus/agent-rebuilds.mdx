@@ -37,10 +37,12 @@ on a machine running a client haus didn't install. One body, one copy per client
 
 | File | What it is |
 |---|---|
-| `SKILL.md` | The loop, the boundaries, the traps. |
+| `SKILL.md` | The loop, the boundaries, the traps. Capped at 150 lines — it routes, and everything below is where it routes to. |
+| `references/rooms.md` | Which room a request belongs to, and whether that room has a runtime verb as well as options — **generated** from the same revision. Read before `options.md`. |
 | `references/options.md` | Every `haus.*` option, **generated from the exact revision you're pinned to**. |
 | `references/this-machine.md` | Your host: hostname, host-file path, which rooms are on, your theme and keys, your app roster and its taken leader keys, plus the rebuild hazards specific to this machine. |
 | `references/recipes.md` | Worked examples for the common asks. |
+| `references/vm.md` | How an agent sees its own change without taking your screen: a headless macOS VM it drives over `ssh`, and what to do when that can't answer. |
 | `consumer-AGENTS.md` | A starter `AGENTS.md` for your own config repo. |
 | `consumer-CLAUDE.md` | Its one-line `@AGENTS.md` pointer, for the client that reads only `CLAUDE.md`. |
 
