@@ -44,6 +44,9 @@ or Pounce never lists them.
 | `description` | Subtitle | *(empty)* |
 | `icon` | An [SF Symbol](https://developer.apple.com/sf-symbols/) name | `sparkles` |
 | `submenu` | `true` means the command re-invokes Pounce for a second step | `false` |
+| `mutates` | `true` means it changes something that outlives the palette | `false` |
+| `confirm` | `true` means the palette asks before running it | `false` |
+| `network` | `true` means it talks to the internet | `false` |
 | `whenFile` | A file that can hide the row (see below) | *(always listed)* |
 
 Header lines are read from the first 30 lines of the file; anything else in them
@@ -63,6 +66,35 @@ you won't see why.
 The one thing required is *some* whitespace after the `#`. Written
 `#pounce: name = Say Hello`, the line above is an ordinary comment and the row
 lists as `say-hello`.
+</Callout>
+
+## What a command says it will do
+
+A command is a file, usually somebody else's, and the row in the palette says
+only its name. Three keys let the script say more before anything runs it:
+
+```bash
+# pounce: mutates = true      changes state that outlives the palette
+# pounce: confirm = true      the palette asks before running it
+# pounce: network = true      it talks to the internet
+```
+
+They are the **author's claim**, and Pounce verifies none of them. What they
+buy is `pounce list [--json]`, which prints every command with its
+declarations *and the path of the script*, so the claim can be checked against
+the file. `confirm` buys one thing more: a sheet in front of the command, in
+the palette, where a person is browsing rows. `pounce run cmd:<id>` and a
+hotkey deliberately do not ask, because naming a command is already deliberate.
+
+<Callout type="warn" title="`confirm` on a `submenu` asks at the wrong moment">
+The sheet gates the palette's run of *the script*, so on a two-step command it
+appears before the picker does. The step that acts is a second `pounce`
+invocation the daemon cannot tell from any other, and it is not gated. Put
+`confirm` on the command that does the thing.
+
+The boolean grammar is `submenu`'s: `true` or `1` and nothing else, so
+`confirm = yes` is silently false. `pounce list` is how you see what actually
+parsed.
 </Callout>
 
 ## A row that hides when there is nothing to act on

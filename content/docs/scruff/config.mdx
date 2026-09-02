@@ -179,9 +179,13 @@ checkout from the checkout itself, so nothing ever parses identity out of a
 path.
 
 ```sh
-scruff doctor                  # where the base is, and what a move would cost
+scruff doctor                  # where the base is, among everything else it reports
 scruff doctor --migrate-base   # move it to ~/.cache/scruff
 ```
+
+Plain `doctor` is [the whole diagnostic](/docs/scruff/cli#maintenance): it
+fixes nothing, and it exits 0 with findings, because the findings are the
+report. It is what to paste into a bug report.
 
 A base at the old `~/.cache/claude-worktrees` path keeps working indefinitely,
 so nobody who skips the migration is broken. `--migrate-base` refuses with

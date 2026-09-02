@@ -65,6 +65,7 @@ older Pounce never chokes on a config written by a newer one.
   "themeDark": "nebelung",         // used in macOS Dark Mode
   "windowMode": "default",   // "default" (720px) or "compact" (600px, tighter)
   "scale": 1.0,              // 0.8-2.0: how big the whole UI is drawn
+  "fontFamily": null,        // family name; null (default) is macOS's own
   "stage": {                 // what an empty query shows, see below
     "enabled": true,
     "tiles": 7               // how many tiles the strip holds (1-12)
@@ -158,6 +159,18 @@ query until you use them.
 they compose: a compact launcher at `1.4` is still the compact layout, just
 bigger. Values outside 0.8–2.0 clamp rather than reject. On haus, `scale` is
 written for you from `haus.ui.scale`.
+
+`fontFamily` is the third of that set and answers a different question: `scale`
+picks how big the launcher is drawn, this picks what it is drawn *in*. It is a
+family name as Font Book spells it, and it reaches every string in the UI: the
+rows, the emoji, clipboard, screenshot and camera panels, the cheatsheet, both
+switchers and the Settings window. Left out (the default) you get macOS's own,
+and naming the system font gets you the system font rather than a frozen copy of
+it. Pounce installs nothing, so a family this Mac doesn't have falls back
+quietly. Keycaps and code previews stay monospaced whatever you put here, and SF
+Symbols keep Apple's metrics. On haus it is written for you from
+[`haus.fonts.sans.name`](/docs/haus/reference/options/#haus-fonts-sans-name),
+which moves pounce, perch and trill together.
 
 `stage` is [what you see before you type](/docs/pounce/using#before-you-type):
 `"stage": { "enabled": false }` gives you the flat list Pounce has always shown,

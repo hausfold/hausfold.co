@@ -16,6 +16,10 @@ related:
 `scruff --help` is the exhaustive list and it prints to **stderr**. This page is
 the same surface, grouped by what you are trying to do.
 
+`scruff <verb> --help` prints just that verb's lines and does nothing else, so
+asking a question about an unfamiliar verb is safe even when the verb deletes.
+A verb also refuses an argument it can't explain: exit 1, with nothing run.
+
 ## Lanes
 
 | | |
@@ -75,7 +79,7 @@ lane refuses, and names them.
 
 | | |
 |---|---|
-| `scruff doctor` | where the base lives, and what a move would cost |
+| `scruff doctor` | diagnose this machine and the repo you're standing in: the base and how it resolved, git, the forge CLI and whether it is authenticated, occupancy, whether the filesystem can reflink, submodules / LFS / sparse-checkout, which rung answered the default-branch question, then the findings: stale registry rows, stray checkouts, orphan branches, disk per repo. `--json` for the same as data |
 | `scruff doctor --migrate-base` | move the base to `~/.cache/scruff`. Refuses with exit 2 while any lane is occupied, repairs every checkout, leaves the old path a symlink |
 | `scruff skill [<name>]` | print an [agent skill](/docs/scruff/agents) — scruff's own, or `handoff` |
 | `scruff skill install` | write every skill into every agent client on the machine. `--client claude\|codex\|opencode\|pi` or `--dir <path>` to name one |

@@ -50,9 +50,30 @@ haus.launcher.autoQuit.enable = false;        # quit an app when its last window
 haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
 ```
 
-`haus.ui.scale` writes the palette's `scale` for you, and your `haus.theme.flavor` /
-`haus.theme.contrast` reach it as a palette file, so the palette matches the
-rest of the house without a second theme setting.
+`haus.ui.scale` writes the palette's `scale` for you,
+[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) writes its
+`fontFamily`, and your `haus.theme.flavor` / `haus.theme.contrast` reach it as a
+palette file, so the palette matches the rest of the house without a second
+theme setting.
+
+### Commands for tools you actually have
+
+Pounce ships nine optional commands that each assume a tool, a service or an
+app it cannot provision, so they are off until you name the ones you have:
+
+```nix
+haus.launcher.plugins = [ "docker" "tailscale" ];
+```
+
+`audio`, `bluetooth`, `caffeinate`, `docker`, `github`, `perplexity`,
+`spotify`, `ssh`, `tailscale`. Naming one installs the command **and** the
+plain CLI it shells out to, so `bluetooth` brings `blueutil` and `audio` brings
+`switchaudio-osx` with nothing else to install. The ones that want an app or a
+daemon (Spotify, a Docker engine, tailscaled) stay yours to provide, and guard
+at runtime with a hint. A machine that names none carries none of it.
+
+The ids are pounce's own filenames rather than a vocabulary haus invents on
+top, so a typo fails the build and names the set that exists.
 
 ### Rows that are listed on some pages only
 

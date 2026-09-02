@@ -75,14 +75,14 @@ The shelf has a command line, and the command line means **coding agents can
 hand you things**. `perch add <file>` puts anything on the shelf from any
 script or terminal, so an agent that just rendered a chart, exported a report
 or built an installer can leave it where your hand already is, instead of
-naming a path in a wall of text for you to copy out.
+naming a path in a wall of text for you to copy out. `perch list` and `perch
+rm` are the other direction: what is on the shelf, and taking something off it.
 
-perch ships an **agent skill**:
-[`ai/SKILL.md`](https://github.com/hausfold/perch/blob/main/ai/SKILL.md) in the
-repo, teaching Claude Code, Codex or any skill-reading agent when to
-reach for the shelf, and just as deliberately what perch *won't* do for it
-(nothing can list or clear your shelf from a script; that stays yours). Every
-hausfold app ships a skill, written to one
+perch ships an **agent skill** teaching Claude Code, Codex or any
+skill-reading agent when to reach for the shelf, and just as deliberately what
+perch won't hand it: no verb answers with a path, staged or original, and none
+of them touches the original a tile came from. `perch skill install` writes it
+into every agent client on the Mac. Every hausfold app ships one, to a single
 [family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
 
 ## Questions
