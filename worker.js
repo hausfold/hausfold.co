@@ -16,6 +16,19 @@
 //   /mcp                → the Model Context Protocol endpoint (Streamable
 //                         HTTP): search the docs, get release metadata, get
 //                         an install command. See the block above serveMcp().
+//   /.well-known/mcp/server-card.json
+//                       → the MCP server card, derived from the same
+//                         MCP_TOOLS table the /mcp endpoint serves, so the
+//                         two cannot drift
+//   /v1/*               → the versioned REST surface (search with cursor
+//                         pagination, batch, async jobs, releases, desktops,
+//                         apps): RFC 9457 problem+json errors, RateLimit
+//                         headers, Idempotency-Key on the batch POST
+//   /ask                → NLWeb-style natural-language endpoint over the
+//                         docs search, JSON or SSE streaming
+//   everything else     → the static export; a 404 for a request that does
+//                         not accept HTML is answered as markdown pointing
+//                         agents at llms.txt, the docs and openapi.json
 //   /design.md          → PROXIES the workshop's docs/design.md — the
 //                         family's visual standard as one public URL any
 //                         coding agent can load before drawing something
@@ -45,6 +58,7 @@
 // the point when you know it, and the question is the point when you don't.
 //
 import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, MCP_PROTOCOL_VERSION } from "./worker-config.js";
+import { rateLimit, problemResponse, PROBLEM_CONTENT_TYPE } from "./worker-api.js";
 
 // The desktops table and the downloadable-apps set live in worker-config.js,
 // beside their comment blocks: workerd refuses named exports from worker.js
@@ -212,13 +226,27 @@ async function serveDownload(app) {
   });
 }
 
-async function serveReleaseMeta(app) {
+async function serveReleaseMeta(app, extraHeaders = {}) {
   const release = await latestAppRelease(app);
-  if (!release) return text("{}", 502, { "content-type": "application/json" });
+  if (!release) {
+    // An upstream failure is a machine's problem too: it gets problem+json,
+    // not a bare `{}` with a 502, so an agent can branch on `code`.
+    return new Response(
+      JSON.stringify({
+        type: "https://hausfold.co/openapi.json#/components/schemas/problem",
+        title: "Upstream release lookup failed",
+        status: 502,
+        detail: "GitHub's release API could not be reached. Retry later.",
+        code: "upstream_unavailable",
+      }),
+      { status: 502, headers: { "content-type": PROBLEM_CONTENT_TYPE, ...extraHeaders } },
+    );
+  }
   return new Response(JSON.stringify(release), {
     headers: {
       "content-type": "application/json",
       "cache-control": "public, max-age=300",
+      ...extraHeaders,
     },
   });
 }
@@ -289,20 +317,21 @@ function excerpt(content, idx) {
   return (start > 0 ? "…" : "") + slice + (start + 220 < content.length ? "…" : "");
 }
 
-function searchDocs(sections, query, limit) {
+function searchDocsScored(sections, query) {
   // Term count + a breadcrumb boost: crude next to Orama's BM25, but the
   // corpus is ~3800 short sections and the query is usually one or two
-  // domain words, which is the case this is tuned for.
+  // domain words, which is the case this is tuned for. Returns the whole
+  // scored, sorted list; the excerpt (the only expensive half) is made
+  // per result by whoever slices.
   const terms = query
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length > 1);
-  if (!terms.length) return [];
   const scored = [];
+  if (!terms.length) return scored;
   for (const doc of sections) {
     const content = doc.content ?? "";
     const lower = content.toLowerCase();
-    const crumb = (doc.breadcrumbs ?? []).join(" ").toLowerCase();
     let score = 0;
     let first = -1;
     for (const term of terms) {
@@ -320,12 +349,20 @@ function searchDocs(sections, query, limit) {
     if (score > 0) scored.push({ doc, score, idx: first });
   }
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit).map(({ doc, score, idx }) => ({
-    url: doc.url,
-    breadcrumbs: doc.breadcrumbs ?? [],
-    excerpt: excerpt(doc.content ?? "", idx),
-    score,
-  }));
+  return scored;
+}
+
+const toHit = ({ doc, score, idx }) => ({
+  url: doc.url,
+  breadcrumbs: doc.breadcrumbs ?? [],
+  excerpt: excerpt(doc.content ?? "", idx),
+  score,
+});
+
+function searchDocs(sections, query, limit) {
+  return searchDocsScored(sections, query)
+    .slice(0, limit)
+    .map(toHit);
 }
 
 function toolResult(data, isError = false) {
@@ -453,6 +490,562 @@ async function handleRpc(msg, env) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// The MCP server card at /.well-known/mcp/server-card.json. Built from the
+// same MCP_TOOLS table /mcp serves, so the card and the tool list cannot
+// drift — a tool added to one is a red test if it misses the other, and the
+// card is generated, never hand-typed.
+
+function serveMcpCard() {
+  return new Response(
+    JSON.stringify(
+      {
+        name: "hausfold",
+        description:
+          "Install commands, release metadata and full-text docs search for hausfold's " +
+          "Mac software, as MCP tools. Public and unauthenticated; every tool reads " +
+          "data a plain GET could also fetch.",
+        version: "1.0.0",
+        serverUrl: "https://hausfold.co/mcp",
+        tools: MCP_TOOLS,
+      },
+      null,
+      2,
+    ),
+    { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } },
+  );
+}
+
+// ---------------------------------------------------------------------------
+// /v1 — the versioned REST surface over the same public data /mcp reads.
+// A plain JSON API so agents that never adopted MCP still have typed,
+// documented, paginated access. Every response carries the RateLimit trio;
+// every failure carries RFC 9457 problem+json; the batch POST accepts an
+// Idempotency-Key; a too-big batch turns into a 202 job at POST /v1/jobs.
+// The deprecation policy it operates under is written in openapi.json's
+// info.description: /v1 is path-versioned, a deprecated endpoint answers
+// with Deprecation: true and a Sunset date before it goes away.
+
+const jsonResponse = (body, headers = {}) =>
+  new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { "content-type": "application/json", "cache-control": "no-store", ...headers },
+  });
+
+// Opaque offset cursors, base64url of a plain integer. Opaque because agents
+// should round-trip them, not mint them — but they are only an offset into a
+// result list computed fresh per request, never state we hold.
+const encodeCursor = (offset) =>
+  btoa(String(offset)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return 0;
+  try {
+    const n = Number(atob(cursor.replace(/-/g, "+").replace(/_/g, "/")));
+    return Number.isInteger(n) && n >= 0 ? n : null;
+  } catch (_) {
+    return null;
+  }
+};
+
+const clampLimit = (raw, min, max, fallback) => {
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < min) return fallback;
+  return Math.min(n, max);
+};
+
+const paginate = (items, offset, limit) => ({
+  results: items.slice(offset, offset + limit),
+  next_cursor:
+    offset + Math.min(limit, Math.max(0, items.length - offset)) < items.length
+      ? encodeCursor(offset + limit)
+      : null,
+  total: items.length,
+});
+
+const searchError = (env, headers) =>
+  docsSections(env).then((sections) =>
+    sections
+      ? null
+      : problemResponse(
+          503,
+          "Docs index unavailable",
+          "The search index could not be loaded. Retry later.",
+          "index_unavailable",
+          headers,
+        ),
+  );
+
+async function serveV1Search(url, env, H) {
+  const q = url.searchParams.get("q");
+  if (!q || !q.trim()) {
+    return problemResponse(
+      400,
+      "Missing query",
+      "The 'q' query parameter is required and must be non-empty.",
+      "missing_query",
+      H,
+    );
+  }
+  const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 10);
+  const offset = decodeCursor(url.searchParams.get("cursor"));
+  if (offset === null) {
+    return problemResponse(
+      400,
+      "Invalid cursor",
+      "The 'cursor' query parameter is not a cursor this API issued. Start over without one.",
+      "invalid_cursor",
+      H,
+    );
+  }
+  const unavailable = await searchError(env, H);
+  if (unavailable) return unavailable;
+  const sections = await docsSections(env);
+  const scored = searchDocsScored(sections, q);
+  const page = scored.slice(offset, offset + limit);
+  return jsonResponse(
+    {
+      query: q,
+      results: page.map(toHit),
+      next_cursor:
+        offset + page.length < scored.length ? encodeCursor(offset + page.length) : null,
+      total: scored.length,
+    },
+    H,
+  );
+}
+
+function serveV1Desktops(url, H) {
+  const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 10);
+  const offset = decodeCursor(url.searchParams.get("cursor"));
+  if (offset === null) {
+    return problemResponse(
+      400,
+      "Invalid cursor",
+      "The 'cursor' query parameter is not a cursor this API issued.",
+      "invalid_cursor",
+      H,
+    );
+  }
+  const all = Object.entries(DESKTOPS).map(([desktop, { pin }]) => ({
+    desktop,
+    command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`,
+    pins: pin ?? null,
+  }));
+  return jsonResponse(paginate(all, offset, limit), H);
+}
+
+function serveV1Apps(H) {
+  const all = [...DOWNLOADABLE].map((app) => ({
+    app,
+    repo: `hausfold/${app}`,
+    release_metadata: `https://hausfold.co/api/release/${app}`,
+    latest_download: `https://hausfold.co/download/${app}`,
+  }));
+  return jsonResponse(paginate(all, 0, Math.max(all.length, 1)), H);
+}
+
+async function serveV1Release(app, H) {
+  if (!DOWNLOADABLE.has(app)) {
+    return problemResponse(
+      404,
+      "Unknown app",
+      `'${app}' is not an app with signed macOS releases. Known: ${[...DOWNLOADABLE].join(", ")}.`,
+      "unknown_app",
+      H,
+    );
+  }
+  const release = await latestAppRelease(app);
+  if (!release) {
+    return problemResponse(
+      502,
+      "Upstream release lookup failed",
+      "GitHub's release API could not be reached. Retry later.",
+      "upstream_unavailable",
+      H,
+    );
+  }
+  return jsonResponse(release, H);
+}
+
+// One operation of a batch or a job. Every op is a read; the batch exists so
+// an agent acting across the family (release check for two apps, three doc
+// searches) does it in one round trip.
+const MAX_BATCH = 20;
+
+async function runOp(op, env) {
+  const opName = op?.op;
+  switch (opName) {
+    case "search": {
+      const query = op.query;
+      if (typeof query !== "string" || !query.trim()) {
+        return { op: opName, ok: false, error: { status: 400, code: "missing_query" } };
+      }
+      const sections = await docsSections(env);
+      if (!sections) {
+        return { op: opName, ok: false, error: { status: 503, code: "index_unavailable" } };
+      }
+      const limit = Number.isInteger(op.limit) ? Math.min(Math.max(op.limit, 1), 20) : 5;
+      return { op: opName, ok: true, data: { query, results: searchDocs(sections, query, limit) } };
+    }
+    case "release": {
+      const app = op.app;
+      if (!DOWNLOADABLE.has(app)) {
+        return { op: opName, ok: false, error: { status: 404, code: "unknown_app" } };
+      }
+      const release = await latestAppRelease(app);
+      if (!release) {
+        return { op: opName, ok: false, error: { status: 502, code: "upstream_unavailable" } };
+      }
+      return { op: opName, ok: true, data: release };
+    }
+    case "install": {
+      const desktop = op.desktop;
+      if (desktop == null) {
+        return {
+          op: opName,
+          ok: true,
+          data: Object.entries(DESKTOPS).map(([key, { pin }]) => ({
+            desktop: key,
+            command: `curl -fsSL https://hausfold.co/${key}.sh | bash`,
+            pins: pin ?? null,
+          })),
+        };
+      }
+      if (!Object.hasOwn(DESKTOPS, desktop)) {
+        return { op: opName, ok: false, error: { status: 404, code: "unknown_desktop" } };
+      }
+      const { pin } = DESKTOPS[desktop];
+      return {
+        op: opName,
+        ok: true,
+        data: { desktop, command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`, pins: pin ?? null },
+      };
+    }
+    default:
+      return { op: opName ?? null, ok: false, error: { status: 400, code: "unknown_op" } };
+  }
+}
+
+// The write-shaped reads (batch, job creation) honour Idempotency-Key: the
+// first response is cached under the key for 24h and replayed with
+// Idempotency-Replayed: true. The API has no side effects to double-apply,
+// but agents retry POSTs on network failure and deserve the same guarantee
+// they would get from an API that had one.
+const SAFE_IDEMPOTENCY_KEY = /^[A-Za-z0-9._-]{1,200}$/;
+
+function idempotencyKey(request) {
+  const key = request.headers.get("idempotency-key");
+  return key && SAFE_IDEMPOTENCY_KEY.test(key) ? key : null;
+}
+
+async function serveBatch(request, env, H) {
+  const cache = caches.default;
+  const key = idempotencyKey(request);
+  if (key) {
+    const cached = await cache.match(new Request(`https://hausfold.co/__idempotency/${key}`));
+    if (cached) {
+      return new Response(await cached.text(), {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+          "idempotency-replayed": "true",
+          ...H,
+        },
+      });
+    }
+  }
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return problemResponse(400, "Invalid JSON", "The request body is not valid JSON.", "invalid_json", H);
+  }
+  const ops = body?.operations;
+  if (!Array.isArray(ops) || ops.length === 0) {
+    return problemResponse(
+      400,
+      "Invalid batch",
+      "Body must be {\"operations\": [...]} with at least one operation of op=search|release|install.",
+      "invalid_batch",
+      H,
+    );
+  }
+  if (ops.length > MAX_BATCH) {
+    return problemResponse(
+      400,
+      "Batch too large",
+      `A batch takes at most ${MAX_BATCH} operations; for more, use POST /v1/jobs and poll.`,
+      "batch_too_large",
+      H,
+    );
+  }
+  const results = [];
+  for (const op of ops) results.push(await runOp(op, env));
+  const payload = JSON.stringify({ results });
+  if (key) {
+    await cache.put(
+      new Request(`https://hausfold.co/__idempotency/${key}`),
+      new Response(payload, { headers: { "cache-control": "max-age=86400" } }),
+    );
+  }
+  return new Response(payload, {
+    status: 200,
+    headers: { "content-type": "application/json", ...H },
+  });
+}
+
+// Long batches run as jobs: 202 with a Location to poll, the work continued
+// under ctx.waitUntil (or inline, where there is no waitUntil to hand it to),
+// the result stored in the cache API for an hour. Stateful for the lifetime
+// of a job — the only state this Worker keeps anywhere.
+async function serveJobCreate(request, env, ctx, H) {
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return problemResponse(400, "Invalid JSON", "The request body is not valid JSON.", "invalid_json", H);
+  }
+  const ops = body?.operations;
+  if (!Array.isArray(ops) || ops.length === 0) {
+    return problemResponse(
+      400,
+      "Invalid job",
+      'Body must be {"operations": [...]} with at least one operation of op=search|release|install.',
+      "invalid_job",
+      H,
+    );
+  }
+  if (ops.length > MAX_BATCH) {
+    return problemResponse(
+      400,
+      "Job too large",
+      `A job takes at most ${MAX_BATCH} operations.`,
+      "job_too_large",
+      H,
+    );
+  }
+  const id = crypto.randomUUID();
+  const jobUrl = `https://hausfold.co/__job/${id}`;
+  const cache = caches.default;
+  await cache.put(
+    new Request(jobUrl),
+    new Response(
+      JSON.stringify({ id, status: "queued", created_at: new Date().toISOString() }),
+      { headers: { "content-type": "application/json", "cache-control": "max-age=3600" } },
+    ),
+  );
+  const work = runJob(id, ops, env, jobUrl).catch((err) =>
+    cache.put(
+      new Request(jobUrl),
+      new Response(
+        JSON.stringify({
+          id,
+          status: "failed",
+          created_at: new Date().toISOString(),
+          error: String(err),
+        }),
+        { headers: { "content-type": "application/json", "cache-control": "max-age=3600" } },
+      ),
+    ),
+  );
+  if (ctx?.waitUntil) ctx.waitUntil(work);
+  else await work; // no host continuation available: finish before answering
+  return new Response(
+    JSON.stringify({
+      id,
+      status: "queued",
+      url: `https://hausfold.co/v1/jobs/${id}`,
+      created_at: new Date().toISOString(),
+    }),
+    {
+      status: 202,
+      headers: {
+        "content-type": "application/json",
+        location: `/v1/jobs/${id}`,
+        "retry-after": "1",
+        ...H,
+      },
+    },
+  );
+}
+
+async function runJob(id, ops, env, jobUrl) {
+  const results = [];
+  for (const op of ops) results.push(await runOp(op, env));
+  await caches.default.put(
+    new Request(jobUrl),
+    new Response(
+      JSON.stringify({
+        id,
+        status: "done",
+        created_at: new Date().toISOString(),
+        result: { results },
+      }),
+      { headers: { "content-type": "application/json", "cache-control": "max-age=3600" } },
+    ),
+  );
+}
+
+async function serveJobGet(id, H) {
+  const cached = await caches.default.match(new Request(`https://hausfold.co/__job/${id}`));
+  if (!cached) {
+    return problemResponse(
+      404,
+      "Unknown job",
+      "No such job, or its result has aged out (results are kept for an hour).",
+      "unknown_job",
+      H,
+    );
+  }
+  return new Response(await cached.text(), {
+    status: 200,
+    headers: { "content-type": "application/json", ...H },
+  });
+}
+
+function handleV1(request, env, url, ctx) {
+  const path = url.pathname.replace(/\/+$/, "") || "/v1";
+  const method = request.method;
+  const rl = rateLimit(request);
+  if (!rl.ok) {
+    return problemResponse(
+      429,
+      "Too many requests",
+      `More than ${rl.headers["ratelimit-limit"]} requests in the rate-limit window. Wait and retry.`,
+      "rate_limited",
+      rl.headers,
+    );
+  }
+  const H = rl.headers;
+  if (method === "GET") {
+    if (path === "/v1/desktops") return serveV1Desktops(url, H);
+    if (path === "/v1/apps") return serveV1Apps(H);
+    if (path === "/v1/search") return serveV1Search(url, env, H);
+    if (path === "/v1/openapi.json") {
+      return new Response(null, {
+        status: 302,
+        headers: { location: "https://hausfold.co/openapi.json" },
+      });
+    }
+    const release = path.match(/^\/v1\/releases\/([a-z0-9-]+)$/);
+    if (release) return serveV1Release(release[1], H);
+    const job = path.match(/^\/v1\/jobs\/([A-Za-z0-9-]+)$/);
+    if (job) return serveJobGet(job[1], H);
+  }
+  if (method === "POST") {
+    if (path === "/v1/batch") return serveBatch(request, env, H);
+    if (path === "/v1/jobs") return serveJobCreate(request, env, ctx, H);
+  }
+  return problemResponse(
+    404,
+    "Not found",
+    `No endpoint answers ${method} ${path}. The surface is described at https://hausfold.co/openapi.json.`,
+    "not_found",
+    H,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// /ask — the NLWeb-style endpoint: natural language in, docs search results
+// out, JSON by default and SSE when asked to stream. It is docs search under
+// the hood, not a chat model; the results are the same ranked excerpts the
+// MCP search_docs tool returns. POST /ask with {"prefer": {"streaming":
+// true}} (or GET with ?streaming=true) gets text/event-stream with NLWeb's
+// start/result/complete event names.
+
+async function serveAsk(request, env, url) {
+  const rl = rateLimit(request);
+  if (!rl.ok) {
+    return problemResponse(
+      429,
+      "Too many requests",
+      "Rate limit exceeded for /ask. Wait and retry.",
+      "rate_limited",
+      rl.headers,
+    );
+  }
+  let query;
+  let streaming = false;
+  if (request.method === "GET") {
+    query = url.searchParams.get("q") ?? url.searchParams.get("query");
+    const prefer = url.searchParams.get("prefer") ?? "";
+    streaming =
+      ["true", "1"].includes((url.searchParams.get("streaming") ?? "").toLowerCase()) ||
+      prefer.includes("streaming") ||
+      (request.headers.get("accept") ?? "").includes("text/event-stream");
+  } else {
+    let body;
+    try {
+      body = await request.json();
+    } catch (_) {
+      return problemResponse(400, "Invalid JSON", "The request body is not valid JSON.", "invalid_json", rl.headers);
+    }
+    query = typeof body?.query === "string" ? body.query : undefined;
+    streaming =
+      Boolean(body?.prefer?.streaming ?? body?.streaming) ||
+      (request.headers.get("accept") ?? "").includes("text/event-stream");
+  }
+  if (!query || !query.trim()) {
+    return problemResponse(
+      400,
+      "Missing query",
+      "The query is required: GET /ask?q=... or POST /ask with {\"query\": ...}.",
+      "missing_query",
+      rl.headers,
+    );
+  }
+  const sections = await docsSections(env);
+  if (!sections) {
+    return problemResponse(
+      503,
+      "Docs index unavailable",
+      "The search index could not be loaded. Retry later.",
+      "index_unavailable",
+      rl.headers,
+    );
+  }
+  const hits = searchDocs(sections, query, 8).map(({ url: hitUrl, breadcrumbs, excerpt, score }) => ({
+    url: hitUrl,
+    breadcrumbs,
+    excerpt,
+    score,
+  }));
+  const meta = {
+    response_type: streaming ? "streaming" : "search_results",
+    version: "1.0",
+    service: "hausfold.co",
+    endpoint: "/ask",
+  };
+  if (!streaming) {
+    return jsonResponse({ _meta: meta, query, results: hits }, rl.headers);
+  }
+  const enc = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      const send = (event, data) =>
+        controller.enqueue(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+      send("start", { _meta: meta, query });
+      for (const hit of hits) send("result", { _meta: meta, ...hit });
+      send("complete", { _meta: meta, query, count: hits.length });
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      "content-type": "text/event-stream; charset=utf-8",
+      "cache-control": "no-store",
+      ...rl.headers,
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// /mcp, with the rate limiter in front of it. The trio of RateLimit headers
+// rides on every POST response — success or error — so an agent can read its
+// budget off anything this endpoint answers. The JSON-RPC body handling is
+// serveMcpPost, unchanged in shape; this wrapper is the only addition.
+
 async function serveMcp(request, env) {
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: MCP_CORS });
@@ -465,6 +1058,25 @@ async function serveMcp(request, env) {
       headers: { allow: "POST, OPTIONS", ...MCP_CORS },
     });
   }
+  const rl = rateLimit(request);
+  if (!rl.ok) {
+    return new Response(
+      JSON.stringify({
+        type: "https://hausfold.co/openapi.json#/components/schemas/problem",
+        title: "Too many requests",
+        status: 429,
+        detail: "Rate limit exceeded for /mcp. Wait and retry.",
+        code: "rate_limited",
+      }),
+      { status: 429, headers: { "content-type": PROBLEM_CONTENT_TYPE, ...rl.headers, ...MCP_CORS } },
+    );
+  }
+  const res = await serveMcpPost(request, env);
+  for (const [name, value] of Object.entries(rl.headers)) res.headers.set(name, value);
+  return res;
+}
+
+async function serveMcpPost(request, env) {
   let body;
   try {
     body = await request.json();
@@ -537,6 +1149,27 @@ function pinDesktop(script, pin) {
   return inject.trimStart() + script;
 }
 
+// An agent asked for a page that does not exist and asked for anything other
+// than HTML (a scanner sends Accept: */* or text/markdown; a browser sends
+// text/html). Same 404 status the browser gets — never a 200 — but the body
+// is markdown naming where the real surface lives, so a crawler recovers
+// instead of learning nothing. No em dashes: this is copy an agent reads.
+function markdownNotFound(url) {
+  const body = `# 404: nothing lives here
+
+There is no page at ${url.pathname} on hausfold.co. Try one of these instead:
+
+- llms.txt, the documentation index written for agents: https://hausfold.co/llms.txt
+- The docs trees, starting with the haus layer: https://hausfold.co/docs/haus/
+- openapi.json, the machine-readable API surface: https://hausfold.co/openapi.json
+- The developers page, the human-readable half of the same surface: https://hausfold.co/developers/
+`;
+  return new Response(body, {
+    status: 404,
+    headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
 // The family's visual standard at one public URL. The file itself lives in
 // the workshop's docs/ — the repo that owns family-wide standards — so this
 // PROXIES it from main rather than keeping a copy here that drifts. Same
@@ -588,7 +1221,7 @@ async function serveInstaller(desktop, url, env) {
 // is on here (it comes with eslint-config-next), and a named handler is what
 // shows up in a stack trace anyway.
 const hausfold = {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     // Before anything else: a short domain is a redirect and never a page, so
     // it must not fall through to a route below and answer with one.
@@ -612,18 +1245,83 @@ const hausfold = {
     // every *page* on this site to one — a hand-typed /download/pounce/ that
     // 404s is a trap laid by the site's own convention.
     const appRoute = url.pathname.match(/^\/(download|api\/release)\/([a-z]+)\/?$/);
+    // An unknown app on the release endpoint is an API path, so it answers
+    // problem+json rather than falling through to the site's HTML 404 — an
+    // agent probing /api/release/trll should be told in JSON what apps exist.
+    const releaseProbe = url.pathname.match(/^\/api\/release\/([a-z0-9-]+)\/?$/);
+    if (releaseProbe && !DOWNLOADABLE.has(releaseProbe[1])) {
+      return problemResponse(
+        404,
+        "Unknown app",
+        `'${releaseProbe[1]}' is not an app with signed macOS releases. Known: ${[...DOWNLOADABLE].join(", ")}.`,
+        "unknown_app",
+        rateLimit(request).headers,
+      );
+    }
     if (appRoute && DOWNLOADABLE.has(appRoute[2])) {
-      return appRoute[1] === "download" ? serveDownload(appRoute[2]) : serveReleaseMeta(appRoute[2]);
+      if (appRoute[1] === "download") return serveDownload(appRoute[2]);
+      const rl = rateLimit(request);
+      if (!rl.ok) {
+        return problemResponse(
+          429,
+          "Too many requests",
+          "Rate limit exceeded. Wait and retry.",
+          "rate_limited",
+          rl.headers,
+        );
+      }
+      return serveReleaseMeta(appRoute[2], rl.headers);
     }
     // The MCP endpoint. Trailing slash accepted for the same reason as the
     // app routes above.
     if (url.pathname.replace(/\/$/, "") === "/mcp") {
       return serveMcp(request, env);
     }
+    // The machine-facing additions: the server card, /ask, and /v1. Each
+    // drops a trailing slash the way the pages above do.
+    const cleanPath = url.pathname.replace(/\/+$/, "") || "/";
+    if (request.method === "GET" && cleanPath === "/.well-known/mcp/server-card.json") {
+      return serveMcpCard();
+    }
+    if (cleanPath === "/ask") {
+      if (request.method !== "GET" && request.method !== "POST") {
+        return problemResponse(
+          405,
+          "Method not allowed",
+          "/ask answers GET (query parameter) and POST (JSON body), including SSE streaming.",
+          "method_not_allowed",
+          { allow: "GET, POST", ...rateLimit(request).headers },
+        );
+      }
+      return serveAsk(request, env, url);
+    }
+    if (cleanPath === "/v1" || cleanPath.startsWith("/v1/")) {
+      return handleV1(request, env, url, ctx);
+    }
     // Everything else is the static site. With the [assets] binding present,
     // matching assets are served automatically before the Worker even runs;
     // this fallback covers requests that reach the Worker anyway.
-    if (env.ASSETS) return env.ASSETS.fetch(request);
+    if (env.ASSETS) {
+      const res = await env.ASSETS.fetch(request);
+      const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
+      // A browser asking for a missing page keeps the human 404 page.
+      if (wantsHtml || request.method === "HEAD") return res;
+      // An agent asking for a missing page gets markdown that says where to
+      // look instead — same status, a body it can act on.
+      if (res.status === 404) return markdownNotFound(url);
+      // The asset server answers a non-GET to any path with 405. For a
+      // machine that reads better as problem+json naming what IS allowed.
+      if (res.status === 405) {
+        return problemResponse(
+          405,
+          "Method not allowed",
+          `${request.method} is not served at this path; the static site answers GET. JSON APIs are under /v1; see https://hausfold.co/openapi.json.`,
+          "method_not_allowed",
+          { allow: "GET, HEAD" },
+        );
+      }
+      return res;
+    }
     return text("hausfold — https://hausfold.co\n", 404);
   },
 };

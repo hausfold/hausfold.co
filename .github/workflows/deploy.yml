@@ -32,6 +32,8 @@ on:
       - 'content/**'
       - 'src/**'
       - 'worker.js'
+      - 'worker-api.js'
+      - 'worker-config.js'
       - 'package.json'
       - 'package-lock.json'
       - 'next.config.mjs'

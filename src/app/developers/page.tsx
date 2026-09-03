@@ -131,6 +131,54 @@ export default function Developers() {
       </section>
 
       <section className="block">
+        <h2>Search and ask</h2>
+        <p>
+          The REST surface under <code>/v1</code> serves the same ranked doc search the MCP
+          tool does, cursor-paginated so a crawler can walk the whole result set without
+          guessing shapes:
+        </p>
+        <Command>{'curl -fsSL "https://hausfold.co/v1/search?q=notifications&limit=10"'}</Command>
+        <p>
+          <code>/v1/desktops</code>, <code>/v1/apps</code> and{' '}
+          <code>/v1/releases/pounce</code> round out the surface; every operation has a typed
+          schema in the spec. <a href="/ask">/ask</a> is the NLWeb-shaped front door: a
+          natural-language query in, ranked excerpts out, JSON by default or{' '}
+          <code>text/event-stream</code> when the request asks to stream. Rate limiting is
+          generous and the <code>RateLimit-*</code> headers ride on every response, so an
+          agent can self-throttle by reading, not by being throttled.
+        </p>
+      </section>
+
+      <section className="block">
+        <h2>Batch and jobs</h2>
+        <p>
+          An agent acting across the family can bundle reads into one round trip with{' '}
+          <code>POST /v1/batch</code> (at most 20 operations, one <code>ok</code> flag per
+          entry). The endpoint accepts an <code>Idempotency-Key</code> header: a retry with
+          the same key within a day is answered from memory with{' '}
+          <code>Idempotency-Replayed: true</code>, so a network retry can never double-apply
+          anything. Bigger runs go to <code>POST /v1/jobs</code>, answered{' '}
+          <code>202</code> with a <code>Location</code> to poll.
+        </p>
+      </section>
+
+      <section className="block">
+        <h2>Errors, versioning, and auth</h2>
+        <p>
+          Every failure on this surface is{' '}
+          <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457</a>{' '}
+          <code>application/problem+json</code> with a machine-readable <code>code</code>; a
+          page that does not exist answers a real <code>404</code> with a markdown body
+          pointing agents at the index, not a 200 in disguise. <code>/v1</code> is
+          path-versioned, and the deprecation policy (a{' '}
+          <code>Deprecation: true</code> header plus a <code>Sunset</code> date, announced
+          ahead of it) is written into the spec. There are no credentials:{' '}
+          <a href="/auth.md">/auth.md</a> is the markdown account of that, and the only
+          supported method is <code>anonymous</code>.
+        </p>
+      </section>
+
+      <section className="block">
         <h2>The whole surface, in one file</h2>
         <p>
           <a href="/openapi.json">

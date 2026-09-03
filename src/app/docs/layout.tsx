@@ -3,6 +3,7 @@ import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/lib/layout.shared';
 import { Provider } from '@/components/provider';
 import { Separator } from '@/components/sidebar-parts';
+import { WebMcpTools } from '@/components/webmcp';
 
 // `<Provider>` is here rather than in the root layout, and that placement is
 // the whole of what keeps the landing pages quiet. It carries fumadocs' search
@@ -17,6 +18,9 @@ import { Separator } from '@/components/sidebar-parts';
 export default function Layout({ children }: LayoutProps<'/docs'>) {
   return (
     <Provider>
+      {/* WebMCP registrations ride on the docs bundle, the only half that
+          already ships client script. Landing pages stay script-free. */}
+      <WebMcpTools />
       <DocsLayout
         tree={source.getPageTree()}
         // The layer and the three apps are four trees, not four sections of

@@ -19,6 +19,13 @@
 /api/search
   Content-Type: application/json; charset=utf-8
 
+# /auth.md is markdown for agents; without a rule, the extensionless-vendor
+# logic that mangles /api/search is not the issue but Cloudflare infers from
+# the extension and .md is served as text/markdown by some stacks and as
+# application/octet-stream by others. Name it, like /api/search above.
+/auth.md
+  Content-Type: text/markdown; charset=utf-8
+
 # Next's own assets are content-hashed, so their URL changes whenever their
 # bytes do and they can be cached forever. Nothing else here may be — every
 # hand-written page and `hausfold.css` keeps its URL across a content change,

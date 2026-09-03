@@ -36,9 +36,61 @@ describe('openapi.json vs worker.js', () => {
     expect(Object.keys(spec.paths['/mcp']).sort()).toEqual(['options', 'post']);
   });
 
-  it('describes the static agents surface: search index, llms files, design.md', () => {
-    for (const path of ['/api/search', '/llms.txt', '/llms-full.txt', '/design.md']) {
+  it('describes the static agents surface: search index, llms files, design.md, auth.md', () => {
+    for (const path of ['/api/search', '/llms.txt', '/llms-full.txt', '/design.md', '/auth.md']) {
       expect(spec.paths[path], path).toBeDefined();
+    }
+  });
+
+  it('describes the versioned REST surface', () => {
+    for (const path of [
+      '/v1/search',
+      '/v1/desktops',
+      '/v1/apps',
+      '/v1/releases/{app}',
+      '/v1/batch',
+      '/v1/jobs',
+      '/v1/jobs/{id}',
+      '/ask',
+      '/.well-known/mcp/server-card.json',
+    ]) {
+      expect(spec.paths[path], path).toBeDefined();
+    }
+  });
+
+  it('gives every operation an operationId (function-calling shape)', () => {
+    const missing = [];
+    for (const [path, ops] of Object.entries(spec.paths)) {
+      for (const [method, op] of Object.entries(ops)) {
+        if (typeof op !== 'object' || op.responses === undefined) continue; // parameters-only keys
+        if (!op.operationId) missing.push(`${method.toUpperCase()} ${path}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+
+  it('gives 4xx and 5xx responses a typed problem schema where errors are JSON', () => {
+    // Every $ref to an error response resolves to problem+json content.
+    for (const name of ['badRequest', 'unknownApp', 'unknownJob', 'rateLimited', 'upstreamUnavailable', 'indexUnavailable', 'methodNotAllowed', 'notFound']) {
+      const r = spec.components.responses[name];
+      expect(r.content['application/problem+json'].schema.$ref, name).toBe('#/components/schemas/problem');
+    }
+  });
+
+  it('declares the deprecation policy in info.description', () => {
+    expect(spec.info.description).toContain('Deprecation');
+    expect(spec.info.description).toContain('Sunset');
+  });
+
+  it('public/auth.md exists, leads with a heading, and covers the auth.md sections', () => {
+    const md = readFileSync(new URL('../public/auth.md', import.meta.url), 'utf8');
+    expect(md.startsWith('# ')).toBe(true);
+    expect(md.length).toBeGreaterThan(1000);
+    for (const section of ['Discover', 'Pick a method', 'Register', 'Claim', 'Exchange', 'Use the access_token', 'Errors', 'Revocation']) {
+      expect(md, section).toContain(section);
+    }
+    for (const keyword of ['agent_auth', 'identity_endpoint', 'identity_assertion', 'service_auth', 'id-jag', 'WWW-Authenticate']) {
+      expect(md, keyword).toContain(keyword);
     }
   });
 
@@ -56,6 +108,16 @@ describe('openapi.json vs worker.js', () => {
     // The spec's MCP description names the contract the tool table keeps:
     // stateless, JSON responses. Update it when either changes.
     expect(spec.paths['/mcp'].post.description).toContain('Stateless');
+  });
+
+  it('the WebMCP tool enum names every DOWNLOADABLE app (no silent drift)', () => {
+    // webmcp.tsx is a browser bundle; it cannot import worker-config.js, so
+    // it hand-writes the app enum. This test is the pin that keeps the two
+    // in step: DOWNLOADABLE grows, the enum must grow with it.
+    const webmcp = readFileSync(new URL('../src/components/webmcp.tsx', import.meta.url), 'utf8');
+    for (const app of DOWNLOADABLE) {
+      expect(webmcp, `enum should include '${app}'`).toContain(`'${app}'`);
+    }
   });
 
   it('worker.js actually routes /mcp', () => {

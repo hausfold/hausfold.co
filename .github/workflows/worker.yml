@@ -11,6 +11,8 @@ on:
   pull_request:
     paths:
       - 'worker.js'
+      - 'worker-api.js'
+      - 'worker-config.js'
       - 'test/**'
       - 'wrangler.toml'
       - 'wrangler.preview.toml'
@@ -21,6 +23,8 @@ on:
     branches: [main]
     paths:
       - 'worker.js'
+      - 'worker-api.js'
+      - 'worker-config.js'
       - 'test/**'
       - 'wrangler.toml'
       - 'wrangler.preview.toml'
