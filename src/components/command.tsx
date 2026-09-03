@@ -71,9 +71,26 @@ export function Command({ children, html }: { children: string; html?: string })
   return (
     <div className="cmd">
       {html ? <code dangerouslySetInnerHTML={{ __html: html }} /> : <code>{children}</code>}
-      <button className="copy" type="button" hidden={!ready} onClick={copy}>
-        {label}
-      </button>
+      {/* The form is the WebMCP half of the copy button: a browser-resident
+          agent (Chrome 157+, the ChatGPT browser) reads toolname and
+          tooldescription out of the server-rendered HTML and can offer the
+          action without executing anything. display: contents keeps the
+          button a flex item of .cmd exactly as it was when bare. The form
+          posts nowhere (onSubmit prevents default); it is an action form in
+          the WebMCP sense only. The attributes are spread from an object so
+          TypeScript's known-props check lets the custom ones through. */}
+      <form
+        style={{ display: "contents" }}
+        {...({ toolname: "copy_command", tooldescription: `Copy the fenced command (${children.trim()}) to the clipboard.` } as object)}
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (ready) copy();
+        }}
+      >
+        <button className="copy" type="submit" hidden={!ready}>
+          {label}
+        </button>
+      </form>
     </div>
   );
 }
