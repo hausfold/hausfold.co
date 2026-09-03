@@ -131,7 +131,7 @@ const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path trave
 // wrangler.toml; the guard is worker.yml's grep for the literal
 // `run_worker_first = true`, because the tests in this repo pass under either
 // value and deploy.yml's live smoke check is answered with a Cloudflare
-// challenge from a GitHub runner.
+// challenge from a GitHub runner often enough not to be relied on.
 const SHORT_DOMAINS = { "perch.hausfold.co": "/docs/perch/install/" };
 // The human-facing artifact, most-preferred first. A DMG outranks the archive
 // on purpose: pounce's release ships BOTH — the tarball is the Homebrew

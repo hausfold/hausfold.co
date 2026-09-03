@@ -116,23 +116,24 @@ jobs:
       # gets there. On 2026-08-26 `run_worker_first = ["/"]` shipped green and
       # 404'd every route in this list at once, the four installers included.
       #
-      # 🚨 **A challenged request is inconclusive, not a failure, and this step
-      # is challenged today.** Cloudflare scores a GitHub runner as a bot on the
-      # strength of its datacenter IP and its TLS fingerprint — a browser
+      # 🚨 **A challenged request is inconclusive, not a failure, and the
+      # challenge is intermittent.** Cloudflare scores a GitHub runner as a bot
+      # on the strength of its datacenter IP and its TLS fingerprint — a browser
       # `User-Agent` changes nothing — and serves the managed challenge BEFORE
       # the Worker runs. Measured 2026-08-26 across three runs: all ten URLs
       # 403, `cf-mitigated: challenge`, body `Just a moment...`, on a site that
       # was serving every one of them correctly. `perch.hausfold.co/` was among
       # them, and only worker.js can write that 301, so nothing had reached the
-      # Worker at all.
+      # Worker at all. On 2026-09-03 the same ten URLs came back clean twice and
+      # were challenged once, in a single afternoon — so treat "does the edge
+      # let CI through" as weather, not as a setting.
       #
       # So a `cf-mitigated` response warns and is skipped; every other wrong
-      # answer still fails the deploy. The step stays wired up because it costs
-      # nothing and becomes real the day the zone lets CI through — a WAF custom
-      # rule skipping Bot Fight Mode for the `x-hausfold-smoke` header below is
-      # all it needs. ⚠️ Until someone adds one, the guard against #159's
-      # regression is the static `run_worker_first` check in worker.yml, NOT
-      # this step. Don't delete that one as a duplicate of this.
+      # answer still fails the deploy. A WAF custom rule skipping Bot Fight Mode
+      # for the `x-hausfold-smoke` header below is what would make the step
+      # dependable rather than lucky. ⚠️ Until someone adds one, the guard
+      # against #159's regression is the static `run_worker_first` check in
+      # worker.yml, NOT this step. Don't delete that one as a duplicate of this.
       - name: Smoke-test the Worker routes against the live site
         run: |
           set -uo pipefail
@@ -173,12 +174,28 @@ jobs:
           # the Worker answered and the route itself is wrong; a Cloudflare
           # 403 with a cf-ray and none of ours means the edge never let us
           # through; a 404 from the asset server is #159's regression.
+          #
+          # ⚠️ Every branch here has to end truthy. GitHub runs a `run:` block
+          # under `bash -e`, and `set -uo pipefail` above does not turn that off,
+          # so a function whose LAST command is a failed test kills the whole
+          # step. The `[ -s "$ERR" ] && echo …` this used to end with did exactly
+          # that on 2026-09-03: curl had written no stderr, the test returned 1,
+          # and five of the ten routes went unprobed because the step exited on
+          # the first failure's own diagnostics. An `if` returns 0 either way.
+          #
+          # The grep below is the same trap wearing a pipe. `pipefail` is on, so
+          # a grep that matches nothing makes the whole pipeline exit 1 — and
+          # "matches nothing" is an EMPTY $HEAD, i.e. the curl transport failure
+          # this function exists to describe. `|| :` is load-bearing; the step
+          # dies at the first such route without it.
           why() {
             echo "      status: $probe_code"
             grep -iE '^(cf-ray|cf-mitigated|content-type|location|server|x-hausfold-[a-z-]+):' "$HEAD" \
-              | sed 's/^/      /'
+              | sed 's/^/      /' || :
             echo "      body: $(head -c 200 "$BODY" | tr '\r\n' '  ')"
-            [ -s "$ERR" ] && echo "      curl: $(head -c 200 "$ERR" | tr '\r\n' '  ')"
+            if [ -s "$ERR" ]; then
+              echo "      curl: $(head -c 200 "$ERR" | tr '\r\n' '  ')"
+            fi
           }
 
           # $1 is the one-line account of what went wrong.
@@ -193,6 +210,51 @@ jobs:
             fi
           }
 
+          # The third verdict, for the two routes that depend on something
+          # outside this deploy. `/download/<app>` and `/api/release/<app>` are
+          # each backed by a live, UNAUTHENTICATED api.github.com call made from
+          # the colo, and the purge above empties the Worker's hour-long release
+          # cache, so this step always asks GitHub cold. When that call doesn't
+          # land, worker.js degrades on purpose: the redirect goes to the
+          # releases page (worker.js's `serveDownload`) and the JSON endpoint
+          # answers 502 RFC 9457 problem+json with `"code":"upstream_unavailable"`
+          # (`serveReleaseMeta`). ⚠️ Match on that code, never on a bare `{}` —
+          # `{}` is what the endpoint returned before the machine-facing surface
+          # landed in #236, and a check written against it is dead code that
+          # reddens main for exactly the reason this branch exists to absorb.
+          # The grep for it is deliberately loose (the bare token, not
+          # `"code":"upstream_unavailable"`): worker.js builds that body with
+          # `JSON.stringify`, so a separator or key order that shifts upstream
+          # would silently stop matching, and on a 502 the token is unambiguous.
+          #
+          # 🚨 Both of those are worker.js WRITING the answer, which is the one
+          # thing this step exists to prove — the asset server would 404, and
+          # #159 did. Reddening main because GitHub rate-limited a Cloudflare
+          # colo is noise: it names a fault this deploy neither caused nor can
+          # fix, on a step that runs after the code is already live. So it is
+          # reported, loudly, and never silent — but it does not fail the job.
+          degraded=0
+          degrade() {
+            echo "warn  $1"
+            why
+            degraded=$((degraded + 1))
+          }
+
+          # One retry before either verdict, and it buys less than it looks like:
+          # it clears a one-off 5xx from GitHub, and that is all. The likeliest
+          # cause here is the unauthenticated rate limit, which is per-IP and
+          # resets hourly — a colo over it is still over it five seconds later,
+          # and the route warns. That warn is the real answer; don't grow this
+          # into a loop trying to turn a rate limit green.
+          #
+          # Skips its sleep when the edge challenged us: that answer is already
+          # inconclusive and the retry would only cost the step 5s per route.
+          retry() {
+            if challenged; then return 0; fi
+            sleep 5
+            probe "$1"
+          }
+
           # `curl | bash` installers: must be 200 and must be a shell script,
           # not the 404 page dressed as one.
           for name in haus hacker minimal everyday; do
@@ -204,19 +266,38 @@ jobs:
             fi
           done
 
-          # Download + release metadata: a 302 to GitHub, and JSON naming a tag.
+          # Download + release metadata: a 302 to the artifact itself, and JSON
+          # naming a tag. Anything else gets one retry, then the fallback is
+          # told apart from a wrong route (see degrade() above).
           for app in perch pounce; do
+            good="30?:https://github.com/hausfold/$app/releases/download/*"
             probe "https://hausfold.co/download/$app"
             case "$probe_code:$probe_loc" in
-              30?:https://github.com/hausfold/$app/releases/download/*)
+              $good) : ;;
+              *) retry "https://hausfold.co/download/$app" ;;
+            esac
+            case "$probe_code:$probe_loc" in
+              $good)
                 echo "ok    /download/$app -> $probe_loc" ;;
+              30?:https://github.com/hausfold/$app/releases/latest)
+                degrade "/download/$app fell back to the releases page: worker.js could not read GitHub's release API." ;;
               *)
                 verdict "/download/$app answered $probe_code -> ${probe_loc:-<none>}" ;;
             esac
 
+            # `"tag":"<something>"` rather than `"tag":"v…"`: this assertion is
+            # the retry trigger as well as the fail path now, and the leading `v`
+            # is a release-naming convention (worker.js's RELEASE_TAG), not
+            # something this route promises. A repo that tags without it would
+            # otherwise redden main for a route that works.
             probe "https://hausfold.co/api/release/$app"
-            if [ "$probe_code" = 200 ] && grep -q '"tag":"v' "$BODY"; then
+            if [ "$probe_code" != 200 ] || ! grep -q '"tag":"[^"]' "$BODY"; then
+              retry "https://hausfold.co/api/release/$app"
+            fi
+            if [ "$probe_code" = 200 ] && grep -q '"tag":"[^"]' "$BODY"; then
               echo "ok    /api/release/$app"
+            elif [ "$probe_code" = 502 ] && grep -q 'upstream_unavailable' "$BODY"; then
+              degrade "/api/release/$app answered 502 upstream_unavailable: worker.js could not read GitHub's release API."
             else
               verdict "/api/release/$app did not return release JSON"
             fi
@@ -240,6 +321,9 @@ jobs:
           fi
 
           if [ "$blocked" -gt 0 ]; then
-            echo "::warning::Cloudflare challenged $blocked of this step's requests, so those routes went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
+            echo "::warning::Cloudflare challenged $blocked of this step's routes, so they went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
+          fi
+          if [ "$degraded" -gt 0 ]; then
+            echo "::warning::$degraded release route(s) answered with worker.js's own GitHub-API fallback. The Worker was reached and the route is right; the api.github.com call behind it was not. Check by hand: curl -sI https://hausfold.co/download/<app> should 302 to a releases/download/ asset, and curl -s https://hausfold.co/api/release/<app> should name a tag. If it stays this way for either app, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is that repo's problem and not this site's."
           fi
           exit "$fail"
