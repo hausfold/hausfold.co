@@ -84,6 +84,20 @@ than parsing green and wiring nothing.
 Those six are the whole set. There are no keys waiting to be added, and an
 unknown one is a build error rather than a silent no-op.
 
+Each one stands on its own line. A header is a comment with nothing in front of
+`widget:` but the `#`, and leading spaces are fine. A key written at the tail of
+a sentence is prose, not wiring:
+
+```bash
+# the pill's look stays in Nix, because it reads options this file cannot see. widget: interval = 10
+```
+
+haus shipped its own clock that way once. The pill sat frozen at whatever minute
+the last reload happened to catch: no interval parsed, no tick, nothing on any
+log. That line fails the build now, naming your file. Prose *about* a header is
+left alone as long as the example sits in backticks, which is where you want it
+anyway.
+
 ## fetch and render
 
 `fetch` gathers; `render` draws. Between them the runtime does the thing that
