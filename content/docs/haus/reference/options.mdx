@@ -254,73 +254,57 @@ The Appearance room's own profiles — named answers to whole-machine questions,
 
 `boolean` · default `false` · e.g. `true`
 
-Make everything haus controls bigger and sharper, in one line. Deliberately
-NARROW: it is about seeing, not about who you are, so it says nothing about
-which rooms you run — set it in any desktop, or in your host on top of one.
+Make everything haus controls bigger and sharper, in one line.
+Deliberately narrow: it is about seeing, not about who you are, so it says
+nothing about which rooms you run. Set it in any desktop, or in your host
+on top of one.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.appearance.largePrint</span></summary>
 
-It moves four things, each as a DEFAULT, so pinning any single one by hand
-still wins — with one asymmetry worth knowing: a DESKTOP that sets one of
-the four beats this profile even when the profile was switched on in your
-host, because the desktop's values sit above a room's defaults in the
-priority ladder. Set the value itself in your host to settle it:
+It sets four options, each as a default, so pinning any of them by hand
+still wins. docs/model.md has the priority ladder and the one asymmetry:
+a desktop that names one of the four beats this profile even when your
+host is what switched the profile on.
 
 ```text
-haus.ui.scale = 1.4              the terminal font (19 → 27 pt), the whole
-                                 command palette, the bar's type (to its
-                                 ceiling, see below), Dock icons 48 → 67,
-                                 Finder's large sidebar rows, windows's gaps
-haus.theme.contrast = "high"     body text 11.3:1 → 19.9:1 against the
-                                 background, across every tool haus
-                                 colours. Measured in nebelung's CI.
+haus.ui.scale = 1.4
+  the terminal font 19 → 27 pt, Dock icons 48 → 67, and the rest of
+  the list on that option
+haus.theme.contrast = "high"
+  body text 11.3:1 → 19.9:1 against the background, across every tool
+  haus colours. Measured in nebelung's CI
 haus.accessibility.increaseContrast = true
-                                 the same lift for NATIVE macOS apps, which
-                                 the palette cannot reach. FDA-gated at the
-                                 option, so it sharpens the result where it
-                                 applies and is skipped where it doesn't.
+  the same lift for native macOS apps, which the palette cannot reach.
+  FDA-gated at the option, so it is skipped where the grant is missing
 haus.displays.main.uiScale = "larger-text"
-                                 one step of the screen's scaled resolution
-                                 toward larger text. The only line here that
-                                 reaches apps haus has never heard of,
-                                 because it changes what a point MEANS.
+  one step of the screen's scaled resolution toward larger text, and
+  the only line here that reaches apps haus has never heard of, because
+  it changes what a point means
 ```
 
-`main` rather than `internal` on purpose: on a laptop they are the same
-panel, but on a Mac mini or a clamshelled MacBook `internal` matches
-nothing — so keying on the built-in panel would quietly do nothing on the
-desk setup most likely to need this. Name a specific monitor by UUID in
-your host file for per-display control; `hausdisp list` prints them.
+Each of those four says where it stops, and haus.ui.scale is the one to
+read: the shelf and the menu bar's height follow neither lever. One stop
+belongs here, because it is the lever people expect and it does not
+exist: macOS's own text-size setting. `universalaccess`'s
+FontSizeCategory stores a value and notifies nobody, so apps never
+re-read it (docs/macos-settings.md has the measurement), and the fourth
+line above is how a large-print machine reaches apps outside haus at all.
+To key it on a specific monitor rather than `main`, name that monitor by
+UUID in your host; `hausdisp list` prints them.
 
-What it does NOT move, stated here because a large-print machine that
-quietly under-delivers is worse than one that says where it stops:
-
-  - macOS's own text-size setting. `universalaccess`'s FontSizeCategory
-    key stores a value and posts no change notification, so apps never
-    re-read it. Display scaling is the lever that works.
-  - Third-party apps' own font settings. Nothing outside haus follows
-    `ui.scale` — they follow the display, which is why the line above
-    matters.
-  - The shelf, which sizes itself from the screen because it hangs
-    off the notch. Scaling the display shrinks its width in points by
-    exactly the factor that makes a point bigger.
-  - The menu bar's HEIGHT. Its type grows to a 1.25x ceiling and stops:
-    36pt of bar with 28pt pills is what keeps them inside the 32pt band
-    macOS's own hover-reveal covers, and that band is macOS's. The lever
-    that does move it is the display scaling above.
-  - A more legible FONT FAMILY, which is a choice rather than a limit.
-    A typeface is taste and a legibility profile should not decide yours;
-    Atkynson Mono is Atkinson Hyperlegible's monospaced sibling, drawn by
-    the Braille Institute for exactly this problem:
+Two things it leaves to you. A more legible font family, because a
+typeface is taste and a legibility profile should not decide yours;
+Atkynson Mono is Atkinson Hyperlegible's monospaced sibling, drawn by the
+Braille Institute for exactly this problem:
 
 ```nix
 haus.fonts.mono.packageName = "nerd-fonts.atkynson-mono";
 haus.fonts.mono.name        = "AtkynsonMono Nerd Font";
 ```
 
-  - Light mode, if it reads better for you: `haus.theme.flavor = "latte"`.
+And light mode, if it reads better for you: `haus.theme.flavor = "latte"`.
 
 </details>
 
@@ -338,59 +322,41 @@ with movement in the corner of their eye.
 
 <summary>More detail<span className="sr-only"> on haus.appearance.reduceMotion</span></summary>
 
-It exists because macOS's own motion is already curated — `haus.animations`
-for the Dock's timings, `haus.accessibility.reduceMotion` for Apple's
-switch — and NEITHER of them reaches the motion haus draws. The bar's
-sweeps and the tiler's automatic moves are the layer's own; they run
-happily on a Mac with every Apple switch flipped, and until this option
-there was no way to quiet them short of turning off the pills that carry
-them.
+It exists because macOS's own switches do not reach the motion haus draws.
+`haus.animations` retunes the Dock's timings and
+`haus.accessibility.reduceMotion` flips Apple's flag; the bar's sweeps and
+the tiler's automatic moves are the layer's own and run happily with both
+of those set.
 
-What it stops, all of it haus's own:
+What it stops, each as a default, so any single one goes back by name:
+this option `true` with `haus.bar.logo.sweep = true` keeps the sweep and
+drops the rest.
 
 ```text
-the logo pill's hover sweep   six family accents turning through the
-                              mark whenever the pointer crosses it
-                              (`haus.bar.logo.sweep`)
-the media pill's marquee      a long track title sweeping past on hover
-                              (`haus.bar.media.marquee`)
-the calendar pill's marquee   the same, for a long meeting title
-                              (`haus.bar.calendar.marquee`)
-the pointer following focus   `haus.windows.mouseFollowsFocus`: a
-                              pointer teleporting across the desk is
-                              movement you did not make
-workspace gravity             `haus.windows.gravity`: the automatic pull
-                              back to a populated workspace when a ⌘Q
-                              empties this one — a whole screen changing
-                              under you, unasked
+haus.bar.logo.sweep        six family accents turning through the mark
+                           whenever the pointer crosses it
+haus.bar.media.marquee     a long track title sweeping past on hover
+haus.bar.calendar.marquee  the same, for a long meeting title
+haus.windows.mouseFollowsFocus
+                           a pointer teleporting across the desk is
+                           movement you did not make
+haus.windows.gravity       the automatic pull back to a populated
+                           workspace when a ⌘Q empties this one, a
+                           whole screen changing under you unasked
 ```
 
-Every one is set as a DEFAULT, so any single one goes back by name:
-this option `true` with `haus.bar.logo.sweep = true` keeps the sweep and
-drops the rest. Nothing loses information — a title too long for its pill
-is clipped rather than swept, and both dropdowns carry it in full.
+Nothing loses information: a title too long for its pill is clipped rather
+than swept, and both dropdowns carry it in full.
 
-IT ALSO ASKS FOR macOS's OWN "Reduce motion"
+It also asks for macOS's own "Reduce motion"
 (`haus.accessibility.reduceMotion`), again as a default, because a machine
 that quietened its own five surfaces and left Spaces sliding would have
-answered the question halfway. Know that flag's blast radius before you
-take it: it is the single switch every browser reads as
-`prefers-reduced-motion: reduce`, so it rewrites the web too — mostly for
-the better, except on sites whose scroll-reveal animation is what makes
-their content visible at all. `haus.accessibility.reduceMotion = false` in
-your host keeps the local half without the web one.
-
-That composition is deliberate rather than convenient. Apple's flag is
-FDA-gated at its own option, so on a machine whose rebuilding app lacks
-Full Disk Access it is skipped with a warning — and everything above still
-applies, because haus's own half depends on no permission at all. A
-legibility switch that only worked with a grant would be the wrong shape.
-
-What it deliberately does NOT set is `haus.animations = "fast"`. That
-group speeds macOS's Dock timings UP rather than removing motion, and
-coming back from it only stops writing rather than restores — a
-motion-sensitivity switch has no business leaving a Dock permanently
-retuned.
+answered the question halfway. Read that option before you take it: it is
+the single flag every browser reads as `prefers-reduced-motion: reduce`,
+so it rewrites the web as well, and
+`haus.accessibility.reduceMotion = false` in your host keeps haus's half
+without the web one. haus's half needs no permission, so it still applies
+on a machine where Apple's FDA-gated flag is skipped.
 
 </details>
 
@@ -410,60 +376,44 @@ Colour: the palette's flavour and contrast, the accent every themed tool spends,
 
 `one of "rosewater", "flamingo", "pink", "mauve", "red", "maroon", "peach", "yellow", "green", "teal", "sky", "sapphire", "blue", "lavender"` · default `"mauve"` · e.g. `"sapphire"`
 
-The accent colour, by Catppuccin name (the Nebelung palette is a
+The accent colour, by Catppuccin name. The Nebelung palette is a
 grey-tinted Catppuccin, so the fourteen names are the same in both
-flavors — the hue you pick follows haus.theme.flavor). It recolours
-the tools hacker injects colours into — lazygit, fzf, yazi (including
-glow-rendered Markdown headings), and the Zen browser — via the matching
-Nebelung per-accent ports.
+flavors and the hue you get follows haus.theme.flavor.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.theme.accent</span></summary>
 
-The shelf follows it too, and is the one surface handed the NAME rather than
-a hex: the shelf resolves it against whichever half of its dark/light
-pair macOS is showing, so the ember under the notch and a pinned tile
-wear this accent in both polarities from one key. Left at the shelf's
-default it accents with its own mark green.
+What follows it: lazygit, fzf, yazi, glow (the Markdown in yazi's
+preview pane and at your own prompt alike), Zen's own UI, the generated
+desktop picture (the bloom behind the mark in "minimal", the whole sweep in
+"bold"), the bar's far-left logo pill, the shelf, and any roster app
+whose Nebelung port ships a per-accent matrix (zed, gh-dash, mpv) once
+haus.theme.ports places it. The `accent-reach` flake check fingerprints
+every one of those under three accents, so a surface cannot start or
+stop following the accent without someone deciding it should.
 
-Three more things follow it: the generated desktop (the bloom behind
-the mark in `minimal`, and the whole sweep in `bold` — see
-haus.wallpaper.style), any roster app whose
-Nebelung port ships a per-accent matrix (zed, gh-dash, mpv), placed by
-haus.theme.ports, and the bar's far-left logo pill. Those ports name the
-theme file after the accent, so changing the accent renames the file the
-app's own `theme` key points at — re-pick it in the app, or it falls
-back to stock.
+The shelf is the one surface handed the name rather than a hex, so the
+ember under the notch and a pinned tile wear this accent in whichever
+half of its dark/light pair macOS is showing. Its own default is mark
+green.
 
-The bar is the newest and the narrowest of the three: `haus.bar.logo`
-is the ONLY pill that follows this option. Every other colour on the bar
-is a fixed palette key, and the palette itself doesn't move — so a
-machine that changes its accent sees exactly one pill change hue, unless
-`haus.bar.logo.color` names one of its own.
+Three limits. A per-accent port names its theme file after the accent,
+so changing the accent renames the file the app's own `theme` key points
+at: re-pick it in the app, or it falls back to stock. Single-file
+dotfiles that bake the palette at their own theme slot (ghostty,
+starship, tmux, bat, …) keep their built-in colour, and the base palette
+stays the same Nebelung grey either way, so only the accent hue moves.
+And `haus.bar.logo` is the only pill this reaches; every other colour on
+the bar is a fixed palette key, unless `haus.bar.logo.color` names one
+of its own.
 
-Honest scope: this moves the accent on those tools, NOT literally
-everything. Single-file dotfiles that bake the palette at their own
-theme slot (ghostty, starship, tmux, bat, …) keep their built-in
-colour and don't follow this option. The base palette stays the same
-Nebelung grey either way — only the accent hue changes.
-
-Zen means Zen's own UI, and the web is a second step. haus places the
-Nebelung userChrome/userContent pair, and nebelung's userContent styles
-`about:` pages only — github.com and youtube.com are Catppuccin-derived
-*userstyles*, LESS source compiled rather than copied, which is why no
-palette file haus writes reaches them on its own. One option does:
-`haus.zen.userStyles` names the sites you want and haus compiles them
-with this accent into that same userContent.css, so a rebuild (and a Zen
-restart) recolours them with nothing to import. Until 2026-08-20 there
-was a second way — haus deployed the Stylus extension and stamped this
-accent into a bundle you imported by hand — and it is retired; what the
-click bought (per-site toggles, self-updating styles, adding one without
-a rebuild) is what the compiled sheet gives up.
-
-That reach is pinned by the `accent-reach` flake check, which
-fingerprints every surface under three accents and fails if one starts
-or stops following the accent without anyone deciding it should.
+Zen's own UI is not the web. The Nebelung userContent haus places styles
+`about:` pages only, so github.com and youtube.com need
+`haus.zen.userStyles`: name the sites and haus compiles their userstyles
+with this accent into that same userContent.css, which a rebuild and a
+Zen restart pick up with nothing to import by hand. No per-site toggle
+and nothing self-updates, so adding a site takes a rebuild.
 
 </details>
 
@@ -495,7 +445,8 @@ Honest scope. This recolours what haus injects colours into:
 Ghostty, bat, delta, lsd, yazi, glow, starship, lazygit, the
 bar, the launcher and the shelf (at runtime, via
 ~/.config/&#123;pounce,perch&#125;/themes/ — and unlike `flavor`, contrast reaches
-both on BOTH halves of their light/dark pair), Zen and Obsidian. It does NOT reach:
+both on BOTH halves of their light/dark pair), Zen, and Obsidian once
+`haus.terminal.obsidianVaults` names a vault. It does NOT reach:
 
   - macOS itself. For system-wide contrast see
     haus.accessibility.increaseContrast — a separate, FDA-gated
@@ -510,60 +461,43 @@ both on BOTH halves of their light/dark pair), Zen and Obsidian. It does NOT rea
 
 `one of "mocha", "latte"` · default `"mocha"` · e.g. `"latte"`
 
-Light or dark. "mocha" (the default) is the dark half of Nebelung,
-which is what haus has always shipped; "latte" is light mode.
+Light or dark. "mocha" is the dark half of Nebelung, "latte" the light
+one, and latte is a real source palette rather than the dark one
+inverted: Catppuccin Latte put through Nebelung's "strip the blue out"
+rule, so it keeps the same warm-grey ramp and the same calmed accents
+the other way up. It reaches 7.0:1 for body text before you touch
+`contrast`. Together with `contrast` that is four palettes, and
+nebelung's CI measures each one rather than eyeballing it.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.theme.flavor</span></summary>
 
-Not an inversion of the dark palette — a different SOURCE palette. Nebelung
-is "Catppuccin with the blue stripped out", and those rules say nothing
-about dark, so they apply to Catppuccin Latte just as well: same warm-grey
-neutral ramp, same calmed accents, the other polarity. Light mode lands at
-7.0:1 for body text on its own, so it's legible before you reach for
-contrast = "high" (which takes it to 9.9:1).
+What follows it: every tool haus themes itself. Ghostty, bat, delta,
+lsd, yazi, glow, fzf, starship, lazygit, zsh-syntax-highlighting,
+opencode, the bar and Zen always, and three more that wait on something
+else: helix when `haus.terminal.editorName` picks it (Nebelung has a
+port for helix and none for the alternatives), gh-dash under
+`haus.terminal.ghDash.enable`, and Obsidian once
+`haus.terminal.obsidianVaults` names a vault. Each one is re-rendered
+for the flavor rather than recoloured in place.
 
-An enum rather than a place to supply your own colours, and that is the
-shape rather than an omission: nebelung renders each tool's port in a
-derivation, so a hand-written palette would either have to re-render all
-of them at rebuild time or reach only the tools haus injects colours into
-directly — never the ones it points at a rendered theme file.
+Three things it does not reach:
 
-It composes with `contrast`: the two axes give four palettes, and nebelung's
-CI measures each one's contrast ratio rather than eyeballing it.
-
-Honest scope, in two parts.
-
-What follows it: every tool haus injects colours into or points at a
-rendered theme — Ghostty, bat, delta, lsd, yazi, fzf, glow, starship,
-lazygit, opencode, the bar, Zen and Obsidian, plus helix
-whenever it is the editor `haus.terminal.editorName` selects (Nebelung
-has a port for helix and none for the alternatives).
-These are genuinely re-rendered for the flavor, not recoloured in place:
-whiskers takes different branches for a light flavor (terminal ANSI
-0/7/8/15 swap, Zen switches its prefers-color-scheme block, delta sets
-`light = true`).
-
-What does NOT follow it:
-
-  - the launcher and the shelf, by default. Both read their palette at
-    runtime and can pick per polarity, so haus.launcher.followSystemAppearance
-    and haus.shelf.followSystemAppearance (default true) hand that
-    choice to macOS Light/Dark instead: haus installs every rendered
+  - the launcher and the shelf, which read their palette at runtime and
+    follow macOS Light/Dark instead. haus installs every rendered
     variant into ~/.config/&#123;pounce,perch&#125;/themes/ and writes the
-    dark/light PAIR at your `contrast`. Set either option false to pin
-    that app to this flavor like everything else.
-  - macOS's own Light/Dark appearance, unless you opt in with
-    haus.theme.systemAppearance = "flavor". Left at its default haus
-    does not touch system appearance in either direction, so latte on
-    a dark macOS looks half-done and that half is yours —
-    except in the launcher and the shelf, which read it themselves.
-  - three of the six desktops (haus.wallpaper.style). The hand-made
-    "orbits", "constellation" and "flow" have the dark palette baked into
-    their pixels; "bold" is generated but follows theme.accent rather
-    than the flavor. "minimal" DOES follow it, in every part — field,
-    mark, glow and debug band.
+    dark/light pair at your `contrast`. Set
+    haus.launcher.followSystemAppearance or
+    haus.shelf.followSystemAppearance false to pin one of them to this
+    flavor like everything else.
+  - macOS's own Light/Dark appearance, until you set
+    haus.theme.systemAppearance = "flavor". Left alone haus touches it
+    in neither direction, so latte on a dark macOS looks half-done and
+    that half is yours.
+  - the desktop picture, unless it is "minimal", which follows the
+    flavor in every part: field, mark, glow and debug band. See
+    haus.wallpaper.style for what the others do instead.
 
 </details>
 
@@ -609,67 +543,44 @@ half-applying someone's config is worse than saying so.
 
 `one of "unmanaged", "flavor", "light", "dark"` · default `"unmanaged"` · e.g. `"flavor"`
 
-Whether haus also sets macOS's OWN Light/Dark appearance — the one
-in System Settings ▸ Appearance, which paints Finder, the menu bar and
-every native app haus can't reach.
+Whether haus also sets macOS's own Light/Dark appearance, the one in
+System Settings ▸ Appearance that paints Finder, the menu bar and every
+native app haus cannot reach.
 
 <details className="hf-more">
 
 <summary>More detail<span className="sr-only"> on haus.theme.systemAppearance</span></summary>
 
 ```text
-unmanaged  (default) leave it alone, in both directions. Your Mac's
-           appearance stays yours; nothing about a rebuild moves it.
-flavor     follow haus.theme.flavor — latte sets Light, mocha
-           sets Dark. This is the one that makes light mode complete
-           rather than half-done.
+unmanaged  (default) leave it alone, in both directions. A managed
+           default would silently revert an appearance you picked in
+           System Settings on the next rebuild.
+flavor     follow haus.theme.flavor: latte sets Light, mocha Dark.
+           The one that makes light mode complete rather than
+           half-done.
 light      pin Light, whatever the flavor is.
 dark       pin Dark, whatever the flavor is.
 ```
 
-Default "unmanaged" on purpose: a managed default would silently revert
-an appearance you picked in System Settings on the next rebuild, which
-is a worse surprise than a half-light machine.
+haus flips it through System Events at each home-manager activation and
+confirms the result with `hausax`, which reads AppKit's effective
+appearance. It never writes `NSGlobalDomain.AppleInterfaceStyle`: that
+key is inert in both directions on macOS 26 and mirrors the appearance
+back at you, so a plist read calls an inert write applied.
+docs/macos-settings.md has the measurement.
 
-How it is applied, and why it is not a `system.defaults` key. Measured
-on macOS 26.6 (2026-08-08), NOT recalled from docs:
-`NSGlobalDomain.AppleInterfaceStyle` is INERT in both directions. Writing
-"Dark" from a light session does nothing; deleting the key from a dark
-one does nothing; `activateSettings -u` does not help; a process launched
-fresh afterwards still reports the old appearance, and no
-AppleInterfaceThemeChangedNotification is posted. That key is a mirror
-the appearance system writes, not a lever. So haus drives appearance
-through System Events (AppleScript) at each home-manager activation,
-which does flip it live in ~0.3s — and confirms the result with `hausax`
-(AppKit's effective appearance), never by reading the key back.
+Two things leave the appearance where it was. System Events needs an
+Automation grant for whichever app runs the rebuild (System Settings ▸
+Privacy & Security ▸ Automation); without it macOS refuses, the rebuild
+says so in a named warning and carries on with everything else. And
+System Settings ▸ Appearance ▸ Auto keeps switching polarity on its own
+schedule, which haus does not fight, so there this option holds only
+until the next scheduled switch. Pick Light or Dark in that panel if
+you want it to stick.
 
-Reachability, the same shape as haus.accessibility.increaseContrast:
-driving System Events needs an Automation grant for whichever app runs
-the rebuild (System Settings ▸ Privacy & Security ▸ Automation). Without
-it macOS refuses, the rebuild says so in a named warning and carries on
-— the appearance just doesn't move, and nothing else is affected.
-
-One more thing macOS can undo: System Settings ▸ Appearance ▸ **Auto**
-switches polarity on its own schedule. haus sets the appearance at
-rebuild time and does not fight it afterwards, so on an Auto machine
-this option holds only until the next scheduled switch. Pick Light or
-Dark there if you want it to stick.
-
-Interaction worth knowing: haus.&#123;launcher,shelf&#125;.followSystemAppearance
-hand polarity to macOS. Set this to "flavor" and macOS's polarity is in
-turn haus's, so those two end up following `flavor` transitively —
-which is usually what you wanted, but it does mean `followSystemAppearance`
-stops being an independent axis on this machine.
-
-There is deliberately no option pointing the other way — no
-desktop-wide "follow the system" that every themed tool obeys. What
-can follow appearance is a tool that owns its whole WINDOW, which is
-not the same set as "a tool": a terminal that flipped on its own would
-leave bat, delta, lsd and yazi rendering the other polarity inside it,
-since those read their palette once at start and stay pinned to
-`flavor`. One switch cannot say that, so following the system stays a
-per-tool opt-in — one option on each tool that can honestly carry it.
-modules/terminal/ghostty/config holds the mechanics where they bite.
+Setting "flavor" settles the launcher and the shelf too:
+haus.&#123;launcher,shelf&#125;.followSystemAppearance hand polarity to macOS,
+and macOS's polarity is now haus's.
 
 </details>
 
@@ -6317,7 +6228,7 @@ affordances than have screenshots shelved.
 
 ## Notifications
 
-How this desktop's own banners get drawn. haus has *drawn through* trill since `haus-notify` landed — finding it at runtime and falling back to Apple's banner when it isn't there — and that is unconditional, in ../core, whatever this room says. What lives HERE is the narrower question of whether haus installs and pins the bundle, at a fixed path its Full Disk Access grant can survive. Named for the subject rather than the app, like every other room since the 2026-08-16 sweep (../moved.nix).
+How this desktop's own banners get drawn. haus has *drawn through* trill since `haus-notify` landed — finding it at runtime and falling back to Apple's banner when it isn't there — and that is unconditional, in ../core, whatever this room says. What lives HERE is the narrower question of whether haus installs and pins the bundle, at a fixed path its Full Disk Access grant can survive. Named for the subject rather than the app, like every other room since the 2026-08-16 sweep (../moved.nix). It also owns the one source haus itself feeds those banners from: `haus.mail`, an IMAP IDLE watcher that draws a card per new message.
 
 ### haus.notifications
 
@@ -6368,6 +6279,165 @@ either. Routing, dropping and rewriting by `source` all live in
 no second dial in front of it.
 
 </details>
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+### haus.mail
+
+Watch a mailbox over IMAP and draw a card per new message, pushed rather than polled. Beside `notifications` because a card is all it produces — and like that switch, it holds no filter of its own: your account's filters decide what arrives, `~/.config/trill/rules.json` decides what a `haus.mail` card then does.
+
+<div className="hf-optindex">
+
+[`address`](#haus-mail-address) [`enable`](#haus-mail-enable) [`host`](#haus-mail-host) [`mailboxes`](#haus-mail-mailboxes) [`port`](#haus-mail-port) [`secretCommand`](#haus-mail-secretcommand)
+
+</div>
+
+#### `haus.mail.address` [#haus-mail-address]
+
+`string` · default `""` · e.g. `"you@gmail.com"`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It names you rather than a machine: your commit identity, the addresses that are yours, the account whose repositories this Mac works on. A desktop that set it would put its author's details on your work.
+
+The mailbox's own address, which is also the IMAP username.
+
+It is the account name for the login and the account name in the link
+the card's Open pill carries — Gmail's `u/<address>` form rather than
+`u/0`, which means "whichever Google account signed in first" and is
+the wrong mailbox on any Mac signed into two of them.
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+#### `haus.mail.enable` [#haus-mail-enable]
+
+`boolean` · default `false`
+
+Watch a mailbox over IMAP and draw one card per new message.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.mail.enable</span></summary>
+
+The server pushes: an IDLE connection is held open, so a card arrives
+in the seconds after the mail does and nothing on this Mac polls. What
+draws it is `haus-notify`, so it is a trill card where trill is
+installed and an Apple banner where it is not, like everything else
+this desktop puts on screen.
+
+Which mail is worth a card is decided twice before haus sees it, and
+neither dial is this room's. The account's own filters decide what
+reaches the mailbox at all — a Gmail filter that skips the inbox never
+produces a card — and `~/.config/trill/rules.json` decides what a
+`haus.mail` card then does: quiet hours, dropped, rewritten, or
+silenced entirely. That is why there is no filter option here.
+
+It needs the mailbox's password before it will start (see
+`secretCommand`). Until there is one the agent parks with EX_CONFIG and
+says so in `~/Library/Logs/haus-mail.log`; the build is fine, the
+watcher simply is not up.
+
+</details>
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+#### `haus.mail.host` [#haus-mail-host]
+
+`string` · default `"imap.gmail.com"` · e.g. `"imap.fastmail.com"`
+
+The IMAP server.
+
+Gmail's by default because that is the account this was built for, but
+nothing in the room is Gmail-specific except one flourish: where the
+server says it speaks Gmail's dialect, the card gets an Open pill that
+goes to the message's own thread. Elsewhere the card carries no pill,
+which is the honest answer — a link that opens the wrong thing is
+worse than no link.
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+#### `haus.mail.mailboxes` [#haus-mail-mailboxes]
+
+`list of string` · default `[ "INBOX" ]`
+
+Which mailboxes to watch, spelled exactly as the server spells them.
+
+⚠️ Do not empty this list to mean "all of them". The watcher's own
+default for an empty list is every mailbox on the account, which on
+Gmail is every label plus All Mail — so one arriving message announces
+itself twice, three times, once per label it matched. haus refuses to
+build with the list empty for that reason.
+
+`INBOX` is the one name IMAP standardises. Everything else is the
+provider's own spelling, and Gmail's are bracketed
+(`[Gmail]/All Mail`); `haus-mail-announce` has no way to guess them, so
+take them from your client or from
+`goimapnotify -conf ~/.config/haus/mail/watch.json -list`.
+
+Example:
+
+```nix
+[
+  "INBOX"
+  "[Gmail]/Starred"
+]
+```
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+#### `haus.mail.port` [#haus-mail-port]
+
+`16 bit unsigned integer; between 0 and 65535 (both inclusive)` · default `993` · e.g. `143`
+
+The IMAP port. 993 is implicit TLS, which is what this room configures
+and what every hosted provider answers on.
+
+An option because a self-hosted server can differ, not because anyone
+should need to change it.
+
+<small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
+
+#### `haus.mail.secretCommand` [#haus-mail-secretcommand]
+
+`string` · default `""`
+
+**Host-only.** A shared desktop may not set it; only your host file can. It points at a secret, or at the store this machine keeps its secrets in, so it belongs to one person on one Mac.
+
+Shell printing the mailbox's IMAP password on stdout.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.mail.secretCommand</span></summary>
+
+A command rather than a value so the password never enters the Nix
+store, where it would be world-readable and kept in every generation.
+It is run at startup by the watcher and again by the announcer for each
+message it fetches, and nothing caches the answer to disk.
+
+EMPTY (the default) means haus holds it: this room declares
+MAIL_IMAP_PASSWORD to the secrets room, `haus-secret --check` asks you
+for it once, and `haus.secrets.provider` decides where it is kept. Set
+this only to fetch the value some other way — which withdraws the
+declaration, since a manifest entry nothing reads is a value the wizard
+would ask for and never use.
+
+On a Google account the value is an **app password**
+(`https://myaccount.google.com/apppasswords`, which needs 2-Step
+Verification on first): Google no longer accepts an account password
+for IMAP. It is a static credential with full access to the mailbox, so
+it belongs in the keychain and nowhere else — and revoking it in that
+same page is what stops this Mac reading the mail, without touching any
+other machine.
+
+⚠️ A command containing `%s` is reinterpreted by the watcher as a
+format string (it substitutes the mailbox name into hooks that way), so
+keep percent signs out of it.
+
+</details>
+
+Example:
+
+```nix
+"op read op://private/gmail/app-password"
+```
 
 <small>Declared in [`modules/notifications/options.nix`](https://github.com/hausfold/haus/blob/main/modules/notifications/options.nix).</small>
 
@@ -6833,6 +6903,17 @@ Override a client's package the usual Nix way — an overlay on
 `claude-code`, `codex`, `opencode` or `pi-coding-agent` — rather than
 dropping the client here and installing your own copy alongside; two
 derivations shipping the same `bin/` name collide in one profile.
+
+Two of them are held ahead of nixpkgs already, and an overlay of yours
+lands on top of that rather than beside it. `claude` is one: Claude
+Code gates models on the client version and nixpkgs trails the
+releases by weeks, so a stock pin means Fable 5.1 sits greyed out in
+`/model` for no visible reason. `pi` is the other: below 0.84.3 every
+lane spawned with a prompt dies. Both step aside once nixpkgs passes
+them. Your overlay sees the pinned build as `prev`, so patching it is
+the same one-liner it always was, though a wrapper that drops
+`version` and `meta` also drops the rebuild-time check that the floor
+is still met.
 
 Ignored entirely when `ai.enable` is off — see `haus._ai.clients`, the
 resolved list every room actually installs from. Before step 4 this was
@@ -7311,7 +7392,11 @@ rather than `git worktree`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Six skills on any machine: `haus` (this machine's setup), scruff's
+Seven skills on any machine. Two are haus's own: `haus` (this
+machine's setup) and `hausfold` (carrying a complaint about anything we
+make upstream — which repo owns the symptom, the `report` verb that
+fills its bug form's diagnostics field in, and the fork to a pull
+request; it files nothing without asking you first). Then scruff's
 own two — `scruff` (the lane lifecycle) and `handoff` (turning work into a
 brief a cold session can act on, ending on the clipboard or in a new
 lane) — factory's two: `factory` (the merge verbs) and `nightshift`
@@ -7331,7 +7416,7 @@ switched on.
 Each tool names its own skills; haus only decides that they are
 installed.
 
-One copy per client, in the directory that client scans:
+One copy per skill per client, in the directory that client scans:
 `~/.claude/skills/haus`, `~/.codex/skills/haus`,
 `~/.config/opencode/skills/haus`, `~/.pi/agent/skills/haus`, and the
 same four directories again

@@ -474,9 +474,9 @@ haus fix --dry-run    # print what the agent would be told, and run nothing
 It gives the client `haus.ai.default` names one turn in `~/.config/nix`, with
 the failing phase, the error, what changed in your config since the last good
 rebuild, and the haus revision you are pinned to. Then it checks the answer
-itself — the config has to evaluate again — and tells you which of three things
-happened: fixed, nothing changed, or still broken. The transcript is
-`~/.local/state/haus/fix.log`.
+itself — the config has to evaluate again — and tells you which of four things
+happened: fixed, fixed by undoing an edit you had not committed yet, nothing
+changed, or still broken. The transcript is `~/.local/state/haus/fix.log`.
 
 Two things it will not do:
 
@@ -494,6 +494,11 @@ Two things it will not do:
 
   So if `~/.config/nix` is not a git repository the offer is never made, and
   `haus fix` refuses: there would be nothing to revert.
+
+  The one break with no commit behind it is the edit you had not saved yet.
+  Fixing that means undoing it, so `HEAD` never moved and reverting it would
+  undo the last thing that was fine. `haus fix` says so instead of printing
+  the line above.
 
 `HAUS_NO_FIX=1` turns the offer off for a rebuild without turning the room off.
 
