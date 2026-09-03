@@ -1,6 +1,6 @@
 ---
 title: Notifications
-description: "Where this desktop's banners come from. haus draws through trill wherever trill answers; this room is the switch that makes haus own the bundle, at a fixed path a Full Disk Access grant can survive."
+description: "Where this desktop's banners come from. haus draws through trill wherever trill answers; this room is the switch that makes haus own the bundle, at a fixed path a Full Disk Access grant can survive, plus the one source haus feeds it from: new mail."
 icon: notifications
 related:
   - title: "What trill is"
@@ -148,6 +148,106 @@ Three things, each left out on purpose:
   which is the only place it is said. If you keep that file linked, set trill's
   family in it yourself.
 
+## New mail
+
+The room's other half is a source rather than a switch. `haus.mail` watches a
+mailbox over IMAP and draws one card for each message that arrives.
+
+Nothing polls. The connection is held open with IDLE, so the server pushes and a
+card lands a second or two behind the mail itself. What draws it is `haus-notify`
+again, which means a trill card where trill is installed and an Apple banner
+where it is not.
+
+```nix
+haus.mail = {
+  enable = true;
+  address = "you@gmail.com";
+  mailboxes = [ "INBOX" ];
+};
+```
+
+`INBOX` is the one mailbox name IMAP standardises. Everything else is your
+provider's own spelling, and Gmail's are bracketed (`[Gmail]/Starred`). Name the
+ones you want rather than leaving the list empty: empty means every mailbox on
+the account, which on Gmail is every label plus All Mail, so one message would
+announce itself three times. haus refuses to build that way.
+
+Then the password, once:
+
+```sh
+haus rebuild
+haus-secret --check
+```
+
+`--check` asks for `MAIL_IMAP_PASSWORD` and keeps it wherever
+[`haus.secrets.provider`](/docs/haus/rooms/security#secrets-your-rooms-need) points, which is your login
+keychain by default. On a Google account the value is an [app
+password](https://myaccount.google.com/apppasswords) rather than the password you
+type at a login screen, because Google stopped accepting that one for IMAP.
+Minting one needs 2-Step Verification turned on first.
+
+<Callout type="warn" title="An app password is a real key to the mailbox">
+It is static and it can read everything in there, which is why it belongs in the
+keychain and never in your host file. The upside of that shape: revoking it on
+Google's own page is all it takes to cut this Mac off, and no other machine of
+yours notices.
+</Callout>
+
+Until there is a password the watcher parks and says so in
+`~/Library/Logs/haus-mail.log`. The rebuild is fine either way; the watcher
+simply is not up yet.
+
+### What counts as new
+
+A mailbox nobody has watched before records where it is and announces nothing,
+so switching this on does not draw a card for every unread message already
+sitting there. After that a message has to be both unseen and newer than the
+last one this Mac announced, which is what stops your laptop announcing mail you
+read on your phone at breakfast.
+
+More than five at once collapses into one card saying how many. That is the
+morning case: mail that arrived while the Mac was shut is a count, not twenty
+banners.
+
+Cards from one mailbox share a trill thread, so a burst folds into a single card
+you can hover to open into the list of what folded in. On Gmail each card also
+carries an Open pill that goes to the message's own thread. Elsewhere it carries
+none, because a link that opens the wrong thing is worse than no link.
+
+The mailbox is opened read-only and only headers are fetched, so nothing here
+marks your mail as read.
+
+### Check it without waiting for mail
+
+```sh
+haus-mail-announce --mailbox INBOX --host imap.gmail.com \
+  --address you@gmail.com \
+  --password-command "haus-secret MAIL_IMAP_PASSWORD" \
+  --state-dir ~/.local/state/haus/mail --test
+```
+
+That draws a card for the newest message in the mailbox and leaves the watermark
+where it was, so it proves the whole chain (login, fetch, decode, card) without
+changing what gets announced next. Drop `--test` for `--dry-run` to print the
+card instead of drawing it.
+
+### What the mail half does not do
+
+- **No filter of its own.** Which mail deserves a card is already decided twice
+  before haus sees it. Your account's filters decide what reaches the mailbox at
+  all, so a Gmail filter that skips the inbox draws nothing, and
+  `~/.config/trill/rules.json` decides what a `haus.mail` card then does. Quiet
+  hours, dropped entirely, one sender silenced: all of it is a line in that file
+  rather than a rebuild, which is the same reason `compositor` above has no
+  second dial.
+- **No OAuth.** Gmail's read scopes are restricted, and an app Google has not
+  put through verification has its refresh token expired every seven days. That
+  is a watcher which dies weekly, quietly, on a schedule nobody remembers. An
+  app password you can revoke in one click is the smaller promise.
+- **No message body.** The card carries who it is from and what it is about. A
+  preview is three lines of somebody else's writing on your screen, and trill
+  already drops a card's body while anything is being shared or recorded.
+
 ## Works with
 
 - **[Bar](/docs/haus/rooms/bar)**: the `trill` pill opens the inbox in one click,
@@ -184,4 +284,4 @@ whenever you like.
 ## Options
 
 Every setting, with types and defaults:
-[`haus.notifications`](/docs/haus/reference/options#notifications).
+[`haus.notifications` and `haus.mail`](/docs/haus/reference/options#notifications).
