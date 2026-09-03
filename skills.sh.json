@@ -1,0 +1,10 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "groupings": [
+    {
+      "title": "haus",
+      "description": "Install haus, the nix-darwin desktop layer for macOS, and read hausfold.co's machine-facing surface for releases and docs search.",
+      "skills": ["hausfold"]
+    }
+  ]
+}
