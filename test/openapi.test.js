@@ -110,6 +110,16 @@ describe('openapi.json vs worker.js', () => {
     expect(spec.paths['/mcp'].post.description).toContain('Stateless');
   });
 
+  it('the WebMCP tool enum names every DOWNLOADABLE app (no silent drift)', () => {
+    // webmcp.tsx is a browser bundle; it cannot import worker-config.js, so
+    // it hand-writes the app enum. This test is the pin that keeps the two
+    // in step: DOWNLOADABLE grows, the enum must grow with it.
+    const webmcp = readFileSync(new URL('../src/components/webmcp.tsx', import.meta.url), 'utf8');
+    for (const app of DOWNLOADABLE) {
+      expect(webmcp, `enum should include '${app}'`).toContain(`'${app}'`);
+    }
+  });
+
   it('worker.js actually routes /mcp', () => {
     // Cheap smoke: an OPTIONS preflight must reach serveMcp and get 204, not
     // fall through to the assets fallback. Proves the route line exists

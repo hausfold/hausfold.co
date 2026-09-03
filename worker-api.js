@@ -46,11 +46,12 @@ export function rateLimit(request) {
 }
 
 // RFC 9457 problem+json. `code` is the machine-readable half an agent branches
-// on; `type` resolves (to the site) so no link in an error body dangles.
+// on; `type` anchors into the problem schema in openapi.json, which resolves
+// (200) on this host so no link in an error body dangles.
 export function problemResponse(status, title, detail, code, extraHeaders = {}) {
   return new Response(
     JSON.stringify({
-      type: `https://hausfold.co/problems/#${code}`,
+      type: "https://hausfold.co/openapi.json#/components/schemas/problem",
       title,
       status,
       detail,

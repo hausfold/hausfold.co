@@ -215,9 +215,10 @@ the token out in prose instead of writing `--something`.
   it names nobody, while the mail is read by one person, which is what `julien@`
   says out loud. This bullet is the rule that binds, and it lives here rather
   than in a code comment because AGENTS.md is what a pre-PR reviewer actually
-  reads. Three places carry the address and they move together or not at all:
-  the colophon (`src/components/sheet.tsx`), `/perch/privacy`, and the
-  `Organization` JSON-LD in `src/app/page.tsx`.
+  reads. Four places carry the address and they move together or not at all:
+  the colophon (`src/components/sheet.tsx`), `/perch/privacy`, the
+  `Organization` JSON-LD in `src/app/page.tsx`, and the spec's `info.contact`
+  in `public/openapi.json` (added 2026-09-03 with the machine-facing surface).
 - **Greyscale at rest on the landing pages, and every colour is borrowed.**
   (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
   *borrowed* half binds everywhere: both halves spend the same six `--a-*` and

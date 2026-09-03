@@ -233,7 +233,7 @@ async function serveReleaseMeta(app, extraHeaders = {}) {
     // not a bare `{}` with a 502, so an agent can branch on `code`.
     return new Response(
       JSON.stringify({
-        type: "https://hausfold.co/problems/#upstream_unavailable",
+        type: "https://hausfold.co/openapi.json#/components/schemas/problem",
         title: "Upstream release lookup failed",
         status: 502,
         detail: "GitHub's release API could not be reached. Retry later.",
@@ -616,7 +616,7 @@ async function serveV1Search(url, env, H) {
 }
 
 function serveV1Desktops(url, H) {
-  const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 20);
+  const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 10);
   const offset = decodeCursor(url.searchParams.get("cursor"));
   if (offset === null) {
     return problemResponse(
@@ -1062,7 +1062,7 @@ async function serveMcp(request, env) {
   if (!rl.ok) {
     return new Response(
       JSON.stringify({
-        type: "https://hausfold.co/problems/#rate_limited",
+        type: "https://hausfold.co/openapi.json#/components/schemas/problem",
         title: "Too many requests",
         status: 429,
         detail: "Rate limit exceeded for /mcp. Wait and retry.",
@@ -1290,7 +1290,7 @@ const hausfold = {
           "Method not allowed",
           "/ask answers GET (query parameter) and POST (JSON body), including SSE streaming.",
           "method_not_allowed",
-          { allow: "GET, POST" },
+          { allow: "GET, POST", ...rateLimit(request).headers },
         );
       }
       return serveAsk(request, env, url);

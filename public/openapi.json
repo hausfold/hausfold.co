@@ -10,15 +10,37 @@
       "email": "julien@hausfold.co",
       "url": "https://hausfold.co/developers/"
     },
-    "license": { "name": "MIT", "url": "https://github.com/hausfold/haus#readme" }
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/hausfold/haus#readme"
+    }
   },
-  "servers": [{ "url": "https://hausfold.co" }],
+  "servers": [
+    {
+      "url": "https://hausfold.co"
+    }
+  ],
   "tags": [
-    { "name": "install", "description": "The install scripts and their pinning." },
-    { "name": "releases", "description": "Latest release metadata and download redirects." },
-    { "name": "docs", "description": "Documentation in machine-readable shapes: search, llms.txt, the ask endpoint." },
-    { "name": "mcp", "description": "The Model Context Protocol endpoint and its metadata." },
-    { "name": "v1", "description": "The versioned REST surface: paginated search, batch, jobs." }
+    {
+      "name": "install",
+      "description": "The install scripts and their pinning."
+    },
+    {
+      "name": "releases",
+      "description": "Latest release metadata and download redirects."
+    },
+    {
+      "name": "docs",
+      "description": "Documentation in machine-readable shapes: search, llms.txt, the ask endpoint."
+    },
+    {
+      "name": "mcp",
+      "description": "The Model Context Protocol endpoint and its metadata."
+    },
+    {
+      "name": "v1",
+      "description": "The versioned REST surface: paginated search, batch, jobs."
+    }
   ],
   "paths": {
     "/v1/search": {
@@ -26,23 +48,61 @@
         "summary": "Full-text search of the documentation, cursor-paginated",
         "description": "Scores the same index /api/search serves (one entry per page section) and returns ranked excerpts. Page with 'cursor' until next_cursor is null.",
         "operationId": "searchDocs",
-        "tags": ["v1", "docs"],
+        "tags": [
+          "v1",
+          "docs"
+        ],
         "parameters": [
-          { "$ref": "#/components/parameters/q" },
-          { "$ref": "#/components/parameters/limit" },
-          { "$ref": "#/components/parameters/cursor" }
+          {
+            "$ref": "#/components/parameters/q"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
         ],
         "responses": {
           "200": {
             "description": "A page of ranked search results.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/searchResponse" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/searchResponse"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "429": { "$ref": "#/components/responses/rateLimited" },
-          "503": { "$ref": "#/components/responses/indexUnavailable" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/indexUnavailable"
+          }
         }
       }
     },
@@ -51,21 +111,55 @@
         "summary": "Every installable desktop and the URL that installs it",
         "description": "One row per desktop. 'pins' is the desktop the URL pre-answers, or null for /haus.sh, which installs the layer and asks.",
         "operationId": "listDesktops",
-        "tags": ["v1", "install"],
+        "tags": [
+          "v1",
+          "install"
+        ],
         "parameters": [
-          { "$ref": "#/components/parameters/limit" },
-          { "$ref": "#/components/parameters/cursor" }
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
         ],
         "responses": {
           "200": {
             "description": "A page of desktops.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/desktopPage" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/desktopPage"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       }
     },
@@ -74,16 +168,44 @@
         "summary": "Every app with signed macOS releases",
         "description": "One row per downloadable app, with the URLs for its release metadata and stable download redirect.",
         "operationId": "listApps",
-        "tags": ["v1", "releases"],
+        "tags": [
+          "v1",
+          "releases"
+        ],
         "responses": {
           "200": {
             "description": "A page of apps.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/appPage" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appPage"
+                }
+              }
             }
           },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       }
     },
@@ -92,19 +214,55 @@
         "summary": "Latest release metadata for an app",
         "description": "Small JSON document (tag, asset, size, url, publishedAt), cached at the edge for five minutes.",
         "operationId": "getRelease",
-        "tags": ["v1", "releases"],
-        "parameters": [{ "$ref": "#/components/parameters/app" }],
+        "tags": [
+          "v1",
+          "releases"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/app"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Release metadata.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/release" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/release"
+                }
+              }
             }
           },
-          "404": { "$ref": "#/components/responses/unknownApp" },
-          "429": { "$ref": "#/components/responses/rateLimited" },
-          "502": { "$ref": "#/components/responses/upstreamUnavailable" }
+          "404": {
+            "$ref": "#/components/responses/unknownApp"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/upstreamUnavailable"
+          }
         }
       }
     },
@@ -113,20 +271,29 @@
         "summary": "Run several read operations in one request",
         "description": "Takes an array of operations (search, release, install) and answers with one result per operation, in order. Per-operation failures come back as ok:false entries, not as a failed request. For more than 20 operations, use POST /v1/jobs. Supports the Idempotency-Key header: the first response is remembered for 24h and a retry with the same key is answered from memory with Idempotency-Replayed: true.",
         "operationId": "batchOperations",
-        "tags": ["v1"],
+        "tags": [
+          "v1"
+        ],
         "parameters": [
           {
             "name": "Idempotency-Key",
             "in": "header",
             "required": false,
             "description": "A client-chosen token (letters, digits, dots, underscores, hyphens; at most 200 characters). The response to the first request carrying this key is reused for every retry with the same key for 24 hours, so a network retry cannot double-apply work.",
-            "schema": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,200}$" }
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,200}$"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/batchRequest" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/batchRequest"
+              }
+            }
           }
         },
         "responses": {
@@ -135,16 +302,46 @@
             "headers": {
               "Idempotency-Replayed": {
                 "description": "true when this response was served from the Idempotency-Key memory rather than re-executed.",
-                "schema": { "type": "string", "enum": ["true"] }
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "true"
+                  ]
+                }
               },
-              "$ref": "#/components/headers/rateLimit"
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
             },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/batchResponse" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/batchResponse"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       }
     },
@@ -153,27 +350,67 @@
         "summary": "Run a batch of operations asynchronously",
         "description": "Same body as POST /v1/batch, but answered immediately with 202 and a Location to poll. The job result is kept for an hour.",
         "operationId": "createJob",
-        "tags": ["v1"],
+        "tags": [
+          "v1"
+        ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/batchRequest" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/batchRequest"
+              }
+            }
           }
         },
         "responses": {
           "202": {
             "description": "The job was queued. Poll the Location (also given in the body as 'url'); a Retry-After of one second suggests the first poll.",
             "headers": {
-              "Location": { "schema": { "type": "string", "format": "uri-reference" } },
-              "Retry-After": { "schema": { "type": "integer" } },
-              "$ref": "#/components/headers/rateLimit"
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              },
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
             },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/jobStatus" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jobStatus"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       }
     },
@@ -182,26 +419,57 @@
         "summary": "Poll an async job",
         "description": "Returns the job's current status ('queued' or 'done'; 'failed' only if the job itself crashed) and, once done, its result: one entry per operation, the same shape POST /v1/batch would have answered synchronously.",
         "operationId": "getJob",
-        "tags": ["v1"],
+        "tags": [
+          "v1"
+        ],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "description": "The job id from the 202 response.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The job's status, with the result once done.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/jobStatus" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jobStatus"
+                }
+              }
             }
           },
-          "404": { "$ref": "#/components/responses/unknownJob" },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "404": {
+            "$ref": "#/components/responses/unknownJob"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       }
     },
@@ -210,43 +478,90 @@
         "summary": "Natural-language query over the documentation (NLWeb shape)",
         "description": "One endpoint to ask this site a question: it answers with ranked doc excerpts under '_meta' plus 'results', the NLWeb response shape. Add streaming=true (or an Accept: text/event-stream) for SSE with start, result and complete events. This is docs search, not a chat model.",
         "operationId": "askGet",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "parameters": [
           {
             "name": "q",
             "in": "query",
             "required": true,
             "description": "The natural-language query.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "streaming",
             "in": "query",
             "required": false,
             "description": "true switches the response to text/event-stream (SSE).",
-            "schema": { "type": "string", "enum": ["true", "false"] }
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Search results under the NLWeb envelope, or an SSE stream when streaming was requested.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/askResponse" } },
-              "text/event-stream": { "schema": { "type": "string" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/askResponse"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "405": { "$ref": "#/components/responses/methodNotAllowed" },
-          "429": { "$ref": "#/components/responses/rateLimited" },
-          "503": { "$ref": "#/components/responses/indexUnavailable" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/indexUnavailable"
+          }
         }
       },
       "post": {
         "summary": "Natural-language query over the documentation, body form",
         "description": "Same as GET /ask with the query in the body. Set prefer.streaming (or send Accept: text/event-stream) for the SSE form.",
         "operationId": "askPost",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -254,15 +569,23 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "query": { "type": "string", "description": "The natural-language query." },
+                  "query": {
+                    "type": "string",
+                    "description": "The natural-language query."
+                  },
                   "prefer": {
                     "type": "object",
                     "properties": {
-                      "streaming": { "type": "boolean", "default": false }
+                      "streaming": {
+                        "type": "boolean",
+                        "default": false
+                      }
                     }
                   }
                 },
-                "required": ["query"]
+                "required": [
+                  "query"
+                ]
               }
             }
           }
@@ -270,15 +593,48 @@
         "responses": {
           "200": {
             "description": "Search results under the NLWeb envelope, or an SSE stream when streaming was requested.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/askResponse" } },
-              "text/event-stream": { "schema": { "type": "string" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/askResponse"
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
             }
           },
-          "400": { "$ref": "#/components/responses/badRequest" },
-          "429": { "$ref": "#/components/responses/rateLimited" },
-          "503": { "$ref": "#/components/responses/indexUnavailable" }
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/indexUnavailable"
+          }
         }
       }
     },
@@ -287,14 +643,19 @@
         "summary": "Install script for the haus layer; asks which desktop to build",
         "description": "Proxies haus's bootstrap.sh with nothing pinned, so the installer interviews you. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`.",
         "operationId": "getHausInstaller",
-        "tags": ["install"],
+        "tags": [
+          "install"
+        ],
         "parameters": [
           {
             "name": "ref",
             "in": "query",
             "description": "Pin the bootstrap.sh source to an exact haus release tag (vYYYY.MM.DD or vYYYY.MM.DD-N). Unpublished: main is the default.",
             "required": false,
-            "schema": { "type": "string", "pattern": "^v[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}(-[0-9]+)?$" }
+            "schema": {
+              "type": "string",
+              "pattern": "^v[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}(-[0-9]+)?$"
+            }
           }
         ],
         "responses": {
@@ -303,13 +664,21 @@
             "headers": {
               "x-hausfold-ref": {
                 "description": "The ref the script was proxied from (a release tag, or main before the first release).",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             },
-            "content": { "text/plain": {} }
+            "content": {
+              "text/plain": {}
+            }
           },
-          "400": { "description": "A ref that is not a release tag was requested." },
-          "502": { "description": "The upstream script could not be fetched." }
+          "400": {
+            "description": "A ref that is not a release tag was requested."
+          },
+          "502": {
+            "description": "The upstream script could not be fetched."
+          }
         }
       }
     },
@@ -318,15 +687,27 @@
         "summary": "Install script for the hacker desktop, pinned by URL",
         "description": "Same script as /haus.sh with the hacker desktop pinned, so the installer does not ask. `x-hausfold-desktop` echoes the pin.",
         "operationId": "getHackerInstaller",
-        "tags": ["install"],
+        "tags": [
+          "install"
+        ],
         "responses": {
           "200": {
             "description": "The installer as plain text.",
             "headers": {
-              "x-hausfold-ref": { "schema": { "type": "string" } },
-              "x-hausfold-desktop": { "schema": { "type": "string" } }
+              "x-hausfold-ref": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-hausfold-desktop": {
+                "schema": {
+                  "type": "string"
+                }
+              }
             },
-            "content": { "text/plain": {} }
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -336,11 +717,19 @@
         "summary": "Install script for the everyday desktop, pinned by URL",
         "description": "Same shape as /hacker.sh for the everyday desktop.",
         "operationId": "getEverydayInstaller",
-        "tags": ["install"],
+        "tags": [
+          "install"
+        ],
         "responses": {
-          "200": { "$ref": "#/components/responses/installer" },
-          "400": { "description": "A ref that is not a release tag was requested." },
-          "502": { "description": "The upstream script could not be fetched." }
+          "200": {
+            "$ref": "#/components/responses/installer"
+          },
+          "400": {
+            "description": "A ref that is not a release tag was requested."
+          },
+          "502": {
+            "description": "The upstream script could not be fetched."
+          }
         }
       }
     },
@@ -349,11 +738,19 @@
         "summary": "Install script for the minimal desktop, pinned by URL",
         "description": "Same shape as /hacker.sh for the minimal desktop.",
         "operationId": "getMinimalInstaller",
-        "tags": ["install"],
+        "tags": [
+          "install"
+        ],
         "responses": {
-          "200": { "$ref": "#/components/responses/installer" },
-          "400": { "description": "A ref that is not a release tag was requested." },
-          "502": { "description": "The upstream script could not be fetched." }
+          "200": {
+            "$ref": "#/components/responses/installer"
+          },
+          "400": {
+            "description": "A ref that is not a release tag was requested."
+          },
+          "502": {
+            "description": "The upstream script could not be fetched."
+          }
         }
       }
     },
@@ -362,14 +759,32 @@
         "summary": "Redirect to the latest macOS release artifact of an app",
         "description": "302 to the most-preferred macOS asset of the app's latest GitHub release (DMG preferred over the archive). GitHub keeps hosting the bytes and counting downloads.",
         "operationId": "redirectDownload",
-        "tags": ["releases"],
-        "parameters": [{ "$ref": "#/components/parameters/app" }],
+        "tags": [
+          "releases"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/app"
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to the asset's download URL, or to the repo's releases page when no signed artifact is found.",
-            "headers": { "Location": { "schema": { "type": "string", "format": "uri" } } }
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
           },
-          "404": { "$ref": "#/components/responses/unknownApp" }
+          "404": {
+            "description": "The app slug is not one of the downloadable apps. A non-HTML request is answered with a real 404 whose body is markdown naming where to look (llms.txt, the docs, openapi.json); a browser gets the site's usual 404 page.",
+            "content": {
+              "text/markdown": {}
+            }
+          }
         }
       }
     },
@@ -378,19 +793,54 @@
         "summary": "Latest release metadata for an app (un-versioned alias of /v1/releases/{app})",
         "description": "The long-lived form of the same document /v1/releases/{app} serves. Kept because it shipped first and is in print.",
         "operationId": "getReleaseLegacy",
-        "tags": ["releases"],
-        "parameters": [{ "$ref": "#/components/parameters/app" }],
+        "tags": [
+          "releases"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/app"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Release metadata.",
-            "headers": { "$ref": "#/components/headers/rateLimit" },
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/release" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/release"
+                }
+              }
             }
           },
-          "404": { "$ref": "#/components/responses/unknownApp" },
-          "429": { "$ref": "#/components/responses/rateLimited" },
-          "502": { "$ref": "#/components/responses/upstreamUnavailable" }
+          "404": {
+            "$ref": "#/components/responses/unknownApp"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/upstreamUnavailable"
+          }
         }
       }
     },
@@ -399,10 +849,19 @@
         "summary": "The family's visual standard as one public markdown URL",
         "description": "Proxied from the workshop repo's docs/design.md. Intended for a coding agent to load before drawing something that carries the brand.",
         "operationId": "getDesignStandard",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "responses": {
-          "200": { "description": "Markdown.", "content": { "text/markdown": {} } },
-          "502": { "description": "The upstream file could not be fetched." }
+          "200": {
+            "description": "Markdown.",
+            "content": {
+              "text/markdown": {}
+            }
+          },
+          "502": {
+            "description": "The upstream file could not be fetched."
+          }
         }
       }
     },
@@ -411,9 +870,16 @@
         "summary": "How agents authenticate (they don't), per the auth.md convention",
         "description": "Markdown. States the one supported method (anonymous), and what this host deliberately does not implement (no OAuth authorization server, no identity assertions). See https://github.com/workos/auth.md for the convention.",
         "operationId": "getAuthMd",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "responses": {
-          "200": { "description": "Markdown.", "content": { "text/markdown": {} } }
+          "200": {
+            "description": "Markdown.",
+            "content": {
+              "text/markdown": {}
+            }
+          }
         }
       }
     },
@@ -422,9 +888,16 @@
         "summary": "The full-text search index of the documentation",
         "description": "The complete search index (Orama JSON format) behind /docs: one entry per page section with url, breadcrumbs and content. search_docs on /mcp and GET /v1/search both score this same index.",
         "operationId": "getSearchIndex",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "responses": {
-          "200": { "description": "Orama search index.", "content": { "application/json": {} } }
+          "200": {
+            "description": "Orama search index.",
+            "content": {
+              "application/json": {}
+            }
+          }
         }
       }
     },
@@ -433,9 +906,16 @@
         "summary": "Documentation as markdown for LLMs, index form",
         "description": "One entry per docs page. Plain text, no runtime.",
         "operationId": "getLlmsIndex",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "responses": {
-          "200": { "description": "Markdown index.", "content": { "text/plain": {} } }
+          "200": {
+            "description": "Markdown index.",
+            "content": {
+              "text/plain": {}
+            }
+          }
         }
       }
     },
@@ -444,9 +924,16 @@
         "summary": "Documentation as markdown for LLMs, full text",
         "description": "Every docs page's full text in one file. Plain text, no runtime.",
         "operationId": "getLlmsFull",
-        "tags": ["docs"],
+        "tags": [
+          "docs"
+        ],
         "responses": {
-          "200": { "description": "Markdown, full text.", "content": { "text/plain": {} } }
+          "200": {
+            "description": "Markdown, full text.",
+            "content": {
+              "text/plain": {}
+            }
+          }
         }
       }
     },
@@ -455,12 +942,18 @@
         "summary": "The MCP server card",
         "description": "Generated from the same tool table /mcp serves, so the two cannot drift. Lets an agent preview the server before opening a transport connection.",
         "operationId": "getMcpServerCard",
-        "tags": ["mcp"],
+        "tags": [
+          "mcp"
+        ],
         "responses": {
           "200": {
             "description": "The server card.",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/serverCard" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/serverCard"
+                }
+              }
             }
           }
         }
@@ -471,14 +964,18 @@
         "summary": "Model Context Protocol endpoint",
         "description": "JSON-RPC 2.0 over Streamable HTTP. Stateless: no session ids, and GET is refused (405) because there is nothing to stream. Open CORS, no authentication. Initialize, then list or call tools; every tool reads public data. Responses carry the RateLimit trio.",
         "operationId": "mcpPost",
-        "tags": ["mcp"],
+        "tags": [
+          "mcp"
+        ],
         "parameters": [
           {
             "name": "mcp-protocol-version",
             "in": "header",
             "required": false,
             "description": "Optional. Informational for this server: negotiation happens in the initialize request's protocolVersion parameter; the response's mcp-protocol-version header names the version the server answered with.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -487,8 +984,15 @@
             "application/json": {
               "schema": {
                 "oneOf": [
-                  { "$ref": "#/components/schemas/jsonRpcRequest" },
-                  { "type": "array", "items": { "$ref": "#/components/schemas/jsonRpcRequest" } }
+                  {
+                    "$ref": "#/components/schemas/jsonRpcRequest"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/jsonRpcRequest"
+                    }
+                  }
                 ]
               }
             }
@@ -498,25 +1002,60 @@
           "200": {
             "description": "JSON-RPC response (single object, or array for a batch).",
             "headers": {
-              "mcp-protocol-version": { "schema": { "type": "string" } },
-              "$ref": "#/components/headers/rateLimit"
+              "mcp-protocol-version": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
             },
-            "content": { "application/json": {} }
+            "content": {
+              "application/json": {}
+            }
           },
-          "202": { "description": "The request (or every message in the batch) was a notification; there is nothing to reply." },
-          "400": { "description": "Body was not JSON (JSON-RPC -32700)." },
+          "202": {
+            "description": "The request (or every message in the batch) was a notification; there is nothing to reply."
+          },
+          "400": {
+            "description": "Body was not JSON (JSON-RPC -32700)."
+          },
           "405": {
             "description": "Method not POST. GET would open an SSE stream; this server has nothing to push."
           },
-          "429": { "$ref": "#/components/responses/rateLimited" }
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
         }
       },
       "options": {
         "summary": "CORS preflight",
         "description": "Open preflight: any origin, POST, and the MCP headers.",
         "operationId": "mcpPreflight",
-        "tags": ["mcp"],
-        "responses": { "204": { "description": "Preflight allowed." } }
+        "tags": [
+          "mcp"
+        ],
+        "responses": {
+          "204": {
+            "description": "Preflight allowed."
+          }
+        }
       }
     }
   },
@@ -527,85 +1066,269 @@
         "headers": {
           "x-hausfold-ref": {
             "description": "The ref the script was proxied from (a release tag, or main before the first release).",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           "x-hausfold-desktop": {
             "description": "The desktop this URL pinned. Absent on /haus.sh, which pins nothing.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         },
-        "content": { "text/plain": {} }
+        "content": {
+          "text/plain": {}
+        }
       },
       "badRequest": {
         "description": "A parameter was missing or malformed.",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "unknownApp": {
         "description": "The app slug is not one of the downloadable apps. The problem detail names the ones that are.",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "unknownJob": {
         "description": "No such job, or its result aged out (results are kept for an hour).",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "rateLimited": {
         "description": "The rate-limit window was exceeded. Retry after the indicated seconds.",
         "headers": {
-          "$ref": "#/components/headers/rateLimit",
-          "Retry-After": { "schema": { "type": "integer" } }
+          "Retry-After": {
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
         },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "upstreamUnavailable": {
         "description": "GitHub's release API could not be reached.",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "indexUnavailable": {
         "description": "The docs search index could not be loaded.",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "methodNotAllowed": {
         "description": "The path exists but not for this method.",
         "headers": {
-          "Allow": { "schema": { "type": "string" } },
-          "$ref": "#/components/headers/rateLimit"
+          "Allow": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
         },
         "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       },
       "notFound": {
         "description": "No endpoint answers this method and path.",
-        "headers": { "$ref": "#/components/headers/rateLimit" },
-        "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/problem" } }
-        }
-      }
-    },
-    "headers": {
-      "rateLimit": {
-        "description": "The RateLimit trio (draft-ietf-httpapi-ratelimit-headers): limit is the per-window ceiling, remaining what is left of it, reset the seconds until the window turns. Per edge node, so approximate at high concurrency.",
         "headers": {
-          "RateLimit-Limit": { "schema": { "type": "integer" } },
-          "RateLimit-Remaining": { "schema": { "type": "integer" } },
-          "RateLimit-Reset": { "schema": { "type": "integer" } }
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
         }
       }
     },
@@ -615,28 +1338,44 @@
         "in": "path",
         "required": true,
         "description": "An app with signed, notarized macOS releases on GitHub.",
-        "schema": { "type": "string", "enum": ["pounce", "perch"] }
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pounce",
+            "perch"
+          ]
+        }
       },
       "q": {
         "name": "q",
         "in": "query",
         "required": true,
         "description": "The search query.",
-        "schema": { "type": "string", "minLength": 1 }
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
       },
       "limit": {
         "name": "limit",
         "in": "query",
         "required": false,
         "description": "Page size.",
-        "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 }
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 10
+        }
       },
       "cursor": {
         "name": "cursor",
         "in": "query",
         "required": false,
         "description": "The next_cursor value from the previous page. Omit (or leave empty) for the first page.",
-        "schema": { "type": "string" }
+        "schema": {
+          "type": "string"
+        }
       }
     },
     "schemas": {
@@ -644,90 +1383,225 @@
         "type": "object",
         "description": "RFC 9457 problem+json. 'code' is the machine-readable half an agent branches on; 'type' resolves on this host.",
         "properties": {
-          "type": { "type": "string", "format": "uri-reference" },
-          "title": { "type": "string" },
-          "status": { "type": "integer" },
-          "detail": { "type": "string" },
+          "type": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          },
           "code": {
             "type": "string",
             "description": "Stable identifier for the failure kind: missing_query, invalid_cursor, unknown_app, unknown_job, invalid_json, invalid_batch, batch_too_large, job_too_large, rate_limited, upstream_unavailable, index_unavailable, method_not_allowed, not_found."
           }
         },
-        "required": ["type", "title", "status", "detail", "code"]
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code"
+        ]
       },
       "release": {
         "type": "object",
         "properties": {
-          "tag": { "type": "string", "examples": ["v2026.08.14"] },
-          "asset": { "type": "string", "examples": ["pounce-2026.08.14-macos.dmg"] },
-          "size": { "type": "integer", "description": "Asset size in bytes." },
-          "url": { "type": "string", "format": "uri" },
-          "publishedAt": { "type": "string", "format": "date-time" }
+          "tag": {
+            "type": "string",
+            "examples": [
+              "v2026.08.14"
+            ]
+          },
+          "asset": {
+            "type": "string",
+            "examples": [
+              "pounce-2026.08.14-macos.dmg"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "description": "Asset size in bytes."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         },
-        "required": ["tag", "asset", "size", "url", "publishedAt"]
+        "required": [
+          "tag",
+          "asset",
+          "size",
+          "url",
+          "publishedAt"
+        ]
       },
       "searchHit": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "format": "uri-reference" },
-          "breadcrumbs": { "type": "array", "items": { "type": "string" } },
-          "excerpt": { "type": "string" },
-          "score": { "type": "integer" }
+          "url": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "breadcrumbs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excerpt": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          }
         },
-        "required": ["url", "breadcrumbs", "excerpt", "score"]
+        "required": [
+          "url",
+          "breadcrumbs",
+          "excerpt",
+          "score"
+        ]
       },
       "searchResponse": {
         "type": "object",
         "properties": {
-          "query": { "type": "string" },
-          "results": { "type": "array", "items": { "$ref": "#/components/schemas/searchHit" } },
+          "query": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/searchHit"
+            }
+          },
           "next_cursor": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "Pass back as 'cursor' for the next page; null means this was the last."
           },
-          "total": { "type": "integer", "description": "Total results across all pages." }
+          "total": {
+            "type": "integer",
+            "description": "Total results across all pages."
+          }
         },
-        "required": ["query", "results", "next_cursor", "total"]
+        "required": [
+          "query",
+          "results",
+          "next_cursor",
+          "total"
+        ]
       },
       "desktop": {
         "type": "object",
         "properties": {
-          "desktop": { "type": "string" },
-          "command": { "type": "string", "description": "The one-line install command." },
+          "desktop": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string",
+            "description": "The one-line install command."
+          },
           "pins": {
-            "type": ["string", "null"],
+            "type": [
+              "string",
+              "null"
+            ],
             "description": "The desktop this URL pre-answers, or null for /haus.sh, which asks."
           }
         },
-        "required": ["desktop", "command", "pins"]
+        "required": [
+          "desktop",
+          "command",
+          "pins"
+        ]
       },
       "desktopPage": {
         "type": "object",
         "properties": {
-          "results": { "type": "array", "items": { "$ref": "#/components/schemas/desktop" } },
-          "next_cursor": { "type": ["string", "null"] },
-          "total": { "type": "integer" }
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/desktop"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "total": {
+            "type": "integer"
+          }
         },
-        "required": ["results", "next_cursor", "total"]
+        "required": [
+          "results",
+          "next_cursor",
+          "total"
+        ]
       },
       "app": {
         "type": "object",
         "properties": {
-          "app": { "type": "string" },
-          "repo": { "type": "string", "format": "uri-reference" },
-          "release_metadata": { "type": "string", "format": "uri" },
-          "latest_download": { "type": "string", "format": "uri" }
+          "app": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "release_metadata": {
+            "type": "string",
+            "format": "uri"
+          },
+          "latest_download": {
+            "type": "string",
+            "format": "uri"
+          }
         },
-        "required": ["app", "repo", "release_metadata", "latest_download"]
+        "required": [
+          "app",
+          "repo",
+          "release_metadata",
+          "latest_download"
+        ]
       },
       "appPage": {
         "type": "object",
         "properties": {
-          "results": { "type": "array", "items": { "$ref": "#/components/schemas/app" } },
-          "next_cursor": { "type": ["string", "null"] },
-          "total": { "type": "integer" }
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/app"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "total": {
+            "type": "integer"
+          }
         },
-        "required": ["results", "next_cursor", "total"]
+        "required": [
+          "results",
+          "next_cursor",
+          "total"
+        ]
       },
       "batchRequest": {
         "type": "object",
@@ -741,31 +1615,66 @@
               "oneOf": [
                 {
                   "properties": {
-                    "op": { "type": "string", "const": "search" },
-                    "query": { "type": "string" },
-                    "limit": { "type": "integer", "minimum": 1, "maximum": 20, "default": 5 }
+                    "op": {
+                      "type": "string",
+                      "const": "search"
+                    },
+                    "query": {
+                      "type": "string"
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20,
+                      "default": 5
+                    }
                   },
-                  "required": ["op", "query"]
+                  "required": [
+                    "op",
+                    "query"
+                  ]
                 },
                 {
                   "properties": {
-                    "op": { "type": "string", "const": "release" },
-                    "app": { "type": "string", "enum": ["pounce", "perch"] }
+                    "op": {
+                      "type": "string",
+                      "const": "release"
+                    },
+                    "app": {
+                      "type": "string",
+                      "enum": [
+                        "pounce",
+                        "perch"
+                      ]
+                    }
                   },
-                  "required": ["op", "app"]
+                  "required": [
+                    "op",
+                    "app"
+                  ]
                 },
                 {
                   "properties": {
-                    "op": { "type": "string", "const": "install" },
-                    "desktop": { "type": "string", "description": "Omit to list every desktop." }
+                    "op": {
+                      "type": "string",
+                      "const": "install"
+                    },
+                    "desktop": {
+                      "type": "string",
+                      "description": "Omit to list every desktop."
+                    }
                   },
-                  "required": ["op"]
+                  "required": [
+                    "op"
+                  ]
                 }
               ]
             }
           }
         },
-        "required": ["operations"]
+        "required": [
+          "operations"
+        ]
       },
       "batchResponse": {
         "type": "object",
@@ -775,38 +1684,79 @@
             "items": {
               "type": "object",
               "properties": {
-                "op": { "type": ["string", "null"] },
-                "ok": { "type": "boolean" },
-                "data": { "description": "The operation's result when ok is true." },
+                "op": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "ok": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "description": "The operation's result when ok is true."
+                },
                 "error": {
                   "type": "object",
                   "properties": {
-                    "status": { "type": "integer" },
-                    "code": { "type": "string" }
+                    "status": {
+                      "type": "integer"
+                    },
+                    "code": {
+                      "type": "string"
+                    }
                   },
                   "description": "Present when ok is false."
                 }
               },
-              "required": ["op", "ok"]
+              "required": [
+                "op",
+                "ok"
+              ]
             }
           }
         },
-        "required": ["results"]
+        "required": [
+          "results"
+        ]
       },
       "jobStatus": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "status": { "type": "string", "enum": ["queued", "done", "failed"] },
-          "created_at": { "type": "string", "format": "date-time" },
-          "url": { "type": "string", "format": "uri", "description": "Where to poll; present on the 202 body." },
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "done",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Where to poll; present on the 202 body."
+          },
           "result": {
             "$ref": "#/components/schemas/batchResponse",
             "description": "Present once status is done."
           },
-          "error": { "type": "string", "description": "Present when status is failed." }
+          "error": {
+            "type": "string",
+            "description": "Present when status is failed."
+          }
         },
-        "required": ["id", "status", "created_at"]
+        "required": [
+          "id",
+          "status",
+          "created_at"
+        ]
       },
       "askResponse": {
         "type": "object",
@@ -815,41 +1765,106 @@
           "_meta": {
             "type": "object",
             "properties": {
-              "response_type": { "type": "string", "enum": ["search_results", "streaming"] },
-              "version": { "type": "string" },
-              "service": { "type": "string" },
-              "endpoint": { "type": "string" }
+              "response_type": {
+                "type": "string",
+                "enum": [
+                  "search_results",
+                  "streaming"
+                ]
+              },
+              "version": {
+                "type": "string"
+              },
+              "service": {
+                "type": "string"
+              },
+              "endpoint": {
+                "type": "string"
+              }
             },
-            "required": ["response_type", "version", "service", "endpoint"]
+            "required": [
+              "response_type",
+              "version",
+              "service",
+              "endpoint"
+            ]
           },
-          "query": { "type": "string" },
-          "results": { "type": "array", "items": { "$ref": "#/components/schemas/searchHit" } }
+          "query": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/searchHit"
+            }
+          }
         },
-        "required": ["_meta", "query", "results"]
+        "required": [
+          "_meta",
+          "query",
+          "results"
+        ]
       },
       "serverCard": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "version": { "type": "string" },
-          "serverUrl": { "type": "string", "format": "uri" },
-          "tools": { "type": "array", "items": { "type": "object" } }
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "serverUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
         },
-        "required": ["name", "description", "version", "serverUrl", "tools"]
+        "required": [
+          "name",
+          "description",
+          "version",
+          "serverUrl",
+          "tools"
+        ]
       },
       "jsonRpcRequest": {
         "type": "object",
         "properties": {
-          "jsonrpc": { "type": "string", "const": "2.0" },
+          "jsonrpc": {
+            "type": "string",
+            "const": "2.0"
+          },
           "id": {
             "description": "Absent on notifications.",
-            "oneOf": [{ "type": "string" }, { "type": "integer" }]
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
           },
-          "method": { "type": "string" },
-          "params": { "type": "object" }
+          "method": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object"
+          }
         },
-        "required": ["jsonrpc", "method"]
+        "required": [
+          "jsonrpc",
+          "method"
+        ]
       }
     }
   },
