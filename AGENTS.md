@@ -48,7 +48,7 @@ by hand, and open all the way down."**
 | **the docs** (`/docs/*`) | `content/docs/` — Fumadocs MDX. ⚠️ There is no `/docs` page, only the trees under it; `/docs` 301s to `/docs/haus/` |
 | the install one-liner — the URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
 | the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
-| the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/hausfold/SKILL.md`, with `skills.sh.json` at the root for how the repo page groups it and `plugin.json` beside them — all three describe the same three capabilities and none is pinned to the others, so they move together. ⚠️ Merging does not publish it — see [The skills.sh listing](#the-skillssh-listing) |
+| the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/haus-install/SKILL.md`, with `skills.sh.json` at the root for how the repo page groups it and `plugin.json` beside them — all three describe the same three capabilities and none is pinned to the others, so they move together. ⚠️ Merging does not publish it — see [The skills.sh listing](#the-skillssh-listing) |
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (checkout `./haus` in the workshop — **not** `./hausfold.co`, which is this repo) |
 | a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
 | a product's **documentation** | **here** — pounce, perch, trill and scruff each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
@@ -204,7 +204,7 @@ the token out in prose instead of writing `--something`.
 
 ## The skills.sh listing
 
-`skills/hausfold/SKILL.md` is the one skill this repo publishes: how an agent
+`skills/haus-install/SKILL.md` is the one skill this repo publishes: how an agent
 installs haus and reads the machine-facing surface. `skills/` is one of the paths
 the CLI searches, so `npx skills add hausfold/hausfold.co` works off `main` the
 moment the file lands there. Neither `skills/` nor `skills.sh.json` is site
@@ -222,16 +222,17 @@ skill never shows up, install it once rather than waiting for something to
 notice it.
 
 The URL is `owner/repo/skill` —
-[`skills.sh/hausfold/hausfold.co/hausfold`](https://skills.sh/hausfold/hausfold.co/hausfold).
+[`skills.sh/hausfold/hausfold.co/haus-install`](https://skills.sh/hausfold/hausfold.co/haus-install).
 The two-segment repo page exists only once the repo is indexed, so a 404 there
 means "never installed", not "wrong path".
 
-⚠️ **The name `hausfold` is taken twice, deliberately by nobody.** haus ships its
-own `hausfold` skill — report a bug upstream — installed at
-`~/.claude/skills/hausfold` and edited in `hausfold/haus`; this one is the
-installer and the machine surface. Same name, different skill, same install path
-for a global `npx skills add`. Renaming either moves a published URL or a
-generated skill directory, so it is a decision rather than a tidy-up.
+🚨 **The skill is `haus-install`, not `hausfold`, and the name is not free to
+take back.** haus owns `hausfold` — its "report a bug upstream" skill, generated
+into `~/.claude/skills/hausfold` and edited in `hausfold/haus` — and `haus` is
+taken by that repo too. This one shipped as `hausfold` in #235, collided on
+exactly the machines most likely to install it, and was renamed before anyone
+depended on it. `plugin.json` keeps `"name": "hausfold"`: that names the plugin,
+a different namespace, and nothing installs it into a skills directory.
 
 `skills.sh.json` at the root groups that page and is **display only**: it changes
 nothing about how the CLI installs, and skills.sh reads it on the same
