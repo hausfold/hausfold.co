@@ -313,6 +313,41 @@ collides with a newly claimed digit is refused at rebuild rather than silently
 losing one of the two bindings. Raising the count never renames an existing
 workspace, so nothing moves.
 
+### Pin one to a screen
+
+By default a workspace opens on whichever display you last used it on, which is
+fine until you have two screens and a habit. Name the display and it stops
+wandering:
+
+```nix
+haus.windows.workspaceMonitors = {
+  "1" = "main";       "2" = "main";       "3" = "main";       "4" = "main";
+  "5" = "secondary";  "6" = "secondary";  "7" = "secondary";  "8" = "secondary";
+  comms = [ "Dell U2720Q" "main" ];
+};
+```
+
+One table for both kinds of workspace: the numbered ones by their digit, the
+ones you named in `haus.workspaces` by name. Four ways to say which display,
+and they mix freely:
+
+| | |
+|---|---|
+| `main`, `secondary`, `built-in` | where the display is, true on any desk |
+| `2` | its position left to right, `1` being leftmost |
+| `Dell` | part of its name, matched without regard to case |
+| `^built-in retina display$` | a regex, when you wrap it in `^` and `$` |
+
+A **list** is a fallback chain, tried in order, which is how `comms` above
+survives the Dell being unplugged. Name a workspace this machine hasn't got and
+the rebuild refuses it: AeroSpace drops an assignment for an unknown workspace
+in silence, and silence reads exactly like the option not working.
+
+One thing a shared [desktop](/docs/haus/desktops/creating) may not do here is
+name a panel. `main` and `secondary` describe a shape any desk can have; "Dell
+U2720Q" describes a purchase, so it stays in your own host file, the same line
+a display's UUID sits on.
+
 ## Tiles or accordion
 
 A fresh workspace splits the space between its windows. The other layout stacks
@@ -343,6 +378,38 @@ The pointer follows keyboard focus, between windows as well as between screens.
 Both halves are *lazy*: nothing moves while the pointer is already inside
 whatever took focus, so it re-centres on the jumps that would have lost it and
 sits still on the ones that wouldn't.
+
+## How much air between the windows
+
+Gaps are derived, not guessed. They follow `haus.ui.scale`, and the edge the bar
+sits on reserves the bar's own height so a tiled window never ends up underneath
+it. What you set is the *base*, which the scale then multiplies:
+
+```nix
+haus.windows.gaps = {
+  inner      = { builtin = 0; external = 0; };   # between two windows
+  outer.left = { builtin = 0; external = 0; };   # at the screen's edges
+  outer.right = { builtin = 0; external = 0; };
+};
+```
+
+Two numbers because AeroSpace takes a gap per monitor and the two want
+different ones. Out of the box that's 10 on the built-in and 20 around an
+external, which is the same gap reading the same size on panels of very
+different pitch. `0` is `0` at every scale, so the block above is how you get a
+desktop with no gaps at all.
+
+`outer.top` and `outer.bottom` are deliberately not settable. Those two carry
+the bar's reservation, and macOS excludes nothing at the bottom of a display, so
+a `0` there wouldn't be a tighter desktop, it would be windows drawn under the
+bar.
+
+Change these and three other things move with them, because they all read the
+same numbers: the bar's left and right padding, so the outermost pill still
+lines up with the window edge below it; the near-fullscreen terminal popups
+(⌘G, ⌘⇧F), which size themselves to the tiled area rather than the screen; and
+the [wallpaper](/docs/haus/rooms/appearance)'s debug band, which sits exactly
+where a tiled window's bottom-left corner lands.
 
 And one that IS on by default, because most of the time it saves you a keystroke:
 
