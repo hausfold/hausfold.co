@@ -240,6 +240,7 @@ export default function Home() {
         </section>
 
         <Colophon>
+          <Link href="/privacy">privacy</Link>
           <GithubMark />
         </Colophon>
       </main>
