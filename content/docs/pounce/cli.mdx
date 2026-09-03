@@ -59,6 +59,7 @@ pounce --help / --version
 | `-p`, `--placeholder` | Prompt text for the search field |
 | `-i`, `--icon` | SF Symbol icon for the picker |
 | `--chain [keys]` | Mark a free-text commit as feeding another `pounce` step. Optional comma-separated action list (`--chain enter,opt`); bare `--chain` means `enter` |
+| `--chain-rows [keys]` | The same for a picked **row**. Same grammar. Two flags rather than one because a single step often wants opposite answers for the same key: Enter on a search box that reopens the picker should hold the window, Enter on a row that opens something should not |
 | `--actions <spec>` | Label the action bar on a rowless step: `"Go\|shift:New line\|cmd:Screenshot\|opt:Drafts"` |
 | `--grid` | Draw the step's rows as a two-column card grid instead of a list: a rectangle each, with an icon and a line of description. Same stdin, same output, same exit code. `--launcher` ignores it |
 | `--dial <spec>` | A small set of values the user cycles in place with `⇥` / `⇧⇥`: `"model=sonnet\|opus\|haiku"`. Repeatable. **Adds a middle field to the output** ([what a picker hands back](/docs/pounce/writing-commands#what-a-picker-hands-back)) |
