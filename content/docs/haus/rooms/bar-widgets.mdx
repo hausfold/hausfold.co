@@ -79,8 +79,9 @@ than parsing green and wiring nothing.
 | `subscribes` | names, comma-separated | `system_woke` | the events it wakes for |
 | `graph` | a point count | none | makes the item a graph of that width. Needs an `interval` |
 | `segments` | names, comma-separated | none | makes the pill a bracket over one item per name |
+| `mark` | one mark name | none | the widget's own hue. Its dropdown headings and sparklines wear it when they name no tone of their own |
 
-Those five are the whole set. There are no keys waiting to be added, and an
+Those six are the whole set. There are no keys waiting to be added, and an
 unknown one is a build error rather than a silent no-op.
 
 ## fetch and render
@@ -205,25 +206,42 @@ it silently starts claiming something is 60% of the way to broken.
 ## Dropdowns
 
 Set `popup = true` in the header and define `popup_rows`. The runtime owns the
-frame, the alignment, every row's font and height, the rebuild, and closing the
+frame, the grid, every row's font and height, the rebuild, and closing the
 thing after a click.
 
 ```bash
 popup_rows() {
-  popup_heading --label "Pomodoro" --icon ""
-  popup_row --label "Round" --value "3 of 4"
-  popup_action --label "Reset" --run "pomodoro reset"
+  popup_heading --label "Pomodoro" --icon "" --badge "3 of 4"
+  popup_bar --label "this round" --percentage 62 --value "62%"
+  popup_row --label "Started" --value "14:02"
+  popup_separator
+  popup_button --label "Reset" --run "pomodoro reset"
 }
 ```
 
 | kind | for |
 |---|---|
-| `popup_heading` | a section title. `--count` appends ` · n` when it's above zero |
-| `popup_row` | a thing you can act on. `--value` gives it a right-hand column, aligned for you |
-| `popup_action` | a verb — Refresh, or a command to copy |
+| `popup_heading` | a section title, in your widget's hue. A glyph sits in a tinted well. `--count` appends ` · n`; `--badge` puts a capsule on the right |
+| `popup_row` | a thing you can act on. `--value` lands flush right on the ladder; `--badge` is a capsule; `--hint` a small caption |
+| `popup_action` | a verb: Refresh, or a command to copy. `--hint` for "2m ago" |
+| `popup_button` | a filled, centred control. Tinted by default; `--solid` for the one primary thing to do |
+| `popup_bar` | a name, a real track as full as the number, the number |
+| `popup_graph` | a sparkline the width of the panel, fed `--points "…"` |
 | `popup_note` | an aside — "nothing", "+4 more" |
+| `popup_separator` | a hairline between two groups |
+| `popup_space` | nothing, that many points tall |
 | `popup_slider` | a track you aim, like a scrubber |
 | `popup_image` | a row that is entirely a picture |
+
+Every dropdown is a panel on one grid: a glyph column, a text column, and a
+right edge that values, badges and hints all land on. You never name a width
+or a padding. Text that would not fit is cut with an ellipsis rather than
+spilling out of the panel, and `popup_width <points>` at the top of your file
+buys a wider one for a widget whose rows are sentences.
+
+Rows that do something light up under the pointer; rows that don't, don't.
+That is the whole affordance, and it is why a `popup_row` with no `--run` or
+`--open` stays flat.
 
 Every row closes the popup when clicked — a dropdown you have to dismiss
 separately from acting on it is one you dismiss by mistake. The slider is the
@@ -232,7 +250,9 @@ landing was a second out.
 
 With a `--value`, the tone follows the **number**: the name on the left is the
 question and stays dim, the value on the right is the answer and is the only
-half on the ladder.
+half on the ladder. A heading with no tone of its own wears the `mark` your
+header declares, so a pill that is teal in the bar opens a teal panel, not a
+grey one.
 
 ## Listening for things
 
