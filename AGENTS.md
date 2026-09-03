@@ -730,9 +730,12 @@ CI, by what a PR touches:
   UNAUTHENTICATED `api.github.com` call from the colo, and the purge two steps
   earlier empties the Worker's hour-long release cache, so the check always asks
   GitHub cold. When that call doesn't land, worker.js degrades by design: the
-  redirect goes to the releases page, the JSON answers 502 `{}`. Both are the
-  **Worker writing the answer**, which is the one thing this step exists to
-  prove, so after one retry they are reported as `warn` and do not fail the job.
+  redirect goes to the releases page, and the JSON answers 502 problem+json with
+  `"code":"upstream_unavailable"` — ⚠️ **not** a bare `{}`, which is what it
+  returned before #236 and which a check written today would silently never
+  match. Both are the **Worker writing the answer**, which is the one thing this
+  step exists to prove, so after one retry they are reported as `warn` and do not
+  fail the job.
   Don't tighten that back into a failure — GitHub rate-limiting a Cloudflare colo
   is not something a deploy caused, and this step runs after the code is live
   anyway. A persistent warn means the release ships no `-macos.*` artifact,

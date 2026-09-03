@@ -182,10 +182,16 @@ jobs:
           # that on 2026-09-03: curl had written no stderr, the test returned 1,
           # and five of the ten routes went unprobed because the step exited on
           # the first failure's own diagnostics. An `if` returns 0 either way.
+          #
+          # The grep below is the same trap wearing a pipe. `pipefail` is on, so
+          # a grep that matches nothing makes the whole pipeline exit 1 — and
+          # "matches nothing" is an EMPTY $HEAD, i.e. the curl transport failure
+          # this function exists to describe. `|| :` is load-bearing; the step
+          # dies at the first such route without it.
           why() {
             echo "      status: $probe_code"
             grep -iE '^(cf-ray|cf-mitigated|content-type|location|server|x-hausfold-[a-z-]+):' "$HEAD" \
-              | sed 's/^/      /'
+              | sed 's/^/      /' || :
             echo "      body: $(head -c 200 "$BODY" | tr '\r\n' '  ')"
             if [ -s "$ERR" ]; then
               echo "      curl: $(head -c 200 "$ERR" | tr '\r\n' '  ')"
@@ -210,7 +216,16 @@ jobs:
           # the colo, and the purge above empties the Worker's hour-long release
           # cache, so this step always asks GitHub cold. When that call doesn't
           # land, worker.js degrades on purpose: the redirect goes to the
-          # releases page and the JSON endpoint answers 502 `{}`.
+          # releases page (worker.js's `serveDownload`) and the JSON endpoint
+          # answers 502 RFC 9457 problem+json with `"code":"upstream_unavailable"`
+          # (`serveReleaseMeta`). ⚠️ Match on that code, never on a bare `{}` —
+          # `{}` is what the endpoint returned before the machine-facing surface
+          # landed in #236, and a check written against it is dead code that
+          # reddens main for exactly the reason this branch exists to absorb.
+          # The grep for it is deliberately loose (the bare token, not
+          # `"code":"upstream_unavailable"`): worker.js builds that body with
+          # `JSON.stringify`, so a separator or key order that shifts upstream
+          # would silently stop matching, and on a 502 the token is unambiguous.
           #
           # 🚨 Both of those are worker.js WRITING the answer, which is the one
           # thing this step exists to prove — the asset server would 404, and
@@ -225,10 +240,17 @@ jobs:
             degraded=$((degraded + 1))
           }
 
-          # One retry before either verdict. A single API hiccup clears in a few
-          # seconds; a release that genuinely ships no macOS artifact does not,
-          # so this separates the two without weakening the assertion.
+          # One retry before either verdict, and it buys less than it looks like:
+          # it clears a one-off 5xx from GitHub, and that is all. The likeliest
+          # cause here is the unauthenticated rate limit, which is per-IP and
+          # resets hourly — a colo over it is still over it five seconds later,
+          # and the route warns. That warn is the real answer; don't grow this
+          # into a loop trying to turn a rate limit green.
+          #
+          # Skips its sleep when the edge challenged us: that answer is already
+          # inconclusive and the retry would only cost the step 5s per route.
           retry() {
+            if challenged; then return 0; fi
             sleep 5
             probe "$1"
           }
@@ -269,8 +291,8 @@ jobs:
             fi
             if [ "$probe_code" = 200 ] && grep -q '"tag":"v' "$BODY"; then
               echo "ok    /api/release/$app"
-            elif [ "$probe_code" = 502 ] && grep -q '^{}$' "$BODY"; then
-              degrade "/api/release/$app answered 502 {}: worker.js could not read GitHub's release API."
+            elif [ "$probe_code" = 502 ] && grep -q 'upstream_unavailable' "$BODY"; then
+              degrade "/api/release/$app answered 502 upstream_unavailable: worker.js could not read GitHub's release API."
             else
               verdict "/api/release/$app did not return release JSON"
             fi
@@ -297,6 +319,6 @@ jobs:
             echo "::warning::Cloudflare challenged $blocked of this step's requests, so those routes went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
           fi
           if [ "$degraded" -gt 0 ]; then
-            echo "::warning::$degraded release route(s) answered with worker.js's own GitHub-API fallback, twice in a row. The Worker was reached and the route is right; the api.github.com call behind it was not. Check by hand with: curl -sI https://hausfold.co/download/pounce. If it stays this way, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is a release problem and not a site one."
+            echo "::warning::$degraded release route(s) answered with worker.js's own GitHub-API fallback. The Worker was reached and the route is right; the api.github.com call behind it was not. Check by hand: curl -sI https://hausfold.co/download/<app> should 302 to a releases/download/ asset, and curl -s https://hausfold.co/api/release/<app> should name a tag. If it stays this way for either app, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is that repo's problem and not this site's."
           fi
           exit "$fail"
