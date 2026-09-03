@@ -1474,52 +1474,6 @@ async function serveLlmsMd(env) {
   });
 }
 
-// The MCP server card at /.well-known/mcp/server-card.json (and the SEP-2127
-// recommended /mcp/server-card spelling). The SEP-2127 shape (remotes[],
-// supportedProtocolVersions) is what a conforming client reads; the tool
-// names are still derived from the MCP_TOOLS table /mcp serves, so the card
-// and the tool list cannot drift — a tool added to one is a red test if it
-// misses the other. name/version must match serverInfo from initialize, or
-// a client reconciling the card against the live connection sees two servers.
-function serveMcpCard() {
-  return new Response(
-    JSON.stringify(
-      {
-        $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
-        name: "co.hausfold/site",
-        title: "hausfold.co",
-        version: "1.0.0",
-        description:
-          "Public, unauthenticated MCP server for hausfold's Mac software: docs search, " +
-          "install commands, release metadata. No keys, nothing to buy.",
-        websiteUrl: "https://hausfold.co/developers/",
-        serverUrl: "https://hausfold.co/mcp",
-        tools: MCP_TOOLS,
-        remotes: [
-          {
-            type: "streamable-http",
-            url: "https://hausfold.co/mcp",
-            supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
-          },
-        ],
-      },
-      null,
-      2,
-    ),
-    {
-      headers: {
-        "content-type": "application/mcp-server-card+json",
-        "cache-control": "public, max-age=3600",
-        // The card spec's CORS block, not MCP_CORS: this is a GET, not a
-        // JSON-RPC endpoint.
-        "access-control-allow-origin": "*",
-        "access-control-allow-methods": "GET, OPTIONS",
-        "access-control-allow-headers": "Content-Type, If-None-Match",
-      },
-    },
-  );
-}
-
 // RFC 9727 API catalog: a linkset advertising where the service description
 // (openapi.json), the MCP endpoint, and the human prose live. The profile
 // parameter on the content type is what the RFC requires; a static file could
