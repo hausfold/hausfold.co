@@ -643,8 +643,11 @@ describe('/docs/<path>.md — the markdown twins', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/markdown; charset=utf-8');
     expect(await res.text()).toBe('# Install\n');
-    expect(assets.fetch).toHaveBeenCalledWith(
-      new Request('https://hausfold.co/llms.mdx/docs/haus/install/content.md'),
+    // The URL, not the Request: two Request objects for the same URL compare
+    // equal on Node 24 and unequal on the Node 22 CI runs, because vitest's
+    // deep equality walks undici's internals.
+    expect(String(assets.fetch.mock.calls[0][0].url)).toBe(
+      'https://hausfold.co/llms.mdx/docs/haus/install/content.md',
     );
   });
 
