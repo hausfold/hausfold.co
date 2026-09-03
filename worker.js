@@ -16,6 +16,23 @@
 //   /mcp                → the Model Context Protocol endpoint (Streamable
 //                         HTTP): search the docs, get release metadata, get
 //                         an install command. See the block above serveMcp().
+//   /mcp/docs           → the docs-only MCP transport: search_docs alone, so
+//                         an agent that only reads can subscribe to a tool
+//                         list that says so. Same implementation, one tool.
+//   /mcp.json           → the agent-plugins.org manifest naming both MCP
+//                         transports, so a manifest probe finds them without
+//                         reading the docs first
+//   /.well-known/oauth-protected-resource
+//                       → RFC 9728 Protected Resource Metadata. The resource
+//                         is public, so authorization_servers is empty and no
+//                         scopes are required; the document exists so the URL
+//                         auth.md names resolves instead of 404ing an agent
+//                         mid-discovery
+//   /.well-known/http-message-signatures-directory
+//                       → the Web Bot Auth directory: the Ed25519 keys this
+//                         host signs responses with. It signs none, so the
+//                         keys array is empty — an honest directory, not a
+//                         fabricated key
 //   /.well-known/mcp/server-card.json
 //                       → the MCP server card, derived from the same
 //                         MCP_TOOLS table the /mcp endpoint serves, so the
@@ -57,7 +74,15 @@
 // `/haus.sh` is the front door, and it pins nothing on purpose: the name is
 // the point when you know it, and the question is the point when you don't.
 //
-import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, MCP_PROTOCOL_VERSION } from "./worker-config.js";
+import {
+  DESKTOPS,
+  DOWNLOADABLE,
+  MCP_TOOLS,
+  DOCS_MCP_TOOLS,
+  MCP_PROTOCOL_VERSION,
+  PROTECTED_RESOURCE,
+  SIGNATURE_DIRECTORY,
+} from "./worker-config.js";
 import { rateLimit, problemResponse, PROBLEM_CONTENT_TYPE } from "./worker-api.js";
 
 // The desktops table and the downloadable-apps set live in worker-config.js,
@@ -378,6 +403,17 @@ function toolResult(data, isError = false) {
   return result;
 }
 
+// A tool-level failure returns a structured payload — a machine-readable
+// code beside the message, in both the text block and structuredContent —
+// so an agent can branch on `code` instead of pattern-matching prose. The
+// isError flag stays set, which is what the MCP spec asks of tool errors;
+// the JSON shape inside is what makes the failure actionable.
+const toolError = (code, message) => ({
+  content: [{ type: "text", text: JSON.stringify({ error: { code, message } }) }],
+  structuredContent: { error: { code, message } },
+  isError: true,
+});
+
 async function callTool(name, args, env) {
   switch (name) {
     case "get_install_command": {
@@ -395,9 +431,9 @@ async function callTool(name, args, env) {
         );
       }
       if (!Object.hasOwn(DESKTOPS, desktop)) {
-        return toolResult(
+        return toolError(
+          "unknown_desktop",
           `unknown desktop '${desktop}'. Available: ${Object.keys(DESKTOPS).join(", ")}`,
-          true,
         );
       }
       const { pin } = DESKTOPS[desktop];
@@ -410,31 +446,31 @@ async function callTool(name, args, env) {
     case "get_latest_release": {
       const app = args.app;
       if (!DOWNLOADABLE.has(app)) {
-        return toolResult(
+        return toolError(
+          "unknown_app",
           `unknown app '${app}'. Available: ${[...DOWNLOADABLE].join(", ")}`,
-          true,
         );
       }
       const release = await latestAppRelease(app);
       if (!release) {
-        return toolResult(`no macOS release found for '${app}'`, true);
+        return toolError("release_unavailable", `no macOS release found for '${app}'`);
       }
       return toolResult(release);
     }
     case "search_docs": {
       const query = args.query;
       if (typeof query !== "string" || !query.trim()) {
-        return toolResult("'query' must be a non-empty string", true);
+        return toolError("invalid_query", "'query' must be a non-empty string");
       }
       const sections = await docsSections(env);
       if (!sections) {
-        return toolResult("docs index unavailable", true);
+        return toolError("index_unavailable", "docs index unavailable");
       }
       const limit = Number.isInteger(args.limit) ? Math.min(Math.max(args.limit, 1), 20) : 8;
       return toolResult({ query, results: searchDocs(sections, query, limit) });
     }
     default:
-      return toolResult(`unknown tool '${name}'`, true);
+      return toolError("unknown_tool", `unknown tool '${name}'`);
   }
 }
 
@@ -457,7 +493,7 @@ const rpcError = (id, code, message) => ({
 const rpcErrorResponse = (id, code, message, status = 200) =>
   jsonRpc(rpcError(id, code, message), status);
 
-async function handleRpc(msg, env) {
+async function handleRpc(msg, env, table) {
   switch (msg.method) {
     case "initialize": {
       // Echo the client's protocol version when we know it; advertise ours
@@ -471,17 +507,28 @@ async function handleRpc(msg, env) {
         serverInfo: { name: "hausfold.co", title: "hausfold", version: "1.0.0" },
         instructions:
           "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
-          "release metadata, and full-text docs search. No keys, nothing to buy.",
+          "release metadata, and full-text docs search. No keys, nothing to buy. " +
+          "A docs-only transport that serves search_docs alone runs at /mcp/docs; the " +
+          "manifest listing both servers is at https://hausfold.co/mcp.json.",
       });
     }
     case "ping":
       return rpcResult(msg.id, {});
     case "tools/list":
-      return rpcResult(msg.id, { tools: MCP_TOOLS });
+      return rpcResult(msg.id, { tools: table.tools });
     case "tools/call": {
       const { name, arguments: args = {} } = msg.params ?? {};
       if (typeof name !== "string") {
         return rpcError(msg.id, -32602, "tools/call requires a tool name");
+      }
+      if (!table.allowed.has(name)) {
+        // A tool another transport serves is still "unknown" here, with a
+        // pointer at the transport that does serve it.
+        return rpcError(
+          msg.id,
+          -32602,
+          `Tool '${name}' is not served on this endpoint. This transport serves: ${[...table.allowed].join(", ")}.`,
+        );
       }
       return rpcResult(msg.id, await callTool(name, args, env));
     }
@@ -504,10 +551,42 @@ function serveMcpCard() {
         description:
           "Install commands, release metadata and full-text docs search for hausfold's " +
           "Mac software, as MCP tools. Public and unauthenticated; every tool reads " +
-          "data a plain GET could also fetch.",
+          "data a plain GET could also fetch. A docs-only transport serving " +
+          "search_docs alone runs at /mcp/docs.",
         version: "1.0.0",
         serverUrl: "https://hausfold.co/mcp",
+        docsServerUrl: "https://hausfold.co/mcp/docs",
         tools: MCP_TOOLS,
+      },
+      null,
+      2,
+    ),
+    { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } },
+  );
+}
+
+// The agent-plugins.org MCP manifest at /mcp.json: the discovery document
+// that names both transports and their URLs, so an agent that probes for a
+// manifest finds one without reading the docs first. Derived from the same
+// module-level tables rather than hand-typed beside them.
+function serveMcpManifest() {
+  return new Response(
+    JSON.stringify(
+      {
+        $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        mcpServers: {
+          hausfold: {
+            type: "streamable-http",
+            url: "https://hausfold.co/mcp",
+            description:
+              "Install commands, release metadata and docs search for hausfold's Mac software.",
+          },
+          "hausfold-docs": {
+            type: "streamable-http",
+            url: "https://hausfold.co/mcp/docs",
+            description: "Full-text search of the hausfold documentation alone.",
+          },
+        },
       },
       null,
       2,
@@ -576,6 +655,41 @@ const searchError = (env, headers) =>
         ),
   );
 
+// --- sandbox ---
+// `sandbox=true` (GET) or {"sandbox": true} (batch body) returns
+// deterministic sample payloads: no live release lookups against GitHub, no
+// dependency on the search index, byte-identical answers every call. It
+// exists so an agent can exercise its client against the documented shapes
+// without touching anything live. The rate limit still applies — it is edge
+// protection, not a data hazard — and nothing on this API is writable, so
+// there is no production data for a sandbox to protect; the fixtures exist
+// for client validation, not for safety.
+const isSandbox = (v) => ["true", "1", "yes"].includes(String(v ?? "").toLowerCase());
+const sandboxRelease = (app) => ({
+  tag: "v0.0.0-sandbox",
+  asset: `${app}-macos-sandbox.dmg`,
+  size: 0,
+  url: `https://hausfold.co/download/${app}`,
+  publishedAt: "1970-01-01T00:00:00.000Z",
+  sandbox: true,
+});
+const sandboxSearch = (query) => ({
+  query,
+  sandbox: true,
+  results: [
+    {
+      url: "https://hausfold.co/docs/haus/",
+      breadcrumbs: ["haus"],
+      excerpt:
+        "Sandbox result: the real search index was not consulted. Shapes match the " +
+        "documented searchResponse schema exactly.",
+      score: 1,
+    },
+  ],
+  next_cursor: null,
+  total: 1,
+});
+
 async function serveV1Search(url, env, H) {
   const q = url.searchParams.get("q");
   if (!q || !q.trim()) {
@@ -587,6 +701,7 @@ async function serveV1Search(url, env, H) {
       H,
     );
   }
+  if (isSandbox(url.searchParams.get("sandbox"))) return jsonResponse(sandboxSearch(q), H);
   const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 10);
   const offset = decodeCursor(url.searchParams.get("cursor"));
   if (offset === null) {
@@ -645,7 +760,7 @@ function serveV1Apps(H) {
   return jsonResponse(paginate(all, 0, Math.max(all.length, 1)), H);
 }
 
-async function serveV1Release(app, H) {
+async function serveV1Release(app, H, sandbox = false) {
   if (!DOWNLOADABLE.has(app)) {
     return problemResponse(
       404,
@@ -655,6 +770,7 @@ async function serveV1Release(app, H) {
       H,
     );
   }
+  if (sandbox) return jsonResponse(sandboxRelease(app), H);
   const release = await latestAppRelease(app);
   if (!release) {
     return problemResponse(
@@ -673,13 +789,17 @@ async function serveV1Release(app, H) {
 // searches) does it in one round trip.
 const MAX_BATCH = 20;
 
-async function runOp(op, env) {
+async function runOp(op, env, sandbox = false) {
   const opName = op?.op;
   switch (opName) {
     case "search": {
       const query = op.query;
       if (typeof query !== "string" || !query.trim()) {
         return { op: opName, ok: false, error: { status: 400, code: "missing_query" } };
+      }
+      if (sandbox) {
+        const sample = sandboxSearch(query).results[0];
+        return { op: opName, ok: true, data: { query, results: [sample] } };
       }
       const sections = await docsSections(env);
       if (!sections) {
@@ -693,6 +813,7 @@ async function runOp(op, env) {
       if (!DOWNLOADABLE.has(app)) {
         return { op: opName, ok: false, error: { status: 404, code: "unknown_app" } };
       }
+      if (sandbox) return { op: opName, ok: true, data: sandboxRelease(app) };
       const release = await latestAppRelease(app);
       if (!release) {
         return { op: opName, ok: false, error: { status: 502, code: "upstream_unavailable" } };
@@ -781,8 +902,9 @@ async function serveBatch(request, env, H) {
     );
   }
   const results = [];
-  for (const op of ops) results.push(await runOp(op, env));
-  const payload = JSON.stringify({ results });
+  const sandbox = body?.sandbox === true;
+  for (const op of ops) results.push(await runOp(op, env, sandbox));
+  const payload = JSON.stringify({ sandbox, results });
   if (key) {
     await cache.put(
       new Request(`https://hausfold.co/__idempotency/${key}`),
@@ -827,6 +949,7 @@ async function serveJobCreate(request, env, ctx, H) {
   }
   const id = crypto.randomUUID();
   const jobUrl = `https://hausfold.co/__job/${id}`;
+  const sandbox = body?.sandbox === true;
   const cache = caches.default;
   await cache.put(
     new Request(jobUrl),
@@ -835,7 +958,7 @@ async function serveJobCreate(request, env, ctx, H) {
       { headers: { "content-type": "application/json", "cache-control": "max-age=3600" } },
     ),
   );
-  const work = runJob(id, ops, env, jobUrl).catch((err) =>
+  const work = runJob(id, ops, env, jobUrl, sandbox).catch((err) =>
     cache.put(
       new Request(jobUrl),
       new Response(
@@ -870,9 +993,9 @@ async function serveJobCreate(request, env, ctx, H) {
   );
 }
 
-async function runJob(id, ops, env, jobUrl) {
+async function runJob(id, ops, env, jobUrl, sandbox = false) {
   const results = [];
-  for (const op of ops) results.push(await runOp(op, env));
+  for (const op of ops) results.push(await runOp(op, env, sandbox));
   await caches.default.put(
     new Request(jobUrl),
     new Response(
@@ -929,7 +1052,7 @@ function handleV1(request, env, url, ctx) {
       });
     }
     const release = path.match(/^\/v1\/releases\/([a-z0-9-]+)$/);
-    if (release) return serveV1Release(release[1], H);
+    if (release) return serveV1Release(release[1], H, isSandbox(url.searchParams.get("sandbox")));
     const job = path.match(/^\/v1\/jobs\/([A-Za-z0-9-]+)$/);
     if (job) return serveJobGet(job[1], H);
   }
@@ -1046,7 +1169,7 @@ async function serveAsk(request, env, url) {
 // budget off anything this endpoint answers. The JSON-RPC body handling is
 // serveMcpPost, unchanged in shape; this wrapper is the only addition.
 
-async function serveMcp(request, env) {
+async function serveMcp(request, env, table = MCP_TABLE) {
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: MCP_CORS });
   }
@@ -1071,12 +1194,20 @@ async function serveMcp(request, env) {
       { status: 429, headers: { "content-type": PROBLEM_CONTENT_TYPE, ...rl.headers, ...MCP_CORS } },
     );
   }
-  const res = await serveMcpPost(request, env);
+  const res = await serveMcpPost(request, env, table);
   for (const [name, value] of Object.entries(rl.headers)) res.headers.set(name, value);
   return res;
 }
 
-async function serveMcpPost(request, env) {
+// The two transports share one implementation; only the tool table differs.
+// The full table stays the default, so /mcp answers exactly as it always has.
+const MCP_TABLE = { tools: MCP_TOOLS, allowed: new Set(MCP_TOOLS.map((t) => t.name)) };
+const DOCS_MCP_TABLE = {
+  tools: DOCS_MCP_TOOLS,
+  allowed: new Set(DOCS_MCP_TOOLS.map((t) => t.name)),
+};
+
+async function serveMcpPost(request, env, table = MCP_TABLE) {
   let body;
   try {
     body = await request.json();
@@ -1100,7 +1231,7 @@ async function serveMcpPost(request, env) {
     // message falls through to handleRpc and gets a method-not-found, which
     // is the honest answer to a client that asked for a response.
     if (msg.id === undefined) continue;
-    replies.push(await handleRpc(msg, env));
+    replies.push(await handleRpc(msg, env, table));
   }
   if (!replies.length) {
     return new Response(null, { status: 202, headers: MCP_CORS });
@@ -1273,7 +1404,12 @@ const hausfold = {
       return serveReleaseMeta(appRoute[2], rl.headers);
     }
     // The MCP endpoint. Trailing slash accepted for the same reason as the
-    // app routes above.
+    // app routes above. /mcp/docs is the docs-only transport and matches
+    // first, since the exact-match /mcp route would otherwise let it fall
+    // through to the static site.
+    if (url.pathname.replace(/\/$/, "") === "/mcp/docs") {
+      return serveMcp(request, env, DOCS_MCP_TABLE);
+    }
     if (url.pathname.replace(/\/$/, "") === "/mcp") {
       return serveMcp(request, env);
     }
@@ -1282,6 +1418,21 @@ const hausfold = {
     const cleanPath = url.pathname.replace(/\/+$/, "") || "/";
     if (request.method === "GET" && cleanPath === "/.well-known/mcp/server-card.json") {
       return serveMcpCard();
+    }
+    // The discovery documents agents probe before ever calling anything. Each
+    // is generated from the tables above it, not hand-typed beside them.
+    if (request.method === "GET") {
+      if (cleanPath === "/mcp.json") return serveMcpManifest();
+      if (cleanPath === "/.well-known/oauth-protected-resource") {
+        return new Response(JSON.stringify(PROTECTED_RESOURCE, null, 2), {
+          headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
+        });
+      }
+      if (cleanPath === "/.well-known/http-message-signatures-directory") {
+        return new Response(JSON.stringify(SIGNATURE_DIRECTORY, null, 2), {
+          headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
+        });
+      }
     }
     if (cleanPath === "/ask") {
       if (request.method !== "GET" && request.method !== "POST") {

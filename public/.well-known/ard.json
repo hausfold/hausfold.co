@@ -19,6 +19,17 @@
       ]
     },
     {
+      "identifier": "urn:air:hausfold.co:server:hausfold-docs",
+      "displayName": "hausfold.co docs MCP server",
+      "type": "application/mcp-server-card+json",
+      "url": "https://hausfold.co/mcp/docs",
+      "capabilities": ["search_docs"],
+      "description": "The documentation half of the MCP surface as its own transport: full-text docs search alone, same index, no install or release tools. No keys, no accounts.",
+      "representativeQueries": [
+        "search the docs for how notifications work"
+      ]
+    },
+    {
       "identifier": "urn:air:hausfold.co:api:openapi",
       "displayName": "hausfold.co OpenAPI description",
       "type": "application/vnd.oai.openapi+json",

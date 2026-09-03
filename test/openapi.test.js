@@ -58,6 +58,32 @@ describe('openapi.json vs worker.js', () => {
     }
   });
 
+  it('describes the agent discovery documents', () => {
+    for (const path of ['/mcp.json', '/.well-known/oauth-protected-resource', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
+      expect(spec.paths[path], path).toBeDefined();
+      for (const [method, op] of Object.entries(spec.paths[path])) {
+        expect(op.operationId, `${method} ${path}`).toBeDefined();
+      }
+    }
+  });
+
+  it('documents the sandbox flag on the /v1 reads and the batch body', () => {
+    expect(spec.components.parameters.sandbox).toBeDefined();
+    for (const path of ['/v1/search', '/v1/desktops', '/v1/apps', '/v1/releases/{app}']) {
+      expect(spec.paths[path].get.parameters.some((p) => p.$ref === '#/components/parameters/sandbox'), path).toBe(true);
+    }
+    expect(spec.components.schemas.batchRequest.properties.sandbox).toBeDefined();
+    expect(spec.info.description).toContain('sandbox');
+  });
+
+  it('carries the readOnly annotations the MCP surface advertises', () => {
+    for (const tool of MCP_TOOLS) {
+      expect(tool.annotations?.readOnlyHint, tool.name).toBe(true);
+    }
+    expect(spec.components.schemas.jsonRpcError).toBeDefined();
+    expect(spec.components.schemas.jsonRpcResponse).toBeDefined();
+  });
+
   it('gives every operation an operationId (function-calling shape)', () => {
     const missing = [];
     for (const [path, ops] of Object.entries(spec.paths)) {
@@ -86,10 +112,10 @@ describe('openapi.json vs worker.js', () => {
     const md = readFileSync(new URL('../public/auth.md', import.meta.url), 'utf8');
     expect(md.startsWith('# ')).toBe(true);
     expect(md.length).toBeGreaterThan(1000);
-    for (const section of ['Discover', 'Pick a method', 'Register', 'Claim', 'Exchange', 'Use the access_token', 'Errors', 'Revocation']) {
+    for (const section of ['Discover', 'Pick a method', 'agent_auth', 'Register', 'Claim', 'Exchange', 'Use the access_token', 'Errors', 'Revocation']) {
       expect(md, section).toContain(section);
     }
-    for (const keyword of ['agent_auth', 'identity_endpoint', 'identity_assertion', 'service_auth', 'id-jag', 'WWW-Authenticate']) {
+    for (const keyword of ['agent_auth', 'identity_endpoint', 'identity_assertion', 'service_auth', 'id-jag', 'WWW-Authenticate', 'oauth-protected-resource', 'http-message-signatures-directory']) {
       expect(md, keyword).toContain(keyword);
     }
   });

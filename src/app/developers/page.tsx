@@ -128,6 +128,19 @@ export default function Developers() {
             breadcrumbs and excerpts.
           </li>
         </ul>
+        <p>
+          Every tool carries explicit read-only annotations, so an agent knows nothing here
+          writes before calling. A docs-only transport serves <code>search_docs</code> alone
+          at{' '}
+          <a href="/mcp/docs">
+            <code>/mcp/docs</code>
+          </a>{' '}
+          for agents that only want to read, and{' '}
+          <a href="/mcp.json">
+            <code>/mcp.json</code>
+          </a>{' '}
+          is the manifest naming both servers.
+        </p>
       </section>
 
       <section className="block">
@@ -146,6 +159,13 @@ export default function Developers() {
           <code>text/event-stream</code> when the request asks to stream. Rate limiting is
           generous and the <code>RateLimit-*</code> headers ride on every response, so an
           agent can self-throttle by reading, not by being throttled.
+        </p>
+        <p>
+          Every <code>/v1</code> data read accepts <code>sandbox=true</code> (the batch and
+          job bodies take <code>&quot;sandbox&quot;: true</code> instead), answering with
+          deterministic sample payloads and no live release lookups. It exists for
+          exercising a client against the documented shapes; the rate limit still applies,
+          and nothing on this surface is writable in any mode.
         </p>
       </section>
 
@@ -175,6 +195,26 @@ export default function Developers() {
           ahead of it) is written into the spec. There are no credentials:{' '}
           <a href="/auth.md">/auth.md</a> is the markdown account of that, and the only
           supported method is <code>anonymous</code>.
+        </p>
+      </section>
+
+      <section className="block">
+        <h2>Authenticate a client before its first call</h2>
+        <p>
+          Two well-known documents describe this host&apos;s authentication posture to an
+          agent that probes before it calls.{' '}
+          <a href="/.well-known/oauth-protected-resource">
+            <code>/.well-known/oauth-protected-resource</code>
+          </a>{' '}
+          is the RFC 9728 Protected Resource Metadata: <code>resource</code> names this
+          host, <code>resource_documentation</code> points at <code>/auth.md</code>, and{' '}
+          <code>authorization_servers</code> is empty because no authorization server stands
+          behind the resource.{' '}
+          <a href="/.well-known/http-message-signatures-directory">
+            <code>/.well-known/http-message-signatures-directory</code>
+          </a>{' '}
+          is the Web Bot Auth directory of Ed25519 keys this host signs responses with; it
+          signs none, so the <code>keys</code> array is empty.
         </p>
       </section>
 

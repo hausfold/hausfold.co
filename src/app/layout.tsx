@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { appName, siteUrl, themeColor } from '@/lib/shared';
+import { WebMcpTools } from '@/components/webmcp';
 import './global.css';
 
 // The head EVERY page carries — docs and landing pages alike, since the eight
@@ -76,10 +77,21 @@ export const viewport: Viewport = {
 // `suppressHydrationWarning` stays on `<html>`: it is what lets the provider
 // write `class`/`data-theme` there before React hydrates, on the routes that
 // still have one.
+//
+// <WebMcpTools /> is the one piece of our own script the landing half ships,
+// and it is inside the AGENTS.md exception rather than outside it: the
+// component renders null, registers tools only where document.modelContext
+// exists (Chrome 157+), and the page behaves identically without it — the
+// exact bar the copy button met for pure enhancement. It is mounted here and
+// not in the docs layout so every page, homepage included, offers the same
+// browser-resident tools; docs/layout.tsx does not mount a second one.
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex flex-col min-h-screen">{children}</body>
+      <body className="flex flex-col min-h-screen">
+        {children}
+        <WebMcpTools />
+      </body>
     </html>
   );
 }
