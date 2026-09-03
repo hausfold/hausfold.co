@@ -2,7 +2,25 @@
   "specVersion": "1.0",
   "host": {
     "displayName": "hausfold",
-    "identifier": "did:web:hausfold.co"
+    "identifier": "did:web:hausfold.co",
+    "documentationUrl": "https://hausfold.co/developers/",
+    "trustManifest": {
+      "identity": "did:web:hausfold.co",
+      "identityType": "did",
+      "attestations": [
+        {
+          "type": "publisher-identity",
+          "uri": "https://api.github.com/orgs/hausfold",
+          "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher of this catalog."
+        }
+      ],
+      "provenance": [
+        {
+          "relation": "publishedFrom",
+          "sourceId": "https://github.com/hausfold/hausfold.co"
+        }
+      ]
+    }
   },
   "entries": [
     {
@@ -16,7 +34,29 @@
         "install the hacker desktop on this Mac",
         "what is the latest release of pounce",
         "search the docs for how notifications work"
-      ]
+      ],
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
     },
     {
       "identifier": "urn:air:hausfold.co:server:hausfold-docs",
@@ -27,14 +67,114 @@
       "description": "The documentation half of the MCP surface as its own transport: full-text docs search alone, same index, no install or release tools. No keys, no accounts.",
       "representativeQueries": [
         "search the docs for how notifications work"
-      ]
+      ],
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
     },
     {
       "identifier": "urn:air:hausfold.co:api:openapi",
       "displayName": "hausfold.co OpenAPI description",
       "type": "application/vnd.oai.openapi+json",
       "url": "https://hausfold.co/openapi.json",
-      "description": "OpenAPI 3.1 description of the whole machine-facing surface: install scripts, release metadata, docs search, and the MCP endpoint."
+      "description": "OpenAPI 3.1 description of the whole machine-facing surface: install scripts, release metadata, docs search, and the MCP endpoint.",
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
+    },
+    {
+      "identifier": "urn:air:hausfold.co:plugin:hausfold-co",
+      "type": "application/json",
+      "url": "https://raw.githubusercontent.com/hausfold/hausfold.co/main/plugin.json",
+      "description": "Agent Plugins manifest: the same MCP server as an mcp.json entry, bundled with the haus-install skill.",
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
+    },
+    {
+      "identifier": "urn:air:hausfold.co:skill:haus-install",
+      "type": "application/agent-skills+md",
+      "url": "https://raw.githubusercontent.com/hausfold/hausfold.co/main/skills/haus-install/SKILL.md",
+      "description": "Agent skill covering desktop installation from hausfold.co and release lookups.",
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
     }
   ]
 }
