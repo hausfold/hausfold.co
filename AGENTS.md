@@ -121,10 +121,11 @@ server.
 The guard is a grep for `run_worker_first = true` in `worker.yml`, over BOTH
 wrangler configs. It looks crude beside a real test and it is what there is:
 deploy.yml's post-deploy smoke check hits the live URLs, but Cloudflare answers
-a GitHub runner with a managed challenge whatever User-Agent it sends, so that
-step warns and skips rather than proving anything. ⚠️ **Don't delete the grep as
-a duplicate of the smoke check** — it is the only thing standing between this
-repo and every installer URL 404ing at once.
+a GitHub runner with a managed challenge often enough that the step cannot be
+relied on — it warns and skips whenever that happens, and whether it happens
+varies run to run. ⚠️ **Don't delete the grep as a duplicate of the smoke
+check** — it is the only thing standing between this repo and every installer
+URL 404ing at once.
 
 🚨 **`/haus` is the one to learn from.** A sheet built deliberately *not* to be a
 manual becomes a second account anyway: that one grew a Rooms section, a
@@ -717,12 +718,25 @@ CI, by what a PR touches:
   **last on purpose** — a red smoke check must not skip the purge, which is what
   keeps un-hashed pages from sitting stale in front of visitors. Which also
   means it is an alarm, not a brake: it runs after the deploy, so a failure
-  reddens the job with the bad code already live. ⚠️ **It cannot currently prove
-  anything**: Cloudflare serves a GitHub runner the managed challenge
-  (`cf-mitigated: challenge`) ahead of the Worker, on every URL, so it warns and
-  skips. A WAF custom rule skipping Bot Fight Mode for its `x-hausfold-smoke`
-  header would make it real; the comment above the step says so. Any wrong
-  answer that isn't a challenge still fails the job.
+  reddens the job with the bad code already live. ⚠️ **Whether it proves
+  anything is weather**: Cloudflare serves a GitHub runner the managed challenge
+  (`cf-mitigated: challenge`) ahead of the Worker on some runs and lets it
+  straight through on others — 2026-09-03 had both, an hour apart. A challenged
+  URL warns and skips; a WAF custom rule skipping Bot Fight Mode for its
+  `x-hausfold-smoke` header would make it dependable, and the comment above the
+  step says so. Any wrong answer that isn't a challenge still fails the job.
+  🚨 **With one carve-out, and it is the reason this step went red on
+  2026-09-03.** `/download/<app>` and `/api/release/<app>` are backed by a live
+  UNAUTHENTICATED `api.github.com` call from the colo, and the purge two steps
+  earlier empties the Worker's hour-long release cache, so the check always asks
+  GitHub cold. When that call doesn't land, worker.js degrades by design: the
+  redirect goes to the releases page, the JSON answers 502 `{}`. Both are the
+  **Worker writing the answer**, which is the one thing this step exists to
+  prove, so after one retry they are reported as `warn` and do not fail the job.
+  Don't tighten that back into a failure — GitHub rate-limiting a Cloudflare colo
+  is not something a deploy caused, and this step runs after the code is live
+  anyway. A persistent warn means the release ships no `-macos.*` artifact,
+  which is that repo's problem, not this one's.
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.
