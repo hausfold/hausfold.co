@@ -286,18 +286,19 @@ body {
    That is the widest unbreakable thing on the page, which at the time was
    `<code>` inside `.cmd` (`white-space: pre`, one line that measured 545px the
    day this was written; the class went with the last page that used it on
-   2026-08-26). On a desktop nobody saw it, because that is under the 41rem
-   measure. On a 390px phone the document came out 624px wide: free space is
-   negative, so the auto margin resolves to zero, the column sits at the left
-   edge and the page scrolls sideways with the right of every paragraph past
-   the glass. Nothing on the code could have prevented that — nothing *lowers*
-   an element's min-content contribution; what a definite width on the ancestor
-   does is stop the ancestor's own width from being derived from it in the
-   first place. ⚠️ **Keep this rule even with no `.cmd` on the site**: the next
-   unbreakable thing (a long inline `<code>`, a URL) reproduces it exactly.
-   `width: 100%` gives the sheet one, so the column is the viewport again, the
-   max-width clamps it, the start inset holds the lean, and the auto end margin
-   still absorbs whatever is left over.
+   2026-08-26 and came back 2026-08-27 with /developers). On a desktop nobody
+   saw it, because that is under the 41rem measure. On a 390px phone the
+   document came out 624px wide: free space is negative, so the auto margin
+   resolves to zero, the column sits at the left edge and the page scrolls
+   sideways with the right of every paragraph past the glass. Nothing on the
+   code could have prevented that — nothing *lowers* an element's min-content
+   contribution; what a definite width on the ancestor does is stop the
+   ancestor's own width from being derived from it in the first place. ⚠️
+   **Keep this rule even when the page holds no unbreakable line today**: the
+   next unbreakable thing (a long inline `<code>`, a URL) reproduces it
+   exactly. `width: 100%` gives the sheet one, so the column is the viewport
+   again, the max-width clamps it, the start inset holds the lean, and the
+   auto end margin still absorbs whatever is left over.
 
    Measured across every sheet route, this changed desktop layout on exactly
    one of them: `src/app/not-found.tsx`, whose max-content was under the
@@ -331,17 +332,19 @@ body {
   gap: 1.6rem;
 }
 
-/* `.topnav` lived here from 2026-08-14 and is gone as of 2026-08-26, the same
-   day as `.crumbs` below and for the same reason. It was the landing half's
-   roomier nav: a row of small mono words for a page that pointed onward as
-   well as up. `/` shed it on 2026-08-18 and `/haus` was the last caller, so it
-   went with that page into `/docs/haus`.
+/* `.topnav` lived here from 2026-08-14 and is gone as of 2026-08-26: the
+   landing half's roomier nav, a row of small mono words for a page that
+   pointed onward as well as up. `/` shed it on 2026-08-18 and `/haus` was
+   the last caller, so it went with that page into `/docs/haus`. The up-only
+   form, `.crumbs`, came back 2026-08-27 with /developers — see its block
+   below — so the axis rule is no longer a tombstone: it is live.
 
-   ⚠️ **The landing half now has no nav vocabulary at all.** `/` carries the
-   colophon's GitHub link and nothing else; `/perch/privacy` writes its own
-   eyebrow in `privacy.module.css`. A page that needs one is writing a new
-   class, and should read the axis rule first: both forms were left-aligned
-   onto the column's own left edge, the same axis the ⌂, the wordmark and every
+   ⚠️ `/` still carries no nav at all (the colophon's GitHub link and
+   nothing else); `/perch/privacy` writes its own eyebrow in
+   `privacy.module.css`. A page that needs an onward-pointing nav is
+   writing a new class, and should read the axis rule first: both forms
+   were left-aligned onto the column's own left edge, the same axis the ⌂,
+   the wordmark and every
    paragraph start on. `.topnav` was flush RIGHT for the few hours the column
    leaned right; when the lean reversed, a right-aligned pair of words became
    the one object floating away from the axis with the empty field beyond it.
@@ -530,17 +533,36 @@ body {
 [data-accent="nebelung"] { --accent: var(--a-nebelung); }
 [data-accent="trill"] { --accent: var(--a-trill); }
 
-/* --- breadcrumb: removed 2026-08-26 ------------------------------- */
+/* --- breadcrumb ----------------------------------------------------- */
 
-/* `.crumbs`, `.crumbs .sep` and `.crumbs [aria-current]` were an inner page's
-   whole navigation — two or three words of mono, the current page not a link.
-   `/perch` was the last page that opened on one, and it was retired into
-   `/docs/perch` on 2026-08-26; `/perch/privacy` writes its own eyebrow in
-   `privacy.module.css`. Zero users, so deleted rather than kept warm — and
-   `Crumbs` went out of `src/components/sheet.tsx` in the same commit, because
-   a component nothing renders is the same debt in another file. (`.topnav`,
-   the onward-pointing form, went hours later with `/haus`; see the note where
-   it used to be, under the masthead.) */
+/* `.crumbs` came back 2026-08-27 with /developers, the first inner page
+   since the retirement above. The tombstone's shape holds: small mono,
+   the way up one link and the current page not one, flush on the column's
+   own left axis. */
+
+.crumbs {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.crumbs a {
+  color: inherit;
+  text-decoration-color: var(--rule);
+}
+.crumbs a:hover {
+  color: var(--ink);
+}
+.crumbs .sep {
+  color: var(--rule);
+  user-select: none;
+}
+.crumbs [aria-current="page"] {
+  color: var(--ink-2);
+}
 
 /* --- the break-out plates: removed 2026-08-14 ---------------------- */
 
@@ -574,6 +596,68 @@ body {
    about what the app looks like today is worse than admitting there isn't one.
    A real capture lands in the docs tree as an image, which is fumadocs' job,
    not this file's. */
+
+/* --- the command --------------------------------------------------- */
+
+/* `.cmd` came back with /developers, the same day `.crumbs` did: the fenced
+   one-liner with a copy button, exactly the shape the tombstone in
+   `src/app/global.css` records ("a landing page with a fenced block" owes
+   this). The button is pure enhancement — `hidden` in the exported HTML,
+   unhidden only where `navigator.clipboard` exists — so a page with no JS
+   shows a plain selectable command. */
+
+.cmd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--well);
+  padding: 0.85rem 1rem;
+}
+
+.cmd code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-x: auto;
+  white-space: pre;
+  /* A flex item whose main-axis overflow is not `visible` has an automatic
+     minimum size of zero (Flexbox §4.5), which is what lets a long command
+     scroll inside its own frame instead of setting the width of the box
+     around it. `min-width: 0` is insurance for the day the overflow is
+     taken off, not the thing doing the work. */
+  flex: 1 1 12rem;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.copy {
+  align-self: flex-start;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.copy:hover,
+.copy:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+
+.copy[hidden] {
+  display: none;
+}
 
 /* --- sections ------------------------------------------------------ */
 

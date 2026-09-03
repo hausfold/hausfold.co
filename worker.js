@@ -13,6 +13,9 @@
 //                         instead of one hardcoded to go stale. ⚠️ Nothing on
 //                         this site calls it yet — it is here so the landing
 //                         pages have it when they become Next routes.
+//   /mcp                → the Model Context Protocol endpoint (Streamable
+//                         HTTP): search the docs, get release metadata, get
+//                         an install command. See the block above serveMcp().
 //   /design.md          → PROXIES the workshop's docs/design.md — the
 //                         family's visual standard as one public URL any
 //                         coding agent can load before drawing something
@@ -41,48 +44,18 @@
 // `/haus.sh` is the front door, and it pins nothing on purpose: the name is
 // the point when you know it, and the question is the point when you don't.
 //
+import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, MCP_PROTOCOL_VERSION } from "./worker-config.js";
+
+// The desktops table and the downloadable-apps set live in worker-config.js,
+// beside their comment blocks: workerd refuses named exports from worker.js
+// that aren't handlers, and the tests need to import the same values.
+
 // We PROXY (fetch), not redirect, so the pretty URL is what curl sees and
 // there's no hop to a raw.githubusercontent.com link. By default the script is
 // served from the latest GitHub *release* tag of the desktop's repo (cached
 // ~1h to stay well under GitHub's unauthenticated API limit), falling back to
 // `main` before the first release. `?ref=v2026.07.18` pins an exact ref; a REF
 // wrangler var hard-pins one for everybody.
-
-// The desktops this site installs, by the name in their URL. A key here is a
-// promise that `hausfold.co/<key>.sh` keeps resolving, so only desktops the
-// site actually presents belong in it.
-//
-// ⚠️ Every row maps to `hausfold/haus` because all four desktops ship *inside*
-// the layer's own repo, as `desktops/<name>.nix` — that is not a spelling
-// mistake, and the file each row fetches is that one repo's `bootstrap.sh`.
-// (`nebelung.sh` would be the wrong name for any of them: nebelung is the
-// palette, not a desktop.) The row exists to say which desktop the
-// URL means, not which repo it came from; the day a desktop lives in a repo
-// we don't own, `repo` is already where that goes.
-//
-// `pin: null` is the entry point that asks. `/haus.sh` installs the layer and
-// lets bootstrap's own interview choose, which is what someone who hasn't
-// decided wants; every other row skips that one question because the URL they
-// typed already answered it.
-//
-// 🚨 `blank` is deliberately absent. It is a real desktop in the repo — the
-// null selection, for someone assembling rooms by hand — but it is not a thing
-// this site presents, and a key here is a promise to keep serving it.
-const DESKTOPS = {
-  haus: { repo: "hausfold/haus", pin: null },
-  hacker: { repo: "hausfold/haus", pin: "hacker" },
-  everyday: { repo: "hausfold/haus", pin: "everyday" },
-  minimal: { repo: "hausfold/haus", pin: "minimal" },
-};
-
-// A desktop name we are willing to write into the served script. The values
-// above are ours, not a visitor's, so this is belt-and-braces rather than a
-// boundary — but the one thing that must never happen here is a newline or a
-// shell metacharacter reaching a line of bash we generate.
-const SAFE_DESKTOP = /^[a-z][a-z0-9-]*$/;
-
-const BOOTSTRAP = "bootstrap.sh";
-const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path traversal
 
 // 🚨 What a VISITOR may pin with `?ref=`, and it is deliberately much narrower
 // than SAFE_REF: a release tag, `v<date>` or `v<date>-N`, which is the only
@@ -105,11 +78,17 @@ const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path trave
 // loosening of this.
 const RELEASE_TAG = /^v\d{4}\.\d{2}\.\d{2}(-\d+)?$/;
 
-// The apps with signed + notarized release artifacts on GitHub. Keys are the
-// URL slugs; each repo lives at github.com/hausfold/<app>.
-// A slug here is a promise to keep serving that app's latest release, so only
-// apps the site actually presents belong in this set.
-const DOWNLOADABLE = new Set(["pounce", "perch"]);
+// A desktop name we are willing to write into the served script. The values
+// in DESKTOPS are ours, not a visitor's, so this is belt-and-braces rather
+// than a boundary — but the one thing that must never happen here is a
+// newline or a shell metacharacter reaching a line of bash we generate.
+const SAFE_DESKTOP = /^[a-z][a-z0-9-]*$/;
+
+const BOOTSTRAP = "bootstrap.sh";
+const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path traversal
+
+// The apps with signed + notarized release artifacts are DOWNLOADABLE in
+// worker-config.js.
 
 // Short domains: one hostname that stands for one page, and 301s to it.
 //
@@ -244,6 +223,279 @@ async function serveReleaseMeta(app) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// /mcp — the Model Context Protocol endpoint, so coding agents can drive this
+// site as tools instead of scraping HTML. Every tool reads public, already
+// unauthenticated data: nothing here widens what a curl could get.
+//
+// Transport is Streamable HTTP: POST JSON-RPC 2.0, JSON back. Three decisions,
+// each deliberate:
+//
+//   - Stateless. No `mcp-session-id` is issued, and GET opens no SSE stream
+//     (it 405s, which the transport requires of a server with nothing to
+//     push). Every request stands alone, so any client that can POST can
+//     connect.
+//   - CORS is open. The data behind every tool is public; the only callers
+//     CORS actually enables are browser-resident agents (WebMCP, custom UIs),
+//     which are exactly the callers we want. There is nothing to authorize.
+//   - `search_docs` scores the same Orama index `/api/search` serves, by hand
+//     rather than by importing Orama. The index's documents are plain text
+//     sections with breadcrumbs, so a term count with a breadcrumb boost is
+//     enough to rank them, and hand-rolling keeps the Worker bundle
+//     dependency-free. The parsed index is cached per assets binding (a
+//     WeakMap key), so an isolate fetches the ~2 MB index once, not per tool
+//     call.
+//
+// The tool table is pinned against public/openapi.json by
+// test/openapi.test.js: a tool added to one and not the other should be a
+// red test, not a missing row in some agent's menu.
+
+const MCP_SUPPORTED_PROTOCOLS = new Set(["2025-03-26", "2025-06-18"]);
+
+const MCP_CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "POST, OPTIONS",
+  "access-control-allow-headers":
+    "content-type, authorization, mcp-protocol-version, mcp-session-id, last-event-id",
+  "access-control-expose-headers": "mcp-protocol-version",
+};
+
+// The tool table itself (MCP_TOOLS) lives in worker-config.js, derived from
+// DESKTOPS/DOWNLOADABLE so a new row reaches agents without a second edit.
+
+// Parsed sections of the search index, keyed by env.ASSETS so each isolate
+// caches once and each test's stub cache stays separate.
+const DOCS_CACHE = new WeakMap();
+
+async function docsSections(env) {
+  const assets = env?.ASSETS;
+  if (!assets) return null;
+  if (DOCS_CACHE.has(assets)) return DOCS_CACHE.get(assets);
+  const res = await assets.fetch(new Request("https://hausfold.co/api/search"));
+  if (!res.ok) return null;
+  const index = await res.json();
+  const sections = Object.values(index.docs?.docs ?? {});
+  DOCS_CACHE.set(assets, sections);
+  return sections;
+}
+
+// An excerpt around the first match. The `…` pairs and the 80-char lead-in
+// are presentation for a model: enough context to know whether the hit is
+// the paragraph it wants, short enough that eight results stay readable.
+function excerpt(content, idx) {
+  if (idx < 0) return content.slice(0, 200) + (content.length > 200 ? "…" : "");
+  const start = Math.max(0, idx - 80);
+  const slice = content.slice(start, start + 220).trim();
+  return (start > 0 ? "…" : "") + slice + (start + 220 < content.length ? "…" : "");
+}
+
+function searchDocs(sections, query, limit) {
+  // Term count + a breadcrumb boost: crude next to Orama's BM25, but the
+  // corpus is ~3800 short sections and the query is usually one or two
+  // domain words, which is the case this is tuned for.
+  const terms = query
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 1);
+  if (!terms.length) return [];
+  const scored = [];
+  for (const doc of sections) {
+    const content = doc.content ?? "";
+    const lower = content.toLowerCase();
+    const crumb = (doc.breadcrumbs ?? []).join(" ").toLowerCase();
+    let score = 0;
+    let first = -1;
+    for (const term of terms) {
+      let count = 0;
+      let idx = lower.indexOf(term);
+      if (idx === -1) continue;
+      while (idx !== -1 && count < 20) {
+        count++;
+        idx = lower.indexOf(term, idx + term.length);
+      }
+      score += count;
+      if ((doc.breadcrumbs ?? []).join(" ").toLowerCase().includes(term)) score += 3;
+      if (first === -1) first = lower.indexOf(terms[0]);
+    }
+    if (score > 0) scored.push({ doc, score, idx: first });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map(({ doc, score, idx }) => ({
+    url: doc.url,
+    breadcrumbs: doc.breadcrumbs ?? [],
+    excerpt: excerpt(doc.content ?? "", idx),
+    score,
+  }));
+}
+
+function toolResult(data, isError = false) {
+  const result = {
+    content: [
+      {
+        type: "text",
+        text: typeof data === "string" ? data : JSON.stringify(data, null, 2),
+      },
+    ],
+  };
+  if (isError) result.isError = true;
+  return result;
+}
+
+async function callTool(name, args, env) {
+  switch (name) {
+    case "get_install_command": {
+      const desktop = args.desktop;
+      if (desktop == null) {
+        return toolResult(
+          Object.entries(DESKTOPS).map(([key, { pin }]) => ({
+            desktop: key,
+            command: `curl -fsSL https://hausfold.co/${key}.sh | bash`,
+            pins: pin ?? null,
+            note: pin
+              ? `installs the '${pin}' desktop by URL`
+              : "installs the layer and asks which desktop to build",
+          })),
+        );
+      }
+      if (!Object.hasOwn(DESKTOPS, desktop)) {
+        return toolResult(
+          `unknown desktop '${desktop}'. Available: ${Object.keys(DESKTOPS).join(", ")}`,
+          true,
+        );
+      }
+      const { pin } = DESKTOPS[desktop];
+      return toolResult({
+        desktop,
+        command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`,
+        pins: pin ?? null,
+      });
+    }
+    case "get_latest_release": {
+      const app = args.app;
+      if (!DOWNLOADABLE.has(app)) {
+        return toolResult(
+          `unknown app '${app}'. Available: ${[...DOWNLOADABLE].join(", ")}`,
+          true,
+        );
+      }
+      const release = await latestAppRelease(app);
+      if (!release) {
+        return toolResult(`no macOS release found for '${app}'`, true);
+      }
+      return toolResult(release);
+    }
+    case "search_docs": {
+      const query = args.query;
+      if (typeof query !== "string" || !query.trim()) {
+        return toolResult("'query' must be a non-empty string", true);
+      }
+      const sections = await docsSections(env);
+      if (!sections) {
+        return toolResult("docs index unavailable", true);
+      }
+      const limit = Number.isInteger(args.limit) ? Math.min(Math.max(args.limit, 1), 20) : 8;
+      return toolResult({ query, results: searchDocs(sections, query, limit) });
+    }
+    default:
+      return toolResult(`unknown tool '${name}'`, true);
+  }
+}
+
+const jsonRpc = (body, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "mcp-protocol-version": MCP_PROTOCOL_VERSION,
+      ...MCP_CORS,
+    },
+  });
+
+const rpcResult = (id, result) => ({ jsonrpc: "2.0", id, result });
+const rpcError = (id, code, message) => ({
+  jsonrpc: "2.0",
+  id: id ?? null,
+  error: { code, message },
+});
+const rpcErrorResponse = (id, code, message, status = 200) =>
+  jsonRpc(rpcError(id, code, message), status);
+
+async function handleRpc(msg, env) {
+  switch (msg.method) {
+    case "initialize": {
+      // Echo the client's protocol version when we know it; advertise ours
+      // otherwise. A server never invents a version the client didn't offer.
+      const requested = msg.params?.protocolVersion;
+      const protocolVersion =
+        requested && MCP_SUPPORTED_PROTOCOLS.has(requested) ? requested : MCP_PROTOCOL_VERSION;
+      return rpcResult(msg.id, {
+        protocolVersion,
+        capabilities: { tools: { listChanged: false } },
+        serverInfo: { name: "hausfold.co", title: "hausfold", version: "1.0.0" },
+        instructions:
+          "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
+          "release metadata, and full-text docs search. No keys, nothing to buy.",
+      });
+    }
+    case "ping":
+      return rpcResult(msg.id, {});
+    case "tools/list":
+      return rpcResult(msg.id, { tools: MCP_TOOLS });
+    case "tools/call": {
+      const { name, arguments: args = {} } = msg.params ?? {};
+      if (typeof name !== "string") {
+        return rpcError(msg.id, -32602, "tools/call requires a tool name");
+      }
+      return rpcResult(msg.id, await callTool(name, args, env));
+    }
+    default:
+      return rpcError(msg.id, -32601, `Method not found: ${msg.method}`);
+  }
+}
+
+async function serveMcp(request, env) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: MCP_CORS });
+  }
+  if (request.method !== "POST") {
+    // Streamable HTTP's GET opens a server-initiated SSE stream. This server
+    // is stateless with nothing to push, so the method is refused.
+    return new Response(null, {
+      status: 405,
+      headers: { allow: "POST, OPTIONS", ...MCP_CORS },
+    });
+  }
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return rpcErrorResponse(null, -32700, "Parse error: request body is not JSON", 400);
+  }
+  const batch = Array.isArray(body);
+  const replies = [];
+  for (const msg of batch ? body : [body]) {
+    if (
+      !msg ||
+      typeof msg !== "object" ||
+      msg.jsonrpc !== "2.0" ||
+      typeof msg.method !== "string"
+    ) {
+      replies.push(rpcError(msg?.id, -32600, "Invalid Request"));
+      continue;
+    }
+    // Per JSON-RPC 2.0, the absence of an id is what makes a message a
+    // notification — not its method name. An id-bearing notifications/*
+    // message falls through to handleRpc and gets a method-not-found, which
+    // is the honest answer to a client that asked for a response.
+    if (msg.id === undefined) continue;
+    replies.push(await handleRpc(msg, env));
+  }
+  if (!replies.length) {
+    return new Response(null, { status: 202, headers: MCP_CORS });
+  }
+  return jsonRpc(batch ? replies : replies[0]);
+}
+
 // Write the chosen desktop into the script we serve, so `curl -fsSL
 // https://hausfold.co/minimal.sh | bash` installs minimal without the reader
 // having to remember an env var or answer a question they already answered by
@@ -362,6 +614,11 @@ const hausfold = {
     const appRoute = url.pathname.match(/^\/(download|api\/release)\/([a-z]+)\/?$/);
     if (appRoute && DOWNLOADABLE.has(appRoute[2])) {
       return appRoute[1] === "download" ? serveDownload(appRoute[2]) : serveReleaseMeta(appRoute[2]);
+    }
+    // The MCP endpoint. Trailing slash accepted for the same reason as the
+    // app routes above.
+    if (url.pathname.replace(/\/$/, "") === "/mcp") {
+      return serveMcp(request, env);
     }
     // Everything else is the static site. With the [assets] binding present,
     // matching assets are served automatically before the Worker even runs;

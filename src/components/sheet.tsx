@@ -3,9 +3,11 @@ import { type ReactNode } from 'react';
 // The pieces of chrome every hand-written page repeated verbatim: the
 // colophon and the GitHub mark inside it. (A `Crumbs` breadcrumb was the
 // third until 2026-08-26, when `/perch` — its last caller — was retired into
-// `/docs/perch`; `.crumbs` left `public/hausfold.css` in the same commit.)
-// They were copied eight times because `public/` had no template; they are
-// components now for
+// `/docs/perch` and `.crumbs` left `public/hausfold.css` with it. It came
+// back 2026-08-27 with /developers, which writes its own `<nav className=
+// "crumbs">` directly; if a second caller appears, it graduates to a
+// component here.) They were copied eight times because `public/` had no
+// template; they are components now for
 // the same reason `src/lib/page-meta.ts` exists — AGENTS.md's "a change to one
 // is a change to all of them, and nothing checks" was a description of the
 // problem, not of a rule anyone could keep.

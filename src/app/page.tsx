@@ -77,10 +77,10 @@ export default function Home() {
 
               🚨 It stopped being `/`'s rule alone on 2026-08-26: `/perch`
               and `/haus` both retired into their docs trees that day, and
-              `.crumbs` and `.topnav` went with them. No page on this site
-              opens on a nav row now. An inner page that comes back still
-              owes a way back up — the two tombstones in
-              `public/hausfold.css` carry the shapes. */}
+              `.crumbs` and `.topnav` went with them. No other page on this
+              site opens on a nav row — /developers came back with one
+              2026-08-27, and it owes its way back up to the tombstone
+              shapes in `public/hausfold.css`, which it uses. */}
 
           <div className="mark" aria-hidden="true">
             ⌂
