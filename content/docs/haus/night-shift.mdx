@@ -1,0 +1,114 @@
+---
+title: Merging pull requests overnight
+description: "A haus machine can keep merging while nobody is watching. What a shift asks of the Mac underneath it: the lid lever that survives a closed laptop, the command that hands a red branch to an agent, and the feed it meters against."
+icon: landed
+related:
+  - title: "AI"
+    description: "The room all of this needs: lanes, the clients, the switch that keeps a run alive when nobody touches the keyboard, and the button that hands a red branch to an agent."
+    href: "/docs/haus/rooms/ai"
+    icon: "agent"
+  - title: "Notifications"
+    description: "Where a loud night gets quieter: rules by source, in one file."
+    href: "/docs/haus/rooms/notifications"
+    icon: "notifications"
+  - title: "Changing your Mac with an agent"
+    description: "The other unattended agent on this machine: the skills haus writes, the loop they follow, and the one rebuild they refuse."
+    href: "/docs/haus/agent-rebuilds"
+    icon: "wand"
+---
+
+[factory](https://github.com/hausfold/factory) merges the pull requests a filter
+you wrote can vouch for, on a cadence, while you are asleep.
+[`haus.ai.enable`](/docs/haus/rooms/ai) puts it on your `PATH` along with its two
+agent skills: `factory`, the verbs, and `nightshift`, the loop that runs them.
+Its README is the manual for the shift itself, and this page is not a second
+copy of it.
+
+This is the other half: what a shift asks of the Mac underneath it. factory runs
+on any machine and names none of this, so the joins are haus's to write down.
+
+## Keeping the Mac awake
+
+`haus.ai.keepAwake` is the switch that gets reached for here, and for a shift it
+is the wrong one. It means *while my agents are working*, and it holds for five
+minutes past the last turn. A foreman that wakes every twenty minutes to look at
+the board is idle for most of the hour in between, so the hold drops in every
+gap.
+
+An unattended shift wants the lid lever named directly, in your own power block:
+
+```nix
+haus.power.lidAwake = {
+  enable = true;
+  while  = "always";
+};
+```
+
+`always` is a plain hold rather than an agent-shaped one, so two of the dials
+[Shaping the hold](/docs/haus/rooms/ai#shaping-the-hold) describes have nothing
+left to act on. `maxHold` caps a hold that leaked, and there is no signal here to
+leak, so a twelve-hour night is not cut off at hour eight; `linger` has nothing
+to linger for. `requirePower` still applies, which keeps unplugging as a way to
+say stop.
+
+<Callout type="warn" title="Nothing on screen says the lid is being held">
+The bar's coffee pill reports the agent-shaped hold, not this one. `always` is a
+root daemon holding macOS's `disablesleep`, and it draws nothing at all. Your
+shift's own notifications are the only receipt, and they stop when the shift
+does. The hold does not: it lasts until you set the option back and rebuild. If
+the lid stays shut and the fans stay on the morning after, this is the first
+thing to check.
+</Callout>
+
+## Handing a red branch to an agent
+
+The [github pill](/docs/haus/rooms/bar)'s **Fix with AI** row is a button, and
+underneath it is a command you can call yourself:
+
+```sh
+haus-fix-github main ci "$url"
+```
+
+Three arguments. What is broken (a branch name, or a pull request number), which
+of those it is (`ci` for a red default branch, `checks-red` or `conflicts` for a
+pull request), and the URL of the failure.
+
+It is on your `PATH` whenever the AI room is on and installs a client, and the
+lane it opens is a background one: nothing raises a window or steals focus, and
+the receipt is a notification. Everything else about it, including the checkout
+it will and will not find, is the same as pressing the button, which
+[When GitHub goes red](/docs/haus/rooms/ai#when-github-goes-red) covers.
+
+<Callout title="It spawns, it does not fix">
+The lane is an ordinary lane running its client interactively, with its own
+permission gate and its own checkout. Nothing here bounds what it then does, so
+whether a fix reaches your machine is still the repo's tooling and your review in
+the morning. `haus rebuild` is machine-wide, and it stays yours.
+</Callout>
+
+## The feed it meters against
+
+factory's budget gate is optional and reads a file you point it at. On a haus
+machine the file to point it at is `~/.cache/claude-statusline/usage-claude.tsv`,
+which the [AI room](/docs/haus/rooms/ai) writes: Claude Code's statusline stashes
+your percentages on every render, and a refresher the bar also drives fills the
+gaps by asking Anthropic directly.
+
+<Callout type="warn" title="The feed needs a terminal in the picture">
+That refresher polls with the credentials a terminal `claude` renews, which the
+Claude Code macOS app never writes. Run a shift on a machine where nothing has
+opened a terminal session for most of a day and the feed goes stale. factory does
+not then overspend: it reports `budget: unknown` and opens **no fixer lanes at
+all**, which is a quiet night that looks like a calm one. If a morning's log is
+all `budget unknown`, this is why.
+</Callout>
+
+## What a night sounds like
+
+Two notification sources turn up on a night like this: `factory` for the shift's
+own cards, and `haus.github.fix` for every lane the fixer opens. Both are matched
+exactly, so a rule on one leaves the other speaking, and both want
+[the Notifications room](/docs/haus/rooms/notifications), which is where the
+rules live and which factory sends through directly. Choosing what a merge is
+allowed to wake you for is the difference between a calmer morning and a night
+you stop reading.
