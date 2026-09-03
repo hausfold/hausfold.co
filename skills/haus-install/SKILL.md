@@ -1,5 +1,5 @@
 ---
-name: hausfold
+name: haus-install
 description: Install haus (a nix-darwin desktop layer for macOS) from hausfold.co, and use the hausfold.co machine surface for release lookups and docs search. Use when the user wants a desktop installed, asks about haus, or needs the latest release of pounce or perch.
 ---
 
