@@ -46,12 +46,41 @@ export const DOWNLOADABLE = new Set(["pounce", "perch"]);
 // is what the OpenAPI-era tool table and the tests read.
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
 
+// RFC 9728 Protected Resource Metadata. The resource this host serves is
+// public: no authorization server stands behind it, so authorization_servers
+// is empty rather than pointing at an issuer that does not exist, and no
+// scopes are required. The document exists so the URL auth.md names (and a
+// 401 would advertise, if an endpoint ever started requiring credentials)
+// resolves today instead of 404ing an agent mid-discovery.
+export const PROTECTED_RESOURCE = {
+  resource: "https://hausfold.co/",
+  resource_documentation: "https://hausfold.co/auth.md",
+  authorization_servers: [],
+  scopes_supported: [],
+  bearer_methods_supported: ["header"],
+  response_types_supported: [],
+};
+
+// The Web Bot Auth directory (draft-ietf-httpbis-unprompted-auth): the set of
+// Ed25519 keys this host signs its responses with. hausfold.co signs no
+// responses, so the array is empty — an honest directory rather than a
+// fabricated key. If response signing ever lands, the keys go here and
+// nowhere else.
+export const SIGNATURE_DIRECTORY = { keys: [] };
+
 // The MCP tool table. Descriptions and schemas are what agents see; the enum
 // values are derived from the tables above so a desktop or app added to one
 // place reaches the tool list without a second edit.
+//
+// Every tool here is a read: annotations say so explicitly (readOnlyHint,
+// idempotentHint) rather than leaving an agent to infer it from the
+// descriptions. `get_latest_release` reaches out to GitHub's API, so it
+// carries openWorldHint: true; the other two read only what this Worker
+// already serves.
 export const MCP_TOOLS = [
   {
     name: "get_install_command",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Get the one-line install command for a hausfold desktop. Omit `desktop` to list every " +
       "desktop and what each URL installs.",
@@ -69,6 +98,7 @@ export const MCP_TOOLS = [
   },
   {
     name: "get_latest_release",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
       "Latest signed and notarized macOS release of a hausfold app: version tag, asset name, " +
       "size, direct download URL, publish date.",
@@ -86,6 +116,7 @@ export const MCP_TOOLS = [
   },
   {
     name: "search_docs",
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
       "Full-text search of the hausfold documentation (haus, pounce, perch, trill, scruff). " +
       "Returns page URLs, breadcrumbs and an excerpt per match.",
@@ -108,3 +139,10 @@ export const MCP_TOOLS = [
     },
   },
 ];
+
+// The subset /mcp/docs serves: the documentation surface alone, so an agent
+// that only wants to read the docs can subscribe to a transport whose tool
+// list says so. /mcp keeps serving the full table (docs included) so existing
+// clients see no change; the two servers share one implementation. Declared
+// after MCP_TOOLS, which it is filtered from.
+export const DOCS_MCP_TOOLS = MCP_TOOLS.filter((t) => t.name === "search_docs");

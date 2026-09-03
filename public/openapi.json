@@ -3,7 +3,7 @@
   "info": {
     "title": "hausfold.co",
     "summary": "Public endpoints for hausfold's Mac software: installers, release metadata, docs search, a versioned REST surface, and an MCP endpoint for coding agents.",
-    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /design.md, the llms.txt files) are the long-lived surface and do not carry a version, because they have never changed shape.\n\nAuthentication: none. There is no OAuth authorization server behind this host; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.",
+    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /design.md, the llms.txt files) are the long-lived surface and do not carry a version, because they have never changed shape.\n\nAuthentication: none. There is no OAuth authorization server behind this host; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), and /.well-known/mcp/server-card.json. See /auth.md for the full account.\n\nSandbox: every /v1 read accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
     "version": "1.0.0",
     "contact": {
       "name": "hausfold",
@@ -61,6 +61,9 @@
           },
           {
             "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "$ref": "#/components/parameters/sandbox"
           }
         ],
         "responses": {
@@ -121,6 +124,9 @@
           },
           {
             "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "$ref": "#/components/parameters/sandbox"
           }
         ],
         "responses": {
@@ -206,7 +212,12 @@
           "429": {
             "$ref": "#/components/responses/rateLimited"
           }
-        }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/sandbox"
+          }
+        ]
       }
     },
     "/v1/releases/{app}": {
@@ -221,6 +232,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/app"
+          },
+          {
+            "$ref": "#/components/parameters/sandbox"
           }
         ],
         "responses": {
@@ -674,10 +688,16 @@
             }
           },
           "400": {
-            "description": "A ref that is not a release tag was requested."
+            "description": "A ref that is not a release tag was requested.",
+            "content": {
+              "text/plain": {}
+            }
           },
           "502": {
-            "description": "The upstream script could not be fetched."
+            "description": "The upstream script could not be fetched.",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -725,10 +745,16 @@
             "$ref": "#/components/responses/installer"
           },
           "400": {
-            "description": "A ref that is not a release tag was requested."
+            "description": "A ref that is not a release tag was requested.",
+            "content": {
+              "text/plain": {}
+            }
           },
           "502": {
-            "description": "The upstream script could not be fetched."
+            "description": "The upstream script could not be fetched.",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -746,10 +772,16 @@
             "$ref": "#/components/responses/installer"
           },
           "400": {
-            "description": "A ref that is not a release tag was requested."
+            "description": "A ref that is not a release tag was requested.",
+            "content": {
+              "text/plain": {}
+            }
           },
           "502": {
-            "description": "The upstream script could not be fetched."
+            "description": "The upstream script could not be fetched.",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -860,7 +892,10 @@
             }
           },
           "502": {
-            "description": "The upstream file could not be fetched."
+            "description": "The upstream file could not be fetched.",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -962,7 +997,7 @@
     "/mcp": {
       "post": {
         "summary": "Model Context Protocol endpoint",
-        "description": "JSON-RPC 2.0 over Streamable HTTP. Stateless: no session ids, and GET is refused (405) because there is nothing to stream. Open CORS, no authentication. Initialize, then list or call tools; every tool reads public data. Responses carry the RateLimit trio.",
+        "description": "JSON-RPC 2.0 over Streamable HTTP. Stateless: no session ids, and GET is refused (405) because there is nothing to stream. Open CORS, no authentication. Initialize, then list or call tools; every tool reads public data and carries readOnly annotations. A docs-only transport serving search_docs alone runs at /mcp/docs. Tool errors come back as isError results whose text and structuredContent carry {error: {code, message}}. Responses carry the RateLimit trio.",
         "operationId": "mcpPost",
         "tags": [
           "mcp"
@@ -1027,17 +1062,35 @@
               }
             },
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcResponse"
+                }
+              }
             }
           },
           "202": {
             "description": "The request (or every message in the batch) was a notification; there is nothing to reply."
           },
           "400": {
-            "description": "Body was not JSON (JSON-RPC -32700)."
+            "description": "Body was not JSON (JSON-RPC -32700 parse error).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
           },
           "405": {
-            "description": "Method not POST. GET would open an SSE stream; this server has nothing to push."
+            "description": "Method not POST. GET would open an SSE stream; this server has nothing to push.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/rateLimited"
@@ -1054,6 +1107,167 @@
         "responses": {
           "204": {
             "description": "Preflight allowed."
+          }
+        }
+      }
+    },
+    "/mcp/docs": {
+      "post": {
+        "summary": "Model Context Protocol endpoint, documentation only",
+        "description": "The docs half of the MCP surface as its own transport: search_docs alone, against the same index /v1/search scores. Stateless JSON-RPC 2.0 over Streamable HTTP, open CORS, no authentication. Use this transport when the agent only wants to read the docs; use /mcp for install commands and release metadata too. The manifest naming both servers is at /mcp.json.",
+        "operationId": "mcpDocsPost",
+        "tags": [
+          "mcp",
+          "docs"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/jsonRpcRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response.",
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "mcp-protocol-version": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body was not JSON (JSON-RPC -32700 parse error).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not POST.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Open preflight: any origin, POST, and the MCP headers.",
+        "operationId": "mcpDocsPreflight",
+        "tags": [
+          "mcp",
+          "docs"
+        ],
+        "responses": {
+          "204": {
+            "description": "Preflight allowed."
+          }
+        }
+      }
+    },
+    "/mcp.json": {
+      "get": {
+        "summary": "The agent-plugins.org MCP manifest",
+        "description": "Names both MCP transports (hausfold at /mcp, hausfold-docs at /mcp/docs) with their URLs, so a manifest probe discovers the servers without reading the docs first.",
+        "operationId": "getMcpManifest",
+        "tags": [
+          "mcp"
+        ],
+        "responses": {
+          "200": {
+            "description": "The manifest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpManifest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/oauth-protected-resource": {
+      "get": {
+        "summary": "RFC 9728 Protected Resource Metadata",
+        "description": "Describes how an agent authenticates to this resource: it does not have to. resource names this host, resource_documentation points at /auth.md, authorization_servers is empty because no authorization server stands behind the resource, and no scopes are required. Published so discovery never walks into a 404; if an endpoint ever starts requiring credentials, its 401 will advertise this URL in WWW-Authenticate.",
+        "operationId": "getProtectedResourceMetadata",
+        "tags": [
+          "docs"
+        ],
+        "responses": {
+          "200": {
+            "description": "The metadata document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/protectedResource"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/http-message-signatures-directory": {
+      "get": {
+        "summary": "Web Bot Auth directory of response-signing keys",
+        "description": "The Ed25519 keys this host signs its HTTP responses with, per the Web Bot Auth draft. hausfold.co signs no responses, so the keys array is empty. An empty directory is the honest statement of that; a fabricated key would be worse than none.",
+        "operationId": "getSignatureDirectory",
+        "tags": [
+          "docs"
+        ],
+        "responses": {
+          "200": {
+            "description": "The directory.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/signatureDirectory"
+                }
+              }
+            }
           }
         }
       }
@@ -1376,6 +1590,20 @@
         "schema": {
           "type": "string"
         }
+      },
+      "sandbox": {
+        "name": "sandbox",
+        "in": "query",
+        "required": false,
+        "description": "sandbox=true returns deterministic sample payloads: no live GitHub release lookups, no search-index dependency, byte-identical answers every call. For exercising a client against the documented shapes. The rate limit still applies.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "true",
+            "1",
+            "yes"
+          ]
+        }
       }
     },
     "schemas": {
@@ -1435,6 +1663,10 @@
           "publishedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "sandbox": {
+            "type": "boolean",
+            "description": "Present and true when the response is a sandbox fixture rather than a live release lookup."
           }
         },
         "required": [
@@ -1494,6 +1726,10 @@
           "total": {
             "type": "integer",
             "description": "Total results across all pages."
+          },
+          "sandbox": {
+            "type": "boolean",
+            "description": "Present and true when the response is a sandbox fixture rather than a scored index search."
           }
         },
         "required": [
@@ -1670,6 +1906,11 @@
                 }
               ]
             }
+          },
+          "sandbox": {
+            "type": "boolean",
+            "default": false,
+            "description": "Run every operation against the sandbox fixtures: deterministic sample data, no live GitHub release lookups."
           }
         },
         "required": [
@@ -1714,6 +1955,10 @@
                 "ok"
               ]
             }
+          },
+          "sandbox": {
+            "type": "boolean",
+            "description": "Echoed when the batch ran in sandbox mode."
           }
         },
         "required": [
@@ -1826,6 +2071,11 @@
             "items": {
               "type": "object"
             }
+          },
+          "docsServerUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The docs-only MCP transport."
           }
         },
         "required": [
@@ -1864,6 +2114,190 @@
         "required": [
           "jsonrpc",
           "method"
+        ]
+      },
+      "jsonRpcError": {
+        "type": "object",
+        "description": "A JSON-RPC 2.0 error object: a numeric code beside a human-readable message, so a client can branch without parsing prose.",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "const": "2.0"
+          },
+          "id": {
+            "description": "The request id, or null when the id was unreadable."
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "integer",
+                "description": "JSON-RPC error code (-32700 parse, -32600 invalid request, -32601 method not found, -32602 invalid params)."
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "id",
+          "error"
+        ]
+      },
+      "jsonRpcResponse": {
+        "description": "A JSON-RPC 2.0 result (single object, or an array of objects for a batch request). Tool failures ride inside result.isError with a structuredContent error payload; transport-level failures use the jsonRpcError shape.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/jsonRpcResult"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/jsonRpcResult"
+            }
+          }
+        ]
+      },
+      "jsonRpcResult": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "const": "2.0"
+          },
+          "id": {
+            "description": "The request id this result answers."
+          },
+          "result": {
+            "description": "The method's result. For tools/call: content blocks, optional structuredContent, and isError true on a tool-level failure."
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "id",
+          "result"
+        ]
+      },
+      "protectedResource": {
+        "type": "object",
+        "description": "RFC 9728 Protected Resource Metadata for the public resource this host serves.",
+        "properties": {
+          "resource": {
+            "type": "string",
+            "format": "uri"
+          },
+          "resource_documentation": {
+            "type": "string",
+            "format": "uri",
+            "description": "Points at /auth.md."
+          },
+          "authorization_servers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Empty: no authorization server stands behind this resource."
+          },
+          "scopes_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bearer_methods_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "response_types_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "resource",
+          "authorization_servers",
+          "scopes_supported",
+          "bearer_methods_supported"
+        ]
+      },
+      "signatureDirectory": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "description": "Empty: this host signs no responses.",
+            "items": {
+              "type": "object",
+              "description": "An Ed25519 JWK (kty OKP, crv Ed25519, kid, nbf, exp).",
+              "properties": {
+                "kty": {
+                  "type": "string"
+                },
+                "crv": {
+                  "type": "string"
+                },
+                "kid": {
+                  "type": "string"
+                },
+                "nbf": {
+                  "type": "integer"
+                },
+                "exp": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "keys"
+        ]
+      },
+      "mcpManifest": {
+        "type": "object",
+        "properties": {
+          "$schema": {
+            "type": "string",
+            "format": "uri"
+          },
+          "mcpServers": {
+            "type": "object",
+            "description": "One entry per MCP transport: hausfold (install commands, releases, docs search) and hausfold-docs (docs search alone).",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "streamable-http"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "url"
+              ]
+            }
+          }
+        },
+        "required": [
+          "mcpServers"
         ]
       }
     }

@@ -3,7 +3,13 @@
   "mcpServers": {
     "hausfold": {
       "type": "streamable-http",
-      "url": "https://hausfold.co/mcp"
+      "url": "https://hausfold.co/mcp",
+      "description": "Install commands, release metadata and docs search for hausfold's Mac software."
+    },
+    "hausfold-docs": {
+      "type": "streamable-http",
+      "url": "https://hausfold.co/mcp/docs",
+      "description": "Full-text search of the hausfold documentation alone."
     }
   }
 }

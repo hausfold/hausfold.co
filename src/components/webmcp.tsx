@@ -9,10 +9,12 @@ import { useEffect } from 'react';
 // everywhere the API is absent, so this is pure enhancement: the page
 // renders and behaves identically with or without it.
 //
-// The tools mirror two of the REST reads under /v1, so the agent executes
-// the same public, keyless surface any curl could hit. There is nothing to
-// authorize and nothing to sign. Mounted from src/app/docs/layout.tsx, the
-// docs half only: the landing pages ship none of our own script.
+// The tools mirror the REST reads under /v1 and the /mcp tool table, so the
+// agent executes the same public, keyless surface any curl could hit. There
+// is nothing to authorize and nothing to sign. Mounted from src/app/layout.tsx
+// (every page, landing half included — the one pure-enhancement exception),
+// so a browser-resident agent sees the same menu on the homepage as in the
+// docs.
 //
 // No teardown: a modelContext lives for the page, and a tool registered
 // once per mount is one tool, not a leak.
@@ -50,6 +52,28 @@ export function WebMcpTools() {
           const res = await fetch(`/v1/search?q=${query}`);
           const data = await res.json();
           return JSON.stringify(data.results ?? data);
+        },
+      },
+      {
+        name: 'get_hausfold_install_command',
+        description:
+          'The one-line install command for a hausfold desktop (haus, hacker, everyday, minimal).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            desktop: {
+              type: 'string',
+              enum: ['haus', 'hacker', 'everyday', 'minimal'],
+            },
+          },
+          required: ['desktop'],
+        },
+        execute: async (args) => {
+          const desktop = String((args as { desktop?: string })?.desktop ?? '');
+          const res = await fetch(`/v1/desktops`);
+          const data = await res.json();
+          const hit = (data.results ?? []).find((d: { desktop?: string }) => d.desktop === desktop);
+          return JSON.stringify(hit ?? { error: 'unknown desktop' });
         },
       },
       {
