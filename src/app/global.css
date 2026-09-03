@@ -464,10 +464,17 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   background: var(--accent-wash);
 }
 
+/* The title is the product's name, and the family's visual standard
+   (hausfold.co/design.md) sets every wordmark lowercase at weight 600 with
+   +0.06em tracking. The face stays the site's own mono — the standard's
+   brand face is for artifacts, not this site — but the weight and tracking
+   carry, here and in the popover below, so the tree names read as set
+   wordmarks rather than labels. The hue stays on the glyph. */
 #nd-sidebar button[aria-haspopup='dialog']:not([data-search-full]) p {
   font-family: var(--font-mono);
   font-size: 0.8rem;
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--ink);
 }
 
@@ -475,6 +482,8 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
   display: block;
   margin-top: 0.15rem;
   font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: normal;
   line-height: 1.35;
   color: var(--ink-3);
 }
@@ -491,6 +500,17 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 
 [role='dialog'][data-side] p {
   font-weight: 400;
+}
+
+/* Each row's first `p` is a tree's title — a product wordmark, set like the
+   trigger's above: 600 / +0.06em, per the family standard. `:has([data-hue])`
+   anchors the rule to rows carrying a hued tree glyph, which only the
+   switcher's rows do (hues are the tree icons and nothing else — see
+   `src/lib/icons.tsx`), so no other portaled menu's `<a><p>` can pick up
+   wordmark emphasis by accident. */
+[role='dialog'][data-side] a:has([data-hue]) p:first-of-type {
+  font-weight: 600;
+  letter-spacing: 0.06em;
 }
 
 /* hausfold.css underlines every `a` on the page, which inside a menu means
