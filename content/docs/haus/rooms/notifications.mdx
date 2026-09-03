@@ -131,11 +131,22 @@ Three things, each left out on purpose:
   `--source` (`haus.bar`, `haus.lane`, one per room), so "stop telling me about
   the bar reloading" is a line in that file rather than a rebuild. haus
   deliberately puts no second dial in front of it.
-- **It does not theme or configure the app.** `~/.config/trill/config.json` stays
-  yours. trill refuses to move a toggle when that file is a symlink into the Nix
-  store, and says so in its own Settings rather than flipping a switch a rebuild
-  would revert. Which keys haus should own is a real design question, and this
-  room has not answered it.
+- **It does not own `~/.config/trill/config.json`.** One key in that file is
+  haus's: `fontFamily`, written from
+  [`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type), so the one option
+  that sets the launcher's and the shelf's proportional family sets trill's too.
+  The room merges that key and leaves the file a real, writable file rather than
+  a symlink into the Nix store, so every other switch in it stays yours and your
+  clicks survive a rebuild. The cost is the font row in trill's own Settings:
+  trill only refuses a write it can see is generated, and this file is not, so a
+  family you pick there holds until the next `haus rebuild` puts the desktop's
+  back.
+
+  Two shapes it steps over instead of rewriting: a config that is a symlink (any
+  symlink, so a dotfiles link is safe, not only a store one) and a config that is
+  not valid JSON. In both it writes nothing and says so on the rebuild's stderr,
+  which is the only place it is said. If you keep that file linked, set trill's
+  family in it yourself.
 
 ## Works with
 
@@ -165,7 +176,10 @@ The room stops installing and updating it. The copy already at
 `/Applications/Trill.app` stays until you delete it: a rebuild never takes an app
 out of your Applications folder behind your back. `haus-notify` and the `trill`
 command go on finding it there, which is what "the room is about ownership, not
-about the app" means in practice.
+about the app" means in practice. The `fontFamily` the room wrote into
+`~/.config/trill/config.json` stays too, for the same reason, and stops being
+re-asserted: it is an ordinary line in a file that is yours, so edit or drop it
+whenever you like.
 
 ## Options
 
