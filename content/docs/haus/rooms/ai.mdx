@@ -188,7 +188,16 @@ With [trill](/docs/trill) installed, that banner is a door and not only a
 receipt. The whole card is the click target (the `Go to lane` tag on it is a
 label saying so, not a button), and clicking anywhere on it lands you on the
 lane's window on `T/<repo>`: the same click [the ask and done
-banners](#knowing-which-agent-needs-you) give you later. Without trill it stays
+banners](#knowing-which-agent-needs-you) give you later.
+
+It lands you on the *window*, not on the page it sits in. If `T/<repo>` is
+holding other windows, the lane's one is zoomed to fill the workspace, so the
+agent that asked for you is the only thing in front of you rather than the one
+you find by hunting for a solid cursor. The page comes back on its own: going to
+any other window on it drops the zoom, which is AeroSpace's own behaviour, and
+`⌥F` is there for when you want it back deliberately. A lane alone on its page is
+left exactly as it is, for the reason [a window on its own does not
+zoom](/docs/haus/rooms/windows#a-window-on-its-own-does-not-zoom). Without trill it stays
 a plain macOS banner with nothing to click, and a repo or lane name carrying a
 character outside letters, digits, `.`, `_` and `-` keeps the banner and loses
 only the click.
