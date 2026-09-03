@@ -1,0 +1,263 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "hausfold.co",
+    "summary": "Public endpoints for hausfold's Mac software: installers, release metadata, docs search, and an MCP endpoint for coding agents.",
+    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "hausfold",
+      "email": "julien@hausfold.co",
+      "url": "https://hausfold.co/developers/"
+    },
+    "license": { "name": "MIT", "url": "https://github.com/hausfold/haus#readme" }
+  },
+  "servers": [{ "url": "https://hausfold.co" }],
+  "paths": {
+    "/haus.sh": {
+      "get": {
+        "summary": "Install script for the haus layer; asks which desktop to build",
+        "description": "Proxies haus's bootstrap.sh with nothing pinned, so the installer interviews you. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`.",
+        "tags": ["install"],
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "query",
+            "description": "Pin the bootstrap.sh source to an exact haus release tag (vYYYY.MM.DD or vYYYY.MM.DD-N). Unpublished: main is the default.",
+            "required": false,
+            "schema": { "type": "string", "pattern": "^v[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}(-[0-9]+)?$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The installer as plain text, pinned via HAUS_DESKTOP. `x-hausfold-ref` names the ref it was fetched from.",
+            "headers": {
+              "x-hausfold-ref": {
+                "description": "The ref the script was proxied from (a release tag, or main before the first release).",
+                "schema": { "type": "string" }
+              }
+            },
+            "content": { "text/plain": {} }
+          },
+          "400": { "description": "A ref that is not a release tag was requested." },
+          "502": { "description": "The upstream script could not be fetched." }
+        }
+      }
+    },
+    "/hacker.sh": {
+      "get": {
+        "summary": "Install script for the hacker desktop, pinned by URL",
+        "description": "Same script as /haus.sh with the hacker desktop pinned, so the installer does not ask. `x-hausfold-desktop` echoes the pin.",
+        "responses": {
+          "200": {
+            "description": "The installer as plain text.",
+            "headers": {
+              "x-hausfold-ref": { "schema": { "type": "string" } },
+              "x-hausfold-desktop": { "schema": { "type": "string" } }
+            },
+            "content": { "text/plain": {} }
+          }
+        }
+      }
+    },
+    "/everyday.sh": {
+      "get": {
+        "summary": "Install script for the everyday desktop, pinned by URL",
+        "description": "Same shape as /hacker.sh for the everyday desktop.",
+        "responses": {
+          "200": { "$ref": "#/components/responses/installer" },
+          "400": { "description": "A ref that is not a release tag was requested." },
+          "502": { "description": "The upstream script could not be fetched." }
+        }
+      }
+    },
+    "/minimal.sh": {
+      "get": {
+        "summary": "Install script for the minimal desktop, pinned by URL",
+        "description": "Same shape as /hacker.sh for the minimal desktop.",
+        "responses": {
+          "200": { "$ref": "#/components/responses/installer" },
+          "400": { "description": "A ref that is not a release tag was requested." },
+          "502": { "description": "The upstream script could not be fetched." }
+        }
+      }
+    },
+    "/download/{app}": {
+      "get": {
+        "summary": "Redirect to the latest macOS release artifact of an app",
+        "description": "302 to the most-preferred macOS asset of the app's latest GitHub release (DMG preferred over the archive). GitHub keeps hosting the bytes and counting downloads.",
+        "parameters": [
+          { "$ref": "#/components/parameters/app" }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the asset's download URL, or to the repo's releases page when no signed artifact is found.",
+            "headers": { "Location": { "schema": { "type": "string", "format": "uri" } } }
+          }
+        }
+      }
+    },
+    "/api/release/{app}": {
+      "get": {
+        "summary": "Latest release metadata for an app",
+        "description": "Small JSON document (tag, asset, size, url, publishedAt) for labelling a download button with the real version instead of one hardcoded to go stale. Cached at the edge for five minutes.",
+        "parameters": [
+          { "$ref": "#/components/parameters/app" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Release metadata.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/release" }
+              }
+            }
+          },
+          "502": { "description": "GitHub's release API could not be reached." }
+        }
+      }
+    },
+    "/design.md": {
+      "get": {
+        "summary": "The family's visual standard as one public markdown URL",
+        "description": "Proxied from the workshop repo's docs/design.md. Intended for a coding agent to load before drawing something that carries the brand.",
+        "responses": {
+          "200": { "description": "Markdown.", "content": { "text/markdown": {} } },
+          "502": { "description": "The upstream file could not be fetched." }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "summary": "The full-text search index of the documentation",
+        "description": "The complete search index (Orama JSON format) behind /docs: one entry per page section with url, breadcrumbs and content. search_docs on /mcp scores this same index.",
+        "responses": {
+          "200": { "description": "Orama search index.", "content": { "application/json": {} } }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "summary": "Documentation as markdown for LLMs, index form",
+        "description": "One entry per docs page. Plain text, no runtime.",
+        "responses": {
+          "200": { "description": "Markdown index.", "content": { "text/plain": {} } }
+        }
+      }
+    },
+    "/llms-full.txt": {
+      "get": {
+        "summary": "Documentation as markdown for LLMs, full text",
+        "description": "Every docs page's full text in one file. Plain text, no runtime.",
+        "responses": {
+          "200": { "description": "Markdown, full text.", "content": { "text/plain": {} } }
+        }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "summary": "Model Context Protocol endpoint",
+        "description": "JSON-RPC 2.0 over Streamable HTTP. Stateless: no session ids, and GET is refused (405) because there is nothing to stream. Open CORS, no authentication. Initialize, then list or call tools; every tool reads public data.",
+        "operationId": "mcpPost",
+        "parameters": [
+          {
+            "name": "mcp-protocol-version",
+            "in": "header",
+            "required": false,
+            "description": "Optional. Informational for this server: negotiation happens in the initialize request's protocolVersion parameter; the response's mcp-protocol-version header names the version the server answered with.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/jsonRpcRequest" },
+                  { "type": "array", "items": { "$ref": "#/components/schemas/jsonRpcRequest" } }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response (single object, or array for a batch).",
+            "headers": {
+              "mcp-protocol-version": { "schema": { "type": "string" } }
+            },
+            "content": { "application/json": {} }
+          },
+          "202": { "description": "The request (or every message in the batch) was a notification; there is nothing to reply." },
+          "400": { "description": "Body was not JSON (JSON-RPC -32700)." },
+          "405": {
+            "description": "Method not POST. GET would open an SSE stream; this server has nothing to push."
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Open preflight: any origin, POST, and the MCP headers.",
+        "responses": { "204": { "description": "Preflight allowed." } }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "installer": {
+        "description": "The installer as plain text, pinned via HAUS_DESKTOP. `x-hausfold-ref` names the ref it was fetched from and `x-hausfold-desktop` echoes the pin.",
+        "headers": {
+          "x-hausfold-ref": {
+            "description": "The ref the script was proxied from (a release tag, or main before the first release).",
+            "schema": { "type": "string" }
+          },
+          "x-hausfold-desktop": {
+            "description": "The desktop this URL pinned. Absent on /haus.sh, which pins nothing.",
+            "schema": { "type": "string" }
+          }
+        },
+        "content": { "text/plain": {} }
+      }
+    },
+    "parameters": {
+      "app": {
+        "name": "app",
+        "in": "path",
+        "required": true,
+        "description": "An app with signed, notarized macOS releases on GitHub.",
+        "schema": { "type": "string", "enum": ["pounce", "perch"] }
+      }
+    },
+    "schemas": {
+      "release": {
+        "type": "object",
+        "properties": {
+          "tag": { "type": "string", "examples": ["v2026.08.14"] },
+          "asset": { "type": "string", "examples": ["pounce-2026.08.14-macos.dmg"] },
+          "size": { "type": "integer", "description": "Asset size in bytes." },
+          "url": { "type": "string", "format": "uri" },
+          "publishedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["tag", "asset", "size", "url", "publishedAt"]
+      },
+      "jsonRpcRequest": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": { "type": "string", "const": "2.0" },
+          "id": {
+            "description": "Absent on notifications.",
+            "oneOf": [{ "type": "string" }, { "type": "integer" }]
+          },
+          "method": { "type": "string" },
+          "params": { "type": "object" }
+        },
+        "required": ["jsonrpc", "method"]
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "The same surface written for a human, with quickstarts.",
+    "url": "https://hausfold.co/developers/"
+  }
+}

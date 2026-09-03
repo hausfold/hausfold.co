@@ -367,8 +367,9 @@ body:has([data-accent='trill']) { --accent: var(--a-trill); }
 /* Nav, sidebar and table of contents are apparatus, not prose. They take
    the mono face at 0.78rem, the size the landing half set its chrome in, so
    the docs read as more pages of the same publication. (`.meta`, `.crumbs`
-   and `.topnav` were the reference and all three are deleted; the size
-   outlived them because the docs are where the chrome is now.) */
+   and `.topnav` were the reference; `.crumbs` is live again on the landing
+   half since /developers, the other two are deleted, and the size outlived
+   them because the docs are where the chrome is now.) */
 #nd-sidebar,
 #nd-toc,
 #nd-nav,
@@ -1011,6 +1012,8 @@ article h1,
    there. `/haus`'s Shiki-highlighted example and the two inline commands in
    its aside were the callers, and they went into `/docs/haus` the same day
    `/perch` went into `/docs/perch`, taking `<Command>` and `.cmd` with them.
+   (`<Command>` and `.cmd` returned 2026-08-27 with /developers, but that
+   page holds plain commands, no Shiki — so the fork is still gone.)
 
    🚨 A landing page that highlights code again needs this back, and nothing
    will say so: Shiki emits `var(--nb-token-*)` rather than hexes, so without
