@@ -31,7 +31,7 @@
     {
       "id": "latest-release",
       "name": "latest-release",
-      "description": "The latest signed, notarized macOS release of an app: version tag, asset name and size, direct download URL, publish date. Use before naming a version or checking for updates.",
+      "description": "The latest signed, notarized macOS release of pounce or perch: version tag, asset name and size, direct download URL, publish date. Use before naming a version or checking for updates.",
       "tags": ["releases", "downloads", "macos"]
     }
   ]

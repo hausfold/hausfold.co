@@ -13,12 +13,12 @@ curl -fsSL https://hausfold.co/hacker.sh | bash
 
 The URL names the desktop:
 
-- `hacker.sh` — tiling windows, a bar, a themed terminal. The one most people
+- `hacker.sh`: tiling windows, a bar, a themed terminal. The one most people
   mean when they install haus.
-- `everyday.sh` — a better menu bar and a search box that opens anything, none
+- `everyday.sh`: a better menu bar and a search box that opens anything, none
   of the developer tooling.
-- `minimal.sh` — just the themed shell on an otherwise stock macOS.
-- `haus.sh` — installs the layer and asks which desktop to build.
+- `minimal.sh`: just the themed shell on an otherwise stock macOS.
+- `haus.sh`: installs the layer and asks which desktop to build.
 
 ## Before you run it
 

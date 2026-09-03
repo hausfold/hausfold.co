@@ -5,9 +5,8 @@ description: Check the latest signed macOS release of a hausfold app (pounce, pe
 
 # hausfold releases
 
-Every app on hausfold.co ships signed and notarized releases on GitHub. Don't
-hardcode a version: ask the release endpoint, which always answers with the
-real latest.
+pounce and perch ship signed, notarized releases on GitHub. Don't hardcode a
+version: ask the release endpoint, which always answers with the real latest.
 
 ```sh
 curl -fsSL https://hausfold.co/api/release/pounce
