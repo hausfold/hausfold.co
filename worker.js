@@ -1493,6 +1493,7 @@ function serveMcpCard() {
           "Public, unauthenticated MCP server for hausfold's Mac software: docs search, " +
           "install commands, release metadata. No keys, nothing to buy.",
         websiteUrl: "https://hausfold.co/developers/",
+        serverUrl: "https://hausfold.co/mcp",
         tools: MCP_TOOLS,
         remotes: [
           {
@@ -1736,39 +1737,38 @@ const hausfold = {
       }
       if (botTwin) return serveDocsMd(botTwin, env);
     }
-    // Everything else is the static site. With the [assets] binding present,
-    // matching assets are served automatically before the Worker even runs;
-    // this fallback covers requests that reach the Worker anyway.
     if (env.ASSETS) {
       const res = await env.ASSETS.fetch(request);
       const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
       // A browser asking for a missing page keeps the human 404 page.
-      if (wantsHtml || request.method === "HEAD") {
-        // HTML pages get RFC 8288 Link headers: the sitemap always, and the
-        // page's markdown twin where one exists — so an agent that fetched
-        // HTML can find the text representation without re-reading llms.txt.
-        if (
-          res.status === 200 &&
-          (res.headers.get("content-type") ?? "").includes("text/html")
-        ) {
-          const bare = url.pathname.replace(/\/$/, "");
-          const links = ['</sitemap.xml>; rel="sitemap"'];
-          if (bare === "") {
-            links.push('</index.md>; rel="alternate"; type="text/markdown"');
-          } else if (/^\/docs\//.test(bare)) {
-            links.push(`<${bare}.md>; rel="alternate"; type="text/markdown"`);
-          }
-          const headers = new Headers(res.headers);
-          headers.append("link", links.join(", "));
-          if (bare === "") {
-            // The homepage has two representations (markdown and HTML) and
-            // two selectors for them (Accept, AI-bot User-Agents).
-            headers.append("vary", "Accept, User-Agent, Accept-Encoding");
-          }
-          return new Response(res.body, { status: res.status, headers });
+      if (request.method === "HEAD") return res;
+      // HTML pages get RFC 8288 Link headers: the sitemap always, and the
+      // page's markdown twin where one exists — so an agent that fetched
+      // HTML can find the text representation without re-reading llms.txt.
+      // Any successful HTML response gets them: a browser, and curl with its
+      // */* default alike.
+      if (
+        res.status === 200 &&
+        (res.headers.get("content-type") ?? "").includes("text/html")
+      ) {
+        const bare = url.pathname.replace(/\/$/, "");
+        const links = ['</sitemap.xml>; rel="sitemap"'];
+        if (bare === "") {
+          links.push('</index.md>; rel="alternate"; type="text/markdown"');
+        } else if (/^\/docs\//.test(bare)) {
+          links.push(`<${bare}.md>; rel="alternate"; type="text/markdown"`);
         }
-        return res;
+        const headers = new Headers(res.headers);
+        headers.append("link", links.join(", "));
+        if (bare === "") {
+          // The homepage has two representations (markdown and HTML) and
+          // two selectors for them (Accept, AI-bot User-Agents).
+          headers.append("vary", "Accept, User-Agent, Accept-Encoding");
+        }
+        return new Response(res.body, { status: res.status, headers });
       }
+      // A browser asking for a missing page keeps the human 404 page.
+      if (wantsHtml) return res;
       // An agent asking for a missing page gets markdown that says where to
       // look instead — same status, a body it can act on.
       if (res.status === 404) return markdownNotFound(url);

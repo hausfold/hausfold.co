@@ -1,16 +1,6 @@
 import { source } from '@/lib/source';
 import { llms } from 'fumadocs-core/source';
 
-// The llms.txt index, as llms.txt means it: an H1 that names the site, a
-// blockquote lede, then H2 sections. Fumadocs' `index()` produces the Docs
-// body (the per-tree list with each page's title and one-line description);
-// the two agent sections above it are the machine-facing surface written in
-// worker.js's own terms, so the file stays true when the Worker changes.
-//
-// The per-tree scoped indexes live at /docs/<tree>/llms.txt (see
-// src/app/docs/[tree]/llms.txt/route.ts).
-export const revalidate = false;
-
 // The docs index plus the machine-facing surface, as llms.txt means it: an H1
 // that names the site, a blockquote lede, then H2 sections. Fumadocs' index()
 // produces the Docs body; the agent sections around it are the surface written
