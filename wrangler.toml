@@ -95,8 +95,9 @@ not_found_handling = "404-page"
 # both, for the literal `run_worker_first = true` inside `[assets]`. A grep is
 # crude and it is what there is: deploy.yml's post-deploy smoke check hits the
 # live URLs, but Cloudflare answers a GitHub runner with a managed challenge
-# ahead of the Worker whatever User-Agent it sends, so that step warns and skips
-# rather than proving anything. 🚨 Don't delete the grep as a duplicate of it.
+# ahead of the Worker often enough that it cannot be relied on — it warns and
+# skips whenever that happens, and whether it happens varies run to run.
+# 🚨 Don't delete the grep as a duplicate of it.
 #
 # The cost of `true` is one Worker invocation per request, whose fast path is a
 # route-table miss falling straight through to `env.ASSETS.fetch(request)`.

@@ -67,7 +67,8 @@ jobs:
             # plus /download/* and /api/release/* at once. This is a text check
             # because nothing else can be: the unit tests call `worker.fetch`
             # directly and pass under either value, and the live smoke check in
-            # deploy.yml is answered with a Cloudflare challenge from a runner.
+            # deploy.yml is answered with a Cloudflare challenge from a runner
+            # often enough not to be relied on.
             # Scoped to [assets] for the same reason as the binding above: it is
             # an [assets] key, and a top-level one would satisfy a bare grep
             # while doing nothing.

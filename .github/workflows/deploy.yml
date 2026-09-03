@@ -285,11 +285,16 @@ jobs:
                 verdict "/download/$app answered $probe_code -> ${probe_loc:-<none>}" ;;
             esac
 
+            # `"tag":"<something>"` rather than `"tag":"v…"`: this assertion is
+            # the retry trigger as well as the fail path now, and the leading `v`
+            # is a release-naming convention (worker.js's RELEASE_TAG), not
+            # something this route promises. A repo that tags without it would
+            # otherwise redden main for a route that works.
             probe "https://hausfold.co/api/release/$app"
-            if [ "$probe_code" != 200 ] || ! grep -q '"tag":"v' "$BODY"; then
+            if [ "$probe_code" != 200 ] || ! grep -q '"tag":"[^"]' "$BODY"; then
               retry "https://hausfold.co/api/release/$app"
             fi
-            if [ "$probe_code" = 200 ] && grep -q '"tag":"v' "$BODY"; then
+            if [ "$probe_code" = 200 ] && grep -q '"tag":"[^"]' "$BODY"; then
               echo "ok    /api/release/$app"
             elif [ "$probe_code" = 502 ] && grep -q 'upstream_unavailable' "$BODY"; then
               degrade "/api/release/$app answered 502 upstream_unavailable: worker.js could not read GitHub's release API."
@@ -316,7 +321,7 @@ jobs:
           fi
 
           if [ "$blocked" -gt 0 ]; then
-            echo "::warning::Cloudflare challenged $blocked of this step's requests, so those routes went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
+            echo "::warning::Cloudflare challenged $blocked of this step's routes, so they went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
           fi
           if [ "$degraded" -gt 0 ]; then
             echo "::warning::$degraded release route(s) answered with worker.js's own GitHub-API fallback. The Worker was reached and the route is right; the api.github.com call behind it was not. Check by hand: curl -sI https://hausfold.co/download/<app> should 302 to a releases/download/ asset, and curl -s https://hausfold.co/api/release/<app> should name a tag. If it stays this way for either app, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is that repo's problem and not this site's."

@@ -727,8 +727,8 @@ CI, by what a PR touches:
   step says so. Any wrong answer that isn't a challenge still fails the job.
   🚨 **With one carve-out, and it is the reason this step went red on
   2026-09-03.** `/download/<app>` and `/api/release/<app>` are backed by a live
-  UNAUTHENTICATED `api.github.com` call from the colo, and the purge two steps
-  earlier empties the Worker's hour-long release cache, so the check always asks
+  UNAUTHENTICATED `api.github.com` call from the colo, and the purge immediately
+  before it empties the Worker's hour-long release cache, so the check always asks
   GitHub cold. When that call doesn't land, worker.js degrades by design: the
   redirect goes to the releases page, and the JSON answers 502 problem+json with
   `"code":"upstream_unavailable"` — ⚠️ **not** a bare `{}`, which is what it
@@ -738,8 +738,13 @@ CI, by what a PR touches:
   fail the job.
   Don't tighten that back into a failure — GitHub rate-limiting a Cloudflare colo
   is not something a deploy caused, and this step runs after the code is live
-  anyway. A persistent warn means the release ships no `-macos.*` artifact,
-  which is that repo's problem, not this one's.
+  anyway. A persistent warn is worth chasing, in this order: the release may ship
+  no `-macos.*` artifact, which is that repo's problem and not this one's; or the
+  live GitHub call in `latestAppRelease` may itself be broken, which `npm test`
+  structurally cannot see, because `test/worker.test.js` replaces `globalThis.fetch`
+  wholesale and never exercises the real request (GitHub 403s one sent without a
+  `user-agent`, and worker.js sets that header by hand). This step is the only
+  check that touches that call at all.
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.
