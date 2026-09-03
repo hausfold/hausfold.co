@@ -212,20 +212,22 @@ thing after a click.
 ```bash
 popup_rows() {
   popup_heading --label "Pomodoro" --icon "" --badge "3 of 4"
-  popup_bar --label "this round" --percentage 62 --value "62%"
+  popup_bar --label "this round · ends 14:52" --percentage 62 --value "62%"
   popup_row --label "Started" --value "14:02"
   popup_separator
+  popup_item --title "Write the release notes" --subtitle "next · 25m" --badge "up next"
   popup_button --label "Reset" --run "pomodoro reset"
 }
 ```
 
 | kind | for |
 |---|---|
-| `popup_heading` | a section title, in your widget's hue. A glyph sits in a tinted well. `--count` appends ` · n`; `--badge` puts a capsule on the right |
+| `popup_heading` | a section title, in your widget's hue. A glyph sits in a tinted well. `--count` appends ` · n`; `--badge` puts a capsule on the right; `--hint` a small caption there instead |
 | `popup_row` | a thing you can act on. `--value` lands flush right on the ladder; `--badge` is a capsule; `--hint` a small caption |
+| `popup_item` | one thing in a list: a bold title with a glyph beside it, and under it a small caption with the reading on the right. Two lines, one hit area |
 | `popup_action` | a verb: Refresh, or a command to copy. `--hint` for "2m ago" |
-| `popup_button` | a filled, centred control. Tinted by default; `--solid` for the one primary thing to do |
-| `popup_bar` | a name, a real track as full as the number, the number |
+| `popup_button` | a filled, centred control. Tinted by default; `--solid` for the one primary thing to do. It stands off whatever is above it on its own |
+| `popup_bar` | a name and the number on one line, and under them a real track as full as the number |
 | `popup_graph` | a sparkline the width of the panel, fed `--points "…"` |
 | `popup_note` | an aside — "nothing", "+4 more" |
 | `popup_separator` | a hairline between two groups |
@@ -238,6 +240,17 @@ right edge that values, badges and hints all land on. You never name a width
 or a padding. Text that would not fit is cut with an ellipsis rather than
 spilling out of the panel, and `popup_width <points>` at the top of your file
 buys a wider one for a widget whose rows are sentences.
+
+A list of things, each with a name and something to say about it, is a run of
+`popup_item`s: an agent and its state, a meeting and when it is, a pull request
+and who opened it. The title takes the text colour, the caption a dim one, and
+the reading on the caption line keeps its own tone, so an item can say which,
+what and how without any of the three sharing a colour. Give the item a
+`--run` and both lines are one button.
+
+A long name never costs you the number. When a name and its value would not
+both fit, the value keeps what it needs (up to under half the panel) and the
+name wears the ellipsis, so `+2 unshipped` is never cut to `+2 …`.
 
 Rows that do something light up under the pointer; rows that don't, don't.
 That is the whole affordance, and it is why a `popup_row` with no `--run` or
