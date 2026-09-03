@@ -209,6 +209,13 @@ at it. What you don't get is the interruption: the window is born off-screen and
 walked onto its page without ever being activated, so focus stays exactly where
 it was and nothing blinks past.
 
+With the **screen asleep** there is no window to make: macOS reports no display,
+and a terminal asked for one anyway comes up as an error pane that swallows the
+task. So the session is the lane. The agent starts detached and works, the spawn
+banner still fires, and the first click on it (or `scruff <name>` from a shell)
+gives the lane its tiled window when you come back. `⌃⇥` is the one route that
+won't: it walks pages that hold windows, and this lane hasn't got one yet.
+
 `⌃↵` is the other one: the lane you *are* about to work in, so you go with it.
 Both are the same code path and the same lane (same name, same session, same
 tile). Only where your attention ends up differs.
