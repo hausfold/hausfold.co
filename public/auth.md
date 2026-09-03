@@ -51,7 +51,7 @@ Not applicable: no tokens are issued here, so there is no token to use. If you a
 
 ## Errors
 
-All JSON endpoints return RFC 9457 `application/problem+json` on failure, with a stable machine-readable `code` field (see the `problem` schema in openapi.json for the full enumeration). Rate limiting answers `429 Too Many Requests` with `Retry-After`, and every response on the machine-facing surface carries the `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset` headers so an agent can self-throttle without ever being throttled.
+All JSON endpoints return RFC 9457 `application/problem+json` on failure, with a stable machine-readable `code` field (see the `problem` schema in openapi.json for the full enumeration). Rate limiting answers `429 Too Many Requests` with `Retry-After`, and every response on the machine-facing surface the Worker itself answers carries the `RateLimit-Limit`, `RateLimit-Remaining` and `RateLimit-Reset` headers so an agent can self-throttle without ever being throttled. (Static files passed through the asset server, such as `/api/search` and the llms.txt files, are the exception: no limiter stands in front of them.)
 
 ## Revocation
 

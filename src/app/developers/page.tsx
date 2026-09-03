@@ -161,11 +161,11 @@ export default function Developers() {
           agent can self-throttle by reading, not by being throttled.
         </p>
         <p>
-          Every <code>/v1</code> read accepts <code>sandbox=true</code> (the batch and job
-          bodies take <code>&quot;sandbox&quot;: true</code> instead), answering with deterministic
-          sample payloads and no live release lookups. It exists for exercising a client
-          against the documented shapes; the rate limit still applies, and nothing on this
-          surface is writable in any mode.
+          Every <code>/v1</code> data read accepts <code>sandbox=true</code> (the batch and
+          job bodies take <code>&quot;sandbox&quot;: true</code> instead), answering with
+          deterministic sample payloads and no live release lookups. It exists for
+          exercising a client against the documented shapes; the rate limit still applies,
+          and nothing on this surface is writable in any mode.
         </p>
       </section>
 
