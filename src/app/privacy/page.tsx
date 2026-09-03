@@ -53,8 +53,8 @@ export default function Privacy() {
         <p>
           There are no accounts, no sign-ins, no cookies, no analytics service and no error
           reporter on this site. Nothing on it asks who you are, and nothing on it follows you
-          from page to page. The downloadable apps' release artifacts (pounce, perch) are
-          signed and notarized in each product's own release process; the website is not in
+          from page to page. The downloadable apps&apos; release artifacts (pounce, perch) are
+          signed and notarized in each product&apos;s own release process; the website is not in
           that loop.
         </p>
       </section>
