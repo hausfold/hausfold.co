@@ -310,6 +310,11 @@ async function serveReleaseMeta(app, extraHeaders = {}) {
 
 const MCP_SUPPORTED_PROTOCOLS = new Set(["2025-03-26", "2025-06-18"]);
 
+// Who this server says it is, in one place. `initialize` returns it as
+// serverInfo and the server card copies it whole, so a client reconciling
+// the card against a live connection can never be shown two servers.
+const MCP_SERVER_INFO = { name: "hausfold.co", title: "hausfold", version: "1.0.0" };
+
 const MCP_CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
@@ -509,7 +514,7 @@ async function handleRpc(msg, env, table) {
       return rpcResult(msg.id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: "hausfold.co", title: "hausfold", version: "1.0.0" },
+        serverInfo: MCP_SERVER_INFO,
         instructions:
           "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
           "release metadata, and full-text docs search. No keys, nothing to buy. " +
@@ -543,25 +548,30 @@ async function handleRpc(msg, env, table) {
 }
 
 // ---------------------------------------------------------------------------
-// The MCP server card at /.well-known/mcp/server-card.json (and the SEP-2127
-// recommended /mcp/server-card spelling). The SEP-2127 shape (remotes[],
-// supportedProtocolVersions) is what a conforming client reads; the tools and
-// serverUrl are still derived from the MCP_TOOLS table /mcp serves, so the
-// card and the tool list cannot drift — a tool added to one is a red test if
-// it misses the other. name/version must match serverInfo from initialize.
+// The MCP server card, served at /mcp/server-card (the SEP-2127 draft's
+// recommended spot: the streamable-HTTP URL plus /server-card) and at
+// /.well-known/mcp/server-card.json (the path scanners probe). It describes
+// the server before any connection is established.
+//
+// Two things keep it honest. `tools` is the same MCP_TOOLS table /mcp serves,
+// so the card and the tool list cannot drift — a tool added to one is a red
+// test if it misses the other, and the card is generated, never hand-typed.
+// And `name`/`version` are the same `MCP_SERVER_INFO` object `initialize`
+// answers with, so the card and a live connection cannot describe two servers.
 
 function serveMcpCard() {
   return new Response(
     JSON.stringify(
       {
         $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
-        name: "co.hausfold/site",
-        title: "hausfold.co",
-        version: "1.0.0",
+        name: MCP_SERVER_INFO.name,
+        title: MCP_SERVER_INFO.title,
         description:
-          "Public, unauthenticated MCP server for hausfold's Mac software: docs search, " +
-          "install commands, release metadata. No keys, nothing to buy. A docs-only " +
-          "transport serving search_docs alone runs at /mcp/docs.",
+          "Install commands, release metadata and full-text docs search for hausfold's " +
+          "Mac software, as MCP tools. Public and unauthenticated; every tool reads " +
+          "data a plain GET could also fetch. A docs-only transport serving " +
+          "search_docs alone runs at /mcp/docs.",
+        version: MCP_SERVER_INFO.version,
         websiteUrl: "https://hausfold.co/developers/",
         serverUrl: "https://hausfold.co/mcp",
         docsServerUrl: "https://hausfold.co/mcp/docs",
@@ -1441,7 +1451,7 @@ function serveAgentView() {
 // Byte-for-byte pass-through: no rewriting, or the twins and llms-full.txt drift.
 const DOCS_MD = /^\/docs\/(.+)\.md$/;
 
-async function serveDocsMd(twinPath, env) {
+async function serveDocsMd(twinPath, env, atHtmlUrl = false) {
   if (!env?.ASSETS) return text(`# ${twinPath}: twin unavailable\n`, 404);
   const upstream = await env.ASSETS.fetch(
     new Request(`https://hausfold.co/llms.mdx/docs/${twinPath.slice(6, -3)}/content.md`),
@@ -1457,12 +1467,17 @@ async function serveDocsMd(twinPath, env) {
     status: upstream.status,
     headers: {
       "content-type": "text/markdown; charset=utf-8",
-      "cache-control": "public, max-age=300",
+      // A twin asked for by its own .md URL is one representation of one URL
+      // and caches like any other. A twin served to a bot AT THE HTML PAGE'S
+      // URL is not: Cloudflare ignores Vary beyond the basics, so a cached
+      // copy would reach the next browser as markdown. Same reason the agent
+      // view is no-store.
+      "cache-control": atHtmlUrl ? "no-store" : "public, max-age=300",
     },
   });
 }
 
-// /.llms.md alias: the llms.txt convention spells it .txt, but scanners that
+// /llms.md alias: the llms.txt convention spells it .txt, but scanners that
 // probe only the .md spelling exist. Same body, markdown content type.
 async function serveLlmsMd(env) {
   if (!env?.ASSETS) return text("# hausfold docs index: https://hausfold.co/llms-full.txt\n", 502);
@@ -1684,12 +1699,12 @@ const hausfold = {
       if (docsTwin) return serveDocsMd(docsTwin, env);
       if (
         url.pathname === "/index.md" ||
-        url.searchParams.get("mode") === "agent" ||
+        (isHome && url.searchParams.get("mode") === "agent") ||
         (isHome && (acceptsMarkdown(request) || aiBot))
       ) {
         return serveAgentView();
       }
-      if (botTwin) return serveDocsMd(botTwin, env);
+      if (botTwin) return serveDocsMd(botTwin, env, true);
     }
     if (env.ASSETS) {
       const res = await env.ASSETS.fetch(request);

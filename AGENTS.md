@@ -263,10 +263,13 @@ sentence under the group title is the whole of what it buys.
   it names nobody, while the mail is read by one person, which is what `julien@`
   says out loud. This bullet is the rule that binds, and it lives here rather
   than in a code comment because AGENTS.md is what a pre-PR reviewer actually
-  reads. Four places carry the address and they move together or not at all:
-  the colophon (`src/components/sheet.tsx`), `/perch/privacy`, the
-  `Organization` JSON-LD in `src/app/page.tsx`, and the spec's `info.contact`
-  in `public/openapi.json` (added 2026-09-03 with the machine-facing surface).
+  reads. Every place that carries the address moves together or not at all, and
+  there are eight: the colophon (`src/components/sheet.tsx`), `/perch/privacy`,
+  the `Organization` JSON-LD (`src/lib/jsonld.ts`, which is where it went when
+  `/index.jsonld` and `/schema.jsonl` started sharing it), the spec's
+  `info.contact` in `public/openapi.json`, `worker.js`'s agent view, and the
+  three trust pages `/about`, `/contact` and `/privacy`. Grep before you edit
+  one; the list grows.
 - **Greyscale at rest on the landing pages, and every colour is borrowed.**
   (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
   *borrowed* half binds everywhere: both halves spend the same six `--a-*` and
@@ -441,8 +444,8 @@ prose at `/developers`; the drift rules:
 | `?mode=agent` on `/`, `/index.md`, `Accept: text/markdown`, AI-bot User-Agents | `worker.js`'s agent view: one markdown page of endpoints, auth (none) and when-to-use | built from `DESKTOPS`/`DOWNLOADABLE`; a new row reaches it without a second edit |
 | `/docs/<path>.md` | the markdown twin, proxied from the built `/llms.mdx` files | byte-for-byte; advertising it in an HTML head (`page-meta.ts`, docs `generateMetadata`) or a `Link:` header means the twin answers |
 | `/llms.md` | the `/llms.txt` body as `text/markdown` | no second copy |
-| `/.well-known/mcp`, `/mcp/server-card`, `/.well-known/mcp/server-card.json` | the MCP endpoint again, and its SEP-2127 Server Card | one document, `serveMcpCard()`; `tools` derives from `MCP_TOOLS` and name/version must match `serverInfo` from `initialize` |
-| `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | openapi.test.js pins the worker routes; the skills index is build-generated |
+| `/.well-known/mcp`, `/mcp/server-card`, `/.well-known/mcp/server-card.json` | the MCP endpoint again, and its SEP-2127 Server Card | one card, `serveMcpCard()`, at both spellings: `tools` is the `MCP_TOOLS` table verbatim, and `name`/`version` are `serverInfo`'s, so a client reconciling the card against a live `initialize` never sees two servers |
+| `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these eight paths** the way it pins the installers and `/v1`: it names the older surface only, so the spec and the Worker can drift here until someone adds them |
 | `/sitemap.xml`, `/schema.jsonl`, `/index.jsonld` | build-time routes (`src/app/sitemap.ts`, `schema.jsonl`, `index.jsonld`) | generated from the page table / `src/lib/jsonld.ts`, never hand-typed |
 
 The markdown negotiation (homepage via `Accept`, docs pages via `.md`, bots via

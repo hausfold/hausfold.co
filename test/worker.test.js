@@ -580,7 +580,7 @@ describe('the agent view (?mode=agent, /index.md, Accept negotiation, bot UAs)',
       { ASSETS: { fetch: vi.fn() } },
     );
     expect(mdRes.headers.get('content-type')).toContain('text/markdown');
-    expect(globalThis.fetch).not.toBeCalled; // nothing upstream
+    expect(globalThis.fetch).not.toHaveBeenCalled(); // nothing upstream
 
     const assets = { fetch: vi.fn(async () => new Response('<html></html>', { status: 200 })) };
     const htmlRes = await worker.fetch(
@@ -676,8 +676,22 @@ describe('/.well-known surfaces', () => {
       const res = await worker.fetch(req(path), {});
       expect(res.headers.get('content-type')).toBe('application/mcp-server-card+json', path);
       const card = await res.json();
-      expect(card.name).toBe('co.hausfold/site');
       expect(card.remotes[0].url).toBe('https://hausfold.co/mcp');
+
+      // The card's identity is serverInfo's, so ask the live server rather
+      // than hardcoding it here: this is the drift the card exists to avoid.
+      const init = await worker.fetch(
+        new Request('https://hausfold.co/mcp', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }),
+        }),
+        {},
+      );
+      const { serverInfo } = (await init.json()).result;
+      expect(card.name).toBe(serverInfo.name);
+      expect(card.title).toBe(serverInfo.title);
+      expect(card.version).toBe(serverInfo.version);
     }
   });
 

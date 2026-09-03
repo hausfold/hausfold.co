@@ -20,7 +20,7 @@
       "type": "skill-md",
       "description": "Check the latest signed macOS release of a hausfold app (pounce, perch) and get its direct download URL. Use before naming a version, checking for updates, or linking a download.",
       "url": "/.well-known/agent-skills/hausfold-releases/SKILL.md",
-      "digest": "sha256:dd7567b85c94d0a1b884c41773ce14f0bb4826578a95eba31fa187d79d84334e"
+      "digest": "sha256:556cfe7fd3dd4e5d4b5389deebbb5f9871ef8c545038f534c99217bdf73753e0"
     }
   ]
 }

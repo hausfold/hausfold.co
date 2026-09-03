@@ -975,7 +975,7 @@
     "/.well-known/mcp/server-card.json": {
       "get": {
         "summary": "The MCP server card",
-        "description": "Generated from the same tool table /mcp serves, so the two cannot drift. Lets an agent preview the server before opening a transport connection.",
+        "description": "Generated from the same tool table /mcp serves, so the two cannot drift, and its name and version are serverInfo's. Lets an agent preview the server before opening a transport connection. Also served at /mcp/server-card.",
         "operationId": "getMcpServerCard",
         "tags": [
           "mcp"

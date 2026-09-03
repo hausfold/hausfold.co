@@ -42,8 +42,9 @@ const LANDING = [
   },
   {
     url: `${siteUrl}/perch/privacy/`,
-    name: 'perch privacy policy · hausfold',
-    description: 'What perch collects (nothing), sends (nothing), and stores (everything, on your Mac).',
+    name: 'perch · privacy',
+    description:
+      "Perch's privacy policy: no account, no analytics, no data collected. Nothing leaves your Mac except to a device you paired yourself.",
   },
 ];
 

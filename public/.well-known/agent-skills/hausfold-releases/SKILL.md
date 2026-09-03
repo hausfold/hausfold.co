@@ -31,5 +31,5 @@ The JSON:
 - The same lookup exists as an MCP tool, `get_latest_release`, on
   `https://hausfold.co/mcp`.
 
-No auth, no rate limit beyond Cloudflare's, and the response is cached for five
-minutes at the edge, so polling is pointless.
+No auth, no rate limit beyond Cloudflare's, and the response is cached for an
+hour at the edge, so polling is pointless.
