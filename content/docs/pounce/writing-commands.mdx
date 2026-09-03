@@ -154,6 +154,21 @@ query=$(printf '' | pounce --chain -p "App Store — type a search, then Enter")
 [ -n "$query" ] && mas search "$query" | pounce -p "Install:"
 ```
 
+When the step the user answers by **picking a row** is followed by another
+`pounce`, pass `--chain-rows` instead. A row commit is a separate question from
+a typed one, and the same step often wants opposite answers for the same key:
+
+```bash
+repo=$(list_repos | pounce --grid --chain-rows enter -p "Which repo?")
+[ -n "$repo" ] && printf '' | pounce -p "What should it do in $repo?"
+```
+
+Without it a row pick dismisses the window on a short fade, and the next step
+has to open into that fade. Land inside it and the new box is taken back down
+as the old one finishes closing, which reads as the palette losing a keystroke.
+Both flags take an action list, so a picker whose Enter opens a window and whose
+`⌘↵` reopens the picker asks for `--chain-rows cmd` alone.
+
 ## A step that takes a paragraph
 
 A step whose answer is a sentence wants more than a filter box. Three flags
