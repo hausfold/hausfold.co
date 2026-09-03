@@ -52,7 +52,7 @@ a failed build), and `haus update` regenerates it with the rest.
 
 **`haus` is not the only skill installed.** Every hausfold tool the layer ships
 names its own, and `haus.ai.skill` puts all of them beside each other in the
-same per-client directory. Five arrive beside `haus` on any machine: `scruff`
+same per-client directory. Five of them come from the tools, on any machine: `scruff`
 (the agent-worktree lifecycle: what's open, resume a parked lane, set work aside
 without `git stash`), `handoff` (turning a piece of work into a brief a cold
 session can act on, ending on the clipboard or in a new lane), factory's
@@ -74,6 +74,15 @@ installed yourself either way, and a pounce or perch you installed by hand is
 the same, but the skill waits for the room. Each tool owns and versions its own
 skill; haus only decides that they are installed, so a lock bump can bring a
 better one without a change here.
+
+**haus ships a second skill of its own: `hausfold`.** Nothing we make sends
+telemetry, ever, so a GitHub issue is the only way a rough edge reaches the people
+who made it. And when you notice one you are usually talking to an agent, not to a
+menu bar. This is what lets the agent carry it for you: which of our repos owns
+which symptom, whichever `report` verb or `doctor` fills that repo's bug form in
+for you, and a pull request instead if you would rather fix the thing than
+describe it. It files nothing without asking. It shows you the whole draft
+first, diagnostics block included, and if you say no it drops the subject.
 
 <Callout type="tip" title="Check it's there">
 `haus doctor` has an **Agents** section: whether the `haus` skill is installed (it
