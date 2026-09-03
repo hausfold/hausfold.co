@@ -8,16 +8,25 @@ Almost every haus problem is one of a few known macOS quirks with a known fix.
 Start here, whatever the symptom:
 
 ```sh
-haus doctor    # Nix, the Xcode tools, every GUI agent, cask drift, the
-               # launcher's Accessibility grant, the theme ports and your
-               # secrets, in one pass
+haus doctor      # Nix, the Xcode tools, the background jobs that want
+                 # attention, cask drift, the launcher's Accessibility grant,
+                 # the theme ports and your secrets, in one pass
+haus services    # the whole roster: every background job, what it's for,
+                 # whether it's running or idle by design, and where it logs
 ```
 
-Every agent also keeps a log in `/tmp`: `aerospace`, `sketchybar`,
-`bar-bottom` and `pounce` each write `<name>.out.log` and `<name>.err.log`
-there. Reading the error log is usually faster than restarting blind, and an
-agent that dies again ten seconds after a kick is telling you something that
-only shows up in it.
+`haus doctor` catches a job whose last run failed, not only one that is dead
+right now, so a weekly cleanup of the Nix store that has quietly been exiting
+non-zero every Sunday gets a line.
+
+Reading a job's error log is usually faster than restarting blind, and a job
+that dies again ten seconds after a kick is telling you something that only
+shows up in it. `haus services` prints each log's real path rather than guessing
+at one: the tiler, the bar and the launcher write `<name>.out.log` and
+`<name>.err.log` in `/tmp`, but a job that came with another room logs under
+`~/Library/Logs` or `/var/log`. [What this Mac runs in the
+background](/docs/haus/reference/haus#what-this-mac-runs-in-the-background) is
+the roster and what each job is for.
 
 ## ⌘Space does nothing
 

@@ -42,11 +42,12 @@ For the day-to-day shape of it, see
 | `haus capture [cat…]` | Turn this Mac's current settings into config lines *and* a snapshot. |
 | `haus revert-settings [snapshot\|list]` | Put a captured snapshot back. |
 | `haus options` | Refresh `hosts/<host>/options.nix` (every `haus.*` option at its default, described and commented out) from the build this machine is running. |
-| `haus doctor` | Health check: Nix, the Xcode CLT, the login agents, cask drift, every permission and click still waiting on you, your secrets, agent readiness. |
+| `haus doctor` | Health check: Nix, the Xcode CLT, the background jobs that want attention, cask drift, every permission and click still waiting on you, your secrets, agent readiness. |
 | `haus report` | File a bug: opens haus's issue form with this Mac's details and its whole `haus doctor` report already in the diagnostics field, so the only thing left to write is what happened. When that report is too long for a link (most finished machines), the form opens empty and hands you the block to paste instead. Either way the block is printed first so you can read every line of it, and nothing is sent until you press Submit. `--print` stops there, without opening a browser. |
 | `haus skill [name]` | Print haus's own agent skill, the file that teaches a coding agent to change this Mac. With a name, one of its reference pages instead; a name it hasn't got lists the ones it has. Always the copy rendered from the revision this machine pinned, so the option names in it are the ones you have. |
 | `haus skill install` | Write that skill into every agent client on this Mac that hasn't got it. `--client claude\|codex\|opencode\|pi` for one, `--dir <path>` for somewhere else. On a normal haus machine there is nothing to do: [`haus.ai.skill`](/docs/haus/rooms/ai) already installed it, and it says so rather than failing on a permission error. |
 | `haus permissions` | Walk everything on this Mac that needs a person — one card at a time, what it is for, and a button. `--list` reports without touching anything. See below. |
+| `haus services` | Every background job this Mac runs: what each one does for you, whether it's running or idle by design, where it logs, and the line that restarts a dead one. See below. |
 | `haus btm` | On macOS Tahoe and later, check whether Background Task Management is blocking the login agents. |
 | `haus tour [reset]` | Start the guided tour in the bar, or re-arm its first-run hint. |
 | `haus show <src>` | Read a desktop or room (a local file, or a source you have not got yet) before you publish it, or before you trust one, and see what it would change on this Mac. Read-only; see below. |
@@ -83,6 +84,34 @@ steps it knows about, so you are shown the tiler's grant only if you run the
 tiler, and a desktop that asks for nothing shows a deck with nothing in it. A
 rebuild ends with a one-line count when anything is still waiting, and `haus
 doctor` reports the same deck read-only.
+
+## What this Mac runs in the background
+
+A working desktop is a handful of launchd jobs: the tiler, the bar, the
+launcher, a watcher or two, a weekly cleanup of the Nix store. `haus services`
+is the roster.
+
+```sh
+haus services   # every job, what it's for, and how it's doing
+```
+
+For each one it prints what the job is, what it does for you while nobody is
+looking, and where it logs. That log path is the job's own, read off the plist that shipped
+rather than guessed at, and a job that should be running but isn't comes with
+the `launchctl kickstart` line that starts it again.
+
+**Idle is often the right answer.** Several of these jobs are healthy precisely
+because they are not running: a weekly cleanup waiting for its day, a watcher
+waiting for a file to change, a job that runs once at login and exits. Each line
+says which kind of idle it is, so a quiet job doesn't read as a broken one.
+
+**The roster is your machine's, not a fixed list.** Every room contributes the
+jobs it installs, so a desktop with no bar has no bar job to report.
+
+`haus doctor` reads the same jobs and reports only the part that wants
+attention: one that should be running and isn't, one whose last run exited
+non-zero, and a count of everything that's fine. For the rest it points at
+`haus services`.
 
 ## Changing a setting without opening an editor
 
