@@ -165,9 +165,15 @@ export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): P
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
+  // The markdown twin is real: worker.js serves the page's URL plus .md from
+  // the built /llms.mdx files, so advertising it here is advertising something
+  // that answers. An agent that fetched the HTML can follow this to the text.
   return {
     title: page.data.title,
     description: page.data.description,
-    alternates: { canonical: page.url },
+    alternates: {
+      canonical: page.url,
+      types: { 'text/markdown': `${page.url}.md` },
+    },
   };
 }

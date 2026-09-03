@@ -4,8 +4,7 @@
 # `not_found_handling = "single-page-application"` made any path with no file
 # behind it answer 200 with index.html — so https://hausfold.co/robots.txt
 # served the landing page *as* robots rules. That's now `404-page` (2026-08-08),
-# which fixes the fallback; this file still beats it and is still the right
-# place to put a Sitemap line later.
+# which fixes the fallback; this file still beats it.
 #
 # Crawler tiers (2026-08, orank gap #robots). The default group stays open: only
 # ./public is ever uploaded to the Worker, so everything reachable here is meant
@@ -14,14 +13,12 @@
 # entirely. A bot falls under the most specific group that names it, so the
 # training-only groups below override the open default for those two bots.
 #
-# No `Sitemap:` line on purpose — but the reason has changed, so read this
-# before adding one. It used to be "there are eight pages, all linked; add a
-# sitemap when the Astro site lands and can generate one". The build landed on
-# 2026-08-14 and it is Next, not Astro, and there are now some forty pages once
-# /docs is counted. So the missing piece is no longer a build that could
-# generate a sitemap — it is that nobody has written the generator. Every page
-# is still linked and still carries a <link rel="canonical">; a hand-written
-# list is still a thing to forget to update.
+# The `Sitemap:` line landed 2026-09-03 with the sitemap itself — Next mints it
+# at build time from the same page table the site renders from
+# (src/app/sitemap.ts), so it updates with the content instead of drifting.
+# The `schemamap:` line is the NLWeb Schema Feeds draft's robots.txt directive;
+# it points at the Schema Map listing our structured-data feeds
+# (public/schemamap.xml -> /schema.jsonl).
 
 User-agent: *
 Allow: /
@@ -47,3 +44,6 @@ Disallow: /
 
 User-agent: Bytespider
 Disallow: /
+
+Sitemap: https://hausfold.co/sitemap.xml
+schemamap: https://hausfold.co/schemamap.xml

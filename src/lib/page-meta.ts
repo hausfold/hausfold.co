@@ -39,11 +39,21 @@ export function pageMetadata(opts: {
   ogTitle?: string;
   /** Likewise for `og:description`, which is often the shorter of the two. */
   ogDescription?: string;
+  /** The page's markdown twin, advertised as <link rel=alternate type=
+   *  "text/markdown">. Only pass one that actually serves text/markdown —
+   *  an advertisement pointing at HTML is worse than none. Docs pages have
+   *  twins (their URL plus .md, served by worker.js); the homepage's is
+   *  /index.md. Pages without a twin leave this off rather than advertise
+   *  a dead URL. */
+  markdownUrl?: string;
 }): Metadata {
   return {
     title: { absolute: opts.title },
     description: opts.description,
-    alternates: { canonical: opts.path },
+    alternates: {
+      canonical: opts.path,
+      ...(opts.markdownUrl ? { types: { 'text/markdown': opts.markdownUrl } } : {}),
+    },
     openGraph: {
       siteName: appName,
       type: 'website',

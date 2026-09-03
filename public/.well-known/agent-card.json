@@ -1,0 +1,38 @@
+{
+  "name": "hausfold",
+  "description": "hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small native apps that run on it. This agent exposes the domain's public machine surface: docs search, install commands, and release metadata, over JSON-RPC on the MCP endpoint. No authentication: no keys, no accounts, nothing to buy.",
+  "url": "https://hausfold.co/mcp",
+  "version": "1.0.0",
+  "protocolVersion": "0.3.0",
+  "provider": {
+    "organization": "hausfold",
+    "url": "https://hausfold.co/"
+  },
+  "capabilities": {
+    "streaming": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "documentationUrl": "https://hausfold.co/developers/",
+  "skills": [
+    {
+      "id": "search-docs",
+      "name": "search-docs",
+      "description": "Full-text search of the haus, pounce, perch, trill and scruff manuals. Returns page URLs, breadcrumbs and an excerpt per match, so a question about any option or command gets an authoritative answer.",
+      "tags": ["docs", "search", "macos", "nix"]
+    },
+    {
+      "id": "install-command",
+      "name": "install-command",
+      "description": "The one-line shell command that installs a haus desktop on a Mac, per desktop (hacker, everyday, minimal) or as a question-asking default.",
+      "tags": ["install", "shell", "macos"]
+    },
+    {
+      "id": "latest-release",
+      "name": "latest-release",
+      "description": "The latest signed, notarized macOS release of an app: version tag, asset name and size, direct download URL, publish date. Use before naming a version or checking for updates.",
+      "tags": ["releases", "downloads", "macos"]
+    }
+  ]
+}

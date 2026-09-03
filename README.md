@@ -15,9 +15,9 @@ deploys it.
 
 | | |
 |---|---|
-| **the pages** — `/` the house, `/perch/privacy` (perch's policy URL, linked from the App Store) | routes under `src/app/`. greyscale at rest, two faces, and no script of our own at all. no sheets either — every one is a docs page, with a 301 onto it |
+| **the pages** — `/` the house, `/developers` the machine surface in prose, `/about` `/contact` `/privacy` the house's trust pages, `/perch/privacy` (perch's policy URL, linked from the App Store) | routes under `src/app/`. greyscale at rest, two faces, and no script of our own at all. no sheets either — every one is a docs page, with a 301 onto it |
 | **the docs** — [`/docs/haus`](https://hausfold.co/docs/haus) the layer, plus a tree each for [pounce](https://hausfold.co/docs/pounce), [perch](https://hausfold.co/docs/perch), [trill](https://hausfold.co/docs/trill) and [scruff](https://hausfold.co/docs/scruff) | MDX in `content/docs/`, on [Fumadocs](https://fumadocs.dev). one hue per tree, so you can tell them apart with the page upside down |
-| **the three routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first |
+| **the routes that can't be files** — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>`, the `/mcp` endpoint, the markdown negotiation, and the `/.well-known/` agent surfaces | [`worker.js`](worker.js). the only code here where a bug is a *security* bug — read its header first. AGENTS.md's "machine-facing routes" table has the drift rules |
 
 Everything else is a file: `npm run build` writes `out/`, Next copies `public/`
 into it verbatim, and `out/` is what ships.
@@ -38,10 +38,11 @@ npm test                             # worker.js, offline, ~1s
 | colour, type, layout | `public/hausfold.css` — its header comment is the design record (the docs' own type and per-tree hue are `src/app/global.css`) |
 | what `hausfold.co/<name>.sh` installs | `worker.js` — a desktop is a row in `DESKTOPS`, not a new route. A row pins that desktop into the script it proxies; `/haus.sh` pins nothing and lets the installer ask |
 
-Three things here are **generated, never hand-typed**: the dark palette
+Four things here are **generated, never hand-typed**: the dark palette
 (vendored from [nebelung](https://github.com/hausfold/nebelung)), the haus
-options reference, and the keybinding snapshot the docs' prose is checked
-against. Run the script, commit its output — CI fails on a hand-edit.
+options reference, the keybinding snapshot the docs' prose is checked against,
+and the agent-skills index (its SHA-256 digests especially). Run the script,
+commit its output — CI fails on a hand-edit.
 
 ## more
 

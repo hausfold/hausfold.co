@@ -38,14 +38,16 @@ src/components/
   mdx.tsx, page-actions.tsx       what the docs render, and the "Open in…" menu
 src/lib/
   page-meta.ts                    a page's canonical + og: tags, in one call
+  jsonld.ts                       the homepage JSON-LD graph (page, /index.jsonld, /schema.jsonl)
   shared.ts                       the strings the build repeats, theme-color included
   icons.tsx                       the docs' whole icon vocabulary, by name
 content/docs/                     the docs, as MDX — haus/, pounce/, perch/ and trill/ are root folders
 public/                           assets only; no HTML lives here
   hausfold.css                    tokens, type, and the design decisions in its header
   _redirects  _headers            consumed by Cloudflare, never served
-  favicon.svg  favicon.ico  robots.txt
-worker.js  test/                  the three code routes, and their tests
+  favicon.svg  favicon.ico  robots.txt  schemamap.xml
+  .well-known/                    agent-card.json, the agent-skills tree (index.json is generated)
+worker.js  test/                  the machine routes, and their tests
 scripts/                          generators — not deployed
 ```
 
@@ -62,7 +64,7 @@ heard of.
 
 ## the generated files
 
-Three outputs are committed and none is written by hand.
+Four outputs are committed and none is written by hand.
 
 **The palette.** `public/hausfold.css` opens with a block vendored from
 nebelung's own CSS port — fetched with `nix build github:hausfold/nebelung`, the
@@ -115,6 +117,19 @@ snapshots the `meaning` column separately. So the wording on that page stays
 this repo's; what is pinned is the vocabulary, its order, the first column's
 header word (`tone` / `mark` — that is how each table is found) and the fact
 that each is a plain markdown table.
+
+**The agent-skills index** (`public/.well-known/agent-skills/index.json`) lists
+the domain's agent skills with the SHA-256 of each `SKILL.md`, per the Agent
+Skills Discovery draft. `scripts/gen-agent-skills.mjs` derives every field from
+the SKILL.md files themselves — name, description, digest — so the index cannot
+disagree with its artifacts. It runs as the first half of `npm run build`.
+
+```sh
+npm run build                        # regenerates the index, then builds
+```
+
+A PR that edits a SKILL.md and the committed index together is exactly the
+digest the build will compute again; one that edits only the index fails loud.
 
 ## what CI checks
 

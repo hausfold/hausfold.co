@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Colophon, GithubMark } from '@/components/sheet';
 import { pageMetadata } from '@/lib/page-meta';
+import { homepageGraph } from '@/lib/jsonld';
 
 // The front door, and since 2026-08-17 it is the *house's* door rather than
 // the layer's.
@@ -37,42 +38,27 @@ export const metadata = pageMetadata({
     'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   path: '/',
   ogTitle: 'hausfold · We rebuild the Mac.',
+  markdownUrl: '/index.md',
 });
 
-// Says "hausfold is one organisation, and these accounts are it" to anything
-// resolving the name. No claim here that the page doesn't already make in
-// prose.
+// The JSON-LD lives in src/lib/jsonld.ts, shared with /index.jsonld and the
+// /schema.jsonl feed — one source, three renderings. It says "hausfold is one
+// organisation, and these accounts are it" to anything resolving the name, and
+// carries the FAQ a stranger's agent actually asks. No claim here that the page
+// doesn't already make in prose.
 //
-// Two edges, and both are permanent. One GitHub org, `hausfold`, where
-// everything ships from; and the Wikidata item, which is not a page anyone
-// reads but the node an answer engine resolves the *name* against before it
-// decides whether two mentions of "hausfold" are the same house. sameAs gets
-// cached for a long time, so this lists only the identity meant to outlive
-// the cache.
-//
-// The claim goes both ways or it is worth little: Q141271432 carries
-// `official website` back to https://hausfold.co/. Change one and change the
-// other.
-const organization = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'hausfold',
-  url: 'https://hausfold.co/',
-  description:
-    'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
-  email: 'julien@hausfold.co',
-  sameAs: [
-    'https://github.com/hausfold',
-    'https://www.wikidata.org/wiki/Q141271432',
-  ],
-};
+// Two identity edges, and both are permanent: the GitHub org, where
+// everything ships from, and the Wikidata item — not a page anyone reads but
+// the node an answer engine resolves the *name* against. The claim goes both
+// ways or it is worth little: Q141271432 carries `official website` back to
+// https://hausfold.co/. Change one and change the other. (#244)
 
 export default function Home() {
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageGraph) }}
       />
       <main className="sheet">
         <header className="masthead">
