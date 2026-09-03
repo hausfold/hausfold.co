@@ -1,0 +1,29 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "hausfold",
+    "identifier": "did:web:hausfold.co"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:hausfold.co:server:hausfold",
+      "displayName": "hausfold.co MCP server",
+      "type": "application/mcp-server-card+json",
+      "url": "https://hausfold.co/mcp",
+      "capabilities": ["get_install_command", "get_latest_release", "search_docs"],
+      "description": "Public, unauthenticated MCP server over Streamable HTTP. Installs haus (a nix-darwin desktop layer for macOS) by URL, looks up the latest signed release of pounce and perch, and searches the full documentation corpus. No keys, no accounts.",
+      "representativeQueries": [
+        "install the hacker desktop on this Mac",
+        "what is the latest release of pounce",
+        "search the docs for how notifications work"
+      ]
+    },
+    {
+      "identifier": "urn:air:hausfold.co:api:openapi",
+      "displayName": "hausfold.co OpenAPI description",
+      "type": "application/vnd.oai.openapi+json",
+      "url": "https://hausfold.co/openapi.json",
+      "description": "OpenAPI 3.1 description of the whole machine-facing surface: install scripts, release metadata, docs search, and the MCP endpoint."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hausfold",
+  "version": "1.0.0",
+  "description": "Install haus desktops and drive hausfold.co as tools: the install command for any desktop, the latest signed macOS release of pounce or perch, and full-text docs search over the MCP endpoint.",
+  "author": {
+    "name": "hausfold",
+    "url": "https://hausfold.co"
+  },
+  "homepage": "https://hausfold.co/developers/",
+  "repository": "https://github.com/hausfold/hausfold.co",
+  "keywords": ["haus", "hausfold", "macos", "nix", "nix-darwin", "desktop", "mcp"]
+}
