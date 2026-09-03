@@ -361,6 +361,7 @@ sets. `g` itself is `git`.
 |---|---|
 | Add | `ga` `gaa` `gapa` |
 | Branch / checkout | `gb` `gba` `gbd` `gbD` `gbm` `gco` `gcb` `gcl` `gsw` `gswc` |
+| Restore | `grs` `grss` `grst` |
 | Commit | `gc` `gca` `gcam` `gcmsg` `gcn` `gcp` `gcpa` `gcpc` |
 | Diff / log | `gd` `gds` `gdw` `glo` `glog` `gloga` |
 | Fetch / merge | `gf` `gfa` `gfo` `gm` `gma` `gmc` `gmff` |
@@ -368,6 +369,9 @@ sets. `g` itself is `git`.
 | Rebase | `grb` `grba` `grbc` `grbi` `grbs` `grt` `grv` |
 | Status / stash | `gst` `gss` `gsb` `gsta` `gstl` `gstp` `gsts` |
 | Tag / worktree | `gt` `gwt` `gwta` `gwtl` `gwtr` |
+
+`grs` and `grst` are the file half of what `gco` used to do: `grs <path>`
+throws away an unstaged change, `grst <path>` unstages one.
 
 Add, replace or remove one per host:
 
