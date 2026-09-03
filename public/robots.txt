@@ -7,8 +7,12 @@
 # which fixes the fallback; this file still beats it and is still the right
 # place to put a Sitemap line later.
 #
-# Nothing is disallowed, and nothing should be: only ./public is ever uploaded
-# to the Worker, so everything reachable here is meant to be read.
+# Crawler tiers (2026-08, orank gap #robots). The default group stays open: only
+# ./public is ever uploaded to the Worker, so everything reachable here is meant
+# to be read. The named groups exist for the AI tiering: answer-engine crawlers
+# are invited explicitly, and training-only crawlers are asked to skip the site
+# entirely. A bot falls under the most specific group that names it, so the
+# training-only groups below override the open default for those two bots.
 #
 # No `Sitemap:` line on purpose — but the reason has changed, so read this
 # before adding one. It used to be "there are eight pages, all linked; add a
@@ -21,3 +25,25 @@
 
 User-agent: *
 Allow: /
+
+# AI crawlers, invited explicitly. GPTBot and ClaudeBot are training
+# crawlers; we want them too, since the docs exist to be read by machines.
+# OAI-SearchBot and PerplexityBot feed the answer engines that cite sources.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Training-only crawlers.
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /

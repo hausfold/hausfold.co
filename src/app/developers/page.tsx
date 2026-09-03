@@ -142,6 +142,21 @@ export default function Developers() {
         </p>
       </section>
 
+      <section className="block">
+        <h2>Be discovered</h2>
+        <p>
+          Two files exist so an agent can find all of the above without reading this page.{' '}
+          <a href="/.well-known/ard.json">.well-known/ard.json</a> is an Agentic Resource
+          Discovery catalog listing the MCP server and the OpenAPI spec. And the repo behind
+          this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>: its{' '}
+          <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">
+            plugin.json
+          </a>{' '}
+          ships the same MCP server as an <code>mcp.json</code> entry, plus a skill covering
+          install and release lookups.
+        </p>
+      </section>
+
       <Colophon>
         <GithubMark />
       </Colophon>
