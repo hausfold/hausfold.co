@@ -43,9 +43,16 @@ export const metadata = pageMetadata({
 // resolving the name. No claim here that the page doesn't already make in
 // prose.
 //
-// One GitHub org: `hausfold`, where everything ships from. sameAs edges get
+// Two edges, and both are permanent. One GitHub org, `hausfold`, where
+// everything ships from; and the Wikidata item, which is not a page anyone
+// reads but the node an answer engine resolves the *name* against before it
+// decides whether two mentions of "hausfold" are the same house. sameAs gets
 // cached for a long time, so this lists only the identity meant to outlive
 // the cache.
+//
+// The claim goes both ways or it is worth little: Q141271432 carries
+// `official website` back to https://hausfold.co/. Change one and change the
+// other.
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -54,7 +61,10 @@ const organization = {
   description:
     'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   email: 'julien@hausfold.co',
-  sameAs: ['https://github.com/hausfold'],
+  sameAs: [
+    'https://github.com/hausfold',
+    'https://www.wikidata.org/wiki/Q141271432',
+  ],
 };
 
 export default function Home() {
