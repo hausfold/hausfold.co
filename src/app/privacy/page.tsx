@@ -98,6 +98,7 @@ export default function Privacy() {
       </section>
 
       <Colophon>
+        <Link href="/terms">terms</Link>
         <Link href="/perch/privacy">perch&apos;s policy</Link>
         <GithubMark />
       </Colophon>

@@ -52,8 +52,9 @@ scripts/                          generators — not deployed
 ```
 
 🚨 **One id is load-bearing**, and it is the target of a 301 someone already
-holds: `#made` on `/` (`/terms`, `/refunds`). Renaming it means editing
-`public/_redirects` in the same commit. (`#desktops` does not exist: its two
+holds: `#made` on `/` (`/refunds`, both spellings). Renaming it means editing
+`public/_redirects` in the same commit. (`/terms` was a caller too until
+2026-09-04, when it became a page and its two lines were deleted.) (`#desktops` does not exist: its two
 callers land on `desktops/choosing` itself, a page rather than a fragment.)
 
 Two conventions the linter enforces and one it can't: an internal link is

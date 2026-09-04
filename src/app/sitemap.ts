@@ -12,7 +12,15 @@ import { siteUrl } from '@/lib/shared';
 // break that check; a made-up date would lie.
 export const revalidate = false;
 
-const LANDING = ['/', '/developers/', '/about/', '/contact/', '/privacy/', '/perch/privacy/'];
+const LANDING = [
+  '/',
+  '/developers/',
+  '/about/',
+  '/contact/',
+  '/privacy/',
+  '/terms/',
+  '/perch/privacy/',
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

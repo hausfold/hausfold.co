@@ -18,7 +18,10 @@ the content stays here or in [`.agents/`](./.agents/README.md).
 **hausfold is the org, the house and the publisher; `haus` is one of the things
 it makes** — the nix-darwin layer a user installs and writes `haus.*` options
 for. `hacker` is one desktop built on it. **hausfold sells nothing, ever**:
-there is no price, no checkout, no `/terms`, no `/refunds`.
+there is no price, no checkout, no `/refunds`. `/terms` exists again as of
+2026-09-04 and is **not** a walk-back of that: it carries no-warranty terms of
+use for a free public API, never sales terms. Anything about seats, renewals or
+a refund window belongs on neither page.
 
 Say **desktop**, not "rice", in user-facing copy. Preserve "rice" only in
 quotations, URLs, filenames and code identifiers.
@@ -70,16 +73,16 @@ Every page is a Next route; `public/` is assets only.
 
 | Route | Source | What it is, and the rule that isn't obvious |
 |---|---|---|
-| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the four `/terms` and `/refunds` 301s land on `#made`. Also the **JSON-LD graph** (Organization + FAQPage, shared with `/index.jsonld` and `/schema.jsonl` through `src/lib/jsonld.ts`). Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
+| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the two `/refunds` 301s land on `#made`. Also the **JSON-LD graph** (Organization + FAQPage, shared with `/index.jsonld` and `/schema.jsonl` through `src/lib/jsonld.ts`). Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
 | `/developers` | `src/app/developers/page.tsx` | the machine-facing surface written down for people. Every fact in it is read off `worker.js` and `openapi.json`; an endpoint it names that the Worker does not answer is a claim the products don't back |
-| `/about`, `/contact`, `/privacy` | `src/app/{about,contact,privacy}/page.tsx` | house-level trust pages (added 2026-09-03 for agent-readability): who the house is, where mail goes, what the site itself collects (nothing). Not product sheets — each links to the docs trees instead of restating them — and the three carry no product claims. Their facts: the mail address is `julien@`, the site is static, and any claim about app behaviour points at the docs rather than restating it. `/privacy` deliberately does not merge with `/perch/privacy`, whose URL is load-bearing (App Store) |
+| `/about`, `/contact`, `/privacy`, `/terms` | `src/app/{about,contact,privacy,terms}/page.tsx` | house-level trust pages (the first three added 2026-09-03 for agent-readability, `/terms` on 2026-09-04 because app-directory submissions require the URL): who the house is, where mail goes, what the site itself collects (nothing), and on what terms it is offered (as-is, no warranty, 600 requests a minute). 🚨 `/terms` is the one under a **deleted redirect** — `public/_redirects` sent it to `/#made` until the commit that added the page, and that file is evaluated ahead of the assets, so the two lines had to go in the same commit or the route would never render. Not product sheets — each points outward (the first three to the docs trees, `/terms` to `/developers` and `/privacy`) instead of restating what it links to — and none of the four carries a product claim. Their facts: the mail address is `julien@`, the site is static, and any claim about app behaviour points at the docs rather than restating it. `/privacy` deliberately does not merge with `/perch/privacy`, whose URL is load-bearing (App Store) |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
 | `sitemap.xml` | `src/app/sitemap.ts` | generated at build time from the same page table the site renders from; every indexable URL with its trailing slash. No `lastmod` on purpose — the export must stay byte-reproducible, and the pages carry no dates a truthful `lastmod` could be built from |
 | `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
 
-**One load-bearing id is left**: `#made` on `/`, where the four `/terms` and
-`/refunds` 301s land. Rename it and a published URL starts scrolling to the
+**One load-bearing id is left**: `#made` on `/`, where the two `/refunds` 301s
+land. Rename it and a published URL starts scrolling to the
 masthead instead of to its answer. (`#desktops` does not exist: its two callers
 point at `desktops/choosing`, a page rather than a fragment.)
 
