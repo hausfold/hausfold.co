@@ -706,13 +706,16 @@ room ships [`tart`](https://tart.run), and a lane can stand up a second,
 disposable macOS of its own:
 
 ```sh
-scruff runtime up    my-lane --backend tart   # clone the image, boot it headless
+scruff runtime up    my-lane --backend tart   # clone, boot headless, wait for ssh
 scruff runtime enter my-lane --backend tart   # ssh in
 scruff runtime down  my-lane --backend tart   # delete the clone
 ```
 
 Headless, so nothing it draws reaches your display, and real enough to run
-`haus rebuild` inside. `SCRUFF_TART_BASE` names the image it clones; a bare
+`haus rebuild` inside. `up` comes back when the guest answers ssh rather than
+when it takes an address, so the one it prints is a guest you can talk to, and
+a clone that never gets that far says so and names its boot log.
+`SCRUFF_TART_BASE` names the image it clones; a bare
 `ghcr.io/cirruslabs/macos-tahoe-base` boots but has no haus in it to test, so
 the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
 agent skill spells the whole recipe out, which is why nothing here has to, and
