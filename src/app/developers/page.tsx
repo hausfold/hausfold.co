@@ -139,7 +139,11 @@ export default function Developers() {
           <a href="/mcp.json">
             <code>/mcp.json</code>
           </a>{' '}
-          is the manifest naming both servers.
+          names both servers in the agent-plugins.org shape, with a flat twin at{' '}
+          <a href="/.well-known/mcp.json">
+            <code>/.well-known/mcp.json</code>
+          </a>{' '}
+          for a reader that wants one URL rather than a map.
         </p>
       </section>
 
@@ -224,7 +228,10 @@ export default function Developers() {
           A machine that lands here by name, without reading this page first, is answered where it
           looks: the MCP endpoint also answers at <code>/.well-known/mcp</code>, with its server
           card at <a href="/mcp/server-card">/mcp/server-card</a> and{' '}
-          <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>.{' '}
+          <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>. Mind
+          the suffix on <code>/.well-known/mcp</code>:{' '}
+          <a href="/.well-known/mcp.json">/.well-known/mcp.json</a> is the manifest, and the path
+          without the <code>.json</code> is the transport.{' '}
           <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is the A2A
           discovery card,{' '}
           <a href="/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a>{' '}
@@ -236,15 +243,18 @@ export default function Developers() {
         </p>
         <p>
           Text over HTML, in three shapes: <a href="/index.md">/index.md</a> (or{' '}
-          <code>?mode=agent</code>, or <code>Accept: text/markdown</code>) is this domain in one
-          markdown page; every docs page has a markdown twin at its own URL plus{' '}
+          <a href="/agent.txt">/agent.txt</a>, or <code>?mode=agent</code>, or{' '}
+          <code>Accept: text/markdown</code>) is this domain in one
+          page, written for an agent that arrived with no context; every docs page has a
+          markdown twin at its own URL plus{' '}
           <code>.md</code>, and a bot User-Agent asking for a docs page is served the twin
           directly.
         </p>
         <p>
           Two more name the whole catalog rather than one document.{' '}
           <a href="/.well-known/ard.json">.well-known/ard.json</a> is the Agentic Resource
-          Discovery catalog: both MCP transports, the manifest and the OpenAPI spec. And the
+          Discovery catalog: both MCP transports, the OpenAPI spec, and the plugin and skill
+          below. And the
           repo behind this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>:
           its{' '}
           <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">

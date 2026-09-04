@@ -80,6 +80,74 @@ describe('/mcp.json manifest', () => {
   });
 });
 
+describe('/.well-known/mcp.json manifest', () => {
+  it('names the full transport at the top level and both transports in servers', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp.json'), {});
+    expect(res.status).toBe(200);
+    const doc = await res.json();
+    // The flat shape is the whole point of this document: a probe reads
+    // `url` + `transport` without walking a map.
+    expect(doc.url).toBe('https://hausfold.co/mcp');
+    expect(doc.transport).toBe('streamable-http');
+    expect(doc.authentication).toBe('none');
+    expect(doc.servers.map((s) => s.name).sort()).toEqual(['hausfold', 'hausfold-docs']);
+    for (const server of doc.servers) {
+      expect(server.transport).toBe('streamable-http');
+      expect(server.url).toMatch(/^https:\/\/hausfold\.co\/mcp/);
+    }
+  });
+
+  it('advertises the same tool table /mcp serves, so the two cannot drift', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp.json'), {});
+    const doc = await res.json();
+    expect(doc.tools.map((t) => t.name)).toEqual(MCP_TOOLS.map((t) => t.name));
+  });
+
+  it('is a manifest, not the transport: /.well-known/mcp still refuses GET', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp'), {});
+    expect(res.status).toBe(405);
+    expect(res.headers.get('allow')).toContain('POST');
+  });
+
+  it("hands the same docs-transport URL to a connecting client as the manifests do", async () => {
+    // initialize's `instructions` is what every MCP client reads on connect,
+    // so a stale path in it fails silently. It reads MCP_TRANSPORTS; this is
+    // the check that it keeps doing so.
+    const flat = await (await worker.fetch(req('/.well-known/mcp.json'), {})).json();
+    const docsUrl = flat.servers.find((s) => s.name === 'hausfold-docs').url;
+    const res = await worker.fetch(
+      req('/mcp', {
+        method: 'POST',
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }),
+      }),
+      {},
+    );
+    const { result } = await res.json();
+    expect(result.instructions).toContain(docsUrl);
+  });
+
+  it('agrees with /mcp.json on every transport URL, because both read one table', async () => {
+    const flat = await (await worker.fetch(req('/.well-known/mcp.json'), {})).json();
+    const plugins = await (await worker.fetch(req('/mcp.json'), {})).json();
+    const card = await (await worker.fetch(req('/.well-known/mcp/server-card.json'), {})).json();
+    expect(Object.fromEntries(flat.servers.map((s) => [s.name, s.url]))).toEqual(
+      Object.fromEntries(Object.entries(plugins.mcpServers).map(([n, s]) => [n, s.url])),
+    );
+    expect(card.remotes.map((r) => r.url).sort()).toEqual(flat.servers.map((s) => s.url).sort());
+  });
+});
+
+describe('/agent.txt — the agent view as a dedicated instructions file', () => {
+  it('is the same document /index.md serves, as text/plain', async () => {
+    const res = await worker.fetch(req('/agent.txt'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+    const body = await res.text();
+    expect(body).toContain('When to use this');
+    expect(body).toBe(await (await worker.fetch(req('/index.md'), {})).text());
+  });
+});
+
 describe('/mcp/docs — the docs-only transport', () => {
   const rpc = (body) =>
     worker.fetch(req('/mcp/docs', { method: 'POST', body: JSON.stringify(body) }), {});
