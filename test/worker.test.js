@@ -562,6 +562,8 @@ describe('the agent view (?mode=agent, /index.md, Accept negotiation, bot UAs)',
     expect(res.headers.get('content-type')).toContain('text/markdown');
     const body = await res.text();
     expect(body).toMatch(/^# hausfold/);
+    // The heading a readiness scanner greps for. It was "When to point an
+    // agent here", which says the same thing in words nothing matches.
     expect(body).toContain('When to use this');
     // Built from the tables: a desktop row and a downloadable app must appear
     expect(body).toContain('/hacker.sh');
@@ -624,6 +626,194 @@ describe('the agent view (?mode=agent, /index.md, Accept negotiation, bot UAs)',
     const res = await worker.fetch(req('/'), {
       ASSETS: { fetch: vi.fn(async () => new Response('<html>', { headers: { 'content-type': 'text/html' } })) },
     });
+    expect(res.headers.get('vary')).toContain('Accept');
+  });
+});
+
+// acceptmarkdown.com's four conformance checks: markdown for the right
+// header, Vary: Accept, 406 for a client that can read none of what a URL
+// has, and q-values honoured. The last one is what made the site fail the
+// audit: `q=0.9` was read as a refusal, so the shape a real agent sends
+// (markdown preferred, HTML acceptable) got HTML.
+describe('acceptmarkdown.com conformance', () => {
+  const html = () => ({
+    fetch: vi.fn(
+      async () => new Response('<html></html>', { status: 200, headers: { 'content-type': 'text/html' } }),
+    ),
+  });
+  const twin = () => ({ fetch: vi.fn(async () => new Response('# Install\n', { status: 200 })) });
+  const get = (path, accept, env, method = 'GET') =>
+    worker.fetch(
+      new Request(`https://hausfold.co${path}`, { method, headers: accept ? { accept } : {} }),
+      env,
+    );
+
+  describe('q-values (RFC 9110 §12.5.1)', () => {
+    // [Accept, does the homepage answer markdown?]
+    const cases = [
+      ['text/markdown', true],
+      ['text/markdown;q=1', true],
+      ['text/markdown;q=0.9', true],
+      ['text/markdown;q=0.9, text/html;q=0.8', true],
+      ['text/html;q=0.8, text/markdown;q=0.9', true],
+      ['text/markdown, text/html', true],
+      ['text/html;q=0, text/markdown;q=0.1', true],
+      // Explicitly refused, or ranked below HTML: the page, as asked.
+      ['text/markdown;q=0, text/html', false],
+      ['text/markdown;q=0.0, */*', false],
+      ['text/html, text/markdown;q=0.5', false],
+      ['text/html', false],
+      // A wildcard names nothing, so it never selects markdown.
+      ['*/*', false],
+      ['text/*', false],
+      ['text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', false],
+    ];
+
+    for (const [accept, wantsMarkdown] of cases) {
+      it(`${accept} -> ${wantsMarkdown ? 'markdown' : 'html'}`, async () => {
+        const assets = html();
+        const res = await get('/', accept, { ASSETS: assets });
+        if (wantsMarkdown) {
+          expect(res.headers.get('content-type')).toContain('text/markdown');
+          expect(await res.text()).toMatch(/^# hausfold/);
+        } else {
+          expect(res.headers.get('content-type')).toContain('text/html');
+          expect(assets.fetch).toHaveBeenCalledOnce();
+        }
+      });
+    }
+
+    it('q=0 on the only type a client named is a refusal of everything, so 406', async () => {
+      // Pathological but well defined: the client listed one media type and
+      // gave it zero quality, with no wildcard behind it. There is nothing it
+      // can read here, and RFC 9110 §15.5.7 is the honest answer.
+      const res = await get('/', 'text/markdown;q=0', { ASSETS: html() });
+      expect(res.status).toBe(406);
+    });
+
+    it('a q-value out of range or unparseable falls back to 1 rather than refusing', async () => {
+      for (const accept of ['text/markdown;q=abc', 'text/markdown;q=7']) {
+        const res = await get('/', accept, { ASSETS: html() });
+        expect(res.headers.get('content-type'), accept).toContain('text/markdown');
+      }
+    });
+  });
+
+  it('a docs page asked for as markdown answers with its twin, not the HTML', async () => {
+    const assets = twin();
+    const res = await get('/docs/haus/install/', 'text/markdown', { ASSETS: assets });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('text/markdown; charset=utf-8');
+    expect(await res.text()).toBe('# Install\n');
+    expect(String(assets.fetch.mock.calls[0][0].url)).toBe(
+      'https://hausfold.co/llms.mdx/docs/haus/install/content.md',
+    );
+    // Negotiated at the HTML page's URL, so it must not be shared-cached and
+    // must say what it varies on.
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    expect(res.headers.get('vary')).toContain('Accept');
+  });
+
+  it('every HTML page carries Vary: Accept, not just the ones with a twin', async () => {
+    for (const path of ['/', '/about/', '/developers/', '/perch/privacy/', '/docs/haus/install/']) {
+      const res = await get(path, 'text/html', { ASSETS: html() });
+      expect(res.headers.get('vary'), path).toBe('Accept, User-Agent, Accept-Encoding');
+    }
+  });
+
+  it('406s a client that names media types and can read none of what the URL has', async () => {
+    const res = await get('/about/', 'application/pdf', { ASSETS: html() });
+    expect(res.status).toBe(406);
+    expect(res.headers.get('content-type')).toBe('application/problem+json');
+    const problem = await res.json();
+    expect(problem.code).toBe('not_acceptable');
+    // A refusal that names where markdown does live is worth reading.
+    expect(problem.detail).toContain('/index.md');
+    expect(res.headers.get('vary')).toContain('Accept');
+  });
+
+  it('406s a landing page asked for markdown it has no twin for', async () => {
+    // /about/ is HTML and nothing else. Answering 200 text/html to a client
+    // that asked only for markdown is the lie this replaces.
+    const res = await get('/about/', 'text/markdown', { ASSETS: html() });
+    expect(res.status).toBe(406);
+    expect((await res.json()).detail).toContain('llms.txt');
+  });
+
+  it('never 406s a browser, a plain curl, or a client with any wildcard', async () => {
+    for (const accept of [
+      'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      '*/*',
+      'application/pdf, */*;q=0.1',
+      'application/json, text/*',
+      undefined,
+    ]) {
+      const res = await get('/about/', accept, { ASSETS: html() });
+      expect(res.status, String(accept)).toBe(200);
+    }
+  });
+
+  it('leaves non-HTML assets alone: /openapi.json to an Accept: application/json client', async () => {
+    const assets = {
+      fetch: vi.fn(
+        async () => new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }),
+      ),
+    };
+    const res = await get('/openapi.json', 'application/json', { ASSETS: assets });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/json');
+  });
+});
+
+describe('HEAD answers with the GET headers', () => {
+  const html = () => ({
+    fetch: vi.fn(
+      async () => new Response('<html></html>', { status: 200, headers: { 'content-type': 'text/html' } }),
+    ),
+  });
+
+  // 🚨 The regression this pins: HEAD used to return the asset server's
+  // response untouched, so `curl -I` saw no Link and no Vary. `curl -sI` is
+  // the probe acceptmarkdown.com documents and the one a readiness scanner
+  // runs, which is how a site that advertises its sitemap on every page read
+  // as advertising nothing.
+  it('a HEAD of any page carries the sitemap Link header and Vary', async () => {
+    const res = await worker.fetch(
+      new Request('https://hausfold.co/developers/', { method: 'HEAD' }),
+      { ASSETS: html() },
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get('link')).toContain('</sitemap.xml>; rel="sitemap"');
+    expect(res.headers.get('vary')).toBe('Accept, User-Agent, Accept-Encoding');
+  });
+
+  it('a HEAD of a docs page advertises its markdown twin', async () => {
+    const res = await worker.fetch(
+      new Request('https://hausfold.co/docs/haus/install/', { method: 'HEAD' }),
+      { ASSETS: html() },
+    );
+    expect(res.headers.get('link')).toContain(
+      '</docs/haus/install.md>; rel="alternate"; type="text/markdown"',
+    );
+  });
+
+  it('a HEAD carries no body', async () => {
+    const res = await worker.fetch(new Request('https://hausfold.co/', { method: 'HEAD' }), {
+      ASSETS: html(),
+    });
+    expect(res.body).toBeNull();
+    expect(await res.text()).toBe('');
+  });
+
+  it('a HEAD negotiates markdown the same way a GET does', async () => {
+    const res = await worker.fetch(
+      new Request('https://hausfold.co/', {
+        method: 'HEAD',
+        headers: { accept: 'text/markdown;q=0.9, text/html;q=0.8' },
+      }),
+      { ASSETS: html() },
+    );
+    expect(res.headers.get('content-type')).toContain('text/markdown');
     expect(res.headers.get('vary')).toContain('Accept');
   });
 });

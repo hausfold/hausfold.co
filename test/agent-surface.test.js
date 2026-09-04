@@ -9,6 +9,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
+import { readFileSync } from 'node:fs';
 import { MCP_TOOLS, DOCS_MCP_TOOLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
@@ -39,6 +40,43 @@ beforeEach(() => {
     throw new Error(`unexpected fetch: ${typeof input === 'string' ? input : input.url}`);
   });
   resetRateLimits();
+});
+
+// llms.txt is a Next route, so the Worker tests can't reach it. What is
+// pinned here is the part a readiness scanner greps for and a person would
+// rename without thinking: the when-to-use heading, and the developer
+// resources named with the product in the name so a name-based search finds
+// them. The body under the header is fumadocs' generated page index.
+describe('llms.txt: the agent instruction half', () => {
+  const route = readFileSync(new URL('../src/app/llms.txt/route.ts', import.meta.url), 'utf8');
+
+  it('carries a when-to-use section under that name', () => {
+    expect(route).toContain('## When to use this');
+  });
+
+  it('points at the short form of itself', () => {
+    expect(route).toContain('https://hausfold.co/agent.txt');
+  });
+
+  it('names the developer resources with the product in the name', () => {
+    for (const name of [
+      'hausfold MCP server',
+      'hausfold OpenAPI spec',
+      'hausfold REST API',
+      'hausfold ask endpoint',
+      'hausfold auth guide',
+    ]) {
+      expect(route, name).toContain(name);
+    }
+  });
+
+  it('lists the sitemap, which is how a crawler is meant to find every URL', () => {
+    expect(route).toContain('https://hausfold.co/sitemap.xml');
+  });
+
+  it('has no em dashes: it is copy an agent reads', () => {
+    expect(route).not.toMatch(/—|–/);
+  });
 });
 
 describe('well-known discovery documents', () => {
