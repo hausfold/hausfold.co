@@ -435,8 +435,8 @@ sentence under the group title is the whole of what it buys.
 ## The machine-facing routes
 
 Beyond the installers, the Worker and the build answer a set of agent surfaces
-(2026-09-03). The whole list is pinned in `public/openapi.json` and described in
-prose at `/developers`; the drift rules:
+(2026-09-03). Most of the list is pinned in `public/openapi.json` and all of it is described
+in prose at `/developers`; the drift rules:
 
 | Route | What serves it | Kept true by |
 |---|---|---|
@@ -444,7 +444,7 @@ prose at `/developers`; the drift rules:
 | `/docs/<path>.md` | the markdown twin, proxied from the built `/llms.mdx` files | byte-for-byte; advertising it in an HTML head (`page-meta.ts`, docs `generateMetadata`) or a `Link:` header means the twin answers |
 | `/llms.md` | the `/llms.txt` body as `text/markdown` | no second copy |
 | `/.well-known/mcp`, `/mcp/server-card`, `/.well-known/mcp/server-card.json` | the MCP endpoint again, and its SEP-2127 Server Card | one card, `serveMcpCard()`, at both spellings: `tools` is the `MCP_TOOLS` table verbatim, and `name`/`version` are `serverInfo`'s, so a client reconciling the card against a live `initialize` never sees two servers |
-| `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these eight paths** the way it pins the installers and `/v1`: it names the older surface only, so the spec and the Worker can drift here until someone adds them |
+| `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these paths** the way it pins the installers and `/v1`: it names the older surface only, so the spec and the Worker can drift here until someone adds them |
 | `/sitemap.xml`, `/schema.jsonl`, `/index.jsonld` | build-time routes (`src/app/sitemap.ts`, `schema.jsonl`, `index.jsonld`) | generated from the page table / `src/lib/jsonld.ts`, never hand-typed |
 
 The markdown negotiation (homepage via `Accept`, docs pages via `.md`, bots via

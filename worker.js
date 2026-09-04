@@ -55,7 +55,8 @@
 //                         markdown twin, and /.well-known/ carries the agent
 //                         surfaces: agent-card.json (A2A), agent-skills/index.json,
 //                         api-catalog (RFC 9727), and /mcp again.
-//   everything else     → the static export in ./out (the [assets] binding)
+//   everything else     → the static export in ./out (the [assets] binding), and a
+//                         404 that does not accept HTML is answered as markdown
 //
 // Two things about the shape, and both are decisions:
 //

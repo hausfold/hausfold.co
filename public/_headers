@@ -32,6 +32,11 @@
 /schema.jsonl
   Content-Type: application/x-jsonlines; charset=utf-8
 
+# The same JSON-LD graph as one document, and the same extension problem:
+# .jsonld is not in Cloudflare's table either.
+/index.jsonld
+  Content-Type: application/ld+json; charset=utf-8
+
 # Next's own assets are content-hashed, so their URL changes whenever their
 # bytes do and they can be cached forever. Nothing else here may be — every
 # hand-written page and `hausfold.css` keeps its URL across a content change,

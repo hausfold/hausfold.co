@@ -41,7 +41,7 @@ src/lib/
   jsonld.ts                       the homepage JSON-LD graph (page, /index.jsonld, /schema.jsonl)
   shared.ts                       the strings the build repeats, theme-color included
   icons.tsx                       the docs' whole icon vocabulary, by name
-content/docs/                     the docs, as MDX — haus/, pounce/, perch/ and trill/ are root folders
+content/docs/                     the docs, as MDX — haus/, pounce/, perch/, trill/ and scruff/ are root folders
 public/                           assets only; no HTML lives here
   hausfold.css                    tokens, type, and the design decisions in its header
   _redirects  _headers            consumed by Cloudflare, never served
