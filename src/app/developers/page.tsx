@@ -134,8 +134,9 @@ export default function Developers() {
           <p>The tools, all read-only over the same public data:</p>
           <ul className="index" role="list">
             <li>
-              <code>get_install_command</code>, the one-liner for a desktop; called without a
-              desktop it lists every URL and what it pins.
+              <code>get_install_command</code>, the install one-liner for a desktop. Called
+              without one it returns every URL and what each pins; the shape is the same list
+              either way.
             </li>
             <li>
               <code>get_latest_release</code>, the latest signed macOS release of an app: tag,
@@ -148,7 +149,11 @@ export default function Developers() {
           </ul>
           <p>
             Every tool carries explicit read-only annotations, so an agent knows nothing here
-            writes before calling. A docs-only transport serves <code>search_docs</code> alone
+            writes before calling, and an output schema, so a client can plan against the shape
+            it will get back. A successful call returns that object as{' '}
+            <code>structuredContent</code> beside the text block; a failure returns{' '}
+            <code>{'{ error: { code, message } }'}</code> in both, with <code>isError</code>{' '}
+            set. A docs-only transport serves <code>search_docs</code> alone
             at{' '}
             <a href="/mcp/docs">
               <code>/mcp/docs</code>

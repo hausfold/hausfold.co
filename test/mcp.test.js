@@ -191,22 +191,25 @@ describe('tools/list', () => {
 });
 
 describe('tools/call · get_install_command', () => {
-  it('returns the one-liner for a known desktop', async () => {
+  it('returns the one-liner for a known desktop, as a one-row list', async () => {
     const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'hacker' } }));
     const body = await res.json();
     expect(body.result.isError).toBeUndefined();
     const parsed = JSON.parse(body.result.content[0].text);
-    expect(parsed.command).toBe('curl -fsSL https://hausfold.co/hacker.sh | bash');
-    expect(parsed.pins).toBe('hacker');
+    // Naming a desktop narrows the list; it does not change the shape, which
+    // is what lets one outputSchema describe both calls.
+    expect(parsed.desktops).toHaveLength(1);
+    expect(parsed.desktops[0].command).toBe('curl -fsSL https://hausfold.co/hacker.sh | bash');
+    expect(parsed.desktops[0].pins).toBe('hacker');
   });
 
   it('lists every desktop when the argument is omitted', async () => {
     const res = await post(rpc('tools/call', { name: 'get_install_command' }));
     const body = await res.json();
     const parsed = JSON.parse(body.result.content[0].text);
-    expect(parsed.map((r) => r.desktop)).toEqual(Object.keys(DESKTOPS));
+    expect(parsed.desktops.map((r) => r.desktop)).toEqual(Object.keys(DESKTOPS));
     // /haus.sh pins nothing; its row says so with null.
-    expect(parsed.find((r) => r.desktop === 'haus').pins).toBeNull();
+    expect(parsed.desktops.find((r) => r.desktop === 'haus').pins).toBeNull();
   });
 
   it('reports an unknown desktop as an isError result, not an RPC fault', async () => {
@@ -302,6 +305,108 @@ describe('tools/call · search_docs', () => {
     const body = await res.json();
     const parsed = JSON.parse(body.result.content[0].text);
     expect(parsed.results.length).toBeLessThanOrEqual(20);
+  });
+});
+
+// A validator for the JSON Schema subset the tool table actually uses: type
+// (one or a list), enum, required, properties, items, and an anyOf of
+// required-only branches. Deliberately small — the job is to prove a real
+// payload satisfies the schema the server publishes, not to reimplement Ajv,
+// and a dependency for three tools would be the tail wagging the dog.
+const isType = (value, type) => {
+  if (Array.isArray(type)) return type.some((t) => isType(value, t));
+  if (type === 'null') return value === null;
+  if (type === 'array') return Array.isArray(value);
+  if (type === 'integer') return Number.isInteger(value);
+  if (type === 'number') return typeof value === 'number';
+  if (type === 'object') return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return typeof value === type;
+};
+
+function violations(schema, value, path = '$') {
+  const out = [];
+  if (schema.type && !isType(value, schema.type)) {
+    return [`${path}: expected ${JSON.stringify(schema.type)}, got ${JSON.stringify(value)}`];
+  }
+  if (schema.enum && !schema.enum.includes(value)) out.push(`${path}: ${value} is outside the enum`);
+  if (schema.required && isType(value, 'object')) {
+    for (const key of schema.required) if (!(key in value)) out.push(`${path}.${key}: missing`);
+  }
+  if (schema.anyOf && !schema.anyOf.some((b) => violations(b, value, path).length === 0)) {
+    out.push(`${path}: matched no anyOf branch`);
+  }
+  for (const [key, sub] of Object.entries(schema.properties ?? {})) {
+    if (isType(value, 'object') && key in value) out.push(...violations(sub, value[key], `${path}.${key}`));
+  }
+  if (schema.items && Array.isArray(value)) {
+    value.forEach((item, i) => out.push(...violations(schema.items, item, `${path}[${i}]`)));
+  }
+  return out;
+}
+
+describe('structured tool output', () => {
+  const schemaFor = (name) => MCP_TOOLS.find((t) => t.name === name).outputSchema;
+  const conforms = (name, payload) => violations(schemaFor(name), payload);
+
+  it('every tool declares an outputSchema, error branch included', () => {
+    for (const tool of MCP_TOOLS) {
+      expect(tool.outputSchema?.type, tool.name).toBe('object');
+      expect(tool.outputSchema.properties.error, tool.name).toBeDefined();
+      // Two branches and no more: the payload's own keys, or the error.
+      expect(tool.outputSchema.anyOf, tool.name).toHaveLength(2);
+      expect(tool.outputSchema.anyOf[1], tool.name).toEqual({ required: ['error'] });
+    }
+  });
+
+  it('get_install_command answers with schema-shaped structuredContent', async () => {
+    const res = await post(rpc('tools/call', { name: 'get_install_command' }));
+    const { result } = await res.json();
+    // The two halves are the same object, so they cannot drift.
+    expect(result.structuredContent).toEqual(JSON.parse(result.content[0].text));
+    expect(conforms('get_install_command', result.structuredContent)).toEqual([]);
+  });
+
+  it('get_latest_release answers with schema-shaped structuredContent', async () => {
+    globalThis.fetch = makeFetch([
+      {
+        match: 'api.github.com/repos/hausfold/pounce/releases/latest',
+        json: {
+          tag_name: 'v2026.08.14',
+          published_at: '2026-08-14T00:00:00Z',
+          assets: [
+            {
+              name: 'pounce-2026.08.14-macos.dmg',
+              size: 123,
+              browser_download_url: 'https://github.com/hausfold/pounce/releases/download/x.dmg',
+            },
+          ],
+        },
+      },
+    ]);
+    const res = await post(rpc('tools/call', { name: 'get_latest_release', arguments: { app: 'pounce' } }));
+    const { result } = await res.json();
+    expect(result.structuredContent).toEqual(JSON.parse(result.content[0].text));
+    expect(conforms('get_latest_release', result.structuredContent)).toEqual([]);
+  });
+
+  it('search_docs answers with schema-shaped structuredContent', async () => {
+    const res = await post(
+      rpc('tools/call', { name: 'search_docs', arguments: { query: 'rules' } }),
+      { ASSETS: assetsWithDocs() },
+    );
+    const { result } = await res.json();
+    expect(result.structuredContent).toEqual(JSON.parse(result.content[0].text));
+    expect(conforms('search_docs', result.structuredContent)).toEqual([]);
+  });
+
+  it('a failure satisfies the same schema, through the error branch', async () => {
+    // The reason the schemas carry `error` at all: a client that validates
+    // every structuredContent it is handed must not choke on the failure.
+    const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'rice' } }));
+    const { result } = await res.json();
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent.error.code).toBe('unknown_desktop');
+    expect(conforms('get_install_command', result.structuredContent)).toEqual([]);
   });
 });
 

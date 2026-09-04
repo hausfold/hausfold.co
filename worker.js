@@ -426,17 +426,15 @@ function searchDocs(sections, query, limit) {
     .map(toHit);
 }
 
-function toolResult(data, isError = false) {
-  const result = {
-    content: [
-      {
-        type: "text",
-        text: typeof data === "string" ? data : JSON.stringify(data, null, 2),
-      },
-    ],
+// Every tool declares an outputSchema (worker-config.js), so every success
+// hands back the same object twice: as `structuredContent`, which is what a
+// client that read the schema plans against, and serialized into a text block
+// for one that did not. They are the same object, so they cannot drift.
+function toolResult(data) {
+  return {
+    content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+    structuredContent: data,
   };
-  if (isError) result.isError = true;
-  return result;
 }
 
 // A tool-level failure returns a structured payload — a machine-readable
@@ -454,29 +452,28 @@ async function callTool(name, args, env) {
   switch (name) {
     case "get_install_command": {
       const desktop = args.desktop;
-      if (desktop == null) {
-        return toolResult(
-          Object.entries(DESKTOPS).map(([key, { pin }]) => ({
+      if (desktop != null && !Object.hasOwn(DESKTOPS, desktop)) {
+        return toolError(
+          "unknown_desktop",
+          `unknown desktop '${desktop}'. Available: ${Object.keys(DESKTOPS).join(", ")}`,
+        );
+      }
+      // One shape for both calls: a list of rows, of one row when a desktop
+      // was named. The tool's outputSchema describes that single shape, which
+      // it could not do if naming a desktop returned a bare object instead.
+      const wanted = desktop == null ? Object.keys(DESKTOPS) : [desktop];
+      return toolResult({
+        desktops: wanted.map((key) => {
+          const { pin } = DESKTOPS[key];
+          return {
             desktop: key,
             command: `curl -fsSL https://hausfold.co/${key}.sh | bash`,
             pins: pin ?? null,
             note: pin
               ? `installs the '${pin}' desktop by URL`
               : "installs the layer and asks which desktop to build",
-          })),
-        );
-      }
-      if (!Object.hasOwn(DESKTOPS, desktop)) {
-        return toolError(
-          "unknown_desktop",
-          `unknown desktop '${desktop}'. Available: ${Object.keys(DESKTOPS).join(", ")}`,
-        );
-      }
-      const { pin } = DESKTOPS[desktop];
-      return toolResult({
-        desktop,
-        command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`,
-        pins: pin ?? null,
+          };
+        }),
       });
     }
     case "get_latest_release": {
