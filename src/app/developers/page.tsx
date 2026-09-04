@@ -118,7 +118,6 @@ export default function Developers() {
         </section>
 
         <section className="block">
-        <section className="block">
           <h2>The hausfold MCP server</h2>
           <p>
             <a href="/mcp">
@@ -241,7 +240,6 @@ export default function Developers() {
           </p>
         </section>
 
-        <section className="block">
         <section className="block">
           <h2>Discovery for agents</h2>
           <p>

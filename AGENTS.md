@@ -478,7 +478,7 @@ Four things there are load-bearing, and three of them are paid for already:
   as advertising nothing. `finishAssetResponse()` exists so both methods share
   one answer, and the handler nulls the body for HEAD. ⚠️ The scope is the
   asset passthrough only: every route the Worker *writes* (`/index.md`,
-  `/agents.md`, `/llms.md`, `/design.md`, the twins, `/ask`, `/v1/*`) already
+  `/agent.txt`, `/llms.md`, `/design.md`, the twins, `/ask`, `/v1/*`) already
   builds the same headers for both methods and hands workerd a body it drops
   on a HEAD. Nothing pins that; the asset path is the one that ever differed.
 - **A wildcard never selects markdown, and never out-votes a named type.**
