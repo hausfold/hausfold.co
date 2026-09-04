@@ -47,7 +47,8 @@ pounce --request-accessibility   # approve the system dialog
 pounce --check-accessibility     # prints true once granted
 ```
 
-Set `haus.launcher.signingIdentity` so that grant survives rebuilds; see
+The daemon runs the CI-built release app, signed with the hausfold Developer
+ID, so that grant survives rebuilds on its own; see
 [Granting Accessibility](/docs/pounce/install#grant-accessibility). If
 ⌘Space still opens **Spotlight**, log out and back in once so the
 symbolic-hotkey reassignment takes.
