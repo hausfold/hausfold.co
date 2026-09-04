@@ -1111,6 +1111,112 @@
         }
       }
     },
+    "/.well-known/mcp": {
+      "post": {
+        "summary": "The MCP endpoint at the well-known path",
+        "description": "The same transport as /mcp, at the path an MCP client and a scanner probe first. ⚠️ One suffix away, /.well-known/mcp.json is a manifest and not a transport; GET here is 405, as Streamable HTTP requires.",
+        "operationId": "wellKnownMcpPost",
+        "tags": [
+          "mcp"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/jsonRpcRequest"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/jsonRpcRequest"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response (single object, or array for a batch).",
+            "headers": {
+              "mcp-protocol-version": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The request (or every message in the batch) was a notification; there is nothing to reply."
+          },
+          "400": {
+            "description": "Body was not JSON (JSON-RPC -32700 parse error).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not POST. GET would open an SSE stream; this server has nothing to push.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Open preflight: any origin, POST, and the MCP headers.",
+        "operationId": "wellKnownMcpPreflight",
+        "tags": [
+          "mcp"
+        ],
+        "responses": {
+          "204": {
+            "description": "Preflight allowed."
+          }
+        }
+      }
+    },
     "/mcp/docs": {
       "post": {
         "summary": "Model Context Protocol endpoint, documentation only",
@@ -1231,7 +1337,7 @@
     "/.well-known/mcp.json": {
       "get": {
         "summary": "The MCP manifest at the well-known path",
-        "description": "The same two transports as /mcp.json in the flat shape a well-known probe parses: a top-level url and transport naming the full server, then a servers array for the pair, then the tool table. A different document from /mcp.json, whose agent-plugins.org mcpServers map is a client config file. Note the suffix: /.well-known/mcp without it is the transport itself.",
+        "description": "The same two transports as /mcp.json in a flat document: the full server at the top level as url + transport, both transports in servers, then the tool table. A different document from /mcp.json, whose agent-plugins.org mcpServers map is shaped like a client config file rather than like something read off a URL. There is no registered schema for this path, so the document cites none. Mind the suffix: /.well-known/mcp without it is the transport itself.",
         "operationId": "getWellKnownMcpManifest",
         "tags": [
           "mcp"
@@ -1307,6 +1413,21 @@
           }
         },
         "operationId": "getIndexMd"
+      }
+    },
+    "/agent.txt": {
+      "get": {
+        "summary": "The agent view again, as a dedicated agent-instructions file",
+        "description": "Byte-for-byte the document /index.md serves, at the spelling a discovery probe looks for agent instructions under, and as text/plain because the URL says .txt. Not cached; varies on Accept and User-Agent like the other spellings.",
+        "operationId": "getAgentTxt",
+        "responses": {
+          "200": {
+            "description": "Plain text.",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
       }
     },
     "/docs/{path}.md": {
@@ -2479,7 +2600,7 @@
           },
           "capabilities": {
             "type": "object",
-            "description": "What the server advertises in its initialize handshake. Tools only; no resources, no prompts."
+            "description": "What the server does and does not offer, flattened to booleans for a reader that has not connected yet. Tools only: no resources, no prompts. The initialize handshake states the same thing in MCP's own shape."
           },
           "servers": {
             "type": "array",

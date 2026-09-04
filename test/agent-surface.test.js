@@ -108,6 +108,27 @@ describe('/.well-known/mcp.json manifest', () => {
     expect(res.status).toBe(405);
     expect(res.headers.get('allow')).toContain('POST');
   });
+
+  it('agrees with /mcp.json on every transport URL, because both read one table', async () => {
+    const flat = await (await worker.fetch(req('/.well-known/mcp.json'), {})).json();
+    const plugins = await (await worker.fetch(req('/mcp.json'), {})).json();
+    const card = await (await worker.fetch(req('/.well-known/mcp/server-card.json'), {})).json();
+    expect(Object.fromEntries(flat.servers.map((s) => [s.name, s.url]))).toEqual(
+      Object.fromEntries(Object.entries(plugins.mcpServers).map(([n, s]) => [n, s.url])),
+    );
+    expect(card.remotes.map((r) => r.url).sort()).toEqual(flat.servers.map((s) => s.url).sort());
+  });
+});
+
+describe('/agent.txt — the agent view as a dedicated instructions file', () => {
+  it('is the same document /index.md serves, as text/plain', async () => {
+    const res = await worker.fetch(req('/agent.txt'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('text/plain; charset=utf-8');
+    const body = await res.text();
+    expect(body).toContain('When to use this');
+    expect(body).toBe(await (await worker.fetch(req('/index.md'), {})).text());
+  });
 });
 
 describe('/mcp/docs — the docs-only transport', () => {

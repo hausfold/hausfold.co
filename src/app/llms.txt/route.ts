@@ -37,7 +37,10 @@ Links here are absolute: the llms.txt convention is a directory of resolvable
 URLs, not relative paths.
 
 - [developers](https://hausfold.co/developers/): the machine-facing surface written down for people. No keys, no accounts.
-- [MCP server](https://hausfold.co/mcp): JSON-RPC 2.0 over Streamable HTTP. Tools: search_docs, get_install_command, get_latest_release. Server card: [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json).
+- [agent.txt](https://hausfold.co/agent.txt): this domain in one page, written for an agent that arrived with no context. Same document as [/index.md](https://hausfold.co/index.md).
+- [MCP server](https://hausfold.co/mcp): JSON-RPC 2.0 over Streamable HTTP. Tools: search_docs, get_install_command, get_latest_release. Server card: [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json). Manifests: [/mcp.json](https://hausfold.co/mcp.json) and [/.well-known/mcp.json](https://hausfold.co/.well-known/mcp.json).
+- Install a desktop: https://hausfold.co/hacker.sh, and one URL per desktop (everyday.sh, minimal.sh; haus.sh asks which).
+- Latest signed release of an app, as JSON: https://hausfold.co/api/release/pounce (perch too). The bytes themselves: https://hausfold.co/download/pounce.
 - [openapi.json](https://hausfold.co/openapi.json): the OpenAPI 3.1 description of the whole surface.
 - [ard.json](https://hausfold.co/.well-known/ard.json): Agentic Resource Discovery catalog listing the MCP server and the OpenAPI spec.
 - Every docs page has a markdown twin: append .md to its URL, e.g.

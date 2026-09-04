@@ -55,8 +55,9 @@
 //                         that carries the brand
 //   agent view          → one markdown page (endpoints, auth (none), when-to-use)
 //                         for machines that ask for it by name: ?mode=agent on
-//                         /, /index.md, Accept: text/markdown, or an AI-bot
-//                         User-Agent. /docs/<path>.md serves each docs page's
+//                         /, /index.md, /agent.txt (the spelling a discovery
+//                         probe looks for agent instructions under),
+//                         Accept: text/markdown, or an AI-bot User-Agent. /docs/<path>.md serves each docs page's
 //                         markdown twin, and /.well-known/ carries the agent
 //                         surfaces: agent-card.json (A2A), agent-skills/index.json,
 //                         api-catalog (RFC 9727), and /mcp again.
@@ -320,6 +321,23 @@ const MCP_SUPPORTED_PROTOCOLS = new Set(["2025-03-26", "2025-06-18"]);
 // the card against a live connection can never be shown two servers.
 const MCP_SERVER_INFO = { name: "hausfold.co", title: "hausfold", version: "1.0.0" };
 
+// The two transports, in one place. The server card, /mcp.json and
+// /.well-known/mcp.json all read this, so a URL or a description can only be
+// wrong in one spelling if it is wrong in every spelling. The keys are the
+// names /mcp.json publishes, and `hausfold` is the full server: a client
+// handed nothing else should open that one.
+const MCP_TRANSPORTS = {
+  hausfold: {
+    url: "https://hausfold.co/mcp",
+    description:
+      "Install commands, release metadata and docs search for hausfold's Mac software.",
+  },
+  "hausfold-docs": {
+    url: "https://hausfold.co/mcp/docs",
+    description: "Full-text search of the hausfold documentation alone.",
+  },
+};
+
 const MCP_CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
@@ -523,8 +541,9 @@ async function handleRpc(msg, env, table) {
         instructions:
           "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
           "release metadata, and full-text docs search. No keys, nothing to buy. " +
-          "A docs-only transport that serves search_docs alone runs at /mcp/docs; the " +
-          "manifest listing both servers is at https://hausfold.co/mcp.json.",
+          "A docs-only transport that serves search_docs alone runs at /mcp/docs; both " +
+          "servers are listed at https://hausfold.co/mcp.json (agent-plugins.org shape) " +
+          "and https://hausfold.co/.well-known/mcp.json (flat shape).",
       });
     }
     case "ping":
@@ -578,21 +597,14 @@ function serveMcpCard() {
           "search_docs alone runs at /mcp/docs.",
         version: MCP_SERVER_INFO.version,
         websiteUrl: "https://hausfold.co/developers/",
-        serverUrl: "https://hausfold.co/mcp",
-        docsServerUrl: "https://hausfold.co/mcp/docs",
+        serverUrl: MCP_TRANSPORTS.hausfold.url,
+        docsServerUrl: MCP_TRANSPORTS["hausfold-docs"].url,
         tools: MCP_TOOLS,
-        remotes: [
-          {
-            type: "streamable-http",
-            url: "https://hausfold.co/mcp",
-            supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
-          },
-          {
-            type: "streamable-http",
-            url: "https://hausfold.co/mcp/docs",
-            supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
-          },
-        ],
+        remotes: Object.values(MCP_TRANSPORTS).map((t) => ({
+          type: "streamable-http",
+          url: t.url,
+          supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
+        })),
       },
       null,
       2,
@@ -620,19 +632,12 @@ function serveMcpManifest() {
     JSON.stringify(
       {
         $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
-        mcpServers: {
-          hausfold: {
-            type: "streamable-http",
-            url: "https://hausfold.co/mcp",
-            description:
-              "Install commands, release metadata and docs search for hausfold's Mac software.",
-          },
-          "hausfold-docs": {
-            type: "streamable-http",
-            url: "https://hausfold.co/mcp/docs",
-            description: "Full-text search of the hausfold documentation alone.",
-          },
-        },
+        mcpServers: Object.fromEntries(
+          Object.entries(MCP_TRANSPORTS).map(([name, t]) => [
+            name,
+            { type: "streamable-http", url: t.url, description: t.description },
+          ]),
+        ),
       },
       null,
       2,
@@ -641,14 +646,19 @@ function serveMcpManifest() {
   );
 }
 
-// The same two transports again at /.well-known/mcp.json, in the flat shape
-// the well-known probe expects: a top-level `url` and `transport` naming the
-// full server, then `servers` for the pair. It is a different document from
-// /mcp.json, not an alias — that one is the agent-plugins.org schema, whose
-// `mcpServers` map is a client config file and not what a scanner reading a
-// well-known path parses. Both are generated from MCP_SERVER_INFO and
-// MCP_TOOLS, the same tables `initialize` and the server card answer with, so
-// the three cannot describe different servers.
+// The same two transports again at /.well-known/mcp.json, flat: a top-level
+// `url` and `transport` naming the full server, then `servers` for the pair.
+// It is a different document from /mcp.json, not an alias — that one is the
+// agent-plugins.org schema, whose `mcpServers` map is shaped like a client
+// config file rather than like something read off a URL.
+//
+// ⚠️ There is no registered schema for this path, which is why the document
+// cites none. The shape is the one the hosts already serving /.well-known/
+// mcp.json use, and it is deliberately the union of what they read: a client
+// that wants one URL takes `url`, one that wants the set walks `servers`.
+// Every value comes from MCP_TRANSPORTS, MCP_SERVER_INFO and MCP_TOOLS, the
+// tables `initialize`, the server card and /mcp.json also answer from, so no
+// two of them can describe different servers.
 //
 // ⚠️ This is a manifest, not a transport. /.well-known/mcp is the transport
 // (POST JSON-RPC; GET is 405, as Streamable HTTP requires), and the two paths
@@ -665,27 +675,17 @@ function serveWellKnownMcpManifest() {
           "data a plain GET could also fetch.",
         version: MCP_SERVER_INFO.version,
         websiteUrl: "https://hausfold.co/developers/",
-        url: "https://hausfold.co/mcp",
+        url: MCP_TRANSPORTS.hausfold.url,
         transport: "streamable-http",
         authentication: "none",
         capabilities: { tools: true, resources: false, prompts: false },
-        servers: [
-          {
-            name: "hausfold",
-            url: "https://hausfold.co/mcp",
-            transport: "streamable-http",
-            authentication: "none",
-            description:
-              "Install commands, release metadata and docs search for hausfold's Mac software.",
-          },
-          {
-            name: "hausfold-docs",
-            url: "https://hausfold.co/mcp/docs",
-            transport: "streamable-http",
-            authentication: "none",
-            description: "Full-text search of the hausfold documentation alone.",
-          },
-        ],
+        servers: Object.entries(MCP_TRANSPORTS).map(([name, t]) => ({
+          name,
+          url: t.url,
+          transport: "streamable-http",
+          authentication: "none",
+          description: t.description,
+        })),
         tools: MCP_TOOLS,
       },
       null,
@@ -1503,10 +1503,12 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
 julien@hausfold.co. Bug reports and ideas: https://github.com/hausfold
 `;
 
-function serveAgentView() {
+// `contentType` is the one thing that varies: /agent.txt is the same body at
+// a .txt URL, and a .txt URL that answers text/markdown is a small lie.
+function serveAgentView(contentType = "text/markdown; charset=utf-8") {
   return new Response(AGENT_VIEW, {
     headers: {
-      "content-type": "text/markdown; charset=utf-8",
+      "content-type": contentType,
       // No shared caching: Cloudflare ignores Vary beyond the basics, so an
       // edge cache would risk serving this markdown to a browser (or HTML to
       // an agent). The page costs one fetch and never changes between deploys.
@@ -1768,6 +1770,11 @@ const hausfold = {
       const botTwin =
         aiBot && /^\/docs\/.+\/$/.test(url.pathname) ? url.pathname.replace(/\/$/, "") + ".md" : null;
       if (url.pathname === "/llms.md") return serveLlmsMd(env);
+      // /agent.txt — the agent view again, at the spelling a discovery probe
+      // looks for a dedicated agent-instructions file under. Same document as
+      // /index.md, not a second account of it: what an agent needs from this
+      // domain is written once, in AGENT_VIEW.
+      if (url.pathname === "/agent.txt") return serveAgentView("text/plain; charset=utf-8");
       if (docsTwin) return serveDocsMd(docsTwin, env);
       if (
         url.pathname === "/index.md" ||

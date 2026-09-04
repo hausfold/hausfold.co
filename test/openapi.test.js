@@ -59,7 +59,7 @@ describe('openapi.json vs worker.js', () => {
   });
 
   it('describes the agent discovery documents', () => {
-    for (const path of ['/mcp.json', '/.well-known/mcp.json', '/.well-known/oauth-protected-resource', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
+    for (const path of ['/mcp.json', '/.well-known/mcp.json', '/.well-known/mcp', '/agent.txt', '/.well-known/oauth-protected-resource', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
       expect(spec.paths[path], path).toBeDefined();
       for (const [method, op] of Object.entries(spec.paths[path])) {
         expect(op.operationId, `${method} ${path}`).toBeDefined();
