@@ -26,6 +26,12 @@
 /auth.md
   Content-Type: text/markdown; charset=utf-8
 
+# The structured-data feed the robots.txt schemamap line advertises. Same
+# shape of problem as /api/search: a route handler output with no file
+# extension Cloudflare recognises, left alone it ships as octet-stream.
+/schema.jsonl
+  Content-Type: application/x-jsonlines; charset=utf-8
+
 # Next's own assets are content-hashed, so their URL changes whenever their
 # bytes do and they can be cached forever. Nothing else here may be — every
 # hand-written page and `hausfold.css` keeps its URL across a content change,

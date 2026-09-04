@@ -975,7 +975,7 @@
     "/.well-known/mcp/server-card.json": {
       "get": {
         "summary": "The MCP server card",
-        "description": "Generated from the same tool table /mcp serves, so the two cannot drift. Lets an agent preview the server before opening a transport connection.",
+        "description": "Generated from the same tool table /mcp serves, so the two cannot drift, and its name and version are serverInfo's. Lets an agent preview the server before opening a transport connection. Also served at /mcp/server-card.",
         "operationId": "getMcpServerCard",
         "tags": [
           "mcp"
@@ -1270,6 +1270,129 @@
             }
           }
         }
+      }
+    },
+    "/index.md": {
+      "get": {
+        "summary": "The agent view: this domain in one markdown page",
+        "description": "Answers what the domain is for, when an agent should call it, and with what: endpoints, auth (none), and per-desktop install commands. Also served for ?mode=agent on /, for Accept: text/markdown, and to AI-bot User-Agents that request /. Varies on Accept and User-Agent; not cached.",
+        "responses": {
+          "200": {
+            "description": "Markdown.",
+            "content": {
+              "text/markdown": {}
+            }
+          }
+        },
+        "operationId": "getIndexMd"
+      }
+    },
+    "/docs/{path}.md": {
+      "get": {
+        "summary": "A docs page's markdown twin",
+        "description": "The processed markdown of any docs page, re-served from the page's own URL plus .md (e.g. /docs/haus/install.md). Byte-for-byte the same file /llms.mdx/docs/<path>/content.md carries.",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "description": "The page's path under /docs, without the .md suffix, e.g. haus/install.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Markdown.",
+            "content": {
+              "text/markdown": {}
+            }
+          },
+          "404": {
+            "description": "No docs page at that path."
+          }
+        },
+        "operationId": "getDocsMarkdownTwin"
+      }
+    },
+    "/.well-known/api-catalog": {
+      "get": {
+        "summary": "API catalog (RFC 9727)",
+        "description": "A linkset pointing at the OpenAPI service description, the MCP endpoint, and the docs surfaces. Served with the RFC's profile parameter on the content type.",
+        "responses": {
+          "200": {
+            "description": "The linkset.",
+            "content": {
+              "application/linkset+json": {}
+            }
+          }
+        },
+        "operationId": "getApiCatalog"
+      }
+    },
+    "/.well-known/agent-card.json": {
+      "get": {
+        "summary": "A2A agent card",
+        "description": "Agent2Agent discovery manifest describing this domain's agentic surface: the MCP endpoint as its URL, three skills (search-docs, install-command, latest-release), and the docs as documentationUrl. No authentication.",
+        "responses": {
+          "200": {
+            "description": "The agent card.",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "operationId": "getAgentCard"
+      }
+    },
+    "/.well-known/agent-skills/index.json": {
+      "get": {
+        "summary": "Agent Skills discovery index",
+        "description": "Index of this domain's agent skills per the Agent Skills Discovery draft: hausfold-docs-search, hausfold-install, hausfold-releases. Each entry carries the SHA-256 digest of its SKILL.md, generated at build time by scripts/gen-agent-skills.mjs.",
+        "responses": {
+          "200": {
+            "description": "The discovery index.",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "operationId": "getAgentSkillsIndex"
+      }
+    },
+    "/sitemap.xml": {
+      "get": {
+        "summary": "XML sitemap",
+        "description": "Every indexable URL: the hand-written pages and the docs, trailing slash included. Generated at build time from the same page table the site renders from.",
+        "responses": {
+          "200": {
+            "description": "The sitemap.",
+            "content": {
+              "application/xml": {}
+            }
+          }
+        },
+        "operationId": "getSitemap"
+      }
+    },
+    "/mcp/server-card": {
+      "get": {
+        "summary": "MCP Server Card (SEP-2127 recommended location)",
+        "description": "The same document as /.well-known/mcp/server-card.json, served at the location SEP-2127 reserves: the streamable-HTTP URL plus /server-card.",
+        "responses": {
+          "200": {
+            "description": "The server card.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/serverCard"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getMcpServerCardRecommended"
       }
     }
   },

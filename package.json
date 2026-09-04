@@ -2,7 +2,7 @@
   "name": "hausfold.co",
   "private": true,
   "scripts": {
-    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "build": "node scripts/gen-agent-skills.mjs && NEXT_TELEMETRY_DISABLED=1 next build",
     "dev": "NEXT_TELEMETRY_DISABLED=1 next dev",
     "start": "serve out",
     "options": "node scripts/gen-options.mjs",

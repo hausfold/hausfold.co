@@ -34,22 +34,27 @@
 //                         keys array is empty — an honest directory, not a
 //                         fabricated key
 //   /.well-known/mcp/server-card.json
-//                       → the MCP server card, derived from the same
-//                         MCP_TOOLS table the /mcp endpoint serves, so the
-//                         two cannot drift
+//                       → the MCP server card (SEP-2127 shape), derived from
+//                         the same MCP_TOOLS table the /mcp endpoint serves,
+//                         so the two cannot drift; /mcp/server-card serves
+//                         the same document at the draft's recommended spot
 //   /v1/*               → the versioned REST surface (search with cursor
 //                         pagination, batch, async jobs, releases, desktops,
 //                         apps): RFC 9457 problem+json errors, RateLimit
 //                         headers, Idempotency-Key on the batch POST
 //   /ask                → NLWeb-style natural-language endpoint over the
 //                         docs search, JSON or SSE streaming
-//   everything else     → the static export; a 404 for a request that does
-//                         not accept HTML is answered as markdown pointing
-//                         agents at llms.txt, the docs and openapi.json
 //   /design.md          → PROXIES the workshop's docs/design.md — the
 //                         family's visual standard as one public URL any
 //                         coding agent can load before drawing something
 //                         that carries the brand
+//   agent view          → one markdown page (endpoints, auth (none), when-to-use)
+//                         for machines that ask for it by name: ?mode=agent on
+//                         /, /index.md, Accept: text/markdown, or an AI-bot
+//                         User-Agent. /docs/<path>.md serves each docs page's
+//                         markdown twin, and /.well-known/ carries the agent
+//                         surfaces: agent-card.json (A2A), agent-skills/index.json,
+//                         api-catalog (RFC 9727), and /mcp again.
 //   everything else     → the static export in ./out (the [assets] binding)
 //
 // Two things about the shape, and both are decisions:
@@ -305,6 +310,11 @@ async function serveReleaseMeta(app, extraHeaders = {}) {
 
 const MCP_SUPPORTED_PROTOCOLS = new Set(["2025-03-26", "2025-06-18"]);
 
+// Who this server says it is, in one place. `initialize` returns it as
+// serverInfo and the server card copies it whole, so a client reconciling
+// the card against a live connection can never be shown two servers.
+const MCP_SERVER_INFO = { name: "hausfold.co", title: "hausfold", version: "1.0.0" };
+
 const MCP_CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
@@ -504,7 +514,7 @@ async function handleRpc(msg, env, table) {
       return rpcResult(msg.id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: "hausfold.co", title: "hausfold", version: "1.0.0" },
+        serverInfo: MCP_SERVER_INFO,
         instructions:
           "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
           "release metadata, and full-text docs search. No keys, nothing to buy. " +
@@ -538,30 +548,61 @@ async function handleRpc(msg, env, table) {
 }
 
 // ---------------------------------------------------------------------------
-// The MCP server card at /.well-known/mcp/server-card.json. Built from the
-// same MCP_TOOLS table /mcp serves, so the card and the tool list cannot
-// drift — a tool added to one is a red test if it misses the other, and the
-// card is generated, never hand-typed.
+// The MCP server card, served at /mcp/server-card (the SEP-2127 draft's
+// recommended spot: the streamable-HTTP URL plus /server-card) and at
+// /.well-known/mcp/server-card.json (the path scanners probe). It describes
+// the server before any connection is established.
+//
+// Two things keep it honest. `tools` is the same MCP_TOOLS table /mcp serves,
+// so the card and the tool list cannot drift — a tool added to one is a red
+// test if it misses the other, and the card is generated, never hand-typed.
+// And `name`/`version` are the same `MCP_SERVER_INFO` object `initialize`
+// answers with, so the card and a live connection cannot describe two servers.
 
 function serveMcpCard() {
   return new Response(
     JSON.stringify(
       {
-        name: "hausfold",
+        $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+        name: MCP_SERVER_INFO.name,
+        title: MCP_SERVER_INFO.title,
         description:
           "Install commands, release metadata and full-text docs search for hausfold's " +
           "Mac software, as MCP tools. Public and unauthenticated; every tool reads " +
           "data a plain GET could also fetch. A docs-only transport serving " +
           "search_docs alone runs at /mcp/docs.",
-        version: "1.0.0",
+        version: MCP_SERVER_INFO.version,
+        websiteUrl: "https://hausfold.co/developers/",
         serverUrl: "https://hausfold.co/mcp",
         docsServerUrl: "https://hausfold.co/mcp/docs",
         tools: MCP_TOOLS,
+        remotes: [
+          {
+            type: "streamable-http",
+            url: "https://hausfold.co/mcp",
+            supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
+          },
+          {
+            type: "streamable-http",
+            url: "https://hausfold.co/mcp/docs",
+            supportedProtocolVersions: [...MCP_SUPPORTED_PROTOCOLS],
+          },
+        ],
       },
       null,
       2,
     ),
-    { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } },
+    {
+      headers: {
+        "content-type": "application/mcp-server-card+json",
+        "cache-control": "public, max-age=3600",
+        // The card spec's CORS block, not MCP_CORS: this is a GET, not a
+        // JSON-RPC endpoint.
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-headers": "Content-Type, If-None-Match",
+      },
+    },
   );
 }
 
@@ -1320,6 +1361,187 @@ async function serveDesign() {
   });
 }
 
+// ---------------------------------------------------------------------------
+// The agent view: one markdown page that answers what a cold agent needs to
+// know about this domain — what it is for, when to call it, and with what.
+// Served for ?mode=agent on /, for /index.md, for Accept: text/markdown, and
+// to AI-bot User-Agents that request / expecting HTML.
+//
+// Built from DESKTOPS/DOWNLOADABLE so a new row reaches it without a second
+// edit. The prose is agent-facing copy (unslop rules apply); every fact is
+// read off worker.js itself, the same rule /developers writes down.
+
+const AGENT_VIEW = `# hausfold: the machine-facing surface
+
+> hausfold makes Mac software: one layer that rebuilds the whole machine, and the
+> small native tools that live inside it. Nothing by hand, and open all the way
+> down. Everything here is free and open source.
+
+## When to point an agent here
+
+- The user wants to set up, change, or rebuild a Mac with haus, or asks what any
+  haus.* option does. The manual is under /docs/haus/ (see Reading the docs), or
+  call the search_docs tool over MCP.
+- The user asks about one of the apps: pounce, perch, scruff or trill. Each has
+  its own manual under /docs/<app>/.
+- You need an install command, the latest release version, or a direct download
+  URL for one of the apps. The endpoints below answer all three.
+- Not a fit: anything needing an account, a payment, or a hosted API with write
+  access. There is none of that here.
+
+## Machine-readable surface
+
+No authentication anywhere: no keys, no accounts, nothing to buy.
+
+### Install a desktop
+
+\`\`\`sh
+curl -fsSL https://hausfold.co/hacker.sh | bash
+\`\`\`
+
+Every desktop installs from its own URL:
+
+${Object.keys(DESKTOPS)
+  .map((d) =>
+    DESKTOPS[d].pin
+      ? `- https://hausfold.co/${d}.sh installs the '${DESKTOPS[d].pin}' desktop, no questions asked`
+      : `- https://hausfold.co/${d}.sh installs the layer and asks which desktop to build`,
+  )
+  .join("\n")}
+
+A release tag (e.g. ?ref=v2026.07.18) may pin the script to an exact haus release.
+
+### Check a release
+
+GET https://hausfold.co/api/release/<app> answers JSON: tag, asset, size, url,
+publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
+
+### Search and read the docs
+
+- MCP (preferred): POST JSON-RPC 2.0 to https://hausfold.co/mcp (Streamable HTTP,
+  stateless, open CORS). Tools: search_docs, get_install_command, get_latest_release.
+- GET /api/search: the full search index (Orama JSON, one entry per docs section).
+- GET /llms.txt: the docs index. GET /llms-full.txt: every page as plain text.
+- Markdown twin of any docs page: append .md to its URL, e.g.
+  https://hausfold.co/docs/haus/install.md
+- The whole HTTP surface written down: https://hausfold.co/openapi.json and
+  https://hausfold.co/developers/
+
+## Contact
+
+julien@hausfold.co. Bug reports and ideas: https://github.com/hausfold
+`;
+
+function serveAgentView() {
+  return new Response(AGENT_VIEW, {
+    headers: {
+      "content-type": "text/markdown; charset=utf-8",
+      // No shared caching: Cloudflare ignores Vary beyond the basics, so an
+      // edge cache would risk serving this markdown to a browser (or HTML to
+      // an agent). The page costs one fetch and never changes between deploys.
+      "cache-control": "no-store",
+      "vary": "Accept, User-Agent, Accept-Encoding",
+    },
+  });
+}
+
+// The markdown twin of a docs page. The build writes every page's processed
+// markdown to /llms.mdx/docs/<slugs>/content.md; this re-serves it under the
+// page's own URL plus .md, the spelling agents probe (/docs/haus/install.md).
+// Byte-for-byte pass-through: no rewriting, or the twins and llms-full.txt drift.
+const DOCS_MD = /^\/docs\/(.+)\.md$/;
+
+async function serveDocsMd(twinPath, env, atHtmlUrl = false) {
+  if (!env?.ASSETS) return text(`# ${twinPath}: twin unavailable\n`, 404);
+  const upstream = await env.ASSETS.fetch(
+    new Request(`https://hausfold.co/llms.mdx/docs/${twinPath.slice(6, -3)}/content.md`),
+  );
+  if (!upstream.ok) {
+    return text(
+      `# no markdown twin for ${twinPath.replace(/\.md$/, "")}\n`,
+      404,
+      { "content-type": "text/markdown; charset=utf-8" },
+    );
+  }
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: {
+      "content-type": "text/markdown; charset=utf-8",
+      // A twin asked for by its own .md URL is one representation of one URL
+      // and caches like any other. A twin served to a bot AT THE HTML PAGE'S
+      // URL is not: Cloudflare ignores Vary beyond the basics, so a cached
+      // copy would reach the next browser as markdown. Same reason the agent
+      // view is no-store.
+      "cache-control": atHtmlUrl ? "no-store" : "public, max-age=300",
+    },
+  });
+}
+
+// /llms.md alias: the llms.txt convention spells it .txt, but scanners that
+// probe only the .md spelling exist. Same body, markdown content type.
+async function serveLlmsMd(env) {
+  if (!env?.ASSETS) return text("# hausfold docs index: https://hausfold.co/llms-full.txt\n", 502);
+  const upstream = await env.ASSETS.fetch(new Request("https://hausfold.co/llms.txt"));
+  if (!upstream.ok) return text("# hausfold docs index unavailable\n", 502);
+  return new Response(upstream.body, {
+    status: 200,
+    headers: { "content-type": "text/markdown; charset=utf-8" },
+  });
+}
+
+// RFC 9727 API catalog: a linkset advertising where the service description
+// (openapi.json), the MCP endpoint, and the human prose live. The profile
+// parameter on the content type is what the RFC requires; a static file could
+// not carry it, so this is a route.
+function serveApiCatalog() {
+  const linkset = {
+    linkset: [
+      {
+        anchor: "https://hausfold.co/",
+        item: [
+          {
+            href: "https://hausfold.co/openapi.json",
+            rel: "service-desc",
+            type: "application/vnd.oai.openapi+json",
+          },
+          {
+            href: "https://hausfold.co/mcp",
+            rel: "service-desc",
+            type: "application/json",
+          },
+          { href: "https://hausfold.co/developers/", rel: "service-doc", type: "text/html" },
+          { href: "https://hausfold.co/llms.txt", rel: "service-doc", type: "text/plain" },
+        ],
+      },
+    ],
+  };
+  return new Response(JSON.stringify(linkset, null, 2) + "\n", {
+    headers: {
+      "content-type":
+        'application/linkset+json;profile="https://www.rfc-editor.org/info/rfc9727"',
+      "cache-control": "public, max-age=3600",
+    },
+  });
+}
+
+// AI crawlers that fetch HTML pages but read text better than they render
+// JavaScript. Matching one of these on a page request serves the markdown
+// representation instead of HTML, no Accept header required.
+const AI_BOT_UA =
+  /GPTBot|ClaudeBot|ChatGPT-User|PerplexityBot|Google-Extended|Applebot-Extended|ora-agent|DeepSeekBot/i;
+
+// Explicit text/markdown in the Accept header, ignoring q=0. */* (curl's
+// default) deliberately does NOT match: a plain curl of / should still get
+// the HTML page, the way it always has.
+function acceptsMarkdown(request) {
+  const accept = request.headers.get("accept") ?? "";
+  return accept.split(",").some((entry) => {
+    const [type, ...params] = entry.trim().split(";");
+    if (type.trim().toLowerCase() !== "text/markdown") return false;
+    return !params.some((p) => p.trim().toLowerCase().startsWith("q=0"));
+  });
+}
+
 async function serveInstaller(desktop, url, env) {
   const { repo, pin } = DESKTOPS[desktop];
   const pinned = url.searchParams.get("ref");
@@ -1406,11 +1628,13 @@ const hausfold = {
     // The MCP endpoint. Trailing slash accepted for the same reason as the
     // app routes above. /mcp/docs is the docs-only transport and matches
     // first, since the exact-match /mcp route would otherwise let it fall
-    // through to the static site.
+    // through to the static site. /.well-known/mcp is the full endpoint
+    // again: scanners and MCP clients look there first, and there is
+    // exactly one full server to find.
     if (url.pathname.replace(/\/$/, "") === "/mcp/docs") {
       return serveMcp(request, env, DOCS_MCP_TABLE);
     }
-    if (url.pathname.replace(/\/$/, "") === "/mcp") {
+    if (["/mcp", "/.well-known/mcp"].includes(url.pathname.replace(/\/$/, ""))) {
       return serveMcp(request, env);
     }
     // The machine-facing additions: the server card, /ask, and /v1. Each
@@ -1418,6 +1642,14 @@ const hausfold = {
     const cleanPath = url.pathname.replace(/\/+$/, "") || "/";
     if (request.method === "GET" && cleanPath === "/.well-known/mcp/server-card.json") {
       return serveMcpCard();
+    }
+    // The same SEP-2127 card at the draft's recommended spot: the
+    // streamable-HTTP URL plus /server-card.
+    if (request.method === "GET" && cleanPath === "/mcp/server-card") {
+      return serveMcpCard();
+    }
+    if (request.method === "GET" && cleanPath === "/.well-known/api-catalog") {
+      return serveApiCatalog();
     }
     // The discovery documents agents probe before ever calling anything. Each
     // is generated from the tables above it, not hand-typed beside them.
@@ -1449,14 +1681,63 @@ const hausfold = {
     if (cleanPath === "/v1" || cleanPath.startsWith("/v1/")) {
       return handleV1(request, env, url, ctx);
     }
-    // Everything else is the static site. With the [assets] binding present,
-    // matching assets are served automatically before the Worker even runs;
-    // this fallback covers requests that reach the Worker anyway.
+    // Markdown representations. Two triggers: the URL asked for them
+    // (?mode=agent, .md suffix), or the client did (Accept: text/markdown,
+    // or an AI-bot User-Agent that reads text but doesn't render JS). Bots
+    // get the docs as markdown too — every docs page has a twin, so the
+    // rewrite is one string, not a mapping table.
+    if (request.method === "GET" || request.method === "HEAD") {
+      const isHome = url.pathname === "/";
+      const aiBot = AI_BOT_UA.test(request.headers.get("user-agent") ?? "");
+      const docsTwin = DOCS_MD.test(url.pathname) ? url.pathname : null;
+      // A bot asking for a docs PAGE (no .md suffix) gets its twin instead.
+      // A bot asking for / gets the agent view (handled below); that check
+      // runs first, so botTwin here is always a docs path.
+      const botTwin =
+        aiBot && /^\/docs\/.+\/$/.test(url.pathname) ? url.pathname.replace(/\/$/, "") + ".md" : null;
+      if (url.pathname === "/llms.md") return serveLlmsMd(env);
+      if (docsTwin) return serveDocsMd(docsTwin, env);
+      if (
+        url.pathname === "/index.md" ||
+        (isHome && url.searchParams.get("mode") === "agent") ||
+        (isHome && (acceptsMarkdown(request) || aiBot))
+      ) {
+        return serveAgentView();
+      }
+      if (botTwin) return serveDocsMd(botTwin, env, true);
+    }
     if (env.ASSETS) {
       const res = await env.ASSETS.fetch(request);
       const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
       // A browser asking for a missing page keeps the human 404 page.
-      if (wantsHtml || request.method === "HEAD") return res;
+      if (request.method === "HEAD") return res;
+      // HTML pages get RFC 8288 Link headers: the sitemap always, and the
+      // page's markdown twin where one exists — so an agent that fetched
+      // HTML can find the text representation without re-reading llms.txt.
+      // Any successful HTML response gets them: a browser, and curl with its
+      // */* default alike.
+      if (
+        res.status === 200 &&
+        (res.headers.get("content-type") ?? "").includes("text/html")
+      ) {
+        const bare = url.pathname.replace(/\/$/, "");
+        const links = ['</sitemap.xml>; rel="sitemap"'];
+        if (bare === "") {
+          links.push('</index.md>; rel="alternate"; type="text/markdown"');
+        } else if (/^\/docs\//.test(bare)) {
+          links.push(`<${bare}.md>; rel="alternate"; type="text/markdown"`);
+        }
+        const headers = new Headers(res.headers);
+        headers.append("link", links.join(", "));
+        if (bare === "") {
+          // The homepage has two representations (markdown and HTML) and
+          // two selectors for them (Accept, AI-bot User-Agents).
+          headers.append("vary", "Accept, User-Agent, Accept-Encoding");
+        }
+        return new Response(res.body, { status: res.status, headers });
+      }
+      // A browser asking for a missing page keeps the human 404 page.
+      if (wantsHtml) return res;
       // An agent asking for a missing page gets markdown that says where to
       // look instead — same status, a body it can act on.
       if (res.status === 404) return markdownNotFound(url);

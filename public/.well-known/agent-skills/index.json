@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "hausfold-docs-search",
+      "type": "skill-md",
+      "description": "Search and read the hausfold manuals (haus, pounce, perch, scruff, trill) as text. Use when a question about a haus.* option, a keyboard shortcut, an install step, or any behaviour of these Mac tools needs an authoritative answer.",
+      "url": "/.well-known/agent-skills/hausfold-docs-search/SKILL.md",
+      "digest": "sha256:151b057d5f3c48c81f2f29d4c0c532fb0aaa87518ff4b57c911e1f51fe4daa85"
+    },
+    {
+      "name": "hausfold-install",
+      "type": "skill-md",
+      "description": "Install a haus desktop (hacker, everyday, minimal) on a macOS machine with one shell command. Use when the user wants their Mac rebuilt from a config file, wants one of the named desktops, or asks how to try haus.",
+      "url": "/.well-known/agent-skills/hausfold-install/SKILL.md",
+      "digest": "sha256:7bfd492df0d6a28815a55b17070fefe2c31a9b3b56c2aaa592ebb9687a1b4328"
+    },
+    {
+      "name": "hausfold-releases",
+      "type": "skill-md",
+      "description": "Check the latest signed macOS release of a hausfold app (pounce, perch) and get its direct download URL. Use before naming a version, checking for updates, or linking a download.",
+      "url": "/.well-known/agent-skills/hausfold-releases/SKILL.md",
+      "digest": "sha256:556cfe7fd3dd4e5d4b5389deebbb5f9871ef8c545038f534c99217bdf73753e0"
+    }
+  ]
+}

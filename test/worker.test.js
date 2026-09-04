@@ -552,3 +552,193 @@ describe('/design.md — the visual standard, proxied from the workshop', () => 
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 });
+
+describe('the agent view (?mode=agent, /index.md, Accept negotiation, bot UAs)', () => {
+  const md = 'text/markdown; charset=utf-8';
+
+  it('serves the agent view for ?mode=agent on /', async () => {
+    const res = await worker.fetch(req('/?mode=agent'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/markdown');
+    const body = await res.text();
+    expect(body).toMatch(/^# hausfold/);
+    expect(body).toContain('When to point an agent here');
+    // Built from the tables: a desktop row and a downloadable app must appear
+    expect(body).toContain('/hacker.sh');
+    expect(body).toContain('/api/release/');
+  });
+
+  it('serves the same view at /index.md', async () => {
+    const res = await worker.fetch(req('/index.md'), {});
+    expect(res.headers.get('content-type')).toContain('text/markdown');
+    expect(await res.text()).toMatch(/^# hausfold/);
+  });
+
+  it('negotiates: Accept: text/markdown on / gets markdown, a browser Accept gets HTML', async () => {
+    const mdRes = await worker.fetch(
+      new Request('https://hausfold.co/', { headers: { accept: 'text/markdown' } }),
+      { ASSETS: { fetch: vi.fn() } },
+    );
+    expect(mdRes.headers.get('content-type')).toContain('text/markdown');
+    expect(globalThis.fetch).not.toHaveBeenCalled(); // nothing upstream
+
+    const assets = { fetch: vi.fn(async () => new Response('<html></html>', { status: 200 })) };
+    const htmlRes = await worker.fetch(
+      new Request('https://hausfold.co/', { headers: { accept: 'text/html' } }),
+      { ASSETS: assets },
+    );
+    expect(assets.fetch).toHaveBeenCalledOnce();
+    expect(await htmlRes.text()).toBe('<html></html>');
+  });
+
+  it("curl, the default */* Accept, still gets the HTML homepage", async () => {
+    // Negotiation on an explicit token only: */* (or no Accept) is the plain
+    // curl a human runs, and it must keep getting the page it always got.
+    const assets = { fetch: vi.fn(async () => new Response('<html></html>', { status: 200 })) };
+    await worker.fetch(new Request('https://hausfold.co/', { headers: { accept: '*/*' } }), {
+      ASSETS: assets,
+    });
+    expect(assets.fetch).toHaveBeenCalledOnce();
+  });
+
+  it('serves markdown to an AI-bot User-Agent on / and on docs pages', async () => {
+    const ua = { 'user-agent': 'ClaudeBot/1.0' };
+    const home = await worker.fetch(new Request('https://hausfold.co/', { headers: ua }), {});
+    expect(home.headers.get('content-type')).toContain('text/markdown');
+    expect(await home.text()).toMatch(/^# hausfold/);
+
+    const assets = {
+      fetch: vi.fn(async () => new Response('# Install\n', { status: 200 })),
+    };
+    const docs = await worker.fetch(
+      new Request('https://hausfold.co/docs/haus/install/', { headers: ua }),
+      { ASSETS: assets },
+    );
+    expect(docs.headers.get('content-type')).toContain('text/markdown');
+    expect(assets.fetch).toHaveBeenCalledWith(
+      expect.objectContaining({ url: 'https://hausfold.co/llms.mdx/docs/haus/install/content.md' }),
+    );
+  });
+
+  it('homepage HTML carries Vary: Accept so caches cannot cross-serve', async () => {
+    const res = await worker.fetch(req('/'), {
+      ASSETS: { fetch: vi.fn(async () => new Response('<html>', { headers: { 'content-type': 'text/html' } })) },
+    });
+    expect(res.headers.get('vary')).toContain('Accept');
+  });
+});
+
+describe('/docs/<path>.md — the markdown twins', () => {
+  const assetsFor = () => ({
+    fetch: vi.fn(async (r) =>
+      /llms\.mdx\/docs\/haus\/(install\/)?content\.md$/.test(String(r.url))
+        ? new Response('# Install\n')
+        : new Response('nope', { status: 404 }),
+    ),
+  });
+
+  it('proxies the built twin byte-for-byte as markdown', async () => {
+    const assets = assetsFor();
+    const res = await worker.fetch(req('/docs/haus/install.md'), { ASSETS: assets });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('text/markdown; charset=utf-8');
+    expect(await res.text()).toBe('# Install\n');
+    // The URL, not the Request: two Request objects for the same URL compare
+    // equal on Node 24 and unequal on the Node 22 CI runs, because vitest's
+    // deep equality walks undici's internals.
+    expect(String(assets.fetch.mock.calls[0][0].url)).toBe(
+      'https://hausfold.co/llms.mdx/docs/haus/install/content.md',
+    );
+  });
+
+  it('a tree index gets its own twin: /docs/haus.md -> /llms.mdx/docs/haus/content.md', async () => {
+    const assets = assetsFor();
+    const res = await worker.fetch(req('/docs/haus.md'), { ASSETS: assets });
+    expect(res.status).toBe(200);
+  });
+
+  it('404s in markdown when no twin exists', async () => {
+    const assets = assetsFor();
+    const res = await worker.fetch(req('/docs/does/not/exist.md'), { ASSETS: assets });
+    expect(res.status).toBe(404);
+    expect(res.headers.get('content-type')).toContain('text/markdown');
+  });
+});
+
+describe('/.well-known surfaces', () => {
+  it('serves the MCP endpoint again at /.well-known/mcp', async () => {
+    const res = await worker.fetch(new Request('https://hausfold.co/.well-known/mcp', { method: 'OPTIONS' }), {});
+    expect(res.status).toBe(204);
+  });
+
+  it('serves the SEP-2127 server card at /mcp/server-card and the well-known probe', async () => {
+    for (const path of ['/mcp/server-card', '/.well-known/mcp/server-card.json']) {
+      const res = await worker.fetch(req(path), {});
+      expect(res.headers.get('content-type')).toBe('application/mcp-server-card+json', path);
+      const card = await res.json();
+      expect(card.remotes[0].url).toBe('https://hausfold.co/mcp');
+
+      // The card's identity is serverInfo's, so ask the live server rather
+      // than hardcoding it here: this is the drift the card exists to avoid.
+      const init = await worker.fetch(
+        new Request('https://hausfold.co/mcp', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }),
+        }),
+        {},
+      );
+      const { serverInfo } = (await init.json()).result;
+      expect(card.name).toBe(serverInfo.name);
+      expect(card.title).toBe(serverInfo.title);
+      expect(card.version).toBe(serverInfo.version);
+    }
+  });
+
+  it('the API catalog is RFC 9727 linkset JSON with the profile parameter', async () => {
+    const res = await worker.fetch(req('/.well-known/api-catalog'), {});
+    expect(res.headers.get('content-type')).toBe(
+      'application/linkset+json;profile="https://www.rfc-editor.org/info/rfc9727"',
+    );
+    const body = await res.json();
+    expect(body.linkset[0].item.some((i) => i.href.endsWith('/openapi.json'))).toBe(true);
+  });
+
+  it('/llms.md serves the llms.txt body as markdown', async () => {
+    const assets = { fetch: vi.fn(async () => new Response('# hausfold\n\n- [x](/docs/haus/)')) };
+    const res = await worker.fetch(req('/llms.md'), { ASSETS: assets });
+    expect(res.headers.get('content-type')).toContain('text/markdown');
+    expect(await res.text()).toMatch(/^# hausfold/);
+  });
+});
+
+describe('RFC 8288 Link headers on HTML pages', () => {
+  const assets = () => ({
+    fetch: vi.fn(
+      async () => new Response('<html></html>', { status: 200, headers: { 'content-type': 'text/html' } }),
+    ),
+  });
+
+  it('every HTML page advertises the sitemap', async () => {
+    const res = await worker.fetch(req('/developers/'), { ASSETS: assets() });
+    expect(res.headers.get('link')).toContain('</sitemap.xml>; rel="sitemap"');
+  });
+
+  it('a docs page advertises its markdown twin', async () => {
+    const res = await worker.fetch(req('/docs/haus/install/'), { ASSETS: assets() });
+    const link = res.headers.get('link');
+    expect(link).toContain('</docs/haus/install.md>; rel="alternate"; type="text/markdown"');
+  });
+
+  it('the homepage advertises /index.md', async () => {
+    const res = await worker.fetch(req('/'), { ASSETS: assets() });
+    expect(res.headers.get('link')).toContain('</index.md>; rel="alternate"; type="text/markdown"');
+  });
+
+  it('non-HTML responses (e.g. the search index) are left alone', async () => {
+    const res = await worker.fetch(req('/api/search'), {
+      ASSETS: { fetch: vi.fn(async () => new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } })) },
+    });
+    expect(res.headers.get('link')).toBeNull();
+  });
+});

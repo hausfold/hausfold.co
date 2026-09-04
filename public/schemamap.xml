@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Schema Map robots.txt's `schemamap:` line points at (NLWeb Schema
+     Feeds draft): a sitemap-protocol XML listing our structured-data feeds.
+     One feed today, generated from the same page table the site renders from.
+     If a second feed lands (RSS, per-product JSONL), it gets a <url> row here
+     in the same commit. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:sf="http://schema.org/schemas/schemafeed/0.1">
+  <url>
+    <loc>https://hausfold.co/schema.jsonl</loc>
+    <sf:contentType>structuredData/schema.org</sf:contentType>
+  </url>
+</urlset>

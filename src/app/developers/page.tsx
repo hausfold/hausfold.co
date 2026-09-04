@@ -219,29 +219,51 @@ export default function Developers() {
       </section>
 
       <section className="block">
-        <h2>The whole surface, in one file</h2>
+        <h2>Discovery for agents</h2>
         <p>
-          <a href="/openapi.json">
-            <code>/openapi.json</code>
-          </a>{' '}
-          is the OpenAPI 3.1 description of everything on this page. If you are generating a
-          client, generate it from that; this page is the readable half, and the spec is what
-          CI keeps in step with the Worker.
+          A machine that lands here by name, without reading this page first, is answered where it
+          looks: the MCP endpoint also answers at <code>/.well-known/mcp</code>, with its server
+          card at <a href="/mcp/server-card">/mcp/server-card</a> and{' '}
+          <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>.{' '}
+          <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is the A2A
+          discovery card,{' '}
+          <a href="/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a>{' '}
+          lists the domain&apos;s agent skills (docs search, install, releases), and{' '}
+          <a href="/.well-known/api-catalog">/.well-known/api-catalog</a> is the RFC 9727
+          catalog pointing here. <a href="/sitemap.xml">/sitemap.xml</a> is the
+          whole URL list; <a href="/schema.jsonl">/schema.jsonl</a> carries the structured
+          data as JSON Lines.
         </p>
-      </section>
-
-      <section className="block">
-        <h2>Be discovered</h2>
         <p>
-          Two files exist so an agent can find all of the above without reading this page.{' '}
-          <a href="/.well-known/ard.json">.well-known/ard.json</a> is an Agentic Resource
-          Discovery catalog listing the MCP server and the OpenAPI spec. And the repo behind
-          this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>: its{' '}
+          Text over HTML, in three shapes: <a href="/index.md">/index.md</a> (or{' '}
+          <code>?mode=agent</code>, or <code>Accept: text/markdown</code>) is this domain in one
+          markdown page; every docs page has a markdown twin at its own URL plus{' '}
+          <code>.md</code>, and a bot User-Agent asking for a docs page is served the twin
+          directly.
+        </p>
+        <p>
+          Two more name the whole catalog rather than one document.{' '}
+          <a href="/.well-known/ard.json">.well-known/ard.json</a> is the Agentic Resource
+          Discovery catalog: both MCP transports, the manifest and the OpenAPI spec. And the
+          repo behind this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>:
+          its{' '}
           <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">
             plugin.json
           </a>{' '}
           ships the same MCP server as an <code>mcp.json</code> entry, plus a skill covering
           install and release lookups.
+        </p>
+      </section>
+
+      <section className="block">
+        <h2>The whole surface, in one file</h2>
+        <p>
+          <a href="/openapi.json">
+            <code>/openapi.json</code>
+          </a>{' '}
+          is the OpenAPI 3.1 description of everything the Worker answers, including the
+          well-known surfaces above. If you are generating a client, generate it from that; this
+          page is the readable half, and the spec is what CI keeps in step with the Worker.
         </p>
       </section>
 
