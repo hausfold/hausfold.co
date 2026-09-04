@@ -157,18 +157,11 @@ haus.launcher.items."cmd:copy-text".hotkey = "cmd+shift+6";  # move it
 haus.launcher.items."cmd:copy-text".hotkey = null;           # palette row only
 ```
 
-<Callout title="Keeping the Accessibility grant">
-```nix
-haus.launcher.signingIdentity = "Apple Development: you@example.com (XXXXXXXXXX)";
-```
-
-A plain Nix rebuild is ad-hoc signed, and macOS ties an Accessibility grant to
-a signature, so without this you re-approve the dialog after every rebuild.
-Set it and the room re-signs a stable copy of the app with your identity, and
-the grant persists.
-
-It is **host-only**: it names a certificate on one machine, so a shared desktop
-may not set it.
+<Callout title="The Accessibility grant survives rebuilds">
+The daemon runs the CI-built release app, Developer-ID signed by hausfold and
+notarized. macOS ties an Accessibility grant to a signature's designated
+requirement, and that requirement anchors on the team rather than a per-build
+hash, so the approval you give once holds across every rebuild.
 </Callout>
 
 ## Works with

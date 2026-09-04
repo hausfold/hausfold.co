@@ -3201,7 +3201,7 @@ Tiling window management and the Caps-Lock leader launcher — plus macOS's OWN 
 
 <div className="hf-optindex">
 
-[`accordionPadding`](#haus-windows-accordionpadding) [`defaultLayout`](#haus-windows-defaultlayout) [`defaultOrientation`](#haus-windows-defaultorientation) [`desktop.clickToReveal`](#haus-windows-desktop-clicktoreveal) [`desktop.hideIcons`](#haus-windows-desktop-hideicons) [`desktop.hideWidgets`](#haus-windows-desktop-hidewidgets) [`enable`](#haus-windows-enable) [`gravity`](#haus-windows-gravity) [`mouseFollowsFocus`](#haus-windows-mousefollowsfocus) [`mouseFullscreen`](#haus-windows-mousefullscreen) [`nativeTiling.edgeDrag`](#haus-windows-nativetiling-edgedrag) [`nativeTiling.margins`](#haus-windows-nativetiling-margins) [`nativeTiling.optionAccelerator`](#haus-windows-nativetiling-optionaccelerator) [`nativeTiling.topEdgeFullscreen`](#haus-windows-nativetiling-topedgefullscreen) [`numberedWorkspaces`](#haus-windows-numberedworkspaces) [`stageManager.autoHideStrip`](#haus-windows-stagemanager-autohidestrip) [`stageManager.enable`](#haus-windows-stagemanager-enable) [`stageManager.groupWindows`](#haus-windows-stagemanager-groupwindows) [`stageManager.hideDesktopIcons`](#haus-windows-stagemanager-hidedesktopicons) [`stageManager.hideWidgets`](#haus-windows-stagemanager-hidewidgets)
+[`accordionPadding`](#haus-windows-accordionpadding) [`defaultLayout`](#haus-windows-defaultlayout) [`defaultOrientation`](#haus-windows-defaultorientation) [`desktop.clickToReveal`](#haus-windows-desktop-clicktoreveal) [`desktop.hideIcons`](#haus-windows-desktop-hideicons) [`desktop.hideWidgets`](#haus-windows-desktop-hidewidgets) [`enable`](#haus-windows-enable) [`gaps.inner.builtin`](#haus-windows-gaps-inner-builtin) [`gaps.inner.external`](#haus-windows-gaps-inner-external) [`gaps.outer.left.builtin`](#haus-windows-gaps-outer-left-builtin) [`gaps.outer.left.external`](#haus-windows-gaps-outer-left-external) [`gaps.outer.right.builtin`](#haus-windows-gaps-outer-right-builtin) [`gaps.outer.right.external`](#haus-windows-gaps-outer-right-external) [`gravity`](#haus-windows-gravity) [`mouseFollowsFocus`](#haus-windows-mousefollowsfocus) [`mouseFullscreen`](#haus-windows-mousefullscreen) [`nativeTiling.edgeDrag`](#haus-windows-nativetiling-edgedrag) [`nativeTiling.margins`](#haus-windows-nativetiling-margins) [`nativeTiling.optionAccelerator`](#haus-windows-nativetiling-optionaccelerator) [`nativeTiling.topEdgeFullscreen`](#haus-windows-nativetiling-topedgefullscreen) [`numberedWorkspaces`](#haus-windows-numberedworkspaces) [`stageManager.autoHideStrip`](#haus-windows-stagemanager-autohidestrip) [`stageManager.enable`](#haus-windows-stagemanager-enable) [`stageManager.groupWindows`](#haus-windows-stagemanager-groupwindows) [`stageManager.hideDesktopIcons`](#haus-windows-stagemanager-hidedesktopicons) [`stageManager.hideWidgets`](#haus-windows-stagemanager-hidewidgets) [`workspaceMonitors`](#haus-windows-workspacemonitors)
 
 </div>
 
@@ -3380,6 +3380,246 @@ This is the room switch: off drops AeroSpace, its launch agent, the
 wake-time window re-sort and the key remap entirely. To keep the tiler but
 leave the keyboard alone, use haus.keys.leader = "none" and
 haus.keys.windowNav = "none" instead of turning the room off.
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.inner.builtin` [#haus-windows-gaps-inner-builtin]
+
+`unsigned integer, meaning >=0` · default `10` · e.g. `0`
+
+How much space AeroSpace leaves BETWEEN two tiled windows on the built-in display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.inner.builtin</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.inner.external` [#haus-windows-gaps-inner-external]
+
+`unsigned integer, meaning >=0` · default `20` · e.g. `0`
+
+How much space AeroSpace leaves BETWEEN two tiled windows on an external display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.inner.external</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.outer.left.builtin` [#haus-windows-gaps-outer-left-builtin]
+
+`unsigned integer, meaning >=0` · default `10` · e.g. `0`
+
+How much space AeroSpace leaves at the LEFT edge of the screen on the built-in display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.outer.left.builtin</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.outer.left.external` [#haus-windows-gaps-outer-left-external]
+
+`unsigned integer, meaning >=0` · default `20` · e.g. `0`
+
+How much space AeroSpace leaves at the LEFT edge of the screen on an external display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.outer.left.external</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.outer.right.builtin` [#haus-windows-gaps-outer-right-builtin]
+
+`unsigned integer, meaning >=0` · default `10` · e.g. `0`
+
+How much space AeroSpace leaves at the RIGHT edge of the screen on the built-in display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.outer.right.builtin</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.gaps.outer.right.external` [#haus-windows-gaps-outer-right-external]
+
+`unsigned integer, meaning >=0` · default `20` · e.g. `0`
+
+How much space AeroSpace leaves at the RIGHT edge of the screen on an external display, in points.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.gaps.outer.right.external</span></summary>
+
+Two numbers rather than one because AeroSpace takes a gap per
+monitor and the two displays want different ones: haus ships 10 on
+the built-in and 20 around an external, which is the same gap
+reading the same size on panels of very different pitch.
+
+This is the gap at `haus.ui.scale = 1.0`, not the finished number —
+it is multiplied by the scale like every other tuned measurement, so
+a bigger desktop keeps its proportions. `0` is `0` at every scale,
+which is what to set for a desktop with no gaps at all.
+
+`inner`, `outer.left` and `outer.right` are the settable gaps.
+`outer.top` and `outer.bottom` are not, and deliberately: those two
+carry the bar's reservation
+(`modules/lib/gaps.nix`), which is the only thing keeping tiled
+windows out from under it — a `0` there would not be a tighter
+desktop, it would be windows drawn beneath the bar. With
+`haus.bar.enable = false` they carry no reservation either, and
+fall back to the shipped 10/20 rather than to anything you can set.
+
+These are read whether or not the tiler is on. AeroSpace is the
+only thing that acts on them, but three surfaces are DRAWN
+against them — the bar's left and right padding, the
+near-fullscreen terminal popups, and the wallpaper's debug band
+— so retuning a gap moves those on a machine with
+haus.windows.enable = false too.
+
+</details>
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
@@ -3689,6 +3929,10 @@ The digits are reserved in launch mode, so a haus.workspaces key or a
 haus.keys.leaderExtras key that collides with one is refused at eval.
 This count decides which digits that means.
 
+To pin them to a display — 1-4 on one screen, 5-8 on another — see
+haus.windows.workspaceMonitors below, which takes these ids and
+haus.workspaces names alike.
+
 Only meaningful with haus.windows.enable.
 
 </details>
@@ -3879,6 +4123,74 @@ after it, both read out of the built activation script rather than from a
 second copy of this list.
 
 </details>
+
+<small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
+
+#### `haus.windows.workspaceMonitors` [#haus-windows-workspacemonitors]
+
+`attribute set of (string or list of string)` · default `{ }`
+
+**Desktop-safe per key** (`monitor-selectors`). Keys are plain workspace names, and each value pins one to a display by POSITION — `main`, `secondary`, or a number from 1 counting left to right — because a monitor's name or a regex over it identifies one physical panel on one desk, the same reason a display UUID is host-only. `built-in` is a name too, and a localized one. A list of positions is a fallback chain, tried in order.
+
+Pin a workspace to a display, so it always opens on the same screen.
+AeroSpace's `workspace-to-monitor-force-assignment`, keyed by the
+workspace id: a numbered one (`"1"`, `"2"` — how many exist is
+haus.windows.numberedWorkspaces) or a haus.workspaces name.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.windows.workspaceMonitors</span></summary>
+
+A value is either one pattern or a list of them tried in order, which
+is how a workspace survives the monitor it wants being unplugged. Each
+pattern is one of:
+
+- `main` or `secondary` — the position, true on any desk;
+- a number — the display's position left to right, counting from `1`;
+- part of the display's name, matched case-insensitively (`Dell`);
+- a regex, when it is wrapped in `^` and `$` (`^built-in retina display$`).
+
+The last two name one physical panel, so they are a fact about your desk
+rather than a taste: a shared desktop may only use the first two, and the
+seam refuses the others (`modules/lib/desktop.nix`). Your own host file
+can say any of them.
+
+Note that `built-in` is one of those names, not a position: AeroSpace
+has keywords for `main` and `secondary` only, and matches anything else
+against the display's LOCALIZED name — so `built-in` works on an
+English-language MacBook and matches nothing on a Mac mini.
+
+A pattern AeroSpace would refuse — an empty string, monitor `0`, or one
+carrying an apostrophe or a newline — is refused here first. Every one
+of those stops `aerospace.toml` parsing, and AeroSpace answers an
+unparseable config by keeping the one it already had, so the cost is
+every binding in the file rather than this one line.
+
+Naming a workspace that does not exist is refused at eval rather than
+ignored: AeroSpace drops an assignment for an unknown workspace in
+silence, which reads exactly like the option not working.
+
+Empty (the default) assigns nothing, and AeroSpace puts a workspace on
+whichever display it was last used on.
+
+Only meaningful with haus.windows.enable.
+
+</details>
+
+Example:
+
+```nix
+{
+  "1" = "main";
+  "2" = "main";
+  "3" = "secondary";
+  "4" = "secondary";
+  T = [
+    "Dell U2720Q"
+    "main"
+  ];
+}
+```
 
 <small>Declared in [`modules/windows/options.nix`](https://github.com/hausfold/haus/blob/main/modules/windows/options.nix).</small>
 
@@ -5542,7 +5854,7 @@ The ⌘Space command palette. Pounce is the app behind it.
 
 <div className="hf-optindex">
 
-[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`plugins`](#haus-launcher-plugins) [`scale`](#haus-launcher-scale) [`signingIdentity`](#haus-launcher-signingidentity) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
+[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`plugins`](#haus-launcher-plugins) [`scale`](#haus-launcher-scale) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
 
 </div>
 
@@ -5595,10 +5907,9 @@ clients and chat apps have the same shape — that class of app is what
 haus.launcher.autoQuit.exclude is for.
 
 Reads the same window snapshot as the ⌘Tab switcher, so it wants the
-same Accessibility grant (set haus.launcher.signingIdentity so it
-survives rebuilds) and shares the observers rather than taking its own.
-Without the grant it stays off and says so in the log rather than
-guessing.
+same Accessibility grant (a one-time approval of the release app) and
+shares the observers rather than taking its own. Without the grant it
+stays off and says so in the log rather than guessing.
 
 Off by default: this changes when your apps die, which is a thing you
 feel, and the muscle memory it suits is not everyone's.
@@ -6052,46 +6363,6 @@ otherwise run off the edge.
 
 <small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
 
-#### `haus.launcher.signingIdentity` [#haus-launcher-signingidentity]
-
-`string` · default `""`
-
-**Host-only.** A shared desktop may not set it; only your host file can. It names a code-signing identity in one login keychain, which exists on exactly one Mac and cannot be meaningfully published.
-
-A code-signing identity in your login keychain — either its SHA-1 or
-(preferred) its full common name. The pounce daemon is re-signed with
-it so a macOS Accessibility (TCC) grant survives rebuilds. List yours:
-  security find-identity -v -p codesigning
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.launcher.signingIdentity</span></summary>
-
-Prefer a "Developer ID Application" identity passed BY NAME (e.g.
-"Developer ID Application: Jane Doe (TEAMID)"): its designated
-requirement anchors on the stable team OU, so the grant survives even
-a certificate renewal (the renewed cert keeps the same name/team but
-gets a new SHA — a hardcoded SHA would silently fall back to unsigned).
-This is also the identity the Homebrew build is signed with, so both
-install paths share one identity. An "Apple Development" cert works too
-but expires yearly and pins the specific cert, so it's less durable.
-
-Changing this once invalidates the existing grant (the requirement
-changes) — re-approve pounce in Accessibility a single time after.
-
-Leave empty to run it unsigned (the palette works, but auto-paste
-and other Accessibility-gated features stay off).
-
-</details>
-
-Example:
-
-```nix
-"Developer ID Application: Jane Doe (ABCDE12345)"
-```
-
-<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
-
 #### `haus.launcher.windowMode` [#haus-launcher-windowmode]
 
 `one of "default", "compact"` · default `"default"`
@@ -6136,11 +6407,13 @@ off `T` altogether rather than back to the page you just left. Getting
 between pages is the ⌃⇥ walk's job, the same division of labour as
 windowNav's focus keys above.
 
-Needs the daemon to hold an Accessibility grant — in practice, set
-haus.launcher.signingIdentity so the grant survives rebuilds. Without
-the grant the event tap can't install and stock ⌘Tab keeps working, so
-this default is safe on a fresh, not-yet-granted install. false leaves
-⌘Tab native even when the grant is there.
+Needs the daemon to hold an Accessibility grant. The daemon runs the
+release app (whose team-anchored signing requirement is what keeps the
+grant alive across rebuilds), so on a haus machine this is a one-time
+approval, not a rebuild-by-rebuild ritual. Without the grant the event
+tap can't install and stock ⌘Tab keeps working, so this default is safe
+on a fresh, not-yet-granted install. false leaves ⌘Tab native even when
+the grant is there.
 
 </details>
 
@@ -8383,6 +8656,12 @@ so); one with `apps` but no `key` still gets a persistent workspace,
 a pill (with `icon`) and auto-herds its member windows, it just has
 no dedicated leader throw.
 
+WHICH DISPLAY a workspace opens on is not a field here either, for
+the same reason `apps` is not a field on the app: the numbered
+workspaces are a count rather than entries, so a `monitor` field here
+could only ever have pinned half of them. It is one table over both
+kinds — `haus.windows.workspaceMonitors`, keyed by workspace id.
+
 </details>
 
 Example:
@@ -8622,16 +8901,17 @@ resizes.
 
 <summary>More detail<span className="sr-only"> on haus.keys.leader</span></summary>
 
-  - "caps" (default): Caps Lock. AeroSpace can't bind Caps Lock itself,
-    so haus remaps it to F18 with hidutil and binds that.
+  - "caps": Caps Lock, and what the hacker desktop picks. AeroSpace
+    can't bind Caps Lock itself, so haus remaps it to F18 with hidutil
+    and binds that.
   - "alt-space": the leader without giving up Caps Lock. No remap at all.
-  - "none": no leader. Caps Lock stays Caps Lock, launch mode is
-    unreachable, and nothing is remapped — the setting for a mouse-first
-    machine, or for a Mac you are handing to someone else. What the leader
-    fronted is still reachable: apps through the palette, window moves
-    through service mode's join-with and the palette's own commands.
-    Workspace focus and the workspace throws go away with it — they
-    live only in launch mode.
+  - "none" (the default): no leader. Caps Lock stays Caps Lock, launch
+    mode is unreachable, and nothing is remapped — the setting for a
+    mouse-first machine, or for a Mac you are handing to someone else.
+    What the leader fronted is still reachable: apps through the
+    palette, window moves through service mode's join-with and the
+    palette's own commands. Workspace focus and the workspace throws
+    go away with it — they live only in launch mode.
 
 The remap is re-applied at every activation and does not survive a
 reboot, so moving off "caps" ends it — at the latest, at next boot.
@@ -8724,12 +9004,13 @@ another.
 What opens the command palette. Registered in-process by the
 daemon, so it's near-instant and doesn't go through AeroSpace.
 
-"cmd-space" (default) is the one value that also DISABLES Spotlight's
-own ⌘Space, because the two can't share it. Every other value leaves
-Spotlight alone — including "none", which hands the palette's job back
-to Spotlight entirely. That's a fix as much as an option: haus used
-to take Spotlight's ⌘Space away unconditionally, even where nothing
-claimed it.
+"cmd-space" — what the hacker and everyday desktops both pick — is the
+one value that also DISABLES Spotlight's own ⌘Space, because the two
+can't share it. Every other value leaves Spotlight alone, including
+"none", the default, which hands the palette's job back to Spotlight
+entirely. That's a fix as much as an option: haus used to take
+Spotlight's ⌘Space away unconditionally, even where nothing claimed
+it.
 
 Only meaningful with haus.launcher.enable.
 
@@ -8753,11 +9034,11 @@ leader then an arrow.
 
 <summary>More detail<span className="sr-only"> on haus.keys.windowNav</span></summary>
 
-"alt" (default) is ⌥. The alternatives are for **non-US keyboard
-layouts**, where ⌥ is a character layer of its own rather than a spare
-modifier — on AZERTY it is where `{` `}` `[` `]` `|` `\` `@` `#` `~`
-and `€` are typed, so a machine that owns too much of ⌥ cannot write
-code.
+"alt" is ⌥, and what the hacker desktop picks. The alternatives are
+for **non-US keyboard layouts**, where ⌥ is a character layer of its
+own rather than a spare modifier — on AZERTY it is where `{` `}` `[`
+`]` `|` `\` `@` `#` `~` and `€` are typed, so a machine that owns too
+much of ⌥ cannot write code.
 
 Measured on `com.apple.keylayout.French` with the hacker desktop: all
 ten of those characters still type with "alt" live, under either
@@ -8788,10 +9069,11 @@ on ⌃⌥⇧A. Moving the throws onto the leader ended it.)
 Nothing on a stock macOS collides either: the only ⌃⌥ system hotkeys
 are input-source switching (⌃⌥Space, off by default) and hyper-F13.
 
-"none" drops the modifier chords entirely: no layout chords, no
-service mode. Combined with `leader = "none"` that's a machine where the
-tiler tiles and the keyboard is left alone — mouse-first. The cheatsheet
-follows, so it never advertises a key that does nothing.
+"none", the default, drops the modifier chords entirely: no layout
+chords, no service mode. Combined with `leader = "none"` that's a
+machine where the tiler tiles and the keyboard is left alone —
+mouse-first. The cheatsheet follows, so it never advertises a key that
+does nothing.
 
 Only meaningful with haus.windows.enable.
 

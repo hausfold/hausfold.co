@@ -170,10 +170,8 @@ machine:
 - **Commit signing keys.** Your config names the key *id*; the key *material* is
   yours to import, along with whatever agent unlocks it.
 - **Pounce's Accessibility grant.** macOS ties it to the machine, so run
-  `pounce --request-accessibility` once more. If you set
-  `haus.launcher.signingIdentity`, import that certificate into the new keychain
-  too; that's what makes the grant survive later rebuilds
-  ([Pounce config](/docs/pounce/config)).
+  `pounce --request-accessibility` once more ([Pounce
+  config](/docs/pounce/config)).
 - **Apps you installed by hand.** They won't reappear. Reinstall the ones you
   want, and consider moving them into a
   [roster entry](/docs/haus/rooms/apps) so next time they do.
