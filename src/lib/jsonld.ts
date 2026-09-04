@@ -81,6 +81,15 @@ export const faqJsonLd = {
 
 export const homepageGraph = [organizationJsonLd, faqJsonLd];
 
+// The `/developers` copy that two files need: the page's own metadata and the
+// `TechArticle` below. It was typed twice for one commit and that is exactly
+// the drift AGENTS.md warns about, so it lives here.
+export const developersPageMeta = {
+  name: 'hausfold developers: API, MCP server and OpenAPI spec',
+  description:
+    'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
+};
+
 // /developers, as structured data. It exists for one reason: a search for
 // "hausfold API" or "hausfold MCP server" should find the page that documents
 // them, and a page whose only machine-readable identity is `WebPage` gives a
@@ -95,9 +104,7 @@ export const developersJsonLd = {
   '@type': 'TechArticle',
   '@id': 'https://hausfold.co/developers/#page',
   url: 'https://hausfold.co/developers/',
-  name: 'hausfold developers: API, MCP server and OpenAPI spec',
-  description:
-    'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
+  ...developersPageMeta,
   inLanguage: 'en',
   isAccessibleForFree: true,
   publisher: { '@id': organizationId },
@@ -131,3 +138,11 @@ export const developersJsonLd = {
     },
   ],
 };
+
+// 🚨 What /developers embeds, and it is a two-node graph rather than the
+// TechArticle alone. Structured data is parsed per page, so the `@id` stubs
+// above (`publisher`, each `provider`) resolve to nothing unless the
+// Organization is in the same document: a validator reads a publisher with no
+// name, and the edge from "hausfold MCP server" back to the org — the whole
+// point of the block — is never drawn where it is being read.
+export const developersGraph = [organizationJsonLd, developersJsonLd];

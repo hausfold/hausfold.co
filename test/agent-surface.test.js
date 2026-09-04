@@ -49,6 +49,10 @@ beforeEach(() => {
 // them. The body under the header is fumadocs' generated page index.
 describe('llms.txt: the agent instruction half', () => {
   const route = readFileSync(new URL('../src/app/llms.txt/route.ts', import.meta.url), 'utf8');
+  // The HEADER template literal alone. The em-dash rule is about COPY, and
+  // AGENTS.md exempts code comments by name, so a whole-file match would fail
+  // the build for a comment the rulebook allows.
+  const header = route.slice(route.indexOf('const HEADER = `'), route.lastIndexOf('`;'));
 
   it('carries a when-to-use section under that name', () => {
     expect(route).toContain('## When to use this');
@@ -74,8 +78,14 @@ describe('llms.txt: the agent instruction half', () => {
     expect(route).toContain('https://hausfold.co/sitemap.xml');
   });
 
-  it('has no em dashes: it is copy an agent reads', () => {
-    expect(route).not.toMatch(/—|–/);
+  it('has no em dashes in the copy: it is text an agent reads', () => {
+    expect(header.length).toBeGreaterThan(500); // the slice actually found it
+    expect(header).not.toMatch(/—|–/);
+  });
+
+  it('the two search links carry a query, because a bare one answers 400', () => {
+    expect(header).toContain('https://hausfold.co/v1/search?q=');
+    expect(header).toContain('https://hausfold.co/ask?q=');
   });
 });
 

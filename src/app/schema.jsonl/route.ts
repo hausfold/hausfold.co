@@ -18,12 +18,9 @@ const LANDING = [
     description:
       'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   },
-  {
-    url: `${siteUrl}/developers/`,
-    name: 'hausfold developers: API, MCP server and OpenAPI spec',
-    description:
-      'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
-  },
+  // ⚠️ No `/developers/` row. `developersJsonLd` below already carries that
+  // URL, with the same name and description and a richer type, so a row here
+  // would be a second node for one URL and a third copy of two strings.
   {
     url: `${siteUrl}/about/`,
     name: 'about · hausfold',

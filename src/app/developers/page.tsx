@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Colophon, GithubMark } from '@/components/sheet';
 import { Command } from '@/components/command';
 import { pageMetadata } from '@/lib/page-meta';
-import { developersJsonLd } from '@/lib/jsonld';
+import { developersGraph, developersPageMeta } from '@/lib/jsonld';
 
 // /developers — the machine-facing half of the site, written down for the
 // audience that arrives with a script instead of a browser: coding agents,
@@ -28,23 +28,23 @@ import { developersJsonLd } from '@/lib/jsonld';
 // hausfold` matched none of them. The `og:` title stays short, since a link
 // card has the description under it.
 export const metadata = pageMetadata({
-  title: 'hausfold developers: API, MCP server and OpenAPI spec',
+  title: developersPageMeta.name,
   ogTitle: 'hausfold developers',
-  description:
-    'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
+  description: developersPageMeta.description,
   path: '/developers/',
 });
 
 export default function Developers() {
   return (
     <>
-      {/* The same shape `/` uses: one ld+json script, rendered from
-          src/lib/jsonld.ts so the feed at /schema.jsonl and this page cannot
-          disagree. It names the three resources a developer searches for by
-          name, which is the whole reason it exists. */}
+      {/* The same shape `/` uses: one ld+json script holding a GRAPH,
+          rendered from src/lib/jsonld.ts so the feed at /schema.jsonl and this
+          page cannot disagree. It names the three resources a developer
+          searches for by name, and carries the Organization node they point
+          at, because structured data is parsed one page at a time. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(developersJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(developersGraph) }}
       />
       <main className="sheet">
         <header className="masthead">

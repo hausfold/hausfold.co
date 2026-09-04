@@ -721,6 +721,55 @@ describe('acceptmarkdown.com conformance', () => {
     }
   });
 
+  it('merges with a Vary the asset server already sent rather than duplicating a token', async () => {
+    const assets = {
+      fetch: vi.fn(
+        async () =>
+          new Response('<html></html>', {
+            status: 200,
+            headers: { 'content-type': 'text/html', vary: 'Accept-Encoding' },
+          }),
+      ),
+    };
+    const res = await get('/about/', 'text/html', { ASSETS: assets });
+    expect(res.headers.get('vary')).toBe('Accept-Encoding, Accept, User-Agent');
+  });
+
+  it('the human 404 carries Vary too: Accept picks between the two 404s', async () => {
+    const notFound = () => ({
+      fetch: vi.fn(
+        async () =>
+          new Response('<html>gone</html>', { status: 404, headers: { 'content-type': 'text/html' } }),
+      ),
+    });
+    const browser = await get('/nope/', 'text/html', { ASSETS: notFound() });
+    expect(browser.status).toBe(404);
+    expect(browser.headers.get('content-type')).toContain('text/html');
+    expect(browser.headers.get('vary')).toContain('Accept');
+
+    const agent = await get('/nope/', undefined, { ASSETS: notFound() });
+    expect(agent.status).toBe(404);
+    expect(agent.headers.get('content-type')).toContain('text/markdown');
+    expect(agent.headers.get('vary')).toContain('Accept');
+  });
+
+  // 🚨 The asset server answers a conditional request with 304, and
+  // `new Response(body, { status: 304 })` throws. Adding a header means
+  // constructing a Response where the old code returned one untouched, so
+  // this is the ordinary second visit to any page, not an edge case.
+  it('does not throw adding Vary to a 304 from the asset server', async () => {
+    const assets = { fetch: vi.fn(async () => new Response(null, { status: 304 })) };
+    const res = await worker.fetch(
+      new Request('https://hausfold.co/about/', {
+        headers: { accept: 'text/html', 'if-none-match': '"abc"' },
+      }),
+      { ASSETS: assets },
+    );
+    expect(res.status).toBe(304);
+    expect(res.body).toBeNull();
+    expect(res.headers.get('vary')).toContain('Accept');
+  });
+
   it('406s a client that names media types and can read none of what the URL has', async () => {
     const res = await get('/about/', 'application/pdf', { ASSETS: html() });
     expect(res.status).toBe(406);

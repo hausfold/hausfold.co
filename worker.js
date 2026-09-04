@@ -1414,7 +1414,13 @@ There is no page at ${url.pathname} on hausfold.co. Try one of these instead:
 `;
   return new Response(body, {
     status: 404,
-    headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" },
+    headers: {
+      "content-type": "text/markdown; charset=utf-8",
+      "cache-control": "no-store",
+      // The other 404 representation is the human page; Accept picks between
+      // them, so this one says so too.
+      vary: "Accept, User-Agent, Accept-Encoding",
+    },
   });
 }
 
@@ -1424,6 +1430,47 @@ There is no page at ${url.pathname} on hausfold.co. Try one of these instead:
 //
 // The order matters and is the order it always was — the HTML page first,
 // then the browser's own 404, then the machine-readable rewrites.
+// The negotiation this Worker performs, as a header. `set` rather than
+// `append`: the asset server may already have sent `Vary: Accept-Encoding`,
+// and appending would ship `Accept-Encoding, Accept, User-Agent,
+// Accept-Encoding` — legal, and a duplicated token in the one header a cache
+// keys on.
+const VARY_ON = ["Accept", "User-Agent", "Accept-Encoding"];
+
+function varied(headers) {
+  const already = (headers.get("vary") ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const seen = new Set(already.map((t) => t.toLowerCase()));
+  const merged = [...already];
+  for (const token of VARY_ON) {
+    if (seen.has(token.toLowerCase())) continue;
+    seen.add(token.toLowerCase());
+    merged.push(token);
+  }
+  headers.set("vary", merged.join(", "));
+  return headers;
+}
+
+// Re-emit an asset response with that header on it.
+//
+// 🚨 The null-body statuses are not decoration. `env.ASSETS.fetch` answers a
+// conditional request (a browser revisiting a page it has an ETag for) with
+// **304**, and `new Response(body, { status: 304 })` throws a TypeError, which
+// would be a 500 on the ordinary second visit to any page. The original code
+// returned this response untouched and never had to care; adding a header
+// means constructing one, which does.
+const BODYLESS = new Set([204, 205, 304]);
+
+function withVary(res) {
+  return new Response(BODYLESS.has(res.status) ? null : res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: varied(new Headers(res.headers)),
+  });
+}
+
 function finishAssetResponse(request, url, res) {
   const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
   // HTML pages get RFC 8288 Link headers: the sitemap always, and the
@@ -1452,11 +1499,12 @@ function finishAssetResponse(request, url, res) {
     // the response varies by both wherever the outcome happens to land — and
     // a cache that has not been told that can hand an agent's markdown to the
     // next browser, or this page to the next agent.
-    headers.append("vary", "Accept, User-Agent, Accept-Encoding");
-    return new Response(res.body, { status: res.status, headers });
+    return new Response(res.body, { status: res.status, headers: varied(headers) });
   }
-  // A browser asking for a missing page keeps the human 404 page.
-  if (wantsHtml) return res;
+  // A browser asking for a missing page keeps the human 404 page — with the
+  // Vary the two 404 representations earn: a browser gets this HTML, an agent
+  // gets markdownNotFound, and the selector is the same Accept header.
+  if (wantsHtml) return withVary(res);
   // An agent asking for a missing page gets markdown that says where to
   // look instead — same status, a body it can act on.
   if (res.status === 404) return markdownNotFound(url);

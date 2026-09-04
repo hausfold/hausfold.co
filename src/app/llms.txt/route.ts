@@ -43,8 +43,8 @@ URLs, not relative paths.
 - Install a desktop: https://hausfold.co/hacker.sh. Every desktop has a URL of its own, and https://hausfold.co/haus.sh asks which; agent.txt above lists them all.
 - Latest signed release of an app, as JSON: https://hausfold.co/api/release/pounce. The bytes themselves: https://hausfold.co/download/pounce.
 - [hausfold OpenAPI spec](https://hausfold.co/openapi.json): the OpenAPI 3.1 description of the whole surface.
-- [hausfold REST API](https://hausfold.co/v1/search): the /v1 surface. /v1/search, /v1/desktops, /v1/apps, /v1/releases/<app>, /v1/batch, /v1/jobs. Cursor pagination, RFC 9457 problem+json errors, RateLimit headers.
-- [hausfold ask endpoint](https://hausfold.co/ask): natural language over the docs index, JSON or SSE.
+- [hausfold REST API](https://hausfold.co/v1/search?q=notifications): the /v1 surface. /v1/search, /v1/desktops, /v1/apps, /v1/releases/<app>, /v1/batch, /v1/jobs. Cursor pagination, RFC 9457 problem+json errors, RateLimit headers. The two search links here carry a q= on purpose: without one they answer 400, and this file is a directory of URLs that resolve.
+- [hausfold ask endpoint](https://hausfold.co/ask?q=how%20do%20I%20install%20haus): natural language over the docs index, JSON or SSE.
 - [hausfold auth guide](https://hausfold.co/auth.md): there is no authentication. This says so in the shape an agent expects, and [/.well-known/oauth-protected-resource](https://hausfold.co/.well-known/oauth-protected-resource) is the RFC 9728 document behind it.
 - [ard.json](https://hausfold.co/.well-known/ard.json): Agentic Resource Discovery catalog listing the MCP server and the OpenAPI spec.
 - [agent-card.json](https://hausfold.co/.well-known/agent-card.json): the A2A discovery card. [agent-skills/index.json](https://hausfold.co/.well-known/agent-skills/index.json) lists this domain's agent skills.

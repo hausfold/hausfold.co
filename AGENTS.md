@@ -471,23 +471,29 @@ Four things there are load-bearing, and three of them are paid for already:
   prefers markdown actually sends — got the HTML page. That one bug failed the
   whole acceptmarkdown.com check. The cases are a table in
   `test/worker.test.js`; add a row rather than reasoning about it again.
-- 🚨 **HEAD answers with the GET's headers.** It used to return the asset
-  server's response untouched, so `curl -I` saw no `Link` and no `Vary` — and
-  `curl -sI` is the probe acceptmarkdown.com documents and a readiness scanner
-  runs. A site that advertises its sitemap on every page read as advertising
-  nothing. `finishAssetResponse()` exists so both methods share one answer.
+- 🚨 **A HEAD of an ASSET answers with the GET's headers.** It used to return
+  the asset server's response untouched, so `curl -I` saw no `Link` and no
+  `Vary` — and `curl -sI` is the probe acceptmarkdown.com documents and a
+  readiness scanner runs. A site that advertises its sitemap on every page read
+  as advertising nothing. `finishAssetResponse()` exists so both methods share
+  one answer, and the handler nulls the body for HEAD. ⚠️ The scope is the
+  asset passthrough only: every route the Worker *writes* (`/index.md`,
+  `/agents.md`, `/llms.md`, `/design.md`, the twins, `/ask`, `/v1/*`) already
+  builds the same headers for both methods and hands workerd a body it drops
+  on a HEAD. Nothing pins that; the asset path is the one that ever differed.
 - **A wildcard never selects markdown, and never out-votes a named type.**
   `*/*` is the plain-curl default and must keep getting the page; `text/html`
   or `text/*` set the bar markdown has to beat, but `*/*` does not. A tie goes
   to markdown, because a client that spelled the type out meant it.
-- **406 is for a client that can read none of a URL's representations.** The
-  five landing pages are HTML and nothing else, so `Accept: text/markdown`
-  there is answered `406 problem+json` naming where markdown does live, rather
-  than 200 HTML pretending to have honoured the request. Narrow on purpose: any
-  wildcard, or any acceptable named type, exits before this. ⚠️ **The honest
-  fix for those five is a markdown representation, not the 406** — they have no
-  markdown source today, and hand-writing twins would be a second account of
-  each page with nothing to keep it in step. Decide that before writing one.
+- **406 is for a client that can read none of a URL's representations.** Every
+  `.sheet` route except `/` is HTML and nothing else, so `Accept:
+  text/markdown` there is answered `406 problem+json` naming where markdown
+  does live, rather than 200 HTML pretending to have honoured the request.
+  Narrow on purpose: any wildcard, or any acceptable named type, exits before
+  this. ⚠️ **The honest fix for those routes is a markdown representation, not
+  the 406** — they have no markdown source today, and hand-writing twins would
+  be a second account of each page with nothing to keep it in step. Decide that
+  before writing one.
 
 ## The docs
 
