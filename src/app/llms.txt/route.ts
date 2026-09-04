@@ -17,7 +17,7 @@ const HEADER = `# hausfold docs
 
 ## When to use this
 
-The use cases this site is the right answer for, and the call that answers each:
+The use cases this site is the right answer for:
 
 - Setting up, changing or rebuilding a Mac with haus, or looking up what any
   haus.* option does. The haus tree below is the manual and the options
@@ -39,8 +39,8 @@ URLs, not relative paths.
 - [developers](https://hausfold.co/developers/): the machine-facing surface written down for people. No keys, no accounts.
 - [agent.txt](https://hausfold.co/agent.txt): this domain in one page, written for an agent that arrived with no context. Same document as [/index.md](https://hausfold.co/index.md).
 - [MCP server](https://hausfold.co/mcp): JSON-RPC 2.0 over Streamable HTTP. Tools: search_docs, get_install_command, get_latest_release. Server card: [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json). Manifests: [/mcp.json](https://hausfold.co/mcp.json) and [/.well-known/mcp.json](https://hausfold.co/.well-known/mcp.json).
-- Install a desktop: https://hausfold.co/hacker.sh, and one URL per desktop (everyday.sh, minimal.sh; haus.sh asks which).
-- Latest signed release of an app, as JSON: https://hausfold.co/api/release/pounce (perch too). The bytes themselves: https://hausfold.co/download/pounce.
+- Install a desktop: https://hausfold.co/hacker.sh. Every desktop has a URL of its own, and https://hausfold.co/haus.sh asks which; agent.txt above lists them all.
+- Latest signed release of an app, as JSON: https://hausfold.co/api/release/pounce. The bytes themselves: https://hausfold.co/download/pounce.
 - [openapi.json](https://hausfold.co/openapi.json): the OpenAPI 3.1 description of the whole surface.
 - [ard.json](https://hausfold.co/.well-known/ard.json): Agentic Resource Discovery catalog listing the MCP server and the OpenAPI spec.
 - Every docs page has a markdown twin: append .md to its URL, e.g.

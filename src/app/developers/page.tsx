@@ -253,7 +253,8 @@ export default function Developers() {
         <p>
           Two more name the whole catalog rather than one document.{' '}
           <a href="/.well-known/ard.json">.well-known/ard.json</a> is the Agentic Resource
-          Discovery catalog: both MCP transports, the manifest and the OpenAPI spec. And the
+          Discovery catalog: both MCP transports, the OpenAPI spec, and the plugin and skill
+          below. And the
           repo behind this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>:
           its{' '}
           <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">

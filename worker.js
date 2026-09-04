@@ -55,8 +55,8 @@
 //                         that carries the brand
 //   agent view          → one markdown page (endpoints, auth (none), when-to-use)
 //                         for machines that ask for it by name: ?mode=agent on
-//                         /, /index.md, /agent.txt (the spelling a discovery
-//                         probe looks for agent instructions under),
+//                         /, /index.md, /agent.txt (an unreserved spelling
+//                         agent-instruction probes look under in practice),
 //                         Accept: text/markdown, or an AI-bot User-Agent. /docs/<path>.md serves each docs page's
 //                         markdown twin, and /.well-known/ carries the agent
 //                         surfaces: agent-card.json (A2A), agent-skills/index.json,
@@ -538,12 +538,16 @@ async function handleRpc(msg, env, table) {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
         serverInfo: MCP_SERVER_INFO,
+        // The docs transport's URL is read off MCP_TRANSPORTS rather than
+        // typed here: this string is what every MCP client is handed on
+        // connect, and a stale path in it fails silently.
         instructions:
           "Public, unauthenticated surface for hausfold's Mac software: install commands, " +
           "release metadata, and full-text docs search. No keys, nothing to buy. " +
-          "A docs-only transport that serves search_docs alone runs at /mcp/docs; both " +
-          "servers are listed at https://hausfold.co/mcp.json (agent-plugins.org shape) " +
-          "and https://hausfold.co/.well-known/mcp.json (flat shape).",
+          "A docs-only transport that serves search_docs alone runs at " +
+          `${MCP_TRANSPORTS["hausfold-docs"].url}; both servers are listed at ` +
+          "https://hausfold.co/mcp.json (agent-plugins.org shape) and " +
+          "https://hausfold.co/.well-known/mcp.json (flat shape).",
       });
     }
     case "ping":
@@ -1433,8 +1437,9 @@ async function serveDesign() {
 // ---------------------------------------------------------------------------
 // The agent view: one markdown page that answers what a cold agent needs to
 // know about this domain — what it is for, when to call it, and with what.
-// Served for ?mode=agent on /, for /index.md, for Accept: text/markdown, and
-// to AI-bot User-Agents that request / expecting HTML.
+// Served for ?mode=agent on /, for /index.md, for /agent.txt, for
+// Accept: text/markdown, and to AI-bot User-Agents that request / expecting
+// HTML. Every spelling is this one document; nothing is written twice.
 //
 // Built from DESKTOPS/DOWNLOADABLE so a new row reaches it without a second
 // edit. The prose is agent-facing copy (unslop rules apply); every fact is
@@ -1448,7 +1453,7 @@ const AGENT_VIEW = `# hausfold: the machine-facing surface
 
 ## When to use this
 
-The use cases this domain is the right answer for, and the call that answers each:
+The use cases this domain is the right answer for:
 
 - Setting up, changing or rebuilding a Mac with haus, or looking up what any
   haus.* option does. The manual is under /docs/haus/ (see Reading the docs), or
@@ -1497,6 +1502,9 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   https://hausfold.co/docs/haus/install.md
 - The whole HTTP surface written down: https://hausfold.co/openapi.json and
   https://hausfold.co/developers/
+- This page again, as markdown: https://hausfold.co/index.md. Both MCP servers
+  as one manifest: https://hausfold.co/mcp.json (agent-plugins.org shape) or
+  https://hausfold.co/.well-known/mcp.json (flat).
 
 ## Contact
 
@@ -1770,8 +1778,9 @@ const hausfold = {
       const botTwin =
         aiBot && /^\/docs\/.+\/$/.test(url.pathname) ? url.pathname.replace(/\/$/, "") + ".md" : null;
       if (url.pathname === "/llms.md") return serveLlmsMd(env);
-      // /agent.txt — the agent view again, at the spelling a discovery probe
-      // looks for a dedicated agent-instructions file under. Same document as
+      // /agent.txt — the agent view again. No spec reserves this path; it is
+      // a spelling agent-instruction probes look under in practice, the way
+      // llms.txt became one, so this domain offers it. Same document as
       // /index.md, not a second account of it: what an agent needs from this
       // domain is written once, in AGENT_VIEW.
       if (url.pathname === "/agent.txt") return serveAgentView("text/plain; charset=utf-8");

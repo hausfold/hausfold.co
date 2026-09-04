@@ -1418,7 +1418,7 @@
     "/agent.txt": {
       "get": {
         "summary": "The agent view again, as a dedicated agent-instructions file",
-        "description": "Byte-for-byte the document /index.md serves, at the spelling a discovery probe looks for agent instructions under, and as text/plain because the URL says .txt. Not cached; varies on Accept and User-Agent like the other spellings.",
+        "description": "Byte-for-byte the document /index.md serves, at an unreserved spelling that agent-instruction probes look under in practice (no spec reserves it, the way none reserved llms.txt), and as text/plain because the URL says .txt. Not cached; varies on Accept and User-Agent like the other spellings.",
         "operationId": "getAgentTxt",
         "responses": {
           "200": {

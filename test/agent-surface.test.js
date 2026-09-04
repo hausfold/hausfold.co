@@ -109,6 +109,23 @@ describe('/.well-known/mcp.json manifest', () => {
     expect(res.headers.get('allow')).toContain('POST');
   });
 
+  it("hands the same docs-transport URL to a connecting client as the manifests do", async () => {
+    // initialize's `instructions` is what every MCP client reads on connect,
+    // so a stale path in it fails silently. It reads MCP_TRANSPORTS; this is
+    // the check that it keeps doing so.
+    const flat = await (await worker.fetch(req('/.well-known/mcp.json'), {})).json();
+    const docsUrl = flat.servers.find((s) => s.name === 'hausfold-docs').url;
+    const res = await worker.fetch(
+      req('/mcp', {
+        method: 'POST',
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }),
+      }),
+      {},
+    );
+    const { result } = await res.json();
+    expect(result.instructions).toContain(docsUrl);
+  });
+
   it('agrees with /mcp.json on every transport URL, because both read one table', async () => {
     const flat = await (await worker.fetch(req('/.well-known/mcp.json'), {})).json();
     const plugins = await (await worker.fetch(req('/mcp.json'), {})).json();
