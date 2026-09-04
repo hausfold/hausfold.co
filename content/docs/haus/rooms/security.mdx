@@ -91,7 +91,7 @@ answer until you say otherwise:
 ```nix
 haus.lock.requirePassword = true;        # and .requirePasswordDelay
 haus.security.firewall.enable = true;    # the built-in application firewall
-haus.secrets.provider = "keychain";      # where secret values come from
+haus.secrets.provider = "keyring";       # where secret values come from
 ```
 
 The firewall is off on a fresh Mac; it is the setting to turn on for a laptop

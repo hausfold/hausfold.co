@@ -60,11 +60,11 @@ the fix for whatever's missing.
   real Focus state instead of guessing.
 
 <Callout type="tip" title="Which grants stick, and which come back">
-macOS keys a TCC grant to the thing it was given to. haus re-signs Pounce with
-your stable identity precisely so its checkbox survives rebuilds: tick it once,
-forget it. **sketchybar is the exception.** Its grant is keyed to the binary
-itself, so a rebuild that moves that binary asks again. `focus doctor` is what
-tells you which one went quiet.
+macOS keys a TCC grant to the thing it was given to. Pounce is the CI-built
+release app, signed by hausfold and notarized, and its grant is keyed to that
+signature rather than to a path: tick it once, forget it. **sketchybar is the
+exception.** Its grant is keyed to the binary itself, so a rebuild that moves
+that binary asks again. `focus doctor` is what tells you which one went quiet.
 </Callout>
 
 ## The Slack leg
