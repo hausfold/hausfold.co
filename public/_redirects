@@ -159,3 +159,10 @@
 # third party requires to resolve.
 /perch      /docs/perch/   301
 /perch/     /docs/perch/   301
+
+# The agent-skills directory. The index that lists the three skills is
+# generated at index.json (scripts/gen-agent-skills.mjs), but the path a
+# scanner probes is the directory itself, which the asset server has nothing
+# to serve. This sends it one hop to the file rather than leaving an agent
+# with a 404 at the path our own agent-card points near.
+/.well-known/agent-skills/   /.well-known/agent-skills/index.json   301

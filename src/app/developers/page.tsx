@@ -224,7 +224,11 @@ export default function Developers() {
           A machine that lands here by name, without reading this page first, is answered where it
           looks: the MCP endpoint also answers at <code>/.well-known/mcp</code>, with its server
           card at <a href="/mcp/server-card">/mcp/server-card</a> and{' '}
-          <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>.{' '}
+          <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>. Mind
+          the suffix on that first one:{' '}
+          <a href="/.well-known/mcp.json">/.well-known/mcp.json</a> is a manifest rather than a
+          transport, the same two servers as <code>/mcp.json</code> in the flat shape a
+          well-known probe reads.{' '}
           <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is the A2A
           discovery card,{' '}
           <a href="/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a>{' '}

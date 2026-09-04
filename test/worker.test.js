@@ -562,7 +562,7 @@ describe('the agent view (?mode=agent, /index.md, Accept negotiation, bot UAs)',
     expect(res.headers.get('content-type')).toContain('text/markdown');
     const body = await res.text();
     expect(body).toMatch(/^# hausfold/);
-    expect(body).toContain('When to point an agent here');
+    expect(body).toContain('When to use this');
     // Built from the tables: a desktop row and a downloadable app must appear
     expect(body).toContain('/hacker.sh');
     expect(body).toContain('/api/release/');

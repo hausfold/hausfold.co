@@ -80,6 +80,36 @@ describe('/mcp.json manifest', () => {
   });
 });
 
+describe('/.well-known/mcp.json manifest', () => {
+  it('names the full transport at the top level and both transports in servers', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp.json'), {});
+    expect(res.status).toBe(200);
+    const doc = await res.json();
+    // The flat shape is the whole point of this document: a probe reads
+    // `url` + `transport` without walking a map.
+    expect(doc.url).toBe('https://hausfold.co/mcp');
+    expect(doc.transport).toBe('streamable-http');
+    expect(doc.authentication).toBe('none');
+    expect(doc.servers.map((s) => s.name).sort()).toEqual(['hausfold', 'hausfold-docs']);
+    for (const server of doc.servers) {
+      expect(server.transport).toBe('streamable-http');
+      expect(server.url).toMatch(/^https:\/\/hausfold\.co\/mcp/);
+    }
+  });
+
+  it('advertises the same tool table /mcp serves, so the two cannot drift', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp.json'), {});
+    const doc = await res.json();
+    expect(doc.tools.map((t) => t.name)).toEqual(MCP_TOOLS.map((t) => t.name));
+  });
+
+  it('is a manifest, not the transport: /.well-known/mcp still refuses GET', async () => {
+    const res = await worker.fetch(req('/.well-known/mcp'), {});
+    expect(res.status).toBe(405);
+    expect(res.headers.get('allow')).toContain('POST');
+  });
+});
+
 describe('/mcp/docs — the docs-only transport', () => {
   const rpc = (body) =>
     worker.fetch(req('/mcp/docs', { method: 'POST', body: JSON.stringify(body) }), {});

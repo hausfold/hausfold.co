@@ -15,15 +15,19 @@ const HEADER = `# hausfold docs
 > the small native tools that live inside it. Nothing by hand, and open all the
 > way down. Everything is free and open source.
 
-## When to point an agent here
+## When to use this
 
-- The user wants to set up, change, or rebuild a Mac with haus, or asks what any
-  haus.* option does. The haus tree below is the manual; the options reference
-  is the full list.
-- The user asks about one of the apps (pounce, perch, scruff, trill). Each has
-  its own tree below; that is the manual for it.
-- You need an install command, a release version, or a docs answer in one call:
-  see the machine-facing surface section. There is an MCP endpoint.
+The use cases this site is the right answer for, and the call that answers each:
+
+- Setting up, changing or rebuilding a Mac with haus, or looking up what any
+  haus.* option does. The haus tree below is the manual and the options
+  reference is the full list; search either with the search_docs tool over MCP,
+  or read any page as markdown by appending .md to its URL.
+- Answering a question about one of the apps: pounce, perch, scruff or trill.
+  Each has its own tree below, and that tree is the manual for it.
+- Getting an install command, a release version or a download URL in one call:
+  the get_install_command and get_latest_release tools over MCP, or a plain GET
+  to the endpoints in the next section.
 - Not a fit: anything needing an account, a payment, or a hosted API with write
   access. None of that exists on this site.
 

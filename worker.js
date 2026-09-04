@@ -22,6 +22,11 @@
 //   /mcp.json           → the agent-plugins.org manifest naming both MCP
 //                         transports, so a manifest probe finds them without
 //                         reading the docs first
+//   /.well-known/mcp.json
+//                       → the same pair in the flat well-known shape (a
+//                         top-level url + transport, then `servers`), which
+//                         is what a scanner probing that path parses. Note
+//                         the suffix: /.well-known/mcp is the transport
 //   /.well-known/oauth-protected-resource
 //                       → RFC 9728 Protected Resource Metadata. The resource
 //                         is public, so authorization_servers is empty and no
@@ -633,6 +638,70 @@ function serveMcpManifest() {
       2,
     ),
     { headers: { "content-type": "application/json", "cache-control": "public, max-age=300" } },
+  );
+}
+
+// The same two transports again at /.well-known/mcp.json, in the flat shape
+// the well-known probe expects: a top-level `url` and `transport` naming the
+// full server, then `servers` for the pair. It is a different document from
+// /mcp.json, not an alias — that one is the agent-plugins.org schema, whose
+// `mcpServers` map is a client config file and not what a scanner reading a
+// well-known path parses. Both are generated from MCP_SERVER_INFO and
+// MCP_TOOLS, the same tables `initialize` and the server card answer with, so
+// the three cannot describe different servers.
+//
+// ⚠️ This is a manifest, not a transport. /.well-known/mcp is the transport
+// (POST JSON-RPC; GET is 405, as Streamable HTTP requires), and the two paths
+// differ only by the suffix — don't collapse them.
+function serveWellKnownMcpManifest() {
+  return new Response(
+    JSON.stringify(
+      {
+        name: MCP_SERVER_INFO.name,
+        title: MCP_SERVER_INFO.title,
+        description:
+          "Install commands, release metadata and full-text docs search for hausfold's " +
+          "Mac software, as MCP tools. Public and unauthenticated; every tool reads " +
+          "data a plain GET could also fetch.",
+        version: MCP_SERVER_INFO.version,
+        websiteUrl: "https://hausfold.co/developers/",
+        url: "https://hausfold.co/mcp",
+        transport: "streamable-http",
+        authentication: "none",
+        capabilities: { tools: true, resources: false, prompts: false },
+        servers: [
+          {
+            name: "hausfold",
+            url: "https://hausfold.co/mcp",
+            transport: "streamable-http",
+            authentication: "none",
+            description:
+              "Install commands, release metadata and docs search for hausfold's Mac software.",
+          },
+          {
+            name: "hausfold-docs",
+            url: "https://hausfold.co/mcp/docs",
+            transport: "streamable-http",
+            authentication: "none",
+            description: "Full-text search of the hausfold documentation alone.",
+          },
+        ],
+        tools: MCP_TOOLS,
+      },
+      null,
+      2,
+    ),
+    {
+      headers: {
+        "content-type": "application/json",
+        "cache-control": "public, max-age=300",
+        // Same CORS block as the server card: a GET a browser-resident agent
+        // may make before it ever opens a transport.
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-headers": "Content-Type, If-None-Match",
+      },
+    },
   );
 }
 
@@ -1377,14 +1446,16 @@ const AGENT_VIEW = `# hausfold: the machine-facing surface
 > small native tools that live inside it. Nothing by hand, and open all the way
 > down. Everything here is free and open source.
 
-## When to point an agent here
+## When to use this
 
-- The user wants to set up, change, or rebuild a Mac with haus, or asks what any
+The use cases this domain is the right answer for, and the call that answers each:
+
+- Setting up, changing or rebuilding a Mac with haus, or looking up what any
   haus.* option does. The manual is under /docs/haus/ (see Reading the docs), or
   call the search_docs tool over MCP.
-- The user asks about one of the apps: pounce, perch, scruff or trill. Each has
-  its own manual under /docs/<app>/.
-- You need an install command, the latest release version, or a direct download
+- Answering a question about one of the apps: pounce, perch, scruff or trill.
+  Each has its own manual under /docs/<app>/.
+- Getting an install command, the latest release version, or a direct download
   URL for one of the apps. The endpoints below answer all three.
 - Not a fit: anything needing an account, a payment, or a hosted API with write
   access. There is none of that here.
@@ -1655,6 +1726,7 @@ const hausfold = {
     // is generated from the tables above it, not hand-typed beside them.
     if (request.method === "GET") {
       if (cleanPath === "/mcp.json") return serveMcpManifest();
+      if (cleanPath === "/.well-known/mcp.json") return serveWellKnownMcpManifest();
       if (cleanPath === "/.well-known/oauth-protected-resource") {
         return new Response(JSON.stringify(PROTECTED_RESOURCE, null, 2), {
           headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
