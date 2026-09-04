@@ -1,8 +1,9 @@
 # Cloudflare Worker for hausfold.co — the landing page, /perch (and
 # /perch/privacy), and the docs tree at /docs. Every other page this file used
-# to name — /desktops/<name>, /haus, /pounce, and the seller's pages /terms and
-# /refunds (retired 2026-08-16: hausfold sells nothing) — is a 301 now; see
-# public/_redirects.
+# to name — /desktops/<name>, /haus, /pounce, and the seller's /refunds
+# (retired 2026-08-16: hausfold sells nothing) — is a 301 now; see
+# public/_redirects. (/terms was retired with it and came back 2026-09-04 as a
+# page, carrying terms of use rather than terms of sale.)
 #
 # Since 2026-08-14 there IS a `main`: `worker.js` carries the routes that can't
 # be files — `/<desktop>.sh`, `/download/<app>`, `/api/release/<app>` and, since

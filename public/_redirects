@@ -120,28 +120,37 @@
 /pounce                               /docs/pounce/                       301
 /pounce/                              /docs/pounce/                       301
 
-# /terms and /refunds, retired 2026-08-16. They existed for one reason: Paddle's
-# account review wants policy URLs on the seller's own domain, and perch was the
-# thing that was going to be sold. perch went back to MIT with no paid tier on
+# /refunds, retired 2026-08-16. It existed for one reason: Paddle's account
+# review wants policy URLs on the seller's own domain, and perch was the thing
+# that was going to be sold. perch went back to MIT with no paid tier on
 # 2026-08-15 (hausfold/perch#67), and the user's decision the next day is that
-# hausfold is not selling anything, ever — so the two pages described seats,
-# renewals and a fourteen-day window for a licence that will never exist.
+# hausfold is not selling anything, ever — so the page described a fourteen-day
+# refund window for a licence that will never exist.
 #
-# Unlike every other retirement in this file, these have no successor page: no
-# surface here carries what they carried, because what they carried is gone.
-# They land on `/#made`, the "What we make" paragraph, which is where the
+# Unlike every other retirement in this file, it has no successor page: no
+# surface here carries what it carried, because what it carried is gone. It
+# lands on `/#made`, the "What we make" paragraph, which is where the
 # answer now lives ("All of it is free and open source: ... nothing to buy").
 # That sentence and that id were added in the same commit for exactly
 # this reason — a redirect onto a page that doesn't answer the question is a
 # soft 404, and bare `/` would leave the answer below the fold.
 # ⚠️ The id was `#apps` until 2026-08-17, when the landing page became the
-# house's index and the section stopped being only apps. 🚨 These four lines
+# house's index and the section stopped being only apps. 🚨 These two lines
 # are its only callers, so renaming it again means editing them again.
 #
-# They were published from 2026-08-08 and linked from /perch's colophon, and a
-# policy URL outlives the policy, so they keep resolving forever.
-/terms      /#made  301
-/terms/     /#made  301
+# It was published from 2026-08-08 and linked from /perch's colophon, and a
+# policy URL outlives the policy, so it keeps resolving forever.
+#
+# 🚨 /terms was retired in the same commit and came BACK on 2026-09-04, as
+# `src/app/terms/page.tsx`. Its two lines were deleted from here in the same
+# commit that added the page, because this file is evaluated AHEAD of the
+# assets: a page under a live redirect never renders, whatever the route says.
+# That is not a reversal of the decision above. The retired page sold
+# something (seats, renewals, that refund window); the new one is
+# no-warranty terms of use for a free, keyless, read-only public API,
+# written because app-directory submissions require a terms URL and a 301
+# onto a landing-page paragraph is a soft 404 in that field. /refunds stays
+# retired, because there is still nothing to buy and so nothing to refund.
 /refunds    /#made  301
 /refunds/   /#made  301
 

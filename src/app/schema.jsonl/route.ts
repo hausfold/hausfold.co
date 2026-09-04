@@ -41,6 +41,12 @@ const LANDING = [
     description: 'This site collects nothing: static pages, no cookies, no analytics, no accounts.',
   },
   {
+    url: `${siteUrl}/terms/`,
+    name: 'terms · hausfold',
+    description:
+      'Terms of use for hausfold.co: everything is free, unauthenticated and offered as-is, with no warranty and no promise it stays up.',
+  },
+  {
     url: `${siteUrl}/perch/privacy/`,
     name: 'perch · privacy',
     description:

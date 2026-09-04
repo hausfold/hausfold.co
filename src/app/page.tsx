@@ -26,9 +26,11 @@ import { homepageGraph } from '@/lib/jsonld';
 // docs now, which is what the rule in the paragraph above always asked for.
 //
 // 🚨 One id is load-bearing here. `#apps` became `#made`, because the list is
-// no longer only apps — the four /terms and /refunds 301s were repointed in
-// the same commit. (`#desktops` was the other; it went to `/haus` with its
-// section and retired with it.) See `public/_redirects`.
+// no longer only apps — the /terms and /refunds 301s were repointed in the
+// same commit. Only the two /refunds lines still land here: /terms became a
+// page again on 2026-09-04 and its lines were deleted. (`#desktops` was the
+// other; it went to `/haus` with its section and retired with it.) See
+// `public/_redirects`.
 //
 // The head is `pageMetadata` and the `theme-color`/favicon pair comes from
 // `src/app/layout.tsx`.
@@ -145,19 +147,22 @@ export default function Home() {
             there is no way to install it in a line, so the link makes no
             claim the row doesn't. (It said "nothing to install" until the
             2026-08-26 sweep; trill has releases now, just no front door.) */}
-        {/* 🚨 `#made` is load-bearing: the four /terms and /refunds 301s land
-            on it, because this paragraph is where "nothing to buy" is said.
+        {/* 🚨 `#made` is load-bearing: the two /refunds 301s land on it,
+            because this paragraph is where "nothing to buy" is said.
             It was `#apps` until 2026-08-17, when the section stopped being
             only apps; `public/_redirects` was repointed in the same commit,
             and it is the only caller. Renaming it again means editing those
-            four lines again. */}
+            two lines again. (It was four lines until 2026-09-04: /terms
+            stopped redirecting here when it became a page of its own.) */}
         <section className="block" id="made">
           <h2>What we make</h2>
           {/* The free-and-open-source clause landed 2026-08-16, with the
               retirement of `/terms` and `/refunds`: nothing hausfold
-              publishes is for sale, and both of those URLs now 301 here, so
-              this paragraph is what a reader who typed `/refunds` gets as an
-              answer. It is the site's only statement of the fact.
+              publishes is for sale, so this paragraph is what a reader who
+              typed `/refunds` gets as an answer. It is the site's only
+              statement of the fact. (`/terms` stopped landing here on
+              2026-09-04 — it is a page again, carrying terms of USE, which
+              is a different document from the sales terms retired above.)
 
               🚨 The opening sentence is not new copy: it is the deleted
               `/docs` doorway's own line ("haus is the machinery; the rest

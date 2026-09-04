@@ -269,6 +269,7 @@ export default function Developers() {
 
       <Colophon>
         <Link href="/privacy">privacy</Link>
+        <Link href="/terms">terms</Link>
         <GithubMark />
       </Colophon>
     </main>
