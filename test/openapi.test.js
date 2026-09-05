@@ -98,6 +98,20 @@ describe('openapi.json vs worker.js', () => {
     expect(spec.components.schemas.jsonRpcResponse).toBeDefined();
   });
 
+  it('every tool declares an outputSchema, and the spec says so', () => {
+    // A tool added without one is a tool whose result a client has to parse
+    // out of prose. The conformance half (a real payload against the schema)
+    // is in test/mcp.test.js; this is the pin that the spec and the table
+    // still describe the same contract.
+    for (const tool of MCP_TOOLS) {
+      expect(tool.outputSchema?.type, tool.name).toBe('object');
+    }
+    expect(spec.paths['/mcp'].post.description).toContain('outputSchema');
+    expect(spec.components.schemas.jsonRpcResult.properties.result.description).toContain(
+      'outputSchema',
+    );
+  });
+
   it('gives every operation an operationId (function-calling shape)', () => {
     const missing = [];
     for (const [path, ops] of Object.entries(spec.paths)) {
