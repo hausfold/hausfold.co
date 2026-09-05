@@ -29,7 +29,8 @@ The use cases this site is the right answer for:
   the get_install_command and get_latest_release tools over MCP, or a plain GET
   to the endpoints in the next section.
 - Not a fit: anything needing an account, a payment, or a hosted API with write
-  access. None of that exists on this site.
+  access. None of that exists on this site. Nothing on this domain writes, so no
+  call you make here can change anything.
 
 ## Machine-facing surface
 
@@ -38,15 +39,21 @@ URLs, not relative paths.
 
 - [developers](https://hausfold.co/developers/): the machine-facing surface written down for people. No keys, no accounts.
 - [agent.txt](https://hausfold.co/agent.txt): this domain in one page, written for an agent that arrived with no context. Same document as [/index.md](https://hausfold.co/index.md).
-- [MCP server](https://hausfold.co/mcp): JSON-RPC 2.0 over Streamable HTTP. Tools: search_docs, get_install_command, get_latest_release. Server card: [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json). Manifests: [/mcp.json](https://hausfold.co/mcp.json) and [/.well-known/mcp.json](https://hausfold.co/.well-known/mcp.json).
+- [hausfold MCP server](https://hausfold.co/mcp): JSON-RPC 2.0 over Streamable HTTP. Tools: search_docs, get_install_command, get_latest_release. Server card: [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json). Docs-only transport: [/mcp/docs](https://hausfold.co/mcp/docs). Manifests: [/mcp.json](https://hausfold.co/mcp.json) and [/.well-known/mcp.json](https://hausfold.co/.well-known/mcp.json).
 - Install a desktop: https://hausfold.co/hacker.sh. Every desktop has a URL of its own, and https://hausfold.co/haus.sh asks which; agent.txt above lists them all.
 - Latest signed release of an app, as JSON: https://hausfold.co/api/release/pounce. The bytes themselves: https://hausfold.co/download/pounce.
-- [openapi.json](https://hausfold.co/openapi.json): the OpenAPI 3.1 description of the whole surface.
+- [hausfold OpenAPI spec](https://hausfold.co/openapi.json): the OpenAPI 3.1 description of the whole surface.
+- [hausfold REST API](https://hausfold.co/v1/search?q=notifications): the /v1 surface. /v1/search, /v1/desktops, /v1/apps, /v1/releases/<app>, /v1/batch, /v1/jobs. Cursor pagination, RFC 9457 problem+json errors, RateLimit headers. The two search links here carry a q= on purpose: without one they answer 400, and this file is a directory of URLs that resolve.
+- [hausfold ask endpoint](https://hausfold.co/ask?q=how%20do%20I%20install%20haus): natural language over the docs index, JSON or SSE.
+- [hausfold auth guide](https://hausfold.co/auth.md): there is no authentication. This says so in the shape an agent expects, and [/.well-known/oauth-protected-resource](https://hausfold.co/.well-known/oauth-protected-resource) is the RFC 9728 document behind it.
 - [ard.json](https://hausfold.co/.well-known/ard.json): Agentic Resource Discovery catalog listing the MCP server and the OpenAPI spec.
+- [agent-card.json](https://hausfold.co/.well-known/agent-card.json): the A2A discovery card. [agent-skills/index.json](https://hausfold.co/.well-known/agent-skills/index.json) lists this domain's agent skills.
 - Every docs page has a markdown twin: append .md to its URL, e.g.
-  https://hausfold.co/docs/haus/install.md
+  https://hausfold.co/docs/haus/install.md, or ask for the page itself with
+  Accept: text/markdown.
 - Whole manual as one text file: https://hausfold.co/llms-full.txt
 - Search index (Orama JSON, one entry per page section): https://hausfold.co/api/search
+- [sitemap.xml](https://hausfold.co/sitemap.xml): every indexable URL. Structured data as JSON Lines: [schema.jsonl](https://hausfold.co/schema.jsonl).
 
 `;
 

@@ -9,6 +9,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
+import { readFileSync } from 'node:fs';
 import { MCP_TOOLS, DOCS_MCP_TOOLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
@@ -39,6 +40,53 @@ beforeEach(() => {
     throw new Error(`unexpected fetch: ${typeof input === 'string' ? input : input.url}`);
   });
   resetRateLimits();
+});
+
+// llms.txt is a Next route, so the Worker tests can't reach it. What is
+// pinned here is the part a readiness scanner greps for and a person would
+// rename without thinking: the when-to-use heading, and the developer
+// resources named with the product in the name so a name-based search finds
+// them. The body under the header is fumadocs' generated page index.
+describe('llms.txt: the agent instruction half', () => {
+  const route = readFileSync(new URL('../src/app/llms.txt/route.ts', import.meta.url), 'utf8');
+  // The HEADER template literal alone. The em-dash rule is about COPY, and
+  // AGENTS.md exempts code comments by name, so a whole-file match would fail
+  // the build for a comment the rulebook allows.
+  const header = route.slice(route.indexOf('const HEADER = `'), route.lastIndexOf('`;'));
+
+  it('carries a when-to-use section under that name', () => {
+    expect(route).toContain('## When to use this');
+  });
+
+  it('points at the short form of itself', () => {
+    expect(route).toContain('https://hausfold.co/agent.txt');
+  });
+
+  it('names the developer resources with the product in the name', () => {
+    for (const name of [
+      'hausfold MCP server',
+      'hausfold OpenAPI spec',
+      'hausfold REST API',
+      'hausfold ask endpoint',
+      'hausfold auth guide',
+    ]) {
+      expect(route, name).toContain(name);
+    }
+  });
+
+  it('lists the sitemap, which is how a crawler is meant to find every URL', () => {
+    expect(route).toContain('https://hausfold.co/sitemap.xml');
+  });
+
+  it('has no em dashes in the copy: it is text an agent reads', () => {
+    expect(header.length).toBeGreaterThan(500); // the slice actually found it
+    expect(header).not.toMatch(/—|–/);
+  });
+
+  it('the two search links carry a query, because a bare one answers 400', () => {
+    expect(header).toContain('https://hausfold.co/v1/search?q=');
+    expect(header).toContain('https://hausfold.co/ask?q=');
+  });
 });
 
 describe('well-known discovery documents', () => {

@@ -24,11 +24,48 @@
   },
   "entries": [
     {
+      "identifier": "urn:air:hausfold.co:doc:agent-instructions",
+      "displayName": "hausfold.co agent instructions",
+      "type": "text/markdown",
+      "url": "https://hausfold.co/agents.md",
+      "description": "The instruction file: when to reach for this domain, what it answers, and the endpoint for each job. Served at /agents.md and /index.md, and by / to Accept: text/markdown. The longer version with the full page index is https://hausfold.co/llms.txt.",
+      "representativeQueries": [
+        "when should I use hausfold.co",
+        "what can hausfold.co answer without an account"
+      ],
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
+    },
+    {
       "identifier": "urn:air:hausfold.co:server:hausfold",
       "displayName": "hausfold.co MCP server",
       "type": "application/mcp-server-card+json",
       "url": "https://hausfold.co/mcp",
-      "capabilities": ["get_install_command", "get_latest_release", "search_docs"],
+      "capabilities": [
+        "get_install_command",
+        "get_latest_release",
+        "search_docs"
+      ],
       "description": "Public, unauthenticated MCP server over Streamable HTTP. Installs haus (a nix-darwin desktop layer for macOS) by URL, looks up the latest signed release of pounce and perch, and searches the full documentation corpus. No keys, no accounts.",
       "representativeQueries": [
         "install the hacker desktop on this Mac",
@@ -63,7 +100,9 @@
       "displayName": "hausfold.co docs MCP server",
       "type": "application/mcp-server-card+json",
       "url": "https://hausfold.co/mcp/docs",
-      "capabilities": ["search_docs"],
+      "capabilities": [
+        "search_docs"
+      ],
       "description": "The documentation half of the MCP surface as its own transport: full-text docs search alone, same index, no install or release tools. No keys, no accounts.",
       "representativeQueries": [
         "search the docs for how notifications work"

@@ -1,5 +1,5 @@
 import { getPagesInOrder } from '@/lib/source';
-import { faqJsonLd, organizationJsonLd } from '@/lib/jsonld';
+import { developersJsonLd, faqJsonLd, organizationJsonLd } from '@/lib/jsonld';
 import { siteUrl } from '@/lib/shared';
 
 // The structured-data feed robots.txt advertises via its `schemamap:` line
@@ -18,12 +18,9 @@ const LANDING = [
     description:
       'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   },
-  {
-    url: `${siteUrl}/developers/`,
-    name: 'developers · hausfold',
-    description:
-      'The public machine-facing surface of hausfold.co: installers, release metadata, docs search, an MCP endpoint for coding agents. No keys, no accounts.',
-  },
+  // ⚠️ No `/developers/` row. `developersJsonLd` below already carries that
+  // URL, with the same name and description and a richer type, so a row here
+  // would be a second node for one URL and a third copy of two strings.
   {
     url: `${siteUrl}/about/`,
     name: 'about · hausfold',
@@ -63,6 +60,10 @@ export async function GET() {
   const lines = [
     organizationJsonLd,
     faqJsonLd,
+    // The developer resources by name, so a feed reader that never renders
+    // /developers still learns that "hausfold MCP server" and "hausfold
+    // OpenAPI spec" are things with URLs on this domain.
+    developersJsonLd,
     ...LANDING.map(({ url, name, description }) => ({
       '@context': 'https://schema.org',
       '@type': 'WebPage',

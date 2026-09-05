@@ -320,6 +320,31 @@ jobs:
             verdict "hausfold.co/ did not answer"
           fi
 
+          # Markdown content negotiation, at the edge. `npm test` proves the
+          # Worker's own logic and cannot prove that a request carrying this
+          # header reaches it, or that Cloudflare did not answer from a cached
+          # HTML variant first. The q-value shape is the one that failed the
+          # readiness audit: `text/markdown;q=0.9` was read as a refusal.
+          #
+          # Uses its own curl rather than probe(), which sends no Accept. The
+          # three resets are probe()'s and are not optional: on a transport
+          # failure curl writes nothing, and stale files from the last route
+          # would be asserted against instead.
+          : >"$BODY"; : >"$HEAD"; : >"$ERR"
+          probe_loc=""
+          neg=$(curl -sS --max-time 20 -A "$UA" -H 'x-hausfold-smoke: deploy' \
+                -H 'Accept: text/markdown;q=0.9, text/html;q=0.8' \
+                -o "$BODY" -D "$HEAD" -w '%{http_code}' \
+                "https://hausfold.co/" 2>"$ERR") || neg=""
+          probe_code=${neg:-000}
+          if [ "$neg" = 200 ] \
+             && grep -qi '^content-type: *text/markdown' "$HEAD" \
+             && grep -qi '^vary:.*accept' "$HEAD"; then
+            echo "ok    hausfold.co/ negotiates markdown (q-values honoured, Vary set)"
+          else
+            verdict "hausfold.co/ did not answer markdown with Vary to 'Accept: text/markdown;q=0.9, text/html;q=0.8'"
+          fi
+
           if [ "$blocked" -gt 0 ]; then
             echo "::warning::Cloudflare challenged $blocked of this step's routes, so they went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
           fi

@@ -57,8 +57,11 @@
 //                         for machines that ask for it by name: ?mode=agent on
 //                         /, /index.md, /agent.txt (an unreserved spelling
 //                         agent-instruction probes look under in practice),
-//                         Accept: text/markdown, or an AI-bot User-Agent. /docs/<path>.md serves each docs page's
-//                         markdown twin, and /.well-known/ carries the agent
+//                         Accept: text/markdown, or an AI-bot User-Agent.
+//                         /docs/<path>.md serves each docs page's markdown
+//                         twin, and a docs page asked for with
+//                         Accept: text/markdown answers with its twin at the
+//                         page's own URL. /.well-known/ carries the agent
 //                         surfaces: agent-card.json (A2A), agent-skills/index.json,
 //                         api-catalog (RFC 9727), and /mcp again.
 //   everything else     → the static export in ./out (the [assets] binding)
@@ -1411,8 +1414,112 @@ There is no page at ${url.pathname} on hausfold.co. Try one of these instead:
 `;
   return new Response(body, {
     status: 404,
-    headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" },
+    headers: {
+      "content-type": "text/markdown; charset=utf-8",
+      "cache-control": "no-store",
+      // The other 404 representation is the human page; Accept picks between
+      // them, so this one says so too.
+      vary: "Accept, User-Agent, Accept-Encoding",
+    },
   });
+}
+
+// Everything the Worker adds to a response that came off the asset server.
+// Split out of the handler so a HEAD can be built from the same answer a GET
+// gets: same status, same headers, no body.
+//
+// The order matters and is the order it always was — the HTML page first,
+// then the browser's own 404, then the machine-readable rewrites.
+// The negotiation this Worker performs, as a header. `set` rather than
+// `append`: the asset server may already have sent `Vary: Accept-Encoding`,
+// and appending would ship `Accept-Encoding, Accept, User-Agent,
+// Accept-Encoding` — legal, and a duplicated token in the one header a cache
+// keys on.
+const VARY_ON = ["Accept", "User-Agent", "Accept-Encoding"];
+
+function varied(headers) {
+  const already = (headers.get("vary") ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const seen = new Set(already.map((t) => t.toLowerCase()));
+  const merged = [...already];
+  for (const token of VARY_ON) {
+    if (seen.has(token.toLowerCase())) continue;
+    seen.add(token.toLowerCase());
+    merged.push(token);
+  }
+  headers.set("vary", merged.join(", "));
+  return headers;
+}
+
+// Re-emit an asset response with that header on it.
+//
+// 🚨 The null-body statuses are not decoration. `env.ASSETS.fetch` answers a
+// conditional request (a browser revisiting a page it has an ETag for) with
+// **304**, and `new Response(body, { status: 304 })` throws a TypeError, which
+// would be a 500 on the ordinary second visit to any page. The original code
+// returned this response untouched and never had to care; adding a header
+// means constructing one, which does.
+const BODYLESS = new Set([204, 205, 304]);
+
+function withVary(res) {
+  return new Response(BODYLESS.has(res.status) ? null : res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: varied(new Headers(res.headers)),
+  });
+}
+
+function finishAssetResponse(request, url, res) {
+  const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
+  // HTML pages get RFC 8288 Link headers: the sitemap always, and the
+  // page's markdown twin where one exists — so an agent that fetched
+  // HTML can find the text representation without re-reading llms.txt.
+  // Any successful HTML response gets them: a browser, and curl with its
+  // */* default alike.
+  if (res.status === 200 && (res.headers.get("content-type") ?? "").includes("text/html")) {
+    const bare = url.pathname.replace(/\/$/, "");
+    // Reaching here for a URL that HAS a twin means the client did not want
+    // markdown (the negotiation above would have served it), so the only
+    // representation still on the table is HTML. A client that refuses HTML
+    // and every wildcard has told us it cannot read the one thing this URL
+    // has, and 406 is the honest answer.
+    if (refusesEveryRepresentation(request, false)) return notAcceptable(url);
+    const links = ['</sitemap.xml>; rel="sitemap"'];
+    if (bare === "") {
+      links.push('</index.md>; rel="alternate"; type="text/markdown"');
+    } else if (/^\/docs\//.test(bare)) {
+      links.push(`<${bare}.md>; rel="alternate"; type="text/markdown"`);
+    }
+    const headers = new Headers(res.headers);
+    headers.append("link", links.join(", "));
+    // Every HTML page, not only the ones with a twin. The Worker reads Accept
+    // and User-Agent on every page request before it falls through here, so
+    // the response varies by both wherever the outcome happens to land — and
+    // a cache that has not been told that can hand an agent's markdown to the
+    // next browser, or this page to the next agent.
+    return new Response(res.body, { status: res.status, headers: varied(headers) });
+  }
+  // A browser asking for a missing page keeps the human 404 page — with the
+  // Vary the two 404 representations earn: a browser gets this HTML, an agent
+  // gets markdownNotFound, and the selector is the same Accept header.
+  if (wantsHtml) return withVary(res);
+  // An agent asking for a missing page gets markdown that says where to
+  // look instead — same status, a body it can act on.
+  if (res.status === 404) return markdownNotFound(url);
+  // The asset server answers a non-GET to any path with 405. For a
+  // machine that reads better as problem+json naming what IS allowed.
+  if (res.status === 405) {
+    return problemResponse(
+      405,
+      "Method not allowed",
+      `${request.method} is not served at this path; the static site answers GET. JSON APIs are under /v1; see https://hausfold.co/openapi.json.`,
+      "method_not_allowed",
+      { allow: "GET, HEAD" },
+    );
+  }
+  return res;
 }
 
 // The family's visual standard at one public URL. The file itself lives in
@@ -1462,8 +1569,15 @@ The use cases this domain is the right answer for:
   Each has its own manual under /docs/<app>/.
 - Getting an install command, the latest release version, or a direct download
   URL for one of the apps. The endpoints below answer all three.
+- Drawing something that carries the family's look. The visual standard the
+  whole family shares is one GET: https://hausfold.co/design.md.
 - Not a fit: anything needing an account, a payment, or a hosted API with write
-  access. There is none of that here.
+  access. There is none of that here. Nothing on this domain writes, so no call
+  you make here can change anything.
+
+This page is the instruction file. It is served at /index.md and /agent.txt,
+and / answers with it to ?mode=agent or to Accept: text/markdown. /llms.txt is
+the same guidance followed by the full page index.
 
 ## Machine-readable surface
 
@@ -1505,6 +1619,24 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
 - This page again, as markdown: https://hausfold.co/index.md. Both MCP servers
   as one manifest: https://hausfold.co/mcp.json (agent-plugins.org shape) or
   https://hausfold.co/.well-known/mcp.json (flat).
+
+### The rest of the developer surface, by name
+
+- REST: https://hausfold.co/v1/search, /v1/desktops, /v1/apps,
+  /v1/releases/<app>, /v1/batch, /v1/jobs. Cursor pagination, RFC 9457
+  problem+json errors, RateLimit headers.
+- Natural language over the same index: GET or POST https://hausfold.co/ask
+  (JSON, or SSE when you ask for a stream).
+- Auth: there is none. https://hausfold.co/auth.md says so in the shape an
+  agent expects to read it, and
+  https://hausfold.co/.well-known/oauth-protected-resource is the RFC 9728
+  document behind it.
+- Discovery: https://hausfold.co/.well-known/ard.json,
+  https://hausfold.co/.well-known/agent-card.json,
+  https://hausfold.co/.well-known/agent-skills/index.json,
+  https://hausfold.co/.well-known/api-catalog, https://hausfold.co/mcp.json.
+- Every indexable URL: https://hausfold.co/sitemap.xml. Structured data as
+  JSON Lines: https://hausfold.co/schema.jsonl.
 
 ## Contact
 
@@ -1549,11 +1681,13 @@ async function serveDocsMd(twinPath, env, atHtmlUrl = false) {
     headers: {
       "content-type": "text/markdown; charset=utf-8",
       // A twin asked for by its own .md URL is one representation of one URL
-      // and caches like any other. A twin served to a bot AT THE HTML PAGE'S
-      // URL is not: Cloudflare ignores Vary beyond the basics, so a cached
-      // copy would reach the next browser as markdown. Same reason the agent
-      // view is no-store.
+      // and caches like any other. A twin served AT THE HTML PAGE'S URL is
+      // not: it is the negotiated half of two representations, so it carries
+      // Vary for any cache that honours it and no-store for Cloudflare, which
+      // ignores Vary beyond the basics and would otherwise hand this markdown
+      // to the next browser. Same reason the agent view is no-store.
       "cache-control": atHtmlUrl ? "no-store" : "public, max-age=300",
+      ...(atHtmlUrl ? { vary: "Accept, User-Agent, Accept-Encoding" } : {}),
     },
   });
 }
@@ -1611,16 +1745,83 @@ function serveApiCatalog() {
 const AI_BOT_UA =
   /GPTBot|ClaudeBot|ChatGPT-User|PerplexityBot|Google-Extended|Applebot-Extended|ora-agent|DeepSeekBot/i;
 
-// Explicit text/markdown in the Accept header, ignoring q=0. */* (curl's
-// default) deliberately does NOT match: a plain curl of / should still get
-// the HTML page, the way it always has.
-function acceptsMarkdown(request) {
-  const accept = request.headers.get("accept") ?? "";
-  return accept.split(",").some((entry) => {
-    const [type, ...params] = entry.trim().split(";");
-    if (type.trim().toLowerCase() !== "text/markdown") return false;
-    return !params.some((p) => p.trim().toLowerCase().startsWith("q=0"));
-  });
+// RFC 9110 §12.5.1 Accept parsing: every media range the client listed, with
+// the quality it put on it. A range with no `q` is 1; only `q=0` refuses.
+//
+// 🚨 This replaced a `startsWith("q=0")` test that read **any** q beginning
+// "0" as a refusal, so `Accept: text/markdown;q=0.9, text/html;q=0.8` — the
+// shape an agent sends when it can read both and prefers markdown — scored
+// markdown as unacceptable and served the HTML page. Parse the number.
+// Returns null when there is no Accept header at all, which is not the same
+// as an empty one: no header means "no preference", not "nothing is fine".
+function acceptRanges(request) {
+  const header = request.headers.get("accept");
+  if (header === null) return null;
+  const ranges = new Map();
+  for (const entry of header.split(",")) {
+    const [range, ...params] = entry.trim().split(";");
+    const type = range.trim().toLowerCase();
+    if (!type) continue;
+    let q = 1;
+    for (const param of params) {
+      const [key, value] = param.split("=");
+      if (key?.trim().toLowerCase() !== "q") continue;
+      const parsed = Number.parseFloat(value);
+      q = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 1) : 1;
+    }
+    // A repeated range keeps the best quality it was given, so a malformed
+    // duplicate cannot silently downgrade one the client meant.
+    ranges.set(type, Math.max(ranges.get(type) ?? 0, q));
+  }
+  return ranges;
+}
+
+// Does this client want the markdown representation more than the HTML one?
+//
+// Two deliberate narrowings, both of them load-bearing:
+//
+//   - markdown counts only when the client NAMED text/markdown. `*/*` (curl's
+//     default) and `text/*` do not select it, so a plain curl of / still gets
+//     the page it always got.
+//   - html's quality comes from `text/html` or `text/*` and never from `*/*`.
+//     A wildcard means "whatever you have"; it must not out-vote a type the
+//     client asked for by name. A tie goes to markdown, because a client that
+//     spelled out text/markdown at all had a reason to.
+function prefersMarkdown(request) {
+  const ranges = acceptRanges(request);
+  if (!ranges) return false;
+  const markdown = ranges.get("text/markdown") ?? 0;
+  if (markdown === 0) return false;
+  const html = Math.max(ranges.get("text/html") ?? 0, ranges.get("text/*") ?? 0);
+  return markdown >= html;
+}
+
+// RFC 9110 §15.5.7. The client enumerated what it can read, and none of this
+// URL's representations is on the list. Narrow on purpose: a wildcard of any
+// kind is never a refusal, so no browser and no plain curl reaches this, and
+// neither does a client that named a type we can actually serve.
+function refusesEveryRepresentation(request, markdownAvailable) {
+  const ranges = acceptRanges(request);
+  if (!ranges || ranges.size === 0) return false;
+  const acceptable = (type) => (ranges.get(type) ?? 0) > 0;
+  if (acceptable("*/*") || acceptable("text/*")) return false;
+  if (acceptable("text/html")) return false;
+  if (markdownAvailable && acceptable("text/markdown")) return false;
+  return true;
+}
+
+// The 406 body. problem+json like every other machine-readable error here, and
+// it names the markdown that DOES exist rather than just refusing: an agent
+// that asked this page for markdown is one redirect of attention away from
+// /index.md, /llms.txt or a docs twin.
+function notAcceptable(url) {
+  return problemResponse(
+    406,
+    "Not acceptable",
+    `${url.pathname} has one representation, text/html. Markdown lives at https://hausfold.co/index.md (this whole domain in one page), https://hausfold.co/llms.txt (the docs index), and at any docs page's URL plus .md.`,
+    "not_acceptable",
+    { vary: "Accept, User-Agent, Accept-Encoding" },
+  );
 }
 
 async function serveInstaller(desktop, url, env) {
@@ -1771,12 +1972,16 @@ const hausfold = {
     if (request.method === "GET" || request.method === "HEAD") {
       const isHome = url.pathname === "/";
       const aiBot = AI_BOT_UA.test(request.headers.get("user-agent") ?? "");
+      const wantsMarkdown = prefersMarkdown(request);
       const docsTwin = DOCS_MD.test(url.pathname) ? url.pathname : null;
-      // A bot asking for a docs PAGE (no .md suffix) gets its twin instead.
-      // A bot asking for / gets the agent view (handled below); that check
-      // runs first, so botTwin here is always a docs path.
-      const botTwin =
-        aiBot && /^\/docs\/.+\/$/.test(url.pathname) ? url.pathname.replace(/\/$/, "") + ".md" : null;
+      // A client that asked for markdown, by header or by being a bot that
+      // reads text better than it renders JS, gets a docs PAGE as its twin.
+      // The homepage's own markdown is the agent view, checked below; this
+      // one only ever matches a docs path.
+      const pageTwin =
+        (aiBot || wantsMarkdown) && /^\/docs\/.+\/$/.test(url.pathname)
+          ? url.pathname.replace(/\/$/, "") + ".md"
+          : null;
       if (url.pathname === "/llms.md") return serveLlmsMd(env);
       // /agent.txt — the agent view again. No spec reserves this path; it is
       // a spelling agent-instruction probes look under in practice, the way
@@ -1788,59 +1993,24 @@ const hausfold = {
       if (
         url.pathname === "/index.md" ||
         (isHome && url.searchParams.get("mode") === "agent") ||
-        (isHome && (acceptsMarkdown(request) || aiBot))
+        (isHome && (wantsMarkdown || aiBot))
       ) {
         return serveAgentView();
       }
-      if (botTwin) return serveDocsMd(botTwin, env, true);
+      if (pageTwin) return serveDocsMd(pageTwin, env, true);
     }
     if (env.ASSETS) {
       const res = await env.ASSETS.fetch(request);
-      const wantsHtml = (request.headers.get("accept") ?? "").includes("text/html");
-      // A browser asking for a missing page keeps the human 404 page.
-      if (request.method === "HEAD") return res;
-      // HTML pages get RFC 8288 Link headers: the sitemap always, and the
-      // page's markdown twin where one exists — so an agent that fetched
-      // HTML can find the text representation without re-reading llms.txt.
-      // Any successful HTML response gets them: a browser, and curl with its
-      // */* default alike.
-      if (
-        res.status === 200 &&
-        (res.headers.get("content-type") ?? "").includes("text/html")
-      ) {
-        const bare = url.pathname.replace(/\/$/, "");
-        const links = ['</sitemap.xml>; rel="sitemap"'];
-        if (bare === "") {
-          links.push('</index.md>; rel="alternate"; type="text/markdown"');
-        } else if (/^\/docs\//.test(bare)) {
-          links.push(`<${bare}.md>; rel="alternate"; type="text/markdown"`);
-        }
-        const headers = new Headers(res.headers);
-        headers.append("link", links.join(", "));
-        if (bare === "") {
-          // The homepage has two representations (markdown and HTML) and
-          // two selectors for them (Accept, AI-bot User-Agents).
-          headers.append("vary", "Accept, User-Agent, Accept-Encoding");
-        }
-        return new Response(res.body, { status: res.status, headers });
-      }
-      // A browser asking for a missing page keeps the human 404 page.
-      if (wantsHtml) return res;
-      // An agent asking for a missing page gets markdown that says where to
-      // look instead — same status, a body it can act on.
-      if (res.status === 404) return markdownNotFound(url);
-      // The asset server answers a non-GET to any path with 405. For a
-      // machine that reads better as problem+json naming what IS allowed.
-      if (res.status === 405) {
-        return problemResponse(
-          405,
-          "Method not allowed",
-          `${request.method} is not served at this path; the static site answers GET. JSON APIs are under /v1; see https://hausfold.co/openapi.json.`,
-          "method_not_allowed",
-          { allow: "GET, HEAD" },
-        );
-      }
-      return res;
+      const out = finishAssetResponse(request, url, res);
+      // A HEAD answers with the GET's status and headers and an empty body.
+      // 🚨 It used to return the asset server's response untouched, which
+      // meant `curl -I` saw neither the Link headers nor Vary — and `curl -sI`
+      // is exactly the probe acceptmarkdown.com's own check runs, so the site
+      // read as "no sitemap advertised, no negotiation" to anything that
+      // looked without downloading the page.
+      return request.method === "HEAD"
+        ? new Response(null, { status: out.status, headers: out.headers })
+        : out;
     }
     return text("hausfold — https://hausfold.co\n", 404);
   },

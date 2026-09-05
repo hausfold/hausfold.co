@@ -74,7 +74,7 @@ Every page is a Next route; `public/` is assets only.
 | Route | Source | What it is, and the rule that isn't obvious |
 |---|---|---|
 | `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the two `/refunds` 301s land on `#made`. Also the **JSON-LD graph** (Organization + FAQPage, shared with `/index.jsonld` and `/schema.jsonl` through `src/lib/jsonld.ts`). Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
-| `/developers` | `src/app/developers/page.tsx` | the machine-facing surface written down for people. Every fact in it is read off `worker.js` and `openapi.json`; an endpoint it names that the Worker does not answer is a claim the products don't back |
+| `/developers` | `src/app/developers/page.tsx` | the machine-facing surface written down for people. Every fact in it is read off `worker.js` and `openapi.json`; an endpoint it names that the Worker does not answer is a claim the products don't back. The second page carrying **JSON-LD** (`developersGraph` in `src/lib/jsonld.ts`, also a line in `/schema.jsonl`): a `TechArticle` whose `about` is three `WebAPI` nodes named "hausfold REST API", "hausfold MCP server" and "hausfold OpenAPI spec", because a name-based search for those is what should land here. ⚠️ It embeds the **graph**, Organization included, not the `TechArticle` alone: structured data is parsed per page, so the `@id` stubs inside it resolve to nothing without the org node in the same document. 🚨 Its `<title>` names the resources for the same reason the `WebAPI` nodes exist, and is **not** the `x · hausfold` shape the other sheets use. The title and description are `developersPageMeta`, one export feeding the head and the JSON-LD; that is also why `src/app/schema.jsonl/route.ts` has **no** `/developers/` row, unlike every other landing page |
 | `/about`, `/contact`, `/privacy`, `/terms` | `src/app/{about,contact,privacy,terms}/page.tsx` | house-level trust pages (the first three added 2026-09-03 for agent-readability, `/terms` on 2026-09-04 because app-directory submissions require the URL): who the house is, where mail goes, what the site itself collects (nothing), and on what terms it is offered (as-is, no warranty, 600 requests a minute). 🚨 `/terms` is the one under a **deleted redirect** — `public/_redirects` sent it to `/#made` until the commit that added the page, and that file is evaluated ahead of the assets, so the two lines had to go in the same commit or the route would never render. Not product sheets — each points outward (the first three to the docs trees, `/terms` to `/developers` and `/privacy`) instead of restating what it links to — and none of the four carries a product claim. Their facts: the mail address is `julien@`, the site is static, and any claim about app behaviour points at the docs rather than restating it. `/privacy` deliberately does not merge with `/perch/privacy`, whose URL is load-bearing (App Store) |
 | `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
 | `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
@@ -452,10 +452,48 @@ prose at `/developers`; the drift rules:
 | `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these three** the way it pins the installers and `/v1`, so the spec and the Worker can drift here until someone adds them. (The MCP well-knowns beside them *are* pinned now, which is what the row used to say of all eight.) |
 | `/sitemap.xml`, `/schema.jsonl`, `/index.jsonld` | build-time routes (`src/app/sitemap.ts`, `schema.jsonl`, `index.jsonld`) | generated from the page table / `src/lib/jsonld.ts`, never hand-typed |
 
-The markdown negotiation (homepage via `Accept`, docs pages via `.md`, bots via
-User-Agent) carries `Vary: Accept, User-Agent, Accept-Encoding` on `/`, and the
-agent view itself is `no-store`: Cloudflare ignores most `Vary`, so a cached
-markdown homepage could reach a browser.
+### Markdown content negotiation
+
+`Accept: text/markdown` is answered on `/` (the agent view) and on every docs
+page (its twin, served at the page's own URL). Bots keep their User-Agent
+route, and `.md` keeps working as the explicit spelling. **Every** HTML
+response carries `Vary: Accept, User-Agent, Accept-Encoding` — not only the
+URLs with a twin, because the Worker reads both headers on every page request
+before it falls through to the assets — and any markdown served at an HTML
+URL is `no-store`, because Cloudflare ignores most `Vary` and a cached
+markdown page would reach the next browser.
+
+Four things there are load-bearing, and three of them are paid for already:
+
+- 🚨 **q-values are parsed as numbers.** The first version tested
+  `startsWith("q=0")`, which read `q=0.9` as a refusal, so
+  `text/markdown;q=0.9, text/html;q=0.8` — what an agent that reads both and
+  prefers markdown actually sends — got the HTML page. That one bug failed the
+  whole acceptmarkdown.com check. The cases are a table in
+  `test/worker.test.js`; add a row rather than reasoning about it again.
+- 🚨 **A HEAD of an ASSET answers with the GET's headers.** It used to return
+  the asset server's response untouched, so `curl -I` saw no `Link` and no
+  `Vary` — and `curl -sI` is the probe acceptmarkdown.com documents and a
+  readiness scanner runs. A site that advertises its sitemap on every page read
+  as advertising nothing. `finishAssetResponse()` exists so both methods share
+  one answer, and the handler nulls the body for HEAD. ⚠️ The scope is the
+  asset passthrough only: every route the Worker *writes* (`/index.md`,
+  `/agent.txt`, `/llms.md`, `/design.md`, the twins, `/ask`, `/v1/*`) already
+  builds the same headers for both methods and hands workerd a body it drops
+  on a HEAD. Nothing pins that; the asset path is the one that ever differed.
+- **A wildcard never selects markdown, and never out-votes a named type.**
+  `*/*` is the plain-curl default and must keep getting the page; `text/html`
+  or `text/*` set the bar markdown has to beat, but `*/*` does not. A tie goes
+  to markdown, because a client that spelled the type out meant it.
+- **406 is for a client that can read none of a URL's representations.** Every
+  `.sheet` route except `/` is HTML and nothing else, so `Accept:
+  text/markdown` there is answered `406 problem+json` naming where markdown
+  does live, rather than 200 HTML pretending to have honoured the request.
+  Narrow on purpose: any wildcard, or any acceptable named type, exits before
+  this. ⚠️ **The honest fix for those routes is a markdown representation, not
+  the 406** — they have no markdown source today, and hand-writing twins would
+  be a second account of each page with nothing to keep it in step. Decide that
+  before writing one.
 
 ## The docs
 

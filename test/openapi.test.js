@@ -58,6 +58,20 @@ describe('openapi.json vs worker.js', () => {
     }
   });
 
+  it('describes the agent instruction file at both of its spellings', () => {
+    for (const path of ['/index.md', '/agent.txt']) {
+      expect(spec.paths[path], path).toBeDefined();
+    }
+  });
+
+  it('writes the content-negotiation contract down where a client reads it', () => {
+    // The Worker's negotiation is not visible from a path list: an agent
+    // learns it from info.description or not at all.
+    for (const claim of ['Vary: Accept', 'text/markdown', 'q-values', '406']) {
+      expect(spec.info.description, claim).toContain(claim);
+    }
+  });
+
   it('describes the agent discovery documents', () => {
     for (const path of ['/mcp.json', '/.well-known/mcp.json', '/.well-known/mcp', '/agent.txt', '/.well-known/oauth-protected-resource', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
       expect(spec.paths[path], path).toBeDefined();
