@@ -13,6 +13,19 @@
 # entirely. A bot falls under the most specific group that names it, so the
 # training-only groups below override the open default for those two bots.
 #
+# Content Signals (2026-09-06, contentsignals.org). `Content-Signal:` says what
+# a crawler may do with what it fetched, which Allow/Disallow never did:
+#   search    build a search index and return links and excerpts
+#   ai-input  feed it to a model at query time (RAG, grounding, AI answers)
+#   ai-train  train or fine-tune a model on it
+# All three are `yes`, because that is what the tiers above already decided:
+# the docs exist to be read by machines, and GPTBot and ClaudeBot are invited
+# as training crawlers. On `*` the same three yeses reach every crawler not
+# named here, which is the open default made explicit. The line sits in every
+# group that allows anything: a bot reads only the one group that names it, so
+# a signal on `*` alone never reaches the invited bots it is written for. The
+# Disallow groups carry none, since nothing may be collected there anyway.
+#
 # The `Sitemap:` line landed 2026-09-03 with the sitemap itself — Next mints it
 # at build time from the same page table the site renders from
 # (src/app/sitemap.ts), so it updates with the content instead of drifting.
@@ -22,21 +35,26 @@
 
 User-agent: *
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # AI crawlers, invited explicitly. GPTBot and ClaudeBot are training
 # crawlers; we want them too, since the docs exist to be read by machines.
 # OAI-SearchBot and PerplexityBot feed the answer engines that cite sources.
 User-agent: GPTBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: OAI-SearchBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: ClaudeBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 User-agent: PerplexityBot
 Allow: /
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # Training-only crawlers.
 User-agent: CCBot
