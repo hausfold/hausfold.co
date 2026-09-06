@@ -47,11 +47,14 @@ export const DOWNLOADABLE = new Set(["pounce", "perch"]);
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
 
 // RFC 9728 Protected Resource Metadata. The resource this host serves is
-// public: no authorization server stands behind it, so authorization_servers
-// is empty rather than pointing at an issuer that does not exist, and no
-// scopes are required. The document exists so the URL auth.md names (and a
-// 401 would advertise, if an endpoint ever started requiring credentials)
-// resolves today instead of 404ing an agent mid-discovery.
+// public: no token is needed to reach it, so authorization_servers is empty
+// and no scopes are required. ⚠️ Empty even though AUTHORIZATION_SERVER below
+// exists — that issuer grants nothing, and RFC 9728 says the list names the
+// servers a client CAN use with the resource, so naming it would send a
+// client after a token that cannot exist. The document exists so the URL
+// auth.md names (and a 401 would advertise, if an endpoint ever started
+// requiring credentials) resolves today instead of 404ing an agent
+// mid-discovery.
 export const PROTECTED_RESOURCE = {
   resource: "https://hausfold.co/",
   resource_documentation: "https://hausfold.co/auth.md",
@@ -60,6 +63,62 @@ export const PROTECTED_RESOURCE = {
   bearer_methods_supported: ["header"],
   response_types_supported: [],
 };
+
+// RFC 8414 Authorization Server Metadata. hausfold.co issues nothing, and the
+// document says so in the protocol's own vocabulary: grant_types_supported and
+// response_types_supported are empty, so a conforming client learns before
+// its first request that no token can be had here. That is more than a 404
+// tells it — a 404 leaves "no auth" and "not implemented" indistinguishable,
+// which is the same reason PROTECTED_RESOURCE is published for a resource
+// that needs no token.
+//
+// The three endpoints it names are real, because auth.md's own rule is that a
+// discovery document naming a URL that 404s is worse than no document:
+// /oauth/authorize answers that there is no client to authorize,
+// /oauth/token answers RFC 6749's `unsupported_grant_type`, and
+// /.well-known/jwks.json is an empty key set, the same shape as
+// SIGNATURE_DIRECTORY below. serveOAuthEndpoint() in worker.js is the whole
+// of it. There is deliberately NO /.well-known/openid-configuration: OIDC
+// metadata must claim an id_token signing algorithm, and this host signs no
+// identity, so an honest OIDC document cannot be written.
+//
+// ⚠️ `issuer` has no trailing slash. RFC 8414 §3 derives the well-known URL
+// from it and a client compares the value it read against the one it used,
+// byte for byte; PROTECTED_RESOURCE.resource keeps its slash because RFC 9728
+// works the other way round. Both are deliberate.
+//
+// The lists whose ABSENCE would imply a capability are [] rather than
+// omitted: with no grant_types_supported a reader assumes authorization_code
+// and implicit, with no token_endpoint_auth_methods_supported it assumes
+// client_secret_basic, and with no response_modes_supported it assumes query
+// and fragment. registration_endpoint, revocation_endpoint and
+// introspection_endpoint are absent because absent is what they mean.
+export const AUTHORIZATION_SERVER = {
+  issuer: "https://hausfold.co",
+  authorization_endpoint: "https://hausfold.co/oauth/authorize",
+  token_endpoint: "https://hausfold.co/oauth/token",
+  jwks_uri: "https://hausfold.co/.well-known/jwks.json",
+  service_documentation: "https://hausfold.co/auth.md",
+  op_policy_uri: "https://hausfold.co/privacy/",
+  op_tos_uri: "https://hausfold.co/terms/",
+  scopes_supported: [],
+  response_types_supported: [],
+  response_modes_supported: [],
+  grant_types_supported: [],
+  token_endpoint_auth_methods_supported: [],
+  // The auth.md convention's registration-and-claim block, in the document
+  // the convention says it belongs in. public/auth.md repeats it so that file
+  // stands alone; the two move together.
+  agent_auth: {
+    skill: "https://hausfold.co/auth.md",
+    identity_types_supported: ["anonymous"],
+  },
+};
+
+// The JWK Set /.well-known/jwks.json serves and AUTHORIZATION_SERVER.jwks_uri
+// names. No token is ever signed on this host, so there is no key to publish;
+// an empty set, like SIGNATURE_DIRECTORY, is the honest statement of that.
+export const JWKS = { keys: [] };
 
 // The Web Bot Auth directory (draft-ietf-httpbis-unprompted-auth): the set of
 // Ed25519 keys this host signs its responses with. hausfold.co signs no

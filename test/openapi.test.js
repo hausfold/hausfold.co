@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
-import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS } from '../worker-config.js';
+import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
 
 const spec = JSON.parse(readFileSync(new URL('../public/openapi.json', import.meta.url), 'utf8'));
 
@@ -73,7 +73,7 @@ describe('openapi.json vs worker.js', () => {
   });
 
   it('describes the agent discovery documents', () => {
-    for (const path of ['/mcp.json', '/.well-known/mcp.json', '/.well-known/mcp', '/agent.txt', '/.well-known/oauth-protected-resource', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
+    for (const path of ['/mcp.json', '/.well-known/mcp.json', '/.well-known/mcp', '/agent.txt', '/.well-known/oauth-protected-resource', '/.well-known/oauth-authorization-server', '/.well-known/jwks.json', '/oauth/authorize', '/oauth/token', '/.well-known/http-message-signatures-directory', '/mcp/docs']) {
       expect(spec.paths[path], path).toBeDefined();
       for (const [method, op] of Object.entries(spec.paths[path])) {
         expect(op.operationId, `${method} ${path}`).toBeDefined();
@@ -143,9 +143,25 @@ describe('openapi.json vs worker.js', () => {
     for (const section of ['Discover', 'Pick a method', 'agent_auth', 'Register', 'Claim', 'Exchange', 'Use the access_token', 'Errors', 'Revocation']) {
       expect(md, section).toContain(section);
     }
-    for (const keyword of ['agent_auth', 'identity_endpoint', 'identity_assertion', 'service_auth', 'id-jag', 'WWW-Authenticate', 'oauth-protected-resource', 'http-message-signatures-directory']) {
+    for (const keyword of ['agent_auth', 'identity_endpoint', 'identity_assertion', 'service_auth', 'id-jag', 'WWW-Authenticate', 'oauth-protected-resource', 'oauth-authorization-server', 'unsupported_grant_type', 'http-message-signatures-directory']) {
       expect(md, keyword).toContain(keyword);
     }
+  });
+
+  it('every endpoint the authorization server metadata names is a documented path', () => {
+    // The metadata is served from AUTHORIZATION_SERVER; the spec is typed by
+    // hand. A URL renamed in one and not the other is a discovery document
+    // pointing at a route the spec does not admit to.
+    for (const field of ['authorization_endpoint', 'token_endpoint', 'jwks_uri']) {
+      const { pathname } = new URL(AUTHORIZATION_SERVER[field]);
+      expect(spec.paths[pathname], `${field} -> ${pathname}`).toBeDefined();
+    }
+    expect(AUTHORIZATION_SERVER.issuer).toBe('https://hausfold.co');
+    expect(spec.components.schemas.problem.properties.code.description).toContain('no_grant_types');
+    // The spec's description of the document must make the same claim the
+    // document does: empty grant types, real endpoints.
+    expect(spec.paths['/.well-known/oauth-authorization-server'].get.description).toContain('grant_types_supported');
+    expect(spec.info.description).toContain('oauth-authorization-server');
   });
 
   it('points contact and externalDocs at the developers page', () => {
