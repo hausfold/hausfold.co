@@ -1,198 +1,109 @@
 ---
 title: Focus
-description: One quiet switch (bar pill, palette command and CLI) for macOS Do Not Disturb, your Slack status, and your own hooks on both edges, plus the named states around it, which your Mac can enter on its own.
+description: One switch for Do Not Disturb, Slack and your own hooks, plus scenes your Mac enters by itself.
 icon: moon
 related:
   - title: "Bar"
-    description: "Where the focus pill sits, and the rest of what the bar shows."
+    description: "Where the moon pill sits."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
 ---
 
-**Focus** is the quiet room. One switch (the moon pill in the bar, "Toggle
-Focus" in the palette, or `focus` in a terminal) turns macOS **Do Not
-Disturb** on or off, optionally sets your **Slack status** (and silences
-Slack on your phone), and runs any **hooks** you add. All three surfaces
-call the same engine, so they can never disagree.
-
-Quiet is one **scene**: the built-in one. [Declare others](#scenes) and
-`focus scene recording` puts the whole Mac into that state at once.
-
-Because focus drives the *real* macOS Focus, everything Focus already does
-comes along free: with **Share Across Devices** on, your iPhone and iPad
-focus too, and the "allowed to break through" list is whatever you've curated
-in System Settings.
-
-## Enable it
+**Focus** is the quiet switch. The moon pill, **Toggle Focus** in the palette
+and `focus` in a terminal all turn macOS **Do Not Disturb** on or off, set your
+Slack status if you ask, and run your scripts on both edges.
 
 ```nix
 haus.focus.enable = true;
 ```
 
-## How the toggle works
-
-Apple ships no public API or CLI to set a Focus; every "focus CLI" on
-GitHub is secretly a Shortcuts wrapper. haus takes a different path: macOS
-has a hidden keyboard shortcut slot (*"Turn Do Not Disturb On/Off,"*
-symbolic hotkey **175**, disabled by default), and every rebuild binds it
-declaratively to **⌃⌥⇧⌘ F13**, a chord nothing else uses. `focus` synthesizes
-that keypress; nothing to author by hand, and the binding heals itself on
-every rebuild.
-
-State is read from the Focus database (`~/Library/DoNotDisturb/DB`) when the
-calling app has Full Disk Access, so the pill stays truthful even when you
-toggle Focus from Control Center or your phone; without that grant, focus
-falls back to remembering its own last toggle.
+It flips the real Do Not Disturb, never a named Focus mode, so your iPhone goes
+quiet too with **Share Across Devices** on, and your own allow list still applies.
 
 ## The grants
 
-Synthesizing a keypress needs **Accessibility**; exact state reads need
-**Full Disk Access**. Both are granted per app, in System Settings →
-Privacy & Security. Run `focus doctor` any time to check each piece and print
-the fix for whatever's missing.
+haus presses macOS's own Do Not Disturb hotkey (slot 175, bound to ⌃⌥⇧⌘ F13
+on every rebuild), which needs **Accessibility**; reading the
+state back needs **Full Disk Access**. Grant both to Pounce.app, the launcher's
+palette, once; every surface rides them. `focus doctor` checks each and
+prints the fix.
 
-- **Palette toggles work out of the box**: they run under the Pounce
-  daemon, which already holds Accessibility.
-- **For the bar pill**, add **sketchybar** to Accessibility.
-- **For the CLI**, add your terminal.
-- **Optional but recommended**: add the signed **Pounce.app** (or your
-  terminal + sketchybar) to **Full Disk Access** so `focus status` reads the
-  real Focus state instead of guessing.
-
-<Callout type="tip" title="Which grants stick, and which come back">
-macOS keys a TCC grant to the thing it was given to. Pounce is the CI-built
-release app, signed by hausfold and notarized, and its grant is keyed to that
-signature rather than to a path: tick it once, forget it. **sketchybar is the
-exception.** Its grant is keyed to the binary itself, so a rebuild that moves
-that binary asks again. `focus doctor` is what tells you which one went quiet.
-</Callout>
+Without a launcher the invoking app needs them itself (sketchybar's is
+asked again after a rebuild moves it), and without Full Disk Access `focus
+status` is its own memory and drifts when you toggle from Control Center or
+your phone.
 
 ## The Slack leg
 
-macOS Focus already silences Slack banners *on your Mac*. The Slack leg does
-what Focus can't: tells your **teammates** (status + 🔕) and silences your
-**phone** (Slack's own DND, all devices). Your previous status is stashed
-and restored on unquiet.
+This leg tells your **teammates** and silences your **phone**, which Do Not
+Disturb can't, then puts your status back. It needs a personal token, so it's
+off by default:
 
-It's off by default because it needs a personal Slack token:
+1. Create a Slack app at [api.slack.com/apps](https://api.slack.com/apps),
+   "From scratch".
+2. Under **OAuth & Permissions → User Token Scopes** add `users.profile:write`
+   and `dnd:write`, install it, and copy the **User OAuth Token** (`xoxp-…`).
+3. Turn the leg on, rebuild, then `haus-secret --check` asks for the token
+   once and keeps it wherever [`haus.secrets.provider`](/docs/haus/rooms/security)
+   points, never in your config or the store.
 
-<Steps>
+```nix
+haus.focus.slack = {
+  enable = true;
+  statusText = "heads down";
+  statusEmoji = ":no_bell:";
+  snooze = true;          # Slack's own DND, every device
+};
+```
 
-1. Create a Slack app for yourself at [api.slack.com/apps](https://api.slack.com/apps)
-   ("From scratch", any name, your workspace).
+`focus doctor` verifies it; `tokenCommand`, host-only, fetches it another way.
 
-2. Under **OAuth & Permissions → User Token Scopes**, add
-   `users.profile:write` and `dnd:write`, then **Install to Workspace** and
-   copy the **User OAuth Token** (`xoxp-…`).
+## Hooks
 
-3. Turn the Slack leg on in your host file:
-
-   ```nix
-   haus.focus.slack = {
-     enable = true;
-     statusText = "heads down";
-     statusEmoji = ":no_bell:";
-     snooze = true;                 # silence Slack push on all devices
-   };
-   ```
-
-4. Rebuild, then hand haus the token once. No secret ever touches your config
-   or the Nix store — the room only declares that it needs one:
-
-   ```bash
-   haus-secret --check      # asks for SLACK_USER_TOKEN, stores it in your provider
-   ```
-
-</Steps>
-
-`focus doctor` verifies the token against Slack's API once it's wired.
-
-## Hooks: make focus yours
-
-Every focus/unquiet also runs your own scripts, called with `on` or `off`.
-Failures are logged, never fatal:
+Every switch runs your scripts with `on` or `off`; a failing one is logged,
+never fatal.
 
 ```nix
 haus.focus.hooks = [
-  ./onair-light.sh              # turn the Elgato red while quiet
-  "/Users/ada/bin/pause-music"  # strings run as-is, so $HOME paths work
+  ./onair-light.sh              # copied into the store
+  "/Users/ada/bin/pause-music"  # strings run as-is
 ];
 ```
 
-Ideas: pause the music, flip an on-air light, start a Harvest timer, shove
-chatty apps to a parking workspace with `aerospace`.
-
 ## Scenes
 
-Quiet is a state your Mac can be in. So is *recording*, *presenting*,
-*reading on the sofa*, each one a handful of settings you'd otherwise flip by
-hand, in the same order, every time. A **scene** is that handful, named:
+A scene is the handful of settings you'd otherwise flip by hand, in the same
+order, every time:
 
 ```nix
 haus.focus.scenes.recording = {
   description = "camera on, nothing interrupts";
-  dnd = true;                       # the default
-  preventSleep = true;              # no screensaver mid-take
-  audio.input = "Studio Mic";       # exact device name
+  dnd = true;
+  preventSleep = true;              # a caffeinate hold until you leave
+  audio.input = "Studio Mic";       # as SwitchAudioSource -a -t input prints it
   apps.open = [ "OBS" ];
-  apps.closeOnExit = true;          # quit OBS again on the way out
-  hooks = [ ./key-light-on.sh ];    # called with "on" / "off"
+  apps.closeOnExit = true;          # only what the scene started
+  hooks = [ ./key-light-on.sh ];
 };
 ```
 
-Then:
-
-```bash
-focus scene recording     # enter it
-focus scene list          # what's declared, and which one is on
-focus scene status        # the active scene, or "quiet", or "off"
-focus scene off           # leave — and go back to normal
+```sh
+focus scene recording
+focus scene list
+focus scene status        # the scene, "quiet", or "off"
+focus scene off
 ```
 
-**One at a time.** Entering a scene leaves whichever one was running, so your
-Mac is only ever in one of them. Leaving puts back what the scene displaced:
-Do Not Disturb goes back to what it was (set `restorePreviousState = false` if
-you'd rather leaving always end quiet-off), the input device is restored, and
-the `caffeinate` hold is released.
+One at a time: entering a scene leaves the last one, and leaving reverses only
+what the scene changed, so one entered while already quiet leaves you quiet
+(`restorePreviousState = false` if you'd rather not). The pill and `focus off`
+release a scene too, hold and microphone included.
 
-A scene only ever reverses what it actually changed. Start a quiet scene while
-you're *already* quiet and it doesn't touch Do Not Disturb at all, so leaving
-it doesn't un-quiet you, and your Slack status isn't disturbed on the way in or
-out.
-
-**The pill releases a scene too.** Clicking the moon (or running `focus off`,
-or the palette command) while a scene is on leaves the scene properly (hold
-released, microphone back) rather than only un-quieting and leaving the rest
-behind.
-
-`quiet` is the built-in scene: it's what the pill, the palette command and
-`focus on` already enter, so it's a name you can't redeclare. Everything you'd
-want to change about it lives in `haus.focus.slack` and `haus.focus.hooks`.
-(`off`, `list` and `status` are taken for the same reason: they're the words
-after `focus scene`. A scene named for one of them is refused at build time
-rather than being unreachable at runtime.)
-
-**Every scene is a palette row.** With the [Launcher](/docs/haus/rooms/launcher)
-room on, declaring `haus.focus.scenes.recording` gets you a **Scene: recording**
-command in ⌘Space, a **Leave Scene** beside it, and a line each on the
-cheatsheet's Palette Commands page. Entering a scene never means remembering its
-name in a terminal.
-
-<Callout type="tip" title="Give a scene a key">
-A scene has no pill of its own, so the palette is the short way in and a leader
-chord is the shorter one: any free letter, since an assertion catches a clash
-with a roster app or a built-in launch key:
-
-```nix
-haus.keys.leaderExtras = [
-  {
-    key = "r";
-    command = "$HOME/.local/bin/focus scene recording";
-    caption = "recording scene";
-  }
-];
-```
-</Callout>
+`quiet` is the built-in scene, shaped by `slack` and `hooks`; it, `off`, `list`
+and `status` are refused as names. With [the
+launcher](/docs/haus/rooms/launcher) on, every scene is a **Scene: recording**
+row in ⌘Space with **Leave Scene** beside it; `haus.keys.leaderExtras` with
+`command = "$HOME/.local/bin/focus scene recording"` gives it a key.
 
 ### Enter a scene automatically
 
@@ -200,119 +111,31 @@ Give a scene a `when` and it enters itself:
 
 ```nix
 haus.focus.scenes.evening = {
-  description = "wind down";
   when = {
-    time = "19:00-23:00";   # 24-hour; an end before the start wraps midnight
-    days = [ "mon" "tue" "wed" "thu" "fri" ];   # empty means every day
+    time = "19:00-23:00";   # an end before the start wraps midnight
+    days = [ "mon" "tue" "wed" "thu" "fri" ];
   };
 };
 ```
 
-Three more conditions you can add: `wifi = [ "Home" ]` (the exact network name,
-host-only, since it names one router in one building), `power = "battery"` or
-`"ac"`, and `displays = 2` for "at least two screens", which is how you say
-*docked*. Everything you set has to hold at once, so pick the few that describe
-the moment.
+Also `wifi = [ "Home" ]` (the exact SSID), `power = "battery"` or `"ac"`, and
+`displays = 2` (at least two), which is how you say *docked*. All must hold at
+once, checked every `haus.focus.triggers.interval` seconds (30).
 
-**The rule that makes this safe to leave running: it never overrides a state you
-chose.**
+**It never overrides a state you chose.** It enters on the edge where a
+condition turns true, only from a Mac with no scene on and not quiet, and
+leaves only what it entered. Leave the evening scene at 19:10 and you're out
+for the night; already quiet at 19:00 and that evening is missed.
 
-- It enters a scene the moment a condition *becomes* true, and only when no
-  scene is on and you aren't already quiet.
-- It ends the scene when the condition stops holding, putting back what the
-  scene changed, exactly as `focus scene off` would.
-- It leaves only a scene it entered itself. One you entered by hand is yours,
-  whatever its conditions do.
-- Leave an automatic scene by hand and it stays left, until its condition goes
-  false and true again. Walk out of the evening scene at 19:10 and you're out
-  for the night, not back in it thirty seconds later.
-- Each turn of a condition is offered once. If 19:00 arrives while you're in
-  another scene, or already quiet, that evening is simply missed; it won't jump
-  in at 19:40 when you go free.
-
-A check runs every `haus.focus.triggers.interval` seconds (30 by default), and
-only on a Mac where some scene actually declares a condition.
-
-<Callout type="warn" title="Check what your Mac will tell it">
-`focus auto --probe` prints what each probe reads right now (the clock, the
-power source, your Wi-Fi network, the screen count) and what every condition
-makes of it. Run it once before trusting a rule: **macOS can refuse to report
-your SSID** (it sits behind Location Services), and a network it won't name
-matches nothing. Once a scene depends on one, `focus doctor` flags it too.
+<Callout type="warn" title="Probe it first">
+`focus auto --probe` prints what each probe reads and what every condition
+makes of it. macOS can refuse to report your SSID (it sits behind Location
+Services), and a network it won't name matches nothing.
 </Callout>
 
-### What a scene doesn't do
-
-- **It doesn't close the apps it opened unless you ask.** Quitting something
-  you were mid-sentence in isn't a decision a config file should make by
-  default; set `apps.closeOnExit = true` and it becomes one you made. Even
-  then it only quits what the scene actually *started*: an app you already had
-  open is not a lever the scene pulled, so leaving never takes it down with it.
-  The quit is the polite one, the same message ⌘Q sends, so an app with unsaved
-  work still gets to ask.
-- **A scene with no `when` waits for you:** a chord, a palette item or a
-  terminal. Conditions are opt-in per scene, and there are five of them
-  [above](#enter-a-scene-automatically): the clock, the weekday, your network,
-  the power source and the screen count. There's no "when the camera turns on".
-- **`audio.input` wants the exact device name**, as `SwitchAudioSource -a -t
-  input` prints it. Naming one that isn't plugged in logs a line and moves on;
-  the rest of the scene still applies.
-- **Its hooks are host-only.** A scene is data a shared desktop may ship, but
-  the arbitrary script one runs belongs to a person, so `hooks`, and
-  `when.wifi` because it names one router in one building, are lines you write
-  in your own host file. Everything else about a scene a desktop can publish,
-  including the conditions that enter it.
-
-## Honest scope
-
-- focus flips the built-in **Do Not Disturb**, not named Focus modes; those
-  have no symbolic hotkey to bind.
-- It doesn't manage **which apps or people break through**; that's your
-  Focus allowlist, curated once in System Settings → Focus.
-- Without Full Disk Access, `focus status` is focus's own memory and can
-  drift if you toggle Focus elsewhere; it self-corrects on the next real
-  toggle either way.
-
-## Troubleshooting
-
-**Run `focus doctor` first**: it checks the hotkey binding, the state-read
-grant, and the Slack token, and prints the fix for each.
-
-- **Click the pill, nothing happens**: sketchybar has no Accessibility
-  grant yet; toggle from the palette instead, which needs nothing.
-- **Pill shows the wrong state after toggling from Control Center**: grant
-  Full Disk Access for exact reads.
-- **The chord stopped working**: a rebuild re-binds hotkey 175 on every
-  activation and heals it.
-- **A scene isn't entering by itself**: run `focus auto --probe`. It shows every
-  condition against what your Mac reports right now, which catches the common
-  cause: a fact macOS won't give up, usually your SSID. If everything reads
-  right and it still didn't fire, the condition most likely turned true while
-  you were in another scene or already quiet: that turn is offered once and
-  passed. It comes back the next time the condition does.
-
-## Works with
-
-- **[Bar](/docs/haus/rooms/bar)**: the pill that shows the state and toggles it.
-- **[Launcher](/docs/haus/rooms/launcher)**: the same toggle as a command.
-
-Neither is required: with both rooms off, `focus` is still a CLI.
-
-## Remove it
-
-```nix
-haus.focus.enable = false;
-```
-
-The pill, the command, the CLI and any scenes go. The Do Not Disturb chord this room adds is
-one macOS ships disabled, so switching the room off leaves a spare binding
-rather than taking one away, the opposite of the launcher's ⌘Space.
-
-`haus.focus.slack.tokenCommand` is host-only, and you only need it to fetch the
-token some other way — left empty, haus asks you for it and keeps it wherever
-[`haus.secrets.provider`](/docs/haus/rooms/security) points.
+`hooks` and `when.wifi` are host-only: a script is a person's, an SSID names
+one building. The rest a desktop can ship.
 
 ## Options
 
-Every setting, with types and defaults:
-[Focus](/docs/haus/reference/options#focus).
+[Every setting, with types and defaults](/docs/haus/reference/options#focus).
