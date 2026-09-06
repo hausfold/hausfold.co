@@ -38,6 +38,19 @@
 //                         host signs responses with. It signs none, so the
 //                         keys array is empty — an honest directory, not a
 //                         fabricated key
+//   /.well-known/oauth-authorization-server
+//                       → RFC 8414 Authorization Server Metadata for an issuer
+//                         that grants nothing: grant_types_supported and
+//                         response_types_supported are empty, and the three
+//                         endpoints it names answer for real (next rows), so
+//                         no URL in a discovery document dead-ends
+//   /oauth/authorize    → 400 problem+json: no client is registered, so RFC
+//                         6749 §4.1.2.1 forbids the redirect and the caller is
+//                         told instead
+//   /oauth/token        → POST: 400 {error: "unsupported_grant_type"} in RFC
+//                         6749 §5.2's own shape; GET is 405
+//   /.well-known/jwks.json
+//                       → an empty JWK Set: nothing is signed, so no key
 //   /.well-known/mcp/server-card.json
 //                       → the MCP server card (SEP-2127 shape), derived from
 //                         the same MCP_TOOLS table the /mcp endpoint serves,
@@ -96,6 +109,8 @@ import {
   MCP_PROTOCOL_VERSION,
   PROTECTED_RESOURCE,
   SIGNATURE_DIRECTORY,
+  AUTHORIZATION_SERVER,
+  JWKS,
 } from "./worker-config.js";
 import { rateLimit, problemResponse, PROBLEM_CONTENT_TYPE } from "./worker-api.js";
 
@@ -708,6 +723,126 @@ function serveWellKnownMcpManifest() {
     },
   );
 }
+
+// ---------------------------------------------------------------------------
+// The OAuth endpoints /.well-known/oauth-authorization-server names. Nothing
+// on this host needs authorizing, and each answers with the protocol's own
+// word for that instead of a 404 (AUTHORIZATION_SERVER in worker-config.js
+// says why the document exists at all).
+//
+//   - /oauth/authorize: no client is registered, so every request arrives
+//     with an invalid client_id, and RFC 6749 §4.1.2.1 says the server MUST
+//     NOT redirect in that case and SHOULD tell the resource owner instead.
+//     The owner here is an agent, so it is told in problem+json. GET and POST
+//     both, as §3.1 allows; anything else is 405.
+//   - /oauth/token: RFC 6749 §5.2 fixes the error shape (JSON `error`, 400,
+//     no-store), so that is what it answers rather than problem+json:
+//     unsupported_grant_type for any grant_type, invalid_request for none.
+//     POST only, as §3.2 requires; GET is 405 with Allow.
+//   - /.well-known/jwks.json: an empty JWK Set. Nothing is signed.
+//
+// All three are rate-limited like /v1 and carry the RateLimit trio: they are
+// endpoints an agent calls, not documents it reads once, and the metadata
+// document itself stays with its siblings above (cacheable, no limiter).
+function serveOAuthEndpoint(request, cleanPath) {
+  const rl = rateLimit(request);
+  if (!rl.ok) {
+    return problemResponse(
+      429,
+      "Too many requests",
+      "Rate limit exceeded. Wait and retry.",
+      "rate_limited",
+      rl.headers,
+    );
+  }
+  if (cleanPath === "/.well-known/jwks.json") {
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return problemResponse(
+        405,
+        "Method not allowed",
+        "The key set is read-only: GET or HEAD.",
+        "method_not_allowed",
+        { allow: "GET, HEAD", ...rl.headers },
+      );
+    }
+    return new Response(JSON.stringify(JWKS, null, 2), {
+      headers: {
+        "content-type": "application/json",
+        "cache-control": "public, max-age=300",
+        ...rl.headers,
+      },
+    });
+  }
+  if (cleanPath === "/oauth/authorize") {
+    if (!["GET", "HEAD", "POST"].includes(request.method)) {
+      return problemResponse(
+        405,
+        "Method not allowed",
+        "The authorization endpoint answers GET and POST, and has nothing to authorize either way.",
+        "method_not_allowed",
+        { allow: "GET, POST", ...rl.headers },
+      );
+    }
+    return problemResponse(
+      400,
+      "Nothing to authorize",
+      "hausfold.co registers no OAuth clients and supports no grant types, so there is no " +
+        "authorization request this endpoint can honour and no redirect_uri it may send " +
+        "you to. Everything on this host is public: send no credentials. " +
+        "See https://hausfold.co/auth.md.",
+      "no_grant_types",
+      rl.headers,
+    );
+  }
+  // /oauth/token
+  if (request.method !== "POST") {
+    return problemResponse(
+      405,
+      "Method not allowed",
+      "The token endpoint answers POST only (RFC 6749 section 3.2), and issues nothing when it does.",
+      "method_not_allowed",
+      { allow: "POST", ...rl.headers },
+    );
+  }
+  return serveOAuthTokenError(request, rl.headers);
+}
+
+async function serveOAuthTokenError(request, headers) {
+  // Form-encoded is what RFC 6749 specifies; JSON is what half the clients
+  // send anyway. Read either, and treat anything unreadable as "no grant".
+  let grantType = null;
+  try {
+    const body = await request.text();
+    const contentType = request.headers.get("content-type") ?? "";
+    grantType = contentType.includes("json")
+      ? (JSON.parse(body || "{}")?.grant_type ?? null)
+      : new URLSearchParams(body).get("grant_type");
+  } catch {
+    grantType = null;
+  }
+  if (typeof grantType !== "string" || grantType === "") grantType = null;
+  const shown = grantType === null ? null : grantType.slice(0, 64);
+  const error = shown === null ? "invalid_request" : "unsupported_grant_type";
+  const error_description =
+    shown === null
+      ? "The request names no grant_type. It would not matter which: hausfold.co supports no " +
+        "grant types and issues no tokens. Everything on this host is public."
+      : `hausfold.co supports no grant types, so '${shown}' cannot be honoured. No token is ` +
+        "needed to call anything on this host, and none is issued.";
+  return new Response(
+    JSON.stringify({ error, error_description, error_uri: "https://hausfold.co/auth.md" }, null, 2),
+    {
+      status: 400,
+      headers: {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        pragma: "no-cache",
+        ...headers,
+      },
+    },
+  );
+}
+
 
 // ---------------------------------------------------------------------------
 // /v1 — the versioned REST surface over the same public data /mcp reads.
@@ -1628,6 +1763,9 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   agent expects to read it, and
   https://hausfold.co/.well-known/oauth-protected-resource is the RFC 9728
   document behind it.
+  https://hausfold.co/.well-known/oauth-authorization-server is the RFC 8414
+  metadata of an issuer that grants nothing (grant_types_supported is empty),
+  so there is no token to go and get.
 - Discovery: https://hausfold.co/.well-known/ard.json,
   https://hausfold.co/.well-known/agent-card.json,
   https://hausfold.co/.well-known/agent-skills/index.json,
@@ -1932,9 +2070,16 @@ const hausfold = {
     }
     // The discovery documents agents probe before ever calling anything. Each
     // is generated from the tables above it, not hand-typed beside them.
-    if (request.method === "GET") {
+    // GET or HEAD: workerd drops the body on a HEAD, and `curl -I` of a
+    // discovery document should see its headers, not the site's 404.
+    if (request.method === "GET" || request.method === "HEAD") {
       if (cleanPath === "/mcp.json") return serveMcpManifest();
       if (cleanPath === "/.well-known/mcp.json") return serveWellKnownMcpManifest();
+      if (cleanPath === "/.well-known/oauth-authorization-server") {
+        return new Response(JSON.stringify(AUTHORIZATION_SERVER, null, 2), {
+          headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
+        });
+      }
       if (cleanPath === "/.well-known/oauth-protected-resource") {
         return new Response(JSON.stringify(PROTECTED_RESOURCE, null, 2), {
           headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
@@ -1945,6 +2090,11 @@ const hausfold = {
           headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
         });
       }
+    }
+    // The endpoints the authorization server metadata names. Any method:
+    // each decides for itself what it answers.
+    if (["/.well-known/jwks.json", "/oauth/authorize", "/oauth/token"].includes(cleanPath)) {
+      return serveOAuthEndpoint(request, cleanPath);
     }
     if (cleanPath === "/ask") {
       if (request.method !== "GET" && request.method !== "POST") {

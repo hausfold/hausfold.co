@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import { readFileSync } from 'node:fs';
-import { MCP_TOOLS, DOCS_MCP_TOOLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY } from '../worker-config.js';
+import { MCP_TOOLS, DOCS_MCP_TOOLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -112,6 +112,147 @@ describe('well-known discovery documents', () => {
   it('the exported documents are the same objects the routes serve', () => {
     expect(PROTECTED_RESOURCE.resource).toBe('https://hausfold.co/');
     expect(SIGNATURE_DIRECTORY.keys).toEqual([]);
+  });
+
+  it('a HEAD of a discovery document answers 200, not the site 404', async () => {
+    for (const path of ['/.well-known/oauth-protected-resource', '/.well-known/oauth-authorization-server', '/.well-known/mcp.json']) {
+      const res = await worker.fetch(req(path, { method: 'HEAD' }), {});
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get('content-type'), path).toContain('application/json');
+    }
+  });
+});
+
+describe('RFC 8414 authorization server metadata (an issuer that grants nothing)', () => {
+  it('serves the document, and it says up front that no token can be had', async () => {
+    const res = await worker.fetch(req('/.well-known/oauth-authorization-server'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('application/json');
+    const doc = await res.json();
+    expect(doc.issuer).toBe('https://hausfold.co');
+    // Empty, not absent: absent grant types default to authorization_code
+    // and implicit, which would be a claim.
+    expect(doc).toHaveProperty('grant_types_supported', []);
+    expect(doc).toHaveProperty('response_types_supported', []);
+    expect(doc).toHaveProperty('token_endpoint_auth_methods_supported', []);
+    expect(doc.service_documentation).toBe('https://hausfold.co/auth.md');
+    expect(doc.agent_auth).toEqual({
+      skill: 'https://hausfold.co/auth.md',
+      identity_types_supported: ['anonymous'],
+    });
+    expect(doc).toEqual(AUTHORIZATION_SERVER);
+  });
+
+  it('issuer has no trailing slash and is the origin the well-known URL hangs off', () => {
+    // RFC 8414 §3: the well-known URL is built from the issuer, and a client
+    // compares the two strings byte for byte.
+    expect(AUTHORIZATION_SERVER.issuer.endsWith('/')).toBe(false);
+    expect(new URL(AUTHORIZATION_SERVER.issuer).origin).toBe('https://hausfold.co');
+    expect(AUTHORIZATION_SERVER.issuer).not.toMatch(/[?#]/);
+  });
+
+  it('names no endpoint that 404s on this host', async () => {
+    // auth.md's rule: a discovery document pointing at a dead URL is worse
+    // than none. Every URL the metadata names on this origin must be
+    // answered by the Worker itself (the assets stub answers 404 to
+    // everything, so a route that fell through would fail here).
+    for (const field of ['authorization_endpoint', 'token_endpoint', 'jwks_uri']) {
+      const url = new URL(AUTHORIZATION_SERVER[field]);
+      expect(url.origin, field).toBe('https://hausfold.co');
+      const res = await worker.fetch(req(url.pathname, { method: field === 'token_endpoint' ? 'POST' : 'GET' }), {});
+      expect(res.status, field).not.toBe(404);
+    }
+  });
+
+  it('/oauth/authorize refuses in problem+json and never redirects', async () => {
+    for (const method of ['GET', 'POST']) {
+      const res = await worker.fetch(
+        req('/oauth/authorize?response_type=code&client_id=x&redirect_uri=https%3A%2F%2Fevil.example%2Fcb', { method }),
+        {},
+      );
+      expect(res.status, method).toBe(400);
+      expect(res.headers.get('location'), method).toBeNull();
+      expect(res.headers.get('content-type'), method).toBe('application/problem+json');
+      expect(res.headers.get('ratelimit-limit'), method).toBeTruthy();
+      const body = await res.json();
+      expect(body.code, method).toBe('no_grant_types');
+      expect(body.detail, method).toContain('auth.md');
+    }
+    const res = await worker.fetch(req('/oauth/authorize', { method: 'DELETE' }), {});
+    expect(res.status).toBe(405);
+    expect(res.headers.get('allow')).toBe('GET, POST');
+  });
+
+  it('/oauth/token answers RFC 6749 §5.2 errors, POST only', async () => {
+    const get = await worker.fetch(req('/oauth/token'), {});
+    expect(get.status).toBe(405);
+    expect(get.headers.get('allow')).toBe('POST');
+
+    const form = await worker.fetch(
+      req('/oauth/token', {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: 'grant_type=client_credentials&client_id=x&client_secret=y',
+      }),
+      {},
+    );
+    expect(form.status).toBe(400);
+    expect(form.headers.get('content-type')).toBe('application/json');
+    expect(form.headers.get('cache-control')).toBe('no-store');
+    const formBody = await form.json();
+    expect(formBody.error).toBe('unsupported_grant_type');
+    expect(formBody.error_description).toContain('client_credentials');
+    expect(formBody.error_uri).toBe('https://hausfold.co/auth.md');
+
+    const json = await worker.fetch(
+      req('/oauth/token', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ grant_type: 'authorization_code', code: 'abc' }),
+      }),
+      {},
+    );
+    expect((await json.json()).error).toBe('unsupported_grant_type');
+
+    const empty = await worker.fetch(req('/oauth/token', { method: 'POST' }), {});
+    expect(empty.status).toBe(400);
+    expect((await empty.json()).error).toBe('invalid_request');
+
+    const garbage = await worker.fetch(
+      req('/oauth/token', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{not json' }),
+      {},
+    );
+    expect((await garbage.json()).error).toBe('invalid_request');
+  });
+
+  it('/oauth/token does not echo an unbounded grant_type back', async () => {
+    const res = await worker.fetch(
+      req('/oauth/token', {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: `grant_type=${'a'.repeat(5000)}`,
+      }),
+      {},
+    );
+    const body = await res.json();
+    expect(body.error).toBe('unsupported_grant_type');
+    expect(body.error_description.length).toBeLessThan(400);
+  });
+
+  it('/.well-known/jwks.json is an empty key set (nothing is signed)', async () => {
+    const res = await worker.fetch(req('/.well-known/jwks.json'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('application/json');
+    expect(await res.json()).toEqual({ keys: [] });
+    expect(JWKS.keys).toEqual([]);
+    const post = await worker.fetch(req('/.well-known/jwks.json', { method: 'POST' }), {});
+    expect(post.status).toBe(405);
+    expect(post.headers.get('allow')).toBe('GET, HEAD');
+  });
+
+  it('there is no openid-configuration: this host is not an OpenID Provider', async () => {
+    const res = await worker.fetch(req('/.well-known/openid-configuration'), {});
+    expect(res.status).toBe(404);
   });
 });
 

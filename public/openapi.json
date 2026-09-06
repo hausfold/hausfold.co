@@ -3,7 +3,7 @@
   "info": {
     "title": "hausfold.co",
     "summary": "Public endpoints for hausfold's Mac software: installers, release metadata, docs search, a versioned REST surface, and an MCP endpoint for coding agents.",
-    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. There is no OAuth authorization server behind this host; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), and /.well-known/mcp/server-card.json. See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
+    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. /.well-known/oauth-authorization-server describes an issuer that grants nothing (grant_types_supported and response_types_supported are empty), and the endpoints it names answer the protocol's own refusal rather than 404ing; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/oauth-authorization-server (RFC 8414; an issuer with no grant types, whose three endpoints are real), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), and /.well-known/mcp/server-card.json. See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
     "version": "1.0.0",
     "termsOfService": "https://hausfold.co/terms/",
     "contact": {
@@ -904,7 +904,7 @@
     "/auth.md": {
       "get": {
         "summary": "How agents authenticate (they don't), per the auth.md convention",
-        "description": "Markdown. States the one supported method (anonymous), and what this host deliberately does not implement (no OAuth authorization server, no identity assertions). See https://github.com/workos/auth.md for the convention.",
+        "description": "Markdown. States the one supported method (anonymous), and what this host deliberately does not implement (no token issuance from the authorization server it describes, no identity assertions). See https://github.com/workos/auth.md for the convention.",
         "operationId": "getAuthMd",
         "tags": [
           "docs"
@@ -1360,7 +1360,7 @@
     "/.well-known/oauth-protected-resource": {
       "get": {
         "summary": "RFC 9728 Protected Resource Metadata",
-        "description": "Describes how an agent authenticates to this resource: it does not have to. resource names this host, resource_documentation points at /auth.md, authorization_servers is empty because no authorization server stands behind the resource, and no scopes are required. Published so discovery never walks into a 404; if an endpoint ever starts requiring credentials, its 401 will advertise this URL in WWW-Authenticate.",
+        "description": "Describes how an agent authenticates to this resource: it does not have to. resource names this host, resource_documentation points at /auth.md, authorization_servers is empty because no token is needed to reach the resource (the issuer described at /.well-known/oauth-authorization-server grants none, so listing it would send a client after a token that cannot exist), and no scopes are required. Published so discovery never walks into a 404; if an endpoint ever starts requiring credentials, its 401 will advertise this URL in WWW-Authenticate.",
         "operationId": "getProtectedResourceMetadata",
         "tags": [
           "docs"
@@ -1397,6 +1397,182 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/.well-known/oauth-authorization-server": {
+      "get": {
+        "summary": "RFC 8414 Authorization Server Metadata for an issuer that grants nothing",
+        "description": "issuer is this host. grant_types_supported and response_types_supported are empty, so a client learns before its first request that no token can be had here; that is more than a 404 says, which leaves no-auth and not-implemented indistinguishable. The endpoints the document names exist and answer the protocol's own refusal (/oauth/authorize, /oauth/token and /.well-known/jwks.json below) rather than 404ing, because a discovery document that points at dead URLs is worse than none. The agent_auth block of the auth.md convention lives here, as that convention expects. There is no /.well-known/openid-configuration: hausfold.co issues no identity and is not an OpenID Provider.",
+        "operationId": "getAuthorizationServerMetadata",
+        "tags": [
+          "docs"
+        ],
+        "responses": {
+          "200": {
+            "description": "The metadata document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/authorizationServerMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/jwks.json": {
+      "get": {
+        "summary": "The JWK Set the authorization server metadata names",
+        "description": "Empty. No token is ever signed on this host, so there is no key to publish; an empty set is the honest statement of that, the same way the Web Bot Auth directory is empty. Rate-limited like the other endpoints an agent calls.",
+        "operationId": "getJwks",
+        "tags": [
+          "docs"
+        ],
+        "responses": {
+          "200": {
+            "description": "A JWK Set with no keys.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jwks"
+                }
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      }
+    },
+    "/oauth/authorize": {
+      "get": {
+        "summary": "The authorization endpoint, which has nothing to authorize",
+        "description": "Every request is refused with 400 problem+json (code no_grant_types) and never redirected: no OAuth client is registered on this host and no grant type is supported, and RFC 6749 section 4.1.2.1 forbids redirecting to a redirect_uri no client registered. Do not send a user here; nothing on this host needs authorizing. POST answers the same; other methods answer 405.",
+        "operationId": "authorize",
+        "tags": [
+          "docs"
+        ],
+        "parameters": [
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Read and refused: response_types_supported is empty."
+          },
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Read and refused: no client is registered."
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Never followed."
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/noGrantTypes"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "summary": "The token endpoint, which issues no tokens",
+        "description": "Answers 400 in RFC 6749 section 5.2's own shape rather than problem+json, because that section fixes the shape: error is unsupported_grant_type for any grant_type, invalid_request when the body names none or cannot be read, and error_uri points at /auth.md. Reads a form-encoded body as the RFC specifies, or a JSON one. GET answers 405, as section 3.2 requires POST. Carries the RateLimit trio.",
+        "operationId": "token",
+        "tags": [
+          "docs"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grant_type": {
+                    "type": "string",
+                    "description": "Any value is unsupported."
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grant_type": {
+                    "type": "string",
+                    "description": "Any value is unsupported."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Always: no grant type is supported.",
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oauthError"
+                }
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
           }
         }
       }
@@ -1811,6 +1987,36 @@
             }
           }
         }
+      },
+      "noGrantTypes": {
+        "description": "No OAuth client is registered on this host and no grant type is supported, so there is nothing to authorize and no redirect to make.",
+        "headers": {
+          "RateLimit-Limit": {
+            "description": "The per-window request ceiling.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Remaining": {
+            "description": "What is left of the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "RateLimit-Reset": {
+            "description": "Seconds until the window turns.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/problem"
+            }
+          }
+        }
       }
     },
     "parameters": {
@@ -1893,7 +2099,7 @@
           },
           "code": {
             "type": "string",
-            "description": "Stable identifier for the failure kind: missing_query, invalid_cursor, unknown_app, unknown_job, invalid_json, invalid_batch, batch_too_large, job_too_large, rate_limited, upstream_unavailable, index_unavailable, method_not_allowed, not_found."
+            "description": "Stable identifier for the failure kind: missing_query, invalid_cursor, unknown_app, unknown_job, invalid_json, invalid_batch, batch_too_large, job_too_large, rate_limited, upstream_unavailable, index_unavailable, method_not_allowed, not_found, no_grant_types."
           }
         },
         "required": [
@@ -2470,7 +2676,7 @@
               "type": "string",
               "format": "uri"
             },
-            "description": "Empty: no authorization server stands behind this resource."
+            "description": "Empty: no token is needed to reach this resource, and the issuer this host describes grants none."
           },
           "scopes_supported": {
             "type": "array",
@@ -2648,6 +2854,155 @@
           "url",
           "transport",
           "servers"
+        ]
+      },
+      "authorizationServerMetadata": {
+        "type": "object",
+        "description": "RFC 8414 Authorization Server Metadata for an issuer that grants nothing. The lists whose absence would imply a capability are present and empty.",
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "format": "uri",
+            "description": "This host, with no trailing slash: RFC 8414 derives the well-known URL from it."
+          },
+          "authorization_endpoint": {
+            "type": "string",
+            "format": "uri",
+            "description": "/oauth/authorize, which answers 400 problem+json: there is no client to authorize."
+          },
+          "token_endpoint": {
+            "type": "string",
+            "format": "uri",
+            "description": "/oauth/token, which answers 400 unsupported_grant_type in RFC 6749's own shape."
+          },
+          "jwks_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "/.well-known/jwks.json, an empty key set."
+          },
+          "service_documentation": {
+            "type": "string",
+            "format": "uri",
+            "description": "Points at /auth.md."
+          },
+          "op_policy_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "op_tos_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "scopes_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Empty."
+          },
+          "response_types_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Empty: no response type is supported."
+          },
+          "response_modes_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Empty."
+          },
+          "grant_types_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Empty: no grant type is supported, so no token is ever issued."
+          },
+          "token_endpoint_auth_methods_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Empty: no client can authenticate, because none is registered."
+          },
+          "agent_auth": {
+            "type": "object",
+            "description": "The auth.md convention's registration-and-claim block. anonymous is the only identity type; no identity, claim or events endpoint exists, so none is named.",
+            "properties": {
+              "skill": {
+                "type": "string",
+                "format": "uri"
+              },
+              "identity_types_supported": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "anonymous"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "skill",
+              "identity_types_supported"
+            ]
+          }
+        },
+        "required": [
+          "issuer",
+          "authorization_endpoint",
+          "token_endpoint",
+          "jwks_uri",
+          "response_types_supported",
+          "grant_types_supported",
+          "token_endpoint_auth_methods_supported"
+        ]
+      },
+      "jwks": {
+        "type": "object",
+        "description": "RFC 7517 JWK Set. Empty on this host: no token is ever signed.",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Empty."
+          }
+        },
+        "required": [
+          "keys"
+        ]
+      },
+      "oauthError": {
+        "type": "object",
+        "description": "RFC 6749 section 5.2 token error. Every request to the token endpoint gets one, because no grant type is supported.",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "invalid_request",
+              "unsupported_grant_type"
+            ],
+            "description": "unsupported_grant_type for any grant_type named; invalid_request when the body names none or cannot be read."
+          },
+          "error_description": {
+            "type": "string"
+          },
+          "error_uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "Points at /auth.md."
+          }
+        },
+        "required": [
+          "error",
+          "error_description",
+          "error_uri"
         ]
       }
     }

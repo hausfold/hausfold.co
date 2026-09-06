@@ -228,15 +228,26 @@ export default function Developers() {
         <section className="block">
           <h2>Authenticate a client before its first call</h2>
           <p>
-            Two well-known documents describe this host&apos;s authentication posture to an
-            agent that probes before it calls.{' '}
+            The well-known documents below describe this host&apos;s authentication posture to
+            an agent that probes before it calls.{' '}
             <a href="/.well-known/oauth-protected-resource">
               <code>/.well-known/oauth-protected-resource</code>
             </a>{' '}
             is the RFC 9728 Protected Resource Metadata: <code>resource</code> names this
             host, <code>resource_documentation</code> points at <code>/auth.md</code>, and{' '}
-            <code>authorization_servers</code> is empty because no authorization server stands
-            behind the resource.{' '}
+            <code>authorization_servers</code> is empty because no token is needed to reach
+            it.{' '}
+            <a href="/.well-known/oauth-authorization-server">
+              <code>/.well-known/oauth-authorization-server</code>
+            </a>{' '}
+            is the RFC 8414 Authorization Server Metadata of an issuer that grants nothing:{' '}
+            <code>grant_types_supported</code> and <code>response_types_supported</code> are
+            empty, so a client knows before its first request that no token can be had. The
+            endpoints it names are real rather than dead links, and each answers the
+            protocol&apos;s own refusal: <code>/oauth/authorize</code> says there is no client
+            to authorize, <code>/oauth/token</code> answers{' '}
+            <code>unsupported_grant_type</code>, and <code>/.well-known/jwks.json</code> is an
+            empty key set.{' '}
             <a href="/.well-known/http-message-signatures-directory">
               <code>/.well-known/http-message-signatures-directory</code>
             </a>{' '}

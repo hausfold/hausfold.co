@@ -9,7 +9,8 @@ The machine-facing surface is described in these places, all on this host:
 - [openapi.json](https://hausfold.co/openapi.json): the REST and MCP surface, with typed schemas and the error model.
 - [/developers/](https://hausfold.co/developers/): the same surface written for a human, with quickstarts.
 - [/.well-known/mcp/server-card.json](https://hausfold.co/.well-known/mcp/server-card.json): the MCP server card, for previewing the tools before opening a transport. Two MCP transports are served: [/mcp](https://hausfold.co/mcp) and a docs-only [/mcp/docs](https://hausfold.co/mcp/docs); the manifest naming both is at [/mcp.json](https://hausfold.co/mcp.json).
-- [/.well-known/oauth-protected-resource](https://hausfold.co/.well-known/oauth-protected-resource): RFC 9728 Protected Resource Metadata. It is published even though nothing here requires authentication: `resource` names this host, `resource_documentation` points back at this file, and `authorization_servers` is empty because no authorization server stands behind the resource. The document exists so discovery never walks into a 404.
+- [/.well-known/oauth-protected-resource](https://hausfold.co/.well-known/oauth-protected-resource): RFC 9728 Protected Resource Metadata. It is published even though nothing here requires authentication: `resource` names this host, `resource_documentation` points back at this file, and `authorization_servers` is empty because no token is needed to reach the resource; the issuer this host describes grants none, so listing it would send a client after a token that cannot exist. The document exists so discovery never walks into a 404.
+- [/.well-known/oauth-authorization-server](https://hausfold.co/.well-known/oauth-authorization-server): RFC 8414 Authorization Server Metadata for an issuer that grants nothing. `issuer` is this host, and `grant_types_supported` and `response_types_supported` are empty, so a client that reads it knows before its first request that no token can be had. The endpoints it names exist, because a discovery document that points at dead URLs is worse than none: [/oauth/authorize](https://hausfold.co/oauth/authorize) answers that there is no client to authorize, `POST /oauth/token` answers `unsupported_grant_type` in RFC 6749's own shape, and [/.well-known/jwks.json](https://hausfold.co/.well-known/jwks.json) is an empty key set. There is no `/.well-known/openid-configuration`: hausfold.co issues no identity and is not an OpenID Provider.
 - [/.well-known/http-message-signatures-directory](https://hausfold.co/.well-known/http-message-signatures-directory): the Web Bot Auth directory of Ed25519 keys this host signs responses with. It signs none, so the `keys` array is empty.
 
 ## Pick a method
@@ -20,7 +21,7 @@ There is no `identity_assertion` offering, no `service_auth` key issuance, and n
 
 ## agent_auth
 
-The auth.md convention carries the registration and claim surface in an `agent_auth` block inside authorization-server metadata. hausfold.co has no authorization server, so the block lives here instead, naming the one identity type that exists:
+The auth.md convention carries the registration and claim surface in an `agent_auth` block inside authorization-server metadata, and that is where it lives: [/.well-known/oauth-authorization-server](https://hausfold.co/.well-known/oauth-authorization-server) carries this block, naming the one identity type that exists. It is repeated here so this file stands alone:
 
 ```json
 {
@@ -43,7 +44,7 @@ Not applicable. With no identity provider behind this host, there is nothing to 
 
 ## Exchange
 
-Not applicable. There is no authorization server behind this host, so there is no token exchange, no assertion minting, and no `id-jag` grant. Correspondingly there is no `/.well-known/oauth-authorization-server` document, and the absence is deliberate rather than an oversight.
+Not applicable. The authorization server this host describes supports no grant types, so there is no token exchange, no assertion minting, and no `id-jag` grant. `/.well-known/oauth-authorization-server` says so up front (`grant_types_supported` is empty), and `POST /oauth/token` answers `unsupported_grant_type` to any grant type named (and `invalid_request` to a request naming none).
 
 ## Use the access_token
 
