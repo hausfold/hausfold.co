@@ -30,10 +30,11 @@ on any machine and names none of this, so the joins are haus's to write down.
 ## Keeping the Mac awake
 
 `haus.ai.keepAwake` is the switch that gets reached for here, and for a shift it
-is the wrong one. It means *while my agents are working*, and it holds for five
-minutes past the last turn. A shift that wakes every twenty minutes to look at
-the board is idle for most of the hour in between, so the hold drops in every
-gap.
+is the wrong one. It means *while my agents are working*, and what raises it is
+an agent turn: a client's hook writes the hold, and the runner passing
+`factory shift` on a cadence is a plain process that writes nothing. So a quiet
+night raises no hold at all, and a busy one holds only while a fixer lane it
+opened is mid-turn.
 
 An unattended shift wants the lid lever named directly, in your own power block:
 
