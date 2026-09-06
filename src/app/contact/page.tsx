@@ -80,6 +80,15 @@ export default function Contact() {
       </section>
 
       <section className="block">
+        <h2>Writing about it</h2>
+        <p>
+          Logos, banners and the colours, with the rules for using them, are at{' '}
+          <a href="/brand">hausfold.co/brand</a>. For what each thing does, quote the docs; they
+          are the current account.
+        </p>
+      </section>
+
+      <section className="block">
         <h2>What not to send</h2>
         <p>
           The house sells nothing and buys nothing, so sales mail has nowhere to land. Everything

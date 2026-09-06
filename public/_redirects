@@ -1,7 +1,9 @@
 # Static redirects, applied by Cloudflare's asset server. It consumes this file
-# rather than serving it, so it never appears at /_redirects — and it runs
-# BEFORE worker.js, which is why a rule here can shadow a Worker route (and
-# why none of them do).
+# rather than serving it, so it never appears at /_redirects. With
+# run_worker_first = true the Worker runs first and this file is read only
+# when worker.js falls through to the assets, so a Worker route beats a rule
+# here and a rule here can never shadow one — but it runs ahead of every
+# Next page, which is why a redirected path never renders its page.
 #
 # /desktops was a page until 2026-08-12, then the landing page's first
 # section; from 2026-08-14 that section was one sentence and one link, and it
@@ -168,3 +170,13 @@
 # third party requires to resolve.
 /perch      /docs/perch/   301
 /perch/     /docs/perch/   301
+
+# /brand, added 2026-09-06: the media kit. Logos, banners, colours and the
+# rules for using them live in the public workshop repo — assets/README.md is
+# the index, docs/design.md (which worker.js proxies at /design.md) is the
+# standard. A page of logos here would be the landing half's first image and
+# a second account of that folder, so the URL is a 301 onto it and never a
+# page. The one entry in this file whose target is off-site; both spellings,
+# like every other entry.
+/brand      https://github.com/hausfold/workshop/tree/main/assets   301
+/brand/     https://github.com/hausfold/workshop/tree/main/assets   301
