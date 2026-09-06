@@ -131,6 +131,45 @@
       }
     },
     {
+      "identifier": "urn:air:hausfold.co:agent:hausfold",
+      "displayName": "hausfold A2A agent",
+      "type": "application/json",
+      "url": "https://hausfold.co/.well-known/agent-card.json",
+      "capabilities": [
+        "search-docs",
+        "install-command",
+        "latest-release"
+      ],
+      "description": "The A2A (Agent2Agent) 1.0 agent card. Its one interface is JSON-RPC at https://hausfold.co/a2a: SendMessage with a question as a text part, or a data part naming a skill, and every reply is a Message carrying the same answer the MCP tools give. No keys, no accounts.",
+      "representativeQueries": [
+        "how do I turn on do not disturb",
+        "what is the install command for the hacker desktop",
+        "what is the latest release of perch"
+      ],
+      "publisher": {
+        "identifier": "did:web:hausfold.co",
+        "displayName": "hausfold",
+        "identityType": "did"
+      },
+      "trustManifest": {
+        "identity": "did:web:hausfold.co",
+        "identityType": "did",
+        "attestations": [
+          {
+            "type": "publisher-identity",
+            "uri": "https://api.github.com/orgs/hausfold",
+            "description": "The hausfold GitHub organization profile lists hausfold.co as its website, binding the domain to the publisher."
+          }
+        ],
+        "provenance": [
+          {
+            "relation": "publishedFrom",
+            "sourceId": "https://github.com/hausfold/hausfold.co"
+          }
+        ]
+      }
+    },
+    {
       "identifier": "urn:air:hausfold.co:api:openapi",
       "displayName": "hausfold.co OpenAPI description",
       "type": "application/vnd.oai.openapi+json",

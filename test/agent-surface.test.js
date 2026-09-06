@@ -547,6 +547,17 @@ describe('/.well-known/agent-card.json (A2A)', () => {
     const head = await worker.fetch(req('/.well-known/agent-card.json', { method: 'HEAD' }), {});
     expect(head.status).toBe(200);
     expect(head.headers.get('etag')).toBe(etag);
+    const any = await worker.fetch(req('/.well-known/agent-card.json', { headers: { 'if-none-match': '*' } }), {});
+    expect(any.status).toBe(304);
+  });
+
+  it('is listed where the other service descriptions are', async () => {
+    const catalog = await (await worker.fetch(req('/.well-known/api-catalog'), {})).json();
+    expect(catalog.linkset[0].item).toContainEqual({
+      href: 'https://hausfold.co/.well-known/agent-card.json',
+      rel: 'service-desc',
+      type: 'application/json',
+    });
   });
 });
 
@@ -645,5 +656,14 @@ describe('/a2a (A2A JSON-RPC binding)', () => {
     const bad = await worker.fetch(req('/a2a', { method: 'POST', body: '{' }), {});
     expect(bad.status).toBe(400);
     expect((await bad.json()).error.code).toBe(-32700);
+  });
+
+  it('answers an empty batch with one Invalid Request, on /a2a and /mcp alike', async () => {
+    for (const path of ['/a2a', '/mcp']) {
+      const res = await worker.fetch(req(path, { method: 'POST', body: '[]', headers: { 'content-type': 'application/json' } }), {});
+      const body = await res.json();
+      expect(Array.isArray(body), path).toBe(false);
+      expect(body.error.code, path).toBe(-32600);
+    }
   });
 });

@@ -1413,7 +1413,7 @@ async function serveAgentCard(request) {
     "access-control-allow-origin": "*",
   };
   const ifNoneMatch = (request.headers.get("if-none-match") ?? "").split(",").map((v) => v.trim());
-  if (ifNoneMatch.includes(etag) || ifNoneMatch.includes(`W/${etag}`)) {
+  if (ifNoneMatch.includes("*") || ifNoneMatch.includes(etag) || ifNoneMatch.includes(`W/${etag}`)) {
     return new Response(null, { status: 304, headers });
   }
   return new Response(request.method === "HEAD" ? null : body, {
@@ -1625,6 +1625,8 @@ async function serveA2a(request, env) {
   const version = (request.headers.get("a2a-version") ?? "").trim();
   const versionOk = !version || /^1(\.\d+)?$/.test(version);
   const batch = Array.isArray(body);
+  // JSON-RPC 2.0 §6: an empty array is one Invalid Request, not a batch of none.
+  if (batch && !body.length) return respond(rpcError(null, -32600, "Invalid Request: empty batch"));
   const replies = [];
   for (const msg of batch ? body : [body]) {
     if (!msg || typeof msg !== "object" || msg.jsonrpc !== "2.0" || typeof msg.method !== "string") {
@@ -1796,6 +1798,8 @@ async function serveMcpPost(request, env, table = MCP_TABLE) {
     return rpcErrorResponse(null, -32700, "Parse error: request body is not JSON", 400);
   }
   const batch = Array.isArray(body);
+  // JSON-RPC 2.0 §6: an empty array is one Invalid Request, not a batch of none.
+  if (batch && !body.length) return rpcErrorResponse(null, -32600, "Invalid Request: empty batch");
   const replies = [];
   for (const msg of batch ? body : [body]) {
     if (
@@ -2191,6 +2195,11 @@ function serveApiCatalog() {
           },
           {
             href: "https://hausfold.co/mcp",
+            rel: "service-desc",
+            type: "application/json",
+          },
+          {
+            href: "https://hausfold.co/.well-known/agent-card.json",
             rel: "service-desc",
             type: "application/json",
           },

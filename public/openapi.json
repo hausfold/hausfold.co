@@ -711,7 +711,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/jsonRpcResponse"
+                  "$ref": "#/components/schemas/a2aResponse"
                 }
               }
             }
@@ -734,6 +734,19 @@
           },
           "429": {
             "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Open preflight: any origin, POST, and the A2A service-parameter headers (A2A-Version, A2A-Extensions).",
+        "operationId": "a2aPreflight",
+        "tags": [
+          "a2a"
+        ],
+        "responses": {
+          "204": {
+            "description": "Preflight allowed."
           }
         }
       }
@@ -3108,6 +3121,105 @@
           "error",
           "error_description",
           "error_uri"
+        ]
+      },
+      "a2aMessage": {
+        "type": "object",
+        "description": "An A2A 1.0 Message from the agent, in ProtoJSON casing.",
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "description": "Minted per reply."
+          },
+          "contextId": {
+            "type": "string",
+            "description": "Echoed from the request's message when it carried one, minted otherwise."
+          },
+          "role": {
+            "type": "string",
+            "const": "ROLE_AGENT"
+          },
+          "parts": {
+            "type": "array",
+            "description": "Two parts: a text part written for a reader, then a data part carrying the same answer as JSON, which is the MCP tool's structuredContent, or {error: {code, message}} when the tool failed.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "data": {
+                  "description": "Any JSON value."
+                },
+                "mediaType": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "skill": {
+                "type": "string",
+                "description": "The skill that answered: search-docs, install-command or latest-release."
+              },
+              "tool": {
+                "type": "string",
+                "description": "The MCP tool behind it."
+              },
+              "error": {
+                "type": "string",
+                "description": "The tool's error code, present only when the tool failed."
+              }
+            }
+          }
+        },
+        "required": [
+          "messageId",
+          "contextId",
+          "role",
+          "parts"
+        ]
+      },
+      "a2aResult": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "const": "2.0"
+          },
+          "id": {
+            "description": "The request id this result answers."
+          },
+          "result": {
+            "description": "SendMessage answers {message: a2aMessage}, never {task}. ListTasks answers {tasks: [], nextPageToken: \"\", pageSize: 0, totalSize: 0}. Every other method answers a JSON-RPC error carrying a google.rpc.ErrorInfo detail in error.data.",
+            "type": "object",
+            "properties": {
+              "message": {
+                "$ref": "#/components/schemas/a2aMessage"
+              }
+            }
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "id",
+          "result"
+        ]
+      },
+      "a2aResponse": {
+        "description": "A JSON-RPC 2.0 result from /a2a (single object, or an array of objects for a batch request).",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/a2aResult"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/a2aResult"
+            }
+          }
         ]
       }
     }
