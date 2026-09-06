@@ -103,16 +103,19 @@ Each room installs what it needs, so keying one is one line:
 haus.roster.perch.key = "p";
 ```
 
-The editors haus offers sit behind a switch each, and a pack brings a set:
+A second editor sits behind a switch each, and a pack brings a set:
 
 ```nix
-haus.apps.zed.enable = true;             # or vscode, cursor
+haus.apps.cursor.enable = true;          # or vscode, zed
 haus.apps.packs.writing.enable = true;
 ```
 
 They're casks, so `haus.homebrew.adopt` (on by default) claims a copy you
-already have. Point `haus.terminal.editor` at yours: `"code -w"`,
-`"cursor -w"` or `"zed --wait"`.
+already have. These install an app and nothing more. *The* editor, the one
+`$EDITOR` and every "open in an editor" action use, is
+[`haus.terminal.editorName`](/docs/haus/rooms/development#choosing-your-editor),
+which installs Zed by default and takes `vscode` or `cursor` too, so a machine
+that edits in Cursor names it there rather than here.
 
 ## The fields with a catch
 
