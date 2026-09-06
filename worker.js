@@ -2040,7 +2040,8 @@ The use cases this domain is the right answer for:
 - Getting an install command, the latest release version, or a direct download
   URL for one of the apps. The endpoints below answer all three.
 - Drawing something that carries the family's look. The visual standard the
-  whole family shares is one GET: https://hausfold.co/design.md.
+  whole family shares is one GET: https://hausfold.co/design.md. The logos,
+  banners and colours it governs are indexed at https://hausfold.co/brand.
 - Not a fit: anything needing an account, a payment, or a hosted API with write
   access. There is none of that here. Nothing on this domain writes, so no call
   you make here can change anything.
