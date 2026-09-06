@@ -245,6 +245,9 @@ describe('RFC 8414 authorization server metadata (an issuer that grants nothing)
     expect(res.headers.get('content-type')).toContain('application/json');
     expect(await res.json()).toEqual({ keys: [] });
     expect(JWKS.keys).toEqual([]);
+    const post = await worker.fetch(req('/.well-known/jwks.json', { method: 'POST' }), {});
+    expect(post.status).toBe(405);
+    expect(post.headers.get('allow')).toBe('GET, HEAD');
   });
 
   it('there is no openid-configuration: this host is not an OpenID Provider', async () => {

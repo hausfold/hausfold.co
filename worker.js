@@ -756,6 +756,15 @@ function serveOAuthEndpoint(request, cleanPath) {
     );
   }
   if (cleanPath === "/.well-known/jwks.json") {
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return problemResponse(
+        405,
+        "Method not allowed",
+        "The key set is read-only: GET or HEAD.",
+        "method_not_allowed",
+        { allow: "GET, HEAD", ...rl.headers },
+      );
+    }
     return new Response(JSON.stringify(JWKS, null, 2), {
       headers: {
         "content-type": "application/json",

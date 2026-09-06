@@ -228,8 +228,8 @@ export default function Developers() {
         <section className="block">
           <h2>Authenticate a client before its first call</h2>
           <p>
-            Three well-known documents describe this host&apos;s authentication posture to an
-            agent that probes before it calls.{' '}
+            The well-known documents below describe this host&apos;s authentication posture to
+            an agent that probes before it calls.{' '}
             <a href="/.well-known/oauth-protected-resource">
               <code>/.well-known/oauth-protected-resource</code>
             </a>{' '}

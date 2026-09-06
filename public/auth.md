@@ -44,7 +44,7 @@ Not applicable. With no identity provider behind this host, there is nothing to 
 
 ## Exchange
 
-Not applicable. The authorization server this host describes supports no grant types, so there is no token exchange, no assertion minting, and no `id-jag` grant. `/.well-known/oauth-authorization-server` says so up front (`grant_types_supported` is empty), and `POST /oauth/token` answers `unsupported_grant_type` to any request that tries regardless.
+Not applicable. The authorization server this host describes supports no grant types, so there is no token exchange, no assertion minting, and no `id-jag` grant. `/.well-known/oauth-authorization-server` says so up front (`grant_types_supported` is empty), and `POST /oauth/token` answers `unsupported_grant_type` to any grant type named (and `invalid_request` to a request naming none).
 
 ## Use the access_token
 

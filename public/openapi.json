@@ -904,7 +904,7 @@
     "/auth.md": {
       "get": {
         "summary": "How agents authenticate (they don't), per the auth.md convention",
-        "description": "Markdown. States the one supported method (anonymous), and what this host deliberately does not implement (an authorization server that issues nothing, no identity assertions). See https://github.com/workos/auth.md for the convention.",
+        "description": "Markdown. States the one supported method (anonymous), and what this host deliberately does not implement (no token issuance from the authorization server it describes, no identity assertions). See https://github.com/workos/auth.md for the convention.",
         "operationId": "getAuthMd",
         "tags": [
           "docs"
@@ -1441,6 +1441,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/rateLimited"
