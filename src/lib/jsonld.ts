@@ -87,7 +87,7 @@ export const homepageGraph = [organizationJsonLd, faqJsonLd];
 export const developersPageMeta = {
   name: 'hausfold developers: API, MCP server and OpenAPI spec',
   description:
-    'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
+    'The public machine-facing surface of hausfold.co: the REST API under /v1, the hausfold MCP server, the A2A agent, the OpenAPI 3.1 spec, installers, release metadata and docs search. No keys, no accounts.',
 };
 
 // /developers, as structured data. It exists for one reason: a search for
@@ -124,6 +124,15 @@ export const developersJsonLd = {
       url: 'https://hausfold.co/mcp',
       description:
         'Model Context Protocol over Streamable HTTP, stateless and unauthenticated. Tools: get_install_command, get_latest_release, search_docs.',
+      documentation: 'https://hausfold.co/developers/',
+      provider: { '@id': organizationId },
+    },
+    {
+      '@type': 'WebAPI',
+      name: 'hausfold A2A agent',
+      url: 'https://hausfold.co/a2a',
+      description:
+        'Agent2Agent (A2A 1.0) over JSON-RPC, unauthenticated. SendMessage runs docs search, the install command and the latest release; every reply is a Message. Card: https://hausfold.co/.well-known/agent-card.json.',
       documentation: 'https://hausfold.co/developers/',
       provider: { '@id': organizationId },
     },

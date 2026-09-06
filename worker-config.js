@@ -324,3 +324,52 @@ export const MCP_TOOLS = [
 // clients see no change; the two servers share one implementation. Declared
 // after MCP_TOOLS, which it is filtered from.
 export const DOCS_MCP_TOOLS = MCP_TOOLS.filter((t) => t.name === "search_docs");
+
+// The A2A (Agent2Agent) skills: what /.well-known/agent-card.json publishes
+// and what /a2a answers. Each row names the MCP tool that does the work, so a
+// skill is a second name for a tool and never a fourth capability —
+// test/agent-surface.test.js holds the two tables to the same set, which is
+// what "a fourth tool means a fourth skill in the same commit" costs now.
+// `tool` is stripped before the card is served; every other key is the
+// AgentSkill object verbatim (spec §4.4.5), so keep them spec-shaped.
+export const A2A_SKILLS = [
+  {
+    id: "search-docs",
+    name: "Docs search",
+    description:
+      "Full-text search of the haus, pounce, perch, trill and scruff manuals. Send a question as a " +
+      "text part; the reply lists page URLs, breadcrumbs and an excerpt per match, as text and as a " +
+      "data part.",
+    tags: ["docs", "search", "macos", "nix"],
+    examples: [
+      "How do I turn on do not disturb?",
+      '{"skill": "search-docs", "query": "keybindings", "limit": 5}',
+    ],
+    inputModes: ["text/plain", "application/json"],
+    tool: "search_docs",
+  },
+  {
+    id: "install-command",
+    name: "Install command",
+    description:
+      "The one-line shell command that installs a haus desktop on a Mac. Send a data part naming " +
+      `the skill and, optionally, a desktop (${Object.keys(DESKTOPS).join(", ")}); without one ` +
+      "the reply lists every desktop.",
+    tags: ["install", "shell", "macos"],
+    examples: ['{"skill": "install-command", "desktop": "hacker"}', '{"skill": "install-command"}'],
+    inputModes: ["application/json"],
+    tool: "get_install_command",
+  },
+  {
+    id: "latest-release",
+    name: "Latest release",
+    description:
+      `The latest signed, notarized macOS release of ${[...DOWNLOADABLE].join(" or ")}: version ` +
+      "tag, asset name and size, direct download URL, publish date. Send a data part naming the " +
+      "skill and the app. Use before naming a version or checking for updates.",
+    tags: ["releases", "downloads", "macos"],
+    examples: ['{"skill": "latest-release", "app": "pounce"}'],
+    inputModes: ["application/json"],
+    tool: "get_latest_release",
+  },
+];

@@ -267,7 +267,9 @@ export default function Developers() {
             <a href="/.well-known/mcp.json">/.well-known/mcp.json</a> is the manifest, and the path
             without the <code>.json</code> is the transport.{' '}
             <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is the A2A
-            discovery card,{' '}
+            agent card, and <a href="/a2a">/a2a</a> the JSON-RPC interface it names: POST{' '}
+            <code>SendMessage</code> with a question as a text part, or a data part naming a skill,
+            and the reply is a Message carrying the same answer the MCP tools give.{' '}
             <a href="/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a>{' '}
             lists the domain&apos;s agent skills (docs search, install, releases), and{' '}
             <a href="/.well-known/api-catalog">/.well-known/api-catalog</a> is the RFC 9727

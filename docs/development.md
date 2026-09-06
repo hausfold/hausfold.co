@@ -46,7 +46,7 @@ public/                           assets only; no HTML lives here
   hausfold.css                    tokens, type, and the design decisions in its header
   _redirects  _headers            consumed by Cloudflare, never served
   favicon.svg  favicon.ico  robots.txt  schemamap.xml
-  .well-known/                    agent-card.json, the agent-skills tree (index.json is generated)
+  .well-known/                    the agent-skills tree (index.json is generated); agent-card.json is worker.js's, not a file here
 worker.js  test/                  the machine routes, and their tests
 scripts/                          generators — not deployed
 ```

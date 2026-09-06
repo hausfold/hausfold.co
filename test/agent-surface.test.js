@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import { readFileSync } from 'node:fs';
-import { MCP_TOOLS, DOCS_MCP_TOOLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
+import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -465,5 +465,205 @@ describe('the /v1 sandbox', () => {
     expect(body.sandbox).toBe(true);
     expect(body.results.every((r) => r.ok)).toBe(true);
     expect(body.results[1].data.sandbox).toBe(true);
+  });
+});
+// The A2A surface: the agent card the Worker generates and the /a2a JSON-RPC
+// binding it names. What is pinned is the contract a stranger's A2A client
+// reads off the card — the interface, the version, the skills — and that the
+// interface then answers the way the card says.
+const DOCS_INDEX = {
+  docs: {
+    docs: {
+      a: {
+        id: 'a',
+        content: 'The notifications room wires trill banners and rules.json is the dial.',
+        breadcrumbs: ['Docs', 'trill', 'Rules'],
+        url: '/docs/trill/rules',
+      },
+    },
+  },
+};
+const assetsWithIndex = () => ({
+  fetch: async (request) =>
+    new URL(request.url).pathname === '/api/search'
+      ? new Response(JSON.stringify(DOCS_INDEX))
+      : new Response('PAGE', { status: 404 }),
+});
+const rpc = (method, params, init = {}) =>
+  worker.fetch(
+    req('/a2a', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(init.headers ?? {}) },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    }),
+    { ASSETS: assetsWithIndex() },
+  );
+const send = (parts, extra = {}, init) =>
+  rpc('SendMessage', { message: { messageId: 'm1', role: 'ROLE_USER', parts, ...extra } }, init);
+
+describe('/.well-known/agent-card.json (A2A)', () => {
+  it('is an A2A 1.0 card whose one interface is the JSON-RPC binding at /a2a', async () => {
+    const res = await worker.fetch(req('/.well-known/agent-card.json'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/json');
+    const card = await res.json();
+    for (const field of ['name', 'description', 'version', 'supportedInterfaces', 'capabilities', 'skills', 'defaultInputModes', 'defaultOutputModes']) {
+      expect(card[field], field).toBeDefined();
+    }
+    expect(card.supportedInterfaces).toEqual([
+      { url: 'https://hausfold.co/a2a', protocolBinding: 'JSONRPC', protocolVersion: '1.0' },
+    ]);
+    expect(card.capabilities).toEqual({ streaming: false, pushNotifications: false, extendedAgentCard: false });
+    // The old 0.3 shape must not linger beside the new one.
+    for (const gone of ['url', 'protocolVersion', 'preferredTransport', 'additionalInterfaces']) {
+      expect(card[gone], gone).toBeUndefined();
+    }
+  });
+
+  it('names one skill per MCP tool, and nothing that is not a tool', async () => {
+    const card = await (await worker.fetch(req('/.well-known/agent-card.json'), {})).json();
+    expect(card.skills.map((s) => s.id).sort()).toEqual(['install-command', 'latest-release', 'search-docs']);
+    expect(A2A_SKILLS.map((s) => s.tool).sort()).toEqual(MCP_TOOLS.map((t) => t.name).sort());
+    for (const skill of card.skills) {
+      for (const field of ['id', 'name', 'description', 'tags']) expect(skill[field], `${skill.id}.${field}`).toBeTruthy();
+      expect(skill.tool, `${skill.id} leaks its tool`).toBeUndefined();
+    }
+  });
+
+  it('carries the identity the MCP server card carries', async () => {
+    const card = await (await worker.fetch(req('/.well-known/agent-card.json'), {})).json();
+    const mcp = await (await worker.fetch(req('/.well-known/mcp/server-card.json'), {})).json();
+    expect(card.name).toBe(mcp.title);
+    expect(card.version).toBe(mcp.version);
+  });
+
+  it('caches by ETag and answers HEAD', async () => {
+    const first = await worker.fetch(req('/.well-known/agent-card.json'), {});
+    const etag = first.headers.get('etag');
+    expect(etag).toMatch(/^"[0-9a-f]{32}"$/);
+    expect(first.headers.get('cache-control')).toContain('max-age=');
+    const again = await worker.fetch(req('/.well-known/agent-card.json', { headers: { 'if-none-match': etag } }), {});
+    expect(again.status).toBe(304);
+    const head = await worker.fetch(req('/.well-known/agent-card.json', { method: 'HEAD' }), {});
+    expect(head.status).toBe(200);
+    expect(head.headers.get('etag')).toBe(etag);
+    const any = await worker.fetch(req('/.well-known/agent-card.json', { headers: { 'if-none-match': '*' } }), {});
+    expect(any.status).toBe(304);
+  });
+
+  it('is listed where the other service descriptions are', async () => {
+    const catalog = await (await worker.fetch(req('/.well-known/api-catalog'), {})).json();
+    expect(catalog.linkset[0].item).toContainEqual({
+      href: 'https://hausfold.co/.well-known/agent-card.json',
+      rel: 'service-desc',
+      type: 'application/json',
+    });
+  });
+});
+
+describe('/a2a (A2A JSON-RPC binding)', () => {
+  it('answers a text message with a Message: a text part and a data part of docs hits', async () => {
+    const res = await send([{ text: 'notifications' }], { contextId: 'ctx-1' });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/json');
+    expect(res.headers.get('ratelimit-limit') ?? res.headers.get('ratelimit')).toBeTruthy();
+    const { result, error } = await res.json();
+    expect(error).toBeUndefined();
+    expect(result.task).toBeUndefined();
+    const { message } = result;
+    expect(message.role).toBe('ROLE_AGENT');
+    expect(message.contextId).toBe('ctx-1');
+    expect(message.messageId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(message.parts[0].text).toContain('https://hausfold.co/docs/trill/rules');
+    expect(message.parts[1].data.results[0].url).toBe('/docs/trill/rules');
+    expect(message.metadata).toEqual({ skill: 'search-docs', tool: 'search_docs' });
+  });
+
+  it('runs a skill named in a data part, and infers one from its keys', async () => {
+    globalThis.fetch = vi.fn(async (input) => {
+      const url = typeof input === 'string' ? input : input.url;
+      if (!url.includes('api.github.com')) throw new Error(`unexpected fetch: ${url}`);
+      return new Response(
+        JSON.stringify({
+          tag_name: 'v2026.08.14',
+          assets: [{ name: 'pounce-2026.08.14-macos.dmg', size: 123, browser_download_url: 'https://github.com/hausfold/pounce/releases/download/v2026.08.14/pounce-2026.08.14-macos.dmg' }],
+          published_at: '2026-08-14T00:00:00Z',
+        }),
+      );
+    });
+    const named = await (await send([{ data: { skill: 'install-command', desktop: 'hacker' } }])).json();
+    expect(named.result.message.parts[1].data.desktops).toEqual([
+      expect.objectContaining({ desktop: 'hacker', command: 'curl -fsSL https://hausfold.co/hacker.sh | bash' }),
+    ]);
+    expect(named.result.message.parts[0].text).toContain('hacker.sh');
+    const inferred = await (await send([{ data: { app: 'pounce' } }])).json();
+    expect(inferred.result.message.metadata.skill).toBe('latest-release');
+    expect(inferred.result.message.parts[1].data.tag).toBe('v2026.08.14');
+  });
+
+  it('reports a tool failure as the agent speaking, not as a protocol error', async () => {
+    const { result } = await (await send([{ data: { skill: 'latest-release', app: 'trll' } }])).json();
+    expect(result.message.metadata.error).toBe('unknown_app');
+    expect(result.message.parts[0].text).toContain('unknown app');
+  });
+
+  it('refuses with the spec codes: no usable part, unknown skill, a task to continue', async () => {
+    expect((await (await send([{ url: 'https://example.com/x.png' }])).json()).error.code).toBe(-32005);
+    expect((await (await send([{ data: { skill: 'make-coffee' } }])).json()).error.code).toBe(-32602);
+    const task = (await (await send([{ text: 'hi' }], { taskId: 't-1' })).json()).error;
+    expect(task.code).toBe(-32001);
+    expect(task.data[0].reason).toBe('TASK_NOT_FOUND');
+  });
+
+  it('declines what the card declares off: streaming, push, tasks, the extended card', async () => {
+    const codes = {};
+    for (const [method, params] of [
+      ['SendStreamingMessage', { message: { parts: [{ text: 'x' }] } }],
+      ['GetTask', { id: 't-1' }],
+      ['ListTasks', {}],
+      ['CreateTaskPushNotificationConfig', { taskId: 't-1' }],
+      ['GetExtendedAgentCard', {}],
+      ['Frobnicate', {}],
+      ['message/send', {}],
+    ]) {
+      const body = await (await rpc(method, params)).json();
+      codes[method] = body.error?.code ?? body.result;
+    }
+    expect(codes).toEqual({
+      SendStreamingMessage: -32004,
+      GetTask: -32001,
+      ListTasks: { tasks: [], nextPageToken: '', pageSize: 0, totalSize: 0 },
+      CreateTaskPushNotificationConfig: -32003,
+      GetExtendedAgentCard: -32007,
+      Frobnicate: -32601,
+      'message/send': -32009,
+    });
+  });
+
+  it('honours the A2A-Version header: 1.x passes, anything else is -32009', async () => {
+    expect((await (await send([{ text: 'x' }], {}, { headers: { 'a2a-version': '1.0' } })).json()).result).toBeDefined();
+    expect((await (await send([{ text: 'x' }], {}, { headers: { 'a2a-version': '0.3' } })).json()).error.code).toBe(-32009);
+  });
+
+  it('is POST only, with CORS for a browser agent', async () => {
+    const get = await worker.fetch(req('/a2a'), {});
+    expect(get.status).toBe(405);
+    expect(get.headers.get('allow')).toBe('POST, OPTIONS');
+    expect((await get.json()).detail).toContain('/.well-known/agent-card.json');
+    const options = await worker.fetch(req('/a2a', { method: 'OPTIONS' }), {});
+    expect(options.status).toBe(204);
+    expect(options.headers.get('access-control-allow-origin')).toBe('*');
+    const bad = await worker.fetch(req('/a2a', { method: 'POST', body: '{' }), {});
+    expect(bad.status).toBe(400);
+    expect((await bad.json()).error.code).toBe(-32700);
+  });
+
+  it('answers an empty batch with one Invalid Request, on /a2a and /mcp alike', async () => {
+    for (const path of ['/a2a', '/mcp']) {
+      const res = await worker.fetch(req(path, { method: 'POST', body: '[]', headers: { 'content-type': 'application/json' } }), {});
+      const body = await res.json();
+      expect(Array.isArray(body), path).toBe(false);
+      expect(body.error.code, path).toBe(-32600);
+    }
   });
 });

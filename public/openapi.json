@@ -3,7 +3,7 @@
   "info": {
     "title": "hausfold.co",
     "summary": "Public endpoints for hausfold's Mac software: installers, release metadata, docs search, a versioned REST surface, and an MCP endpoint for coding agents.",
-    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. /.well-known/oauth-authorization-server describes an issuer that grants nothing (grant_types_supported and response_types_supported are empty), and the endpoints it names answer the protocol's own refusal rather than 404ing; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/oauth-authorization-server (RFC 8414; an issuer with no grant types, whose three endpoints are real), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), and /.well-known/mcp/server-card.json. See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
+    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /a2a, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. /.well-known/oauth-authorization-server describes an issuer that grants nothing (grant_types_supported and response_types_supported are empty), and the endpoints it names answer the protocol's own refusal rather than 404ing; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/oauth-authorization-server (RFC 8414; an issuer with no grant types, whose three endpoints are real), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), /.well-known/mcp/server-card.json, and /.well-known/agent-card.json (the A2A card, whose interface is /a2a). See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
     "version": "1.0.0",
     "termsOfService": "https://hausfold.co/terms/",
     "contact": {
@@ -41,6 +41,10 @@
     {
       "name": "v1",
       "description": "The versioned REST surface: paginated search, batch, jobs."
+    },
+    {
+      "name": "a2a",
+      "description": "The A2A (Agent2Agent) interface and the agent card that names it."
     }
   ],
   "paths": {
@@ -649,6 +653,100 @@
           },
           "503": {
             "$ref": "#/components/responses/indexUnavailable"
+          }
+        }
+      }
+    },
+    "/a2a": {
+      "post": {
+        "summary": "A2A (Agent2Agent) JSON-RPC interface",
+        "description": "The interface /.well-known/agent-card.json names: A2A 1.0 over JSON-RPC 2.0, PascalCase methods. SendMessage takes params.message with parts; a text part is a docs search, a data part naming a skill (search-docs, install-command, latest-release) or an app, desktop or query runs that skill. Every reply is a Message from ROLE_AGENT with a text part and a data part carrying the same answer the MCP tool gives; no reply is ever a Task, so GetTask and CancelTask answer -32001, SendStreamingMessage and SubscribeToTask -32004, the push-notification methods -32003 and GetExtendedAgentCard -32007. A2A-Version other than 1.x, or a 0.3 method name such as message/send, answers -32009. Open CORS, no authentication; responses carry the RateLimit trio.",
+        "operationId": "a2aRpc",
+        "tags": [
+          "a2a"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/jsonRpcRequest"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/jsonRpcRequest"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response (single object, or array for a batch). A2A errors carry a google.rpc.ErrorInfo detail in error.data.",
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/a2aResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The request (or every message in the batch) was a notification; there is nothing to reply."
+          },
+          "400": {
+            "description": "Body was not JSON (JSON-RPC -32700 parse error).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/jsonRpcError"
+                }
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Open preflight: any origin, POST, and the A2A service-parameter headers (A2A-Version, A2A-Extensions).",
+        "operationId": "a2aPreflight",
+        "tags": [
+          "a2a"
+        ],
+        "responses": {
+          "204": {
+            "description": "Preflight allowed."
           }
         }
       }
@@ -1654,16 +1752,36 @@
     "/.well-known/agent-card.json": {
       "get": {
         "summary": "A2A agent card",
-        "description": "Agent2Agent discovery manifest describing this domain's agentic surface: the MCP endpoint as its URL, three skills (search-docs, install-command, latest-release), and the docs as documentationUrl. No authentication.",
+        "description": "The Agent2Agent (A2A 1.0) card: supportedInterfaces names the JSON-RPC binding at /a2a, capabilities declares streaming, push notifications and the extended card off, and the three skills (search-docs, install-command, latest-release) are the three MCP tools under A2A names. Generated by the Worker from the same tables /a2a dispatches on, so the card and the interface cannot disagree. Carries an ETag and a max-age, and answers 304 to If-None-Match. No authentication.",
         "responses": {
           "200": {
             "description": "The agent card.",
             "content": {
               "application/json": {}
+            },
+            "headers": {
+              "ETag": {
+                "description": "A hash of the card's content, for conditional requests.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "public, with a max-age of an hour.",
+                "schema": {
+                  "type": "string"
+                }
+              }
             }
+          },
+          "304": {
+            "description": "The card has not changed since the ETag in If-None-Match."
           }
         },
-        "operationId": "getAgentCard"
+        "operationId": "getAgentCard",
+        "tags": [
+          "a2a"
+        ]
       }
     },
     "/.well-known/agent-skills/index.json": {
@@ -3003,6 +3121,105 @@
           "error",
           "error_description",
           "error_uri"
+        ]
+      },
+      "a2aMessage": {
+        "type": "object",
+        "description": "An A2A 1.0 Message from the agent, in ProtoJSON casing.",
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "description": "Minted per reply."
+          },
+          "contextId": {
+            "type": "string",
+            "description": "Echoed from the request's message when it carried one, minted otherwise."
+          },
+          "role": {
+            "type": "string",
+            "const": "ROLE_AGENT"
+          },
+          "parts": {
+            "type": "array",
+            "description": "Two parts: a text part written for a reader, then a data part carrying the same answer as JSON, which is the MCP tool's structuredContent, or {error: {code, message}} when the tool failed.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "data": {
+                  "description": "Any JSON value."
+                },
+                "mediaType": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "skill": {
+                "type": "string",
+                "description": "The skill that answered: search-docs, install-command or latest-release."
+              },
+              "tool": {
+                "type": "string",
+                "description": "The MCP tool behind it."
+              },
+              "error": {
+                "type": "string",
+                "description": "The tool's error code, present only when the tool failed."
+              }
+            }
+          }
+        },
+        "required": [
+          "messageId",
+          "contextId",
+          "role",
+          "parts"
+        ]
+      },
+      "a2aResult": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "const": "2.0"
+          },
+          "id": {
+            "description": "The request id this result answers."
+          },
+          "result": {
+            "description": "SendMessage answers {message: a2aMessage}, never {task}. ListTasks answers {tasks: [], nextPageToken: \"\", pageSize: 0, totalSize: 0}. Every other method answers a JSON-RPC error carrying a google.rpc.ErrorInfo detail in error.data.",
+            "type": "object",
+            "properties": {
+              "message": {
+                "$ref": "#/components/schemas/a2aMessage"
+              }
+            }
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "id",
+          "result"
+        ]
+      },
+      "a2aResponse": {
+        "description": "A JSON-RPC 2.0 result from /a2a (single object, or an array of objects for a batch request).",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/a2aResult"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/a2aResult"
+            }
+          }
         ]
       }
     }
