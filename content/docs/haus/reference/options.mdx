@@ -108,9 +108,11 @@ The apps haus picks for you and the saved collections you can switch on in one l
 
 `boolean` · default `false`
 
-Install Cursor as the roster entry `cursor` (cask `cursor`).
-Already have it installed some other way? `haus.homebrew.adopt`
-(on by default) adopts it instead of installing a second copy.
+Install Cursor as the roster entry `cursor` (cask `cursor`), beside
+whatever `haus.terminal.editorName` installs — name it THERE to make
+it the editor. Already have it installed some other way?
+`haus.homebrew.adopt` (on by default) adopts it instead of
+installing a second copy.
 
 <small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
 
@@ -149,9 +151,10 @@ and the keys to reach them.
 `boolean` · default `false`
 
 Install Visual Studio Code as the roster entry `vscode` (cask
-`visual-studio-code`). Already have it installed some other way?
-`haus.homebrew.adopt` (on by default) adopts it instead of
-installing a second copy.
+`visual-studio-code`), beside whatever `haus.terminal.editorName`
+installs — name it THERE to make it the editor. Already have it
+installed some other way? `haus.homebrew.adopt` (on by default)
+adopts it instead of installing a second copy.
 
 <small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
 
@@ -159,9 +162,12 @@ installing a second copy.
 
 `boolean` · default `false`
 
-Install Zed as the roster entry `zed` (cask `zed`). Already have it
-installed some other way? `haus.homebrew.adopt` (on by default)
-adopts it instead of installing a second copy.
+Install Zed as the roster entry `zed` (cask `zed`). Redundant on a
+machine whose `haus.terminal.editorName` is `zed` (the default),
+which writes the same entry; this is for keeping Zed on a machine
+that edits in something else. Already have it installed some other
+way? `haus.homebrew.adopt` (on by default) adopts it instead of
+installing a second copy.
 
 <small>Declared in [`modules/apps/options.nix`](https://github.com/hausfold/haus/blob/main/modules/apps/options.nix).</small>
 
@@ -400,7 +406,9 @@ green.
 
 Three limits. A per-accent port names its theme file after the accent,
 so changing the accent renames the file the app's own `theme` key points
-at: re-pick it in the app, or it falls back to stock. Single-file
+at: re-pick it in the app, or it falls back to stock. (Zed as THE
+editor is the exception — the Development room places its port under
+one fixed name and writes the key, so the accent just arrives.) Single-file
 dotfiles that bake the palette at their own theme slot (ghostty,
 starship, tmux, bat, …) keep their built-in colour, and the base palette
 stays the same Nebelung grey either way, so only the accent hue moves.
@@ -476,9 +484,9 @@ nebelung's CI measures each one rather than eyeballing it.
 What follows it: every tool haus themes itself. Ghostty, bat, delta,
 lsd, yazi, glow, fzf, starship, lazygit, zsh-syntax-highlighting,
 opencode, the bar and Zen always, and three more that wait on something
-else: helix when `haus.terminal.editorName` picks it (Nebelung has a
-port for helix and none for the alternatives), gh-dash under
-`haus.terminal.ghDash.enable`, and Obsidian once
+else: the editor when `haus.terminal.editorName` picks zed (the
+default) or helix (Nebelung has a port for those two and none for the
+rest), gh-dash under `haus.terminal.ghDash.enable`, and Obsidian once
 `haus.terminal.obsidianVaults` names a vault. Each one is re-rendered
 for the flavor rather than recoloured in place.
 
@@ -1935,17 +1943,18 @@ The shell and terminal experience.
 
 #### `haus.terminal.editor` [#haus-terminal-editor]
 
-`string` · default `the command for haus.terminal.editorName — hx for helix` · e.g. `"code -w"`
+`string` · default `haus.terminal.editorName's command — zed --wait for zed` · e.g. `"subl -w"`
 
 **Host-only.** A shared desktop may not set it; only your host file can. It is a shell command this machine runs, and a desktop is a file you can read to know what it does. A leaf carrying a command is exactly what stops that being true.
 
 The ONE editor command haus uses everywhere. It's the shell command
 for $EDITOR / $VISUAL (git, etc.) AND what every "open in an editor"
 action launches — the "Nix Config" palette command, the bar's nix-open
-item, and the file-association hijack. Those open the target in a new
-terminal WINDOW running this command, so a terminal editor is the
-natural fit for haus; a GUI editor's CLI works too (e.g. "code" or
-"code -w" to block).
+item, and the file-association hijack. A terminal editor opens the
+target in a new terminal WINDOW running this command. A GUI editor's
+CLI (`zed`, `code`, `cursor`, `subl`, …) is handed the project root
+and the file directly, no window in between, with the blocking flag
+git needs (`-w`, `--wait`) dropped for that one call.
 
 <details className="hf-more">
 
@@ -1954,7 +1963,10 @@ natural fit for haus; a GUI editor's CLI works too (e.g. "code" or
 It defaults to the command for `haus.terminal.editorName`, so choosing an
 editor there is enough. Set this only for the case that option cannot
 express: pointing haus at something it does not install. Naming a
-command here does NOT install it — that machine has to already have it.
+command here does NOT install it — that machine has to already have it
+— and the editor `editorName` names is still installed beside it, as
+the fallback (Zed by default); name `nano` there if you would rather
+not carry one.
 
 </details>
 
@@ -1962,21 +1974,31 @@ command here does NOT install it — that machine has to already have it.
 
 #### `haus.terminal.editorName` [#haus-terminal-editorname]
 
-`one of "helix", "nano", "neovim", "vim"` · default `"helix"` · e.g. `"neovim"`
+`one of "cursor", "helix", "nano", "neovim", "vim", "vscode", "zed"` · default `"zed"` · e.g. `"helix"`
 
-Which editor this room installs. `helix` (the default) is the one haus
-is themed around; `neovim`, `vim` and `nano` are installed as-is,
-with no Nebelung theme — Nebelung has a port for helix and not for
-them.
+Which editor this room installs. `zed` (the default) arrives as a
+roster cask, painted from the palette, with its Nix, TOML, Swift,
+HTML, Dockerfile and Make extensions installed on first launch;
+`vscode` and `cursor` are casks too, in their own colours. `helix` is
+the terminal editor haus themes; `neovim`, `vim` and `nano` are
+installed as-is, with no Nebelung theme — Nebelung has a port for zed
+and helix and not for the rest.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.terminal.editorName</span></summary>
 
 Setting this also moves `haus.terminal.editor`, since that defaults to
-whatever the chosen editor answers to on PATH (`hx`, `nvim`, `vim`,
-`nano`). Choosing here is the whole gesture: the editor is installed
-AND every "open in an editor" action follows it.
+whatever the chosen editor answers to on PATH (`zed --wait`, `code -w`,
+`hx`, `nvim`, …). Choosing here is the whole gesture: the editor is
+installed AND every "open in an editor" action follows it — in a new
+terminal window for a terminal editor, in the app itself for a GUI one.
 
 A desktop may set this. To point haus at an editor it does not
-install — a GUI one, or something from your own host file — leave this
-alone and set `haus.terminal.editor` instead.
+install — something from your own host file — leave this alone and
+set `haus.terminal.editor` instead.
+
+</details>
 
 <small>Declared in [`modules/terminal/options.nix`](https://github.com/hausfold/haus/blob/main/modules/terminal/options.nix).</small>
 
@@ -2087,8 +2109,9 @@ its login comes from.
 
 When true, build a small opener app and make it the default handler
 for ~80 text/code extensions (json, md, ts, nix, rs, go, kdl, …), so
-opening or clicking those files opens them in haus.terminal.editor in
-a terminal window. The app declares the types itself (not just `duti`) so
+opening or clicking those files opens them in haus.terminal.editor — a
+GUI editor directly, a terminal editor in a new terminal window. The
+app declares the types itself (not just `duti`) so
 extensions nothing else on the machine declares still bind. Off by
 default: silently rewriting your file associations is a jarring,
 hard-to-undo change, so it's strictly opt-in. (Extensionless executables
@@ -5288,8 +5311,7 @@ second copy nobody could check.
 
 `string` · default `""` · e.g. `"⌂"`
 
-The glyph in the far-left logo pill — the one that was an Apple menu
-until it was the hacker cat-ears mark. Any single character your bar
+The glyph in the far-left logo pill. Any single character your bar
 font can draw; the default is Nerd Font's `nf-fa-home` (`U+F015`), a
 solid house.
 
@@ -6748,11 +6770,18 @@ one every surface above already means.
 
 Honest scope: focus flips the built-in Do Not Disturb, not named Focus
 modes, and it doesn't manage which apps break through — curate that
-once in System Settings. The keypress needs an Accessibility grant on
-whatever app invokes focus (palette runs inherit pounce's; the pill
-needs one on sketchybar itself, and TCC keys that to the binary — so
-it is asked again after a rebuild that moves it). `focus doctor` walks
-those steps.
+once in System Settings.
+
+Two grants, both on Pounce.app: the keypress needs Accessibility, and
+reading the state back needs Full Disk Access. With the launcher room
+on, focus forwards both through the Pounce.app it runs, so that one
+pair of checkboxes covers the pill, the palette and the CLI, and it
+survives rebuilds. Without a launcher, whatever app invokes focus needs
+the grants itself: sketchybar for the pill, which TCC keys to the
+binary and asks for again after a rebuild moves it, and your terminal
+for the CLI. Without Full Disk Access the state is focus's own memory,
+which drifts when you toggle from Control Center or your phone. `focus
+doctor` says which route is live and what is left to grant.
 
 </details>
 
@@ -7665,15 +7694,15 @@ rather than `git worktree`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Seven skills on any machine. Two are haus's own: `haus` (this
+Six skills on any machine. Two are haus's own: `haus` (this
 machine's setup) and `hausfold` (carrying a complaint about anything we
 make upstream — which repo owns the symptom, the `report` verb that
 fills its bug form's diagnostics field in, and the fork to a pull
 request; it files nothing without asking you first). Then scruff's
 own two — `scruff` (the lane lifecycle) and `handoff` (turning work into a
 brief a cold session can act on, ending on the clipboard or in a new
-lane) — factory's two: `factory` (the merge verbs) and `nightshift`
-(the loop that drives them while nobody is watching) — and `nebelung`
+lane) — factory's `factory` (the merge verbs; a live lease runs the
+shift itself, so the skill is what an agent does around it) — and `nebelung`
 (this machine's exact palette, rendered from the lock rather than
 remembered). A tool whose room is OPTIONAL adds its own only when that
 room is on: `trill` (sending a notification) with
