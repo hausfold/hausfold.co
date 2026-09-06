@@ -25,7 +25,7 @@ modern replacements for the usual commands), painted from the same
 | Shell | zsh | no framework, fzf-tab, sensible history, git aliases |
 | Prompt | [starship](https://starship.rs) | |
 | Files | [yazi](https://yazi-rs.github.io) | markdown, code and image previews |
-| Editor | [helix](https://helix-editor.com) | the default `$EDITOR`, or neovim, vim, nano ([below](#choosing-your-editor)) |
+| Editor | [Zed](https://zed.dev) | the default `$EDITOR`, themed and with its extensions preloaded; or VS Code, Cursor, helix, neovim, vim, nano ([below](#choosing-your-editor)) |
 | Jumper | [zoxide](https://github.com/ajeetdsouza/zoxide) | `cd` learns your habits; `cdi` opens a picker |
 
 Plus `bat` over `cat`, `lsd` over `ls`, `lazygit` (`lg`), `delta` for git diffs,
@@ -370,10 +370,12 @@ haus.git.shellAliases = {
 
 ## Choosing your editor
 
-Name one and the room installs it. `haus.terminal.editorName` takes **helix** (the
-default), **neovim**, **vim** or **nano**: one choice that installs the editor,
-sets your `$EDITOR`, and points every "open in an editor" action at it. Those
-open in a new terminal window, which is why the list is terminal editors.
+Name one and the room installs it. `haus.terminal.editorName` takes **zed** (the
+default), **vscode**, **cursor**, **helix**, **neovim**, **vim** or **nano**: one
+choice that installs the editor, sets your `$EDITOR`, and points every "open in
+an editor" action at it. The three apps arrive as casks, so `haus.homebrew.adopt`
+(on by default) claims a copy already on your Mac instead of installing a second
+one; the rest come from nixpkgs.
 
 ```nix
 haus.terminal.editorName = "neovim";              # installed, and $EDITOR
@@ -381,16 +383,27 @@ haus.terminal.hijackFileAssociations = true;      # off by default: make it the
                                                 # opener for .json, .md, .nix, …
 ```
 
-helix is the one haus paints from the palette: Nebelung has a theme for it and
-none for the others, so the alternatives arrive in their own default colours.
+Zed comes set up: the Nebelung theme for your flavor and accent, placed and
+selected (it follows the accent on every rebuild, no re-pick in Settings), the
+same mono font as the terminal, and the Nix, TOML, Swift, HTML, Dockerfile and
+Make extensions, which Zed installs the first time it opens with a network. Your
+own settings survive: haus merges its few keys into `settings.json` at
+activation and leaves everything else in that file alone. helix is the other
+editor haus paints from the palette; VS Code, Cursor, neovim, vim and nano
+arrive in their own default colours.
 
-To point haus at an editor it does **not** install (a GUI one, or something
-your host installs itself), set `haus.terminal.editor` instead. That one is a
-shell command haus runs, so it belongs in your host file rather than in a shared
-desktop, and it wins over whatever `editorName` chose:
+"Open in an editor" fits the editor. A terminal editor gets a new terminal window
+cwd'd at the project; a GUI editor is handed the project folder and the file
+directly, so the palette's **Nix Config** and the bar's nix pill land in Zed
+with your config open as a workspace.
+
+To point haus at an editor it does **not** install (something your host installs
+itself), set `haus.terminal.editor` instead. That one is a shell command haus
+runs, so it belongs in your host file rather than in a shared desktop, and it
+wins over whatever `editorName` chose:
 
 ```nix
-haus.terminal.editor = "code -w";                 # points at it; installs nothing
+haus.terminal.editor = "subl -w";                 # points at it; installs nothing
 ```
 
 ## Smaller things you'll notice
