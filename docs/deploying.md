@@ -51,6 +51,44 @@ The `hausfold.co` zone had no DNS records at all. A plain Workers route
 `custom_domain = true` makes wrangler create and proxy it. That is the whole
 reason the deploy token needs **Zone → DNS:Edit** and not just Workers scopes.
 
+## the DNS-AID records
+
+Two SVCB records under `_agents.hausfold.co` let an agent find the MCP server
+through DNS alone (DNS-AID, `draft-mozleywilliams-dnsop-dnsaid-02`):
+`_index._agents` points at the ARD catalog, `_mcp._agents` at the MCP server.
+They are the one part of the machine-facing surface that a deploy does not
+carry, so they have a workflow of their own.
+
+The table is [`scripts/dns-aid.mjs`](../scripts/dns-aid.mjs), derived from
+`MCP_TRANSPORTS` in `worker-config.js`. [`dns.yml`](../.github/workflows/dns.yml)
+converges the zone on it when either file changes on `main`: create, update
+and delete, **under `_agents.hausfold.co` and nowhere else**. A record added
+there by hand is removed on the next push; that is the contract, so the zone
+cannot disagree with the repo. A Monday cron runs the read-only comparison and
+goes red on drift.
+
+```sh
+node scripts/dns-aid.mjs --print     # the records, zone-file form, offline
+node scripts/dns-aid.mjs --verify    # what 1.1.1.1 answers, and whether AD is set
+node scripts/dns-aid.mjs --check     # the zone against the table (needs the token)
+```
+
+The push path uses the same `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID`
+as the deploy; DNS:Edit covers the records. **DNSSEC is a zone setting**, so
+the script only touches it when asked (`--dnssec`, which `dns.yml` passes:
+that flag is the decision to sign the zone, and it comes out of the workflow
+before a registrar transfer). The API call needs Zone → Zone Settings → Edit,
+which the deploy token was not minted with; the script warns and skips that
+half rather than failing the records. Enable it once in the dashboard (DNS →
+Settings → Enable DNSSEC) or add the permission and re-run the workflow.
+hausfold.co is registered with Cloudflare Registrar, which adds the DS record
+at the registry itself, so there is no second step. `--verify` reports the DS
+and the AD flag, which is what isitagentready.com's `dnsAid` check reads.
+
+Right after a first publish a resolver may still answer NXDOMAIN for up to 30
+minutes: the zone's negative TTL. The push path's verify step warns rather than
+fails for that reason; re-run the workflow or wait for the Monday check.
+
 ## watch out
 
 **Always Use HTTPS is on** for this zone, so `http://hausfold.co/` 301s to

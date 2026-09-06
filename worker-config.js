@@ -46,6 +46,27 @@ export const DOWNLOADABLE = new Set(["pounce", "perch"]);
 // is what the OpenAPI-era tool table and the tests read.
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
 
+// The two MCP transports, in one place. The server card, /mcp.json and
+// /.well-known/mcp.json all read this, so a URL or a description can only be
+// wrong in one spelling if it is wrong in every spelling. The keys are the
+// names /mcp.json publishes, and `hausfold` is the full server: a client
+// handed nothing else should open that one.
+//
+// Since 2026-09-06 DNS reads it too: scripts/dns-aid.mjs derives the
+// `_mcp._agents.hausfold.co` SVCB record's target from `hausfold.url`, so a
+// transport that moves here moves in DNS on the next push to main.
+export const MCP_TRANSPORTS = {
+  hausfold: {
+    url: "https://hausfold.co/mcp",
+    description:
+      "Install commands, release metadata and docs search for hausfold's Mac software.",
+  },
+  "hausfold-docs": {
+    url: "https://hausfold.co/mcp/docs",
+    description: "Full-text search of the hausfold documentation alone.",
+  },
+};
+
 // RFC 9728 Protected Resource Metadata. The resource this host serves is
 // public: no authorization server stands behind it, so authorization_servers
 // is empty rather than pointing at an issuer that does not exist, and no

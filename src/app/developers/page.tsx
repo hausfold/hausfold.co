@@ -290,6 +290,22 @@ export default function Developers() {
             ships the same MCP server as an <code>mcp.json</code> entry, plus a skill covering
             install and release lookups.
           </p>
+          <p>
+            Through DNS, before any HTTP at all. SVCB records under{' '}
+            <code>_agents.hausfold.co</code> follow DNS-AID, the IETF draft for agent discovery:{' '}
+            <code>_index._agents.hausfold.co</code> points at the ARD catalog above, and{' '}
+            <code>_mcp._agents.hausfold.co</code> names the MCP server on{' '}
+            <code>hausfold.co:443</code> with <code>alpn=mcp</code> and its server card as the
+            capability document. The draft&apos;s own keys ride as <code>key65400</code> (the
+            capability locator, a URL) and <code>key65409</code> (the same document as a suffix
+            under <code>/.well-known/</code>), numbered as its reference implementation numbers
+            them until IANA assigns theirs.
+          </p>
+          <Command>
+            {
+              "curl -s 'https://cloudflare-dns.com/dns-query?name=_mcp._agents.hausfold.co&type=SVCB' -H 'accept: application/dns-json'"
+            }
+          </Command>
         </section>
 
         <section className="block">

@@ -94,6 +94,7 @@ import {
   MCP_TOOLS,
   DOCS_MCP_TOOLS,
   MCP_PROTOCOL_VERSION,
+  MCP_TRANSPORTS,
   PROTECTED_RESOURCE,
   SIGNATURE_DIRECTORY,
 } from "./worker-config.js";
@@ -324,22 +325,11 @@ const MCP_SUPPORTED_PROTOCOLS = new Set(["2025-03-26", "2025-06-18"]);
 // the card against a live connection can never be shown two servers.
 const MCP_SERVER_INFO = { name: "hausfold.co", title: "hausfold", version: "1.0.0" };
 
-// The two transports, in one place. The server card, /mcp.json and
-// /.well-known/mcp.json all read this, so a URL or a description can only be
-// wrong in one spelling if it is wrong in every spelling. The keys are the
-// names /mcp.json publishes, and `hausfold` is the full server: a client
-// handed nothing else should open that one.
-const MCP_TRANSPORTS = {
-  hausfold: {
-    url: "https://hausfold.co/mcp",
-    description:
-      "Install commands, release metadata and docs search for hausfold's Mac software.",
-  },
-  "hausfold-docs": {
-    url: "https://hausfold.co/mcp/docs",
-    description: "Full-text search of the hausfold documentation alone.",
-  },
-};
+// The two transports, MCP_TRANSPORTS, live in worker-config.js since
+// 2026-09-06: scripts/dns-aid.mjs reads the same table to publish the
+// `_mcp._agents.hausfold.co` SVCB record, and workerd refuses a named export
+// from this file. The server card, /mcp.json and /.well-known/mcp.json all
+// still read it, so a URL can only be wrong in every spelling or in none.
 
 const MCP_CORS = {
   "access-control-allow-origin": "*",
@@ -1632,6 +1622,9 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   https://hausfold.co/.well-known/agent-card.json,
   https://hausfold.co/.well-known/agent-skills/index.json,
   https://hausfold.co/.well-known/api-catalog, https://hausfold.co/mcp.json.
+- Through DNS (DNS-AID): SVCB records at _index._agents.hausfold.co (pointing
+  at /.well-known/ard.json) and _mcp._agents.hausfold.co (the MCP server,
+  alpn=mcp, with the server card as its capability document).
 - Every indexable URL: https://hausfold.co/sitemap.xml. Structured data as
   JSON Lines: https://hausfold.co/schema.jsonl.
 
