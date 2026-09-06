@@ -47,7 +47,7 @@ URLs, not relative paths.
 - [hausfold ask endpoint](https://hausfold.co/ask?q=how%20do%20I%20install%20haus): natural language over the docs index, JSON or SSE.
 - [hausfold auth guide](https://hausfold.co/auth.md): there is no authentication. This says so in the shape an agent expects, and [/.well-known/oauth-protected-resource](https://hausfold.co/.well-known/oauth-protected-resource) is the RFC 9728 document behind it. [/.well-known/oauth-authorization-server](https://hausfold.co/.well-known/oauth-authorization-server) is the RFC 8414 metadata of an issuer that grants nothing: grant_types_supported is empty, so there is no token to go and get.
 - [ard.json](https://hausfold.co/.well-known/ard.json): Agentic Resource Discovery catalog listing the MCP server and the OpenAPI spec.
-- [agent-card.json](https://hausfold.co/.well-known/agent-card.json): the A2A discovery card. [agent-skills/index.json](https://hausfold.co/.well-known/agent-skills/index.json) lists this domain's agent skills.
+- [hausfold A2A agent](https://hausfold.co/.well-known/agent-card.json): the A2A agent card, whose one interface is JSON-RPC at https://hausfold.co/a2a (SendMessage; every reply is a Message). [agent-skills/index.json](https://hausfold.co/.well-known/agent-skills/index.json) lists this domain's agent skills.
 - Every docs page has a markdown twin: append .md to its URL, e.g.
   https://hausfold.co/docs/haus/install.md, or ask for the page itself with
   Accept: text/markdown.

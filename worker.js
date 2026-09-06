@@ -62,6 +62,11 @@
 //                         headers, Idempotency-Key on the batch POST
 //   /ask                → NLWeb-style natural-language endpoint over the
 //                         docs search, JSON or SSE streaming
+//   /a2a                → the A2A (Agent2Agent) JSON-RPC binding: SendMessage
+//                         over the three MCP tools, every reply a Message.
+//                         /.well-known/agent-card.json is the card that
+//                         names it, generated from A2A_SKILLS so the card
+//                         and the endpoint cannot disagree
 //   /design.md          → PROXIES the workshop's docs/design.md — the
 //                         family's visual standard as one public URL any
 //                         coding agent can load before drawing something
@@ -75,8 +80,9 @@
 //                         twin, and a docs page asked for with
 //                         Accept: text/markdown answers with its twin at the
 //                         page's own URL. /.well-known/ carries the agent
-//                         surfaces: agent-card.json (A2A), agent-skills/index.json,
-//                         api-catalog (RFC 9727), and /mcp again.
+//                         surfaces: agent-skills/index.json, api-catalog
+//                         (RFC 9727), and /mcp again (agent-card.json is
+//                         the Worker's, above).
 //   everything else     → the static export in ./out (the [assets] binding)
 //
 // Two things about the shape, and both are decisions:
@@ -106,6 +112,7 @@ import {
   DOWNLOADABLE,
   MCP_TOOLS,
   DOCS_MCP_TOOLS,
+  A2A_SKILLS,
   MCP_PROTOCOL_VERSION,
   PROTECTED_RESOURCE,
   SIGNATURE_DIRECTORY,
@@ -1319,6 +1326,331 @@ function handleV1(request, env, url, ctx) {
 }
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// /a2a — the A2A (Agent2Agent) JSON-RPC binding, and the agent card that
+// advertises it at /.well-known/agent-card.json.
+//
+// The card used to be a static file in public/ whose `url` was /mcp: an A2A
+// client that believed it would POST SendMessage at an MCP server and get
+// method-not-found back. Now the interface it names is real, and the card is
+// generated from the same tables the endpoint dispatches on (A2A_SKILLS,
+// MCP_SERVER_INFO), the way the MCP server card is, so the two cannot drift.
+//
+// What the agent is: the three MCP tools, reachable the way A2A clients
+// speak. Every SendMessage is answered with a Message rather than a Task —
+// nothing here outlives one request, so there is no task to poll, cancel or
+// subscribe to, and the task methods say so with the spec's own error codes
+// (§5.4). Streaming and push notifications are declared off in the card's
+// `capabilities` and refused here with the codes that declaration implies.
+//
+// Wire shape is A2A 1.0: PascalCase methods, ProtoJSON casing, ROLE_AGENT.
+// A 0.3 client calling `message/send` is told which version this is
+// (VersionNotSupportedError) rather than getting a bare method-not-found.
+
+const A2A_INTERFACE = {
+  url: "https://hausfold.co/a2a",
+  protocolBinding: "JSONRPC",
+  protocolVersion: "1.0",
+};
+const A2A_CARD_URL = "https://hausfold.co/.well-known/agent-card.json";
+const A2A_CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "POST, OPTIONS",
+  "access-control-allow-headers": "content-type, authorization, a2a-version, a2a-extensions",
+};
+
+// The A2A-specific JSON-RPC codes this agent can answer with (spec §5.4).
+const A2A_TASK_NOT_FOUND = -32001;
+const A2A_PUSH_NOT_SUPPORTED = -32003;
+const A2A_UNSUPPORTED_OPERATION = -32004;
+const A2A_CONTENT_TYPE_NOT_SUPPORTED = -32005;
+const A2A_EXTENDED_CARD_NOT_CONFIGURED = -32007;
+const A2A_VERSION_NOT_SUPPORTED = -32009;
+
+// An A2A error carries its reason as a google.rpc.ErrorInfo detail (§9.5),
+// so a client can branch on `reason` without parsing the message.
+const a2aError = (id, code, message, reason) => ({
+  jsonrpc: "2.0",
+  id: id ?? null,
+  error: {
+    code,
+    message,
+    data: [{ "@type": "type.googleapis.com/google.rpc.ErrorInfo", reason, domain: "hausfold.co" }],
+  },
+});
+
+function agentCard() {
+  return {
+    name: MCP_SERVER_INFO.title,
+    description:
+      "hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, " +
+      "and small native apps that run on it. This agent answers over the domain's public machine " +
+      "surface: docs search, install commands and release metadata. Send a question as text, or " +
+      "name a skill in a data part; every reply is a Message with a text part and a data part. " +
+      "No authentication: no keys, no accounts, nothing to buy.",
+    supportedInterfaces: [A2A_INTERFACE],
+    provider: { organization: "hausfold", url: "https://hausfold.co/" },
+    version: MCP_SERVER_INFO.version,
+    documentationUrl: "https://hausfold.co/developers/",
+    capabilities: { streaming: false, pushNotifications: false, extendedAgentCard: false },
+    defaultInputModes: ["text/plain", "application/json"],
+    defaultOutputModes: ["text/plain", "application/json"],
+    skills: A2A_SKILLS.map(({ tool: _tool, ...skill }) => skill),
+  };
+}
+
+// The card, with the caching the spec asks of it (§8.6): a max-age and an
+// ETag off the content, and a 304 for a client that sends it back. HEAD is
+// answered like the other discovery documents: the card was a static asset
+// once, and `curl -I` against it is what a scanner runs.
+async function serveAgentCard(request) {
+  const body = JSON.stringify(agentCard(), null, 2);
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
+  const etag = `"${[...new Uint8Array(digest).slice(0, 16)].map((b) => b.toString(16).padStart(2, "0")).join("")}"`;
+  const headers = {
+    etag,
+    "cache-control": "public, max-age=3600",
+    "access-control-allow-origin": "*",
+  };
+  const ifNoneMatch = (request.headers.get("if-none-match") ?? "").split(",").map((v) => v.trim());
+  if (ifNoneMatch.includes(etag) || ifNoneMatch.includes(`W/${etag}`)) {
+    return new Response(null, { status: 304, headers });
+  }
+  return new Response(request.method === "HEAD" ? null : body, {
+    headers: { "content-type": "application/json", ...headers },
+  });
+}
+
+// The text part of a reply: the same data the data part carries, written for
+// the agent that reads prose rather than JSON. Docs URLs are absolute here
+// because a Message travels; the data part keeps the site-relative form the
+// MCP tool returns.
+function a2aText(tool, data) {
+  if (data.error) return `${data.error.message} (${data.error.code})`;
+  switch (tool) {
+    case "search_docs": {
+      const n = data.results.length;
+      if (!n) return `No docs section matches "${data.query}".`;
+      return [
+        `${n} docs section${n === 1 ? "" : "s"} match "${data.query}", best first:`,
+        ...data.results.map((r) => {
+          const where = r.breadcrumbs.join(" > ");
+          return `- ${where ? `${where}: ` : ""}https://hausfold.co${r.url}\n  ${r.excerpt}`;
+        }),
+      ].join("\n");
+    }
+    case "get_install_command":
+      return data.desktops.map((d) => `${d.desktop}: ${d.command} (${d.note})`).join("\n");
+    case "get_latest_release":
+      return `${data.tag}: ${data.url} (${data.asset}, ${data.size} bytes, published ${data.publishedAt})`;
+    default:
+      return JSON.stringify(data);
+  }
+}
+
+// SendMessage: pick the skill, run its tool, answer with a Message. A data
+// part that names a skill wins; a data part that names an app, a desktop or
+// a query implies one; plain text is a docs search. A message that continues
+// a task cannot be honoured, because no task exists to continue.
+async function a2aSendMessage(id, params, env) {
+  const message = params?.message;
+  if (!message || typeof message !== "object" || !Array.isArray(message.parts) || !message.parts.length) {
+    return a2aError(
+      id,
+      -32602,
+      "SendMessage needs params.message with at least one part.",
+      "INVALID_PARAMS",
+    );
+  }
+  if (params.configuration?.taskPushNotificationConfig) {
+    return a2aError(
+      id,
+      A2A_PUSH_NOT_SUPPORTED,
+      "Push notifications are not supported (the card's capabilities.pushNotifications is false).",
+      "PUSH_NOTIFICATION_NOT_SUPPORTED",
+    );
+  }
+  if (typeof message.taskId === "string" && message.taskId) {
+    return a2aError(
+      id,
+      A2A_TASK_NOT_FOUND,
+      `No task '${message.taskId}': this agent answers every message within the request, so there is no task to continue.`,
+      "TASK_NOT_FOUND",
+    );
+  }
+  const text = message.parts
+    .filter((p) => typeof p?.text === "string")
+    .map((p) => p.text)
+    .join("\n")
+    .trim();
+  const data =
+    message.parts.find((p) => p?.data && typeof p.data === "object" && !Array.isArray(p.data))?.data ?? null;
+  const skillId =
+    data?.skill ??
+    (data?.app != null
+      ? "latest-release"
+      : data?.desktop != null
+        ? "install-command"
+        : data?.query != null || text
+          ? "search-docs"
+          : null);
+  if (skillId == null) {
+    return a2aError(
+      id,
+      A2A_CONTENT_TYPE_NOT_SUPPORTED,
+      'Send a text part (a question for the docs) or a data part naming a skill, e.g. {"skill": "latest-release", "app": "pounce"}.',
+      "CONTENT_TYPE_NOT_SUPPORTED",
+    );
+  }
+  const skill = A2A_SKILLS.find((s) => s.id === skillId);
+  if (!skill) {
+    return a2aError(
+      id,
+      -32602,
+      `Unknown skill '${skillId}'. This agent's skills: ${A2A_SKILLS.map((s) => s.id).join(", ")}.`,
+      "INVALID_PARAMS",
+    );
+  }
+  const { skill: _named, ...args } = data ?? {};
+  if (skill.tool === "search_docs" && typeof args.query !== "string") args.query = text;
+  const result = await callTool(skill.tool, args, env);
+  const payload = result.structuredContent;
+  return rpcResult(id, {
+    message: {
+      messageId: crypto.randomUUID(),
+      contextId:
+        typeof message.contextId === "string" && message.contextId ? message.contextId : crypto.randomUUID(),
+      role: "ROLE_AGENT",
+      parts: [
+        { text: a2aText(skill.tool, payload), mediaType: "text/plain" },
+        { data: payload, mediaType: "application/json" },
+      ],
+      metadata: { skill: skill.id, tool: skill.tool, ...(result.isError ? { error: payload.error.code } : {}) },
+    },
+  });
+}
+
+async function handleA2aRpc(msg, env) {
+  const { id, method, params } = msg;
+  if (method.includes("/")) {
+    return a2aError(
+      id,
+      A2A_VERSION_NOT_SUPPORTED,
+      `'${method}' is an A2A 0.3 method name. This interface speaks A2A ${A2A_INTERFACE.protocolVersion}, whose methods are PascalCase (SendMessage, GetTask); see ${A2A_CARD_URL}.`,
+      "VERSION_NOT_SUPPORTED",
+    );
+  }
+  switch (method) {
+    case "SendMessage":
+      return a2aSendMessage(id, params, env);
+    case "SendStreamingMessage":
+    case "SubscribeToTask":
+      return a2aError(
+        id,
+        A2A_UNSUPPORTED_OPERATION,
+        "Streaming is not supported (the card's capabilities.streaming is false). SendMessage answers in one response.",
+        "UNSUPPORTED_OPERATION",
+      );
+    case "GetTask":
+    case "CancelTask":
+      return a2aError(
+        id,
+        A2A_TASK_NOT_FOUND,
+        `No task '${params?.id ?? ""}': this agent answers every message within the request and keeps no tasks.`,
+        "TASK_NOT_FOUND",
+      );
+    case "ListTasks":
+      return rpcResult(id, { tasks: [], nextPageToken: "", pageSize: 0, totalSize: 0 });
+    case "CreateTaskPushNotificationConfig":
+    case "GetTaskPushNotificationConfig":
+    case "ListTaskPushNotificationConfigs":
+    case "DeleteTaskPushNotificationConfig":
+      return a2aError(
+        id,
+        A2A_PUSH_NOT_SUPPORTED,
+        "Push notifications are not supported (the card's capabilities.pushNotifications is false).",
+        "PUSH_NOTIFICATION_NOT_SUPPORTED",
+      );
+    case "GetExtendedAgentCard":
+      return a2aError(
+        id,
+        A2A_EXTENDED_CARD_NOT_CONFIGURED,
+        `There is no extended card: the public one at ${A2A_CARD_URL} is the whole of it.`,
+        "EXTENDED_AGENT_CARD_NOT_CONFIGURED",
+      );
+    default:
+      return rpcError(id, -32601, `Method not found: ${method}`);
+  }
+}
+
+// The transport: JSON-RPC 2.0 over POST, one message or a batch, the
+// RateLimit trio on every answer. The A2A-Version service parameter rides
+// as a header (§9.2); a client that names another major version is refused
+// per message, so the reply still carries its id. No header means a client
+// that has not said, and the method name already tells 0.3 from 1.0.
+async function serveA2a(request, env) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: A2A_CORS });
+  }
+  const rl = rateLimit(request);
+  if (request.method !== "POST") {
+    return problemResponse(
+      405,
+      "Method not allowed",
+      `/a2a is the A2A JSON-RPC interface: POST a JSON-RPC 2.0 request such as SendMessage. The agent card is ${A2A_CARD_URL}.`,
+      "method_not_allowed",
+      { allow: "POST, OPTIONS", ...rl.headers, ...A2A_CORS },
+    );
+  }
+  if (!rl.ok) {
+    return problemResponse(
+      429,
+      "Too many requests",
+      "Rate limit exceeded for /a2a. Wait and retry.",
+      "rate_limited",
+      { ...rl.headers, ...A2A_CORS },
+    );
+  }
+  const respond = (body, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { "content-type": "application/json", ...rl.headers, ...A2A_CORS },
+    });
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return respond(rpcError(null, -32700, "Parse error: request body is not JSON"), 400);
+  }
+  const version = (request.headers.get("a2a-version") ?? "").trim();
+  const versionOk = !version || /^1(\.\d+)?$/.test(version);
+  const batch = Array.isArray(body);
+  const replies = [];
+  for (const msg of batch ? body : [body]) {
+    if (!msg || typeof msg !== "object" || msg.jsonrpc !== "2.0" || typeof msg.method !== "string") {
+      replies.push(rpcError(msg?.id, -32600, "Invalid Request"));
+      continue;
+    }
+    if (msg.id === undefined) continue;
+    if (!versionOk) {
+      replies.push(
+        a2aError(
+          msg.id,
+          A2A_VERSION_NOT_SUPPORTED,
+          `A2A-Version ${version} is not supported; this interface speaks ${A2A_INTERFACE.protocolVersion}.`,
+          "VERSION_NOT_SUPPORTED",
+        ),
+      );
+      continue;
+    }
+    replies.push(await handleA2aRpc(msg, env));
+  }
+  if (!replies.length) {
+    return new Response(null, { status: 202, headers: { ...rl.headers, ...A2A_CORS } });
+  }
+  return respond(batch ? replies : replies[0]);
+}
+
 // /ask — the NLWeb-style endpoint: natural language in, docs search results
 // out, JSON by default and SSE when asked to stream. It is docs search under
 // the hood, not a chat model; the results are the same ranked excerpts the
@@ -1766,6 +2098,9 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   https://hausfold.co/.well-known/oauth-authorization-server is the RFC 8414
   metadata of an issuer that grants nothing (grant_types_supported is empty),
   so there is no token to go and get.
+- Agent to agent: POST https://hausfold.co/a2a is the A2A 1.0 JSON-RPC
+  binding (SendMessage; every reply is a Message). Its card is
+  https://hausfold.co/.well-known/agent-card.json.
 - Discovery: https://hausfold.co/.well-known/ard.json,
   https://hausfold.co/.well-known/agent-card.json,
   https://hausfold.co/.well-known/agent-skills/index.json,
@@ -2073,6 +2408,7 @@ const hausfold = {
     // GET or HEAD: workerd drops the body on a HEAD, and `curl -I` of a
     // discovery document should see its headers, not the site's 404.
     if (request.method === "GET" || request.method === "HEAD") {
+      if (cleanPath === "/.well-known/agent-card.json") return serveAgentCard(request);
       if (cleanPath === "/mcp.json") return serveMcpManifest();
       if (cleanPath === "/.well-known/mcp.json") return serveWellKnownMcpManifest();
       if (cleanPath === "/.well-known/oauth-authorization-server") {
@@ -2107,6 +2443,9 @@ const hausfold = {
         );
       }
       return serveAsk(request, env, url);
+    }
+    if (cleanPath === "/a2a") {
+      return serveA2a(request, env);
     }
     if (cleanPath === "/v1" || cleanPath.startsWith("/v1/")) {
       return handleV1(request, env, url, ctx);
