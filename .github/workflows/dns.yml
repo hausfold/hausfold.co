@@ -1,0 +1,107 @@
+# Publish the DNS-AID records: the SVCB records under _agents.hausfold.co that
+# let an agent find this domain's MCP server through DNS, and the zone's DNSSEC
+# status. The table is scripts/dns-aid.mjs, derived from worker-config.js's
+# MCP_TRANSPORTS; this job converges the zone on it. docs/deploying.md has the
+# whole account, the token's permissions included.
+#
+# Three ways in:
+#   - a push to main that touches the table (or the transports it reads)
+#     applies it: create, update, delete under _agents.hausfold.co, and turn
+#     DNSSEC on (`--dnssec`, below).
+#   - a Monday cron runs the read-only check: red if the zone drifted from the
+#     table (a hand edit in the dashboard, say), and a warning if the zone is
+#     still unsigned.
+#   - workflow_dispatch applies, for a re-run after the token changed. From
+#     main only: a dispatch off a branch must not converge the live zone on
+#     that branch's table.
+#
+# PRs do not run this (they have no secrets); `npm test` in worker.yml covers
+# the table's shape and every document it points at.
+#
+# `--dnssec` is the decision to sign the zone, made 2026-09-06 and recorded
+# here rather than as a side effect of the records: the day the zone leaves
+# Cloudflare Registrar, drop the flag before the transfer, or this job turns
+# DNSSEC back on behind it. The deploy token cannot flip it today (that needs
+# Zone → Zone Settings → Edit); the script warns and skips that half.
+#
+# The verify step asks 1.1.1.1 over DoH, the query isitagentready.com makes.
+# ⚠️ Right after a publish it can still see what was true a minute ago: a
+# fresh name may answer NXDOMAIN for up to 1800s (the zone's negative TTL),
+# and a changed record may answer its old value for up to its 3600s TTL. That
+# is why a failed verify on the push path is a warning, not a red job; the
+# Monday check is the one that fails.
+name: DNS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/dns-aid.mjs'
+      - 'worker-config.js'
+      - '.github/workflows/dns.yml'
+  schedule:
+    - cron: '45 9 * * 1'
+  workflow_dispatch: {}
+
+# One writer at a time. A newer push waits rather than cancelling: a cancelled
+# converge could leave the zone half-way between two tables.
+concurrency:
+  group: dns
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name != 'schedule' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # `set -o pipefail` in every run block: the default shell for `run` is
+      # `bash -e` without it, and `| tee` would otherwise turn a failed script
+      # into a green step.
+      - name: Converge the zone on the table
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -o pipefail
+          if [ -z "$CLOUDFLARE_ZONE_ID" ]; then
+            echo "::error::CLOUDFLARE_ZONE_ID not set; the records cannot be published without it."
+            exit 1
+          fi
+          node scripts/dns-aid.mjs --dnssec | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Ask a validating resolver
+        run: |
+          set -o pipefail
+          node scripts/dns-aid.mjs --verify | tee -a "$GITHUB_STEP_SUMMARY" \
+            || echo "::warning::the resolver does not yet answer what was just published (a new name stays NXDOMAIN for up to 30 minutes, a changed record keeps its old value for up to an hour), or the DoH query itself failed. Re-run this workflow later, or wait for the Monday check."
+
+  check:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Compare the zone with the table
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -o pipefail
+          node scripts/dns-aid.mjs --check | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Ask a validating resolver
+        run: |
+          set -o pipefail
+          node scripts/dns-aid.mjs --verify | tee -a "$GITHUB_STEP_SUMMARY"

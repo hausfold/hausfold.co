@@ -55,6 +55,7 @@ by hand, and open all the way down."**
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (checkout `./haus` in the workshop — **not** `./hausfold.co`, which is this repo) |
 | a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
 | a product's **documentation** | **here** — pounce, perch, trill and scruff each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
+| the **DNS-AID records** — what `_index._agents` and `_mcp._agents` point at | `scripts/dns-aid.mjs`, the table `dns.yml` publishes to the Cloudflare zone. Never the dashboard: a hand-added record under `_agents` is deleted on the next push |
 | a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
 | a family-wide standard (the agent surface, the issue forms, the drift catalogue, the visual system) | `docs/` in the workshop |
 | the launch plan, or anything still to be decided | `todo/` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
@@ -452,6 +453,7 @@ prose at `/developers`; the drift rules:
 | `/.well-known/oauth-authorization-server`, `/oauth/authorize`, `/oauth/token`, `/.well-known/jwks.json` | `AUTHORIZATION_SERVER` and `JWKS` in `worker-config.js`; `serveOAuthEndpoint()` for the three endpoints | RFC 8414 metadata for an issuer that grants nothing: `grant_types_supported` and `response_types_supported` are empty, and the three endpoints answer the protocol's own refusal (400 problem+json, `unsupported_grant_type`, an empty key set) rather than 404ing, because a discovery document naming a dead URL is worse than none. `test/agent-surface.test.js` pins that every URL the document names answers, and `test/openapi.test.js` that each has a spec path. 🚨 **Two tidy-ups that are wrong**: adding the issuer to the protected-resource document's `authorization_servers` (RFC 9728 says that list names servers a client CAN use with the resource, and this one issues nothing), and adding `/.well-known/openid-configuration` beside it (OIDC metadata must name an `id_token` signing algorithm, and this host signs no identity). Publishing the document reversed, on 2026-09-06, an `auth.md` line that called its absence deliberate; the commit that did it carries the reasoning |
 | `/.well-known/agent-card.json`, `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these three** the way it pins the installers and `/v1`, so the spec and the Worker can drift here until someone adds them. (The MCP well-knowns beside them *are* pinned now, which is what the row used to say of all eight.) |
 | `/sitemap.xml`, `/schema.jsonl`, `/index.jsonld` | build-time routes (`src/app/sitemap.ts`, `schema.jsonl`, `index.jsonld`) | generated from the page table / `src/lib/jsonld.ts`, never hand-typed |
+| `_index._agents.hausfold.co`, `_mcp._agents.hausfold.co` (DNS, not HTTP) | two SVCB records in the Cloudflare zone, per DNS-AID (`draft-mozleywilliams-dnsop-dnsaid-02`): the index points at `/.well-known/ard.json`, the MCP one at the transport in `MCP_TRANSPORTS` with its server card as the capability document | `scripts/dns-aid.mjs` is the table and `dns.yml` converges the zone on it (push to main, Monday `--check`); `test/dns-aid.test.js` holds every path a record names to a document the site answers, and pins that the plan never reaches a name outside `_agents.hausfold.co`. 🚨 **The zone is a mirror of that table under `_agents`** — a record added by hand there is deleted on the next push. The draft's `cap` and `well-known` keys ride as `key65400` / `key65409` (RFC 9460 private-use, numbered as dns-aid-core numbers them); when IANA assigns code points, `KEY` in the script is the one place to change, and the test holds `/developers` to it. Every `well-known` value is a suffix under `/.well-known/` on the record's own target, never a full path: dns-aid-core's catalog pointer reads it that way. DNSSEC is a zone setting the deploy token cannot flip (needs Zone Settings:Edit); `docs/deploying.md` has the one-click alternative |
 
 ### Markdown content negotiation
 
@@ -864,6 +866,15 @@ CI, by what a PR touches:
 - **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
   favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
   one command in every case except an upstream rename and `themeColor`.
+- **DNS** (`dns.yml`, on main when `scripts/dns-aid.mjs` or `worker-config.js`
+  change, plus a Monday cron and a main-only dispatch): converges the DNS-AID
+  records under `_agents.hausfold.co` on the script's table, turns DNSSEC on
+  (`--dnssec`: the flag is the decision, and it leaves the workflow before a
+  registrar transfer), then asks 1.1.1.1 over DoH what it sees. ⚠️ Never on a
+  PR (no secrets there): `test/dns-aid.test.js` is the PR-time half, through
+  `worker.yml`. A verify that fails right after a publish is the resolver's
+  cache (negative TTL 1800s, record TTL 3600s) and is a warning for that
+  reason; the Monday `--check` is the one that goes red.
 - **Drift tripwires** — three jobs reading haus's committed `docs/site-data/`,
   each also on a Monday cron so a change upstream is found without a PR here:
   `options-drift.yml` re-renders `reference/options.mdx` (and on the cron opens
