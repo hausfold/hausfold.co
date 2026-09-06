@@ -34,10 +34,13 @@
 //                         auth.md names resolves instead of 404ing an agent
 //                         mid-discovery
 //   /.well-known/http-message-signatures-directory
-//                       → the Web Bot Auth directory: the Ed25519 keys this
-//                         host signs responses with. It signs none, so the
-//                         keys array is empty — an honest directory, not a
-//                         fabricated key
+//                       → the Web Bot Auth directory: the Ed25519 key this
+//                         Worker signs its OUTBOUND requests with (the GitHub
+//                         calls behind the installers, downloads, release
+//                         lookups and /design.md). Derived at request time
+//                         from the WEB_BOT_AUTH_KEY secret and signed with
+//                         it; with no secret it is honestly empty. All of it
+//                         lives in worker-sign.js
 //   /.well-known/oauth-authorization-server
 //                       → RFC 8414 Authorization Server Metadata for an issuer
 //                         that grants nothing: grant_types_supported and
@@ -116,11 +119,14 @@ import {
   MCP_PROTOCOL_VERSION,
   MCP_TRANSPORTS,
   PROTECTED_RESOURCE,
-  SIGNATURE_DIRECTORY,
   AUTHORIZATION_SERVER,
   JWKS,
 } from "./worker-config.js";
 import { rateLimit, problemResponse, PROBLEM_CONTENT_TYPE } from "./worker-api.js";
+// Every fetch this Worker makes on a visitor's behalf goes through
+// signedFetch, which adds the Web Bot Auth headers when the key secret is
+// set and is plain fetch when it is not. Plain `fetch(` below is a bug.
+import { signedFetch, serveSignatureDirectory, DIRECTORY_PATH } from "./worker-sign.js";
 
 // The desktops table and the downloadable-apps set live in worker-config.js,
 // beside their comment blocks: workerd refuses named exports from worker.js
@@ -217,9 +223,11 @@ async function latestRef(repo, env) {
   const cached = await cache.match(key);
   if (cached) return (await cached.text()).trim();
   try {
-    const r = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
-      headers: { "user-agent": "hausfold-init", accept: "application/vnd.github+json" },
-    });
+    const r = await signedFetch(
+      `https://api.github.com/repos/${repo}/releases/latest`,
+      { headers: { "user-agent": "hausfold-init", accept: "application/vnd.github+json" } },
+      env,
+    );
     if (r.ok) {
       const tag = (await r.json()).tag_name;
       if (tag && SAFE_REF.test(tag)) {
@@ -236,15 +244,17 @@ async function latestRef(repo, env) {
 
 // Latest-release lookup for a family app, cached ~1h per colo like latestRef —
 // one shape serves both the redirect and the JSON endpoint.
-async function latestAppRelease(app) {
+async function latestAppRelease(app, env) {
   const cache = caches.default;
   const key = new Request(`https://hausfold.co/__release/${app}`);
   const cached = await cache.match(key);
   if (cached) return cached.json();
   try {
-    const r = await fetch(`https://api.github.com/repos/hausfold/${app}/releases/latest`, {
-      headers: { "user-agent": "hausfold-download", accept: "application/vnd.github+json" },
-    });
+    const r = await signedFetch(
+      `https://api.github.com/repos/hausfold/${app}/releases/latest`,
+      { headers: { "user-agent": "hausfold-download", accept: "application/vnd.github+json" } },
+      env,
+    );
     if (r.ok) {
       const release = await r.json();
       // Only a macOS artifact counts. The port this came from fell back to
@@ -278,8 +288,8 @@ async function latestAppRelease(app) {
   return null;
 }
 
-async function serveDownload(app) {
-  const release = await latestAppRelease(app);
+async function serveDownload(app, env) {
+  const release = await latestAppRelease(app, env);
   // Even on an API hiccup the user still lands somewhere useful.
   const target = release?.url ?? `https://github.com/hausfold/${app}/releases/latest`;
   return new Response(null, {
@@ -288,8 +298,8 @@ async function serveDownload(app) {
   });
 }
 
-async function serveReleaseMeta(app, extraHeaders = {}) {
-  const release = await latestAppRelease(app);
+async function serveReleaseMeta(app, env, extraHeaders = {}) {
+  const release = await latestAppRelease(app, env);
   if (!release) {
     // An upstream failure is a machine's problem too: it gets problem+json,
     // not a bare `{}` with a 502, so an agent can branch on `code`.
@@ -496,7 +506,7 @@ async function callTool(name, args, env) {
           `unknown app '${app}'. Available: ${[...DOWNLOADABLE].join(", ")}`,
         );
       }
-      const release = await latestAppRelease(app);
+      const release = await latestAppRelease(app, env);
       if (!release) {
         return toolError("release_unavailable", `no macOS release found for '${app}'`);
       }
@@ -1006,7 +1016,7 @@ function serveV1Apps(H) {
   return jsonResponse(paginate(all, 0, Math.max(all.length, 1)), H);
 }
 
-async function serveV1Release(app, H, sandbox = false) {
+async function serveV1Release(app, env, H, sandbox = false) {
   if (!DOWNLOADABLE.has(app)) {
     return problemResponse(
       404,
@@ -1017,7 +1027,7 @@ async function serveV1Release(app, H, sandbox = false) {
     );
   }
   if (sandbox) return jsonResponse(sandboxRelease(app), H);
-  const release = await latestAppRelease(app);
+  const release = await latestAppRelease(app, env);
   if (!release) {
     return problemResponse(
       502,
@@ -1060,7 +1070,7 @@ async function runOp(op, env, sandbox = false) {
         return { op: opName, ok: false, error: { status: 404, code: "unknown_app" } };
       }
       if (sandbox) return { op: opName, ok: true, data: sandboxRelease(app) };
-      const release = await latestAppRelease(app);
+      const release = await latestAppRelease(app, env);
       if (!release) {
         return { op: opName, ok: false, error: { status: 502, code: "upstream_unavailable" } };
       }
@@ -1298,7 +1308,9 @@ function handleV1(request, env, url, ctx) {
       });
     }
     const release = path.match(/^\/v1\/releases\/([a-z0-9-]+)$/);
-    if (release) return serveV1Release(release[1], H, isSandbox(url.searchParams.get("sandbox")));
+    if (release) {
+      return serveV1Release(release[1], env, H, isSandbox(url.searchParams.get("sandbox")));
+    }
     const job = path.match(/^\/v1\/jobs\/([A-Za-z0-9-]+)$/);
     if (job) return serveJobGet(job[1], H);
   }
@@ -1988,8 +2000,8 @@ function finishAssetResponse(request, url, res) {
 // released, and the standard's current text is the point.
 const DESIGN_MD = "https://raw.githubusercontent.com/hausfold/workshop/main/docs/design.md";
 
-async function serveDesign() {
-  const up = await fetch(DESIGN_MD, { cf: { cacheTtl: 300, cacheEverything: true } });
+async function serveDesign(env) {
+  const up = await signedFetch(DESIGN_MD, { cf: { cacheTtl: 300, cacheEverything: true } }, env);
   if (!up.ok) {
     return text(`# could not fetch design.md (HTTP ${up.status})\n`, 502);
   }
@@ -2095,6 +2107,10 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
 - Agent to agent: POST https://hausfold.co/a2a is the A2A 1.0 JSON-RPC
   binding (SendMessage; every reply is a Message). Its card is
   https://hausfold.co/.well-known/agent-card.json.
+- The other direction: requests this host sends out on your behalf (to
+  GitHub, for install scripts and releases) are signed with Web Bot Auth,
+  Signature-Agent "https://hausfold.co". The Ed25519 key is at
+  https://hausfold.co/.well-known/http-message-signatures-directory.
 - Discovery: https://hausfold.co/.well-known/ard.json,
   https://hausfold.co/.well-known/agent-card.json,
   https://hausfold.co/.well-known/agent-skills/index.json,
@@ -2311,7 +2327,7 @@ async function serveInstaller(desktop, url, env) {
     return text("# invalid ref\n", 400);
   }
   const raw = `https://raw.githubusercontent.com/${repo}/${ref}/${BOOTSTRAP}`;
-  const up = await fetch(raw, { cf: { cacheTtl: 300, cacheEverything: true } });
+  const up = await signedFetch(raw, { cf: { cacheTtl: 300, cacheEverything: true } }, env);
   if (!up.ok) {
     return text(`# could not fetch ${BOOTSTRAP} at '${ref}' (HTTP ${up.status})\n`, 502);
   }
@@ -2346,7 +2362,7 @@ const hausfold = {
     // The visual standard. Extensionful and exact, so nothing else markdown-
     // shaped ever grows a route by accident.
     if (url.pathname === "/design.md") {
-      return serveDesign();
+      return serveDesign(env);
     }
     // The trailing slash is optional because `trailingSlash: true` canonicalizes
     // every *page* on this site to one — a hand-typed /download/pounce/ that
@@ -2366,7 +2382,7 @@ const hausfold = {
       );
     }
     if (appRoute && DOWNLOADABLE.has(appRoute[2])) {
-      if (appRoute[1] === "download") return serveDownload(appRoute[2]);
+      if (appRoute[1] === "download") return serveDownload(appRoute[2], env);
       const rl = rateLimit(request);
       if (!rl.ok) {
         return problemResponse(
@@ -2377,7 +2393,7 @@ const hausfold = {
           rl.headers,
         );
       }
-      return serveReleaseMeta(appRoute[2], rl.headers);
+      return serveReleaseMeta(appRoute[2], env, rl.headers);
     }
     // The MCP endpoint. Trailing slash accepted for the same reason as the
     // app routes above. /mcp/docs is the docs-only transport and matches
@@ -2423,11 +2439,7 @@ const hausfold = {
           headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
         });
       }
-      if (cleanPath === "/.well-known/http-message-signatures-directory") {
-        return new Response(JSON.stringify(SIGNATURE_DIRECTORY, null, 2), {
-          headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
-        });
-      }
+      if (cleanPath === DIRECTORY_PATH) return serveSignatureDirectory(request, env);
     }
     // The endpoints the authorization server metadata names. Any method:
     // each decides for itself what it answers.

@@ -1,5 +1,8 @@
 # wrangler's local account/asset cache — machine state, not source.
 .wrangler/
+# The local stand-in for the Worker's secrets (`wrangler dev` reads it).
+# scripts/web-bot-auth-key.mjs --dev-vars writes a private key into it.
+.dev.vars*
 .DS_Store
 
 # `nix build github:hausfold/nebelung` drops a store symlink here, and

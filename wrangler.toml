@@ -115,3 +115,12 @@ run_worker_first = true
 # tag (cached ~1h), falling back to `main` before the first release exists.
 # [vars]
 # REF = "v2026.07.18"
+
+# One SECRET, never a var and never in this file: WEB_BOT_AUTH_KEY, the
+# Ed25519 private JWK worker-sign.js signs the Worker's outbound requests with
+# and derives /.well-known/http-message-signatures-directory from. Set once
+# with `node scripts/web-bot-auth-key.mjs | npx wrangler secret put
+# WEB_BOT_AUTH_KEY`; secrets survive deploys. Absent (a preview Worker, a
+# bare `wrangler dev`), the directory is empty and the requests go out
+# unsigned. `scripts/web-bot-auth-key.mjs --dev-vars` writes a local one into
+# .dev.vars for the dev loop.
