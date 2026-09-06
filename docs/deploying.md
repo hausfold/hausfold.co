@@ -27,7 +27,7 @@ in the workflow's own header. Prefer the push: CI holds the token with DNS:Edit.
 
 One secret lives on the Worker rather than in the repo: `WEB_BOT_AUTH_KEY`, the
 Ed25519 key [`worker-sign.js`](../worker-sign.js) signs the Worker's outbound
-GitHub requests with (Web Bot Auth) and serves the public half of at
+GitHub requests with (Web Bot Auth), and whose public half is served at
 `/.well-known/http-message-signatures-directory`. Mint and set it once, from a
 checkout, and it survives every deploy after:
 

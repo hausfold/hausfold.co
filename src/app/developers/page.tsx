@@ -257,8 +257,9 @@ export default function Developers() {
             <code>Signature-Agent: &quot;https://hausfold.co&quot;</code>, a{' '}
             <code>Signature-Input</code> covering the authority and the agent header under{' '}
             <code>tag=&quot;web-bot-auth&quot;</code>, and the <code>Signature</code>. The
-            directory response is signed with the same key. Nothing you send to this host needs
-            a signature.
+            directory response is signed with the same key; an empty <code>keys</code> array
+            means the key is not installed on the Worker and those requests go out unsigned.
+            Nothing you send to this host needs a signature.
           </p>
         </section>
 

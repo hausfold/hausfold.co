@@ -2830,7 +2830,7 @@
             "description": "One Ed25519 public key while the WEB_BOT_AUTH_KEY secret is set; empty otherwise.",
             "items": {
               "type": "object",
-              "description": "An Ed25519 public JWK: kty OKP, crv Ed25519, x (the raw public key, base64url), kid (the RFC 7638 thumbprint, which is also the keyid in every signature), use sig, and the validity window nbf/exp as Unix seconds.",
+              "description": "An Ed25519 public JWK: kty OKP, crv Ed25519, x (the raw public key, base64url), kid (the RFC 7638 thumbprint, which is also the keyid in every signature), use sig, and the validity window nbf/exp as Unix seconds when the key was minted with one (the repo's generator always stamps it).",
               "properties": {
                 "kty": {
                   "type": "string",

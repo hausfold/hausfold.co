@@ -2109,8 +2109,9 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   https://hausfold.co/.well-known/agent-card.json.
 - The other direction: requests this host sends out on your behalf (to
   GitHub, for install scripts and releases) are signed with Web Bot Auth,
-  Signature-Agent "https://hausfold.co". The Ed25519 key is at
-  https://hausfold.co/.well-known/http-message-signatures-directory.
+  Signature-Agent "https://hausfold.co", whenever the key is installed. It is
+  published at https://hausfold.co/.well-known/http-message-signatures-directory;
+  an empty keys array there means those requests currently go out unsigned.
 - Discovery: https://hausfold.co/.well-known/ard.json,
   https://hausfold.co/.well-known/agent-card.json,
   https://hausfold.co/.well-known/agent-skills/index.json,

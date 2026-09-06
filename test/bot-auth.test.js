@@ -9,6 +9,7 @@
 // stubbed, and the fetch stub records what it was handed.
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import {
@@ -223,6 +224,31 @@ describe('outbound requests', () => {
     await worker.fetch(req('/api/release/perch'), ENV());
     const [a, b] = [0, 1].map((i) => parseSignatureInput(sentHeaders(i).get('signature-input')).get('nonce'));
     expect(a).not.toBe(b);
+  });
+
+  it('still go out, unsigned, when signing itself throws', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const sign = vi.spyOn(crypto.subtle, 'sign').mockRejectedValue(new Error('hsm on fire'));
+    const res = await worker.fetch(req('/hacker.sh?ref=v2026.09.01'), ENV());
+    expect(res.status).toBe(200);
+    expect(sentHeaders().get('signature-input')).toBeNull();
+    expect(sentHeaders().get('signature-agent')).toBeNull();
+    expect(error).toHaveBeenCalledTimes(1);
+    sign.mockRestore();
+    error.mockRestore();
+  });
+
+  it('are the only kind worker.js makes: no bare fetch() to the outside', () => {
+    // The rule AGENTS.md states, pinned: every outbound call goes through
+    // signedFetch, so a new route cannot quietly send an unsigned request.
+    // The assets binding is the one legitimate `.fetch(` and is not outbound.
+    const src = readFileSync(new URL('../worker.js', import.meta.url), 'utf8');
+    const bare = src
+      .split('\n')
+      .map((line, i) => [i + 1, line])
+      .filter(([, line]) => /(^|[^.\w])fetch\(/.test(line) && !/^\s*\/\//.test(line))
+      .filter(([, line]) => !/async fetch\(request, env, ctx\)/.test(line));
+    expect(bare).toEqual([]);
   });
 
   it('go out unsigned, and otherwise unchanged, with no secret', async () => {

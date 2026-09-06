@@ -169,22 +169,34 @@ async function sign(s, components, tag) {
 // No `@method`, `@path` or content digest: Cloudflare's verifier accepts more,
 // but the profile's minimum is what every verifier accepts, and the point is
 // identity, not integrity of a public GET.
+//
+// 🚨 A signature that cannot be produced is dropped, never thrown: the
+// installers are the URLs that may never fail, and the signature is an
+// identity claim on a public GET, not a condition of it. Logged once per
+// isolate so a broken key is visible without being a broken site.
+let signingFailed = false;
 export async function signedFetch(url, init = {}, env) {
   const s = await signer(env);
   if (!s) return fetch(url, init);
-  const agent = `"${SIGNATURE_AGENT}"`;
-  const headers = new Headers(init.headers);
-  headers.set("signature-agent", agent);
-  const sig = await sign(
-    s,
-    [
-      ['"@authority"', authority(url)],
-      ['"signature-agent"', agent],
-    ],
-    "web-bot-auth",
-  );
-  for (const [name, value] of Object.entries(sig)) headers.set(name, value);
-  return fetch(url, { ...init, headers });
+  try {
+    const agent = `"${SIGNATURE_AGENT}"`;
+    const headers = new Headers(init.headers);
+    headers.set("signature-agent", agent);
+    const sig = await sign(
+      s,
+      [
+        ['"@authority"', authority(url)],
+        ['"signature-agent"', agent],
+      ],
+      "web-bot-auth",
+    );
+    for (const [name, value] of Object.entries(sig)) headers.set(name, value);
+    return fetch(url, { ...init, headers });
+  } catch (err) {
+    if (!signingFailed) console.error(`[web-bot-auth] signing failed: ${err.message}; sending unsigned`);
+    signingFailed = true;
+    return fetch(url, init);
+  }
 }
 
 // GET /.well-known/http-message-signatures-directory. A JWK Set with the one
