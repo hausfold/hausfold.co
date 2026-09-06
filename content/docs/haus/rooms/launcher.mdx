@@ -37,6 +37,13 @@ Only `cmd-space` displaces Spotlight; moving the palette elsewhere is how you
 keep both. haus frees ⌘Space from Spotlight so the palette can own it, which is the
 step a standalone install has to do by hand.
 
+Two more asks come on first use, both booked against Pounce and both silent
+once dismissed. Copy Text from Screen asks for **Screen Recording** (its section
+below). Lock Screen and Force Quit ask for **Automation**, since both drive
+System Events. `haus permissions` has a card for each: without the Automation
+grant, Lock Screen does nothing and Force Quit lists nothing, with no error
+anywhere.
+
 ## Configure it
 
 `config.json` is **generated** from `haus.launcher.*`, so `pounce config init`
