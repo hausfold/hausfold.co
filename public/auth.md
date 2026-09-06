@@ -1,4 +1,4 @@
-# Authentication for hausfold.co
+# hausfold.co auth.md
 
 Every endpoint listed in [openapi.json](https://hausfold.co/openapi.json) is public. You do not need an API key, an account, or an OAuth token to call anything on this host. This file exists so an agent can verify that claim by reading instead of by probing.
 
