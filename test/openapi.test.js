@@ -139,6 +139,11 @@ describe('openapi.json vs worker.js', () => {
   it('public/auth.md exists, leads with a heading, and covers the auth.md sections', () => {
     const md = readFileSync(new URL('../public/auth.md', import.meta.url), 'utf8');
     expect(md.startsWith('# ')).toBe(true);
+    // The H1 must contain the literal `auth.md`. WorkOS's sample file is
+    // headed `# auth.md`, and Cloudflare's agent-readiness scanner keys its
+    // authMd check on that substring: "# Authentication for hausfold.co"
+    // failed the check while everything below it was already in place.
+    expect(md.split('\n')[0]).toContain('auth.md');
     expect(md.length).toBeGreaterThan(1000);
     for (const section of ['Discover', 'Pick a method', 'agent_auth', 'Register', 'Claim', 'Exchange', 'Use the access_token', 'Errors', 'Revocation']) {
       expect(md, section).toContain(section);
