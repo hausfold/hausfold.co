@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import { readFileSync } from 'node:fs';
-import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, SIGNATURE_DIRECTORY, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
+import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -101,17 +101,18 @@ describe('well-known discovery documents', () => {
     expect(doc.bearer_methods_supported).toContain('header');
   });
 
-  it('serves an empty Web Bot Auth signature directory (this host signs no responses)', async () => {
+  // The keyed case, and the signatures themselves, are test/bot-auth.test.js.
+  it('serves an empty Web Bot Auth signature directory when no key secret is set', async () => {
     const res = await worker.fetch(req('/.well-known/http-message-signatures-directory'), {});
     expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/http-message-signatures-directory+json');
     const doc = await res.json();
     expect(Array.isArray(doc.keys)).toBe(true);
     expect(doc.keys).toEqual([]);
   });
 
-  it('the exported documents are the same objects the routes serve', () => {
+  it('the exported document is the same object the route serves', () => {
     expect(PROTECTED_RESOURCE.resource).toBe('https://hausfold.co/');
-    expect(SIGNATURE_DIRECTORY.keys).toEqual([]);
   });
 
   it('a HEAD of a discovery document answers 200, not the site 404', async () => {

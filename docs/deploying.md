@@ -23,6 +23,24 @@ whatever a previous local build left there, which may be another branch's site.
 The three secrets and the exact Cloudflare permissions each one wants are listed
 in the workflow's own header. Prefer the push: CI holds the token with DNS:Edit.
 
+## the Worker's own secret
+
+One secret lives on the Worker rather than in the repo: `WEB_BOT_AUTH_KEY`, the
+Ed25519 key [`worker-sign.js`](../worker-sign.js) signs the Worker's outbound
+GitHub requests with (Web Bot Auth), and whose public half is served at
+`/.well-known/http-message-signatures-directory`. Mint and set it once, from a
+checkout, and it survives every deploy after:
+
+```sh
+node scripts/web-bot-auth-key.mjs | npx wrangler secret put WEB_BOT_AUTH_KEY
+```
+
+The same command rotates it; the key is stamped with a one-year `exp`, and the
+script prints the date. Without the secret the site still works, the directory
+is empty, and the deploy's smoke test warns. `npx wrangler dev` has no secrets
+either; `node scripts/web-bot-auth-key.mjs --dev-vars` writes a local key into
+the gitignored `.dev.vars` for that loop.
+
 ## a preview Worker per PR
 
 [`preview.yml`](../.github/workflows/preview.yml) gives every PR that touches

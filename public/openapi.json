@@ -3,7 +3,7 @@
   "info": {
     "title": "hausfold.co",
     "summary": "Public endpoints for hausfold's Mac software: installers, release metadata, docs search, a versioned REST surface, and an MCP endpoint for coding agents.",
-    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /a2a, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. /.well-known/oauth-authorization-server describes an issuer that grants nothing (grant_types_supported and response_types_supported are empty), and the endpoints it names answer the protocol's own refusal rather than 404ing; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/oauth-authorization-server (RFC 8414; an issuer with no grant types, whose three endpoints are real), /.well-known/http-message-signatures-directory (Web Bot Auth keys; empty, because this host signs no responses), /.well-known/mcp/server-card.json, and /.well-known/agent-card.json (the A2A card, whose interface is /a2a). See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
+    "description": "Everything here is public. No API keys, no accounts, nothing to buy. hausfold makes Mac software: haus, a layer that rebuilds a whole Mac from one text file, and small apps that run on it (and without it). See https://hausfold.co/developers/ for prose examples and the MCP tool list.\n\nVersioning and deprecation policy: /v1 is path-versioned. A deprecated endpoint keeps answering and adds a 'Deprecation: true' header plus a 'Sunset' header carrying the date it stops, announced before the date. The un-versioned endpoints (installers, /api/release/{app}, /download/{app}, /api/search, /mcp, /ask, /a2a, /design.md, the llms.txt files) are the long-lived surface and do not carry a version. Their shapes are published rather than promised: the HTTP reads by the schemas in this document, and each /mcp tool by the outputSchema tools/list serves for it. Read the current shape there rather than assuming the last one you saw.\n\nAuthentication: none. /.well-known/oauth-authorization-server describes an issuer that grants nothing (grant_types_supported and response_types_supported are empty), and the endpoints it names answer the protocol's own refusal rather than 404ing; see https://hausfold.co/auth.md for the full account of how agents authenticate (they don't). Errors are RFC 9457 problem+json with a machine-readable 'code' field. Rate limiting is per client IP and per edge node, so treat the RateLimit headers as an approximation.\n\nAgent discovery documents: /mcp.json (the agent-plugins.org manifest naming both MCP transports), /.well-known/oauth-protected-resource (RFC 9728; the resource is public, so authorization_servers is empty), /.well-known/oauth-authorization-server (RFC 8414; an issuer with no grant types, whose three endpoints are real), /.well-known/http-message-signatures-directory (the Web Bot Auth key this host signs its own outbound requests to GitHub with; requests INTO this host need no signature), /.well-known/mcp/server-card.json, and /.well-known/agent-card.json (the A2A card, whose interface is /a2a). See /auth.md for the full account.\n\nMarkdown content negotiation: every HTML page reads Accept and answers Vary: Accept, User-Agent, Accept-Encoding. 'Accept: text/markdown' on / serves the agent view, and on any docs page serves that page's markdown twin; q-values are honoured, so 'text/markdown;q=0.9, text/html;q=0.8' gets markdown and 'text/html, text/markdown;q=0.5' gets HTML. A page whose only representation is HTML answers 406 problem+json to a client that names media types and accepts neither text/html nor a wildcard.\n\nSandbox: every /v1 data read (search, desktops, apps, releases) accepts sandbox=true (and POST /v1/batch accepts a top-level \"sandbox\": true flag), returning deterministic sample payloads with no live GitHub lookups, for exercising a client against the documented shapes.",
     "version": "1.0.0",
     "termsOfService": "https://hausfold.co/terms/",
     "contact": {
@@ -1479,17 +1479,17 @@
     },
     "/.well-known/http-message-signatures-directory": {
       "get": {
-        "summary": "Web Bot Auth directory of response-signing keys",
-        "description": "The Ed25519 keys this host signs its HTTP responses with, per the Web Bot Auth draft. hausfold.co signs no responses, so the keys array is empty. An empty directory is the honest statement of that; a fabricated key would be worse than none.",
+        "summary": "Web Bot Auth directory: the key this host signs its outbound requests with",
+        "description": "A JWK Set holding the Ed25519 public key hausfold.co signs its own outbound requests with, per the Web Bot Auth drafts (draft-meunier-web-bot-auth-architecture and draft-meunier-http-message-signatures-directory). The requests are the ones the Worker makes on a caller's behalf: the GitHub API and raw.githubusercontent.com calls behind the installers, /download/{app}, /api/release/{app} (and the MCP and /v1 shapes of that lookup), and /design.md. Each carries Signature-Agent \"https://hausfold.co\", a Signature-Input covering @authority and signature-agent with tag web-bot-auth, keyid set to the key's RFC 7638 thumbprint (the kid here), alg ed25519, a nonce, and created/expires five minutes apart, plus the Signature itself. The directory response is signed the same way with tag http-message-signatures-directory over the request's authority, so a verifier knows the host serving the key also holds it. The key is a Worker secret (WEB_BOT_AUTH_KEY), never a file in the repo, and the public half is derived from it per request. With no secret set (a preview Worker, a local run) the keys array is empty and the requests go out unsigned.",
         "operationId": "getSignatureDirectory",
         "tags": [
           "docs"
         ],
         "responses": {
           "200": {
-            "description": "The directory.",
+            "description": "The directory. Carries Signature-Input and Signature headers (tag http-message-signatures-directory) whenever it holds a key, and Cache-Control max-age of a day then; five minutes while empty.",
             "content": {
-              "application/json": {
+              "application/http-message-signatures-directory+json": {
                 "schema": {
                   "$ref": "#/components/schemas/signatureDirectory"
                 }
@@ -2827,19 +2827,34 @@
         "properties": {
           "keys": {
             "type": "array",
-            "description": "Empty: this host signs no responses.",
+            "description": "One Ed25519 public key while the WEB_BOT_AUTH_KEY secret is set; empty otherwise.",
             "items": {
               "type": "object",
-              "description": "An Ed25519 JWK (kty OKP, crv Ed25519, kid, nbf, exp).",
+              "description": "An Ed25519 public JWK: kty OKP, crv Ed25519, x (the raw public key, base64url), kid (the RFC 7638 thumbprint, which is also the keyid in every signature), use sig, and the validity window nbf/exp as Unix seconds when the key was minted with one (the repo's generator always stamps it).",
               "properties": {
                 "kty": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "OKP"
+                  ]
                 },
                 "crv": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "Ed25519"
+                  ]
                 },
                 "kid": {
                   "type": "string"
+                },
+                "x": {
+                  "type": "string"
+                },
+                "use": {
+                  "type": "string",
+                  "enum": [
+                    "sig"
+                  ]
                 },
                 "nbf": {
                   "type": "integer"
@@ -2847,7 +2862,13 @@
                 "exp": {
                   "type": "integer"
                 }
-              }
+              },
+              "required": [
+                "kty",
+                "crv",
+                "kid",
+                "x"
+              ]
             }
           }
         },

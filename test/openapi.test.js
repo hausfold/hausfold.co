@@ -13,6 +13,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
 import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
+import { DIRECTORY_PATH, DIRECTORY_CONTENT_TYPE } from '../worker-sign.js';
 
 const spec = JSON.parse(readFileSync(new URL('../public/openapi.json', import.meta.url), 'utf8'));
 
@@ -78,6 +79,16 @@ describe('openapi.json vs worker.js', () => {
       for (const [method, op] of Object.entries(spec.paths[path])) {
         expect(op.operationId, `${method} ${path}`).toBeDefined();
       }
+    }
+  });
+
+  it('describes the Web Bot Auth directory under the media type the Worker serves', () => {
+    const op = spec.paths[DIRECTORY_PATH].get;
+    expect(Object.keys(op.responses['200'].content)).toEqual([DIRECTORY_CONTENT_TYPE]);
+    // The spec names the signing headers a client sees on the response and
+    // on the Worker's own requests; a rename in worker-sign.js lands here too.
+    for (const claim of ['Signature-Agent', 'Signature-Input', 'web-bot-auth', 'WEB_BOT_AUTH_KEY']) {
+      expect(op.description, claim).toContain(claim);
     }
   });
 

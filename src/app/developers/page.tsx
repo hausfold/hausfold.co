@@ -251,8 +251,15 @@ export default function Developers() {
             <a href="/.well-known/http-message-signatures-directory">
               <code>/.well-known/http-message-signatures-directory</code>
             </a>{' '}
-            is the Web Bot Auth directory of Ed25519 keys this host signs responses with; it
-            signs none, so the <code>keys</code> array is empty.
+            is the Web Bot Auth directory: a JWK Set with the Ed25519 key this host signs its
+            own outbound requests with. When the Worker fetches an install script or a release
+            from GitHub on your behalf, that request carries{' '}
+            <code>Signature-Agent: &quot;https://hausfold.co&quot;</code>, a{' '}
+            <code>Signature-Input</code> covering the authority and the agent header under{' '}
+            <code>tag=&quot;web-bot-auth&quot;</code>, and the <code>Signature</code>. The
+            directory response is signed with the same key; an empty <code>keys</code> array
+            means the key is not installed on the Worker and those requests go out unsigned.
+            Nothing you send to this host needs a signature.
           </p>
         </section>
 

@@ -97,11 +97,12 @@ export const PROTECTED_RESOURCE = {
 // discovery document naming a URL that 404s is worse than no document:
 // /oauth/authorize answers that there is no client to authorize,
 // /oauth/token answers RFC 6749's `unsupported_grant_type`, and
-// /.well-known/jwks.json is an empty key set, the same shape as
-// SIGNATURE_DIRECTORY below. serveOAuthEndpoint() in worker.js is the whole
-// of it. There is deliberately NO /.well-known/openid-configuration: OIDC
-// metadata must claim an id_token signing algorithm, and this host signs no
-// identity, so an honest OIDC document cannot be written.
+// /.well-known/jwks.json is an empty key set, the same shape as the Web Bot
+// Auth directory serves before a key is installed (worker-sign.js).
+// serveOAuthEndpoint() in worker.js is the whole of it. There is deliberately
+// NO /.well-known/openid-configuration: OIDC metadata must claim an id_token
+// signing algorithm, and this host signs no identity, so an honest OIDC
+// document cannot be written.
 //
 // ⚠️ `issuer` has no trailing slash. RFC 8414 §3 derives the well-known URL
 // from it and a client compares the value it read against the one it used,
@@ -138,15 +139,11 @@ export const AUTHORIZATION_SERVER = {
 
 // The JWK Set /.well-known/jwks.json serves and AUTHORIZATION_SERVER.jwks_uri
 // names. No token is ever signed on this host, so there is no key to publish;
-// an empty set, like SIGNATURE_DIRECTORY, is the honest statement of that.
+// an empty set is the honest statement of that. (The Web Bot Auth directory
+// beside it is NOT this shape once its key is installed: that one holds the
+// key the Worker signs its own outbound requests with, and lives in
+// worker-sign.js.)
 export const JWKS = { keys: [] };
-
-// The Web Bot Auth directory (draft-ietf-httpbis-unprompted-auth): the set of
-// Ed25519 keys this host signs its responses with. hausfold.co signs no
-// responses, so the array is empty — an honest directory rather than a
-// fabricated key. If response signing ever lands, the keys go here and
-// nowhere else.
-export const SIGNATURE_DIRECTORY = { keys: [] };
 
 // The MCP tool table. Descriptions and schemas are what agents see; the enum
 // values are derived from the tables above so a desktop or app added to one

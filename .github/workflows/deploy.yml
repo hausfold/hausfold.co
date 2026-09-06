@@ -22,6 +22,17 @@
 # A token scoped to another zone will not work here — pointing one at this
 # zone is exactly the setup cost that kept this repo on hand-deploys while it
 # lived in the workshop.
+#
+# One WORKER secret, which is not a repo secret and is not set here:
+#   WEB_BOT_AUTH_KEY       — the Ed25519 private JWK worker-sign.js signs the
+#                            Worker's outbound requests with (Web Bot Auth).
+#                            Set once, from a checkout, with
+#                              node scripts/web-bot-auth-key.mjs \
+#                                | npx wrangler secret put WEB_BOT_AUTH_KEY
+#                            and it survives every deploy after. Without it
+#                            the site still works: the key directory is
+#                            empty and the requests go out unsigned, which
+#                            the smoke test below reports as a warning.
 name: Deploy hausfold.co
 
 on:
@@ -34,6 +45,7 @@ on:
       - 'worker.js'
       - 'worker-api.js'
       - 'worker-config.js'
+      - 'worker-sign.js'
       - 'package.json'
       - 'package-lock.json'
       - 'next.config.mjs'
@@ -106,10 +118,10 @@ jobs:
       # does not stop anything: the bad code is already live and the job going
       # red is the alarm, not the brake.
       #
-      # Nine of the ten URLs below are worker.js routes; the tenth is the site
-      # root, which is asset passthrough and is here so a passthrough regression
-      # shows up as a failure rather than as a quiet outage. Whether the Worker
-      # is REACHED
+      # All but one of the URLs below are worker.js routes; the exception is
+      # the site root, which is asset passthrough and is here so a passthrough
+      # regression shows up as a failure rather than as a quiet outage. Whether
+      # the Worker is REACHED
       # is decided by wrangler.toml (`run_worker_first`) and by Cloudflare's
       # asset server — neither of which the unit tests touch. They call
       # `worker.fetch` directly, so they pass whether or not a real request ever
@@ -311,6 +323,24 @@ jobs:
             verdict "perch.hausfold.co/ went to '${probe_loc:-<nowhere>}' instead of the install page"
           fi
 
+          # The Web Bot Auth key directory. The route is code and is asserted;
+          # the KEY is the WEB_BOT_AUTH_KEY Worker secret, set by hand once and
+          # never by this workflow, so an empty `keys` is the same third
+          # verdict as a GitHub miss: the Worker wrote the answer, and what is
+          # missing is outside this deploy. The scan at isitagentready.com
+          # reads this document and passes only with a key in it.
+          probe "https://hausfold.co/.well-known/http-message-signatures-directory"
+          if [ "$probe_code" = 200 ] \
+             && grep -qi '^content-type: *application/http-message-signatures-directory+json' "$HEAD"; then
+            if grep -q '"kid"' "$BODY" && grep -qi '^signature-input:.*http-message-signatures-directory' "$HEAD"; then
+              echo "ok    /.well-known/http-message-signatures-directory (signed, with a key)"
+            else
+              degrade "/.well-known/http-message-signatures-directory has no key: the WEB_BOT_AUTH_KEY secret is not set on the Worker (see the header of this file)."
+            fi
+          else
+            verdict "/.well-known/http-message-signatures-directory did not answer as the directory media type"
+          fi
+
           # And the site itself still serves, so a passthrough regression shows
           # up here rather than as a quiet outage.
           probe "https://hausfold.co/"
@@ -349,6 +379,6 @@ jobs:
             echo "::warning::Cloudflare challenged $blocked of this step's routes, so they went unverified. The static run_worker_first check in worker.yml is what is actually guarding them; see the comment above this step for how to make this one real."
           fi
           if [ "$degraded" -gt 0 ]; then
-            echo "::warning::$degraded release route(s) answered with worker.js's own GitHub-API fallback. The Worker was reached and the route is right; the api.github.com call behind it was not. Check by hand: curl -sI https://hausfold.co/download/<app> should 302 to a releases/download/ asset, and curl -s https://hausfold.co/api/release/<app> should name a tag. If it stays this way for either app, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is that repo's problem and not this site's."
+            echo "::warning::$degraded route(s) answered with worker.js's own fallback. The Worker was reached and the route is right; what stands behind it was not: for /download and /api/release that is the api.github.com call (check by hand: curl -sI https://hausfold.co/download/<app> should 302 to a releases/download/ asset, and curl -s https://hausfold.co/api/release/<app> should name a tag; if it stays this way for either app, the release probably ships no -macos.dmg/.zip/.tar.gz artifact, which is that repo's problem and not this site's), and for the signatures directory it is the WEB_BOT_AUTH_KEY secret, set once by hand as the header of this file says."
           fi
           exit "$fail"
