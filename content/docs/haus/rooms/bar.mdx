@@ -1,23 +1,20 @@
 ---
 title: Bar
-description: Workspace pills, weather, media and a status light. What the bar carries, what each pill does, and how to turn any of it off.
+description: What each pill on the bar does, and how to turn any of it off.
 icon: bar
 related:
   - title: "Windows"
-    description: "The workspace pills on the left of the bar belong to the tiling room; this is where you say what lives on each one."
+    description: "What lives on each workspace pill."
     href: "/docs/haus/rooms/windows"
     icon: "tiling"
-  - title: "Appearance"
-    description: "Where the bar's colour comes from, and the one line that moves it here and in every other tool at once."
-    href: "/docs/haus/rooms/appearance"
-    icon: "palette"
+  - title: "Writing a bar widget"
+    description: "The contract behind a pill of your own."
+    href: "/docs/haus/rooms/bar-widgets"
+    icon: "bar"
 ---
 
-**The bar** replaces the macOS menu bar with a scriptable status bar, painted in
-your palette and wired to your tiling. While it's on, the native menu bar is
-hidden; the bar is the one place to glance.
-
-## Enable it
+**The bar** replaces the macOS menu bar (hidden while this one is on) with
+one in your palette, wired to your tiling.
 
 ```nix
 haus.bar.enable = true;
@@ -25,59 +22,24 @@ haus.bar.enable = true;
 
 ## What's on it
 
-**Far left: the house.** Where macOS puts the Apple menu. It opens a menu,
-and its colour tells you whether the machine is fine. See
-[the logo pill](#the-logo-pill).
+**Far left, the house**: [the logo pill](#the-logo-pill).
 
-**Left: your workspaces.** One pill each, showing the workspace's id or its
-icon, with the focused one highlighted and the front app's title alongside.
-Switch workspaces and the highlight follows; tap the Caps-Lock leader and the
-whole left side flips into launcher letters.
+**Left, your workspaces**, one pill each, the focused one lit, the front app's
+title beside it. Tap the Caps-Lock leader and the whole left side flips into
+launcher letters. Two more come with [Windows](/docs/haus/rooms/windows):
 
-**And which PAGE of it, if it has pages.** A page is a workspace with a `/` in
-its name: `T/haus`, the per-repo page an agent
-[lane](/docs/haus/rooms/development) tiles its window onto. When you're on one,
-a pill between the workspaces and the front app names it, and adds `2/3` when
-that workspace has more than one live page: which of them you're on, out of how
-many there are. On the only page of a workspace the counter is left off.
+- **The page.** A workspace with a `/` in its name (`T/haus`, an agent
+  [lane](/docs/haus/rooms/development)'s) is a page. The pill names yours,
+  `2/3` when there are more, and dims to a bare count (`3`) on `T` itself.
+  Click for the **Pages** picker; ⇧ or right-click throws the focused window
+  onto one. The leader's `t` returns to the page of `T` you used last.
+- **The layout.** **Grid**, **Accordion** or **Columns**, whatever ⇪ then `.`
+  [last dealt](/docs/haus/rooms/windows#spin-the-layout-until-its-right) this
+  workspace, once two windows are tiled. Clicking it advances the dial.
 
-Stand on the workspace itself and the pill is still there, dimmed, showing just
-the number: `3` on `T` means three pages are open under it, none of which you're
-looking at. That's the notice that they exist, and the button that lists them:
-without it, `T` with three lanes paged away looks exactly like `T` with none. A
-workspace with no pages under it gets no pill at all.
-
-The workspace pill stays lit through all of this, because a page belongs to its
-workspace: `T/haus` keeps `T` highlighted, and the Caps-Lock leader's `t`
-takes you back to whichever page of `T` you used last. Click the page pill to
-open the **Pages** picker and go to one; ⇧ or right-click opens the same list in
-move mode, throwing the focused window onto the page you pick and following it
-there. It needs [Windows](/docs/haus/rooms/windows) (a page is an AeroSpace
-workspace) and nothing else: pages aren't a terminal feature, only their one
-producer is.
-
-**And which SHAPE the workspace is tiled into.** Next along sits a **Grid**,
-**Accordion** or **Columns** pill, naming the arrangement ⇪ then `.`
-([Windows](/docs/haus/rooms/windows#spin-the-layout-until-its-right)) last dealt
-this workspace into. It appears only when there is more than one tiled window to
-shape — one window has no layout to be in, and floating windows aren't in the
-tree the key reshapes — and clicking it advances the dial, the same as pressing
-the key. It needs [Windows](/docs/haus/rooms/windows) and nothing else.
-
-**Right: the status cluster.** Clock, battery, Wi-Fi, weather and media, all
-on by default and each one hideable. More readouts are available and off by
-default; see [toggling pills](#toggling-pills).
-
-## Dropdowns
-
-Several pills open a dropdown on click: weather, the calendar's timeline, the
-coffee pill's durations, the cpu and memory breakdowns, media. They behave like
-every other menu on the Mac: click elsewhere and it closes, click the pill again
-and it closes, open a second one and the first closes.
+**Right, the status cluster**, [toggled below](#toggling-pills).
 
 ## The logo pill
-
-### It opens a menu
 
 | Gesture | What you get |
 |---|---|
@@ -85,118 +47,89 @@ and it closes, open a second one and the first closes.
 | **⌘ click** | `haus rebuild`, in a floating terminal |
 | **Right click** | The full palette, the same thing ⌘Space opens |
 
-Every row of that menu *is* a palette command, so anything you can click you
-can also type. `haus.bar.logo.gestures = false` turns all three off, so the
-pill is plainly not a button rather than a button that does nothing.
-
-### It tells you the machine is fine
+All three need the [launcher](/docs/haus/rooms/launcher);
+`haus.bar.logo.gestures = false` makes the pill plainly not a button.
 
 | Colour | Meaning |
 |---|---|
 | Your accent | Everything is running |
-| Yellow | A newer version is available: `haus update` |
+| Yellow | A newer haus: `haus update` |
 | Red | Something is enabled but **not running** |
 
-Red is the one worth having. A wedged background agent is otherwise invisible:
-tiling stops but leaves every window where it was, and a dead bar keeps the
-last frame it drew on screen. The check is local, free, and runs every five
-minutes.
-
-The **yellow** half asks GitHub whether a new version exists (the only thing
-this pill does that leaves your machine), so it's **off by default**. Turn it
-on with `haus.bar.logo.updateCheck = true`.
-
-<Callout title="Hover it">
-Resting the pointer on the pill sweeps it through the six hausfold accents. It
-only runs at the pill's resting colour: a pill that has gone yellow or red has
-something to say and doesn't also get a rainbow. `haus.bar.logo.sweep = false`
-if you'd rather it sat still.
-</Callout>
-
-### Changing the glyph
+Red is the one worth having, since a dead bar keeps drawing its last frame;
+the check is local, every five minutes. Yellow asks GitHub every half hour,
+the one thing here that leaves your machine, so it's off until
+`haus.bar.logo.updateCheck = true`.
 
 ```nix
 haus.bar.logo.icon = "⌂";
-haus.bar.logo.size = 25;    # ⌂ is drawn thin; it needs the extra points
-haus.bar.logo.color = "teal";
+haus.bar.logo.size = 25;        # ⌂ is thin; the default house glyph is 20
+haus.bar.logo.color = "teal";   # else haus.theme.accent
 ```
-
-Left alone, the colour follows `haus.theme.accent`. The default is a solid
-Nerd Font house at 20pt. Whatever you pick has to hold up in a 28pt pill, which rules out more than
-you'd expect; the options reference lists six that work. You can't point it at
-an image file: a picture couldn't follow your accent or show any of the states
-above.
 
 ## The media pill
 
-It reads the same system-wide session Control Center does, so it follows a
-browser tab as readily as Apple Music, and it hides itself entirely when
-nothing is playing.
-
 | Gesture | What it does |
 |---|---|
-| Left click | The dropdown |
+| Left click | The dropdown, scrubber included |
 | Right click | Play / pause |
 | ⌥ click | Next track |
 | ⇧ click | Previous track |
-| **⌘ click** | **Bring the app making the sound forward** |
+| **⌘ click** | **Bring the tab making the sound forward** |
 | Scroll | Seek ±10s |
 | Hover | Sweep a long title, once |
 
-That ⌘ click is the one to remember: it's the answer to *something is making
-noise and I can't find the tab*.
-
-Two habits. A long title never scrolls on its own, only on hover, and a sweep
-always finishes once started. And anything over twenty minutes counts **down**
-(`-38m`) instead of scrolling a name you already know.
-
-The dropdown carries cover art, title, artist, album, and a position slider you
-can click to scrub.
+That ⌘ click is the answer to *something is making noise and I can't find the
+tab*. Titles scroll only on hover, anything over twenty minutes counts
+**down** (`-38m`) instead, and the pill hides when nothing is playing.
 
 ```nix
-haus.bar.media.collapse = true;   # glyph only until you hover, good on a notched Mac
-haus.bar.media.width = 16;        # characters of title before it sweeps. 25 by default.
+haus.bar.media.collapse = true;   # glyph only until you hover
+haus.bar.media.width = 16;        # characters; 32 by default, a maximum
 ```
 
-`width` is a maximum, not a fixed size: a short title still draws a short pill.
-`haus.bar.media.marquee = false` stops the sweeping entirely (on the pill and in
-the dropdown) and clips instead;
+`haus.bar.media.marquee = false` clips instead of sweeping;
 [`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) sets that,
 `haus.bar.calendar.marquee` and `haus.bar.logo.sweep` together.
 
 ## Toggling pills
 
-Every right-side pill is one boolean. The five core pills (`clock`, `weather`,
-`media`, `battery`, `wifi`) default **on**; everything else defaults off. Set
-only what you want to change:
+Every right-side pill is one boolean; `clock`, `weather`, `media`, `battery`
+and `wifi` default on, the rest off. A pill set `false` is never created.
 
 ```nix
 haus.bar.items = {
-  weather = false;      # drop a core pill
-  cpu = true;           # add an off-by-default readout
+  weather = false;
+  cpu = true;
   caffeinate = true;
 };
 ```
 
-A pill set `false` is never created; its update script doesn't even run.
-
-### The extra readouts
-
 | Pill | What it is |
 |---|---|
-| `cpu` | Load, drawn as a graph of the last two minutes. Hover splits user vs system; click lists what's responsible, per app; right-click opens Activity Monitor. |
-| `memory` | Memory in use, as a graph. Coloured by the kernel's own pressure level, not the percentage: 60% in use is a Mac working correctly. |
-| `volume` | Output volume and mute state. |
-| `calendar` | Your next meeting and one gesture to join it. Reads `in 12m · Design review`; the whole pill fills five minutes either side of the start. **Right-click joins** the conferencing link; left-click opens the day as a timeline. |
-| `caffeinate` | A coffee pill: click for 1, 2, 4, 8 hours or until stopped; right-click stops. Survives a bar reload. |
-| `agents` | Tracks your [agent](/docs/haus/rooms/ai) lanes, and Claude Code desktop sessions too: red when one is waiting on you, click to jump to it. |
-| `aiUsage` | How much of your AI usage you've spent, as a gauge. Click for every provider's windows and reset times. The pill shows the client you last actually **used**: the one whose percentages last went *up*, not the one whose feed polls most often. Grey means the numbers are old rather than low, and the dropdown dates them. See [Where the usage numbers come from](#where-the-usage-numbers-come-from). |
-| `github` | What's waiting on you across GitHub, from sources you name in `haus.bar.github.sources`: a search filter, the `ci` board, or your own command. Two-tone: the **number** is how many, the **octocat** is how bad, taking the worst single row on one ladder: grey for no verdict (a draft, an issue), green for fine (and, approved-and-green, ready to press the button), sky for a run still going, peach for anything wanting a human on one pull request (it conflicts, its checks came back red, a reviewer asked for changes), and **red for a red default branch and nothing else**. Nothing one of your own PRs does turns the pill red (a red that fires for every work-in-progress is a red you stop reading), bar a source you declare `bad` yourself. Click for the rows, each one a link; right-click refreshes. A row an agent could take on — a red default branch, or a pull request that conflicts or came back red — also gets a **Fix with AI** button under it, if you have the [AI room](/docs/haus/rooms/ai#when-github-goes-red) on. Needs the [Development room](/docs/haus/rooms/development)'s git, a `gh auth login` you've run, and either `haus.git.org` (which fills the sources with that owner's red default branches and open PRs) or your own `haus.bar.github.sources`. Turning the pill on with neither fails the build rather than drawing an empty pill. |
-| `trill` | A bell that opens [trill](/docs/trill)'s inbox — everything a rule routed there instead of putting on screen. It exists because trill's own menu-bar item is behind the menu bar this one replaces. **Right-click** (or ⌥-click) opens the same window filtered to the **asks**: questions still waiting on an answer. Draws nothing at all unless Trill.app is installed, and dim when it is but its daemon isn't running. |
-| `elgato` | Toggles an Elgato Key Light on your network. |
-| `harvest` | Harvest time tracking. Reads credentials from a file you provide. |
+| `cpu` | Load, graphed. Hover splits user from system; click names the apps responsible; right-click opens Activity Monitor. |
+| `memory` | Memory in use, coloured by the kernel's pressure level, not the percentage. |
+| `volume` | Output volume and mute. |
+| `calendar` | Your next meeting, `in 12m · Design review`, filling the pill five minutes either side. **Right-click joins**; left-click opens the day. |
+| `caffeinate` | A coffee cup: click for 1, 2, 4, 8 hours or until stopped; right-click allows sleep. |
+| `agents` | [Agent](/docs/haus/rooms/ai) lanes and Claude Code desktop sessions: red when one is waiting on you, click to jump there. |
+| `aiUsage` | AI quota spent, for the client you last actually **used**; click for each provider's windows and reset times. Grey means old, not low. |
+| `github` | What's waiting on you, from `haus.bar.github.sources`: searches, the `ci` board, or your own command. The number is how many, the octocat how bad, and **red means a red default branch and nothing else**. Right-click refreshes; with the [AI room](/docs/haus/rooms/ai#when-github-goes-red) on, a stuck row gets **Fix with AI**. Needs the [Development room](/docs/haus/rooms/development)'s git, `gh auth login`, and `haus.git.org` or your own sources; with neither, the build fails. |
+| `trill` | A bell for [trill](/docs/trill)'s inbox; right-click (or ⌥-click) shows only the questions waiting on you. Nothing without Trill.app, dim while its daemon is down. |
+| `elgato` | Toggles an Elgato Key Light. |
+| `harvest` | Harvest time tracking, from a credentials file you provide. |
 
-The keep-awake engine is also a command, with or without the pill:
+`aiUsage`'s Claude row: the desktop app renders no statusline, so the row
+rides the **terminal** client's login, which lasts about nine hours; past that
+it greys until you run `claude` in a terminal. A `user:profile` token in
+`~/.config/haus/claude-usage-token` (`umask 077`; `claude setup-token` won't
+mint one) overrides it.
+
+The **focus** pill rides `haus.focus.enable` instead; only its placement is a
+bar setting.
+
+`caffeinate`'s engine is a command. It holds the Mac, not the lid; for a
+closed laptop, [`haus.ai.keepAwake`](/docs/haus/rooms/ai#letting-a-run-finish):
 
 ```sh
 awake 3h
@@ -204,37 +137,12 @@ awake indefinitely
 awake off
 ```
 
-It holds the Mac awake; it does not hold the **lid**, because caffeinate has no
-reach over lid-close sleep. Letting a run survive a closed laptop is
-[`haus.ai.keepAwake`](/docs/haus/rooms/ai#letting-a-run-finish).
-
-The pill also draws a hold that **you** did not ask for. With
-[`haus.ai.keepAwake`](/docs/haus/rooms/ai#letting-a-run-finish) on, a coding
-agent mid-turn holds the Mac awake by itself, and the cup says so:
-
-| | |
-|---|---|
-| dim cup, no label | nothing is holding |
-| accent cup, `ai` | an agent is holding; it ends when the turn does |
-| filled cup, countdown | your own `awake`, whatever agents are doing |
-| filled cup + accent icon | both — yours keeps the label, because yours is the one you can act on |
-
-Right-click means "allow sleep" and it can only ever speak for *your*
-assertion, so when an agent hold is the only thing holding, it tells you that
-instead of running a command that would change nothing.
-
-The **focus** (Do Not Disturb) pill is separate: whether it exists is
-`haus.focus.enable`, not `haus.bar.items`. Where it goes is still a bar
-setting, which is why it can appear in `haus.bar.bottom.items` below.
+With that option on, an agent mid-turn holds the Mac too and the cup says
+`ai`; right-click releases only your own hold.
 
 ## Writing your own pill
 
-`haus.bar.items` covers the pills haus ships. A pill it doesn't ship is
-`haus.bar.widgets`, which comes in two sizes: a **command**, when a line of text
-is the whole pill, and a **script**, when you want the same framework haus's own
-pills are written in.
-
-### A line of text
+A pill haus doesn't ship is `haus.bar.widgets`, in two sizes. A line of text:
 
 ```nix
 haus.bar.widgets.backup = {
@@ -244,149 +152,34 @@ haus.bar.widgets.backup = {
 };
 ```
 
-That's the whole requirement. One line on stdout is the label; print nothing and
-the pill hides for that tick, which is how a widget says "no news" without
-drawing an empty box. `placement = "bottom-left"` puts it on the second bar
-instead.
+One line on stdout is the label; print nothing and the pill hides for that
+tick. `placement = "bottom-left"` puts it on the second bar.
 
-### A real pill
-
-When you want a dropdown, a click gesture, a graph or a colour that means
-something, write it as a **barlib widget** — one self-describing file, the same
-shape the clock, the CPU graph and the GitHub pill are written in:
-
-```bash
-#!/bin/bash
-# widget: interval   = 60
-# widget: popup      = true
-
-BAR_ITEM=pomodoro
-source "$HOME/.config/sketchybar/barlib.sh"
-
-fetch()  { emit left="12m" tone=ok; }             # gather the world
-render() { pill --icon "" --label "$left" --tone "$tone"; }   # draw it
-
-on_click() { open -a Timer; }
-
-barlib_main "$@"
-```
+For a dropdown, a gesture or a graph, write a **barlib widget** and name it
+in `script`:
 
 ```nix
 haus.bar.widgets.pomodoro = {
-  script = ./pomodoro.sh;         # the file above, header and all
+  script = ./pomodoro.sh;         # header and all
   style."icon.color" = "$TEAL";   # its own hue, and nothing else
 };
 ```
 
-The header at the top is the wiring — how often it ticks, what it listens for,
-whether it has a dropdown — and it's read when your Mac is built, so a key that
-doesn't exist fails the build naming your file rather than quietly doing
-nothing. `fetch` gathers, `render` draws, and the runtime does the rest:
-when nothing changed since the last tick, `render` never runs and the bar hears
-nothing at all.
+[Writing a bar widget](/docs/haus/rooms/bar-widgets) is the whole contract.
 
-Two things are worth knowing before you write one. Colours are **tones**, not
-hexes — `ok`, `warn`, `bad`, `dim`, `accent` — so your pill follows the theme
-the rest of the bar follows; that's why `style` above carries only the icon's
-own hue, which is identity rather than state. And your widget draws its own
-icon in `render`, so `icon` is the other tier's setting and haus says so at
-build time instead of leaving you with a glyph that never appears.
+A bundled pill takes only `interval` and `placement` here
+(`haus.bar.widgets.weather.interval = 1800`); `haus.bar.items.<name>` is sugar
+for `.enable`, `haus.bar.bottom.items.<name>` for `.placement`. Also refused
+at build: `command` and `script` together, `icon` on a `script` widget, a
+bottom placement without `haus.bar.bottom.enable`, and a name outside letters,
+digits, `_` and `-`, or one the bar already uses. `permissions = [ "full-disk-access" ]` declares what
+macOS will prompt for; nothing requests it.
 
-The file lands at `~/.config/sketchybar/widgets/<name>.sh`, which is also how
-you debug one: run it by hand with `BAR_ITEM=<name>` in front and watch what it
-prints. The full contract — every component, every tone, every dropdown row
-kind, what the runtime promises — is
-[Writing a bar widget](/docs/haus/rooms/bar-widgets).
-
-Every bundled pill is declared here too, so you can retune one by name without
-turning it off and rebuilding it yourself:
-
-```nix
-haus.bar.widgets.weather.interval = 1800;   # ask half as often
-haus.bar.widgets.cpu.placement = "bottom-right";
-```
-
-`haus.bar.items.<name>` is sugar for `haus.bar.widgets.<name>.enable`, and
-`haus.bar.bottom.items.<name>` for its `placement`, the same settings under
-shorter names, so both spellings work and you can keep whichever reads better.
-
-Some things a widget can't do, each refused at build rather than silently: you
-can't set `command` or `script` on a bundled pill (its dropdown, click gestures
-and colour rules are written against haus's own script, so replacing half of it
-would leave you with something neither of us can reason about; write your own
-under a new name and switch that one off), you can't set both of them on one
-widget, you can't place a pill on the bottom bar without
-`haus.bar.bottom.enable`, and the name has to be a plain word the bar can
-address: letters, digits, `_` and `-`, and not one the bar already uses.
-
-`script` and `style` are settings for **your host file**, not for a desktop you
-publish: one runs code in your session on a timer and the other is a shell
-fragment. A desktop can still place, retune and switch off every pill on the
-bar — it just can't bring one that runs something.
-
-<Callout type="info" title="Say what it will ask for">
-`permissions = [ "full-disk-access" ]` declares what macOS will prompt your
-widget for. Nothing requests it and nothing waits on it: it's there so a
-widget you got from someone else can be read for what it reaches for before you
-switch it on, and so a tool can answer "which pill here is going to prompt me"
-without a second hand-kept list.
-</Callout>
-
-One rule if your script talks back to the bar: source
-`~/.config/sketchybar/bar.sh` and use `$SB`, never a bare `sketchybar`. A pill
-moved to the bottom bar belongs to a second instance, and a bare `sketchybar`
-always means the top one: same syntax, no error, and a pill that just stops
-updating.
-
-<Callout type="info" title="Secrets stay out of Nix">
-The bar never bakes a token into the build. The Harvest pill sources your own
-credentials file at runtime; `aiUsage` reads the logins your AI clients already
-keep (Codex's `~/.codex/auth.json`, Claude Code's login keychain item), the
-same way. Keep those files out of git.
-</Callout>
-
-## Where the usage numbers come from
-
-Each client the `aiUsage` pill knows about reports one row, and they arrive by
-two different routes. The distinction is worth knowing because it decides what a
-grey pill means.
-
-**Pushed.** Claude Code's terminal client hands its statusline the account's
-5-hour and weekly percentages on every render, so a TUI pane keeps that row
-current for free.
-
-**Pulled.** Everything else has no client-side writer, so the bar fetches on a
-timer: Codex and Claude by asking the account itself, Opencode by reading its
-local database. Limits are per *account*, not per client, so asking the account
-is also the only way to count what a GUI burned.
-
-<Callout type="warn" title="Claude Code's macOS app renders no statusline">
-So it pushes nothing, and its usage only shows up through the pull. That pull
-uses the login keychain item the **terminal** client maintains, which lasts
-about nine hours and is renewed only when a terminal pane runs. Drive the
-desktop app for longer than that without opening one and the Claude row stops
-refreshing: the pill goes grey and the dropdown says how old the numbers are,
-rather than showing stale ones as if they were current. Running `claude` in a
-terminal for a moment renews it.
-
-If you have a bearer token carrying the `user:profile` scope, put it in
-`~/.config/haus/claude-usage-token` and it overrides the keychain entirely.
-Note that `claude setup-token` does *not* mint one: that token is scoped for
-API inference and the usage endpoint refuses it. Create the file with
-`umask 077`; nothing checks its permissions for you.
-</Callout>
-
-Two clocks ride on every row, and they answer different questions: when the row
-was **written** decides whether the pill greys out, and when that client's usage
-last went **up** decides which one the pill shows. Keeping them apart is what
-stops a feed that polls every two minutes from claiming to be the client you're
-using.
+Talk back to the bar through `$SB` from `~/.config/sketchybar/bar.sh`, never a
+bare `sketchybar`, which always means the top bar: a pill moved to the bottom
+one stops updating, with no error.
 
 ## A second bar along the bottom
-
-If you want more room, or you'd rather keep the readouts off the menu bar
-entirely, the room can draw a second bar along the bottom of the screen at the
-same time:
 
 ```nix
 haus.bar.bottom = {
@@ -395,47 +188,12 @@ haus.bar.bottom = {
 };
 ```
 
-A pill named here **moves**: it's drawn on the bottom bar and not the top one,
-whatever `haus.bar.items` says. Never two copies racing each other.
-
-The value is where it goes: `"left"`, `"center"` or `"right"`; `true` means
-`"right"`. The menu bar only has one usable group (its left is the workspaces,
-its middle is under the notch on a MacBook), so the bottom strip is where all
-three are yours.
-
-Three things before you turn it on:
-
-- **macOS reserves nothing at the bottom of the screen.** Tiling carves the
-  room out instead, so with tiling off, windows will run underneath it.
-- **The Dock shares that edge.** Move it to a side, or hide it.
-- **Don't put both bars on the same edge.** `haus.bar.position = "bottom"`
-  plus a second bar is two bars in one place; you'll get a warning on rebuild.
-
-## Turning it off
-
-```nix
-haus.bar.enable = false;
-```
-
-The native menu bar comes back, and the bottom bar goes with it. Tiling and
-everything else are unaffected.
-
-## Works with
-
-Every pill that isn't the bar's own comes from another room, and appears only
-when that room is on:
-
-- **[Windows](/docs/haus/rooms/windows)**: the workspace pills and the leader's
-  letter hints;
-- **[Focus](/docs/haus/rooms/focus)**: the quiet switch's pill;
-- **[AI](/docs/haus/rooms/ai)**: the agents readout, red when a session is
-  waiting on you;
-- **[Launcher](/docs/haus/rooms/launcher)**: what a click on the logo pill can
-  reach.
-
-A missing room removes its pill and nothing else.
+A pill named here **moves**, never two copies; `true` means `"right"`. With
+tiling off, windows run underneath it; the Dock shares that edge, so move or
+hide it; and
+`haus.bar.position = "bottom"` beside it is two bars in one place, which
+rebuild warns about.
 
 ## Options
 
-Every setting, with types and defaults:
-[Bar](/docs/haus/reference/options#bar).
+[Every setting, with types and defaults](/docs/haus/reference/options#bar).
