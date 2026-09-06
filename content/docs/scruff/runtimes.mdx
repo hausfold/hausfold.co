@@ -32,7 +32,7 @@ separate `down`.
 
 ```sh
 export SCRUFF_TART_BASE=ghcr.io/cirruslabs/macos-tahoe-base:latest   # or your own image
-scruff runtime up    my-lane --backend tart    # clone it, boot it headless, wait for an address
+scruff runtime up    my-lane --backend tart    # clone it, boot it headless, wait for a shell
 scruff runtime enter my-lane --backend tart    # ssh in as $SCRUFF_TART_USER (default: admin)
 scruff runtime down  my-lane --backend tart    # stop and delete the clone
 ```
@@ -52,17 +52,42 @@ hard as it likes, while your pointer, your focus and your desktop stay yours.
 Prefer it over asking to drive the machine you are on.
 </Callout>
 
-Two environment variables and no config file. `SCRUFF_TART_BASE` is required and
-has no default on purpose: the images are tens of gigabytes and which one you
-want is a real choice, so scruff refuses (**exit 2**) rather than pulling one you
-did not ask for. `SCRUFF_TART_USER` is the guest account, `admin` by default,
-which is what every cirruslabs base image ships.
+Three environment variables and no config file. `SCRUFF_TART_BASE` is required
+and has no default on purpose: the images are tens of gigabytes and which one
+you want is a real choice, so scruff refuses (**exit 2**) rather than pulling
+one you did not ask for. `SCRUFF_TART_USER` is the guest account, `admin` by
+default, which is what every cirruslabs base image ships. `SCRUFF_TART_SSH_WAIT`
+is how many seconds a booted guest gets to start answering ssh, `180` by
+default.
+
+**`up` returns when a shell answers, not when the guest has an address.** `tart
+ip` answers the moment the guest takes a DHCP lease, most of a minute before
+sshd accepts anything, so an address on its own is one your first `ssh` cannot
+use. scruff waits for the shell and prints the address only once something has
+answered on it. If nothing does inside the wait, `up` exits **1** naming the
+boot log, and leaves the guest running so you can look at it; `down` stops and
+removes it.
+
+The guest's console goes to that boot log, `$SCRUFF_STATE/runtime/scruff-<lane>.log`,
+never to your terminal. So `up` is safe to read through a pipe or a `$( )`: it
+returns while the guest is still running, and nothing the guest prints later
+lands in your shell.
+
+`enter`, and the readiness probe before it, keep the guest out of your
+`known_hosts`. vmnet hands the same address to the next clone, which is a
+different host with a different key, and one saved entry would turn every later
+lane on that address into a host-key refusal. Drive the guest yourself with the
+same two options:
+
+```sh
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$(tart ip scruff-my-lane)
+```
 
 Needs [`tart`](https://tart.run) on `PATH`. Without it the verb **degrades**
 with the install command rather than failing.
 
-It is built in only because its `setup` is three commands and a wait, which one
-argv slot cannot hold. Nothing else about it is privileged: a `tart.toml` of
+It is built in only because its `setup` is four commands and two waits, which
+one argv slot cannot hold. Nothing else about it is privileged: a `tart.toml` of
 your own still wins wholesale, and
 
 ```sh
@@ -87,11 +112,12 @@ with no shell in the way, so a branch name with a space in it is one argument
 rather than a quoting bug. The `{{…}}` variables are
 [the set every adapter shares](/docs/scruff/config#template-variables).
 
-## Four failures worth telling apart
+## Five failures worth telling apart
 
 | | |
 |---|---|
 | no such adapter file | **2**, refused, naming the path it looked for. `tart` is the one id that falls back to a built-in instead |
 | `--backend tart` with no `SCRUFF_TART_BASE` | **2**, refused, naming the image to pull |
+| `--backend tart` took an address but no shell answered inside `SCRUFF_TART_SSH_WAIT` | **1**, naming the boot log. The guest is left running to be looked at; `down` removes it |
 | the backend's own binary is not on `PATH` | **3**, degraded. Install it and the same command works |
 | the backend ran and exited non-zero | **1**. It attempted the thing and failed at it: a VM that already exists, a full disk, a bad image |

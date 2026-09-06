@@ -150,7 +150,7 @@ One spelling. Every variable is `SCRUFF_*`, and nothing else is read.
 | `SCRUFF_BASE` | where checkouts live. Default `~/.cache/scruff` |
 | `SCRUFF_STATE` | where machine state lives: the occupancy leases and the reap ledger. Default `$XDG_STATE_HOME/scruff`, else `~/.local/state/scruff` |
 | `SCRUFF_OCCUPANCY` | set to `lease` to declare that every session here is one this tool spawned, so a lane nobody leased is a lane nobody is in |
-| `SCRUFF_TART_BASE` / `SCRUFF_TART_USER` | the [tart backend's](/docs/scruff/runtimes) image and guest account |
+| `SCRUFF_TART_BASE` / `SCRUFF_TART_USER` / `SCRUFF_TART_SSH_WAIT` | the [tart backend's](/docs/scruff/runtimes) image, guest account, and how many seconds a booted guest gets to answer ssh |
 
 `SCRUFF_STATE` **must be absolute.** A relative value is refused with a warning
 and the default used: this state is machine-global, so resolving it against the
