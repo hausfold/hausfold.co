@@ -1,210 +1,90 @@
 ---
 title: Launcher
-description: The ⌘Space command palette. The room that installs it, hands it the key Spotlight was holding, and keeps its Accessibility grant alive across rebuilds.
+description: "The ⌘Space command palette: installed, handed Spotlight's key, kept in its grants."
 icon: launcher
 related:
   - title: "The pounce docs"
-    description: "The app itself, in full: the keys, ranking, quick answers, every built-in command, and how to write your own."
+    description: "Keys, ranking, quick answers, every built-in command."
     href: "/docs/pounce"
     icon: "pounce"
   - title: "Pounce config & CLI"
-    description: "Every key this room's options end up writing, and every flag a command script can reach for."
+    description: "Every key these options write, and every flag."
     href: "/docs/pounce/config"
     icon: "dials"
 ---
 
-The Launcher room installs **[pounce](/docs/pounce)**, a native command palette
-where every command is a shell script in a folder. Hit **⌘Space**, fuzzy-type,
-hit **Return**: apps, your own commands, clipboard history, an emoji grid and
-inline answers, all in one list.
-
-Pounce is free, MIT and installs standalone from Homebrew without any of this.
-What the room adds is the wiring: the daemon as a login item, ⌘Space actually
-free, and the one macOS permission surviving a rebuild.
-
-## Enable it
+Hit **⌘Space**, fuzzy-type, hit **Return**: apps, your own commands, clipboard
+history and quick answers, every command a shell script. The palette is
+[pounce](/docs/pounce); this room is its wiring.
 
 ```nix
 haus.launcher.enable = true;
 haus.keys.palette = "cmd-space";   # or alt-space, ctrl-space, "none"
 ```
 
-```sh
-haus rebuild
-```
-
-Only `cmd-space` displaces Spotlight; moving the palette elsewhere is how you
-keep both. haus frees ⌘Space from Spotlight so the palette can own it, which is the
-step a standalone install has to do by hand.
-
-Two more asks come on first use, both booked against Pounce and both silent
-once dismissed. Copy Text from Screen asks for **Screen Recording** (its section
-below). Lock Screen and Force Quit ask for **Automation**, since both drive
-System Events. `haus permissions` has a card for each: without the Automation
-grant, Lock Screen does nothing and Force Quit lists nothing, with no error
-anywhere. The same System Events grant places every popup the palette summons
-over the window you were in; without it, ⌘Y, ⌘G and the palette's own windows
-open wherever Ghostty last left a window. Keeping them above the tiling is a
-separate grant for Ghostty, on the
-[development page](/docs/haus/rooms/development).
+Only `cmd-space` displaces Spotlight; the rest keep both. `haus permissions` has
+a card for each macOS grant. Without **Automation**, Lock Screen and Force Quit
+do nothing and say nothing, and a popup lands wherever Ghostty last left a
+window rather than over the one you summoned it from. The Accessibility grant
+survives every rebuild.
 
 ## Configure it
 
-`config.json` is **generated** from `haus.launcher.*`, so `pounce config init`
-refuses inside haus; the next rebuild would put the generated file straight
-back. Change it in your host file instead, and the rebuild bounces the daemon
-for you when one of the startup-only keys moves.
+`config.json` is generated from `haus.launcher.*`, `haus.ui.scale`,
+[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) and your theme, so
+`pounce config init` refuses inside haus. Edit your host file instead.
 
 ```nix
-haus.launcher.windowSwitcher = true;          # ⌘Tab by window; defaults on here
-haus.launcher.autoQuit.enable = false;        # quit an app when its last window closes
-haus.launcher.items."mode:emoji".hotkey = null;   # leave Fn/Globe native
-```
-
-`haus.ui.scale` writes the palette's `scale` for you,
-[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) writes its
-`fontFamily`, and your `haus.theme.flavor` / `haus.theme.contrast` reach it as a
-palette file, so the palette matches the rest of the house without a second
-theme setting.
-
-### Commands for tools you actually have
-
-Pounce ships nine optional commands that each assume a tool, a service or an
-app it cannot provision, so they are off until you name the ones you have:
-
-```nix
+haus.launcher.windowSwitcher = true;      # ⌘Tab by window, on here
+haus.launcher.autoQuit.enable = false;
 haus.launcher.plugins = [ "docker" "tailscale" ];
 ```
 
-`audio`, `bluetooth`, `caffeinate`, `docker`, `github`, `perplexity`,
-`spotify`, `ssh`, `tailscale`. Naming one installs the command **and** the
-plain CLI it shells out to, so `bluetooth` brings `blueutil` and `audio` brings
-`switchaudio-osx` with nothing else to install. The ones that want an app or a
-daemon (Spotify, a Docker engine, tailscaled) stay yours to provide, and guard
-at runtime with a hint. A machine that names none carries none of it.
+`plugins` turns on commands that assume a tool you have: `audio`, `bluetooth`,
+`caffeinate`, `docker`, `github`, `perplexity`, `spotify`, `ssh`, `tailscale`.
+Naming one installs the CLI behind it: `bluetooth` brings `blueutil`. An app or
+daemon stays yours to provide.
 
-The ids are pounce's own filenames rather than a vocabulary haus invents on
-top, so a typo fails the build and names the set that exists.
+## Rows that are listed on some pages only
 
-### Rows that are listed on some pages only
-
-haus scopes three rows this way: **New Agent Lane** (⌘⏎), **New Shell Window**
-(⌘N) and its `⇧` twin. All three act on **the page you are standing on**, and
-fall back to the window you were looking at when that page names no repo — so
-from a browser they have nothing to read either way: the lane finds no repo and
-refuses out loud, the shell opens in `$HOME`. They are listed on the terminal
-pages only, `T` and every `T/<repo>` lane page:
+**New Agent Lane** (⌘⏎), **New Shell Window** (⌘N) and its `⇧` twin act on the
+page you are on, so haus lists them on `T` and the `T/<repo>` lane pages, and
+only where [Windows](/docs/haus/rooms/windows) is on. **Spawn Agent** and **New
+Terminal Window** (⌘T) inherit nothing and stay everywhere. Hand one back:
 
 ```nix
-# hand it back everywhere:
 haus.launcher.items."cmd:lane-here".workspaces = [ ];
-
-# or follow the app instead of the page, which needs BOTH lines: the two
-# predicates are ANDed, so adding bundleIds on its own only narrows the row
-# further (on T, and with Ghostty in front).
-haus.launcher.items."cmd:lane-here".workspaces = [ ];
-haus.launcher.items."cmd:lane-here".bundleIds = [ "com.mitchellh.ghostty" ];
 ```
 
-**Spawn Agent** is untouched and stays everywhere, because it asks which repo
-rather than inheriting one. That makes it the row to reach for from a browser,
-where the lane chord cannot go. **New Terminal Window** (⌘T) stays everywhere
-too, for the opposite reason: it inherits nothing at all, so there is no page it
-needs to be on to work.
+Add `bundleIds` beside it, never instead: the predicates are ANDed. Both scope
+the **row**, never a `hotkey`: ⌘⏎ and ⌘N work wherever Ghostty is frontmost.
+`pounce doctor` says why a row is missing.
 
-Both keys work on any item, and they scope the **row** and never a `hotkey` on
-the same item, so ⌘⏎ and ⌘N keep working wherever Ghostty is frontmost. What
-each one matches, and what `pounce doctor` reports about a row you cannot find,
-is [the palette's own side](/docs/pounce/config#rows-that-only-exist-where-they-work).
+## The Fn/Globe key
 
-The room's half: haus writes the scoping only where the
-[Windows](/docs/haus/rooms/windows) room is on, since that room is what gives
-Ghostty a page to be on and what runs the workspace hook the palette reads to
-know where you are. Without a tiler no scoping is written at all and those three
-rows stay everywhere.
-
-A fourth row can be absent for a different reason. **Pages** isn't scoped to a
-workspace, its list is every workspace's pages at once, but it hides itself
-while no page exists anywhere, through a
-[`whenFile`](/docs/pounce/writing-commands#a-row-that-hides-when-there-is-nothing-to-act-on)
-in the command script rather than through `haus.launcher.items`. The file it
-watches is written by the Windows room's workspace hook, and a file nothing ever
-writes reads as a yes, so on a machine with no tiler the row stays, where, like
-every page chord, it has nothing to work with. `pounce doctor` says which of the
-two is happening.
-
-### The Fn/Globe key
-
-haus binds the emoji picker to Fn, and macOS wants that key too, so
-`haus.launcher.fnKey` settles the argument: `"tap"` (the default) shares the key
-and may lose the race, `"remap"` turns Fn into F19 and owns it outright at the
-cost of Fn's other jobs: no Fn+arrows, no Fn+Delete. [What each mode
-does](/docs/pounce/config#the-fnglobe-key-fnkey) is the palette's own side.
-
-The room's half: here the remap is **declared** rather than installed by the
-daemon, so a rebuild can't drop it and Fn stays remapped (and inert) while
-the palette is stopped. Or hand the key back with
+Fn opens the emoji grid, and macOS wants it too. `haus.launcher.fnKey` settles
+it: `"tap"` (the default) shares the key and may lose the race, `"remap"` turns
+Fn into F19 and owns it, giving up Fn+arrows and Fn+Delete. haus declares the
+remap, so a rebuild cannot drop it. Or hand Fn back:
 `haus.launcher.items."mode:emoji".hotkey = null`.
 
-### Copy Text from Screen
+## Copy text from screen
 
-**⌘⇧2** — beside macOS's own ⌘⇧3/4/5 capture family, but the crop's **text** is
-the product: the same drag-an-area crosshair, then the text inside it lands on
-the clipboard. Recognition is Apple's Vision framework, entirely offline, and
-the image is deleted either way — nothing is ever saved. Esc during the drag
-cancels quietly; a capture with nothing legible in it says so as a
-notification instead of leaving you to paste and find out.
-
-The first capture makes macOS ask for **Screen Recording** for Pounce — one
-click. If that dialog got dismissed, `haus permissions` has the card: without
-the grant, captures quietly come back wallpaper-only and every crop reads as
-"No text found".
-
-It is a palette row like any other (`⌘Space` → "copy text"), so the key follows
-the item rules:
+**⌘⇧2** crops an area and puts its text on the clipboard, offline. The first
+capture asks for **Screen Recording**; without it crops come back
+wallpaper-only, reading "No text found".
 
 ```nix
-haus.launcher.items."cmd:copy-text".hotkey = "cmd+shift+6";  # move it
-haus.launcher.items."cmd:copy-text".hotkey = null;           # palette row only
+haus.launcher.items."cmd:copy-text".hotkey = "cmd+shift+6";   # or null
 ```
 
-<Callout title="The Accessibility grant survives rebuilds">
-The daemon runs the CI-built release app, Developer-ID signed by hausfold and
-notarized. macOS ties an Accessibility grant to a signature's designated
-requirement, and that requirement anchors on the team rather than a per-build
-hash, so the approval you give once holds across every rebuild.
-</Callout>
-
-## Works with
-
-- **[Apps](/docs/haus/rooms/apps)**: **Install App** writes a roster entry and
-  rebuilds.
-- **[AI](/docs/haus/rooms/ai)**: **Spawn Agent** creates a named worktree and
-  opens a session in it.
-- **[Focus](/docs/haus/rooms/focus)**: the quiet switch is a command here too,
-  and every scene you declare gets a **Scene: &lt;name&gt;** row of its own.
-- **[Development](/docs/haus/rooms/development)**: **Lanes** jumps to an agent
-  lane or searches what the agents are saying, **New Agent Lane** is ⌘⏎ and
-  **New Shell Window** is ⌘N (both listed on the terminal pages, as above).
-  **New Terminal Window** is ⌘T — the neutral one, home directory and no page —
-  and is listed everywhere.
-- **[Windows](/docs/haus/rooms/windows)**: the opt-in `⌘Tab` window switcher,
-  which groups its rows by AeroSpace workspace.
-
-Each command appears only when its room is on.
-
-## Remove it
-
-```nix
-haus.launcher.enable = false;
-```
+`haus.launcher.enable = false;` removes the room.
 
 <Callout type="warn" title="⌘Space doesn't go back on its own">
-haus disables Spotlight's shortcut with a one-way write, and nothing re-enables
-it. Put it back yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts.
+The write is one way. Put it back in System Settings ▸ Keyboard ▸ Keyboard
+Shortcuts.
 </Callout>
 
 ## Options
 
-Every setting, with types and defaults:
-[Launcher](/docs/haus/reference/options#launcher).
+[Every setting, with types and defaults](/docs/haus/reference/options#launcher).
