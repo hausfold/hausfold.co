@@ -166,9 +166,10 @@ are the lines you can cross without noticing.
   load-bearing: at the root every landing page got the search context, ⌘K and a
   lazy ~457 KB Orama fetch. **Don't move it back up**; give a component that asks
   its own boundary. The landing half ships one, `WebMcpTools` (root layout;
-  renders null unless `document.modelContext` exists). The bar for another is
-  pure enhancement — the copy button rendered `hidden` and unhid only where
-  `navigator.clipboard` exists.
+  renders null unless `document.modelContext` exists), **and no more**. The bar
+  for another is pure enhancement — the copy button rendered `hidden` and unhid
+  only where `navigator.clipboard` exists. **Nothing waits in the tree for a
+  caller**: no unused component, no orphaned `.cmd` styles.
 - **No screenshots, and never a stale one**, and **no `og:image`** — both
   decisions, not gaps; a validator's flag is not a bug. A landing page that ever
   holds an image needs `images: { unoptimized: true }` in `next.config.mjs`. The
@@ -183,7 +184,8 @@ are the lines you can cross without noticing.
   **`.sheet` carries `width: 100%`** beside `max-width`, because a flex item with
   an `auto` cross-axis margin is not stretched (`min-width: 0` is not the fix).
   `/perch/privacy`'s `privacy.module.css` wins on source order and must not
-  restate `margin` or `width`.
+  restate `margin` or `width`. Text inside stays left-aligned: **the column
+  leans, the paragraph does not**, and nothing here is ever set ragged-left.
 - **Nothing scrolls sideways.** A horizontal scroller owes `tabIndex={0}`, a
   label and a focus ring (WCAG 2.1.1; Safari won't focus one on its own). A
   gallery may hide its end; a catalogue a reader compares may not.
@@ -378,6 +380,8 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
 - **This Next is newer than your training data.** Read
   `node_modules/next/dist/docs/` before assuming an API. `agentRules: false` in
   `next.config.mjs` stops `next dev` appending a block to `AGENTS.md`.
+- **A markdown image is a build-time import** under Fumadocs, resolved relative
+  to the content file; a missing asset is a hard build failure.
 - **`themes`, not `theme`, in the Shiki config** — a `theme:` key leaves an empty
   `themes` beside it and every MDX file fails with `TypeError: Cannot convert
   undefined or null to object`. `src/lib/source.ts` has the working shape.
@@ -424,7 +428,9 @@ Four things about CI that its own docs don't carry:
 - **Don't loosen the two-cold-builds diff in `docs.yml`.** The step prints sizes
   and 320 bytes around the first difference. Its one catch: Shiki's
   500ms-per-line tokenising cap returning a line half-scanned, fixed by
-  `tokenizeTimeLimit: 0` in `src/lib/source.ts`.
+  `tokenizeTimeLimit: 0` in `src/lib/source.ts`. **It is not a safety net for
+  that class of bug** — it fires only when the two builds disagree, so two
+  builds that both run slow degrade identically, pass, and deploy.
 - **`worker.yml` also greps both wrangler configs** for the same `main`, the same
   `ASSETS` binding and `run_worker_first = true` — any of them missing from
   `wrangler.preview.toml` makes a broken installer look fine on the preview URL.
@@ -439,7 +445,8 @@ Four things about CI that its own docs don't carry:
   **Don't tighten that.** A persistent warn: the release ships no `-macos.*`
   artifact (that repo's problem), or `latestAppRelease`'s real fetch broke —
   `npm test` replaces `globalThis.fetch` wholesale, so this step is the only
-  check that touches it.
+  check that touches it. GitHub 403s a request sent without a `user-agent`, and
+  `worker.js` sets that header by hand.
 - **`dns.yml` never runs on a PR** (no secrets there): it fires on main when
   `scripts/dns-aid.mjs` or `worker-config.js` change, plus a Monday cron and a
   main-only dispatch, converges the records under `_agents.hausfold.co`, turns
@@ -485,7 +492,8 @@ because they are positioning:
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
   **No landing page.** **`blank` has no `DESKTOPS` row and no installer URL**: it
   is the null selection, and `hausfold.co/blank.sh` would promise a machine it
-  does not produce.
+  does not produce. It **does** keep its docs page, and that is the right shape:
+  a page can explain a null selection, a `curl | bash` cannot.
 - **Adding a product name that isn't real yet.** It needs a row in `PRESENCE.md`
   ([`hausfold/ops`](https://github.com/hausfold/ops), private) first. **One
   narrow exception**: the last line of `#made` may carry a workshop-stage name
