@@ -643,7 +643,11 @@ The line it draws is not *is this dangerous*. It is:
 
 > does this change what is in front of my eyes, within about two seconds?
 
-Which is a question about the *target*, not the command. The guard splits a
+Which is a question about the *target*, not the command. **Prose is not a
+command**: before anything looks for one, the guard drops heredoc bodies and
+comment lines, so `haus rebuild` inside a `cat > README.md <<EOF` or a commit
+body is text rather than a verb. That is the difference between a guard you read
+and one you learn to click through. It then splits a
 command at unquoted `;`, `&&`, `||`, `|` and newlines and drops the segments
 that run on another machine, so `ssh admin@vm 'haus rebuild'` is silent while
 the same words typed at your own shell are not. It is quote-aware — `ssh h 'a;
@@ -662,6 +666,7 @@ the question.
 | every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
 | anything run over `ssh` on another machine — a lane's own headless VM above all; that desktop is not the one you are looking at | `ssh -X`/`-Y`, whose windows render on *this* display, and an `ssh` to `localhost`, which is this very Mac |
 | `tart run --no-graphics`: a lane's own macOS VM ([`scruff runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
+| `--help` on `tart run` or on any of the gated `aerospace` verbs: reading a CLI's help opens nothing | |
 | | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch`; the whole desktop redraws |
 
 Also on the ask side, for the same reason: `aerospace` focus/move/workspace

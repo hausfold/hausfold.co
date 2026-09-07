@@ -105,9 +105,13 @@ a fact it couldn't reach as `null` rather than `false`, because "no grant" and
 | | |
 |---|---|
 | **0** | ok |
-| **1** | nothing came back: a dismissed picker, a draft index that isn't there, an item key `run` can't resolve, an unhealthy `doctor`, a daemon that isn't running |
+| **1** | nothing came back: a dismissed picker, a draft index that isn't there, an item key `run` can't resolve, an unhealthy `doctor`, a daemon that isn't running, a file `skill install` tried to write and couldn't |
 | **2** | usage: a verb, subcommand or flag pounce doesn't have |
-| **3** | refused: pounce won't do it *here*. A `config.json` haus generated, a skills directory something else manages. Nothing to retry |
+| **3** | refused: pounce won't do it *here*. A `config.json` haus generated, a `SKILL.md` that is already there with different bytes. Nothing to retry |
+
+A skills directory haus manages is **not** a refusal: those are read-only Nix
+symlinks, the skill is already at that path, and `skill install` names them and
+exits 0. Anything else would send an agent back at a store path with more force.
 
 `focus` keeps its own finer table; it predates this one, and haus's hush
 scripts read it.

@@ -72,11 +72,13 @@ scruff skill install
 
 It finds every agent client on the machine and writes
 `<skills-dir>/<name>/SKILL.md` into each. `--client claude|codex|opencode|pi`
-or `--dir <path>` names one instead. It never overwrites: a file that already
-exists and differs is your edit, and a file behind a symlink belongs to whatever
-manages that link, so both are left alone and reported — and the run exits **2**,
-scruff's "refused for safety", rather than pretending it installed. `scruff
-skill` on its own prints one to stdout, for piping somewhere it cannot reach.
+or `--dir <path>` names one instead, and the two together are a usage error, as
+is either one handed an empty value. It never overwrites: a file that already
+exists and differs is your edit, left alone and reported, and the run exits **2**,
+scruff's "refused for safety", rather than pretending it installed. A **symlink
+is not that**. It belongs to whatever manages the link, the skill is already at
+that path, so it is named, left alone, and exits 0. `scruff skill` on its own
+prints one to stdout, for piping somewhere it cannot reach.
 
 On Nix, the skills are *also* their own derivation, so a machine can take them
 with no Go toolchain and no binary at all:
