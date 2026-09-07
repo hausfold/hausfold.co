@@ -1,23 +1,16 @@
 ---
 title: Shelf
-description: A shelf that drops out of the notch mid-drag to catch files, so you never have to dig the destination window out first.
+description: A file shelf that drops out of the notch to catch a drag.
 icon: shelf
 related:
   - title: "The perch docs"
-    description: "What the shelf catches, how to carry a pile out of it, and every setting inside the app."
+    description: "What it catches, and every setting in the app."
     href: "/docs/perch"
     icon: "perch"
 ---
 
-You know the dance: drag a file, realise the window you wanted is buried under
-four others, let go, dig it out, drag again. The Shelf room installs
-**[perch](/docs/perch)**, which ends it: start dragging anything, flick up to
-the notch, and a small shelf drops down to catch it. Pile in as much as you
-like, from as many places as you like, then grab any tile and carry the whole
-group to its real home in one motion.
-
-This page is the **room**: the wiring, the one option, and what a rebuild does.
-The app itself is documented in [its own tree](/docs/perch).
+Flick a drag up to the notch and a shelf drops down to catch it:
+[perch](/docs/perch), wired up here.
 
 ## Enable it
 
@@ -29,94 +22,40 @@ haus.shelf.enable = true;
 haus rebuild
 ```
 
-Perch is copied to `/Applications` and kept current with the rest of the house.
-Standalone and in-the-house are the same app: if you already installed it with
-`brew install --cask hausfold/tap/perch`, letting the room own it is the
-upgrade.
-
-The room also puts **`perch` on your PATH**, the shelf's command-line door:
+Off by default. On, Perch.app is copied to `/Applications`, kept current, and
+`perch` goes onto your PATH:
 
 ```sh
 perch add report.pdf shot.png     # and list, rm, doctor
 ```
 
-The tool ships inside the app, so the room links it out of the copy in
-`/Applications` rather than installing a second bundle for one small binary.
-[Install](/docs/perch/install#the-perch-command) has all four verbs, and the
-same link for a Mac without haus; [Using the shelf](/docs/perch/using) has what
-they do.
+The room grants nothing. It switches **Desktop & Dock ▸ "Drag windows to top of
+screen to enter Mission Control"** off without asking: the shelf cannot work
+with it on.
 
-## Configure it
-
-Two settings. The first is about colour:
+## Colour
 
 ```nix
 haus.shelf.followSystemAppearance = true;
 ```
 
-With it on, the shelf follows macOS Light/Dark itself (no rebuild, no relaunch)
-at your `haus.theme.contrast`, rather than being pinned to
-`haus.theme.flavor` like every other themed tool. The shelf has no theme picker of
-its own (a five-second surface has nowhere to put one), so this is the only word
-on its colours.
+On, the shelf follows macOS Light/Dark at your `haus.theme.contrast`, no
+rebuild, no relaunch, rather than your
+[`haus.theme.flavor`](/docs/haus/rooms/appearance) like every other themed tool.
 
-The second is about screenshots:
+## Screenshots
 
 ```nix
 haus.shelf.watchScreenshots = true;  # the default wherever the shelf is on
 ```
 
-Screenshots are the thing people most want the shelf to catch by itself, and
-the finding-out used to be the hard part — perch only watches folders you hand
-it in a panel. It reads macOS's own setting now, so it already knows which
-folder to offer: Settings ▸ Watched Folders names it, and one click opens the
-panel pointed straight at it. That click is still the grant, and nothing else
-can be, because knowing where a folder is isn't being given it.
-
-This option's remaining job is to say the same thing a second way: when this
-machine owns the setting (`haus.screenshots.location`) the folder also goes
-into `~/.config/perch/config.json`, which is what perch falls back to if macOS
-is silent. Silent on both counts means the Desktop, which is macOS's own answer
-and right on most Macs.
-
-The same option turns the floating screenshot thumbnail off
-(`haus.screenshots.thumbnail`, at `mkDefault` — name it in your host to put it
-back). That is not tidiness: the thumbnail *holds* your capture for about five
-seconds before the file is written, so a watched folder catches every
-screenshot five seconds after you took it.
-
-## Works with
-
-- **[the Appearance room](/docs/haus/rooms/appearance)**: the shelf takes your palette
-  and contrast, unless you hand the polarity to macOS with
-  `followSystemAppearance`.
-
-## Permissions and side effects
-
-This room grants **nothing**, because the shelf asks for nothing: no Accessibility,
-no Input Monitoring, no Screen Recording, no Dock icon, no telemetry. There is
-no permission step in a rebuild for it, which is unusual enough here to be
-worth saying.
-
-Two macOS settings get in the shelf's way, and the room turns both off for you
-while it's enabled (disabling the room stops haus writing them, but macOS keeps
-the last value written — flip them back by hand if you want them):
-
-- **Desktop & Dock ▸ "Drag windows to top of screen to enter Mission Control"**,
-  switched off outright. macOS arms that top-edge trigger for the whole of any
-  drag, files included, and it fires over the same band the shelf lives in.
-  Left on, the Dock steals the drop, and nothing perch can do stops it —
-  which is why this one isn't a preference the room asks you about.
-  [Install](/docs/perch/install) has it for a Mac without haus.
-- **The screenshot preview thumbnail**, switched off as a default, and only
-  while `haus.shelf.watchScreenshots` is on (see [Configure
-  it](#configure-it)). macOS parks a new capture in the bottom-right corner and
-  only writes the file when that thumbnail expires (about five seconds) or you
-  dismiss it — so a [watched folder](/docs/perch/using) pointed at your
-  screenshots catches them five seconds after you took them. This one is only a
-  delay rather than a defeat, so it's a `mkDefault`:
-  `haus.screenshots.thumbnail = true;` in your host puts the thumbnail (and its
-  markup and drag affordances) back.
+Screenshots reach the shelf on their own through a watched folder; this clears
+macOS out of the way. The floating thumbnail goes off
+(`haus.screenshots.thumbnail`, at `mkDefault`, so naming it in your host puts it
+back): macOS *holds* the capture for about five seconds before writing the file,
+so a watched folder catches it that late. And where this machine owns
+`haus.screenshots.location`, the folder goes into `~/.config/perch/config.json`,
+perch's fallback for finding it when macOS is silent.
 
 ## Remove it
 
@@ -124,16 +63,11 @@ the last value written — flip them back by hand if you want them):
 haus.shelf.enable = false;
 ```
 
-The room stops installing and updating it. The copy already at
-`/Applications/Perch.app` stays until you delete it; a rebuild never removes an
-app from your Applications folder behind your back.
-
-Quitting Perch is a different thing. While the room is on, every `haus rebuild`
-ends with the shelf running, so one you quit is back after the next rebuild. If
-you want it gone, turn the room off.
+haus stops installing and updating perch. `/Applications/Perch.app` stays until
+you delete it, and the Mission Control setting keeps the value haus wrote, so
+flip that back by hand. While the room is on, every rebuild ends with the shelf
+running: one you quit comes back.
 
 ## Options
 
-Every setting, with types and defaults:
-[`haus.shelf`](/docs/haus/reference/options#shelf).
-
+[Every setting, with types and defaults](/docs/haus/reference/options#shelf).
