@@ -1,19 +1,20 @@
 ---
 title: Security
-description: Touch ID for sudo, even inside a multiplexer, plus lock behaviour, the firewall, and where this machine gets its secrets.
+description: "Touch ID for sudo, inside a multiplexer too, the lock screen and firewall, and where this Mac gets its secrets."
 icon: shield
 related:
   - title: "Development"
-    description: "Where commit signing is wired up, and the rest of the command line haus sets up."
+    description: "Where commit signing is wired up, and the rest of the command line."
     href: "/docs/haus/rooms/development"
     icon: "shell"
+  - title: "AI"
+    description: "The room leaning hardest on passwordless activation: an agent rebuilds end to end."
+    href: "/docs/haus/rooms/ai"
+    icon: "agent"
 ---
 
-**Security** is the small auth room: it turns on **Touch ID for `sudo`**, and
-(the part stock Touch-ID-for-sudo gets wrong) makes that work **inside a
-terminal multiplexer** like tmux or `zmx` (which every haus terminal window
-runs inside), where it would otherwise silently
-fail.
+**Security** is the auth room: what you prove yourself to, what you are excused
+from proving, and where this Mac's secrets come from.
 
 ## Enable it
 
@@ -22,90 +23,34 @@ haus.security.touchId.enable = true;
 haus.security.touchId.passwordlessRebuild = true;
 ```
 
-## What it turns on
+Off in the bare layer; hacker, everyday and minimal all turn both on.
 
-```nix
-security.pam.services.sudo_local.touchIdAuth = true;   # fingerprint for sudo
-security.pam.services.sudo_local.reattach   = true;    # make it work in tmux/zmx
-```
+`enable` puts [`pam_reattach`](https://github.com/fabianishere/pam_reattach) in
+front of `pam_tid`, without which `sudo` inside tmux or the `zmx` session every
+haus terminal window runs in beachballs instead of prompting.
 
-`reattach` pulls in [`pam_reattach`](https://github.com/fabianishere/pam_reattach),
-which reattaches the sudo process to your GUI login session. Without it,
-`sudo` inside a multiplexer detaches from Aqua and the Touch ID prompt just
-beachballs. Cancel the prompt and it falls back to a typed password.
-
-The room also installs `/etc/sudoers.d/darwin-rebuild`, exempting activation
-from authentication entirely:
+`passwordlessRebuild` writes `/etc/sudoers.d/darwin-rebuild`:
 
 ```
 <you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
 <you> ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/haus-activate
 ```
 
-Activating a build is the one privileged thing this desktop does constantly,
-and a prompt per rebuild buys nothing: you already authenticated to *build*
-it. `darwin-rebuild` is the classic route (and the only one for `haus
-rollback`); `haus-activate` is the faster path `haus rebuild` and `bench try
-switch` take, building as you and handing the result to root without a
-second evaluation. Neither is a wider grant than `darwin-rebuild switch
---flake <anything>` already was; `haus.security.touchId.passwordlessRebuild = false`
-drops both.
+so `haus rebuild`, `haus rollback` and `bench try switch` never stop for a
+fingerprint you already gave. It is a real root grant, anything you can build
+you can activate unprompted, so turn it off on a machine you don't administer
+alone. It names the stable path because sudo 1.9.17 (macOS 26.6) stopped
+dereferencing symlinks before matching sudoers, so a `/nix/store/…` rule matches
+only the literal path.
 
-<Callout type="warn" title="Why the stable path, not the store path">
-macOS 26.6 shipped sudo 1.9.17, which stopped dereferencing a command's
-symlink before matching sudoers: a rule against a `/nix/store/…` path only
-matches if you type that literal path, which nobody does. Matching
-`/run/current-system/sw/bin/darwin-rebuild` is what survives a rebuild.
-</Callout>
-
-<Callout title="Yes, it works inside a session">
-Type `sudo -v` in a terminal window and the Touch ID dialog floats up right over
-the multiplexer. Touch the sensor, no password typed. (`darwin-rebuild` is
-the happy exception; it doesn't even ask.)
-</Callout>
-
-## What it does *not* do
-
-The room stays out of key management. **YubiKey and GPG** live outside Nix
-entirely: key material, smartcard setup, and `pinentry` are handled by
-`gpg-agent` + `pinentry-mac` at runtime, keeping secrets off the Nix store.
-Commit signing itself is wired up in [the Development room](/docs/haus/rooms/development)
-from `haus.git.signingKey`; security only handles `sudo` authentication.
-
-## Two switches
-
-```nix
-haus.security.touchId.enable = true;              # Touch ID for sudo, reattach and all
-haus.security.touchId.passwordlessRebuild = true; # activation never authenticates
-```
-
-Both default on. Turn `passwordlessRebuild` off on a machine you don't
-administer alone, and activation goes back to asking. Turn `enable` off and
-macOS's stock password prompt comes back everywhere.
-
-## The rest of the room
-
-Three more surfaces, each unset by default so a fresh Mac keeps macOS's own
-answer until you say otherwise:
-
-```nix
-haus.lock.requirePassword = true;        # and .requirePasswordDelay
-haus.security.firewall.enable = true;    # the built-in application firewall
-haus.secrets.provider = "keyring";       # where secret values come from
-```
-
-The firewall is off on a fresh Mac; it is the setting to turn on for a laptop
-that joins networks you don't own. Secrets themselves never live in your
-config; haus declares which exist and fetches them at runtime — which is the
-next section.
+Key material never enters Nix: YubiKey, GPG and `pinentry` are `gpg-agent`'s at
+runtime, and commit signing is [the Development
+room](/docs/haus/rooms/development)'s.
 
 ## Secrets your rooms need
 
-Some rooms need a value haus cannot invent: the shared secret that signs the
-GitHub deliveries this Mac receives, the Slack token that lets *quiet* reach
-your phone. **The room asks for it, not you.** Each one declares the value it
-needs and why it needs it; haus collects every declaration on your machine into
-one list and asks you for the values once:
+A room needing a value haus cannot invent declares it, so **the room asks, not
+you**, and haus asks once for all of them:
 
 ```bash
 haus-secret --list     # what this Mac is asking for, and where to get each one
@@ -113,84 +58,52 @@ haus-secret --check    # enter what's missing
 haus-secret --status   # which ones have a value (it prints no values)
 ```
 
-The values go into whatever `haus.secrets.provider` names — this Mac's login
-keychain by default, or 1Password, Bitwarden, Google Secret Manager, Vault —
-never into your config, a dotfile or the Nix store. `haus doctor` tells you
-when one is still empty, and so does `haus permissions`, the walkthrough for
-everything on a fresh Mac that needs a person.
-
-The list follows your configuration: turn a room off and its secret stops being
-asked for, roll back and it leaves with the generation. Nothing asks you for a
-value that nothing on the machine reads.
+Values land wherever `haus.secrets.provider` names: the login keychain by
+default, or 1Password, Bitwarden, Google Secret Manager, Vault. Never your
+config, a dotfile or the store. `haus doctor` and `haus permissions` name the
+empty ones; turn a room off and its secret stops being asked for.
 
 <Callout title="Two lists of secrets, and they are not the same one">
-  A *project* declares its own secrets in a `secretspec.toml` you commit beside
-  its code, and [secretspec](https://secretspec.dev) finds that one by itself
-  when you run `secretspec run -- npm start` inside the project. The list above
-  is about the **machine**, and only `haus-secret` reads it. They are separate
-  namespaces in your provider, so the same name in both is two values — set
-  `haus.secrets.project` to the project name you already use if you would
-  rather have one.
+A *project* declares its own in a `secretspec.toml` beside its code, which
+[secretspec](https://secretspec.dev) finds by itself under
+`secretspec run -- npm start`. The list above is the **machine's**, read only by
+`haus-secret`, in a separate namespace: the same name in both is two values. Point
+`haus.secrets.project` at a project you already use to share one. Both
+`haus.secrets` options are host-only.
 </Callout>
 
-## The login window
+## The rest of the room
 
-Everything above is about a session you're already in. These are about the
-screen before it, and they are the settings most people have never touched,
-because macOS asks nobody about them:
+Unset by default, so a fresh Mac keeps macOS's own answer:
 
 ```nix
-haus.security.guestAccount    = false;   # the passwordless Guest login
-haus.lock.login.showNameField = true;    # type a username, don't pick a face
+haus.lock.requirePassword     = true;   # and .requirePasswordDelay
+haus.security.firewall.enable = true;   # the public Wi-Fi one, off on a fresh Mac
+haus.security.guestAccount    = false;  # the passwordless Guest login
+haus.lock.login.showNameField = true;   # a name to type, not faces to shoulder-surf
 haus.lock.login.message       = "If found, please call +1 555 0100.";
-haus.lock.login.hideShutDown  = true;    # and .hideRestart, .hideSleep
+haus.lock.login.hideShutDown  = true;   # and .hideRestart, .hideSleep
 ```
 
 **`guestAccount` is the one worth doing today.** Fresh Macs ship with Guest
-**on**, so a machine you never configured lets whoever is holding it reach a
-browser, your network and any file share you're connected to, without a
-password. It's the only genuine security boundary in this group; the rest are
-preferences.
+**on**, so a machine nobody configured hands whoever is holding it a browser,
+your network and any file share you are connected to, no password. `message`
+reaches somebody who *cannot* log in, which is what makes "how to reach me" the
+thing to put there.
 
-`showNameField` is the shoulder-surfing one: the default list of user pictures
-puts half a credential on screen for anyone walking past. `message` is shown to
-somebody who *cannot* log in, which makes "how to reach me" the one genuinely
-useful thing to put there.
+`touchId.enable = false` puts the password prompt back everywhere. The keys
+above stop being written but keep whatever value they last had: unsetting an
+option stops managing a macOS setting rather than restoring the one before it.
 
 <Callout title="These land at your next login">
-  Every setting in this section writes to `com.apple.loginwindow`, which macOS
-  reads once when your session is created. There is no process to restart that
-  would make it read again: the one that owns the domain is the one that owns
-  your session, so the "restart" would be logging you out. **The write happens
-  during the rebuild and the effect appears at your next login.** Nothing is
-  half-applied in between.
-
-  You don't have to remember which settings those are: `haus plan` says so
-  before the rebuild, the rebuild says so as it runs, and each option's own
-  reference entry says so.
+`guestAccount` and every `haus.lock.login.*` key write to
+`com.apple.loginwindow`, which macOS reads once when your session is created:
+the only "restart" would be logging you out. The rebuild writes them, your next
+login shows them, nothing is half-applied between. `haus plan` names them before
+you rebuild.
 </Callout>
-
-## Works with
-
-- **[Development](/docs/haus/rooms/development)**: commit signing is configured
-  there; this room is what stops `sudo` asking for a password.
-- **[AI](/docs/haus/rooms/ai)**: `passwordlessRebuild` is what lets an agent
-  run `haus rebuild` end to end without a prompt it can't answer.
-
-## Remove it
-
-```nix
-haus.security.touchId.enable = false;
-```
-
-`sudo` goes back to the password prompt. The firewall and lock settings stop
-being written but keep whatever value they last had: unsetting an option stops
-managing a macOS setting rather than restoring the one before it.
-
-`haus.secrets.provider` and `haus.secrets.project` are host-only: where a
-machine keeps its secrets, and under which name, are facts about that machine.
 
 ## Options
 
-Every setting, with types and defaults:
-[Security](/docs/haus/reference/options#security).
+[Every setting, with types and
+defaults](/docs/haus/reference/options#security).
