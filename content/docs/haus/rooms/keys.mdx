@@ -1,0 +1,128 @@
+---
+title: Keys
+description: "Every chord haus claims on the keyboard, what each one reaches, and the four options that move the whole vocabulary somewhere else."
+icon: keys
+related:
+  - title: "Windows"
+    description: "What these chords drive: workspaces, layouts, gaps, and macOS's own window managers."
+    href: "/docs/haus/rooms/windows"
+    icon: "tiling"
+  - title: "Launcher"
+    description: "The ⌘Space palette `haus.keys.palette` moves, and where the leader's V and F land."
+    href: "/docs/haus/rooms/launcher"
+    icon: "launcher"
+---
+
+Two keys carry almost everything haus binds. **⇪ Caps-Lock is the leader**: tap
+it and the bar turns into letter hints, and what follows is **launch mode**.
+**⌥ Option is the everyday modifier**. Both need the
+[Windows](/docs/haus/rooms/windows) room, both are what the
+[hacker](/docs/haus/desktops/hacker) desktop turns on, and both move.
+
+## Tap ⇪, then
+
+| Key | What happens |
+|---|---|
+| `<app-key>` | Launch or focus that app |
+| `1`-`4` | Go to that [numbered workspace](/docs/haus/rooms/windows#the-numbered-ones) |
+| `⇧` + a workspace key | **Throw** the focused window there and follow it |
+| `⌥⇧` + a workspace key | Throw it there and **stay** |
+| `←↓↑→` | Move focus; the arrows keep working after the first |
+| `-` / `=` | Shrink / grow, repeatably |
+| `V` / `F` | Clipboard history / Find Files, in the [launcher](/docs/haus/rooms/launcher) |
+| `Z` | Reopen the last closed app |
+| `,` | macOS System Settings |
+| `.` | [Cycle the tiling](/docs/haus/rooms/windows#spin-the-layout-until-its-right) |
+| `` ` `` | [Re-sort every window](/docs/haus/rooms/windows) to its workspace |
+| `/` | The cheatsheet |
+| `Esc` | Out |
+
+A **workspace key** is a digit, or the letter a
+[named workspace](/docs/haus/rooms/windows#workspaces-and-what-lives-on-them)
+claimed; `T` and `B` out of the box, terminal and browser. An app's letter comes
+from its [roster](/docs/haus/rooms/apps) entry, which is also the list a rebuild
+checks for collisions.
+
+## Without the leader
+
+| Keys | What happens |
+|---|---|
+| `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
+| `⌥,` | Accordion layout |
+| `⌥F` | Fullscreen, and the bar says so ([unless it is alone](/docs/haus/rooms/windows#a-window-on-its-own-does-not-zoom)) |
+| `⌥` + right-click | Fullscreen the window [under the pointer](/docs/haus/rooms/windows#zoom-the-window-youre-pointing-at) |
+| `⌥⇧Tab` | Move this workspace to the next monitor |
+| `⌥⇧;` | **Service mode**: `R` flatten the tree, `F` float, `Backspace` close every other window, `⌥⇧←↓↑→` join a neighbour |
+
+There is no `h`/`j`/`k`/`l` direction anywhere; the arrows already do it.
+`haus.keys.leaderExtras` adds them behind the leader, on letters no app in your
+roster has claimed:
+
+```nix
+haus.keys.leaderExtras = [
+  { key = "h"; command = "aerospace focus left";  caption = "Focus left"; }
+  { key = "l"; command = "aerospace focus right"; caption = "Focus right"; }
+];
+```
+
+## Not fond of these keys?
+
+Four options move the whole vocabulary at once, cheatsheet included, shown here
+with the values hacker picks:
+
+```nix
+haus.keys.layout    = "qwerty";     # qwerty | azerty | dvorak | colemak
+haus.keys.leader    = "caps";       # caps | alt-space | none
+haus.keys.windowNav = "alt";        # alt | ctrl-alt | cmd-alt | none
+haus.keys.palette   = "cmd-space";  # cmd-space | alt-space | ctrl-space | none
+```
+
+Only `layout` defaults to what it shows. The other three default to `"none"`,
+so a bare `haus.windows.enable` tiles and claims no key at all until you set
+them, which is also how you keep the tiling and hand the keyboard back.
+`leader = "alt-space"` is the middle road: launch mode without giving up Caps
+Lock, and no remap at all.
+
+`layout` is **host-only**: a shared [desktop](/docs/haus/desktops/creating) may
+not set it, because the keyboard you type on is a fact about you rather than
+about the desktop.
+
+`palette` is the [launcher](/docs/haus/rooms/launcher)'s hotkey, and `cmd-space`
+is the one value that displaces Spotlight, so moving it anywhere else is how you
+keep both. Moving it does not give Spotlight's own shortcut back on a machine
+that already ran with `cmd-space`: turn that on yourself in System Settings ▸
+Keyboard ▸ Keyboard Shortcuts.
+
+Whatever you pick, the in-system cheatsheet, the leader then `/`, describes the
+keys you actually have: it is generated on your own machine from your own
+tables, where the ones on this page are prose. Trust the cheatsheet where they
+disagree.
+
+### A non-US keyboard
+
+Every key name in your config names a **position on a US keyboard**, the only
+thing macOS names a key by, so on AZERTY the key printed `A` is the one a US
+keyboard calls `Q`. Set `layout` to the keyboard your keys are *printed* on and
+the twenty-six leader letters move onto the keys that print them.
+
+<Callout type="warn" title="Three things it cannot move">
+AeroSpace maps a key *name* to a key with no room for a modifier, and AZERTY
+hides these behind `⇧`:
+
+- **The numbered workspaces.** `1`-`4` stay on the number-row keys, which AZERTY
+  prints `&` `é` `"` `'`. The key printed `1` is `⇧`+that key, so it **throws**
+  instead of going. Use the unshifted key.
+- **`.` and `/`** (tiling cycle, cheatsheet) stay on the keys AZERTY prints `:`
+  and `=`. The cheatsheet still captions them `.` and `/`.
+- **`-` / `=`** (resize) stay on `)` and `-`, so the key printed `-` *grows*.
+</Callout>
+
+`⌥` still types every character AZERTY hides behind it, so `alt` costs four
+typographic characters and nothing structural. `dvorak` and `colemak` hand the
+job to AeroSpace's presets; only `qwerty` and `azerty` have been driven end to
+end on a real macOS guest. pounce's hotkeys name US positions whatever `layout`
+says.
+
+## Options
+
+[Every setting, with types and defaults](/docs/haus/reference/options#shared-surfaces).

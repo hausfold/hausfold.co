@@ -31,7 +31,8 @@ cheaper in that order:
   so it is complete by construction. Search it before anything else.
 - **An app.** [`haus.roster`](/docs/haus/rooms/apps) installs it, gives it a
   launcher letter and puts its windows on a workspace, in one entry.
-- **A command on a key.** `haus.keys.leaderExtras` binds the leader plus a key
+- **A command on a key.** [`haus.keys.leaderExtras`](/docs/haus/rooms/keys)
+  binds the leader plus a key
   to any command; `haus.launcher.items` puts one in the palette.
 - **A macOS setting haus doesn't expose.** Your host file is a nix-darwin
   module. Write `system.defaults.…` in it directly and move on; nothing about
@@ -238,7 +239,7 @@ packages, settings, files and launchd jobs and changes none of them.
 The layer and this site are two repositories, and nothing in either fails when
 they disagree. A new room owes a page under `content/docs/haus/rooms/`, an entry
 in that tree's `meta.json`, and an icon. A changed keybinding owes an edit to
-[Windows](/docs/haus/rooms/windows). The reference page regenerates itself; the
+[Keys](/docs/haus/rooms/keys). The reference page regenerates itself; the
 prose does not.
 </Callout>
 

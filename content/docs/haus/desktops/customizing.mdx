@@ -155,8 +155,8 @@ days apart can land different app versions.
 
 <Callout type="warn" title="adopt hands cleanup a new app to manage">
 `adopt` is on by default so declaring a cask that's already sitting in
-`/Applications` — installed by hand, the App Store, anything other than
-Homebrew — gets tracked into Homebrew's bookkeeping instead of failing
+`/Applications` (installed by hand, the App Store, anything other than
+Homebrew) gets tracked into Homebrew's bookkeeping instead of failing
 activation with "there is already an App at …". That app is now genuinely
 brew-managed: if you later remove its roster entry on a `cleanup = "zap"`
 machine, the next rebuild zaps it like any other undeclared cask, even though
@@ -206,7 +206,7 @@ instead, and the tiler keeps arranging windows while Caps Lock stays Caps Lock. 
 launcher has the same escape: `haus.keys.palette` takes `alt-space`,
 `ctrl-space` or `"none"`, and since only `cmd-space` displaces Spotlight, moving
 it is how you keep both. See
-[rebinding](/docs/haus/rooms/windows#not-fond-of-these-keys).
+[rebinding](/docs/haus/rooms/keys#not-fond-of-these-keys).
 
 ## Disagreeing with your desktop
 

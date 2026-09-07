@@ -122,8 +122,8 @@ for (const key of ['wmBindings', 'launchModeKeys', 'resizeModeKeys']) {
 }
 console.error(`
 Update the pages that print these keys —
+  content/docs/haus/rooms/keys.mdx        (both chord tables)
   content/docs/haus/desktops/hacker.mdx   (#first-moves)
-  content/docs/haus/rooms/windows.mdx
   content/docs/haus/rooms/development.mdx
 — then refresh the snapshot:
   node scripts/check-rice-bindings.mjs --haus <haus-checkout> --update`);
