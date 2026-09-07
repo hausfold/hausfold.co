@@ -1,6 +1,6 @@
 ---
 title: Notifications
-description: "haus draws every banner through trill wherever trill answers. This room owns the bundle, at a path a Full Disk Access grant survives, and feeds it new mail."
+description: "haus draws every banner through trill wherever trill answers. This room is the switch that makes haus own the bundle, at a path a Full Disk Access grant survives, and feeds it new mail."
 icon: notifications
 related:
   - title: "What trill is"
@@ -13,10 +13,10 @@ related:
     icon: "moon"
 ---
 
-Every banner this desktop draws goes through `haus-notify`, which hands the event
-to **[trill](/docs/trill)** when trill answers on its socket, and to Apple's
-banner when nothing does. That runs on every haus machine, so the room asks one
-thing: **does haus own the bundle?**
+Every banner this desktop draws goes through `haus-notify`: to
+**[trill](/docs/trill)** when trill answers on its socket, to Apple's banner when
+nothing does. That runs on every haus machine, so no room waits on trill being
+installed. This one asks only: **does haus own the bundle?**
 
 ## Enable it
 
@@ -28,51 +28,50 @@ haus.notifications.compositor = true;
 haus rebuild
 ```
 
-Off by default, and there is no `haus.notifications.enable`: `false` would claim
-this Mac draws no haus notifications, which is never true.
+Off by default. There is no `haus.notifications.enable`: `false` would claim this
+Mac draws no haus notifications, which is never true. With the room on, trill's
+[agent skill](/docs/haus/rooms/ai) installs beside haus's; `false` again stops
+the installing and updating, and deletes nothing.
 
 ## Why the path is fixed
 
 The bundle is copied to **`/Applications/Trill.app`**, never run from the Nix
-store. macOS keys a **Full Disk Access** grant to an app's path and its
-signature, and a store path moves on every version bump, so a store-run trill
-would lose the grant on the very rebuild that fixed the bug.
+store: macOS keys a **Full Disk Access** grant to an app's path, and a store path
+moves on every version bump, so a store-run trill would lose the grant on the
+rebuild that installed the fix you wanted.
 
 ## What a rebuild does
 
 **A trill you quit on purpose stays quit.** A rebuild with a new version swaps
-the bundle and restarts the compositor without stealing focus, but brings back
-only one that was running when it looked, saying `trill: left quit …` when it was
-not. That line, or a warning that the socket never answered, means no compositor
-until `open -g /Applications/Trill.app` or your next login. Apple's banners keep
-working meanwhile; trill's filtering does not, and a question on its ledge has
-nothing to click.
+the bundle and restarts the compositor without stealing focus, but only if it was
+running when the rebuild looked, or has never run on this Mac. It says `trill:
+left quit …` otherwise. That line, or a warning that the socket never answered,
+means no compositor until `open -g /Applications/Trill.app` or your next login.
+Apple's banners keep working meanwhile, trill's filtering does not, and a
+question on its ledge has nothing to click.
 
 ## What it does not do
 
-- **Put `trill` on your PATH.** haus answers `trill` on every machine, room or no
-  room: a wrapper execs the binary inside `$TRILL_APP`, else
+- **It does not put `trill` on your PATH.** haus answers `trill` on every
+  machine: a wrapper execs the binary inside `$TRILL_APP`, else
   `/Applications/Trill.app`, else `~/Applications/Trill.app`. Point `$TRILL_APP`
-  at a branch build to outrank the pair.
-- **Decide what happens to any one notification.** That is
+  at a branch build to outrank both.
+- **It does not decide what happens to any one notification.** That is
   `~/.config/trill/rules.json`, reloaded on save; haus adds no second dial. Every
   `haus-notify` send carries a `--source` (`haus.bar`, `haus.lane`, one per
-  room), so "stop telling me about the bar reloading" is a line in that file, not
-  a rebuild.
-- **Own `~/.config/trill/config.json`.** It merges one key, `fontFamily`, from
-  [`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type), into a file that
-  stays writable and yours, so a family you pick in trill's settings holds until
-  the next `haus rebuild`. A symlinked or invalid config is left alone, said once
-  on stderr.
-
-The room, not the app, gates trill's [agent skill](/docs/haus/rooms/ai).
-`haus.notifications.compositor = false` stops the installing and updating; the
-bundle and the `fontFamily` line stay until you remove them.
+  room), so "stop telling me about the bar reloading" is a line there, not a
+  rebuild.
+- **It does not own `~/.config/trill/config.json`.** It merges one key,
+  `fontFamily`, from [`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type),
+  and leaves the file writable, so a family you pick in trill's settings sticks
+  only until the next `haus rebuild` puts the desktop's back. A symlink or
+  invalid JSON there is left alone, mentioned only on the rebuild's stderr.
 
 ## New mail
 
 `haus.mail` holds an IMAP connection open with IDLE, so nothing polls: a card
-lands a second or two behind the mail, drawn by `haus-notify` like every other.
+lands a second or two behind the mail, drawn by `haus-notify` like every other
+card.
 
 ```nix
 haus.mail = {
@@ -83,8 +82,9 @@ haus.mail = {
 ```
 
 `INBOX` is the one name IMAP standardises; the rest are your provider's spelling,
-and Gmail's are bracketed (`[Gmail]/Starred`). haus refuses an empty list, which
-would watch every mailbox on the account: on Gmail, one message per label.
+and Gmail's are bracketed (`[Gmail]/Starred`). haus refuses an empty list: it
+would watch every mailbox on the account, so on Gmail one message arrives once
+per label.
 
 Then the password, once:
 
@@ -97,30 +97,34 @@ haus-secret --check
 [`haus.secrets.provider`](/docs/haus/rooms/security#secrets-your-rooms-need)
 points, your login keychain by default. Google wants an [app
 password](https://myaccount.google.com/apppasswords) here, not your account
-password, and minting one needs 2-Step Verification. There is no OAuth: an
-unverified app's token expires weekly.
+password, and minting one needs 2-Step Verification. There is no OAuth: Google
+expires an unverified app's refresh token weekly.
 
 <Callout type="warn" title="An app password reads the whole mailbox">
 It is static, so it belongs in the keychain, never your host file.
-Revoking it on Google's own page cuts this Mac off and nothing else of yours.
+Revoking it on Google's page cuts this Mac off, and no other machine of yours
+notices.
 </Callout>
 
-No password yet? The watcher parks and says so in
+Until there is a password the watcher parks and says so in
 `~/Library/Logs/haus-mail.log`.
 
 ### What counts as new
 
 A mailbox nobody has watched records where it is, so turning this on draws no
-card for the unread already there. After that a message must be unseen and newer
+card for what is already unread. After that a message must be unseen and newer
 than the last this Mac announced, so your laptop stays quiet about mail you read
 on your phone at breakfast.
 
 More than five at once collapses into one card saying how many. On Gmail a card
-opens the message's own thread. The mailbox is opened read-only, headers only:
-nothing marks your mail as read, and no card carries a preview.
+carries an Open pill to the message's thread; elsewhere none. The mailbox is
+opened read-only, headers only: nothing marks your mail as read, and no card
+carries a preview.
 
-Prove the chain without waiting for mail. `--dry-run` prints the card instead;
-neither flag moves the watermark:
+### Check it without waiting for mail
+
+`--test` draws a card for the newest message whatever the watermark says;
+`--dry-run` prints one instead. Neither moves the watermark:
 
 ```sh
 haus-mail-announce --mailbox INBOX --host imap.gmail.com \
