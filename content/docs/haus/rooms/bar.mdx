@@ -173,7 +173,10 @@ for `.enable`, `haus.bar.bottom.items.<name>` for `.placement`. Also refused
 at build: `command` and `script` together, `icon` on a `script` widget, a
 bottom placement without `haus.bar.bottom.enable`, and a name outside letters,
 digits, `_` and `-`, or one the bar already uses. `permissions = [ "full-disk-access" ]` declares what
-macOS will prompt for; nothing requests it.
+macOS will prompt for. Nothing requests it and nothing waits on it: while the
+pill is switched on, each grant becomes a card in `haus permissions`, which is
+where a person is told why the bar is asking. `network` is the one that draws
+no card, because nothing on macOS gates the network behind a click.
 
 Talk back to the bar through `$SB` from `~/.config/sketchybar/bar.sh`, never a
 bare `sketchybar`, which always means the top bar: a pill moved to the bottom
