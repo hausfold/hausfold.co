@@ -1,6 +1,6 @@
 ---
 title: Notifications
-description: "haus draws every banner through trill wherever trill answers. This room is the switch that makes haus own the bundle, at a path a Full Disk Access grant survives, and feeds it new mail."
+description: "haus draws every banner through trill wherever trill answers. This room is the switch that makes haus own the bundle, and the one source haus feeds it: new mail."
 icon: notifications
 related:
   - title: "What trill is"
@@ -29,43 +29,16 @@ haus rebuild
 ```
 
 Off by default. There is no `haus.notifications.enable`: `false` would claim this
-Mac draws no haus notifications, which is never true. With the room on, trill's
-[agent skill](/docs/haus/rooms/ai) installs beside haus's; `false` again stops
-the installing and updating, and deletes nothing.
+Mac draws no haus notifications, which is never true. On, the room installs
+Trill.app at `/Applications/Trill.app`, pinned by your `flake.lock` like every
+other room, and puts trill's [agent skill](/docs/haus/rooms/ai) beside haus's.
+Back to `false`, it stops installing and updating trill and deletes nothing.
 
-## Why the path is fixed
-
-The bundle is copied to **`/Applications/Trill.app`**, never run from the Nix
-store: macOS keys a **Full Disk Access** grant to an app's path, and a store path
-moves on every version bump, so a store-run trill would lose the grant on the
-rebuild that installed the fix you wanted.
-
-## What a rebuild does
-
-**A trill you quit on purpose stays quit.** A rebuild with a new version swaps
-the bundle and restarts the compositor without stealing focus, but only if it was
-running when the rebuild looked, or has never run on this Mac. It says `trill:
-left quit …` otherwise. That line, or a warning that the socket never answered,
-means no compositor until `open -g /Applications/Trill.app` or your next login.
-Apple's banners keep working meanwhile, trill's filtering does not, and a
-question on its ledge has nothing to click.
-
-## What it does not do
-
-- **It does not put `trill` on your PATH.** haus answers `trill` on every
-  machine: a wrapper execs the binary inside `$TRILL_APP`, else
-  `/Applications/Trill.app`, else `~/Applications/Trill.app`. Point `$TRILL_APP`
-  at a branch build to outrank both.
-- **It does not decide what happens to any one notification.** That is
-  `~/.config/trill/rules.json`, reloaded on save; haus adds no second dial. Every
-  `haus-notify` send carries a `--source` (`haus.bar`, `haus.lane`, one per
-  room), so "stop telling me about the bar reloading" is a line there, not a
-  rebuild.
-- **It does not own `~/.config/trill/config.json`.** It merges one key,
-  `fontFamily`, from [`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type),
-  and leaves the file writable, so a family you pick in trill's settings sticks
-  only until the next `haus rebuild` puts the desktop's back. A symlink or
-  invalid JSON there is left alone, mentioned only on the rebuild's stderr.
+It does not decide what happens to any one notification: that is
+`~/.config/trill/rules.json`, reloaded on save, and haus adds no second dial.
+Every `haus-notify` send carries a `--source` (`haus.bar`, `haus.lane`, one per
+room), so "stop telling me about the bar reloading" is a line there, not a
+rebuild.
 
 ## New mail
 
@@ -101,9 +74,8 @@ password, and minting one needs 2-Step Verification. There is no OAuth: Google
 expires an unverified app's refresh token weekly.
 
 <Callout type="warn" title="An app password reads the whole mailbox">
-It is static, so it belongs in the keychain, never your host file.
-Revoking it on Google's page cuts this Mac off, and no other machine of yours
-notices.
+It is static, so it belongs in the keychain, never your host file. Revoking it on
+Google's page cuts this Mac off, and no other machine of yours notices.
 </Callout>
 
 Until there is a password the watcher parks and says so in
@@ -120,18 +92,6 @@ More than five at once collapses into one card saying how many. On Gmail a card
 carries an Open pill to the message's thread; elsewhere none. The mailbox is
 opened read-only, headers only: nothing marks your mail as read, and no card
 carries a preview.
-
-### Check it without waiting for mail
-
-`--test` draws a card for the newest message whatever the watermark says;
-`--dry-run` prints one instead. Neither moves the watermark:
-
-```sh
-haus-mail-announce --mailbox INBOX --host imap.gmail.com \
-  --address you@gmail.com \
-  --password-command "haus-secret MAIL_IMAP_PASSWORD" \
-  --state-dir ~/.local/state/haus/mail --test
-```
 
 ## Options
 
