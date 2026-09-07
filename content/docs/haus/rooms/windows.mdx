@@ -1,42 +1,71 @@
 ---
 title: Windows
-description: Tiling, named workspaces and window navigation from the keyboard. How windows arranges the Mac, and how to keep the arranging without the key claims.
+description: "Tiling, named workspaces and window navigation from the keyboard, and how to move every key it claims."
 icon: tiling
 related:
   - title: "Apps"
-    description: "One list gives an app its launcher letter, its workspace and its installer. This is that list."
+    description: "The list that gives an app its launcher letter, its workspace and its installer."
     href: "/docs/haus/rooms/apps"
     icon: "apps"
   - title: "Bar"
-    description: "The workspace pills on the left of the bar are the other half of this page, plus weather, media and a light that goes red."
+    description: "The workspace pills are the other half of this page."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
 ---
 
-**Windows** is the tiling room. Windows arrange themselves into a tree instead of
-piling up, and the keyboard moves them around it: launch, focus, resize, throw
-one to another workspace, without reaching for the mouse. It feels like a tiling
-Linux rig; underneath it is still native macOS windows, driven by
+Windows arrange themselves into a tree instead of piling up, and the keyboard
+moves them around it. Still native macOS windows, driven by
 [AeroSpace](https://github.com/nikitabobko/AeroSpace).
 
-Two keys carry almost all of it:
+```nix
+haus.windows.enable = true;
+haus.keys.leader    = "caps";   # or "none" to keep Caps Lock as Caps Lock
+haus.keys.windowNav = "alt";
+```
 
-- **⇪ Caps-Lock is the leader.** Tap it and the bar turns into letter hints;
-  press an app's letter to launch or focus it. It is also the door to moving
-  focus, resizing, and jumping workspaces.
-- **⌥ Option is the everyday modifier**, for layouts and workspace moves.
+**⇪ Caps-Lock is the leader**: tap it and the bar turns into letter hints.
+**⌥ Option is the everyday modifier**.
 
-Focus-by-arrow deliberately sits *behind* the leader rather than on a bare `⌥`
-chord: `⌥`, `⌘` and `⌃` with the arrow keys are all macOS text navigation, and a
-window manager that took them would break typing everywhere. It is also the
-better motion of the two, because the first arrow latches into navigate mode and
-the ones after it keep moving without re-tapping anything.
+## Tap ⇪, then
 
-<Callout title="No Vim keys, by default">
-`⌥H/J/K/L` do not focus by direction. haus binds no `h`/`j`/`k`/`l` direction
-anywhere out of the box: the arrows already do it better, and four chords that
-duplicate them are four chords not reaching your terminal. If you want them,
-`haus.keys.leaderExtras` puts them behind the leader:
+| Key | What happens |
+|---|---|
+| `<app-key>` | Launch or focus that app |
+| `1`-`4` | Go to that [numbered workspace](#the-numbered-ones) |
+| `⇧` + a workspace key | **Throw** the focused window there and follow it |
+| `⌥⇧` + a workspace key | Throw it there and **stay** |
+| `←↓↑→` | Move focus; the arrows keep working after the first |
+| `-` / `=` | Shrink / grow, repeatably |
+| `V` / `F` | Clipboard history / Find Files, in the [launcher](/docs/haus/rooms/launcher) |
+| `Z` | Reopen the last closed app |
+| `,` | macOS System Settings |
+| `.` | [Cycle the tiling](#spin-the-layout-until-its-right) |
+| `` ` `` | Re-sort every window to its workspace |
+| `/` | The cheatsheet |
+| `Esc` | Out |
+
+A **workspace key** is a digit, or the letter a
+[named workspace](#workspaces-and-what-lives-on-them) claimed; `T` and `B` out
+of the box, terminal and browser.
+
+Windows scramble when the Mac wakes, and windows puts them back by itself,
+workspace and tiled layout both. <kbd>⇪</kbd> <kbd>`</kbd> is that repair on
+demand. Apps you told to float stay floating.
+
+## Without the leader
+
+| Keys | What happens |
+|---|---|
+| `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
+| `⌥,` | Accordion layout |
+| `⌥F` | Fullscreen, and the bar says so ([unless it is alone](#a-window-on-its-own-does-not-zoom)) |
+| `⌥` + right-click | Fullscreen the window **under the pointer** ([below](#zoom-the-window-youre-pointing-at)) |
+| `⌥⇧Tab` | Move this workspace to the next monitor |
+| `⌥⇧;` | **Service mode**: `R` flatten the tree, `F` float, `Backspace` close every other window, `⌥⇧←↓↑→` join a neighbour |
+
+There is no `h`/`j`/`k`/`l` direction anywhere; the arrows already do it.
+`haus.keys.leaderExtras` adds them behind the leader, on letters no app in your
+roster has claimed:
 
 ```nix
 haus.keys.leaderExtras = [
@@ -45,146 +74,42 @@ haus.keys.leaderExtras = [
 ];
 ```
 
-Pick letters no app in your roster has claimed; a rebuild refuses a collision
-rather than letting one binding shadow the other.
-</Callout>
-
-## Enable it
-
-```nix
-haus.windows.enable = true;
-haus.keys.leader = "caps";     # or "none" to keep Caps Lock as Caps Lock
-haus.keys.windowNav = "alt";
-```
-
-## Tap ⇪, then
-
-| Key | What happens |
-|---|---|
-| `<app-key>` | Launch or focus that app: `T` terminal, `B` browser, and whatever else you add |
-| `1`–`4` | Go to that numbered workspace. Four out of the box; [more of them](#the-numbered-ones) if you want them |
-| `⇧` + a workspace key | **Throw** the focused window there and follow it |
-| `⌥⇧` + a workspace key | Throw it there and **stay** where you are |
-| `←↓↑→` | Move focus, and stay in navigate mode so arrows keep working |
-| `-` / `=` | Shrink / grow, repeatably |
-| `V` / `F` | Clipboard history / Find Files, via the [launcher](/docs/haus/rooms/launcher) |
-| `Z` | Reopen the last closed app |
-| `,` | macOS System Settings: the `⌘,` convention, one level up |
-| `.` | Cycle this workspace's tiling: columns → grid → accordion ([below](#spin-the-layout-until-its-right)) |
-| `` ` `` | Re-sort every window to its workspace |
-| `/` | The cheatsheet |
-| `Esc` | Out |
-
-A **workspace key** is a digit, or the letter a
-[named workspace](#workspaces-and-what-lives-on-them) claimed. Out of the box
-those letters are `T` and `B`, which is why the throw usually looks like it hangs
-off the app you were going to open.
-
-The `⇧` row is the one worth learning: going somewhere and taking the window
-with you is the same motion one `⇧` apart. Adding `⌥` is the third verb, sending
-something away without going with it, which is the move for clearing a workspace
-you are still working on.
-
-`⌥⇧` rather than the `⇧⌘` you might expect: `⇧⌘3`, `⇧⌘4` and `⇧⌘5` are macOS's
-own screenshot shortcuts and win over anything a window manager binds, so that
-chord would have worked on some digits and not others.
-
-## Without the leader
-
-| Keys | What happens |
-|---|---|
-| `⌥/` | Tiles layout; toggles the split horizontal ↔ vertical |
-| `⌥,` | Accordion layout |
-| `⌥F` | Fullscreen, and the bar says so ([unless the window is alone](#a-window-on-its-own-does-not-zoom)) |
-| `⌥` + right-click | Fullscreen the window **under the pointer** ([below](#zoom-the-window-youre-pointing-at)) |
-| `⌥⇧Tab` | Move this workspace to the next monitor |
-| `⌥⇧;` | **Service mode**: `R` flattens the tree, `F` floats a window, `Backspace` closes every other window, `⌥⇧←↓↑→` joins a neighbour |
-
 ## Zoom the window you're pointing at
 
-`⌥F` can only ever reach the window you are *in*. Its pointer twin reaches the
-one you're pointing at:
+`⌥F` only reaches the window you are *in*. Its pointer twin reaches the one you
+point at, on another monitor included:
 
 ```nix
 haus.windows.mouseFullscreen = "right";   # right | left | none
 ```
 
-**⌥ + right-click** now zooms whichever window is under the cursor to fill its
-own workspace, including one on another monitor, which by keyboard would mean
-going there first. It's the same AeroSpace fullscreen, so it's a toggle: the
-same click puts the window back. ([Not a window on its
-own](#a-window-on-its-own-does-not-zoom), same as `⌥F`.)
-
-The modifier isn't separately settable: it follows `haus.keys.windowNav`, so
-the click and `⌥F` stay one vocabulary and a machine that moved the modifier for
-its keyboard layout moves the click with it.
+The modifier follows `haus.keys.windowNav`, the same click puts the window back,
+and it declines a lone window as `⌥F` does. [pounce](/docs/pounce)'s event tap
+carries the chord, so it wants `haus.launcher.enable` and the Accessibility
+grant the palette already asks for. Both are true on [hacker](/docs/haus).
 
 <Callout type="warn" title="This spends a gesture machine-wide">
-The click is consumed over **every** app, not just tiled ones, which is why the
-default is the quietest of the three rather than a free one. `"right"` still
-costs you macOS's ⌥ *variant* of a context menu (inside a Finder window ⌥ is
-what turns "Copy X" into "Copy X as Pathname") and ⌥ + right-**drag** where an
-app uses it, since the mouse-down is swallowed before the drag starts. Clicking
-the desktop is unaffected.
-
-`"left"` is offered for mice where the right button is awkward, and costs
-considerably more: multi-cursor in GUI editors, ⌥-click-a-link to download,
-⌥-click on a menu extra, and every ⌥-drag. There is deliberately no `ctrl`
-value: ctrl+click **is** macOS's secondary click, and binding it would cost you
-context menus everywhere.
-</Callout>
-
-Clicking the desktop passes straight through, so you keep Finder's menu there,
-and anything drawn above ordinary windows (the menu bar, the Dock, the
-[bar](/docs/haus/rooms/bar)) is transparent to the chord rather than being
-"clicked".
-
-The chord is carried by [pounce](/docs/pounce)'s event tap, because AeroSpace has
-no mouse bindings at all, so it needs `haus.launcher.enable` and the
-Accessibility grant the palette already asks for. Both are true on
-[hacker](/docs/haus), which sets `"right"` out of the box.
-
-`⌥Tab` is deliberately unbound:
-[pounce](/docs/pounce/beyond-launching#a-window-switcher-not-an-app-switcher)'s `⌘Tab` answers the same question
-better, with a most-recently-used list of *windows* that goes as far back as you
-like and gathers its rows by workspace.
-
-<Callout title="Windows untangle after sleep">
-macOS scrambles window positions when the machine wakes. windows watches for that
-and puts them back on its own: the right workspace *and* the tiled layout, so a
-window that came back floating at some arbitrary size joins the tiles again.
-<kbd>⇪</kbd> then <kbd>`</kbd> does it on demand, which is the repair to reach
-for any time a window ends up somewhere or some size it shouldn't be. Apps you
-told to float stay floating.
+The click is consumed over **every** app, not just tiled ones. `"right"` costs
+you macOS's ⌥ *variant* of a context menu (in Finder, "Copy X as Pathname") and
+⌥ + right-**drag**. `"left"` costs far more: multi-cursor in GUI editors,
+⌥-click-a-link to download, ⌥-click a menu extra, every ⌥-drag. There is no
+`ctrl` value, because ctrl+click **is** macOS's secondary click.
 </Callout>
 
 ## A window on its own does not zoom
 
-Fullscreen is a *mode*, not a size. Arm it on a workspace holding one window and
-nothing looks different, because that window already fills the workspace. What
-would change is invisible: the workspace would be flagged fullscreen from then
-on, the next window you opened there would open *behind* this one, and the bar
-would wear the fullscreen glyph the whole time for a mode that meant nothing.
-
-So every path declines it. `⌥F`, `⌥` + right-click, and the zoom that clicking
-an [agent lane's banner](/docs/haus/rooms/ai#knowing-which-agent-needs-you)
-takes for you all wait until AeroSpace says the window has company on its
-workspace.
-
-Company is also the way *out*. AeroSpace drops the mode as soon as you focus
-another tiling window on that workspace, so a zoomed window un-zooms the moment
-you go anywhere else on the page and `⌥F` is only the deliberate exit. A window
-with no sibling to go to has nothing to drop it, which is the other half of why
-the guard is there. Turning fullscreen back **off** is always allowed,
-including for a window whose siblings have since closed, because that is the way
-out of the mode.
-
-If a press looks like it did nothing, count the windows on that workspace. One is
-the answer.
+Fullscreen is a *mode*, not a size. On a workspace holding one window it would
+change nothing visible and flag the workspace anyway, so the next window you
+opened there would open *behind* this one. So every path declines it: `⌥F`, `⌥`
++ right-click, and the zoom that clicking an
+[agent lane's banner](/docs/haus/rooms/ai#knowing-which-agent-needs-you) takes
+for you. Company is also the way out, since AeroSpace drops the mode the moment
+you focus a sibling. If a press looks like it did nothing, count the windows on
+that workspace.
 
 ## Not fond of these keys?
 
-None of it is baked in. Three options move the whole vocabulary at once:
+Four options move the whole vocabulary at once, cheatsheet included:
 
 ```nix
 haus.keys.layout    = "qwerty";     # qwerty | azerty | dvorak | colemak
@@ -193,76 +118,40 @@ haus.keys.windowNav = "alt";        # alt | ctrl-alt | cmd-alt | none
 haus.keys.palette   = "cmd-space";  # cmd-space | alt-space | ctrl-space | none
 ```
 
-The three reasons people change them:
+`leader = "alt-space"` keeps Caps-Lock as Caps-Lock and still gives you the
+launcher; add `windowNav = "none"` and windows tiles while claiming no chords at
+all. `palette = "none"` is the only value that leaves ⌘Space to Spotlight, and
+it does not hand Spotlight's own shortcut back: turn that on in System Settings
+▸ Keyboard ▸ Keyboard Shortcuts.
 
-- **Keep Caps-Lock as Caps-Lock.** `leader = "alt-space"` gives you the launcher
-  without remapping the key.
-- **A non-US layout.** Set `layout` to the keyboard your keys are *printed* on —
-  see below. `windowNav` is a separate question: it moves every window chord off
-  `⌥` in one go, and the cheatsheet moves with it, because both are generated
-  from the same table.
-- **Mouse-first.** `leader = "none"` with `windowNav = "none"` leaves the
-  keyboard entirely alone: windows still tiles, but claims no chords.
+### A non-US keyboard
 
-## A non-US keyboard
-
-Every key name in your config — a `haus.roster` entry's letter, a workspace key,
-launch mode's own `,` `.` `/` — names a **position on a US keyboard**, because a
-position is the only thing macOS names a key by. On AZERTY the key printed `A`
-is the one a US keyboard calls `Q`, so by default it launches whatever you put
-on `q`.
-
-`haus.keys.layout = "azerty"` moves the letters onto the keys that print them.
-Measured on `com.apple.keylayout.French` with the hacker desktop: without it
-five of the twenty-six leader letters open the wrong thing (`a`↔`q`, `z`↔`w`,
-and `m` does nothing) and launch mode's `,` opens the app on `m`; with it, all
-twenty-six letters land on the key that prints them, and `⇪ ,` opens System
-Settings as the cheatsheet says.
+Every key name in your config names a **position on a US keyboard**, the only
+thing macOS names a key by, so on AZERTY the key printed `A` is the one a US
+keyboard calls `Q`. Set `layout` to the keyboard your keys are *printed* on and
+the twenty-six leader letters move onto the keys that print them.
 
 <Callout type="warn" title="Three things it cannot move">
-AeroSpace maps a key *name* to a key, with no room for a modifier, and AZERTY
-hides all three of these behind `⇧`:
+AeroSpace maps a key *name* to a key with no room for a modifier, and AZERTY
+hides these behind `⇧`:
 
-- **The numbered workspaces.** `1`–`4` stay on the number-row keys, which AZERTY
-  prints `&` `é` `"` `'`. Pressing the key printed `1` is `⇧`+that key — which is
-  the **throw**, so it moves the focused window to that workspace instead of
-  going there. Use the unshifted key to go.
-- **`.` (tiling cycle) and `/` (the cheatsheet)**, which stay on the keys AZERTY
-  prints `:` and `=`.
-- **`-` / `=` (resize)**, which stay on the keys AZERTY prints `)` and `-` — so
-  the key printed `-` is the one that *grows*.
+- **The numbered workspaces.** `1`-`4` stay on the number-row keys, which AZERTY
+  prints `&` `é` `"` `'`. The key printed `1` is `⇧`+that key, so it **throws**
+  instead of going. Use the unshifted key.
+- **`.` and `/`** (tiling cycle, cheatsheet) stay on the keys AZERTY prints `:`
+  and `=`. The cheatsheet still captions them `.` and `/`.
+- **`-` / `=`** (resize) stay on `)` and `-`, so the key printed `-` *grows*.
 </Callout>
 
-`⌥` itself is fine on French: all ten of the characters AZERTY hides behind it
-(`{` `}` `[` `]` `|` `\` `@` `#` `~` `€`) still type with `windowNav = "alt"`
-live, under either `layout`. The five chords haus claims cost four typographic
-characters there — `≠ … ƒ Ó` on `qwerty`, `≠ ∞ ƒ •` on `azerty` — and nothing
-structural. Check your own layout against that list before reaching for
-`ctrl-alt`.
-
-`dvorak` and `colemak` hand the job to AeroSpace's own presets. Only `qwerty`
-and `azerty` have been driven end to end on a real macOS guest.
-
-One thing `layout` does not touch: the Launch Mode cheatsheet still captions
-the tiling chord `/` and the tiling-cycle key `.`, which stay on the keys AZERTY
-prints `=` and `:`. The rows above are the translation.
-
-pounce's own hotkeys — the palette, and the Ghostty-scoped chords like `⌘F` —
-still name US positions. None of the ones haus ships sits on a key AZERTY moves,
-but a hotkey you add yourself on `a`, `q`, `z`, `w` or `m` will not follow
-`layout`.
-
-`palette = "none"` stops haus taking ⌘Space from Spotlight; it's the only value
-that takes it. On a machine that already ran with it, re-enable Spotlight's
-shortcut yourself in System Settings ▸ Keyboard ▸ Keyboard Shortcuts; nothing in
-haus gives it back.
-
-Whatever you pick, the in-system cheatsheet (tap the leader, then `/`)
-describes the keys you actually have, not the defaults above.
+`⌥` still types every character AZERTY hides behind it, so `alt` costs four
+typographic characters and nothing structural. `dvorak` and `colemak` hand the
+job to AeroSpace's presets; only `qwerty` and `azerty` have been driven end to
+end on a real macOS guest. pounce's hotkeys name US positions whatever `layout`
+says.
 
 ## Workspaces, and what lives on them
 
-A workspace is a named place with apps that belong to it. Declare one, and its
+A workspace is a named place with apps that belong to it. Declare one and its
 apps' windows move there by themselves:
 
 ```nix
@@ -273,63 +162,40 @@ haus.workspaces.comms = {
 };
 ```
 
-The attribute name **is** the workspace id: a letter like `T`, or a word like
-`comms`. Three fields:
+The attribute name **is** the workspace id: a letter like `T`, or a word.
 
-- **`apps`**: [roster](/docs/haus/rooms/apps) ids that live here.
-  Launching any of them from the leader lands you here. An app belongs to at
-  most one workspace, and naming an id that isn't in the roster warns rather
-  than failing quietly.
-- **`key`**: the throw key: `⇪ ⇧` to throw and follow, `⇪ ⌥⇧` to throw and stay.
-  There is no bare-key binding for a
-  workspace: that namespace belongs to the launcher letters, one of which
-  usually doubles as "open something here". `null` means the workspace is
-  reachable only by launching an app that belongs to it.
-- **`icon`**: a [SketchyBar app-font](https://github.com/kvndrsslr/sketchybar-app-font)
-  ligature like `:slack:` for the bar's pill; any other string is drawn in the
-  bar's own font.
-
-The launcher letters themselves come from `haus.roster`, the one list that also
-says where each app is installed from; that's [the Apps room](/docs/haus/rooms/apps).
-Out of the box the only letters taken are `T` for the terminal and `B` for the
-browser.
+| Field | What to know |
+|---|---|
+| `apps` | [roster](/docs/haus/rooms/apps) ids that live here, so launching one lands you here. An app belongs to at most one workspace, and an id the roster hasn't got warns. |
+| `key` | The throw key. There is no bare-key binding, since that namespace is the launcher letters from `haus.roster`; `null` leaves the workspace reachable only by launching an app of its own. |
+| `icon` | A [SketchyBar app-font](https://github.com/kvndrsslr/sketchybar-app-font) ligature like `:slack:`. Anything else is drawn in the bar's own font. |
 
 ### The numbered ones
 
-Four numbered workspaces exist alongside whatever you name, whatever any app
-claims. If four isn't your number:
+Four numbered workspaces exist alongside whatever you name:
 
 ```nix
-haus.windows.numberedWorkspaces = 6;   # 0 to 10
+haus.windows.numberedWorkspaces = 6;   # 0 to 10, reached by `1`-`9` then `0`
 ```
 
-Ten is the ceiling because the leader reaches a workspace by pressing a **digit**
-and there are ten of those: `1` through `9` in order, then `0` for the tenth, the
-same wrap a browser's tab shortcuts use. `0` is a legal count and means no
-numbered workspaces at all, for a machine where every workspace is one you named.
-
-Each one you add takes its digit in launch mode, so a `haus.workspaces` key that
-collides with a newly claimed digit is refused at rebuild rather than silently
-losing one of the two bindings. Raising the count never renames an existing
-workspace, so nothing moves.
+Each takes its digit in launch mode, so a `haus.workspaces` key colliding with a
+newly claimed digit is a rebuild error rather than one of two bindings silently
+lost. Raising the count never renames a workspace.
 
 ### Pin one to a screen
 
-By default a workspace opens on whichever display you last used it on, which is
-fine until you have two screens and a habit. Name the display and it stops
-wandering:
+A workspace opens on whichever display you last used it on. Name the display and
+it stops wandering:
 
 ```nix
 haus.windows.workspaceMonitors = {
-  "1" = "main";       "2" = "main";       "3" = "main";       "4" = "main";
-  "5" = "secondary";  "6" = "secondary";  "7" = "secondary";  "8" = "secondary";
+  "1" = "main";  "2" = "main";  "5" = "secondary";
   comms = [ "Dell U2720Q" "main" ];
 };
 ```
 
-One table for both kinds of workspace: the numbered ones by their digit, the
-ones you named in `haus.workspaces` by name. Four ways to say which display,
-and they mix freely:
+Numbered workspaces by digit, named ones by name, one table. A **list** is a
+fallback chain, which is how `comms` survives the Dell being unplugged.
 
 | | |
 |---|---|
@@ -338,29 +204,39 @@ and they mix freely:
 | `Dell` | part of its name, matched without regard to case |
 | `^built-in retina display$` | a regex, when you wrap it in `^` and `$` |
 
-A **list** is a fallback chain, tried in order, which is how `comms` above
-survives the Dell being unplugged. Name a workspace this machine hasn't got and
-the rebuild refuses it: AeroSpace drops an assignment for an unknown workspace
-in silence, and silence reads exactly like the option not working. So does a
-pattern AeroSpace itself rejects (an empty string, monitor `0`, an apostrophe),
-and that one is worth more than one line: those stop `aerospace.toml` parsing
-outright, and AeroSpace answers a file it cannot parse by keeping the one it
-already had, so the cost is every binding in it.
+Only those first two are AeroSpace keywords; the rest match the display's
+*localized* name, so `built-in` finds the panel on an English-language MacBook
+and nothing at all on a Mac mini. A shared
+[desktop](/docs/haus/desktops/creating) may not name a panel here: "Dell U2720Q"
+describes a purchase, so that line stays in your own host file.
 
-One thing a shared [desktop](/docs/haus/desktops/creating) may not do here is
-name a panel. `main` and `secondary` describe a shape any desk can have; "Dell
-U2720Q" describes a purchase, so it stays in your own host file, the same line
-a display's UUID sits on. `built-in` sits in the second group and looks like the
-first: only `main` and `secondary` are AeroSpace keywords, and everything else
-is matched against the display's *localized* name, so `built-in` finds the panel
-on an English-language MacBook and nothing at all on a Mac mini.
+A name this machine hasn't got, or a pattern AeroSpace itself rejects (an empty
+string, monitor `0`, an apostrophe), is a rebuild error. Left to AeroSpace the
+first is dropped in silence and the second stops `aerospace.toml` parsing at
+all, which costs you every binding in the file.
 
-## Tiles or accordion
+## Spin the layout until it's right
 
-A fresh workspace splits the space between its windows. The other layout stacks
-them and gives the focused one the room, leaving a sliver of its neighbours
-showing, which reads more like a browser's tabs and survives better on a laptop
-display where a third split stops being readable:
+`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the whole focused
+workspace, one stop round three arrangements, columns → grid → accordion:
+
+| Shape | What you get |
+|---|---|
+| **Grid** | √n columns, rounded up, each **widened in proportion to the windows it holds**, so all end up the same size |
+| **Accordion** | One flat row, the focused window taking the space and its neighbours left as slivers `accordionPadding` wide |
+| **Columns** | One flat row again, what a tiled workspace does on its own |
+
+**Each workspace remembers its own shape**, so `.` on a workspace you have never
+used it on deals a grid rather than continuing a sequence started elsewhere;
+press again
+on the shape you have and it reapplies fresh, which is the move once a new
+window has wandered in. The bar's pill names the shape and advances the dial
+when clicked. **Floating windows are left alone**, so a terminal popup over the
+tiling neither moves nor counts.
+
+Accordion is **AeroSpace's own layout** rather than a shape haus deals, so it
+holds for every window you open afterwards instead of drifting the way a grid
+does. Which shape a workspace starts in:
 
 ```nix
 haus.windows.defaultLayout      = "accordion";  # or "tiles"
@@ -368,213 +244,86 @@ haus.windows.accordionPadding   = 80;           # points left for the neighbours
 haus.windows.defaultOrientation = "auto";       # auto | horizontal | vertical
 ```
 
-These are defaults, not locks: `⌥/` and `⌥,` still switch the workspace you
-are on, and so does the ⇪ `.` dial ([below](#spin-the-layout-until-its-right)),
-which carries accordion as one of its three stops. `defaultOrientation = "auto"` picks per monitor from its shape, side by side
-on a wide screen and stacked on a tall one, which is right almost always; the
-other two are for a machine that should split the same way whatever display it
-wakes up on.
-
-One more, off by default because it moves something you didn't:
-
-```nix
-haus.windows.mouseFollowsFocus = true;
-```
-
-The pointer follows keyboard focus, between windows as well as between screens.
-Both halves are *lazy*: nothing moves while the pointer is already inside
-whatever took focus, so it re-centres on the jumps that would have lost it and
-sits still on the ones that wouldn't.
+`"auto"` picks per monitor from its shape, side by side on a wide screen and
+stacked on a tall one.
 
 ## How much air between the windows
 
-Gaps are derived, not guessed. They follow `haus.ui.scale`, and the edge the bar
-sits on reserves the bar's own height so a tiled window never ends up underneath
-it. What you set is the *base*, which the scale then multiplies:
+Gaps follow `haus.ui.scale`, and the edge the bar sits on reserves the bar's own
+height. What you set is the *base*:
 
 ```nix
 haus.windows.gaps = {
-  inner      = { builtin = 0; external = 0; };   # between two windows
-  outer.left = { builtin = 0; external = 0; };   # at the screen's edges
+  inner       = { builtin = 0; external = 0; };   # between two windows
+  outer.left  = { builtin = 0; external = 0; };   # at the screen's edges
   outer.right = { builtin = 0; external = 0; };
 };
 ```
 
-Two numbers because AeroSpace takes a gap per monitor and the two want
-different ones. Out of the box that's 10 on the built-in and 20 around an
-external, which is the same gap reading the same size on panels of very
-different pitch. `0` is `0` at every scale, so the block above is how you get a
-desktop with no gaps at all.
+Two numbers per gap, 10 on the built-in and 20 around an external out of the
+box, so the same gap reads the same size on panels of very different pitch. `0` is `0` at every scale. `outer.top`
+and `outer.bottom` are deliberately not settable: they carry the bar's
+reservation, and macOS excludes nothing at the bottom of a display, so `0` there
+would be windows drawn under the bar.
 
-`outer.top` and `outer.bottom` are deliberately not settable. Those two carry
-the bar's reservation, and macOS excludes nothing at the bottom of a display, so
-a `0` there wouldn't be a tighter desktop, it would be windows drawn under the
-bar.
+The bar's side padding, the near-fullscreen terminal popups (⌘G, ⌘⇧F) and the
+[wallpaper](/docs/haus/rooms/appearance)'s debug band read the same numbers and
+move with them.
 
-Change these and three other things move with them, because they all read the
-same numbers: the bar's left and right padding, so the outermost pill still
-lines up with the window edge below it; the near-fullscreen terminal popups
-(⌘G, ⌘⇧F), which size themselves to the tiled area rather than the screen; and
-the [wallpaper](/docs/haus/rooms/appearance)'s debug band, which sits exactly
-where a tiled window's bottom-left corner lands.
-
-And one that IS on by default, because most of the time it saves you a keystroke:
+## Movement you didn't ask for
 
 ```nix
-haus.windows.gravity = false;
+haus.windows.mouseFollowsFocus = true;    # off by default
+haus.windows.gravity           = false;   # on by default
 ```
 
-**Gravity** is what pulls you back to the most recently populated workspace when
-the one you're on loses its last window. Both ways of emptying one count: a ⌘Q
-that takes every window of an app at once, and closing the *last* window on a
-page — a ⌘W on a lane, a ⌃D that ends a shell — while that app carries on in
-windows elsewhere. The second matters most on the `T/<repo>` lane pages, which
-are not persistent: without it you were left standing on a page that appears in
-no list, with nothing on it.
+The pointer follows keyboard focus, between windows as well as between screens,
+and lazily: nothing moves while it is already inside whatever took focus.
 
-It fires only for a workspace you *emptied*, never for one you deliberately
-walked onto that happened to be empty. Turn it off if a screen changing without
-you touching it is worse than a blank one:
-[`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) decides that
-for you, since it is the largest unasked movement haus makes.
-
-It needs the [bar](/docs/haus/rooms/bar) as well as this room: both tells live in
-the bar's event stream and nowhere else, so with no bar there is no gravity
-either way.
-
-## Spin the layout until it's right
-
-`⌥/` and `⌥,` change one split. **⇪ then `.`** reshapes the *whole* focused
-workspace at once, advancing it one stop round three arrangements:
-
-| Shape | What you get |
-|---|---|
-| **Grid** | √n columns, rounded up, with every column **widened in proportion to how many windows it holds** — so all of them end up the same size |
-| **Accordion** | One flat row still, but the focused window takes the space and its neighbours are left as slivers either side — `accordionPadding` is how wide those slivers are |
-| **Columns** | One flat row again, which is what a tiled workspace does on its own |
-
-The order is columns → grid → accordion → columns, so from a plain workspace
-one press deals a grid, two gets you the accordion, and three puts it back.
-
-The grid is an exact shape rather than a bucketing, and the same shape every
-time for a given number of windows:
-
-| Windows | What you get | | Windows | What you get |
-|---|---|---|---|---|
-| 2 | Side by side | | 6 | 3 × 2 |
-| 3 | One full-height third, then two stacked beside it | | 7 | A 2-stack, a 2-stack, a 3-stack |
-| 4 | 2 × 2 | | 8 | A 2-stack and two 3-stacks |
-| 5 | One full-height fifth, then a 2 × 2 | | 9 | 3 × 3 |
-
-Above nine it keeps going by the same rule — √n columns, rounded up, dealt as
-evenly as they divide — so there is no cliff, just more columns.
-
-**Each workspace remembers its own shape.** The key reshapes whichever
-workspace is focused, and that workspace is what remembers which shape is on, so
-pressing `.` somewhere you have never used it deals a grid rather than
-continuing a sequence you started elsewhere. Press it again on a shape you
-already have and it reapplies fresh, which is the move once a new window has
-wandered in.
-
-The bar says which shape is on — a **Grid** / **Accordion** / **Columns** pill
-beside the workspace and page pills, drawn only when the workspace holds more
-than one tiled window. Clicking it advances the dial, same as the key. Because
-the memory is per workspace, that pill is only ever describing the workspace you
-are looking at.
-
-Every press is **one shot**: it reshapes, then leaves you alone. Nothing runs in
-between, so a resize you make afterwards stands until you press again.
-
-Two things worth knowing. The accordion stop is **AeroSpace's own layout**
-rather than a shape haus deals, which is why it is the one the bar reads live:
-it is a fact about the workspace, so it holds for every window you open
-afterwards instead of drifting the way a grid does. On a machine running
-`defaultLayout = "accordion"` a fresh workspace therefore starts where the dial
-would put it — one press from there deals a grid, and the second brings the
-accordion back. And **floating windows are left alone** — they are not in the
-tree the dial reshapes, so a terminal popup sitting over the tiling neither
-moves nor counts toward the shape.
-
-It is also a single reflow: the whole rearrangement is sent to AeroSpace as one
-batch, so the windows travel straight from where they were to where they belong
-rather than through every step on the way. Nothing takes focus, so the window
-you were looking at is still the one you are looking at.
+**Gravity** returns you to the most recently populated workspace when the one
+you're on loses its last window, whether that was a ⌘Q taking every window of an
+app at once or a ⌘W or ⌃D closing the last one on a page. It fires only for a workspace you
+*emptied*, and it reads the [bar](/docs/haus/rooms/bar)'s event stream, so no
+bar means no gravity. These two are the largest unasked movement haus makes,
+which is why
+[`haus.appearance.reduceMotion`](/docs/haus/rooms/appearance#motion) switches
+both off.
 
 ## macOS has its own opinion about windows
 
-Stage Manager and edge-drag tiling answer the same question this room does, and
-macOS turns edge-drag tiling **on** out of the box. So on a fresh haus machine
-you have two window managers: AeroSpace tiles a window into the layout, and a
-drag that merely passes near the screen edge hands half the screen to it. The
-symptom is "windows won't stay where I put them", and it points at neither of
-them on its own, which is why this room owns the settings rather than leaving
-them with the rest of the macOS defaults:
+macOS turns edge-drag tiling **on** out of the box, so a fresh Mac has two
+window managers and the symptom is "windows won't stay where I put them":
 
 ```nix
-haus.windows.nativeTiling.edgeDrag         = false;  # the one to turn off if you tile
+haus.windows.nativeTiling.edgeDrag          = false;  # the one to turn off if you tile
 haus.windows.nativeTiling.topEdgeFullscreen = false;
-haus.windows.stageManager.enable            = false;
-```
-
-If you'd rather keep native tiling available and just stop it firing by
-accident, add the ⌥ accelerator to the line above: it's a second, deliberate
-way in, not a replacement for turning the bare drag off (the two keys are
-independent, and macOS ships both on):
-
-```nix
-haus.windows.nativeTiling.edgeDrag          = false;  # no tiling on a bare drag
 haus.windows.nativeTiling.optionAccelerator = true;   # ⌥-drag still tiles
-```
+haus.windows.stageManager.enable            = false;
 
-haus **warns** when the tiler and either of these are on together, naming both
-switches. It's a warning and not an error, because "Stage Manager on the laptop
-panel, tiling on the external" is a real way to work.
-
-The same group covers the desktop itself, which pairs well with a wallpaper you
-chose to look at rather than to file things on:
-
-```nix
 haus.windows.desktop.hideIcons     = true;   # files stay in ~/Desktop
 haus.windows.desktop.hideWidgets   = true;
 haus.windows.desktop.clickToReveal = false;  # macOS 14's click-the-wallpaper behaviour
 ```
 
+The two `nativeTiling` keys are independent, so `optionAccelerator` is a second
+way in rather than a replacement for turning the bare drag off. haus warns
+rather than errors when the tiler and either Stage Manager or native tiling are
+on together, naming both switches, because "Stage Manager on the laptop panel,
+tiling on the external" is a real way to work.
+
 <Callout title="These land at your next login">
-  This whole group writes `com.apple.WindowManager`, which macOS reads when your
-  login session starts and never re-reads: there is no process to restart the
-  way Finder or the menu bar can be restarted. **The write happens during the
-  rebuild; the effect appears at your next login.** Nothing is half-applied in
-  between, and `haus plan` tells you before the rebuild rather than after.
+This group writes `com.apple.WindowManager`, which macOS reads when your login
+session starts and never re-reads. **The write happens during the rebuild; the
+effect appears at your next login.** `haus plan` says so before the rebuild
+rather than after.
 </Callout>
 
-Every option here is unset by default, like every macOS setting haus curates.
-Unset doesn't mean "off": it means haus writes nothing, so a choice you made by
-hand years ago survives untouched.
+Unset is the default here, as for every macOS setting haus curates, and unset
+doesn't mean "off": haus writes nothing, so a choice you made by hand survives.
 
-## Turning it off
-
-```nix
-haus.windows.enable = false;
-```
-
-The Caps-Lock remap, the launcher and AeroSpace all stay out of the way. Nothing
-else in haus depends on it; [Leaving](/docs/haus/leaving#switch-off-a-room)
-does the same for the other rooms.
-
-## Works with
-
-- **[Bar](/docs/haus/rooms/bar)**: the workspace pills, and the letter hints
-  the leader draws, are this room's contribution to the bar. No bar, no hints;
-  the tiling itself is unaffected.
-- **[Apps](/docs/haus/rooms/apps)**: a roster entry's `key` is what the leader
-  launches, and its workspace is where its windows land.
-- **[Launcher](/docs/haus/rooms/launcher)**: its opt-in `⌘Tab` window switcher
-  answers the same question from the other side.
-- **[Appearance](/docs/haus/rooms/appearance)**: `haus.appearance.reduceMotion`
-  switches off both of this room's unasked movements: the pointer following
-  focus, and gravity.
+`haus.windows.enable = false;` puts the Caps-Lock remap, the launcher and
+AeroSpace out of the way. Nothing else in haus depends on it.
 
 ## Options
 
-Every setting, with types and defaults:
-[Windows](/docs/haus/reference/options#windows).
+[Every setting, with types and defaults](/docs/haus/reference/options#windows).
