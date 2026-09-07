@@ -505,7 +505,9 @@ The **worktree** hooks that Claude Code's own `--worktree` flag fires:
 [`agent-desktop-guard`](#the-screen-belongs-to-you); one `scruff hook notify`
 entry appended to **`Notification`** and **`Stop`**, which raises a
 [trill](/docs/trill) banner when a lane blocks on you or finishes; plus the
-statusline, `permissions.defaultMode` and a few TUI keys. It merges into the
+statusline, `permissions.defaultMode` and a few TUI keys; and, when
+[`ai.autoMode`](#what-auto-mode-is-told-about-this-machine) names anything,
+the `autoMode` block the classifier reads. It merges into the
 file rather than replacing it, leaves the four agent-state hooks and your own
 `PreToolUse`, `Notification` and `Stop` entries alone (the two worktree events
 are the ones it owns outright), and
@@ -727,6 +729,50 @@ agent skill spells the whole recipe out, which is why nothing here has to, and
 [Runtimes](/docs/scruff/runtimes) is the backend itself: what it shares into the
 guest, and how to write one of your own.
 
+## What auto mode is told about this machine
+
+Auto mode is a classifier, and it judges every tool call against a picture
+of the machine it runs on. Claude Code ships one that fits nobody in
+particular: the working repo and its remotes are trusted, and everything else
+belongs to a stranger. On a machine that runs several lanes across a dozen
+repos you own, boots throwaway VMs and merges its own PRs, that picture is
+wrong in every direction, and the classifier asks about the ordinary work of
+the place: a commit in a sibling repo, `ssh` into a lane's own VM, `gh pr
+merge` on a repo with one committer.
+
+[`ai.autoMode`](/docs/haus/reference/options#ai) is where you tell it
+otherwise. Four lists of prose, one fact or rule per string, written the way
+you would brief a new engineer:
+
+| List | What goes in it |
+|---|---|
+| `environment` | what this machine and its repos are: who owns what, where secrets live, which hosts are disposable, what counts as production |
+| `allow` | what is ordinary here, as exceptions to the classifier's own refusals, each opening with a short title |
+| `softDeny` | what it should stop and ask about, unless you or an `allow` rule say otherwise |
+| `hardDeny` | what it refuses outright, whatever anyone says |
+
+haus writes them into the `autoMode` block of `~/.claude/settings.json` on
+every rebuild, beside the hooks it already merges there. Claude Code's own
+built-in entries stay in front of yours (`ai.autoMode.keepDefaults`, on by
+default). Turn that off and a list you set replaces Claude Code's for that
+section, refusals included, so read the result back with `claude auto-mode
+config` before trusting it. `claude auto-mode critique` reviews your rules.
+
+Ownership is per section. A rebuild re-asserts the lists you set and leaves
+the rest of the block alone, so a host that names only `allow` never deletes a
+`hard_deny` you wrote with the CLI. Inside a section you do set, `claude
+auto-mode reset` and a hand edit last until the next rebuild. An empty list,
+the default, means haus does not name that section at all, so all four empty
+writes nothing. Only Claude Code reads this file, but haus writes it whenever
+the room is on, the same rule the hooks beside it follow: a hand-installed
+Claude Code reads it too.
+
+This is the classifier's half of the question the
+[guard](#the-screen-belongs-to-you) answers for the screen. The guard decides
+on its own whether a call touches what is in front of your eyes, so an
+`allow` rule here should say that the screen is the guard's business rather
+than try to gate it a second time.
+
 ## Letting a run finish
 
 A Mac left alone sleeps, and a sleeping Mac is not running your agent. Two
@@ -786,9 +832,8 @@ of the dial. The defaults are the cautious ones:
 | `requirePower` (on) | the **lid** hold only: unplugging is also how you say stop. The `idle` hold ignores it, because an unplugged laptop sitting open on a desk is the case that is plainly safe |
 | `while = "always"` | plain closed-display mode, agents or no agents |
 
-`always` is the stop an unattended merge shift wants, because a shift's passes
-are not agent turns — nothing about them raises the hold above, and a night that
-opens no lane raises none at all.
+`always` is the stop an unattended merge shift wants, because a foreman waking
+on a cadence is idle between passes and the agent-shaped hold drops in the gaps.
 [Merging pull requests overnight](/docs/haus/night-shift) is that whole setup.
 
 <Callout type="warn" title="Shut lid, no display, blind agent">
