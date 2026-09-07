@@ -38,9 +38,9 @@ haus.developer.languages = [ "node" ];
 ```
 
 The terminal stack is the floor and is always there. `haus.developer.*` brings
-the *tools*, each with a sub-switch of its own: `.toolbelt.enable`,
-`.git.enable`, an empty `.languages`. Turning the room off takes all three and
-leaves the floor standing.
+the *tools*, each with a sub-switch of its own: `haus.developer.toolbelt.enable`,
+`haus.developer.git.enable`, an empty `haus.developer.languages`. Turning the
+room off takes all three and leaves the floor standing.
 
 ## A window is a pane
 
@@ -188,8 +188,9 @@ The first line gets you the tabs that are about *you*: issues you opened, ones
 assigned to you, unread notifications, threads you're in. The second is what a
 PR tab needs, since a PR tab is a GitHub search and a search needs a scope. Set
 it and four more appear: **open**, **green**, **red** and **shipped**, where a
-branch still building shows in neither green nor red. Leave it empty, right if
-you read several owners at once, and those four aren't written.
+branch still building shows in neither green nor red. Leave `haus.git.org`
+empty, right if you read several owners at once, and those four aren't
+written.
 
 ## yazi peek
 
@@ -369,11 +370,12 @@ haus.portless.enable = true;
 One proxy on `:443` owns the machine's ports, each app registers a hostname
 against a port the proxy assigned, and you open `https://myapp.localhost`: no
 number, real HTTPS, no browser warning. Different names are different origins,
-so cookies stop leaking between projects. Run `portless` where you would have
-run `npm run dev`.
+so cookies and `localStorage` stop leaking between projects. Run `portless`
+where you would have run `npm run dev`.
 
 Lanes are why this lives in haus rather than one project's `devDependencies`:
-five agents in five worktrees of the *same* repo want that one port five times,
+`scruff` puts five agents in five worktrees of the *same* repo, all wanting that
+one port,
 and the one that quietly takes 3001 is worse than the four that die. Inside a
 lane, run `portless-lane`:
 
