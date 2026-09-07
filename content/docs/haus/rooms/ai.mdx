@@ -17,39 +17,21 @@ related:
     icon: "shell"
 ---
 
-Run two coding agents in the same checkout and they fight: one switches the
-branch out from under the other, uncommitted edits collide, and closing a pane
-mid-thought can lose work. **[scruff](/docs/scruff)** fixes that by giving every
-agent its own checkout, and haus puts it on your `PATH`, wired to a keybind.
+Two coding agents in one checkout fight: one switches the branch out from under
+the other, and closing a pane mid-thought can lose work.
+**[scruff](/docs/scruff)** gives each its own checkout, and haus puts it on your
+`PATH` behind a keybind.
 
-Press **⌘⏎** (from any terminal window, a pane or another agent's lane alike) and you get a fresh
-agent session in an isolated git worktree: its own checkout on a
-`worktree-<name>` branch, branched from the repo's local `HEAD`, living
-**outside** the repo under `~/.cache/scruff/<repo>/<name>` so your working tree
-stays clean and no build tool trips over it. It starts on whatever repo the
-focused window is looking at. (A machine set up before scruff 1.1.0 keeps its
-whole base at the older path; `scruff doctor --migrate-base` moves it, and
-[Config](/docs/scruff/config#where-the-checkouts-live) is that story.)
+**⌘⏎**, from any terminal window, pane or lane, opens a fresh agent session in an
+isolated worktree: a `worktree-<name>` branch off the repo's local `HEAD`,
+checked out **outside** the repo at `~/.cache/scruff/<repo>/<name>`, on whatever
+repo the focused window is looking at. scruff calls that a **lane**. `⌘W` only
+detaches; a lane that really is torn down parks its uncommitted edits as a `wip:`
+commit first, and only branches whose work has merged get reaped. For an agent in
+the checkout you already have, with no lane at all, type `c` in that window's
+shell.
 
-scruff calls what that makes a **lane** (one agent's branch, checkout and
-terminal, as a single thing you can name), and that's the word its output uses.
-Not a *worktree*: a parked lane has no checkout on disk and is still a lane you
-can resume. (For an agent in the checkout you already have, with no worktree and
-no lane, type `c` in that window's shell; it is the client `ai.default` names.)
-A lane's terminal is its own zmx session in its own window, which
-the [Development](/docs/haus/rooms/development) room sets up.
-
-It works on **any git repo**, and it isn't really a haus feature: it's
-[its own tool](/docs/scruff), which haus takes as an input and puts on your
-`PATH`. You don't have to be a haus user to run it.
-
-<Callout type="tip" title="Closing a window never loses work">
-`⌘W` only detaches: the zmx session stays up and the agent keeps thinking. When
-the lane really is torn down, uncommitted edits are first parked as a `wip:`
-commit on the branch, and **only branches whose work has already merged get
-reaped**: everything unmerged survives on its branch, and the agent's transcript
-survives with it. The checkout is disposable; your work isn't.
-</Callout>
+scruff is [its own tool](/docs/scruff), on any git repo, haus or no haus.
 
 ## Enable it
 
@@ -61,164 +43,86 @@ haus.ai = {
 };
 ```
 
-That brings the clients you named, `scruff`, and the worktree lifecycle wiring.
-Nothing else in the house has to be on for it to work.
+That brings the clients you named, `scruff`,
+[factory](https://github.com/hausfold/factory), the ⌘⏎ keybind, the tab marks,
+the statusline and the client wiring. `haus.ai.skill`, on by default, adds every
+hausfold tool's agent skill to each client, so an agent asked to change this Mac
+edits your host file and runs `haus rebuild` rather than guessing at dotfiles.
 
-## Resuming
-
-Because the work is on the branch and the chat is in your client's transcript, a
-closed window is never a dead end. Run `scruff` bare to see everything you can pick
-back up, across every repo:
-
-```
-≋  lanes you can resume (scruff <name>, or <repo>/<name>)
-  repo         name         state  agent  last commit
-  nebelung     sparkle      parked claude wip: auto-saved on lane close
-  pounce       quick-emoji  live   codex  add fuzzy weights
-```
-
-Name one and scruff rebuilds the checkout and picks the conversation back up
-through whichever client that lane was made with:
-
-```sh
-scruff sparkle           # resume it
-scruff nebelung/sparkle  # qualify when the name exists in two repos
-```
-
-[Working in lanes](/docs/scruff/lanes#pick-one-back-up) is the rest of it:
-choosing a different session, going to a window a lane is already running in,
-and opening a lane on a repo that isn't this one.
+`enable = false` takes all of it back, including from a desktop that named
+clients, and deletes nothing on disk. A machine set up before scruff 1.1.0 keeps
+the older base path until `scruff doctor --migrate-base` moves it
+([Config](/docs/scruff/config#where-the-checkouts-live)).
 
 ## Spawning from the launcher
 
-For a lane **named after the task** rather than the random
-`luminous-twirling-codd` an unattended agent would coin, summon
-the [launcher](/docs/haus/rooms/launcher) and run **Spawn Agent**: pick a repo, describe
-the job, and it creates the checkout and opens a lane on that repo's own page.
-Naming the branch from the prompt is the whole point.
-
-How you commit the prompt picks what happens next:
+⌘⏎ coins a random name like `luminous-twirling-codd`. For one named after the
+task, summon the [launcher](/docs/haus/rooms/launcher) and run **Spawn Agent**:
+pick a repo, describe the job.
 
 | Key | Does |
 |---|---|
-| `↵` | Spawn **in the background**: the checkout, the branch, the agent and the lane's own window all happen, and **focus never moves**: the window is born on that repo's page rather than in front of you, so nothing flashes and nothing takes the screen. The box closes at once and a notification says the lane is running; click it (or use the agents pill, or **Lanes**) when you're ready to go there |
-| `⇧↵` | Newline; a task is usually a list, not a sentence |
-| `⌘↵` | Grab a screenshot first, then spawn; cancel the capture and you're back in the box with your text intact. On an empty box it just attaches the shot and hands the box back |
-| `⌃↵` | Spawn **and follow it**: the window opens now, on that repo's page, and you go with it — for the lane you're about to sit and work in |
-| `⌥↵` | Open your drafts; the box is saved on every dismissal, so a paragraph lost to a stray click is still here |
-| `⇥` | Cycle the **client** chip beside the buttons — which agent *this one lane* opens in (`⇧⇥` goes back) |
+| `↵` | Spawn **in the background**: checkout, branch, agent and window all happen, focus never moves, and a notification says the lane is up |
+| `⇧↵` | Newline |
+| `⌘↵` | Screenshot first, then spawn; cancel the capture and your text is intact |
+| `⌃↵` | Spawn **and follow it**: the window opens now and you go with it |
+| `⌥↵` | Drafts; the box is saved on every dismissal |
+| `⇥` | Cycle the **client** chip, which agent this one lane opens in (`⇧⇥` goes back) |
 
-The client chip appears once you have more than one of `claude`, `codex`,
-`opencode` and `pi` installed, and it offers exactly the ones that are: it reads
-what is on `PATH`, not what `haus.ai.clients` asked for, so nothing on it can
-fail to start. It opens on your [`haus.ai.default`](/docs/haus/reference/options)
-the first time and on whatever you last spawned with after that — cycling it and
-pressing `esc` changes nothing. The lane records the client it was made with, so
-a `pi` lane still reopens in pi however the chip happens to sit next time.
+The chip appears once more than one of `claude`, `codex`, `opencode` and `pi` is
+installed, and offers what is on `PATH`, not what `haus.ai.clients` asked for. It
+opens on [`haus.ai.default`](/docs/haus/reference/options#ai), then on your last
+spawn. Repos come as a grid of cards, most recently touched first: `↑↓` moves a
+row, `←→` a card.
 
-The repo step is a grid of cards rather than a list, most recently touched first
-— `↑↓` moves a row, `←→` a card once you are past the ends of what you typed.
+A background lane gets its window at once, tiled on `T/<repo>` with the agent
+already working, born off-screen and walked onto its page without ever being
+activated, so `⌃⇥` finds it. With [trill](/docs/trill) the banner is the door:
+click the card and you land on that window. Without trill it is a plain macOS
+banner with nothing to click, and so is a repo or lane name carrying a character
+outside letters, digits, `.`, `_` and `-`.
+
+**Screen asleep, no window.** macOS reports no display, and a terminal asked for
+one comes up as an error pane that swallows the task, so the agent starts
+detached and the session is the lane. The banner still fires; the first click on
+it, or `scruff <name>`, gives the lane its tiled window. `⌃⇥` cannot find it
+before that, because it walks pages that hold windows.
 
 ### What names the lane
 
-Out of the box the name is built from your own words with the filler dropped, so
-"can you look into why the bar pill flickers" becomes `bar-pill-flickers`. It is
-instant and it is never wrong, but it can only reuse words you typed.
-
-`haus.ai.namer` hands the job to a model instead, which can name the *subject*
-rather than echo the sentence — "the agents pill stops updating after the popup
-is closed twice in a row" becomes `agents-pill-wedge`:
+Names come from your own words with the filler dropped, so "why the bar pill
+flickers" becomes `bar-pill-flickers`. `haus.ai.namer` hands the job to a model
+instead, which can name the *subject* rather than echo the sentence.
 
 ```nix
 haus.ai.namer = "api";
 ```
 
-The value is an id, and the id is a file you write:
-`~/.config/scruff/adapters/namer/<id>.toml`, naming a program that takes the brief
-as an argument and prints one name. haus ships no such file on purpose — the
-adapter is where the model, the API key and the key's location get decided, and
-those are yours, not the layer's. A key belongs in the login keychain via
-[the Security room](/docs/haus/rooms/security#secrets-your-rooms-need), never beside the script.
-
-Two things keep it from being a risk:
-
-- **It cannot cost you a lane.** No adapter file, a program that isn't
-  installed, no network, a timeout — every one of them is a warning, and the
-  lane is still created.
-- **It cannot make naming worse.** Spawn Agent hands its own word-slug down to
-  the adapter, and an adapter that can't reach its model prints that instead of
-  failing. Offline you get the name you would have had anyway.
-
-`claude` is a special case: it is scruff's built-in namer, so it needs no adapter
-file, but it costs 8–12 seconds — longer than the palette will wait — so Spawn
-Agent keeps its own name and doesn't ask. Set it if you want hand-run `scruff
-spawn` named; for the palette, write an adapter.
+The value is an id, and the id is a file you write, exactly at
+`~/.config/scruff/adapters/namer/<id>.toml`, naming a program that takes the
+brief on argv and prints one name. haus ships none, because the model and the API
+key are yours; the key belongs in the login keychain via
+[the Security room](/docs/haus/rooms/security#secrets-your-rooms-need), never
+beside the script. Every failure is a warning and a fall back to the random pair,
+so it cannot cost you a lane. Spawn Agent hands its own slug down as
+`SCRUFF_NAMER_FALLBACK` for an adapter that cannot reach its model to print
+instead: honour it, or an offline spawn is named worse than it would have been.
+`claude` is scruff's one built-in and needs no file, but at 8 to 12 seconds it is
+slower than the palette waits, so Spawn Agent keeps its slug and only hand-run
+`scruff spawn` asks it.
 
 ### Which repos it offers
-
-`haus.ai.repoRoots` is the list, most recently touched first. Each entry is read
-one of two ways, decided by the path itself: an entry that **is** a repo is
-offered as itself and never descended into, and anything else is scanned two
-levels deep, so both `~/code/thing` and a parent directory full of repos
-(`~/code/workshop/thing`) resolve. A path that doesn't exist is skipped in
-silence.
-
-The default covers the usual four conventions plus `~/.config/nix` — the config
-flake this Mac is built from, which is a repo like any other and the one you
-most often want an agent in:
 
 ```nix
 haus.ai.repoRoots = [ "~/code" "~/src" "~/Developer" "~/Projects" "~/.config/nix" ];
 ```
 
-Naming the list replaces it rather than adding to it, so keep the entries you
-still want. Repos `scruff` already knows are always offered too, whether or not
-they're under a root here — a one-off repo you've agent'd before stays
-reachable, and this list is about the ones you haven't.
-
-### Why background is the default
-
-Because of what a spawn *is*: you describe a job in a sentence and hand it to
-somebody else. Almost none of those are the thing you're about to sit and
-watch, so the palette gets out of the way completely (box closes, your screen
-unchanged, banner when the lane is actually up) and you go to it when you're
-ready with the banner, the **Lanes** command or the bar's agents pill.
-
-With [trill](/docs/trill) installed, that banner is a door and not only a
-receipt. The whole card is the click target (the `Go to lane` tag on it is a
-label saying so, not a button), and clicking anywhere on it lands you on the
-lane's window on `T/<repo>`: the same click [the ask and done
-banners](#knowing-which-agent-needs-you) give you later.
-
-It lands you on the *window*, not on the page it sits in. If `T/<repo>` is
-holding other windows, the lane's one is zoomed to fill the workspace, so the
-agent that asked for you is the only thing in front of you rather than the one
-you find by hunting for a solid cursor. The page comes back on its own: going to
-any other window on it drops the zoom, which is AeroSpace's own behaviour, and
-`⌥F` is there for when you want it back deliberately. A lane alone on its page is
-left exactly as it is, for the reason [a window on its own does not
-zoom](/docs/haus/rooms/windows#a-window-on-its-own-does-not-zoom). Without trill it stays
-a plain macOS banner with nothing to click, and a repo or lane name carrying a
-character outside letters, digits, `.`, `_` and `-` keeps the banner and loses
-only the click.
-
-Background is the opposite of *follow it there*, not the opposite of *exists*.
-The lane gets a real window at once, tiled on `T/<repo>` with the agent already
-working in it, so `⌃⇥` finds it and the page is complete before you have looked
-at it. What you don't get is the interruption: the window is born off-screen and
-walked onto its page without ever being activated, so focus stays exactly where
-it was and nothing blinks past.
-
-With the **screen asleep** there is no window to make: macOS reports no display,
-and a terminal asked for one anyway comes up as an error pane that swallows the
-task. So the session is the lane. The agent starts detached and works, the spawn
-banner still fires, and the first click on it (or `scruff <name>` from a shell)
-gives the lane its tiled window when you come back. `⌃⇥` is the one route that
-won't: it walks pages that hold windows, and this lane hasn't got one yet.
-
-`⌃↵` is the other one: the lane you *are* about to work in, so you go with it.
-Both are the same code path and the same lane (same name, same session, same
-tile). Only where your attention ends up differs.
+An entry that **is** a repo is offered as itself and never descended into;
+anything else is scanned two levels deep. A path that does not exist is skipped
+in silence, naming the list replaces it, and repos scruff already knows are
+offered whether or not they sit under a root. That last default entry is the
+config flake this Mac is built from, which is the repo you most often want an
+agent in.
 
 ## Which client gets spawned
 
@@ -227,55 +131,61 @@ haus.ai.clients = [ "claude" "opencode" ];  # what's installed
 haus.ai.default = "claude";                 # what ⌘⏎ spawns
 ```
 
-`ai.default` must be one of `ai.clients`, and the rebuild says so by name if it
-isn't rather than failing later, inside the pane, after the checkout already
-exists. `clients` defaults to an empty list, which is exempt from that check
-(there's nothing to be absent from) and means haus installs no client itself.
+`ai.default` must be one of `ai.clients`, and the rebuild says so by name rather
+than failing later, inside the pane, after the checkout exists. `clients` defaults
+to an empty list, which is exempt from that check and installs no client. The
+client is recorded **with the lane**, so the option only affects new spawns.
 
 The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
-(OpenCode) and `pi` (pi). All four come from nixpkgs, so `haus update` is what
-moves them — except `pi`, which haus holds one release ahead of nixpkgs on
-purpose. `--` (end-of-options) reached pi in 0.84.3, and scruff puts a `--` before
-a lane's first-turn prompt because a task typed into **Spawn Agent** very often
-starts with a dash. On an older pi that prompt is read as a flag and the pane
-dies before the agent draws, so the rebuild refuses rather than letting you find
-out one lane at a time.
+(OpenCode) and `pi` (pi), all from nixpkgs, so `haus update` moves them. Two are
+held ahead of it. `claude`, because Claude Code gates models on the client
+version and a stock pin greys out the newest one in `/model` for no visible
+reason; and `pi`, because `--` (end-of-options) reached it in 0.84.3 and scruff
+puts a `--` before a lane's first-turn prompt, so on an older pi a task starting
+with a dash is read as a flag and the pane dies before the agent draws. Both step
+aside once nixpkgs passes them.
 
-All of it hangs off one master switch, `haus.ai.enable`: scruff and
-[factory](https://github.com/hausfold/factory) on your `PATH`, the
-⌘⏎ keybind, the tab marks, the statusline, the client wiring. Rooms are
-independent, so the switch is yours (or your desktop's) to set; hacker turns
-it on and names both options above. Turn the room off and `ai.clients` is ignored
-whole rather than half-wiring the machine, so a host can drop the room without
-having to blank the list its desktop set.
+Want a patched build? **Overlay the package** (`claude-code`, `codex`,
+`opencode`, `pi-coding-agent`) rather than adding your own derivation to
+`home.packages` beside it. Two shipping the same `bin/claude` collide in one
+profile, and the rebuild fails with `two given paths contain a conflicting
+subpath`.
 
-scruff records the client **with the lane**, so changing the option only affects new
-spawns: a parked Codex task still reopens through `codex resume --last`, an
-OpenCode one through `opencode --continue`, and a pi one through `pi --continue`.
+## Lanes, parked and landed
 
-<Callout type="warn" title="Overlay a client, don't add one">
-Want a patched build of a client? **Overlay the package** (`claude-code`,
-`codex`, `opencode`, `pi-coding-agent`) rather than putting your own derivation
-in `home.packages`
-beside it. Two derivations shipping the same `bin/claude` collide in one profile,
-and the rebuild fails with `two given paths contain a conflicting subpath`.
-</Callout>
+[scruff's own docs](/docs/scruff) are the lifecycle. What you meet soonest:
+
+- `scruff` lists every lane across every repo, sweeping landed ones first;
+  `scruff sparkle` resumes one, `scruff reap` sweeps what a crash or a reboot
+  left, and `scruff reaped` undoes that from a ledger.
+- **Never `git stash`.** The stash stack is shared across every worktree of a
+  repo, so one lane pops another's work into a tree that never asked for it.
+  `scruff park [label]` and `scruff unpark` instead.
+- **Another repo is `cd "$(scruff child ~/code/other-repo)"`**, never a raw
+  `git worktree add`, which skips scruff's registry so the lane's PR never
+  reaches the HUD. It is this pane's second checkout, not a second agent: no
+  window, and so no row in the **Lanes** picker.
+- Commits made after the PR merged are covered by nothing, because GitHub deleted
+  the remote branch. The listing marks them **`live+3`** and the statusline an
+  orange `3^`; `scruff reship [name]` pushes the branch and opens the follow-up
+  PR. The lookalike **`~3`** is
+  [the opposite case](/docs/scruff/landing#when-a-lane-outran-its-pr).
+
+Pointing agents at haus itself?
+[Contributing](/docs/haus/internals/contributing) covers a family repo.
 
 ## One subscription, every agent
 
-Claude Code talks to your Claude subscription. Everything else — pi, OpenCode, an
-editor plugin, anything speaking the Anthropic wire format — wants an API key,
-which is metered, which means the same work costs twice depending on which pane
-you did it in.
-
-`haus.ai.meridian` closes that gap with a proxy on loopback:
+Claude Code talks to your Claude subscription. Everything else, pi, OpenCode, an
+editor plugin, anything speaking the Anthropic wire format, wants a metered API
+key, so the same work costs twice depending on the pane you did it in.
 
 ```nix
 haus.ai.meridian.enable = true;
 ```
 
-It runs [meridian](https://github.com/rynfar/meridian) as a login agent on
-`http://127.0.0.1:3456` and answers Anthropic API requests by driving Claude Code
+That runs [meridian](https://github.com/rynfar/meridian) as a login agent on
+`http://127.0.0.1:3456`, answering Anthropic API requests by driving Claude Code
 under your existing subscription. Point any tool at it with any API key:
 
 ```console
@@ -283,39 +193,16 @@ $ ANTHROPIC_BASE_URL=http://127.0.0.1:3456 ANTHROPIC_API_KEY=x <your tool>
 ```
 
 `haus.ai.meridian.port` moves the number if something already owns 3456. There is
-no option for the bind address, on purpose: a proxy that answers for your
-subscription without asking who is calling is safe on loopback and is an open
-account on any other interface, so haus does not ship the leaf that would make
-that a one-word change.
+no option for the bind address: a proxy that answers for your subscription
+without asking who is calling is safe on loopback and is an open account on any
+other interface. It does **not** follow `haus.ai.enable`, because the proxy is
+useful to clients haus never installed, and for the same reason **haus points
+nothing at it**: which endpoint a client uses lives in that client's own file
+(`~/.pi/agent/models.json`, OpenCode's config), and those files are yours.
 
-### It is an endpoint, not an agent
-
-`haus.ai.meridian.enable` does **not** follow `haus.ai.enable`. The proxy is
-useful to clients haus never installed — a plugin in your editor, a script, a
-container on this machine — so turning the agent room off does not take it away.
-
-For the same reason, **haus points nothing at it.** Which endpoint a client uses
-lives in that client's own file (`~/.pi/agent/models.json`,
-OpenCode's config, and so on), and those files are yours: haus writes your
-instructions and its skills into each client's home and stops there. This
-room's job ends at "the port answers".
-
-One thing it does add, and only to traffic you have already pointed here: pi's
-extension stamps pi's own session id on every request that already says
-`x-meridian-agent: pi`. Without it meridian never goes looking for a session to
-resume, so it replays the whole conversation each turn instead of sending the
-new one (measured across one three-message exchange: 4,414 cache-write tokens
-and none read, against 116 written and 4,312 read with the header). It points
-nothing at the proxy; it stops a client that already talks to it from buying
-the same context twice. `HAUS_PI_SESSION_AFFINITY=0` in the environment turns
-it off.
-
-### The one sign-in
-
-meridian has no credential of its own — it re-uses the OAuth token Claude Code
-already keeps in your login keychain. So it is a **user** agent rather than a
-system one (root has no login keychain and would fail every request), and the
-sign-in is a card in `haus permissions` rather than something a rebuild does:
+meridian has no credential of its own; it re-uses the OAuth token Claude Code
+keeps in your login keychain. So it runs as a **user** agent, root having no
+login keychain, and the sign-in is a card in `haus permissions`:
 
 ```console
 $ claude          # then /login, once
@@ -323,162 +210,30 @@ $ curl -s http://127.0.0.1:3456/health
 {"status":"healthy","auth":{"loggedIn":true,"subscriptionType":"max"}}
 ```
 
-Until you have signed in, the proxy answers 401 and the clients pointed at it
-look broken rather than signed out — which is exactly what the card exists to
-tell you before you go looking. `http://127.0.0.1:3456/telemetry` is meridian's
-own dashboard for what has been going through it; the log is
-`~/Library/Logs/haus-meridian.log`.
+Until you sign in it answers 401, and the clients pointed at it look broken
+rather than signed out. `http://127.0.0.1:3456/telemetry` is its own dashboard;
+the log is `~/Library/Logs/haus-meridian.log`.
+
+haus adds one thing, and only to traffic already pointed here: pi's extension
+stamps pi's session id on every request that already says
+`x-meridian-agent: pi`, so meridian resumes the session instead of replaying the
+conversation each turn. One three-message exchange measured 4,414 cache-write
+tokens and none read without it, against 116 written and 4,312 read with it.
+`HAUS_PI_SESSION_AFFINITY=0` turns it off.
 
 <Callout type="warn" title="Already running meridian by hand?">
-If you installed meridian yourself — an `npm install -g` and a LaunchAgent plist
-you wrote — turning this room on **evicts that agent**, because two of them
-racing for the same port means one loses the bind and retries forever. haus boots
-the old label out and removes its plist; it leaves the npm prefix alone and tells
-you where it is.
+An `npm install -g` and a LaunchAgent plist you wrote get **evicted** when you
+turn this on: two of them race for the same port, and one loses the bind and
+retries forever. haus boots the old label out and removes its plist, leaves the
+npm prefix alone, and tells you where it is.
 </Callout>
-
-## Never `git stash`: park instead
-
-**The stash stack is shared across every worktree of a repo**, so on a machine
-running several lanes at once either agent can pop the other's work into a tree
-that never asked for it. Park instead:
-
-```sh
-scruff park "half-done refactor"  # whole dirty tree → one wip: commit on THIS branch
-scruff unpark                     # rewind it: changes back, uncommitted
-```
-
-It's the same thing the pane-close hook does, on demand.
-[Parking work](/docs/scruff/parking) is why the stash is shared, what a park
-sweeps in, and why `unpark` can never become a force-push.
-
-## Working on another repo: `scruff child`
-
-Sometimes an agent in one repo has to change **another** one. Don't reach for a
-raw `git worktree add`: that skips scruff's registry, so the statusline never
-learns to track the lane and its PR goes invisible.
-
-```sh
-cd "$(scruff child ~/code/other-repo)"
-```
-
-That makes a lane on the other repo and registers it as a **child of your
-current pane**, which is what puts its PR in the HUD beside the work that
-spawned it.
-
-It is this pane's second checkout, not a second agent: no window, no chat of its
-own, and so no row in the **Lanes** picker, which exists to take you to a window.
-`scruff` lists it, its PR sits under this pane in the statusline, and its branch
-lands through its own PR like any other.
-
-Pointing agents at haus itself rather than at your own projects?
-[Contributing](/docs/haus/internals/contributing) covers what's different in a
-family repo: building a lane's branch without merging it, and the one
-activation an agent is refused.
-
-## Cleaning up
-
-Most cleanup is automatic: closing a pane reaps a merged branch, and every `scruff`
-listing self-heals first by sweeping parked branches whose PR has since merged.
-Some things end a pane without the graceful hook, though: a reboot, a crash, or
-a `scruff child` checkout, which no pane owns. For those, sweep on demand:
-
-```sh
-scruff reap
-```
-
-It only ever takes landed work nobody is standing in, and every deletion is
-written to a ledger before the branch dies, so `scruff reaped` can bring one
-back. [Landing and cleanup](/docs/scruff/landing) is what *landed* means across
-six merge shapes, and what to do with the two lanes that never will.
-
-## When a session outran its PR
-
-You merge the PR, keep talking to the agent, and it makes a few more commits.
-Those commits are now in an odd place: the PR that covered them is closed, and
-GitHub deleted the branch's remote counterpart when it merged, so they're
-committed, unpushed, unreviewed, on a branch nothing is watching.
-
-scruff never reaps such a branch, and haus shows you where it is: the listing
-marks the row **`live+3`** and the statusline shows an orange `3^`. One command
-clears it:
-
-```sh
-scruff reship          # push this branch, open the follow-up PR
-scruff reship sparkle  # …or name one, from anywhere
-```
-
-The lookalike, **`~3`**, wants the opposite treatment and `reship` refuses it;
-[that distinction](/docs/scruff/landing#when-a-lane-outran-its-pr) is worth
-reading once before you meet it.
-
-## When a rebuild fails
-
-This room is also what makes a broken `haus rebuild` recoverable without you
-reading the trace. A failed rebuild leaves the phase it died in, the error and
-the derivation on disk, then puts one offer in front of you — `gum` rows under
-the error if you are sitting at the terminal, a **Fix it** notification if you
-have already walked away. The notification survives you closing the window it
-failed in, which is the point: an error nobody is looking at is exactly the one
-worth handing off.
-
-The button runs `haus fix`, and so can you. It gives the client
-`haus.ai.default` names one turn in `~/.config/nix` — the failing phase, the
-error, what changed since the last good rebuild, the haus revision you pin —
-and then checks the answer itself rather than believing it, because an agent
-reporting success onto a config that still does not evaluate is the one failure
-that would make the feature worse than no feature.
-
-The agent runs with its permission prompts off, and the reason is the shape of
-the offer rather than a taste for danger: it starts from a notification, so
-there is nobody there to answer a prompt. What bounds it is the working
-directory and the commit — it works in `~/.config/nix` and nowhere else, and
-`git -C ~/.config/nix revert HEAD` undoes all of it. That is also why a
-`~/.config/nix` that is not a git repository never gets the offer at all.
-
-It never activates. Applying the fix is `haus rebuild`, and that stays yours.
-[The haus CLI](/docs/haus/reference/haus#when-a-rebuild-fails) has the full
-command; `HAUS_NO_FIX=1` turns the offer off without turning this room off.
-
-## When GitHub goes red
-
-The same idea, one surface over: the [bar](/docs/haus/rooms/bar)'s `github`
-pill already tells you *what* is broken, and this room adds the button that
-hands it off. Open the dropdown and any row an agent can actually pick up — a
-red default branch, a pull request whose checks came back red, a pull request
-that conflicts — carries a **Fix with AI** row under it.
-
-Clicking it opens a [lane](/docs/scruff/lanes) on that repo's local checkout,
-in the background, briefed with the one thing the transcript could not recover:
-which failure you clicked on. You get a banner saying it took; after that the
-lane is a lane, reachable from its notification and from the `agents` pill.
-
-Three things it deliberately does not do:
-
-- **It never appears on "changes requested".** That is a person waiting on a
-  person, and a row you have learned an agent will jump into is a row you stop
-  reading.
-- **It never fixes anything itself.** It spawns; the lane's client runs
-  interactively in its own checkout with its own permission gate, which is
-  where the undo question belongs — unlike the rebuild fixer above, which has
-  a notification and nobody to answer a prompt.
-- **It never guesses at a repo you don't have.** The checkout is found the way
-  [Spawn Agent](#spawning-from-the-launcher) finds one — under
-  `haus.ai.repoRoots`, plus anything you have ever opened a lane on — matched
-  on its directory name and confirmed against its `origin` remote. No local
-  clone is a banner that says so, not a lane on the wrong repo.
-
-The button is absent entirely on a machine with no coding agent installed: a
-button whose binary isn't there is worse than no button. `haus.ai.default` is
-the client it spawns, falling through to whichever one is actually on `PATH`
-if that one isn't.
 
 ## Knowing which agent needs you
 
-Run eight agents at once and the question is always the same one: which of them
-is sitting on a permission prompt? The [bar](/docs/haus/rooms/bar)'s `agents`
-pill answers it, for every agent the same way: a lane, an agent you started by
-hand in a checkout you already had, or a conversation in the desktop app:
+Run eight agents at once and the question is which of them is sitting on a
+permission prompt. The [bar](/docs/haus/rooms/bar)'s `agents` pill answers it for
+a lane, an agent you started by hand, and a conversation in the desktop app
+alike:
 
 | Mark | Means |
 |---|---|
@@ -487,121 +242,62 @@ hand in a checkout you already had, or a conversation in the desktop app:
 | **green** | it finished its turn; nothing is waiting |
 | *(nothing)* | no resident agent in that tab |
 
-The dot shows the most urgent state in the tab, so peach always wins and the tab
-that needs you never hides behind one that's merely busy. (The peach wash is
-dropped on the tab you're already looking at.) It's the shape that carries the
-state, not the colour, and there's no count: how many agents a tab holds is the
-bar's popup to answer.
+The dot shows the most urgent state in the tab, so peach wins and the tab that
+needs you never hides behind one that is merely busy. The shape carries the
+state, not the colour, and there is no count.
 
-Both are reported by each client's own lifecycle hooks: the agent says what it's
-doing; nothing scrapes the screen for it. haus wires OpenCode's plugin,
-Codex's hooks and pi's extension for you. **Claude Code's four are yours to
-wire**, and haus deliberately leaves them alone.
+Each client's own lifecycle hooks report it, so nothing scrapes the screen. haus
+wires OpenCode's plugin, Codex's hooks and pi's extensions for you. **Claude
+Code's four are yours to wire**, and haus deliberately leaves them alone.
 
-<Callout type="info" title="What haus does write into `~/.claude/settings.json`">
-The **worktree** hooks that Claude Code's own `--worktree` flag fires:
-`WorktreeCreate` and `WorktreeRemove`, pointing at `scruff hook create` /
-`scruff hook remove`; the **`PreToolUse`** hook that runs
-[`agent-desktop-guard`](#the-screen-belongs-to-you); one `scruff hook notify`
-entry appended to **`Notification`** and **`Stop`**, which raises a
-[trill](/docs/trill) banner when a lane blocks on you or finishes; plus the
-statusline, `permissions.defaultMode` and a few TUI keys; and, when
-[`ai.autoMode`](#what-auto-mode-is-told-about-this-machine) names anything,
-the `autoMode` block the classifier reads. It merges into the
-file rather than replacing it, leaves the four agent-state hooks and your own
-`PreToolUse`, `Notification` and `Stop` entries alone (the two worktree events
-are the ones it owns outright), and
-re-asserts on every rebuild, because Claude Code rewrites its own
-settings on its own schedule and a hand-written hook can go with them. You'd find
-that out at pane close, by losing a lane's parking.
+<Callout type="info" title="What haus writes into `~/.claude/settings.json`">
+`WorktreeCreate` and `WorktreeRemove`, the hooks Claude Code's own `--worktree`
+flag fires, pointing at `scruff hook create` and `scruff hook remove`; a
+`PreToolUse` entry for [`agent-desktop-guard`](#the-screen-belongs-to-you); one
+`scruff hook notify` appended to `Notification` and `Stop`, which raises a
+[trill](/docs/trill) banner when a lane blocks on you or finishes; the
+statusline, `permissions.defaultMode` and a few TUI keys; and the
+[`ai.autoMode`](#what-auto-mode-is-told-about-this-machine) block when you name
+one.
+
+It merges rather than replaces, leaves the four agent-state hooks and your own
+`PreToolUse`, `Notification` and `Stop` entries alone, and re-asserts on every
+rebuild, because Claude Code rewrites its own settings on its own schedule. You
+would find that out at pane close, by losing a lane's parking.
 </Callout>
 
-<Callout type="info" title="What haus writes into `~/.pi/agent/extensions/`">
-pi has no hook file, so its wiring is extensions haus writes. The first,
-`haus-agent-state.ts`, carries both halves of the status at once: the
-four states above, **and** the same [trill](/docs/trill) lane banners Claude
-Code gets from a second hook. It hands `scruff hook notify` the same payload, so
-a pi lane's banner is keyed, clickable and taken back down by the identical code
-path: an **ask** when it blocks on you, a **done** when it finishes its turn,
-and both cleared when you answer. The second, `haus-desktop-guard.ts`, is
-pi's half of [the screen guard below](#the-screen-belongs-to-you).
+<Callout type="info" title="What haus writes into pi's files">
+pi has no hook file, so its wiring is two extensions in
+`~/.pi/agent/extensions/`. `haus-agent-state.ts` reports the four marks and hands
+`scruff hook notify` the same payload Claude Code does, so a pi lane's **ask**
+and **done** banners are keyed, clickable and cleared the same way;
+`haus-desktop-guard.ts` is pi's half of
+[the screen guard](#the-screen-belongs-to-you). Both are gated on pi running as a
+real pane, since a `pi -p` in a script inherits the session it was run from.
 
-"Blocked on you" needs a definition here that it doesn't need elsewhere: pi has
-no permission modes and so no permission prompt. The stand-in is a tool whose
-execution *is* a question (`ask_user_question`, one of the four packages below),
-which also puts the Allow/Deny on the trill banner, answerable by one click
-from anywhere; Claude Code needs no stand-in — a gated call re-opens its own
-permission prompt, right in the pane.
+pi has no permission modes, so "blocked on you" is a tool whose execution *is* a
+question, `ask_user_question`, which puts the Allow/Deny on the banner. Two pi
+events have no Claude counterpart and carry their own `rules.json` source, so you
+can silence one without the other: a failed compaction (`haus.ai.pi.compact`) and
+the provider refusing the session with a 401/402/403 (`haus.ai.pi.auth`, once).
+The second matters with meridian, which runs on Claude Code's keychain token:
+when that goes stale every pi lane stops and says so nowhere.
 
-Two pi events have no Claude counterpart and get a banner of their own, each
-with its own `source` so you can silence one in `rules.json` without the other:
-a **failed compaction** (`haus.ai.pi.compact`; the turn that triggered it is
-usually dead) and the model provider **refusing the session** with a 401/402/403
-(`haus.ai.pi.auth`, once). That second one matters on a machine running
-[meridian](/docs/haus/rooms/ai): it authenticates off Claude Code's keychain
-token, and when that goes stale every pi lane stops and says so nowhere.
-
-Everything above is gated on pi running as a real pane: a `pi -p` in a script
-inherits the terminal session it was run from, and reporting would repaint
-*that* lane's pill and banner a turn nobody asked about.
-</Callout>
-
-<Callout type="info" title="What haus writes into `~/.pi/agent/settings.json`">
-Two keys are **re-asserted** every rebuild, because they are how a lane looks
-rather than what you think about it: `tuiMode = "fullscreen"` (matching Claude
-Code's, so two panes side by side are the same shape) and `quietStartup`.
-
-Two are **seeded once** and never argued with again — `hideThinkingBlock` and
-`modelThinkingLevels` — because pi lets you change both from its own
-`/settings` mid-session, and a rebuild that reverted what you just chose would
-be the desktop overruling you.
-
-And `packages` is **unioned**: `haus.ai.pi.packages` is added beside whatever
-`pi install` put there. It defaults to four — sub-agents, a todo list, a way to
-ask you a question mid-turn, and web access — which is what makes pi comparable
-to the client in the next pane; pi ships without them on purpose. They are npm
-sources pi fetches on first start and then runs in its own process, so it is a
-second trust decision after the client itself: set `haus.ai.pi.packages = [ ]`
-for a pi with nothing but its built-in tools. Removing an entry from the list
-does not uninstall it — haus never deletes from that array. Run
-`pi remove <source>` once and it will not come back.
-
-pi does that fetch by spawning `npm` at startup, so haus puts one on **pi's**
-PATH, taken from the very node it already runs pi with. It is **appended**, not
-prefixed, and that is the part worth knowing: pi has a shell tool, so anything
-a pi lane runs inherits that PATH, and a node in front would shadow the
-homebrew, fnm or volta one your project pins. Appended it is a floor — it
-answers pi where you have no npm at all, and loses to your own toolchain
-wherever you have one. Your interactive shells are untouched either way, and
-none of it is a route to `pi install`, which stays imperative and outside nix.
-
-The fetch does want network on the first start after a rebuild, and a source pi
-cannot install is an error in pi rather than a package it skips; `PI_OFFLINE=1`
-is pi's own escape hatch if you would rather have a missing extension than a
-stopped client.
-
-haus writes none of pi's other files: `models.json` (which provider, which
-key) and `trust.json` are yours. `trust.json` is also why the banners
-deliberately say nothing about pi's *trust dialog*: pi asks its extensions
-before it reads that file, so nothing could tell "about to ask you" from
-"answered months ago" without second-guessing pi. `scruff` closes that case from
-the other end anyway, by copying the yes you already gave a repo onto each lane
-it makes.
+In `~/.pi/agent/settings.json`, `tuiMode = "fullscreen"` and `quietStartup` are
+re-asserted every rebuild; `hideThinkingBlock` and `modelThinkingLevels` are
+seeded once, because pi's own `/settings` changes them mid-session.
+`haus.ai.pi.packages` is merged into `packages` beside whatever `pi install` put
+there, so removing an entry does **not** uninstall it: run `pi remove <source>`
+once. `models.json` and `trust.json` stay yours.
 </Callout>
 
 ### The statusline HUD
 
-haus points Claude Code's status bar at a small HUD driven off scruff's registry, so
-you can see where every agent stands without leaving the pane. **Row one is this
-session's own lane**: a status token, its GitHub PR pill, then its name. **The
-rows below are the lanes this session spawned in other repos**, eight at most
-with a `+N more` line under them. A ⌘⏎ lane in this pane's own repo is a sibling
-with a window of its own, not a child, so it keeps its rows for the lanes that
-have nowhere else to appear. Rows that still need
-attention sort above landed ones, so a clipped HUD can only ever hide something
-already reapable.
-
-The status token is one mutually-exclusive slot:
+haus points Claude Code's status bar at a HUD off scruff's registry. **Row one is
+this session's own lane**: a status token, its GitHub PR pill, then its name.
+Below it are the lanes this session spawned in other repos, eight at most with a
+`+N more` line; a ⌘⏎ lane in this pane's own repo is a sibling with a window of
+its own, not a child. Rows needing attention sort above landed ones.
 
 | Token | Means |
 |---|---|
@@ -611,106 +307,115 @@ The status token is one mutually-exclusive slot:
 | `+A -D` | uncommitted line changes, when nothing's committed yet |
 | `●` *(muted)* | nothing to report: clean tree, nothing ahead, including a lane that hasn't committed yet |
 
-A lane that has *never committed* is not landed, whatever git's ancestry says
-about it: it is simply empty, so it gets the muted `●`, not `⏏`. It is still
-reaped when you close the pane (there is nothing on it to keep), so `●` covers
-both "nothing to report" and "nothing here yet", and `⏏` means specifically
-*this branch's work reached main*. The same distinction reaches the `agents`
-pill: such a lane draws no PR row at all.
+A lane that has *never committed* is empty rather than landed, whatever git's
+ancestry says, so it takes the muted `●` and draws no PR row on the pill either.
+Flush right on row one: how far behind your pinned revision you are (`⇡N`, what
+`haus update` would pull), context used, session cost, the permission mode and a
+short model tag. Context is coloured by **token count**, not percentage, which
+means different things on a 200k and a 1M model.
 
-Flush right on row one sit a few per-session chips: how far behind your pinned
-revision you are (`⇡N`, what `haus update` would pull), context used, session
-cost, the permission mode, and a short model tag. Context is coloured by **token
-count**, not percentage, because the percentage means different things on a 200k
-and a 1M model. Permission mode follows the same "no news is good news" rule as
-the status token: the default shows nothing, everything else is a positive mark.
+## When a rebuild fails
+
+A failed `haus rebuild` leaves the phase, the error and the derivation on disk,
+then makes one offer: `gum` rows under the error if you are at the terminal, a
+**Fix it** notification if you have walked away. The notification survives you
+closing the window it failed in, which is the point.
+
+The button runs `haus fix`, and so can you. It gives the client `haus.ai.default`
+names one turn in `~/.config/nix` (the failing phase, the error, what changed
+since the last good rebuild, the haus revision you pin) and then checks the answer
+itself rather than believing it. Its permission prompts are off, because the offer
+starts from a notification and nobody is there to answer one. What bounds it is
+the directory and the commit, so `git -C ~/.config/nix revert HEAD` undoes all of
+it, and a `~/.config/nix` that is not a git repository never gets the offer.
+
+It never activates: applying the fix is `haus rebuild`, and that stays yours.
+`HAUS_NO_FIX=1` turns the offer off without turning the room off, and
+[the haus CLI](/docs/haus/reference/haus#when-a-rebuild-fails) has the full
+command.
+
+## When GitHub goes red
+
+The [bar](/docs/haus/rooms/bar)'s `github` pill says *what* is broken; this room
+adds the button that hands it off. Any row in the dropdown an agent can pick up,
+a red default branch, a pull request whose checks came back red, a pull request
+that conflicts, carries a **Fix with AI** row. It opens a
+[lane](/docs/scruff/lanes) on that repo's local checkout, in the background,
+briefed with the one thing the transcript could not recover: which failure you
+clicked.
+
+It never appears on "changes requested", which is a person waiting on a person,
+and it never fixes anything itself: it spawns, so the undo question stays with
+the lane's own permission gate. It never guesses at a repo you don't have either.
+The checkout is found the way [Spawn Agent](#spawning-from-the-launcher) finds
+one, under `haus.ai.repoRoots` plus anything you have opened a lane on, matched
+on directory name and confirmed against its `origin` remote; no local clone gets
+a banner saying so, not a lane on the wrong repo. The button is absent entirely
+with no coding agent installed, and `haus.ai.default` is the client it spawns,
+falling through to whichever one is actually on `PATH`.
 
 ## The screen belongs to you
 
 `permissions.defaultMode` is `auto`, which is right for files and wrong for the
 screen: an agent that decides to foreground an app, move a window or click
 something just does it, while you are typing into something else. With several
-lanes running that lands as random focus theft, and no amount of prompt wording
-makes it never happen.
+lanes running that lands as random focus theft.
 
-**`agent-desktop-guard`** is the counterweight: one ruleset, reached two ways —
-a `PreToolUse` hook haus declares beside the worktree ones on Claude Code, and
-the `haus-desktop-guard.ts` extension on pi. It is **not** a blocklist: every
-verdict is a question, and every question has an Allow on it. It puts one thin
-slice of tool calls back in front of a human and returns no opinion on
-everything else, so auto-mode is untouched wherever it was already fine. Driving a GUI you asked for, recording a demo,
-rebuilding when you said to: all still there, one keypress away.
-
-The line it draws is not *is this dangerous*. It is:
+**`agent-desktop-guard`** is the counterweight: one ruleset reached two ways, a
+`PreToolUse` hook on Claude Code and `haus-desktop-guard.ts` on pi. It is **not**
+a blocklist. Every verdict is a question with an Allow on it, and it returns no
+opinion on everything else, so auto mode is untouched wherever it was already
+fine. The line it draws is not *is this dangerous*. It is:
 
 > does this change what is in front of my eyes, within about two seconds?
 
-Which is a question about the *target*, not the command. **Prose is not a
-command**: before anything looks for one, the guard drops heredoc bodies and
-comment lines, so `haus rebuild` inside a `cat > README.md <<EOF` or a commit
-body is text rather than a verb. That is the difference between a guard you read
-and one you learn to click through. It then splits a
-command at unquoted `;`, `&&`, `||`, `|` and newlines and drops the segments
-that run on another machine, so `ssh admin@vm 'haus rebuild'` is silent while
-the same words typed at your own shell are not. It is quote-aware — `ssh h 'a;
-b'` is one remote segment, not a remote one and a local `b` — and anything it
-cannot classify counts as local, so the failure mode is one extra prompt rather
-than a missed one. Wrappers are peeled for the same reason: `bash -c 'killall
-Dock'`, `sudo killall WindowServer` and `nohup open -a Ghostty` are read as the
-commands they wrap, so putting a gated one inside a shell is not a way round
-the question.
+Which is about the *target*, not the command. **Prose is not a command**: heredoc
+bodies and comment lines are dropped before anything looks for one, so
+`haus rebuild` inside a `cat > README.md <<EOF` or a commit body is text. What is
+left splits at unquoted `;`, `&&`, `||`, `|` and newlines, quote-aware, and
+segments that run on another machine are dropped. Anything unclassifiable counts
+as local, so the failure mode is one extra prompt. Wrappers are peeled:
+`bash -c 'killall Dock'` and `sudo killall WindowServer` are read as what they
+wrap.
 
 | Silent: no prompt | Asks first |
 |---|---|
-| `screencapture -x`, and a computer-use batch of nothing but screenshot / zoom / cursor position; looking is free | a click, a keystroke, `open -a Safari`, `osascript … activate` |
+| `screencapture -x`, and a computer-use batch of only screenshots, zoom or cursor position | a click, a keystroke, `open -a Safari`, `osascript … activate` |
 | `defaults write`: invisible until something restarts | `killall Dock`: instantly visible |
-| `open -ga Ghostty`: the explicitly backgrounded form, which takes no focus — see the note under this table, because it does not promise a *window* | `open` in its foregrounding form, which is its default |
-| every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of, which asks rather than failing open |
-| anything run over `ssh` on another machine — a lane's own headless VM above all; that desktop is not the one you are looking at | `ssh -X`/`-Y`, whose windows render on *this* display, and an `ssh` to `localhost`, which is this very Mac |
-| `tart run --no-graphics`: a lane's own macOS VM ([`scruff runtime up --backend tart`](/docs/haus/reference/options#ai)) booting with no window anywhere | `tart run` without it, which opens that guest's window full-size in front of you |
-| `--help` on `tart run` or on any of the gated `aerospace` verbs: reading a CLI's help opens nothing | |
-| | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch`; the whole desktop redraws |
+| `open -ga Ghostty`, which takes no focus | `open` in its default, foregrounding form |
+| every `mcp__claude-in-chrome__*` call: that browser is not the one on screen | a computer-use tool the guard has never heard of |
+| `ssh` to another machine, a lane's headless VM above all | `ssh -X`/`-Y`, which render on *this* display, and `ssh` to `localhost` |
+| `tart run --no-graphics`: a VM with no window anywhere | `tart run` without it, which opens that guest in front of you |
+| `--help` on `tart run` or any gated `aerospace` verb | **activating**: `darwin-rebuild switch`, `haus rebuild`, `bench try switch` |
 
-Also on the ask side, for the same reason: `aerospace` focus/move/workspace
-commands, `sketchybar --reload`, `launchctl kickstart`, writing your clipboard,
-and teaching a computer-use step.
+Also on the ask side: `aerospace` focus, move and workspace commands,
+`sketchybar --reload`, `launchctl kickstart`, writing your clipboard, and
+teaching a computer-use step.
+
+Set [`ai.instructions`](/docs/haus/reference/options#ai) and haus prepends a
+**screen etiquette** section to the file every client reads: prefer looking to
+touching, never foreground an app just to see it, hand feel-tests back to the
+person at the keyboard. Leave it empty, the default, and haus writes no
+instructions file at all, so you get the guard and none of the prose. Set it and
+a hand-written file already at that client's path is moved aside as `.backup`,
+quietly, so look before the first rebuild after.
+`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there, for a
+long unattended run where forty prompts is the problem. Claude Code and pi are
+the two that get the guard; the etiquette goes to every client.
 
 <Callout type="warn" title="`open -g` is quiet, not visible">
-The guard lets `-g` through because it takes no **focus**, which is all the
-guard polices. It is not a way to *see* something: a backgrounded app need not
-open a window at all — measured 2026-08-23, `open -g -na Ghostty.app --args
---initial-command=…` leaves a live process with no window, ever, and the
-command never runs. `open` exits 0 either way, because it returns the moment
-LaunchServices accepts, so nothing downstream can tell the difference. Reach
-for `-g` when you need something **running**, and for a VM when you need to
-**see** it.
-</Callout>
-
-
-The guard has a written counterpart, and it is opt-in: **if you set
-[`ai.instructions`](/docs/haus/reference/options#ai)**, haus prepends a short
-**screen etiquette** section to the file every client reads: prefer looking to
-touching, never foreground an app just to see it (and don't expect `open -g` to
-show it to you either), hand feel-tests back to the
-person at the keyboard. Leave that option empty (the default) and haus writes no
-instructions file at all, so you get the guard and none of the prose. The
-etiquette is what keeps the guard from firing; the guard is what catches the
-times it doesn't.
-
-<Callout type="tip" title="Turning it off for one pane">
-`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there, for a
-long unattended run where forty prompts is the problem. It mirrors bench's
-`BENCH_AGENT_SWITCH=1`: a reminder, not a jail, and one variable for both
-clients. Claude Code and pi are the two that get the guard; the etiquette text,
-when you have any, goes to all of them.
+The guard lets `-g` through because it takes no **focus**, which is all the guard
+polices. It is not a way to *see* something: measured 2026-08-23,
+`open -g -na Ghostty.app --args --initial-command=…` leaves a live process with
+no window, ever, and the command never runs. `open` exits 0 either way, because
+it returns the moment LaunchServices accepts. Reach for `-g` when you need
+something **running**, and for a VM when you need to **see** it.
 </Callout>
 
 ### A VM, so it doesn't have to be your screen
 
-"Don't touch the screen" is only half an answer when the thing being changed
-**is** a desktop: nobody feel-tests a tiling keybind by reading a diff. So the
-room ships [`tart`](https://tart.run), and a lane can stand up a second,
-disposable macOS of its own:
+Nobody feel-tests a tiling keybind by reading a diff, so the room ships
+[`tart`](https://tart.run) and a lane can stand up a disposable macOS of its own:
 
 ```sh
 scruff runtime up    my-lane --backend tart   # clone, boot headless, wait for ssh
@@ -719,73 +424,46 @@ scruff runtime down  my-lane --backend tart   # delete the clone
 ```
 
 Headless, so nothing it draws reaches your display, and real enough to run
-`haus rebuild` inside. `up` comes back when the guest answers ssh rather than
-when it takes an address, so the one it prints is a guest you can talk to, and
-a clone that never gets that far says so and names its boot log.
+`haus rebuild` inside. `up` returns when the guest answers ssh rather than when
+it takes an address, and a clone that never gets that far names its boot log.
 `SCRUFF_TART_BASE` names the image it clones; a bare
-`ghcr.io/cirruslabs/macos-tahoe-base` boots but has no haus in it to test, so
-the haus repo carries `script/build-golden-vm.sh` to bake one that does. The
-agent skill spells the whole recipe out, which is why nothing here has to, and
-[Runtimes](/docs/scruff/runtimes) is the backend itself: what it shares into the
-guest, and how to write one of your own.
+`ghcr.io/cirruslabs/macos-tahoe-base` boots with no haus in it to test, so the
+haus repo carries `script/build-golden-vm.sh` to bake one that has.
+[Runtimes](/docs/scruff/runtimes) is the backend itself.
 
 ## What auto mode is told about this machine
 
-Auto mode is a classifier, and it judges every tool call against a picture
-of the machine it runs on. Claude Code ships one that fits nobody in
-particular: the working repo and its remotes are trusted, and everything else
-belongs to a stranger. On a machine that runs several lanes across a dozen
-repos you own, boots throwaway VMs and merges its own PRs, that picture is
-wrong in every direction, and the classifier asks about the ordinary work of
-the place: a commit in a sibling repo, `ssh` into a lane's own VM, `gh pr
-merge` on a repo with one committer.
-
-[`ai.autoMode`](/docs/haus/reference/options#ai) is where you tell it
-otherwise. Four lists of prose, one fact or rule per string, written the way
-you would brief a new engineer:
+In `auto` mode a classifier judges every tool call against a picture of the
+machine it runs on, and Claude Code's own picture is a stranger's laptop: the
+working repo and its remotes are trusted, everything else is not. So it asks
+about the ordinary work of a machine running lanes across a dozen repos you own.
+[`ai.autoMode`](/docs/haus/reference/options#ai) is where you correct it, in four
+lists of prose, one fact or rule per string:
 
 | List | What goes in it |
 |---|---|
 | `environment` | what this machine and its repos are: who owns what, where secrets live, which hosts are disposable, what counts as production |
-| `allow` | what is ordinary here, as exceptions to the classifier's own refusals, each opening with a short title |
+| `allow` | what is ordinary here, as exceptions to the classifier's own refusals |
 | `softDeny` | what it should stop and ask about, unless you or an `allow` rule say otherwise |
 | `hardDeny` | what it refuses outright, whatever anyone says |
 
-haus writes them into the `autoMode` block of `~/.claude/settings.json` on
-every rebuild, beside the hooks it already merges there. Claude Code's own
-built-in entries stay in front of yours (`ai.autoMode.keepDefaults`, on by
-default). Turn that off and a list you set replaces Claude Code's for that
-section, refusals included, so read the result back with `claude auto-mode
-config` before trusting it. `claude auto-mode critique` reviews your rules.
+They are written into `~/.claude/settings.json` on every rebuild, per section, so
+a host naming only `allow` never deletes a `hard_deny` you wrote by hand. Claude
+Code's own entries stay in front of yours while `ai.autoMode.keepDefaults` is on;
+turn that off and yours replace them, refusals included, so read the result back
+with `claude auto-mode config` first.
 
-Ownership is per section. A rebuild re-asserts the lists you set and leaves
-the rest of the block alone, so a host that names only `allow` never deletes a
-`hard_deny` you wrote with the CLI. Inside a section you do set, `claude
-auto-mode reset` and a hand edit last until the next rebuild. An empty list,
-the default, means haus does not name that section at all, so all four empty
-writes nothing. Only Claude Code reads this file, but haus writes it whenever
-the room is on, the same rule the hooks beside it follow: a hand-installed
-Claude Code reads it too.
-
-This is the classifier's half of the question the
-[guard](#the-screen-belongs-to-you) answers for the screen. The guard decides
-on its own whether a call touches what is in front of your eyes, so an
-`allow` rule here should say that the screen is the guard's business rather
-than try to gate it a second time.
+The [guard](#the-screen-belongs-to-you) decides for itself whether a call touches
+what is in front of your eyes, so an `allow` rule here should leave the screen to
+it rather than gate it twice.
 
 ## Letting a run finish
 
 A Mac left alone sleeps, and a sleeping Mac is not running your agent. Two
-different things end an overnight run, and they need two different answers:
-
-- **Nobody touches the keyboard.** `haus.power.displaySleep` and
-  `haus.power.computerSleep` run down and the Mac idle-sleeps — lid open, agent
-  mid-turn, nothing closed.
-- **You close the lid.** A separate path in macOS, which no `caffeinate`
-  assertion can cross — [`awake`](/docs/haus/rooms/bar) included, and its own
-  usage text says so.
-
-One switch covers both, in two stops:
+different things end an overnight run: **nobody touches the keyboard**, and
+`haus.power.displaySleep` and `haus.power.computerSleep` run down; or **you close
+the lid**, a separate path in macOS that no `caffeinate` assertion can cross,
+[`awake`](/docs/haus/rooms/bar) included. One switch covers both, in two stops:
 
 ```nix
 haus.ai.keepAwake = "idle";   # survive an untouched keyboard
@@ -793,98 +471,40 @@ haus.ai.keepAwake = "lid";    # survive that, and a closed lid
 ```
 
 `idle` holds a `caffeinate` assertion for exactly as long as an agent is
-mid-turn. It needs no privilege and it is safe on battery, because closing the
-lid still sleeps the Mac — so the closed-laptop-cooking-in-a-bag case cannot
-happen.
+mid-turn: no privilege, and safe on battery, because closing the lid still sleeps
+the Mac. `lid` adds the deep lever, turning on `haus.power.lidAwake`, whose root
+daemon holds macOS's `disablesleep`, the only thing that crosses a lid close. It
+*asks* for that option rather than forcing it, so setting it `false` yourself
+wins, warns, and leaves you the `idle` half.
 
-`lid` adds the deep lever: it turns on `haus.power.lidAwake`, whose root daemon
-holds macOS's `disablesleep`, the only thing that crosses a lid close. That is
-the stop you name deliberately — closing the lid is the one gesture everybody
-reads as "stop", so haus will not quietly redefine it for you.
-
-The signal is the same one the [bar's agents pill](/docs/haus/rooms/bar) draws,
-so every client haus knows already reports it, and an agent parked at a
-permission prompt does **not** hold: it is waiting on a human who is not there.
-
-That is also why this needs `haus.ai.enable`: the turn is reported by the agent
-hooks this room installs, so with the room off nothing would ever say a turn had
-started. Setting it anyway warns rather than failing the rebuild.
-
-<Callout title="Your host file always wins">
-`lid` *asks* for `haus.power.lidAwake.enable` rather than forcing it. If your
-own configuration sets that option to `false`, your value stands and the
-rebuild warns that the two disagree — you keep the `idle` half, so a run still
-survives an untouched keyboard. Overriding a haus default never needs
-`lib.mkForce`, and that includes overriding one room's opinion about another.
-</Callout>
+The signal is the one the [bar's agents pill](/docs/haus/rooms/bar) draws, and an
+agent parked at a permission prompt does **not** hold: it is waiting on a human
+who is not there. That is also why this needs `haus.ai.enable`; setting it anyway
+warns rather than failing the rebuild.
 
 ### Shaping the hold
 
 The knobs live with the machinery, in
-[`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable),
-and both stops read them — `haus.ai.keepAwake` is a switch, not a second copy
-of the dial. The defaults are the cautious ones:
+[`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable):
+`haus.ai.keepAwake` is a switch, not a second copy of the dial. The defaults are
+the cautious ones.
 
 | | |
 |---|---|
 | `linger` (5 min) | keeps holding past the last turn, so the gap between two turns cannot sleep the Mac |
-| `maxHold` (8 hours) | caps one unbroken hold. A client that dies without reporting costs you one window, not a Mac that never sleeps again — and a genuinely new agent starting work lifts the cap early |
-| `requirePower` (on) | the **lid** hold only: unplugging is also how you say stop. The `idle` hold ignores it, because an unplugged laptop sitting open on a desk is the case that is plainly safe |
+| `maxHold` (8 hours) | caps one unbroken hold, so a client that dies without reporting costs you one window, not a Mac that never sleeps again. A genuinely new agent lifts the cap early |
+| `requirePower` (on) | the **lid** hold only: unplugging is also how you say stop. The `idle` hold ignores it |
 | `while = "always"` | plain closed-display mode, agents or no agents |
 
-`always` is the stop an unattended merge shift wants, because a foreman waking
-on a cadence is idle between passes and the agent-shaped hold drops in the gaps.
-[Merging pull requests overnight](/docs/haus/night-shift) is that whole setup.
+`always` is the stop an unattended merge shift wants, because a foreman waking on
+a cadence is idle between passes and the agent-shaped hold drops in the gaps.
+[Merging pull requests overnight](/docs/haus/night-shift) is that setup.
 
 <Callout type="warn" title="Shut lid, no display, blind agent">
-With the lid down and nothing external plugged in there is no display at all,
-so an agent that takes screenshots or drives the UI has nothing to look at.
-Work that has to *see* something wants the VM above, whose display was never
-this one.
+With the lid down and nothing external plugged in there is no display at all, so
+an agent that takes screenshots or drives the UI has nothing to look at. Work
+that has to *see* something wants the VM above, whose display was never this one.
 </Callout>
-
-## Command summary
-
-| Command | What it does |
-|---|---|
-| `scruff` | List every parked and live lane across all repos (self-heals first) |
-| `scruff <name>` | Resume one: rebuild its checkout, pick its conversation back up |
-| `scruff park [label]` / `unpark` | Set the dirty tree aside as a `wip:` commit, and put it back |
-| `scruff child <repo>` | A lane on another repo, as a child of this pane |
-| `scruff reap` / `reaped` | Sweep every landed lane, and the ledger that undoes one |
-| `scruff reship [name]` | The PR merged and the branch kept going: push it, open the follow-up PR |
-
-One verb of the `haus` CLI arrives with this room too:
-
-| Command | What it does |
-|---|---|
-| `haus fix` | Hand the rebuild that just failed to a coding agent — one turn, one commit, no activation |
-
-Every verb and flag, and what each exit code means, is
-[Commands](/docs/scruff/cli).
-
-## Works with
-
-Three contributions, each appearing only when its receiving room is on, and none
-of them switching that room on for you:
-
-- **[Development](/docs/haus/rooms/development)**: the agent keybindings and
-  pane lifecycle inside the multiplexer;
-- **[Bar](/docs/haus/rooms/bar)**: the agents pill, red when a session is
-  waiting on you;
-- **[Launcher](/docs/haus/rooms/launcher)**: **Spawn Agent**, which names the
-  worktree after the job.
-
-## Remove it
-
-```nix
-haus.ai.enable = false;
-```
-
-The clients, `scruff` and the wiring go, including from a desktop that named
-clients, because the room's switch is what decides, not the list. What stays is
-everything on disk: the worktrees you created and their branches are ordinary
-git, and removing the room never deletes work.
 
 ## Options
 
