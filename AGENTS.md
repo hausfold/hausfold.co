@@ -297,9 +297,10 @@ the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
   page shorter unless it adds a fact a reader acts on, or a warning.
 - No em dashes in prose. Sentence case in headings. "desktop", never "rice".
   Never "opinionated" of haus.
-- **Never put a count of the rooms on a page.** `content/docs/haus/index.mdx`
-  lists thirteen; `meta.json`'s `---Rooms---` group holds fourteen, the last
-  being `rooms/creating`. Count `index.mdx`'s table, never the sidebar group.
+- **Never put a count of the rooms on a page.** `content/docs/haus/index.mdx`'s
+  table is the room list; `meta.json`'s `---Rooms---` group is always longer,
+  because `rooms/keys`, `rooms/bar-widgets` and `rooms/creating` are pages in
+  the group and not rooms. Count the table, never the sidebar group.
 - **A room page documents the room** — the haus wiring, the options, what turns
   on. The app itself lives in its own tree.
 
