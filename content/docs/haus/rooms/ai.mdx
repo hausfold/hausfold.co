@@ -60,27 +60,19 @@ the older base path until `scruff doctor --migrate-base` moves it
 task, summon the [launcher](/docs/haus/rooms/launcher) and run **Spawn Agent**:
 pick a repo, describe the job.
 
-| Key | Does |
-|---|---|
-| `↵` | Spawn **in the background**: checkout, branch, agent and window all happen, focus never moves, and a notification says the lane is up |
-| `⇧↵` | Newline |
-| `⌘↵` | Screenshot first, then spawn; cancel the capture and your text is intact |
-| `⌃↵` | Spawn **and follow it**: the window opens now and you go with it |
-| `⌥↵` | Drafts; the box is saved on every dismissal |
-| `⇥` | Cycle the **client** chip, which agent this one lane opens in (`⇧⇥` goes back) |
+A **client** chip on `⇥` picks which agent this one lane opens in. It appears
+once more than one of `claude`, `codex`, `opencode` and `pi` is installed, and
+offers what is on `PATH`, not what `haus.ai.clients` asked for; it starts on
+[`haus.ai.default`](/docs/haus/reference/options#ai), then on your last spawn.
+Repos come as a grid of cards, most recently touched first.
 
-The chip appears once more than one of `claude`, `codex`, `opencode` and `pi` is
-installed, and offers what is on `PATH`, not what `haus.ai.clients` asked for. It
-opens on [`haus.ai.default`](/docs/haus/reference/options#ai), then on your last
-spawn. Repos come as a grid of cards, most recently touched first: `↑↓` moves a
-row, `←→` a card.
-
-A background lane gets its window at once, tiled on `T/<repo>` with the agent
-already working, born off-screen and walked onto its page without ever being
-activated, so `⌃⇥` finds it. With [trill](/docs/trill) the banner is the door:
-click the card and you land on that window. Without trill it is a plain macOS
-banner with nothing to click, and so is a repo or lane name carrying a character
-outside letters, digits, `.`, `_` and `-`.
+`↵` spawns **in the background**, and the lane gets its window at once anyway,
+tiled on `T/<repo>` with the agent already working, born off-screen and walked
+onto its page without ever being activated, so `⌃⇥` finds it. `⌃↵` opens it in
+front of you instead. With [trill](/docs/trill) the banner is the door: click the
+card and you land on that window. Without trill it is a plain macOS banner with
+nothing to click, and so is a repo or lane name carrying a character outside
+letters, digits, `.`, `_` and `-`.
 
 **Screen asleep, no window.** macOS reports no display, and a terminal asked for
 one comes up as an error pane that swallows the task, so the agent starts
@@ -264,31 +256,6 @@ It merges rather than replaces, leaves the four agent-state hooks and your own
 `PreToolUse`, `Notification` and `Stop` entries alone, and re-asserts on every
 rebuild, because Claude Code rewrites its own settings on its own schedule. You
 would find that out at pane close, by losing a lane's parking.
-</Callout>
-
-<Callout type="info" title="What haus writes into pi's files">
-pi has no hook file, so its wiring is two extensions in
-`~/.pi/agent/extensions/`. `haus-agent-state.ts` reports the four marks and hands
-`scruff hook notify` the same payload Claude Code does, so a pi lane's **ask**
-and **done** banners are keyed, clickable and cleared the same way;
-`haus-desktop-guard.ts` is pi's half of
-[the screen guard](#the-screen-belongs-to-you). Both are gated on pi running as a
-real pane, since a `pi -p` in a script inherits the session it was run from.
-
-pi has no permission modes, so "blocked on you" is a tool whose execution *is* a
-question, `ask_user_question`, which puts the Allow/Deny on the banner. Two pi
-events have no Claude counterpart and carry their own `rules.json` source, so you
-can silence one without the other: a failed compaction (`haus.ai.pi.compact`) and
-the provider refusing the session with a 401/402/403 (`haus.ai.pi.auth`, once).
-The second matters with meridian, which runs on Claude Code's keychain token:
-when that goes stale every pi lane stops and says so nowhere.
-
-In `~/.pi/agent/settings.json`, `tuiMode = "fullscreen"` and `quietStartup` are
-re-asserted every rebuild; `hideThinkingBlock` and `modelThinkingLevels` are
-seeded once, because pi's own `/settings` changes them mid-session.
-`haus.ai.pi.packages` is merged into `packages` beside whatever `pi install` put
-there, so removing an entry does **not** uninstall it: run `pi remove <source>`
-once. `models.json` and `trust.json` stay yours.
 </Callout>
 
 ### The statusline HUD
