@@ -51,17 +51,20 @@ window rather than ending it. Images render for real, which a second emulator in
 the middle of the pipe never managed, and there is one layout model rather than
 two nested ones.
 
-**No tabs and no splits**, which frees Ghostty's `⌘T`, `⌘N`, `⌘Y` and `⌘F` to
-mean here what they mean in every other app. `⌘D` and `⌘⇧D` do nothing at all
-rather than splitting the surface, an easy chord to hit coming from iTerm. `⌘C`
-stayed with Ghostty and copies a `⇧`-drag selection made over whatever TUI has
-grabbed the mouse; so did `⌘⇧R`, because it works when nothing else in the
-window is listening.
+Ghostty's own `⌘T`, `⌘N`, `⌘Y` and `⌘F` are **unbound** on purpose, so they mean
+here what they mean in every other app. There are also **no tabs and no
+splits**, and that is what freed two of them: a tab or a split would nest a
+second layout model inside one tile, when the tiler already tiles. `⌘D` and
+`⌘⇧D` do nothing at all rather than splitting the surface, an easy chord to hit
+coming from iTerm. Two keys stayed with Ghostty. `⌘C` is copy, and a `⇧`-drag
+makes a selection over whatever TUI has taken the mouse for `⌘C` to take. `⌘⇧R`
+is Ghostty's because it has to be: it works when nothing else in the window is
+listening.
 
 | Keys | What happens |
 |---|---|
 | `⌘N` / `⌘⇧N` | New shell **window**, in **this page's repo**. The plain one hops to the repo's **main checkout** from inside an agent worktree; `⇧` stays put |
-| `⌘T` | New **neutral** terminal: home directory, no repo, base workspace. `⌘⇧T` does nothing |
+| `⌘T` | New **neutral** terminal: your home directory, no repo, and it takes you to the base workspace. `⌘⇧T` does nothing |
 | `⌘W` | Close the window, **detaching** its session. The shell keeps running |
 | `⌃D` / `exit` | End the shell, its **session** and the window with it, first press |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
@@ -73,13 +76,13 @@ window is listening.
 | `⌘⇧R` | [Un-break a cursed terminal](#when-the-terminal-goes-cursed) |
 
 The ⇪ and ⌥ chords that tile these windows are [Keys](/docs/haus/rooms/keys).
-Each of the ones above is taken **only while Ghostty is frontmost**, so `⌘⏎`
-still sends in Slack and `⌃⇥` still walks that app's tabs. They live at the
-window layer because Ghostty has no keybind action that runs a command, and
-`⌃⇥` needs that twice over: macOS eats the chord for focus navigation before any
-app sees it. There is **no reload chord**, since Ghostty applies a config change
-within a second and a `haus rebuild` lands on the windows you already have, live
-agent conversations uninterrupted.
+`⌘N`, `⌘⏎` and `⌃⇥` are taken **only while Ghostty is frontmost**, so `⌘⏎` still
+sends in Slack, `⌘N` still opens a window in your browser and `⌃⇥` still walks
+that app's tabs. They live at the window layer because Ghostty has no keybind
+action that runs a command, and `⌃⇥` needs that twice over: macOS eats the chord
+for focus navigation before any app sees it. There is **no reload chord**, since
+Ghostty applies a config change within a second and a `haus rebuild` lands on
+the windows you already have, live agent conversations uninterrupted.
 
 <Callout title="Opening a link">
 `⌘`-click opens the link under the pointer and `⌘`-hover previews it, no shift,
@@ -150,7 +153,8 @@ its branch, its commit subject, whether the work landed, lags by up to fifteen
 minutes until `⌘↵` forces a live read. **Pages** covers the pages themselves,
 `↵` going to one and `⌥↵` throwing the focused window onto it; the bar's `page`
 pill opens the same list, in move mode on a ⇧ or right-click, and typing a name
-no page has yet makes it.
+no page has yet makes it. That row is listed only while some page is open, so on
+a Mac with none you open the first with `⌘⏎` and **Pages** comes back with it.
 
 A lane's terminal is a window like any other, so `⌘W` detaches it and the agent
 keeps thinking; the [AI room](/docs/haus/rooms/ai) has the rest of that
@@ -232,9 +236,10 @@ Events on the calling app as well: Pounce holds it already for its key handling,
 and until SketchyBar has its own the peek pins but opens wherever Ghostty last
 left a window.
 
-Each summon asks for one grant, and the popup that raised a dialog is never
-pinned itself, so expect two dialogs and a third popup before everything is
-pinned and placed. `haus permissions` has the cards if you dismissed them.
+Each summon asks for one of the two Automation grants, and the popup that raised
+a dialog is never pinned itself, so expect two dialogs and a third popup before
+everything is pinned and placed. `haus permissions` has all three cards, under
+the agents pill, if you dismissed them.
 
 <Callout type="warn" title="A machine that hasn't updated in a while">
 Pounce releases before 2026.09.06 carry no Apple Events entitlement, so macOS
@@ -342,7 +347,7 @@ command that closes the gap. The gap worth catching is a hook subscribed to four
 of the five events you care about, healthy from every angle while the one state
 you watch never arrives.
 
-The bridge shortens a poll and never removes one, since GitHub sends no
+The bridge slows a poll down and never removes one, since GitHub sends no
 heartbeat to tell "nothing happened" from "the tunnel died": coverage expires
 when the machine stops being able to confirm it, so a laptop that loses the
 tunnel goes back to polling rather than going quiet. `github-signal status`
@@ -390,8 +395,8 @@ are the same every restart, which is what lets you leave a tab open on
 falls back to plain `portless`, so it is safe in a script that runs in both
 places.
 
-The HTTPS needs a certificate authority your browser believes, and haus will
-**not** install one during a rebuild: a CA that vouches for any name should not
+The HTTPS needs a certificate authority your browser believes. portless
+generates one on your Mac, and haus will **not** install it during a rebuild: a CA that vouches for any name should not
 arrive while you are looking the other way. It is a card in `haus permissions`
 instead, one click, and `portless clean` takes it back out. Until you click it
 everything works and every page opens on a warning.
