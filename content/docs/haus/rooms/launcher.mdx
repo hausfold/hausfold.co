@@ -42,7 +42,11 @@ once dismissed. Copy Text from Screen asks for **Screen Recording** (its section
 below). Lock Screen and Force Quit ask for **Automation**, since both drive
 System Events. `haus permissions` has a card for each: without the Automation
 grant, Lock Screen does nothing and Force Quit lists nothing, with no error
-anywhere.
+anywhere. The same System Events grant places every popup the palette summons
+over the window you were in; without it, ⌘Y, ⌘G and the palette's own windows
+open wherever Ghostty last left a window. Keeping them above the tiling is a
+separate grant for Ghostty, on the
+[development page](/docs/haus/rooms/development).
 
 ## Configure it
 

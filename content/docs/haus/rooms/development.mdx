@@ -328,12 +328,24 @@ can do. haus can therefore pin the terminals it summons itself and nothing else 
 a floating FaceTime or System Settings window is beyond it, and that is a macOS
 limit rather than a missing setting.
 
-macOS also gates the request behind an **Automation** grant, booked against
-whichever app summoned the popup rather than against haus: Pounce for the chords
-and the palette's own windows, and SketchyBar for the bar's agent peek, which
-summons its own. It asks the first time; `haus permissions` has the card if you
-dismissed it. Declined, those popups still open in front and still take focus —
-they just sink like ordinary windows again.
+macOS also gates the request behind an **Automation** grant for Ghostty, booked
+against whichever app summoned the popup rather than against haus: Pounce for
+the chords and the palette's own windows, and SketchyBar for the bar's agent
+peek, which summons its own. It asks the first time; `haus permissions` has the
+card if you dismissed it. Declined, those popups still open in front and still
+take focus, then sink like ordinary windows again. The popup that raised the
+dialog is never pinned either way, so summon a second one after answering it.
+
+That grant is only the pin. Where a popup lands, over the window you summoned
+it from, is a separate Automation grant for System Events from the same app,
+covered on the [launcher page](/docs/haus/rooms/launcher). Each summon asks for
+one of them, so expect two dialogs and a third popup before everything is
+pinned and placed.
+
+One caveat for a machine that has not updated in a while: Pounce releases
+before 2026.09.06 carry no Apple Events entitlement, so macOS never asks for
+Ghostty under Pounce and the Automation pane never lists it. `haus permissions`
+says so on such a machine, and `haus update` is the fix.
 
 ## Git aliases
 
