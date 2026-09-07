@@ -1,961 +1,494 @@
 # AGENTS.md
 
-**hausfold.co** — Next 16 + Fumadocs, `output: 'export'`, static, served from a
-Cloudflare Worker. [`README.md`](./README.md) and [`docs/`](./docs) cover what
-the thing is and how it is built, run and deployed; this file covers what you
-may change.
+**hausfold.co** — Next 16 + Fumadocs, `output: 'export'`, static, behind a
+Cloudflare Worker. [`README.md`](./README.md) and [`docs/`](./docs) say how it is
+built, run and deployed; this file says what you may change, for every agent.
+Per-client wiring is [`.agents/README.md`](./.agents/README.md).
 
-**This file is the one set of instructions, for every agent**, directly or
-through a one-line pointer. Per-client wiring lives in that client's own file;
-the content stays here or in [`.agents/`](./.agents/README.md).
-
-> **This repo is public. Nothing private may ever be committed here** — no name
-> register, no account facts, no "temporarily" pasted ids. `git log` before
-> 2026-08-08 is in the old private repo, not this one.
+**This repo is public. Nothing private is ever committed here** — no name
+register, no account facts, no "temporarily" pasted ids. Branches and preview
+URLs are public too.
 
 ## Positioning
 
-**hausfold is the org, the house and the publisher; `haus` is one of the things
-it makes** — the nix-darwin layer a user installs and writes `haus.*` options
-for. `hacker` is one desktop built on it. **hausfold sells nothing, ever**:
-there is no price, no checkout, no `/refunds`. `/terms` exists again as of
-2026-09-04 and is **not** a walk-back of that: it carries no-warranty terms of
-use for a free public API, never sales terms. Anything about seats, renewals or
-a refund window belongs on neither page.
-
-Say **desktop**, not "rice", in user-facing copy. Preserve "rice" only in
-quotations, URLs, filenames and code identifiers.
-
-🚨 **Never call haus "opinionated" in platform-level copy.** The distinction is
-the whole product argument, and the word IS correct one tier down:
-
-| Tier | Opinionated? |
-|---|---|
-| a **desktop** (`hacker`, `everyday`, `minimal`) | **yes** — `desktops/hacker`'s description says so, and that is the one place the word belongs |
-| **haus**, the layer | **no** — every `haus.*` option and the whole rooms model exist so you can disagree with the desktop you chose |
-| **hausfold**, the org | not a thing that holds opinions; it publishes |
-
-*omarchy is opinionated, haus is a platform.* Calling the layer opinionated
-concedes the ground that separates it from a take-it-or-leave-it rice. **Name
-the macOS pain instead of a stance** — the site's recurring phrase is *the
-settings you always change by hand*, which is why `/`'s hero closes **"Nothing
-by hand, and open all the way down."**
+- **hausfold is the org and the publisher; `haus` is one thing it makes** — the
+  nix-darwin layer a user writes `haus.*` options for. `hacker` is one desktop
+  built on it.
+- **hausfold sells nothing, ever**: no price, no checkout, no `/refunds`.
+  `/terms` is no-warranty terms of use for a free API, never sales terms.
+- Say **desktop**, not "rice", in user-facing copy; keep "rice" only in
+  quotations, URLs, filenames and code identifiers.
+- **Never call haus "opinionated" in platform-level copy.** A desktop (`hacker`,
+  `everyday`, `minimal`) is, and `desktops/hacker`'s description says so; the
+  layer is not. Name the macOS pain instead: *the settings you always change by
+  hand*. `/`'s hero closes **"Nothing by hand, and open all the way down."**
 
 ## Where does it go?
 
 | Want to change… | Where |
 |---|---|
-| the landing page — the house's index of what it makes | `src/app/page.tsx` |
-| what the site says about **haus**, the layer — what it is, the rooms, desktops, the one file | the docs, `content/docs/haus/index.mdx`. There is no `/haus` sheet; the URL 301s to `/docs/haus/` |
-| a **desktop's own page** | the docs, `content/docs/haus/desktops/<name>.mdx`. There is no desktops catalogue on this site — `index.mdx`'s `## Desktops` is three sentences and one link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), which is where the `/desktops` 301 lands |
-| **the docs** (`/docs/*`) | `content/docs/` — Fumadocs MDX. ⚠️ There is no `/docs` page, only the trees under it; `/docs` 301s to `/docs/haus/` |
-| the install one-liner — the URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh` and `/minimal.sh` answer it by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
-| the install *script* itself (`bootstrap.sh`) | `hausfold/haus` — the Worker only proxies it, and pins the ref |
-| the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/haus-install/SKILL.md`, with `skills.sh.json` at the root for how the repo page groups it and `plugin.json` beside them — all three describe the same three capabilities and none is pinned to the others, so they move together. ⚠️ Merging does not publish it — see [The skills.sh listing](#the-skillssh-listing) |
-| the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (checkout `./haus` in the workshop — **not** `./hausfold.co`, which is this repo) |
-| a product's **code** (pounce, perch, nebelung, scruff, trill) | that product's own repo under `github.com/hausfold` |
-| a product's **documentation** | **here** — pounce, perch, trill and scruff each have a docs tree beside `haus`. The source of truth for a *fact* is the product's repo; what lives here is the manual written against it |
-| the **DNS-AID records** — what `_index._agents` and `_mcp._agents` point at | `scripts/dns-aid.mjs`, the table `dns.yml` publishes to the Cloudflare zone. Never the dashboard: a hand-added record under `_agents` is deleted on the next push |
-| a handle, an account, a claimed namespace | **not here** — `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
-| a family-wide standard (the agent surface, the issue forms, the drift catalogue, the visual system) | `docs/` in the workshop |
-| a **logo, a banner, the colours** | the workshop: `assets/README.md` is the media kit and `docs/design.md` the standard. The site hands them out as `/brand` (a `public/_redirects` 301 onto the kit folder, the file's one off-site target) and `/design.md` (a Worker proxy). Neither is a page here: a sheet of logos would be the landing half's first image and a second account of that folder |
-| the launch plan, or anything still to be decided | `todo/` in the private [`hausfold/ops`](https://github.com/hausfold/ops) |
+| the landing page | `src/app/page.tsx` |
+| what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
+| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. No catalogue: `index.mdx`'s `## Desktops` is three sentences and a link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s |
+| **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
+| the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh`, `/minimal.sh` answer by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
+| the install *script* (`bootstrap.sh`) | `hausfold/haus` — the Worker proxies it and pins the ref |
+| the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/haus-install/SKILL.md`, with `skills.sh.json` and `plugin.json` at the root; all three describe the same three capabilities and move together |
+| the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (`./haus` in the workshop; `./hausfold.co` is this repo) |
+| a product's **code** (pounce, perch, nebelung, scruff, trill) | its repo under `github.com/hausfold` |
+| a product's **documentation** | **here** — pounce, perch, trill and scruff each have a tree beside `haus`. The product's repo owns the *fact*; this is the manual written against it |
+| the **DNS-AID records** (`_index._agents`, `_mcp._agents`) | `scripts/dns-aid.mjs`, the table `dns.yml` publishes to the Cloudflare zone. Never the dashboard: a hand-added record under `_agents` is deleted on the next push |
+| a **logo, a banner, the colours** | the workshop: `assets/README.md` is the media kit, `docs/design.md` the standard. The site hands them out as `/brand` (a `public/_redirects` 301, the file's one off-site target) and `/design.md` (a Worker proxy). Neither is a page here |
+| a handle, an account, a claimed namespace | `PRESENCE.md` in the private [`hausfold/ops`](https://github.com/hausfold/ops), never here |
+| a family-wide standard (agent surface, issue forms, drift catalogue, visual system) | `docs/` in the workshop |
+| the launch plan, anything undecided | `todo/` in [`hausfold/ops`](https://github.com/hausfold/ops) |
 
-🚨 **A published `curl \| bash` URL is the last thing on this site that may ever
-404** — it is in shell histories, in the docs, and in print. A desktop that
-ships a route ships a promise. `worker.js` serves `bootstrap.sh` from haus's
-latest *release tag*, not from main, so a **yanked release** would drag
-`releases/latest` back behind a desktop rename and break every install. Don't
-yank; supersede. (`?ref=` is an unpublished escape hatch and may name a tag that
-predates a desktop.)
+**A published `curl \| bash` URL is the last thing on this site that may ever
+404.** `worker.js` serves `bootstrap.sh` from haus's latest *release tag*: don't
+yank a release, supersede it. `?ref=` is an unpublished escape hatch.
 
 ## The landing pages
 
 Every page is a Next route; `public/` is assets only.
 
-| Route | Source | What it is, and the rule that isn't obvious |
+| Route | Source | The rule that isn't obvious |
 |---|---|---|
-| `/` | `src/app/page.tsx` | **the house's door and nothing else**: the masthead (no nav at all — the colophon carries the GitHub link), a three-line paragraph about **hausfold the org**, and `#made` (`What we make`: one list, haus first, then pounce, perch, trill, scruff, nebelung). Its intro paragraph is **the site's only statement that everything is free and open source** — don't cut it as marketing — and the two `/refunds` 301s land on `#made`. Also the **JSON-LD graph** (Organization + FAQPage, shared with `/index.jsonld` and `/schema.jsonl` through `src/lib/jsonld.ts`). Everything about *haus* belongs in `/docs/haus`, so a paragraph here explaining the layer is in the wrong page |
-| `/developers` | `src/app/developers/page.tsx` | the machine-facing surface written down for people. Every fact in it is read off `worker.js` and `openapi.json`; an endpoint it names that the Worker does not answer is a claim the products don't back. The second page carrying **JSON-LD** (`developersGraph` in `src/lib/jsonld.ts`, also a line in `/schema.jsonl`): a `TechArticle` whose `about` is four `WebAPI` nodes named "hausfold REST API", "hausfold MCP server", "hausfold A2A agent" and "hausfold OpenAPI spec", because a name-based search for those is what should land here. ⚠️ It embeds the **graph**, Organization included, not the `TechArticle` alone: structured data is parsed per page, so the `@id` stubs inside it resolve to nothing without the org node in the same document. 🚨 Its `<title>` names the resources for the same reason the `WebAPI` nodes exist, and is **not** the `x · hausfold` shape the other sheets use. The title and description are `developersPageMeta`, one export feeding the head and the JSON-LD; that is also why `src/app/schema.jsonl/route.ts` has **no** `/developers/` row, unlike every other landing page |
-| `/about`, `/contact`, `/privacy`, `/terms` | `src/app/{about,contact,privacy,terms}/page.tsx` | house-level trust pages (the first three added 2026-09-03 for agent-readability, `/terms` on 2026-09-04 because app-directory submissions require the URL): who the house is, where mail goes, what the site itself collects (nothing), and on what terms it is offered (as-is, no warranty, 600 requests a minute). 🚨 `/terms` is the one under a **deleted redirect** — `public/_redirects` sent it to `/#made` until the commit that added the page, and that file is evaluated ahead of the assets, so the two lines had to go in the same commit or the route would never render. Not product sheets — each points outward (the first three to the docs trees, `/contact` to `/brand` as well, `/terms` to `/developers` and `/privacy`) instead of restating what it links to — and none of the four carries a product claim. Their facts: the mail address is `julien@`, the site is static, and any claim about app behaviour points at the docs rather than restating it. `/privacy` deliberately does not merge with `/perch/privacy`, whose URL is load-bearing (App Store) |
-| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | perch's privacy policy. **Linked from the App Store — don't move or rename this URL.** The one page with a layout of its own, `privacy.module.css`, and a page with no parent: `/perch` is a 301 to `/docs/perch/`, and this URL is deliberately not swept up in it |
-| `404` | `src/app/not-found.tsx` | Next's export always writes `out/404.html` and overwrites a same-named file copied from `public/`, so it cannot live there |
-| `sitemap.xml` | `src/app/sitemap.ts` | generated at build time from the same page table the site renders from; every indexable URL with its trailing slash. No `lastmod` on purpose — the export must stay byte-reproducible, and the pages carry no dates a truthful `lastmod` could be built from |
-| `/docs/*` | `content/docs/` | a different animal; see [The docs](#the-docs) |
+| `/` | `src/app/page.tsx` | **the house's door and nothing else**: masthead (no nav; the colophon carries the GitHub link), three lines about **hausfold the org**, and `#made` (`What we make`: haus, pounce, perch, trill, scruff, nebelung, in that order). Its intro is **the site's only statement that everything is free and open source** — keep it. Carries the JSON-LD graph (Organization + FAQPage, shared with `/index.jsonld` and `/schema.jsonl` through `src/lib/jsonld.ts`). Anything about *haus* belongs in `/docs/haus` |
+| `/developers` | `src/app/developers/page.tsx` | the machine surface in prose, every fact read off `worker.js` and `openapi.json`. `developersGraph` is a `TechArticle` over four `WebAPI` nodes ("hausfold REST API", "hausfold MCP server", "hausfold A2A agent", "hausfold OpenAPI spec"), embedded as the whole **graph** — the `@id` stubs resolve to nothing alone. Its `<title>` names the resources, not the `x · hausfold` shape; `developersPageMeta` feeds head and JSON-LD both, so `src/app/schema.jsonl/route.ts` has no `/developers/` row |
+| `/about`, `/contact`, `/privacy`, `/terms` | `src/app/{about,contact,privacy,terms}/page.tsx` | trust pages: who, where mail goes (`julien@`), what the site collects (nothing), the API's terms (as-is, no warranty, 600 requests a minute). Each points outward; none carries a product claim |
+| `/perch/privacy` | `src/app/perch/privacy/page.tsx` | **Linked from the App Store — never move or rename this URL**, and never merge it with `/privacy`. The one page with its own layout, `privacy.module.css`; `/perch` 301s to `/docs/perch/` and this URL is deliberately not swept up |
+| `404` | `src/app/not-found.tsx` | the export always writes `out/404.html` from this, over any same-named file in `public/` |
+| `sitemap.xml` | `src/app/sitemap.ts` | from the page table, trailing slashes, no `lastmod` — the export must stay byte-reproducible |
+| `/docs/*` | `content/docs/` | see [The docs](#the-docs) |
 
-**One load-bearing id is left**: `#made` on `/`, where the two `/refunds` 301s
-land. Rename it and a published URL starts scrolling to the
-masthead instead of to its answer. (`#desktops` does not exist: its two callers
-point at `desktops/choosing`, a page rather than a fragment.)
+- **`#made` on `/` is load-bearing**: the two `/refunds` 301s land there.
+  `#desktops` does not exist; its callers point at `desktops/choosing`.
+- **A page a docs tree also covers never stays in step with it.** `/pounce`, the
+  three `/desktops/<name>` sheets, `/perch` and `/haus` are 301s onto docs trees.
+  **Nothing on this site argues for a product, or the layer, outside the docs.**
+- Never write down how many landing routes there are: "every `.sheet` route".
+- **A page that forgets `pageMetadata` has no canonical and no `og:` tags.**
 
-**A page that a docs tree also covers does not stay in step with it.** That is
-why `/pounce`, the three `/desktops/<name>` sheets, `/perch` and `/haus` are all
-301s onto docs trees, and why rebuilding any of them is wrong.
+| Shared thing | Where |
+|---|---|
+| canonical, the six `og:` tags, `twitter:card` | `src/lib/page-meta.ts`, once per page |
+| both `theme-color`s, both `<link rel=icon>`, `og:site_name`/`type`/`locale` | `src/app/layout.tsx`, every route |
+| the colophon and its GitHub mark | `src/components/sheet.tsx` |
+| a fenced command with its copy button | `src/components/command.tsx` |
 
 ### Short domains
 
-`perch.hausfold.co` is the only one. **A short domain is a 301 and never a
-page.** It exists so there is something short to hand a
-non-technical person — you text them `perch.hausfold.co` and they land on
-`/docs/perch/install/`, which is written to be followed in order.
+`perch.hausfold.co` is the only one: a 301 to `/docs/perch/install/`. **A short
+domain is a 301 and never a page.** The table is `SHORT_DOMAINS` in `worker.js`,
+the route one line in `wrangler.toml`; every path but `/` 301s to the same path
+on hausfold.co.
 
-🚨 **Do not "upgrade" one into a page.** The proposal that produced this one was
-a standalone setup sheet served at the subdomain, and it was exactly the mistake
-the rule above describes, wearing a nicer URL: every fact it stated was already
-in `/docs/perch/install`. What went in instead was a redirect plus a rewrite of
-that page — the ordered path (the macOS setting first, then the download, Launch
-at Login, the phone and pairing) now lives THERE, in the one account of it.
-Making the setup path better for a beginner is a docs edit; it is never a new
-page.
-
-The table is `SHORT_DOMAINS` in `worker.js`, the route is one line in
-`wrangler.toml`, and every path other than `/` 301s to the same path on
-hausfold.co so the subdomain can never become a second copy of the site.
-
-⚠️ **`run_worker_first = true` in `wrangler.toml` is what makes it work at
-all.** The assets binding matches on PATH and knows nothing about hostname, so
-without it `perch.hausfold.co/` short-circuits to `out/index.html` — the landing
-page under the wrong domain — and `worker.js` never runs.
-
-🚨 **It must be `true`, never an array.** An array is an *allowlist*: every path
-outside it is answered by the asset server, including its 404 page, so the
-Worker's own routes stop being reached at all. `["/"]` takes out `/haus.sh`,
-`/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/*` and `/api/release/*`
-at once — the four installers being the URLs this file calls the last thing here
-that may ever 404. **`npm test` passes under either value**, because the
-Worker's unit tests call `worker.fetch` directly and never reach the asset
-server.
-
-The guard is a grep for `run_worker_first = true` in `worker.yml`, over BOTH
-wrangler configs. It looks crude beside a real test and it is what there is:
-deploy.yml's post-deploy smoke check hits the live URLs, but Cloudflare answers
-a GitHub runner with a managed challenge often enough that the step cannot be
-relied on — it warns and skips whenever that happens, and whether it happens
-varies run to run. ⚠️ **Don't delete the grep as a duplicate of the smoke
-check** — it is the only thing standing between this repo and every installer
-URL 404ing at once.
-
-🚨 **`/haus` is the one to learn from.** A sheet built deliberately *not* to be a
-manual becomes a second account anyway: that one grew a Rooms section, a
-Desktops section and a One file example, all of which `/docs/haus` already
-carried, and most readers arrive at the tree without passing the sheet. Its copy
-is `content/docs/haus/index.mdx`.
-
-The strongest case for an exemption is `/perch`'s — a one-read pitch for a
-stranger deciding in ninety seconds is a shape a manual can't take — and it does
-not hold either: every fact on it was already in `/docs/perch`, which is the
-duplicate the rule is about. The pitch itself is not thrown away. It opens
-`/docs/perch`, where the manual starts with the dance and the install command.
-
-🚨 **Nothing on this site argues for a product, or for the layer, outside the
-docs.** A sheet beside a tree is a second account of one subject, whoever wrote
-it and however carefully it was scoped. Adding one back is a decision, not a
-tidy-up.
-
-**Don't write down how many landing routes there are.** A count in a comment
-rots faster than the thing it counts — say "every `.sheet` route".
-
-The three things every page shares, and where they live:
-
-| Thing | Where |
-|---|---|
-| canonical, the six `og:` tags, `twitter:card` | `src/lib/page-meta.ts`, called once per page |
-| both `theme-color`s, both `<link rel=icon>`, `og:site_name`/`type`/`locale` | `src/app/layout.tsx` — every route in the build, docs included |
-| the colophon and the GitHub mark inside it | `src/components/sheet.tsx` |
-| a fenced command with its copy button | `src/components/command.tsx` |
-
-**A new page that forgets `pageMetadata` has no canonical and no `og:` tags** —
-that is the one thing still worth checking by eye.
+**`run_worker_first = true` in `wrangler.toml` must be `true`, never an array.**
+Without it the assets binding answers `perch.hausfold.co/` with `out/index.html`
+and `worker.js` never runs; an array is an allowlist, and `["/"]` 404s
+`/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/*` and
+`/api/release/*` at once. `npm test` passes under either value (it calls
+`worker.fetch` directly); the guard is a grep in `worker.yml` over both wrangler
+configs. Don't delete it as a duplicate of the deploy smoke check, which
+Cloudflare's managed challenge makes unreliable.
 
 ## `public/`
 
 | File | What it is |
 |---|---|
-| `_redirects` | static redirects, **exact paths only**. Cloudflare consumes the file rather than serving it, and evaluates it **ahead of the assets** — so a route existing does not beat a redirect pointing away from it, and adding a page back under a redirected path means deleting its lines here in the same commit. Never a `/desktops/*` wildcard: those URLs need different targets. `/brand` is the one entry whose target is off-site, the workshop's media kit; it is not a Next route, so a link to it is a plain `<a>` |
-| `favicon.svg` | the mark as geometry on a dark tile, swept through all six accents. Its wedge fan is generated by `scripts/sync-nebelung.mjs`. **The one thing on this site that holds colour with no hover** |
-| `favicon.ico` | the same mark, monochrome, for Safari — WebKit doesn't resolve the SVG one. Generated by the same script from the SVG's cover path, `--ink` on crust, no accent sweep |
-| `robots.txt` | open by default, with named AI-crawler tiers on top: the answer-engine and training crawlers we want are invited explicitly, CCBot and Bytespider get `Disallow: /` (2026-08, orank-driven), plus the two lines the agent surface advertises: `Sitemap:` (built from the page table by `src/app/sitemap.ts`) and NLWeb's `schemamap:` (pointing at `public/schemamap.xml` → `/schema.jsonl`). Every group that allows anything also carries a `Content-Signal:` line (contentsignals.org, 2026-09-06), all three signals `yes`: the named tiers already invite training crawlers, and on `*` it makes the open default explicit for every crawler not named. ⚠️ **It is one line per Allow group, not one for the file**: a bot reads only the group that names it, so a signal on `*` alone reaches none of the invited bots. Change the values in every Allow group or in none |
-| `.well-known/ard.json` | Agentic Resource Discovery catalog listing the two MCP servers (full and docs-only), the A2A agent card, the OpenAPI spec, the Agent Plugin manifest and the `haus-install` skill, for AI clients that probe a domain before reading anything else. ⚠️ **It does not list either on-domain MCP manifest** (`/mcp.json`, `/.well-known/mcp.json`), and the entry that says "manifest" is `plugin.json` on GitHub, not one of those |
-| `.well-known/agent-skills/` | three `SKILL.md` skills (docs search, install, releases) plus `index.json`, which is **generated** by `scripts/gen-agent-skills.mjs` from the SKILL.md files at build time (digests included). Hand-editing the index desynchronises the digests |
-| `openapi.json` | the OpenAPI 3.1 description of the machine-facing surface, pinned to the Worker's routes by `test/openapi.test.js` |
-| `_headers` | a `Content-Type` for `/api/search`, `/auth.md` and `/schema.jsonl` (extensionless outputs Cloudflare would otherwise ship uncompressed or as octet-stream) and a year of cache for `/_next/static/*` |
-| `schemamap.xml` | the NLWeb Schema Map: one feed entry today (`/schema.jsonl`). A second structured-data feed gets a `<url>` row here in the same commit |
-| `hausfold.css` | shared tokens, type and link styles, the vendored nebelung block, and a header comment with the design decisions. ⚠️ **Nothing links it** — it reaches the browser through `src/app/global.css`'s `@import`, inlined into Next's bundle at build time, so `/hausfold.css` is served but is a dead URL. It stays here because that is the path `global.css` imports and `sync-nebelung.mjs` writes |
+| `_redirects` | static redirects, **exact paths only**, evaluated **ahead of the assets** — adding a page back under a redirected path means deleting its lines in the same commit. Never a `/desktops/*` wildcard. `/brand` is the one off-site target, so a link to it is a plain `<a>` |
+| `favicon.svg` | the mark on a dark tile, swept through all six accents; the fan is generated by `scripts/sync-nebelung.mjs`. **The one thing here that holds colour with no hover** |
+| `favicon.ico` | the same mark, monochrome, for Safari — `--ink` on crust, same script |
+| `robots.txt` | open by default, named AI-crawler tiers on top; CCBot and Bytespider get `Disallow: /`; the `Sitemap:` and NLWeb `schemamap:` lines; a `Content-Signal:` line in every Allow group, all three `yes`. **One line per Allow group, not one for the file** |
+| `.well-known/ard.json` | the ARD catalog: the two MCP servers, the A2A card, the OpenAPI spec, the Agent Plugin manifest (`plugin.json` on GitHub — not `/mcp.json` or `/.well-known/mcp.json`, which it does not list) and the `haus-install` skill |
+| `.well-known/agent-skills/` | three `SKILL.md` skills plus `index.json`, **generated** at build by `scripts/gen-agent-skills.mjs`; a hand edit desynchronises the digests |
+| `openapi.json` | the OpenAPI 3.1 description, pinned to the Worker's routes by `test/openapi.test.js` |
+| `_headers` | a `Content-Type` for `/api/search`, `/auth.md` and `/schema.jsonl`; a year of cache for `/_next/static/*` |
+| `schemamap.xml` | the NLWeb Schema Map; a second structured-data feed gets a `<url>` row in the same commit |
+| `hausfold.css` | tokens, type, link styles, the vendored nebelung block, and **the design record in its header comment** — the palette, type and layout decisions in full. Nothing links the file: it arrives through `src/app/global.css`'s `@import`, so `/hausfold.css` is a dead URL |
 
-**The dark theme's nebelung values are generated, not typed.**
-`public/hausfold.css` opens with a block vendored from nebelung's own CSS port
-(`dist/css/nebelung-mocha.css`), and both dark blocks read `var(--nebelung-*)`
-out of it. Refresh with `node scripts/sync-nebelung.mjs`;
-`.github/workflows/palette.yml` runs the same script with `--check`. The script
-also writes the favicon's colour sweep — ninety hexes interpolated off the six
-accents, which is exactly the frozen snapshot the vendoring exists to prevent.
-Nothing runs at serve time; the output is committed. `deploy.yml` does not fire
-on `scripts/**`, so editing the script alone deploys nothing.
-
-**The flake ref is pinned** (`PIN` in the script), so CI is deterministic and a
-CSS PR never goes red for something nebelung merged that morning. The cost is
-that drift is *pulled*: `node scripts/sync-nebelung.mjs --latest` asks, and
-names the values a bump would change. Run it when you touch the palette.
-
-`--check` also guards what the generator can't fix: an upstream **rename** (a
-`--nebelung-*` name that stopped existing leaves a dangling `var()` and a dark
-page with no background); the dark **`theme-color`**, a hand-typed copy of crust
-in `src/lib/shared.ts`; and the favicon's **tile**, a hand-drawn path beside the
-generated fan. Because those read a TS module and an SVG rather than CSS,
-`palette.yml`'s paths filter carries `src/lib/shared.ts`, `public/favicon.svg`
-and `public/favicon.ico` alongside the stylesheet. `favicon.ico` is checked by
-**decoded pixels, not bytes** — compressed bytes aren't stable across zlib
-versions, and comparing them broke CI once.
-
-It guards one non-palette thing too, because the failure is silent: **two
-hyphens in a row inside `favicon.svg`'s comment**. XML forbids them, the file
-stops parsing, and no browser says so — the tab just shows a blank icon. Spell
-the token out in prose instead of writing `--something`.
+**The dark theme's nebelung values are generated, not typed** — vendored from
+`dist/css/nebelung-mocha.css`, read as `var(--nebelung-*)`.
+`node scripts/sync-nebelung.mjs` refreshes, `--check` runs in `palette.yml`, and
+the ref is `PIN`, so drift is pulled with `--latest`. Output is committed;
+`deploy.yml` does not fire on `scripts/**`. What `--check` guards beyond colour
+— decoded-pixel `favicon.ico` comparison, and the two-hyphen rule in
+`favicon.svg`'s comment that silently blanks the icon — is
+[`docs/development.md`](docs/development.md#what-ci-checks).
 
 ## The skills.sh listing
 
-`skills/haus-install/SKILL.md` is the one skill this repo publishes: how an agent
-installs haus and reads the machine-facing surface. `skills/` is one of the paths
-the CLI searches, so `npx skills add hausfold/hausfold.co` works off `main` the
-moment the file lands there. Neither `skills/` nor `skills.sh.json` is site
-content, and no workflow's `paths:` names them, so a change to either deploys
-nothing.
+`skills/haus-install/SKILL.md` is the one skill this repo publishes;
+`npx skills add hausfold/hausfold.co` works off `main`. `skills/` and
+`skills.sh.json` are not site content; a change deploys nothing.
 
-🚨 **Merging does not publish the listing.** A repo gets a page only after the
-`skills` CLI's anonymous install telemetry reports it. Their own docs: skills.sh
-picks the repo up "after the repository is seen by the telemetry service. In
-practice, that usually means after someone installs from the repo with the
-`skills` CLI." That is why #235 merged and `skills.sh/hausfold/hausfold.co` went
-on 404ing for hours, until one install went out — the repo page appeared about
-fifteen minutes later and the skill page a few minutes after that. If a future
-skill never shows up, install it once rather than waiting for something to
-notice it.
-
-The URL is `owner/repo/skill` —
-[`skills.sh/hausfold/hausfold.co/haus-install`](https://skills.sh/hausfold/hausfold.co/haus-install).
-The two-segment repo page exists only once the repo is indexed, so a 404 there
-means "never installed", not "wrong path".
-
-🚨 **The skill is `haus-install`, not `hausfold`, and the name is not free to
-take back.** haus owns `hausfold` — its "report a bug upstream" skill, generated
-into `~/.claude/skills/hausfold` and edited in `hausfold/haus` — and `haus` is
-taken by that repo too. This one shipped as `hausfold` in #235, collided on
-exactly the machines most likely to install it, and was renamed before anyone
-depended on it. `plugin.json` keeps `"name": "hausfold"`: that names the plugin,
-a different namespace, and nothing installs it into a skills directory.
-
-`skills.sh.json` at the root groups that page and is **display only**: it changes
-nothing about how the CLI installs, and skills.sh reads it on the same
-telemetry-then-cache path, so an edit lands late. With one skill in the repo, the
-sentence under the group title is the whole of what it buys.
+- **Merging does not publish the listing.** skills.sh indexes a repo only after
+  one install reports it, so install it once if it never shows up. The URL is
+  `owner/repo/skill`: [`skills.sh/hausfold/hausfold.co/haus-install`](https://skills.sh/hausfold/hausfold.co/haus-install).
+  A 404 on `skills.sh/hausfold/hausfold.co` means "never installed".
+- **The skill is `haus-install`, not `hausfold`** — haus owns `hausfold`
+  (`~/.claude/skills/hausfold`, edited in `hausfold/haus`) and `haus`.
+  `plugin.json` keeps `"name": "hausfold"`, a different namespace.
+- `skills.sh.json` is display only, and an edit lands late.
 
 ## Rules that are easy to break by accident
 
-- **No em dashes in reader-facing copy, anywhere.** Landing pages, docs prose,
-  frontmatter descriptions, `<title>`s and `og:` titles (the separator there is
-  `·`). Rewrite with a period, colon, semicolon, comma or parentheses; never a
-  bare hyphen. Two carve-outs: code comments and this file are not copy, and
-  `reference/options.mdx` is generated from haus's own option descriptions, so
-  its em dashes are fixed upstream or not at all.
-- 🚨 **The contact address is `julien@hausfold.co`, and that is deliberate — do
-  not "upgrade" it to `support@`.** It reads informal for a page that talks
-  about privacy, and a later session will want to fix it. It is the address
-  that actually routes; `support@hausfold.co` has never existed and isn't going
-  to, and if one is ever added it will be an alias onto `julien@`, which
-  changes nothing here. `hi@` is the other tempting rewrite and is worse still:
-  it names nobody, while the mail is read by one person, which is what `julien@`
-  says out loud. This bullet is the rule that binds, and it lives here rather
-  than in a code comment because AGENTS.md is what a pre-PR reviewer actually
-  reads. Every place that carries the address moves together or not at all, and
-  there are eight: the colophon (`src/components/sheet.tsx`), `/perch/privacy`,
-  the `Organization` JSON-LD (`src/lib/jsonld.ts`, which is where it went when
-  `/index.jsonld` and `/schema.jsonl` started sharing it), the spec's
-  `info.contact` in `public/openapi.json`, `worker.js`'s agent view, and the
-  three trust pages `/about`, `/contact` and `/privacy`. Grep before you edit
-  one; the list grows.
-- **Greyscale at rest on the landing pages, and every colour is borrowed.**
-  (`/docs` deliberately spends colour at rest — see [Colour](#colour).) The
-  *borrowed* half binds everywhere: both halves spend the same six `--a-*` and
-  neither may invent a seventh. The dark accents **are** nebelung —
-  `--a-pounce` is `var(--nebelung-peach)` and so on, resolved out of the
-  vendored block; the light ones are hand-picked counterparts, because
-  nebelung's pastels are built for a dark ground. `--check` fails on a
-  `--nebelung-*` reference outside the two dark blocks. Four exceptions:
-  - a **product's name in the index** takes that product's accent, **on hover**;
-  - the **`⌂` mark** takes all six as stripes, on hover;
-  - the **favicon**, which has no hover state to gate it — same six accents,
-    same order, generated from the same port. `favicon.ico` deliberately stays
-    outside it: `--ink` on crust, no sweep;
-  - **code, wherever it is code** — Shiki-highlighted at build time with the
-    `--nb-token-*` ramp, including inline `<code>`. The dark fork for the
-    landing half belongs in `src/app/global.css` under `prefers-color-scheme` +
-    `body:has(.sheet)`, because those pages carry neither `data-theme` nor the
-    docs' `.dark` class. ⚠️ **It is not in the tree**: no landing page carries a
-    highlighted block, so nothing needs it, and only a tombstone in
-    `src/app/global.css` says how to write it. Putting it back is what a
-    landing page with a fenced block owes. Prose and chrome don't take a hue.
+The reasoning behind the visual ones is [`docs/design.md`](docs/design.md); these
+are the lines you can cross without noticing.
 
-  🚨 **A desktop is not a product and does not get an accent** — no desktop is
-  named on a landing page, and none of the `desktops/<name>` docs pages carries
-  an `accent:`. A hue hausfold keeps *at rest* would compete with nebelung's
-  palette, a brand asset the whole family shares. The product hues are
-  assigned upstream in the workshop's `docs/design.md`, the family's visual
-  standard: trill's yellow is the family's own, while `scruff`'s maroon is
-  still this site's pick, recorded there as provisional. 🚨 scruff's is the rose
-  `maroon` and NOT nebelung's `pink`, which `hacker` already holds and which
-  `--color-fd-error` spends in the docs; "scruff should be pink" is satisfied by
-  the value, and swapping it onto the `pink` token repaints every error callout.
-- **No motion, with one hover-only exception**: the mark's iridescent sheen
-  turns while the pointer is on it, fading over 0.7s. `prefers-reduced-motion`
-  holds it still — it keeps the colour and drops the turn, because the colour is
-  the idea. A second animation needs the same bar: hover-scoped,
-  reduced-motion-aware, and asked for. A **scroll-snap point is not an
-  animation** and needs no exception; a new `@keyframes` does.
-- **Almost no JavaScript of our own on the landing pages, and none of it
-  load-bearing.** The pages are Next routes, so they ship Next's client runtime;
-  what they do **not** ship is fumadocs. `<Provider>` lives in
+- **No em dashes in reader-facing copy, anywhere**: landing pages, docs prose,
+  frontmatter descriptions, `<title>`s and `og:` titles (the separator is `·`).
+  Use a period, colon, semicolon, comma or parentheses; never a bare hyphen.
+  Carve-outs: code comments, this file, and `reference/options.mdx`.
+- **The contact address is `julien@hausfold.co`** — never `support@` (does not
+  exist) or `hi@`. Eight places carry it and move together: the colophon
+  (`src/components/sheet.tsx`), `/perch/privacy`, the `Organization` JSON-LD
+  (`src/lib/jsonld.ts`), `info.contact` in `public/openapi.json`, `worker.js`'s
+  agent view, `/about`, `/contact`, `/privacy`. Grep before editing one.
+- **Greyscale at rest on the landing pages, and every colour is borrowed.** The
+  six `--a-*` are the whole vocabulary; nothing invents a seventh. Dark accents
+  **are** nebelung (`--a-pounce` is `var(--nebelung-peach)`), light ones are
+  hand-picked, and `--check` fails on a `--nebelung-*` reference outside the two
+  dark blocks. Four exceptions: a product's name and the `⌂` mark's six stripes,
+  both on hover; the favicon (`favicon.ico` stays out); and code, Shiki-highlighted
+  with `--nb-token-*`, inline `<code>` included. The landing half's dark code fork
+  is not in the tree — a tombstone in `src/app/global.css` says how to write it,
+  and a landing page with a fenced block owes it.
+- **A desktop is not a product and gets no accent**: none is named on a landing
+  page, and no `desktops/<name>` page carries `accent:`. Product hues are the
+  workshop's `docs/design.md`. scruff's is the rose `maroon`, not nebelung's
+  `pink`, which `hacker` holds and `--color-fd-error` spends.
+- **No motion, one exception**: the mark's sheen turns on hover over 0.7s;
+  `prefers-reduced-motion` keeps the colour and drops the turn. A new
+  `@keyframes` needs the same bar; a scroll-snap point is not an animation.
+- **Almost no JavaScript of our own, none load-bearing.** `<Provider>` lives in
   `src/app/docs/layout.tsx`, not the root layout, and that placement is
-  load-bearing: at the root it gave every landing page the search context, the
-  ⌘K binding and a lazy fetch of the ~457 KB Orama index. Measured after moving
-  it down: a landing page is 8 chunks / 173 KB gzip, a docs page 16 / 398 KB.
-  🚨 **Don't move `<Provider>` back up** to satisfy a component that asks for
-  it — give that component its own boundary. The intended cost: the light/dark
-  toggle is a `/docs` affordance, and the landing pages follow
-  `prefers-color-scheme`. **The landing half ships one component of our own**
-  (`WebMcpTools`, mounted from the root layout beside the copy-button
-  precedent) **and no more**, and no component or `.cmd` styles wait in the
-  tree for a caller. The bar for bringing one back is the bar the last two
-  met: a copy button that rendered `hidden` in the exported HTML and unhid
-  only where `navigator.clipboard` exists; `WebMcpTools` renders null and
-  registers browser tools only where `document.modelContext` exists — **pure
-  enhancement, nothing lost without it**. Anything else needs the same shape,
-  not a new rule.
-- **No screenshots at all, and never a stale one.** There is no `.shot` family
-  in the CSS and no placeholder frame anywhere: a picture that lies about what
-  the app looks like today is worse than a grey box that admits it doesn't have
-  one, and with no sheet to reserve a slot on, no box at all beats both.
-  **The landing half stays
-  imageless**: no images on the front page until the site's velocity slows, and
-  a real capture, when one exists, belongs in the docs tree it documents rather
-  than back here. If a landing page ever does hold one, note `images: {
-  unoptimized: true }` in `next.config.mjs`, because `next/image`'s optimizer is a server and
-  there isn't one. The scene to reshoot is the workshop's `assets/SHOTLIST.md`
-  slot-2 cell.
-- **The column leans LEFT, and the measure is 41rem.** `.sheet` is the same
-  reading column it always was; what moved is where it sits —
-  `margin-inline: var(--sheet-inset) auto`, hanging off the left of an implied
-  `--page-max` (78rem) page. Text inside stays left-aligned: **the column leans,
-  the paragraph does not**, and nothing here is ever set ragged-left. Leaning
-  left puts every line of type on one axis — the masthead, each paragraph's
-  first character, the ⌂ — at the page's own left edge.
-  - `--sheet-inset` is `max(0px, (100cqw - var(--page-max)) / 2)`: **up to
-    ~1250px** it is 0 and the column is flush left less its `--gutter`, so a
-    phone and a laptop lose nothing; **above that** it grows at half the
-    surplus, holding the column where a centred 78rem page would have put its
-    left edge. That ceiling is why "left-leaning" doesn't become "against the
-    glass" on a 27-inch display — don't remove it.
-  - 🚨 **`100cqw`, not `100vw`, and this will get "simplified" back.** `html`
-    sets `scrollbar-gutter: stable`, so `100vw` is wider than the page by the
-    scrollbar's reserved strip wherever a classic scrollbar is drawn — an inset
-    sized off it sits ~7.5px proud, which is precisely the misalignment the
-    clamp exists to remove, and it is **invisible on macOS overlay scrollbars**.
-    The container is declared on `body:has(.sheet)` in `src/app/global.css`,
-    scoped to the landing half because `container-type` implies `contain: layout
-    style inline-size`, and layout containment would make `<body>` a containing
-    block for fixed-position descendants — which `/docs` cannot have, because it
-    portals fumadocs' chrome there.
-  - 🚨 **`.sheet` carries `width: 100%`, and it is not redundant beside the
-    `max-width`.** `body` is `flex flex-col`, so `.sheet` is a flex item, and a
-    flex item with an `auto` margin in the cross axis is **not stretched** — the
-    lean's auto inline margin turned the column shrink-to-fit, so on a 390px
-    phone the document came out 624px wide and scrolled sideways. The
-    thing that broke it was a framed command in inline `<code>`, and nothing in
-    the tree draws one today — but **the rule stays**: the next long inline
-    `<code>` or URL reproduces it exactly. (`min-width: 0` is not the fix:
-    `overflow-x: auto` already zeroes a flex item's automatic minimum size.)
-  - `--measure` is a *reading* measure; every text block inside `.sheet` is
-    separately capped at 58/62ch, so widening it just unmoors the column from
-    the masthead. `--gutter` exists so `.sheet`'s padding and anything measuring
-    itself against the page margin can't drift apart — change side padding
-    there, not in `.sheet`.
-  - **It applies to every `.sheet` route.** ⚠️ `/perch/privacy` is the one that
-    can slip: `privacy.module.css` restates several of `.sheet`'s properties on
-    the same `<main>` and wins on source order, so anything it restates it keeps
-    forever. It deliberately does **not** restate `margin` or `width`.
-- **Nothing on this site scrolls sideways.** If a horizontal scroller ever comes
-  back it owes `tabIndex={0}`, a label and a focus ring — a scroll container is
-  only keyboard-operable if it can take focus, and Safari, unlike Chrome, does
-  not make one focusable on its own. Without it everything past the edge is
-  mouse-only: a WCAG 2.1.1 failure, not a rough edge. The distinction to ask
-  first: a **gallery** is one subject from several angles, where reaching the
-  end is optional; a **catalogue** is a set of commitments a reader compares,
-  where everything has to be visible at once. If a row would hide behind an
-  edge, ask whether the reader is comparing or looking.
-- **Both themes, every time.** Colours are tokens on `:root`, redefined under
-  `@media (prefers-color-scheme: dark)` and again under `:root[data-theme=…]` so
-  an explicit toggle wins in both directions. Style through the tokens, never
-  inside the media query. ⚠️ Only `/docs` has a toggle, so on a landing page the
-  `[data-theme]` blocks never match — write both anyway; the fork is in
-  `public/hausfold.css`, which both halves share.
-- **No `og:image`, and that's a decision, not an omission.** A link card with no
-  image degrades to the title and one line, which is the tone the page is for. A
-  1200×630 sheet with the wordmark centred on it is the tone it isn't. Every
-  validator will flag its absence; that flag is not a bug report. Adding one
-  needs a reason of its own.
-- **The canonical tag is load-bearing, not boilerplate.** The apex and `www.`
-  both serve rather than redirect, and every directory page is reachable with and
-  without its trailing slash, so without `<link rel="canonical">` each page
-  exists at several URLs.
-- **`theme-color` duplicates `--ground`.** One pair for the whole site, in
-  `src/lib/shared.ts`. With `favicon.svg`'s tile it is the only hand-typed copy
-  of the palette outside `hausfold.css`. Change a ground colour and change them
-  with it.
-- **No prices, anywhere, and nothing to price.** perch is MIT with no paid tier;
-  hausfold sells nothing. The landing page says the free-and-open-source half
-  out loud, once, in `What we make`; everything else is silence rather than a
-  promise.
-- **Links go inward.** A link moves inward on the day the inward page exists,
-  not before. What still points out of `#made` is `nebelung`, which has no page
-  here yet, plus GitHub. Three mechanical consequences: an internal
-  link is a `<Link>` from `next/link` and an external one stays a plain `<a>`
-  (`eslint-config-next` enforces it; ⚠️ **a `<Link>` to a route that
-  doesn't exist is NOT caught** — `typedRoutes` is off, so `build`,
-  `types:check` and `lint` all pass on one, and a retired page's inbound links
-  are yours to find: a page footer pointing at a deleted route ships through four
-  green checks); `trailingSlash: true` means `<Link
-  href="/haus">` renders `/haus/`; and 🚨 **a `worker.js` route is internal
-  but NOT a Next route** — `/download/<app>`, `/hacker.sh` and
-  `/api/release/<app>` take a plain `<a>`, because `next/link` would
-  client-navigate to a page the router has never heard of. ⚠️ **In MDX the trap
-  is worse**: `a: createRelativeLink(source, page)` turns every internal-looking
-  href into fumadocs' Link, so a docs page pointing at a Worker route writes the
-  **absolute** URL.
-- **Sweep a spelling everywhere at once, or not at all** — a per-page correction
-  is how the site ends up claiming two things simultaneously. 🚨 **A redirect
-  SOURCE in `public/_redirects` is never swept**: those are real URLs people
-  hold, and rewriting one deletes the redirect you meant to keep. The
-  destination is the half that follows a rename.
+  load-bearing: at the root every landing page got the search context, ⌘K and a
+  lazy ~457 KB Orama fetch. **Don't move it back up**; give a component that asks
+  its own boundary. The landing half ships one, `WebMcpTools` (root layout;
+  renders null unless `document.modelContext` exists). The bar for another is
+  pure enhancement — the copy button rendered `hidden` and unhid only where
+  `navigator.clipboard` exists.
+- **No screenshots, and never a stale one**, and **no `og:image`** — both
+  decisions, not gaps; a validator's flag is not a bug. A landing page that ever
+  holds an image needs `images: { unoptimized: true }` in `next.config.mjs`. The
+  scene to reshoot is the workshop's `assets/SHOTLIST.md` slot-2 cell.
+- **The column leans LEFT and the measure is 41rem**, off an implied `--page-max`
+  of 78rem; `--measure` caps text blocks at 58/62ch and side padding changes in
+  `--gutter`, never `.sheet`. Two that break silently: **`100cqw`, not `100vw`**
+  in `--sheet-inset` (`max(0px, (100cqw - var(--page-max)) / 2)`), because
+  `scrollbar-gutter: stable` leaves `100vw` ~7.5px proud — the container is on
+  `body:has(.sheet)`, which `/docs` cannot have, since `container-type` implies
+  layout containment and `/docs` portals fumadocs' chrome to `<body>`; and
+  **`.sheet` carries `width: 100%`** beside `max-width`, because a flex item with
+  an `auto` cross-axis margin is not stretched (`min-width: 0` is not the fix).
+  `/perch/privacy`'s `privacy.module.css` wins on source order and must not
+  restate `margin` or `width`.
+- **Nothing scrolls sideways.** A horizontal scroller owes `tabIndex={0}`, a
+  label and a focus ring (WCAG 2.1.1; Safari won't focus one on its own). A
+  gallery may hide its end; a catalogue a reader compares may not.
+- **Both themes, every time.** Tokens on `:root`, redefined under
+  `@media (prefers-color-scheme: dark)` and `:root[data-theme=…]`; style through
+  the tokens, never inside the media query. Only `/docs` has a toggle; the fork
+  is in `public/hausfold.css`, shared by both halves.
+- **The canonical tag is load-bearing**: apex and `www.` both serve, and every
+  directory page answers with and without its trailing slash, so without
+  `<link rel="canonical">` each page exists at several URLs.
+- **`theme-color` duplicates `--ground`** in `src/lib/shared.ts` — with
+  `favicon.svg`'s tile, the only hand-typed palette outside `hausfold.css`.
+- **No prices, anywhere.** The free-and-open-source line is said once, in
+  `What we make`.
+- **Links go inward** the day the inward page exists (`nebelung` still points
+  out). Internal is `<Link>` from `next/link`, external a plain `<a>`
+  (`eslint-config-next`); `typedRoutes` is off, so **a `<Link>` to a dead route
+  passes `build`, `types:check` and `lint`**. `trailingSlash: true` renders
+  `/haus/`. **A `worker.js` route is internal but not a Next route**:
+  `/download/<app>`, `/hacker.sh`, `/api/release/<app>` take a plain `<a>`; in
+  MDX, `a: createRelativeLink(source, page)` turns every internal-looking href
+  into fumadocs' Link, so write the **absolute** URL there.
+- **Sweep a spelling everywhere or not at all.** A redirect SOURCE in
+  `public/_redirects` is never swept; only the destination follows a rename.
 
 ## The machine-facing routes
 
-Beyond the installers, the Worker and the build answer a set of agent surfaces
-(2026-09-03). The whole list is pinned in `public/openapi.json` and described in
-prose at `/developers`; the drift rules:
+Pinned in `public/openapi.json`, described at `/developers`. The drift rules:
 
 | Route | What serves it | Kept true by |
 |---|---|---|
-| `?mode=agent` on `/`, `/index.md`, `/agent.txt`, `Accept: text/markdown`, AI-bot User-Agents | `worker.js`'s agent view: one markdown page of endpoints, auth (none) and when-to-use | built from `DESKTOPS`/`DOWNLOADABLE`; a new row reaches it without a second edit |
-| `/docs/<path>.md` | the markdown twin, proxied from the built `/llms.mdx` files | byte-for-byte; advertising it in an HTML head (`page-meta.ts`, docs `generateMetadata`) or a `Link:` header means the twin answers |
+| `?mode=agent` on `/`, `/index.md`, `/agent.txt`, `Accept: text/markdown`, AI-bot User-Agents | `worker.js`'s agent view: one markdown page of endpoints, auth (none), when-to-use | built from `DESKTOPS`/`DOWNLOADABLE`; a new row needs no second edit |
+| `/docs/<path>.md` | the markdown twin, proxied from the built `/llms.mdx` files | byte-for-byte; advertising it (`page-meta.ts`, docs `generateMetadata`, a `Link:` header) means the twin answers |
 | `/llms.md` | the `/llms.txt` body as `text/markdown` | no second copy |
-| `/.well-known/mcp`, `/mcp/server-card`, `/.well-known/mcp/server-card.json` | the MCP endpoint again, and its SEP-2127 Server Card | one card, `serveMcpCard()`, at both spellings: `tools` is the `MCP_TOOLS` table verbatim, and `name`/`version` are `serverInfo`'s, so a client reconciling the card against a live `initialize` never sees two servers |
-| `/mcp.json`, `/.well-known/mcp.json` | the two MCP manifests, in two different shapes | 🚨 **Not aliases, and `/.well-known/mcp.json` is not `/.well-known/mcp`.** The root one is the agent-plugins.org `mcpServers` map, shaped like a client config file; the well-known one is flat (top-level `url` + `transport`, then `servers`, then `MCP_TOOLS`), because that path is read off a URL rather than pasted into a config. **No registered schema exists for the well-known path**, so that document cites none and neither should the prose about it. Both read `MCP_TRANSPORTS` in `worker.js`, as do the server card and the docs-transport URL in `initialize`'s instructions, so a transport URL is wrong in every spelling or in none. `/.well-known/mcp` one suffix away is the **transport**, and GET there is a 405 that Streamable HTTP requires: a test in `test/agent-surface.test.js` holds that line, because collapsing the two is the obvious tidy-up and it would break the endpoint |
-| `/.well-known/http-message-signatures-directory` | `worker-sign.js`: the Web Bot Auth key directory, derived per request from the `WEB_BOT_AUTH_KEY` Worker secret and signed with it | 🚨 **The key is a secret on the Worker, never a file here**, and the public half is derived from it, so the directory and the signatures cannot disagree. The same module signs **every outbound fetch** the Worker makes (the GitHub calls behind the installers, `/download`, `/api/release`, the MCP and `/v1` release lookups, `/design.md`): `Signature-Agent: "https://hausfold.co"`, `Signature-Input` over `@authority` and `signature-agent`, `tag="web-bot-auth"`. A plain `fetch(` in `worker.js` is a bug; `signedFetch` is plain `fetch` when there is no key. No secret means an empty directory and unsigned requests, which is what a preview Worker and a bare `wrangler dev` get (`--dev-vars` on the mint script gives the local loop a key), and what `test/bot-auth.test.js` proves from both sides (real Ed25519 verification, not string matching) along with a source grep that fails on a bare `fetch(` in `worker.js`. Mint or rotate: `node scripts/web-bot-auth-key.mjs \| npx wrangler secret put WEB_BOT_AUTH_KEY`; the key carries a one-year `exp` and the script prints the date. Registering the directory with Cloudflare's verified-bots form is a dashboard step, not code |
-| `/agent.txt` | the agent view again, at an unreserved spelling agent-instruction probes look under in practice (no spec reserves it, the way none reserved `llms.txt`) | Byte-for-byte `AGENT_VIEW`, the same document as `/index.md` and `?mode=agent`, served `text/plain` because the URL says `.txt`. ⚠️ **One document, every spelling** — new prose about what this domain is for goes in `AGENT_VIEW`, never into a copy at one of them, and don't write down how many spellings there are |
-| `/.well-known/oauth-authorization-server`, `/oauth/authorize`, `/oauth/token`, `/.well-known/jwks.json` | `AUTHORIZATION_SERVER` and `JWKS` in `worker-config.js`; `serveOAuthEndpoint()` for the three endpoints | RFC 8414 metadata for an issuer that grants nothing: `grant_types_supported` and `response_types_supported` are empty, and the three endpoints answer the protocol's own refusal (400 problem+json, `unsupported_grant_type`, an empty key set) rather than 404ing, because a discovery document naming a dead URL is worse than none. `test/agent-surface.test.js` pins that every URL the document names answers, and `test/openapi.test.js` that each has a spec path. 🚨 **Two tidy-ups that are wrong**: adding the issuer to the protected-resource document's `authorization_servers` (RFC 9728 says that list names servers a client CAN use with the resource, and this one issues nothing), and adding `/.well-known/openid-configuration` beside it (OIDC metadata must name an `id_token` signing algorithm, and this host signs no identity). Publishing the document reversed, on 2026-09-06, an `auth.md` line that called its absence deliberate; the commit that did it carries the reasoning |
-| `/.well-known/agent-card.json`, `/a2a` | the A2A (Agent2Agent) card and the JSON-RPC interface it names, both `worker.js` (`serveAgentCard()`, `serveA2a()`) | one table, `A2A_SKILLS` in `worker-config.js`: the card's `skills` are its rows less `tool`, and `/a2a` dispatches `SendMessage` on the same rows, so a skill the interface cannot run cannot be advertised. `test/agent-surface.test.js` holds the skill set to `MCP_TOOLS` one-to-one — **a fourth tool means a fourth row there, in the same commit** — and pins the wire shape: A2A 1.0, `supportedInterfaces` naming `/a2a` as `JSONRPC`, every reply a `Message` and never a `Task`. 🚨 **The card once was a static file in `public/` pointing `url` at `/mcp`**, an interface no A2A client could actually call; don't put a file back there, the Worker route would shadow it and the two would drift |
-| `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes and the skills index is build-generated. ⚠️ **`test/openapi.test.js` does not pin these two** the way it pins the installers, `/v1` and the A2A pair, so the spec and the Worker can drift here until someone adds them. |
+| `/.well-known/mcp`, `/mcp/server-card`, `/.well-known/mcp/server-card.json` | the MCP endpoint and its SEP-2127 Server Card | one card, `serveMcpCard()`, at both spellings: `tools` is `MCP_TOOLS` verbatim, `name`/`version` are `serverInfo`'s |
+| `/mcp.json`, `/.well-known/mcp.json` | the two MCP manifests, in two shapes | **Not aliases, and `/.well-known/mcp.json` is not `/.well-known/mcp`.** The root one is the agent-plugins.org `mcpServers` map; the well-known one is flat (`url` + `transport`, `servers`, `MCP_TOOLS`) and cites no schema, because none is registered. Both read `MCP_TRANSPORTS`, as do the card and `initialize`'s instructions. `/.well-known/mcp` is the **transport**: GET there is the 405 Streamable HTTP requires, held by `test/agent-surface.test.js` |
+| `/agent.txt` | the agent view at the spelling probes look under | byte-for-byte `AGENT_VIEW`, `text/plain`. **One document, every spelling** — new prose goes in `AGENT_VIEW`; never write down how many spellings there are |
+| `/.well-known/http-message-signatures-directory` | `worker-sign.js`, derived per request from the `WEB_BOT_AUTH_KEY` Worker secret | **The key is a secret, never a file here.** The same module signs **every outbound fetch** (`Signature-Agent: "https://hausfold.co"`, `Signature-Input` over `@authority` and `signature-agent`, `tag="web-bot-auth"`), so a bare `fetch(` in `worker.js` is a bug; `signedFetch` degrades to plain `fetch` with no key, which is what a preview Worker and `wrangler dev` get (`--dev-vars` on the mint script gives the local loop one). `test/bot-auth.test.js` verifies real Ed25519 both ways and greps for `fetch(`. Mint or rotate: `node scripts/web-bot-auth-key.mjs \| npx wrangler secret put WEB_BOT_AUTH_KEY`, one-year `exp`. Registering with Cloudflare is a dashboard step |
+| `/.well-known/oauth-authorization-server`, `/oauth/authorize`, `/oauth/token`, `/.well-known/jwks.json` | `AUTHORIZATION_SERVER` and `JWKS` in `worker-config.js`; `serveOAuthEndpoint()` | RFC 8414 metadata for an issuer that grants nothing: `grant_types_supported` and `response_types_supported` are empty, and the endpoints answer the protocol's refusal (400 problem+json, `unsupported_grant_type`, an empty key set) rather than 404ing. `test/agent-surface.test.js` pins that every URL the document names answers; `test/openapi.test.js` that each has a spec path. **Two tidy-ups that are wrong**: putting the issuer in the protected-resource document's `authorization_servers` (RFC 9728 means servers a client CAN use, and this one issues nothing), and adding `/.well-known/openid-configuration` (this host signs no identity) |
+| `/.well-known/agent-card.json`, `/a2a` | the A2A card and the JSON-RPC interface it names, `worker.js` (`serveAgentCard()`, `serveA2a()`) | one table, `A2A_SKILLS` in `worker-config.js`: the card's `skills` are its rows less `tool`, and `/a2a` dispatches `SendMessage` on the same rows. `test/agent-surface.test.js` holds the skill set to `MCP_TOOLS` one-to-one — **a fourth tool means a fourth row there, in the same commit** — and pins the wire shape: A2A 1.0, `supportedInterfaces` naming `/a2a` as `JSONRPC`, every reply a `Message` and never a `Task`. Never a static file in `public/`: the Worker route shadows it and the two drift |
+| `/.well-known/agent-skills/index.json`, `/.well-known/api-catalog` | static JSON + one Worker route | `test/worker.test.js` covers the routes; the skills index is build-generated. **`test/openapi.test.js` does not pin these two** the way it pins the installers, `/v1` and the A2A pair |
 | `/sitemap.xml`, `/schema.jsonl`, `/index.jsonld` | build-time routes (`src/app/sitemap.ts`, `schema.jsonl`, `index.jsonld`) | generated from the page table / `src/lib/jsonld.ts`, never hand-typed |
-| `_index._agents.hausfold.co`, `_mcp._agents.hausfold.co` (DNS, not HTTP) | two SVCB records in the Cloudflare zone, per DNS-AID (`draft-mozleywilliams-dnsop-dnsaid-02`): the index points at `/.well-known/ard.json`, the MCP one at the transport in `MCP_TRANSPORTS` with its server card as the capability document | `scripts/dns-aid.mjs` is the table and `dns.yml` converges the zone on it (push to main, Monday `--check`); `test/dns-aid.test.js` holds every path a record names to a document the site answers, and pins that the plan never reaches a name outside `_agents.hausfold.co`. 🚨 **The zone is a mirror of that table under `_agents`** — a record added by hand there is deleted on the next push. The draft's `cap` and `well-known` keys ride as `key65400` / `key65409` (RFC 9460 private-use, numbered as dns-aid-core numbers them); when IANA assigns code points, `KEY` in the script is the one place to change, and the test holds `/developers` to it. Every `well-known` value is a suffix under `/.well-known/` on the record's own target, never a full path: dns-aid-core's catalog pointer reads it that way. DNSSEC is a zone setting the deploy token cannot flip (needs Zone Settings:Edit); `docs/deploying.md` has the one-click alternative |
+| `_index._agents.hausfold.co`, `_mcp._agents.hausfold.co` (DNS, not HTTP) | two SVCB records per DNS-AID (`draft-mozleywilliams-dnsop-dnsaid-02`): the index points at `/.well-known/ard.json`, the MCP one at the transport in `MCP_TRANSPORTS`, its server card the capability document | `scripts/dns-aid.mjs` is the table and `dns.yml` converges the zone on it, so **the zone is a mirror**. `test/dns-aid.test.js` holds every path a record names to a document the site answers, and pins that the plan never reaches a name outside `_agents.hausfold.co`. The draft's `cap` and `well-known` keys ride as `key65400` / `key65409` (RFC 9460 private-use); `KEY` in the script is the one place to change when IANA assigns code points. A `well-known` value is a suffix under `/.well-known/` on the record's own target, never a full path. DNSSEC needs Zone Settings:Edit, which the deploy token lacks |
 
 ### Markdown content negotiation
 
 `Accept: text/markdown` is answered on `/` (the agent view) and on every docs
-page (its twin, served at the page's own URL). Bots keep their User-Agent
-route, and `.md` keeps working as the explicit spelling. **Every** HTML
-response carries `Vary: Accept, User-Agent, Accept-Encoding` — not only the
-URLs with a twin, because the Worker reads both headers on every page request
-before it falls through to the assets — and any markdown served at an HTML
-URL is `no-store`, because Cloudflare ignores most `Vary` and a cached
-markdown page would reach the next browser.
+page (its twin, at the page's own URL); bots keep their User-Agent route and
+`.md` stays the explicit spelling. **Every** HTML response carries
+`Vary: Accept, User-Agent, Accept-Encoding`; markdown served at an HTML URL is
+`no-store`, because Cloudflare ignores most `Vary`.
 
-Four things there are load-bearing, and three of them are paid for already:
-
-- 🚨 **q-values are parsed as numbers.** The first version tested
-  `startsWith("q=0")`, which read `q=0.9` as a refusal, so
-  `text/markdown;q=0.9, text/html;q=0.8` — what an agent that reads both and
-  prefers markdown actually sends — got the HTML page. That one bug failed the
-  whole acceptmarkdown.com check. The cases are a table in
-  `test/worker.test.js`; add a row rather than reasoning about it again.
-- 🚨 **A HEAD of an ASSET answers with the GET's headers.** It used to return
-  the asset server's response untouched, so `curl -I` saw no `Link` and no
-  `Vary` — and `curl -sI` is the probe acceptmarkdown.com documents and a
-  readiness scanner runs. A site that advertises its sitemap on every page read
-  as advertising nothing. `finishAssetResponse()` exists so both methods share
-  one answer, and the handler nulls the body for HEAD. ⚠️ The scope is the
-  asset passthrough only: every route the Worker *writes* (`/index.md`,
-  `/agent.txt`, `/llms.md`, `/design.md`, the twins, `/ask`, `/v1/*`) already
-  builds the same headers for both methods and hands workerd a body it drops
-  on a HEAD. The discovery documents (`/mcp.json` and the `/.well-known/*`
-  JSON) were the exception until 2026-09-06: gated on GET alone, a HEAD of one
-  fell through to the site's 404. `test/agent-surface.test.js` now pins HEAD on
-  three of them; nothing pins the rest.
-- **A wildcard never selects markdown, and never out-votes a named type.**
-  `*/*` is the plain-curl default and must keep getting the page; `text/html`
-  or `text/*` set the bar markdown has to beat, but `*/*` does not. A tie goes
-  to markdown, because a client that spelled the type out meant it.
+- **q-values are parsed as numbers**, so `text/markdown;q=0.9, text/html;q=0.8`
+  gets markdown. The cases are a table in `test/worker.test.js`; add a row.
+- **A HEAD answers with the GET's headers** (`curl -sI` is what a readiness
+  scanner runs): `finishAssetResponse()` builds one answer for both methods, and
+  every route the Worker *writes* (`/index.md`, `/agent.txt`, `/llms.md`,
+  `/design.md`, the twins, `/ask`, `/v1/*`) already does.
+  `test/agent-surface.test.js` pins HEAD on three of the discovery documents;
+  nothing pins the rest.
+- **A wildcard never selects markdown and never out-votes a named type.** `*/*`
+  keeps getting the page; `text/html` or `text/*` set the bar; a tie goes to
+  markdown.
 - **406 is for a client that can read none of a URL's representations.** Every
-  `.sheet` route except `/` is HTML and nothing else, so `Accept:
-  text/markdown` there is answered `406 problem+json` naming where markdown
-  does live, rather than 200 HTML pretending to have honoured the request.
-  Narrow on purpose: any wildcard, or any acceptable named type, exits before
-  this. ⚠️ **The honest fix for those routes is a markdown representation, not
-  the 406** — they have no markdown source today, and hand-writing twins would
-  be a second account of each page with nothing to keep it in step. Decide that
-  before writing one.
+  `.sheet` route except `/` is HTML only, so `Accept: text/markdown` there is
+  `406 problem+json` naming where markdown lives. The honest fix is a markdown
+  representation, not the 406.
 
 ## The docs
 
-[Fumadocs](https://fumadocs.dev) on Next, `output: 'export'` — static, no
-runtime, no adapter. Content is MDX in `content/docs/`; everything else is a
-thin shell in `src/`.
+[Fumadocs](https://fumadocs.dev) on Next, `output: 'export'`. Content is MDX in
+`content/docs/`; `src/` is a thin shell.
 
 ### The trees, five of them
 
-`content/docs/haus/`, `pounce/`, `perch/`, `trill/` and `scruff/` are all **root folders**
-(`"root": true` in their `meta.json`), which Fumadocs renders as the switcher at
-the head of the sidebar. That is the site's positioning made navigable: **`haus`
-is the layer, and the rest are apps that run on it — and without it.** A page
-about the machinery goes in the first; a page about an app goes in that app's
-own. If you can't tell which tree a page belongs in, that usually means the page
-is two pages.
+`content/docs/{haus,pounce,perch,trill,scruff}/` are **root folders**
+(`"root": true` in their `meta.json`): the switcher at the head of the sidebar.
+**`haus` is the layer; the rest are apps that run on it, and without it.** A page
+you can't place is usually two pages.
 
-**Adding a tab is a positioning change, not a file.** The test is: **can a
-stranger install this without haus?** pounce is MIT and one `brew install`;
-perch is `brew install --cask hausfold/tap/perch` on macOS 14, no Nix; scruff is
-one `nix run` or one `go install`. nebelung (a palette) and a desktop do not
-clear it at all.
+**Adding a tab is a positioning change.** The test: **can a stranger install this
+without haus?** pounce is one `brew install`; perch is
+`brew install --cask hausfold/tap/perch`; scruff is one `nix run` or
+`go install`. nebelung and a desktop do not clear it.
 
-> 🚨 **`trill` is a tab that was admitted WITHOUT clearing that bar** — it is
-> there on the user's explicit instruction. Record it as the exception it is,
-> don't cite it as precedent. Its tree is **one page**, whose first paragraph is
-> a `warn` callout stating what a stranger can and can't do: notarized releases
-> exist, there is no cask and no one-line install, and
-> `haus.notifications.compositor` — the Notifications room — is the only front
-> door. That callout is the condition on the exception.
->
-> `haus.notifications.compositor` is the option's current spelling;
-> `haus.trill.enable` is an older name for it, and neither this repo nor haus
-> aliases it, so a config still carrying that line does not evaluate.
->
-> ⚠️ **Whether the tab clears the bar is the user's call and nobody has made
-> it.** Until they do: **don't grow the tree past that page**, and don't read
-> any of this as lowering the bar for the next tab. (scruff's tree, the fifth,
-> is not that precedent: it cleared the install test on its own.) Keeping the
-> callout accurate is a correction; deciding the tab is not.
+**`trill` is a tab admitted WITHOUT clearing that bar**, on the user's explicit
+instruction — an exception, not a precedent. Its tree is **one page**, opening
+with a `warn` callout: notarized releases exist, no cask, no one-line install,
+and `haus.notifications.compositor` is the only front door (`haus.trill.enable`
+is an older name nothing aliases; a config carrying it does not evaluate).
+**Don't grow the tree past that page** — whether the tab clears the bar is the
+user's call, unmade. Keeping the callout accurate is a correction.
 
-**A new tree owes four things**, each easy to forget separately: an entry in
-`content/docs/meta.json`'s `pages`; a `meta.json` of its own with `"root":
-true`; a **hued** icon in `src/lib/icons.tsx`; and a
-`body:has([data-tree='<name>'])` rule in `src/app/global.css` pointing at one of
-the six `--a-*`. Miss the last and the whole tree renders in `--ink`, silently.
+**A new tree owes four things**: an entry in `content/docs/meta.json`'s `pages`;
+its own `meta.json` with `"root": true`; a **hued** icon in `src/lib/icons.tsx`;
+and a `body:has([data-tree='<name>'])` rule in `src/app/global.css` naming one of
+the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
 
-### The editorial bar
+### Docs voice
 
-**Verify, consolidate, simplify, consumerize.** What comes out of a page:
-maintainer reasoning (why something was built a certain way, what failed first —
-that is a commit message, not a docs page); us-only detail (one person's
-hardware, the internals of a readout nobody configures); and anything a reader
-can find elsewhere in one click — point at it. What stays: the sentences that
-took work, every fact a reader acts on, and the warnings. **Verify each fact
-against the source repo**, not against another page.
-
-**Write for a first-comer, and hold them.** The reader has not installed
-anything, does not know Nix, and is deciding whether this is for them — so every
-page opens with what the thing *is* and ends with a way onward: a lede a
-stranger can finish, then the detail; a `<Cards>` pair at the foot instead of a
-bare "see also"; and the prev/next pair the layout renders. **No page should end
-without a door out of it.** Length still costs.
-
-**Behavior a reader would already expect gets zero words.** If a feature does
-what anyone would assume — closing the last window on a page lands you on its
-sibling — writing it down is noise; document only what would surprise. These
-docs are still overweight: an edit should leave its page shorter unless it adds
-a fact a reader acts on, or a warning.
-
-⚠️ **Don't put a *count* of the rooms on a page.** `content/docs/haus/index.mdx`
-says thirteen and lists thirteen; `meta.json`'s `---Rooms---` group holds
-fourteen entries and always will hold more, because the last is `rooms/creating`
-— how to write a room, which is not one. Count the rows in `index.mdx`'s table,
-never the sidebar group.
-
-**A room page documents the room** — the haus wiring, the options, what turns
-on. Everything about the app itself lives in the app's own tree.
+- **Verify, consolidate, simplify, consumerize.** Out: maintainer reasoning, our
+  own detail, anything one click away. In: the sentences that took work, every
+  fact a reader acts on, the warnings. **Verify each fact against the source
+  repo**, not another page.
+- **Write for a first-comer, and hold them**: a lede a stranger can finish, then
+  the detail, then a way onward — a `<Cards>` pair at the foot, never a bare "see
+  also". **No page ends without a door out of it.**
+- **Behavior a reader would already expect gets zero words.** An edit leaves its
+  page shorter unless it adds a fact a reader acts on, or a warning.
+- No em dashes in prose. Sentence case in headings. "desktop", never "rice".
+  Never "opinionated" of haus.
+- **Never put a count of the rooms on a page.** `content/docs/haus/index.mdx`
+  lists thirteen; `meta.json`'s `---Rooms---` group holds fourteen, the last
+  being `rooms/creating`. Count `index.mdx`'s table, never the sidebar group.
+- **A room page documents the room** — the haus wiring, the options, what turns
+  on. The app itself lives in its own tree.
 
 ### The generated page, and the one that is only pinned
 
-Two pages take data from haus and they are not the same kind of thing.
-`rooms/bar-widgets` is **written**; only its two colour tables are *pinned*, by
-`scripts/check-bar-tables.mjs`, to `modules/bar/{tones,marks}.nix` as published.
-**The prose is yours** — the check reads names, never sentences, and snapshots
-haus's own wording separately so a rewording upstream arrives as a row to
-re-read rather than as text to paste. Four things there are not yours, and all
-four fail loud rather than quietly:
+`rooms/bar-widgets` is **written**; its two colour tables are *pinned* by
+`scripts/check-bar-tables.mjs` to `modules/bar/{tones,marks}.nix`. The prose is
+yours. Not yours: the rung **names** and **order** (quietest first); the first
+column's header word, `tone` and `mark`; each being a plain markdown table.
 
-- the rung **names**, and their **order** (the ladder runs quietest first)
-- the **first column's header word**, `tone` and `mark` — that is how each table
-  is found, anchored on the page's shape rather than on a heading you might move
-- each being a **plain markdown table** — turning one into a component, or
-  indenting it into a list item, hides it
-- the second column's caption ("what it claims", "for") is *not* pinned; reword
-  it freely
+`reference/options.mdx` is **rendered** by `scripts/gen-options.mjs` from haus's
+committed `docs/site-data/`. Four things it alone may do:
 
-`reference/options.mdx` is not written, it is **rendered** —
-`scripts/gen-options.mjs`, from haus's committed `docs/site-data/`. It is the
-only page here whose shape is a list of records, and the only one carrying a
-layout of its own. Four things it does that no other page may, each with its
-rule:
+| It does | Don't |
+|---|---|
+| sets `tableOfContents.maxHeadingLevel` in frontmatter (read in `src/app/docs/[[...slug]]/page.tsx`), one h4 per option | reach for the key on a hand-written page; too many headings is a page problem |
+| emits an empty `<div className="hf-options" />`, which every rule under "the options reference" in `src/app/global.css` that restyles an ordinary element (`h4`, `h4 + p`, `small`) scopes to via `:has()` | style `.prose h4` globally. `.hf-optindex` and `.hf-more` are bare classes only this page emits, like `.hf-card` and `.hf-next` |
+| prints a shared description once — `haus.bar.items.<pill>` and `haus.bar.bottom.items.<pill>` declare one text twice | special-case the bar; the rule is identical text over 240 characters |
+| folds a long description after its first paragraph, behind `More detail` | read it as permission to cut; the text stays in the HTML, the search index, `llms-full.txt` and the Markdown |
 
-| It does | Because | Don't |
-|---|---|---|
-| Sets **`tableOfContents.maxHeadingLevel`** in frontmatter (read in `src/app/docs/[[...slug]]/page.tsx`) | one h4 per option meant a rail one row deep per option, wrapping `haus.security.touchId.passwordlessRebuild` over three lines | reach for the key on a hand-written page — too many headings there is a page problem, not a rail problem |
-| Emits an empty **`<div className="hf-options" />`**, which every rule under "the options reference" in `src/app/global.css` that restyles an ORDINARY element (`h4`, `h4 + p`, `small`) scopes to via `:has()` | on this page an h4 means "the next record", and nowhere else does | style `.prose h4` globally to fix this page. (`.hf-optindex` and `.hf-more` are bare class selectors, like `.hf-card` and `.hf-next` — they name things only this page emits) |
-| **Prints a shared description once.** haus declares each bar pill twice (`haus.bar.items.<pill>` and `haus.bar.bottom.items.<pill>`) from one description; the longer copy cross-references the shorter name | it was ~12,000 characters of exact duplication, and the same 400-word essay met twice under two names | special-case the bar. The rule is *identical description text over 240 characters*, and knows nothing about pills |
-| **Folds a long description** after its first paragraph, behind `More detail` | over half the descriptions run past 500 characters and a couple of dozen past 2,000 | read it as permission to cut. Nothing is removed: the text is in the HTML, the search index, `llms-full.txt` and the page's Markdown |
+**The prose on that page is haus's; this repo may not edit a word** — `--check`
+re-renders and fails on a hand edit. Fix a description in its `.nix` declaration
+in `hausfold/haus`.
 
-🚨 **The prose on that page is haus's, and this repo may not edit a word of
-it** — `--check` re-renders and fails on a hand edit. A description that is too
-long is fixed in its `.nix` declaration in `hausfold/haus`, and the page gets
-quietly shorter when it is: under the fold threshold, an option renders whole
-again with nothing to change here.
+### Colour and type
 
-### Colour
+**The docs do not follow the landing pages' greyscale rule**: one hue per tree,
+at rest — `/docs/haus` wears `--a-nebelung` (mauve), `/docs/pounce` `--a-pounce`
+(peach), from `data-tree` on the page container, read by
+`body:has([data-tree=…])` in `src/app/global.css`.
 
-⚠️ **The docs do NOT follow the landing pages' greyscale rule.** The
-instruction is **colour at rest, on a leash**:
+- **A page may override with `accent: <product>`** in frontmatter (one of the six
+  in `src/lib/shared.ts`); that rule is written after the tree rules so it wins.
+  **No page carries one today** — wanting it usually means two pages.
+- **Four named steps**, declared once on `body`: `--accent`, `--accent-wash`
+  (7%, fills), `--accent-line` (55% into the rule colour), `--accent-quiet` (50%
+  into `--ink-3`, a glyph at rest). **Refuse an ad-hoc `color-mix()`** at the
+  point of use; name a fifth step up there.
+- **Colour orients; it doesn't decorate.** A use answering neither *where am I*
+  nor *what is this* gets no hue. fumadocs' callout hues stay re-pointed at ours.
+- **Motion is stopped**: `src/app/global.css` ends with a `prefers-reduced-motion`
+  block holding fumadocs' ~20 `transition-colors`, handing back only the ⌂ mark's
+  0.7s fade. **Code keeps nebelung's ramp** — Shiki emits `var(--nb-token-*)`.
+- **Headings are the serif** (`--font-display`), **body is SF** (`--font-sans`),
+  **chrome stays mono**; landing pages set New York throughout. Three rules spend
+  `--font-display`: `h1`, `h2/h3/h4`, `body:has(.sheet)`. **A landing page whose
+  `<main>` is not a `.sheet` silently comes out in SF**, and **heading rules must
+  exclude `.not-prose`** — a Card's title is an `<h3 class="not-prose text-sm">`,
+  and a bare `.prose h3` puts the serif on a 14px label.
 
-- **One hue per tree, at rest.** Every page under `/docs/haus` wears
-  `--a-nebelung` (mauve — which *is* nebelung's own accent, so the layer wears
-  the palette the family shares); `/docs/pounce` wears `--a-pounce` (peach). It
-  comes from `data-tree` on the page container, read by
-  `body:has([data-tree=…])` in `src/app/global.css`. A reader can tell the
-  halves apart with the page upside down, which is the point.
-- **A page may override with `accent: <product>`** in frontmatter — one of the
-  six in `src/lib/shared.ts` — and that rule is written *after* the tree rules
-  so it wins. 🚨 **No page anywhere carries one today**, and the key stays in
-  the schema without a worked example: a room page is about the *room*, not the
-  app it installs. Reaching for it is a signal that the page may be two pages.
-- **Four named steps, and nothing mixes its own**: `--accent`, `--accent-wash`
-  (7%, for fills), `--accent-line` (55% into the rule colour, for rules), and
-  `--accent-quiet` (50% into `--ink-3`, for a glyph at rest). All four are
-  declared once on `body` and resolve against whichever `--accent` won. **An
-  ad-hoc `color-mix()` at the point of use is the thing to refuse** — if a
-  surface needs a fifth step, name it up there and say what it is for.
-- **Colour orients; it doesn't decorate.** Every place it lands answers *where
-  am I* or *what is this*. If a new use answers neither, it doesn't get a hue.
-- **The six `--a-*` are the whole vocabulary.** No page, component or state may
-  introduce a seventh. Fumadocs' own callout hues stay re-pointed at ours.
-- **Motion is stopped, not promised.** Fumadocs ships ~20 `transition-colors` in
-  components this repo doesn't own; `src/app/global.css` ends with a
-  `prefers-reduced-motion` block that holds them, handing back exactly one
-  thing: the ⌂ mark's 0.7s fade.
-- **Code blocks keep nebelung's ramp** at rest in both themes. Shiki emits
-  `var(--nb-token-*)` rather than hexes, so the light/dark fork happens in CSS.
+### Icons, components, and the sidebar's missing list
 
-### Type
+`src/lib/icons.tsx` is the **whole** icon vocabulary; content says `icon: bar`,
+never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
+`lucideIconsPlugin` is deliberately not used.
 
-The landing pages set New York for everything; the docs split it. **Headings are
-the serif** (`--font-display`), with `h1` bumped to
-`clamp(1.85rem, …, 2.25rem)`. **Body is SF** (`--font-sans`, `-apple-system`) at
-`clamp(0.98rem, …, 1.06rem)` / 1.7. **Chrome stays mono.** Why: New York at 16px
-on a dark ground reads as an *unloaded* font rather than a chosen one. Both
-faces are still the Mac's own.
-
-- **`--font-sans` is the body face, deliberately** — it is the token every
-  `font-sans` utility inside fumadocs' components resolves, so the search
-  dialog, buttons and tree switcher follow with nothing to keep in step. Three
-  rules spend `--font-display`: `h1`, `h2/h3/h4`, and `body:has(.sheet)`.
-- **Every `.sheet` route is exempt**, via `body:has(.sheet)`. **A landing page
-  whose `<main>` is not a `.sheet` silently comes out in SF.**
-- **Heading rules must exclude `.not-prose`.** Fumadocs builds components out of
-  headings — a Card's title is an `<h3 class="not-prose text-sm">` inside the
-  prose container — so a bare `.prose h3` puts the display serif on a 14px UI
-  label.
-
-### Icons
-
-`src/lib/icons.tsx` is the **whole** icon vocabulary, and content never names a
-Lucide component: `meta.json` and frontmatter say `icon: bar`, the table maps it
-to a glyph, and `loader({ icon })` in `src/lib/source.ts` resolves it. A page's
-icon is an editorial claim about what the page *is*, and an icon carrying a
-product's accent (`data-hue`) has to be constructed in one place. Fumadocs'
-`lucideIconsPlugin` would take Lucide names straight from content; it is
-deliberately not used.
-
-**A hued icon holds its colour anywhere**, including inside the tree switcher's
-popover, which React portals to the end of `<body>`. That is why the five tree
-glyphs have hues and page glyphs don't: page glyphs are tinted by their tree,
-and the trees have to stay distinguishable side by side in one menu. **Ask which
-side of the docs an icon points at before giving it a colour** — a hued page row
-in a mauve tree reads as an error.
-
-**A new page owes an icon** — a row with no glyph in a column of glyphs reads as
-broken. **One exception**: the three brand marks (GitHub, Anthropic, OpenAI) in
-`src/components/page-actions.tsx`, deliberately outside the table because a page
-should not be able to put GitHub's logo in its frontmatter. A second such
-exception would not be an exception.
-
-### The sidebar has no way-out list
-
-`baseOptions()` in `src/lib/layout.shared.tsx` has **no `links` list**, and
-putting one back is a positioning decision rather than a tidy-up. A link out of
-the docs that lands back in the docs is the tree switcher at the top of the same
-sidebar; and a list of one row reads as a leftover, not a section. The way back
-to the site is the `⌂` in the nav. (The `desktops` glyph stays in `icons.tsx`
-because content names it — `rooms/creating`'s way-onward card points at
-`desktops/creating` with it, and removing the entry prints `[icons] unknown
-icon` at build time rather than failing.)
-
-### Components
-
-`src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs,
-`Icon`, and nothing else. **A component the prose could have been is a component
-that hides the prose from search and from `llms-full.txt`.** Adding one is a
-decision.
-
-Three are ours. Two are thin, and exist to give the stylesheet a class rather
-than a guess:
-
-- **`Card`** wraps fumadocs' with `.hf-card`, because styling "every bordered
-  box in the prose" puts a doorway's rule on a callout.
-- **`Separator`** (`src/components/sidebar-parts.tsx`) renders the sidebar's
-  group label with `.hf-group`, rather than `#nd-sidebar p`, which also matches
-  the tree switcher's `<p>`s. **Don't reach for a bare element selector inside
-  fumadocs' chrome** — the same element is three different things in three
-  places.
-
-The third is a decision rather than a class:
-
-- **`ViewOptions`** (`src/components/page-actions.tsx`) is the "Open in…" menu,
-  and it **replaces** fumadocs' `ViewOptionsPopover` rather than styling it.
-  Fumadocs ships six destinations; ours lists four — the page as Markdown, its
-  source on GitHub, and the two assistants with the reach to be worth a row. 🚨
-  **That list is an endorsement**, so it is hardcoded rather than passed in per
-  page. Adding a fifth is a decision, and the bar is reach. The actions live in
-  the row *above* the title (`.hf-meta`), not under the description: they are
-  chrome, addressed to a reader who is not reading yet. They come before the
-  `h1` in the DOM as a result — a chosen trade, see the comment in
-  `src/app/docs/[[...slug]]/page.tsx`.
+- Tree glyphs carry hues (`data-hue`, held even in the portalled switcher
+  popover); page glyphs are tinted by their tree. **A new page owes an icon.**
+  One exception: the three brand marks (GitHub, Anthropic, OpenAI) in
+  `src/components/page-actions.tsx`, outside the table so frontmatter can't put
+  GitHub's logo on a page. Removing an entry content names prints
+  `[icons] unknown icon` at build rather than failing.
+- `baseOptions()` in `src/lib/layout.shared.tsx` has **no `links` list**; putting
+  one back is a positioning decision. The way back is the `⌂` in the nav.
+- `src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs,
+  `Icon`, and nothing else. **A component the prose could have been hides the
+  prose from search and from `llms-full.txt`.** Three are ours: **`Card`** wraps
+  fumadocs' with `.hf-card`; **`Separator`** (`src/components/sidebar-parts.tsx`)
+  labels a sidebar group with `.hf-group` rather than `#nd-sidebar p`, because
+  **a bare element selector inside fumadocs' chrome** hits three things; and
+  **`ViewOptions`** (`src/components/page-actions.tsx`) **replaces** fumadocs'
+  `ViewOptionsPopover` with four hardcoded destinations (Markdown, GitHub source,
+  two assistants), because **the list is an endorsement**. It sits in `.hf-meta`
+  above the title, before the `h1` in the DOM.
 
 ### Gotchas paid for already
 
-- **A markdown image is a build-time import** under Fumadocs, resolved relative
-  to the content file — a missing asset is a hard build failure.
-- **`themes` vs `theme` in the Shiki config.** Fumadocs merges its defaults
-  *under* yours and Shiki branches on `'themes' in options`, so a `theme:` key
-  leaves an empty `themes` beside it and every MDX file fails with `TypeError:
-  Cannot convert undefined or null to object`. `src/lib/source.ts` has the
-  working shape.
-- **`out/404.html` always comes from `src/app/not-found.tsx`** and overwrites
-  anything of that name in `public/`.
-- **A root folder's index page is not in `pageTree.children`.** Looking a tree
-  up by `node.index?.url` silently finds nothing; match on `node.$id`, which is
-  the folder name and the page's first slug.
-- **A `display: contents` wrapper at the top of a route segment silently kills
-  scroll-to-top.** Next's scroll handler walks the segment's first DOM node and
-  skips any element whose `getBoundingClientRect()` is all zeros. Put `data-tree`
-  / `data-accent` on `DocsPage`'s own `<article>` instead.
 - **This Next is newer than your training data.** Read
-  `node_modules/next/dist/docs/` before assuming an API. (Next 16 appends a
-  block to `AGENTS.md` on every `next dev`; `agentRules: false` in
-  `next.config.mjs` turns that off.)
-- **A child's `openGraph` replaces the parent's rather than merging.** A page
-  setting only `url`/`title`/`description` silently drops `og:site_name`,
-  `og:type` and `og:locale`. `pageMetadata` spells all six out — don't
-  "simplify" it back down.
-- **Bare element selectors can't live in a page component.** `/perch/privacy`'s
-  layout is `h1`/`h2`/`p`/`ul`, which would paint every other page under a
-  shared layout. It is a CSS module scoped under `.policy`, which also settles
-  the cascade — stylesheet order between a layout's imports and a page's is not
-  a guarantee.
-- **"Is the API there?" is `useSyncExternalStore`, not `useEffect` +
-  `setState`.** The copy button must render `hidden` on the server and unhide on
-  a client that has `navigator.clipboard`; the effect-then-setState spelling is
-  a cascading render and `react-hooks/set-state-in-effect` fails the lint.
-  `src/components/command.tsx` has the shape.
-- **Containment on `<body>` stops its background reaching the canvas**, and
-  `body:has(.sheet)` has containment. `html { background: var(--ground) }` in
-  `src/app/global.css` is the fix — the root paints the canvas directly. ⚠️
-  **Don't remove it as a duplicate of `body`'s**: it is the same value on
-  purpose and the one that is actually seen. Look for the failure in **light**
-  mode, where paper meets white; in dark Chrome it is invisible outright.
+  `node_modules/next/dist/docs/` before assuming an API. `agentRules: false` in
+  `next.config.mjs` stops `next dev` appending a block to `AGENTS.md`.
+- **`themes`, not `theme`, in the Shiki config** — a `theme:` key leaves an empty
+  `themes` beside it and every MDX file fails with `TypeError: Cannot convert
+  undefined or null to object`. `src/lib/source.ts` has the working shape.
+- A root folder's index page is not in `pageTree.children`; match on `node.$id`,
+  not `node.index?.url`.
+- A `display: contents` wrapper at the top of a route segment kills
+  scroll-to-top. Put `data-tree` / `data-accent` on `DocsPage`'s own `<article>`.
+- A child's `openGraph` **replaces** the parent's, dropping `og:site_name`,
+  `og:type` and `og:locale`; `pageMetadata` spells all six out.
+- Bare element selectors can't live in a page component; `/perch/privacy`'s are a
+  CSS module scoped under `.policy`.
+- "Is the API there?" is `useSyncExternalStore`, not `useEffect` + `setState`
+  (`react-hooks/set-state-in-effect` fails the lint); `src/components/command.tsx`
+  has the shape.
+- `html { background: var(--ground) }` in `src/app/global.css` paints the canvas
+  — `body:has(.sheet)`'s containment stops `body`'s reaching it, and the failure
+  shows in **light** mode.
 
 ## Deploying
 
-Pushing to `main` deploys — the workflow fires on any change under `public/`,
-`content/`, `src/`, `worker.js`, or the build config. It runs `npm ci && npm run
-build` first; `out/` is gitignored, so the build is not optional. There is no
-staging environment: **main is the live site.** Look at your change in a browser
-first, and check both themes.
+Pushing to `main` deploys — `deploy.yml` fires on `public/`, `content/`, `src/`,
+`worker.js` or the build config and runs `npm ci && npm run build` first. **No
+staging: main is the live site.** Look in a browser first, both themes. The
+by-hand path, the preview Worker per PR and why the token needs DNS:Edit are
+[`docs/deploying.md`](docs/deploying.md); what each workflow checks is
+[`docs/development.md`](docs/development.md#what-ci-checks).
 
-- Editing **any page, docs or landing**: `npm run dev`. Hot reload.
-  > **Every `next` invocation in `package.json` is prefixed
-  > `NEXT_TELEMETRY_DISABLED=1`, and that prefix is load-bearing.** On exit,
-  > `next dev` spawns a *detached* `telemetry/detached-flush.js`; when that POST
-  > hangs the node process outlives the session with its cwd still inside the
-  > checkout. `scruff` reaps on an `lsof -d cwd` sweep, so one stuck flusher pins
-  > a merged lane as occupied. Don't drop the prefix.
-- Checking the site **as deployed**: `npm run build && npx wrangler dev` — same
-  asset server, and it exercises `not_found_handling`, `_headers`, `_redirects`
-  **and `worker.js`**. Worth it for anything touching a URL: `/desktops` should
-  301 to `/docs/haus/desktops/choosing/`, and `/docs` and `/haus` both to
-  `/docs/haus/`, and a nonexistent path should 404 rather than 200.
-- Editing **`worker.js`**: `npm test` for the logic (offline, ~1s), then the
-  `wrangler dev` loop, because the one thing the unit tests can't prove is that
-  a request reaches the Worker at all: `curl -sI localhost:8787/hacker.sh` must
-  answer 200 with an `x-hausfold-ref`, and `curl -sI localhost:8787/api/search`
-  must still be the built docs index.
+- Any page: `npm run dev`. **Every `next` invocation in `package.json` is
+  prefixed `NEXT_TELEMETRY_DISABLED=1`, and that is load-bearing** — on exit
+  `next dev` spawns a detached `telemetry/detached-flush.js` with its cwd in the
+  checkout, and `scruff` reaps on an `lsof -d cwd` sweep, so one stuck flusher
+  pins a merged lane.
+- As deployed: `npm run build && npx wrangler dev` — exercises
+  `not_found_handling`, `_headers`, `_redirects` and `worker.js`. `/desktops`
+  301s to `/docs/haus/desktops/choosing/`, `/docs` and `/haus` to `/docs/haus/`,
+  a made-up path 404s.
+- `worker.js`: `npm test` (offline, ~1s), then `wrangler dev`, the only proof a
+  request reaches the Worker: `curl -sI localhost:8787/hacker.sh` answers 200
+  with an `x-hausfold-ref`, and `curl -sI localhost:8787/api/search` is still the
+  built docs index.
 
-CI, by what a PR touches:
+Four things about CI that its own docs don't carry:
 
-- **Docs** (`docs.yml`, on `src/` `content/` `public/` or the build): type-check,
-  lint, then **two cold builds diffed against each other**. The export is
-  byte-reproducible today (`generateBuildId` in `next.config.mjs` is what makes
-  it so), and without the check the day a Next or Fumadocs release introduces a
-  timestamp is a day nothing tells you about. It also asserts `out/api/search`
-  isn't empty. **Don't "fix" a red diff by loosening the comparison** — the step
-  prints per-file sizes and 320 bytes around the first differing byte, and that
-  is what named the one cause it has ever caught. It was **not** a clock, a
-  random id or a path, which is what the step's own error message guesses:
-  Shiki caps tokenising at **500ms per line** by default, and a line that blows
-  the budget is returned half-scanned, rendering coarser rather than failing.
-  `src/lib/source.ts` sets `tokenizeTimeLimit: 0`; the comment there has the
-  whole account. 🚨 **The check is not a safety net for that class of bug** —
-  it only fires when the two builds disagree, so two builds that both run slow
-  degrade identically, pass, and deploy. An earlier red on the ~2 MB
-  `reference/options` page was never diagnosed and may or may not be the same
-  thing.
-- **Worker** (`worker.yml`, on `worker.js` `test/` or either wrangler config):
-  `npm test`, plus a check that both wrangler configs name the same `main`, the
-  same `ASSETS` binding and `run_worker_first = true`. Those three catch one
-  invisible failure between them: any of them missing from
-  `wrangler.preview.toml` means a PR's installer change looks fine on the
-  preview URL precisely *because* the route isn't running there. ⚠️
-  `run_worker_first = true` is in `wrangler.preview.toml` for exactly that
-  reason; drop it and nothing goes red, because the failure is invisible on the
-  preview URL by construction.
-- **Deploy** (`deploy.yml`, on main): builds, runs `npm test`, deploys, purges
-  the cache, then smoke-tests the live Worker routes plus the site root. It is
-  **last on purpose** — a red smoke check must not skip the purge, which is what
-  keeps un-hashed pages from sitting stale in front of visitors. Which also
-  means it is an alarm, not a brake: it runs after the deploy, so a failure
-  reddens the job with the bad code already live. ⚠️ **Whether it proves
-  anything is weather**: Cloudflare serves a GitHub runner the managed challenge
-  (`cf-mitigated: challenge`) ahead of the Worker on some runs and lets it
-  straight through on others — 2026-09-03 had both, an hour apart. A challenged
-  URL warns and skips; a WAF custom rule skipping Bot Fight Mode for its
-  `x-hausfold-smoke` header would make it dependable, and the comment above the
-  step says so. Any wrong answer that isn't a challenge still fails the job.
-  🚨 **With one carve-out, and it is the reason this step went red on
-  2026-09-03.** `/download/<app>` and `/api/release/<app>` are backed by a live
-  UNAUTHENTICATED `api.github.com` call from the colo, and the purge immediately
-  before it empties the Worker's hour-long release cache, so the check always asks
-  GitHub cold. When that call doesn't land, worker.js degrades by design: the
-  redirect goes to the releases page, and the JSON answers 502 problem+json with
-  `"code":"upstream_unavailable"` — ⚠️ **not** a bare `{}`, which is what it
-  returned before #236 and which a check written today would silently never
-  match. Both are the **Worker writing the answer**, which is the one thing this
-  step exists to prove, so after one retry they are reported as `warn` and do not
-  fail the job.
-  The signatures directory gets the same `warn` when it answers with no key:
-  the route is code, the key is a Worker secret this workflow never sets.
-  Don't tighten that back into a failure — GitHub rate-limiting a Cloudflare colo
-  is not something a deploy caused, and this step runs after the code is live
-  anyway. A persistent warn is worth chasing, in this order: the release may ship
-  no `-macos.*` artifact, which is that repo's problem and not this one's; or the
-  live GitHub call in `latestAppRelease` may itself be broken, which `npm test`
-  structurally cannot see, because `test/worker.test.js` replaces `globalThis.fetch`
-  wholesale and never exercises the real request (GitHub 403s one sent without a
-  `user-agent`, and worker.js sets that header by hand). This step is the only
-  check that touches that call at all.
-- **Palette** (`palette.yml`, on `hausfold.css` `src/lib/shared.ts` either
-  favicon or `scripts/`): `node scripts/sync-nebelung.mjs --check`. The fix is
-  one command in every case except an upstream rename and `themeColor`.
-- **DNS** (`dns.yml`, on main when `scripts/dns-aid.mjs` or `worker-config.js`
-  change, plus a Monday cron and a main-only dispatch): converges the DNS-AID
-  records under `_agents.hausfold.co` on the script's table, turns DNSSEC on
-  (`--dnssec`: the flag is the decision, and it leaves the workflow before a
-  registrar transfer), then asks 1.1.1.1 over DoH what it sees. ⚠️ Never on a
-  PR (no secrets there): `test/dns-aid.test.js` is the PR-time half, through
-  `worker.yml`. A verify that fails right after a publish is the resolver's
-  cache (negative TTL 1800s, record TTL 3600s) and is a warning for that
-  reason; the Monday `--check` is the one that goes red.
-- **Drift tripwires** — three jobs reading haus's committed `docs/site-data/`,
-  each also on a Monday cron so a change upstream is found without a PR here:
-  `options-drift.yml` re-renders `reference/options.mdx` (and on the cron opens
-  one long-lived PR with the result), `keybindings-drift.yml` snapshots the
-  binding surface the keybinding pages describe in prose, and
-  `bar-tables-drift.yml` holds the two tables on `rooms/bar-widgets` to haus's
-  tone ladder and mark set. None of the three needs Nix — haus publishes JSON
-  precisely so this repository doesn't.
+- **Don't loosen the two-cold-builds diff in `docs.yml`.** The step prints sizes
+  and 320 bytes around the first difference. Its one catch: Shiki's
+  500ms-per-line tokenising cap returning a line half-scanned, fixed by
+  `tokenizeTimeLimit: 0` in `src/lib/source.ts`.
+- **`worker.yml` also greps both wrangler configs** for the same `main`, the same
+  `ASSETS` binding and `run_worker_first = true` — any of them missing from
+  `wrangler.preview.toml` makes a broken installer look fine on the preview URL.
+- **`deploy.yml`'s smoke test is last on purpose**, so a red smoke never skips
+  the purge; it is an alarm, not a brake. A URL Cloudflare's managed challenge
+  catches (`cf-mitigated: challenge`) warns and skips — a WAF rule skipping Bot
+  Fight Mode for `x-hausfold-smoke` would fix it. `/download/<app>` and
+  `/api/release/<app>` ask `api.github.com` cold, so a releases-page redirect or
+  a 502 problem+json with `"code":"upstream_unavailable"` (never a bare `{}`) is
+  the Worker writing the answer and warns after one retry; the signatures
+  directory warns the same way with no key, a secret this workflow never sets.
+  **Don't tighten that.** A persistent warn: the release ships no `-macos.*`
+  artifact (that repo's problem), or `latestAppRelease`'s real fetch broke —
+  `npm test` replaces `globalThis.fetch` wholesale, so this step is the only
+  check that touches it.
+- **`dns.yml` never runs on a PR** (no secrets there): it fires on main when
+  `scripts/dns-aid.mjs` or `worker-config.js` change, plus a Monday cron and a
+  main-only dispatch, converges the records under `_agents.hausfold.co`, turns
+  DNSSEC on (`--dnssec`), then asks 1.1.1.1 over DoH what it sees.
+  `test/dns-aid.test.js` is the PR-time half, through `worker.yml`. A verify that
+  fails right after a publish is the resolver's cache (negative TTL 1800s, record
+  TTL 3600s) and warns; the Monday `--check` goes red.
 
-Every PR touching `src/`, `content/`, `public/` or the build config gets its own
-preview Worker on a workers.dev URL, posted as a PR comment and deleted when it
-closes. Two limits: the URL is public and unauthenticated, and it is *not* a
-staging environment. ⚠️ **"Deleted when it closes" misses** two ways, both the
-`pull_request` trigger not firing: a PR whose final diff no longer touches a
-`paths:` entry never fires `closed`, and a PR closed in the same operation that
-deletes its head branch leaves no ref to run the job from.
-**`preview-sweep.yml`** is the backstop — a daily cron (plus `gh workflow run
-preview-sweep.yml -f dry_run=true`) that deletes previews whose PR is closed.
-
-`npm ci && npm run build && npx wrangler deploy` by hand uses your own OAuth
-session and is fine for a fix that can't wait. **The build half is not
-optional**: `[assets] directory` is `./out`, generated and gitignored, so a bare
-`wrangler deploy` either errors or — worse — uploads whatever a previous local
-build left there. Prefer the push: CI is what holds the token with DNS:Edit,
-which the `custom_domain` routes need.
+Three **drift tripwires** read haus's committed `docs/site-data/`, each also on a
+Monday cron: `options-drift.yml` re-renders `reference/options.mdx` (the cron
+opens one long-lived PR), `keybindings-drift.yml` snapshots the binding surface
+the keybinding pages describe, `bar-tables-drift.yml` holds `rooms/bar-widgets`'s
+two tables to haus's tone ladder and mark set. None needs Nix.
+`preview-sweep.yml` (daily, or
+`gh workflow run preview-sweep.yml -f dry_run=true`) is the backstop for a
+preview Worker whose PR closed without the delete firing.
 
 ## Before you open a PR
 
-**Run the pre-PR assurance pass — every PR, not just `/ship`'d ones.** Hand `git
-diff main...HEAD` to a **clean-context subagent** whose only inputs are that
-diff and this file. In this repo it hunts: anything product-specific that
-belongs in that product's own repo; a **new positioning claim** with no decision
-behind it; and a claim on the page the products don't actually back. Full
-checklist: the workshop ship skill's **Step 2.5**.
-
-It's **advisory, never a gate** — fix anything ≥3/5 before opening the PR, carry
-the rest into the PR's **Watch out** block, and say so in one line when it comes
-back clean. **Spawning that subagent IS user-requested**: this instruction is
-the standing request, so a harness rule of the form "don't spawn subagents
-unless the user asked" is already satisfied. If your client has no subagent
-mechanism, say so in one line.
+**Run the pre-PR assurance pass, every PR.** Hand `git diff main...HEAD` to a
+clean-context subagent whose only inputs are that diff and this file; here it
+hunts product-specific content that belongs in a product's repo, a **new
+positioning claim** with no decision behind it, and a claim the products don't
+back. Checklist: the workshop ship skill's **Step 2.5**. Advisory, never a gate:
+fix anything ≥3/5 first, carry the rest into **Watch out**. Spawning that
+subagent is user-requested; a client with none says so in one line.
 
 ## Shipping
 
-Small changes — copy, a colour, a typo — commit and push; that ships them. It's
-a small static site with no users' machines downstream, so the blast radius of a
-bad deploy is one `git revert` and a re-run.
+Small changes — copy, a colour, a typo — commit and push; that ships them. A bad
+deploy costs one `git revert` and a re-run. Three things are **not** small,
+because they are positioning:
 
-Three things are **not** small, because they're positioning and not code:
-
-- **Changing what the site claims hausfold is.** A new positioning claim needs a
-  decision behind it, or it isn't a decision — it's a session's opinion.
-- **Adding a desktop.** It has to exist and be installable by a stranger before
-  it gets a page: **no empty slots, no coming-soon entries**, in the docs any
-  more than on a landing page. A closing note may say the list is still growing;
-  a placeholder *entry* promises a specific thing that doesn't exist. What each
-  shipped desktop cleared, for the next one to match: a file in
+- **Changing what the site claims hausfold is.** A new claim needs a decision
+  behind it.
+- **Adding a desktop.** It must exist and install for a stranger first — **no
+  empty slots, no coming-soon entries**. What each shipped one cleared: a file in
   `hausfold/haus/desktops/<name>.nix`; a row in `worker.js`'s `DESKTOPS`, so
   `hausfold.co/<name>.sh` installs it; a page at
   `content/docs/haus/desktops/<name>.mdx` whose every fact is read off that
-  `.nix` file, with an un-hued icon in `src/lib/icons.tsx` and an entry in
-  `content/docs/haus/meta.json` under `---Desktops---`; and a row in
-  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table. ⚠️
-  **No landing page** — no `.sheet` route names a desktop. 🚨 **`blank`
-  deliberately has no `DESKTOPS` row and no installer URL**: it is the null
-  selection for someone assembling rooms by hand, so `hausfold.co/blank.sh`
-  would promise a machine it does not produce. It has a docs page, which is the
-  right shape — a page can explain a null selection, a `curl | bash` cannot.
-- **Adding a product name that isn't real yet.** Anything named on this site
-  should have a row in `PRESENCE.md` (private,
-  [`hausfold/ops`](https://github.com/hausfold/ops)) first: the domain, the org
-  and the handles checked. Naming is the expensive kind of reversible. There is
-  **one standing exception**, and it is narrow: the last line of `#made` may
-  carry a workshop-stage name on the condition that the register accounts for
-  that name explicitly — today that is `trill`, with its one-page tree and its
-  `warn` callout. Two such lines at once would be a habit, not an exception. ⚠️
-  **The check costs a second repo and can't be short-circuited here** — go read
-  the register, and **don't restate what you find**: which names are held and
-  which aren't is the one thing it is private for. Cite the rule here; keep the
-  answer over there.
+  `.nix`, with an un-hued icon in `src/lib/icons.tsx` and an entry under
+  `---Desktops---` in `content/docs/haus/meta.json`; a row in
+  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
+  **No landing page.** **`blank` has no `DESKTOPS` row and no installer URL**: it
+  is the null selection, and `hausfold.co/blank.sh` would promise a machine it
+  does not produce.
+- **Adding a product name that isn't real yet.** It needs a row in `PRESENCE.md`
+  ([`hausfold/ops`](https://github.com/hausfold/ops), private) first. **One
+  narrow exception**: the last line of `#made` may carry a workshop-stage name
+  the register accounts for explicitly — today `trill`; two at once would be a
+  habit. Read the register there; **never restate what you find** — which names
+  are held is the thing it is private for.
