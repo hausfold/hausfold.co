@@ -9,7 +9,7 @@ related:
     icon: "perch"
 ---
 
-Flick a drag up to the notch and a shelf drops down to catch it:
+Drag a file, flick up to the notch, and a shelf drops down to catch it:
 [perch](/docs/perch), wired up here.
 
 ## Enable it
@@ -53,9 +53,13 @@ Screenshots reach the shelf on their own through a watched folder; this clears
 macOS out of the way. The floating thumbnail goes off
 (`haus.screenshots.thumbnail`, at `mkDefault`, so naming it in your host puts it
 back): macOS *holds* the capture for about five seconds before writing the file,
-so a watched folder catches it that late. And where this machine owns
-`haus.screenshots.location`, the folder goes into `~/.config/perch/config.json`,
-perch's fallback for finding it when macOS is silent.
+so a watched folder catches it that late.
+
+perch offers your screenshots folder in Settings ▸ Watched Folders rather than
+make you find it, which it can only do if it knows where captures land. It
+reads macOS's own setting for that; where this machine sets one
+(`haus.screenshots.location`), haus writes the folder into
+`~/.config/perch/config.json` as the fallback.
 
 ## Remove it
 
