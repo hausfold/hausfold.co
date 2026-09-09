@@ -1,90 +1,51 @@
 ---
 title: Displays
-description: Per-screen scaling, said as an intent rather than a pixel count, and addressed by which screen you mean, never by a serial number you'd have to look up twice.
+description: "Per-screen scaling, said as an intent rather than a pixel count."
 icon: display
+related:
+  - title: "Appearance"
+    description: "The fonts, the interface scale, and the large-print profile that pulls this lever."
+    href: "/docs/haus/rooms/appearance"
+    icon: "palette"
 ---
 
-The Displays room is how haus makes the **whole Mac** bigger or smaller, apps it
-knows nothing about included. `haus.ui.scale` and `haus.fonts` resize haus's own
-surfaces; display scaling changes what a point means everywhere.
-
-It touches nothing until you name a screen. There is no room switch: an empty
-`haus.displays` is a machine whose displays are left exactly as macOS has them.
-
-## Enable it
+This room scales a screen, so the whole Mac gets bigger or smaller, apps haus
+has never heard of included; `haus.ui.scale` and `haus.fonts` only resize
+haus's own surfaces. There is no switch: an empty `haus.displays` leaves every
+screen as macOS has it.
 
 ```nix
-haus.displays.internal.uiScale = "larger-text";
+haus.displays = {
+  internal.uiScale = "larger-text";   # the built-in panel
+  main.uiScale = "default";           # whichever display is main
+  "37D8832A-2D66-02CA-B9F7-8F30A301B230".uiScale = "more-space";   # hausdisp list prints the UUIDs
+};
 ```
 
 ```sh
 haus rebuild
 ```
 
-## Configure it
+## How big
 
-Name the screen by what it **is**, not by what it's called today:
+`uiScale` is one of `more-space`, `default`, `slightly-larger-text`,
+`larger-text` and `largest-text`, each resolved against the ladder of modes
+*that* panel reports rather than a pixel count, which is why
+`slightly-larger-text` earns its keep where the ladder is long. The mode is set
+permanently, so it survives a reboot.
 
-| Key | Which screen |
-|---|---|
-| `internal` | the built-in panel |
-| `main` | whichever display is currently main |
-| `<uuid>` | one specific external monitor; `hausdisp list` prints the UUIDs of what's attached |
-
-```nix
-haus.displays = {
-  internal.uiScale = "larger-text";
-  "37D8832A-2D66-02CA-B9F7-8F30A301B230".uiScale = "more-space";
-};
-```
-
-`uiScale` takes the positions System Settings ▸ Displays offers, named as
-intents: `more-space`, `default`, `slightly-larger-text`, `larger-text`,
-`largest-text`. Each is resolved from the modes *that* panel actually reports,
-so the same value means the same thing on a 14-inch laptop and a 27-inch
-monitor rather than the same number of pixels.
-
-`slightly-larger-text` is for the long ladders. A 14-inch MacBook Pro offers
-five positions and each name lands on its own; a 27-inch 5K offers nine, so
-`larger-text` falls four rungs below the default: 2560x1440 straight to
-1440x810, which is a different machine rather than larger text. On a panel
-whose ladder is already short, `slightly-larger-text` and `larger-text` resolve
-to the same mode instead of inventing a rung that isn't there.
-
-When two selectors name the same attached panel, the more specific one wins:
-UUID over `internal` over `main`. That's what lets a host-specific setting refine
-a broad profile such as `haus.appearance.largePrint` without depending on
-activation order.
-
-<Callout title="A monitor that isn't plugged in is skipped, not an error">
-An entry for the screen at the office is noted and passed over on the train. A
-rebuild never fails because you left a monitor behind.
-</Callout>
-
-## Works with
-
-- **[the Appearance room](/docs/haus/rooms/appearance)**: `haus.appearance.largePrint`
-  sets `displays.main.uiScale` as one of the four levers it pulls, alongside the
-  interface scale and the high-contrast palette. Naming a display yourself wins
-  over it.
-
-## Permissions and side effects
-
-Scaling is applied at each home-manager activation and set **permanently**, so it
-survives a reboot. Re-applying a mode that's already current is a no-op, so a
-rebuild doesn't flash your screen.
-
-A desktop may set `internal` and `main`; a **UUID is host-only**, because it
-names one particular piece of hardware. A shared desktop that tried would be
-refused by name.
+A desktop may name `internal` and `main`; a UUID is **host-only**. Where two
+selectors land on the same screen the more specific one wins, which is what
+lets a host refine a broad profile such as `haus.appearance.largePrint` (it
+sets `displays.main.uiScale`) whatever the activation order. A monitor that
+isn't plugged in is skipped with a note rather than failing the rebuild.
 
 ## Remove it
 
-Delete the entry and rebuild. The display keeps whatever mode it last had: a
-removed entry stops *managing* the screen rather than restoring an earlier
-resolution, so set the position you want explicitly if you want it back.
+Delete the entry and rebuild. That stops *managing* the screen rather than
+restoring it: the panel keeps whatever mode it last had, so set the position
+you want explicitly.
 
 ## Options
 
-Every setting, with types and defaults:
-[`haus.displays`](/docs/haus/reference/options#displays).
+[Every setting, with types and defaults](/docs/haus/reference/options#displays).
