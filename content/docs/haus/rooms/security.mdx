@@ -26,8 +26,10 @@ haus.security.touchId.passwordlessRebuild = true;
 Off in the bare layer; hacker, everyday and minimal turn both on.
 
 `enable` puts [`pam_reattach`](https://github.com/fabianishere/pam_reattach) in
-front of `pam_tid`, so `sudo` inside the `zmx` session every haus terminal runs
-in prompts instead of beachballing. `sudo -v` is the check.
+front of `pam_tid`, so `sudo` prompts instead of beachballing inside tmux, or
+the `zmx` session every haus terminal runs in. `sudo -v` is the check: the
+dialog floats over the multiplexer, and cancelling it falls back to your
+password.
 
 `passwordlessRebuild` writes `/etc/sudoers.d/darwin-rebuild`, NOPASSWD for
 `/run/current-system/sw/bin/darwin-rebuild` and `haus-activate`, so `haus
@@ -82,7 +84,7 @@ haus.lock.login.hideShutDown  = true;   # and .hideRestart, .hideSleep
 **on**, handing whoever holds the machine a browser, your network and any file
 share you are connected to, no password.
 
-`guestAccount` and every `haus.lock.login.*` key writes to
+`guestAccount` and every `haus.lock.login.*` key write to
 `com.apple.loginwindow`, which macOS reads once at login: the rebuild writes
 them, your next login shows them, and `haus plan` names them first. Setting one
 back to unset stops managing it rather than restoring what was there.
