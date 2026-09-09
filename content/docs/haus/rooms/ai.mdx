@@ -44,10 +44,10 @@ haus.ai = {
 ```
 
 That brings the clients you named, `scruff`,
-[factory](https://github.com/hausfold/factory), the ⌘⏎ keybind, the tab marks,
-the statusline and the client wiring. `haus.ai.skill`, on by default, adds every
-hausfold tool's agent skill to each client, so an agent asked to change this Mac
-edits your host file and runs `haus rebuild` rather than guessing at dotfiles.
+[factory](https://github.com/hausfold/factory), the ⌘⏎ keybind, the statusline
+and the client wiring. `haus.ai.skill`, on by default, adds every hausfold tool's
+agent skill to each client, so an agent asked to change this Mac edits your host
+file and runs `haus rebuild` rather than guessing at dotfiles.
 
 `enable = false` takes all of it back, including from a desktop that named
 clients, and deletes nothing on disk. A machine set up before scruff 1.1.0 keeps
@@ -97,11 +97,10 @@ key are yours; the key belongs in the login keychain via
 [the Security room](/docs/haus/rooms/security#secrets-your-rooms-need), never
 beside the script. Every failure is a warning and a fall back to the random pair,
 so it cannot cost you a lane. Spawn Agent hands its own slug down as
-`SCRUFF_NAMER_FALLBACK` for an adapter that cannot reach its model to print
-instead: honour it, or an offline spawn is named worse than it would have been.
-`claude` is scruff's one built-in and needs no file, but at 8 to 12 seconds it is
-slower than the palette waits, so Spawn Agent keeps its slug and only hand-run
-`scruff spawn` asks it.
+`SCRUFF_NAMER_FALLBACK` for an adapter that cannot reach its model: honour it, or
+an offline spawn is named worse than it would have been. `claude` is scruff's one
+built-in and needs no file, but at 8 to 12 seconds it is slower than the palette
+waits, so Spawn Agent keeps its slug and only a hand-run `scruff spawn` asks it.
 
 ### Which repos it offers
 
@@ -111,10 +110,10 @@ haus.ai.repoRoots = [ "~/code" "~/src" "~/Developer" "~/Projects" "~/.config/nix
 
 An entry that **is** a repo is offered as itself and never descended into;
 anything else is scanned two levels deep. A path that does not exist is skipped
-in silence, naming the list replaces it, and repos scruff already knows are
-offered whether or not they sit under a root. That last default entry is the
-config flake this Mac is built from, which is the repo you most often want an
-agent in.
+in silence, so one host file can name roots that only some machines have. Naming
+the list replaces the default, and repos scruff already knows are offered whether
+or not they sit under a root. That last default entry is the config flake this
+Mac is built from, which is the repo you most often want an agent in.
 
 ## Which client gets spawned
 
@@ -123,19 +122,19 @@ haus.ai.clients = [ "claude" "opencode" ];  # what's installed
 haus.ai.default = "claude";                 # what ⌘⏎ spawns
 ```
 
+The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
+(OpenCode) and `pi` (pi), all from nixpkgs, so `haus update` moves them. Two are
+held ahead of it: `claude`, because Claude Code gates models on the client
+version and a stock pin greys out the newest one in `/model` for no visible
+reason; and `pi`, because `--` reached it only in 0.84.3 and scruff puts a `--`
+before a lane's first-turn prompt, so on an older pi a task starting with a dash
+is read as a flag and the pane dies before the agent draws. Both step aside once
+nixpkgs passes them.
+
 `ai.default` must be one of `ai.clients`, and the rebuild says so by name rather
 than failing later, inside the pane, after the checkout exists. `clients` defaults
 to an empty list, which is exempt from that check and installs no client. The
 client is recorded **with the lane**, so the option only affects new spawns.
-
-The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
-(OpenCode) and `pi` (pi), all from nixpkgs, so `haus update` moves them. Two are
-held ahead of it. `claude`, because Claude Code gates models on the client
-version and a stock pin greys out the newest one in `/model` for no visible
-reason; and `pi`, because `--` (end-of-options) reached it in 0.84.3 and scruff
-puts a `--` before a lane's first-turn prompt, so on an older pi a task starting
-with a dash is read as a flag and the pane dies before the agent draws. Both step
-aside once nixpkgs passes them.
 
 Want a patched build? **Overlay the package** (`claude-code`, `codex`,
 `opencode`, `pi-coding-agent`) rather than adding your own derivation to
@@ -186,7 +185,7 @@ $ ANTHROPIC_BASE_URL=http://127.0.0.1:3456 ANTHROPIC_API_KEY=x <your tool>
 
 `haus.ai.meridian.port` moves the number if something already owns 3456. There is
 no option for the bind address: a proxy that answers for your subscription
-without asking who is calling is safe on loopback and is an open account on any
+without asking who is calling is safe on loopback and an open account on any
 other interface. It does **not** follow `haus.ai.enable`, because the proxy is
 useful to clients haus never installed, and for the same reason **haus points
 nothing at it**: which endpoint a client uses lives in that client's own file
@@ -225,18 +224,12 @@ npm prefix alone, and tells you where it is.
 Run eight agents at once and the question is which of them is sitting on a
 permission prompt. The [bar](/docs/haus/rooms/bar)'s `agents` pill answers it for
 a lane, an agent you started by hand, and a conversation in the desktop app
-alike:
-
-| Mark | Means |
-|---|---|
-| **peach** | an agent is blocked on you: a permission prompt, or a question |
-| **sky** | an agent is mid-turn, working |
-| **green** | it finished its turn; nothing is waiting |
-| *(nothing)* | no resident agent in that tab |
-
-The dot shows the most urgent state in the tab, so peach wins and the tab that
-needs you never hides behind one that is merely busy. The shape carries the
-state, not the colour, and there is no count.
+alike: one mark and a count per state, in urgency order, and a state with
+nothing in it draws nothing at all. Ready for your turn is a filled `?` in red,
+working an open ring in sky, done a tick in green, so the ink thins as the
+urgency does and the shape carries the state where the colours are too small to
+separate. The robot itself takes the most urgent live state's colour, which
+answers "is anything asking for me" before you have read a digit.
 
 Each client's own lifecycle hooks report it, so nothing scrapes the screen. haus
 wires OpenCode's plugin, Codex's hooks and pi's extensions for you. **Claude
@@ -362,13 +355,13 @@ teaching a computer-use step.
 Set [`ai.instructions`](/docs/haus/reference/options#ai) and haus prepends a
 **screen etiquette** section to the file every client reads: prefer looking to
 touching, never foreground an app just to see it, hand feel-tests back to the
-person at the keyboard. Leave it empty, the default, and haus writes no
-instructions file at all, so you get the guard and none of the prose. Set it and
-a hand-written file already at that client's path is moved aside as `.backup`,
-quietly, so look before the first rebuild after.
-`HAUS_DESKTOP_OK=1` in a pane's environment switches the guard off there, for a
-long unattended run where forty prompts is the problem. Claude Code and pi are
-the two that get the guard; the etiquette goes to every client.
+person at the keyboard. Left empty, the default, haus writes no instructions file
+at all, so you get the guard and none of the prose; setting it moves a
+hand-written file already at that client's path aside as `.backup`, quietly, so
+look before the first rebuild after. `HAUS_DESKTOP_OK=1` in a pane's environment switches the
+guard off there, for a long unattended run where forty prompts is the problem.
+Claude Code and pi are the two that get the guard; the etiquette goes to every
+client.
 
 <Callout type="warn" title="`open -g` is quiet, not visible">
 The guard lets `-g` through because it takes no **focus**, which is all the guard
@@ -405,14 +398,11 @@ machine it runs on, and Claude Code's own picture is a stranger's laptop: the
 working repo and its remotes are trusted, everything else is not. So it asks
 about the ordinary work of a machine running lanes across a dozen repos you own.
 [`ai.autoMode`](/docs/haus/reference/options#ai) is where you correct it, in four
-lists of prose, one fact or rule per string:
-
-| List | What goes in it |
-|---|---|
-| `environment` | what this machine and its repos are: who owns what, where secrets live, which hosts are disposable, what counts as production |
-| `allow` | what is ordinary here, as exceptions to the classifier's own refusals |
-| `softDeny` | what it should stop and ask about, unless you or an `allow` rule say otherwise |
-| `hardDeny` | what it refuses outright, whatever anyone says |
+lists of prose, one fact or rule per string. `environment` is what this machine
+and its repos are: who owns what, where secrets live, which hosts are disposable,
+what counts as production. `allow` is what is ordinary here. `softDeny` is what
+it should stop and ask about, unless you or an `allow` rule say otherwise, and
+`hardDeny` what it refuses outright, whatever anyone says.
 
 They are written into `~/.claude/settings.json` on every rebuild, per section, so
 a host naming only `allow` never deletes a `hard_deny` you wrote by hand. Claude
@@ -451,21 +441,20 @@ warns rather than failing the rebuild.
 
 ### Shaping the hold
 
-The knobs live with the machinery, in
-[`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable):
-`haus.ai.keepAwake` is a switch, not a second copy of the dial. The defaults are
-the cautious ones.
+The dials live with the machinery, in
+[`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable),
+and both stops read them rather than carrying a second copy. `linger` (5 min)
+keeps a hold going past the last turn, so the gap between two turns cannot sleep
+the Mac. `maxHold` (8 hours) caps one unbroken hold, and a genuinely new agent
+lifts the cap early. `requirePower` (on) guards the **lid** hold only, because
+unplugging is also how you say stop; the `idle` hold ignores it.
 
-| | |
-|---|---|
-| `linger` (5 min) | keeps holding past the last turn, so the gap between two turns cannot sleep the Mac |
-| `maxHold` (8 hours) | caps one unbroken hold, so a client that dies without reporting costs you one window, not a Mac that never sleeps again. A genuinely new agent lifts the cap early |
-| `requirePower` (on) | the **lid** hold only: unplugging is also how you say stop. The `idle` hold ignores it |
-| `while = "always"` | plain closed-display mode, agents or no agents |
-
-`always` is the stop an unattended merge shift wants, because a foreman waking on
-a cadence is idle between passes and the agent-shaped hold drops in the gaps.
-[Merging pull requests overnight](/docs/haus/night-shift) is that setup.
+A fourth key there is not a dial. `while = "always"` is plain closed-display
+mode,
+agents or no agents, and it is the stop an unattended merge shift wants, because
+a foreman waking on a cadence is idle between passes and the agent-shaped hold
+drops in the gaps. [Merging pull requests overnight](/docs/haus/night-shift) is
+that setup.
 
 <Callout type="warn" title="Shut lid, no display, blind agent">
 With the lid down and nothing external plugged in there is no display at all, so
