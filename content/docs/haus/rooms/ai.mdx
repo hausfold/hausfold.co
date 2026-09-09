@@ -420,11 +420,13 @@ warns rather than failing the rebuild.
 
 ### Shaping the hold
 
-`haus.ai.keepAwake` is a switch, not a second copy of the dial. How long a hold
-lingers past the last turn, how long one may last, and whether unplugging ends it
-live with the machinery, in
+`haus.ai.keepAwake` is a switch, not a second copy of the dial. The dials live
+with the machinery, in
 [`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable),
-and the defaults there are the cautious ones.
+and both stops read them: `linger`, how long a hold keeps going past the last
+turn; `maxHold`, how long one unbroken hold may last; and `requirePower`, which
+guards the **lid** hold only, because unplugging is also how you say stop. The
+defaults there are the cautious ones.
 
 One of them is not a dial. `while = "always"` is plain closed-display mode,
 agents or no agents, and it is the stop an unattended merge shift wants, because
