@@ -13,10 +13,8 @@ related:
     icon: "tiling"
 ---
 
-**Development** is the room the command line lives in. It sets up the whole command line (emulator,
-session persistence, shell, prompt, file manager, editor, and a toolbelt of
-modern replacements for the usual commands), painted from the same
-[palette](/docs/haus/rooms/appearance), down to the default editor.
+**Development** is the room the command line lives in, painted from the same
+[palette](/docs/haus/rooms/appearance) as everything else.
 
 | | | |
 |---|---|---|
@@ -25,7 +23,7 @@ modern replacements for the usual commands), painted from the same
 | Shell | zsh | no framework, fzf-tab, sensible history, git aliases |
 | Prompt | [starship](https://starship.rs) | |
 | Files | [yazi](https://yazi-rs.github.io) | markdown, code and image previews |
-| Editor | [Zed](https://zed.dev) | the default `$EDITOR`, themed and with its extensions preloaded; or VS Code, Cursor, helix, neovim, vim, nano ([below](#choosing-your-editor)) |
+| Editor | [Zed](https://zed.dev) | the default `$EDITOR`, themed; or VS Code, Cursor, helix, neovim, vim, nano ([below](#choosing-your-editor)) |
 | Jumper | [zoxide](https://github.com/ajeetdsouza/zoxide) | `cd` learns your habits; `cdi` opens a picker |
 
 Plus `bat` over `cat`, `lsd` over `ls`, `lazygit` (`lg`), `delta` for git diffs,
@@ -39,242 +37,151 @@ haus.developer.enable = true;
 haus.developer.languages = [ "node" ];
 ```
 
-The terminal stack itself (Ghostty, zmx, zsh, the prompt, the editor) is
-part of the foundation and always there. `haus.developer.*` is what brings the
-*tools*: the CLI toolbelt, the Git tooling and the language runtimes, each with
-a sub-switch of its own (`.toolbelt`, `.git`, `.languages`).
+The terminal stack is the floor and is always there. `haus.developer.*` brings
+the *tools*, each with a sub-switch of its own: `haus.developer.toolbelt.enable`,
+`haus.developer.git.enable`, an empty `haus.developer.languages`. Turning the
+room off takes all three and leaves the floor standing.
 
 ## A window is a pane
 
 There is no multiplexer. A "pane" is a real Ghostty window, tiled by the
-[Windows](/docs/haus/rooms/windows) room, and every window's shell runs inside
-its own [zmx](https://github.com/neurosnap/zmx) session, so closing a window
-**detaches** it rather than ending it, and the next window Ghostty opens walks
-straight back into the shell you had, scrollback and all.
+[Windows](/docs/haus/rooms/windows) room, and every window's shell runs in its
+own [zmx](https://github.com/neurosnap/zmx) session, so `⌘W` **detaches** a
+window rather than ending it. Images render for real, which a second emulator in
+the middle of the pipe never managed, and there is one layout model rather than
+two nested ones.
 
-That buys two things a multiplexer cost. Images render for real: a multiplexer
-is a second terminal emulator in the middle of the pipe, and kitty graphics
-never survived the trip, so previews were half-block art. And there is one
-layout model instead of two nested ones: the same chords tile your browser and
-your terminal.
-
-Ghostty's own `⌘T`, `⌘N`, `⌘Y`, `⌘F` and friends are **unbound** on purpose, so
-those keys mean here what they mean in every other app rather than what a
-terminal decided. (`⌘C` is not one of them; it stayed with Ghostty, as copy. A
-`⇧`-drag makes a selection over whatever TUI has taken the mouse, and `⌘C` takes
-it. Nor is `⌘⇧R` — that one is Ghostty's *because* it has to be: it works when
-nothing else in the window is listening. See
-[when the terminal goes cursed](#when-the-terminal-goes-cursed).)
-
-There are **no tabs and no splits**, and that is what freed two of those keys:
-a tab or a split would nest a second layout model inside one tile, when the
-tiler already tiles.
-
-- **`⌘T`** is a new *terminal* here rather than a new tab — the neutral one, in
-  your home directory and on no repo's page. `⌘⇧T` does nothing; "a new window
-  here" is what `⌘N` means.
-- **`⌘D` / `⌘⇧D`** do nothing at all. Ghostty's defaults there split the
-  surface. It's an easy chord to hit by accident coming from iTerm, so the keys
-  do nothing rather than something else.
+Ghostty's own `⌘T`, `⌘N`, `⌘Y` and `⌘F` are **unbound** on purpose, so they mean
+here what they mean in every other app. There are also **no tabs and no
+splits**, and that is what freed two of them: a tab or a split would nest a
+second layout model inside one tile, when the tiler already tiles. `⌘D` and
+`⌘⇧D` do nothing at all rather than splitting the surface, an easy chord to hit
+coming from iTerm. Two keys stayed with Ghostty. `⌘C` is copy, and a `⇧`-drag
+makes a selection over whatever TUI has taken the mouse for `⌘C` to take. `⌘⇧R`
+is Ghostty's because it has to be: it works when nothing else in the window is
+listening.
 
 | Keys | What happens |
 |---|---|
-| `⌘N` / `⌘⇧N` | New shell **window**, in **this page's repo** and on this page. The same key every Mac app spells "new window". The plain one hops to the repo's **main checkout** when you're inside an agent worktree; `⇧` stays put — in the worktree *and* on the repo the focused window is looking at, since both halves of that key mean "don't move me". |
-| `⌘T` | New **neutral** terminal: your home directory, no repo, on the base workspace rather than the lane page you were standing on. The way out from under a page. |
-| `⌘W` | Close the window, which **detaches** its session rather than ending it. The shell keeps running, and comes back the next time Ghostty starts. |
-| `⌃D` / `exit` | End the shell, which ends its **session** and closes the window with it, on the first press. The opposite of `⌘W`: there is nothing left running to walk back into, and nothing to come back. |
+| `⌘N` / `⌘⇧N` | New shell **window**, in **this page's repo**. The plain one hops to the repo's **main checkout** from inside an agent worktree; `⇧` stays put |
+| `⌘T` | New **neutral** terminal: your home directory, no repo, and it takes you to the base workspace. `⌘⇧T` does nothing |
+| `⌘W` | Close the window, **detaching** its session. The shell keeps running |
+| `⌃D` / `exit` | End the shell, its **session** and the window with it, first press |
 | `⌘F` / `⌘⇧F` | [Find](#finding-things) in this pane / across every pane |
-| `⌘G` | Your GitHub review queue, if you turned it on |
+| `⌘G` | [Your review queue](#your-review-queue), if you turned it on |
 | `⌘⏎` | Spawn a coding agent in its own worktree, on **this page's repo** |
 | `⌘Y` / `⌘⇧Y` | [yazi peek](#yazi-peek), with and without the worktree hop |
 | `⌘L` | Links picker: every URL in the pane's transcript or scrollback |
-| `⌥` right-click a window | Fullscreen it: zoom is the mouse's, not a chord ([not one on its own](/docs/haus/rooms/windows#a-window-on-its-own-does-not-zoom)) |
-| `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, most-recent-first, like `⌘⇥` over apps |
-| `⌥/` / `⌥,` | Tiles layout / accordion layout |
-| `⌘⇧R` | Un-break a terminal whose display has gone cursed — see [below](#when-the-terminal-goes-cursed) |
+| `⌃⇥` / `⌃⇧⇥` | Walk the lane pages by recency, like `⌘⇥` over apps |
+| `⌘⇧R` | [Un-break a cursed terminal](#when-the-terminal-goes-cursed) |
+
+The ⇪ and ⌥ chords that tile these windows are [Keys](/docs/haus/rooms/keys).
+`⌘N`, `⌘⏎` and `⌃⇥` are taken **only while Ghostty is frontmost**, so `⌘⏎` still
+sends in Slack, `⌘N` still opens a window in your browser and `⌃⇥` still walks
+that app's tabs. They live at the window layer because Ghostty has no keybind
+action that runs a command, and `⌃⇥` needs that twice over: macOS eats the chord
+for focus navigation before any app sees it. There is **no reload chord**, since
+Ghostty applies a config change within a second and a `haus rebuild` lands on
+the windows you already have, live agent conversations uninterrupted.
+
+<Callout title="Opening a link">
+`⌘`-click opens the link under the pointer and `⌘`-hover previews it, no shift,
+even inside a program that has taken the mouse (an agent, `lazygit`, `vim`):
+Ghostty treats a `⌘`-click as a link click and never forwards it, so a bare
+click still belongs to whatever is running. `⇧` is the modifier Ghostty always
+keeps for itself, which is what lets a `⇧`-drag select over a mouse grab. On a
+link click it buys nothing.
+</Callout>
 
 ### When the terminal goes cursed
 
-A program that dies mid-draw can leave the terminal unusable: garbage where
-text should be, nothing echoed as you type, the mouse spraying escape codes
-into your prompt. Two keys undo it, and which one you reach for depends only on
-how far gone it is.
+A program that dies mid-draw leaves garbage on screen, nothing echoed as you
+type, and the mouse spraying escape codes into your prompt.
 
-**`reset`** is the one you type. It is a shell *function* here rather than the
-system command, because macOS's `reset` is a link to `tset(1)` — which still
-carries a one-second sleep added in 1979 so mechanical printer-and-ink
-terminals could settle down. This one repairs both halves of the damage (the
-kernel's idea of your terminal, and the terminal's own display state) in about
-**8 milliseconds** instead of a second, and throws away whatever you mashed at
-the dead terminal in the meantime rather than running it the moment the prompt
-comes back. Give it arguments and the real `tset` takes over, sleep and all.
+**`reset`** is the one you type, and here it is a shell *function*: macOS's
+`reset` links to `tset(1)`, which still carries a one-second sleep added in 1979
+so printer terminals could settle. This one repairs both halves of the damage,
+the kernel's idea of your terminal and the terminal's own display state, in
+about **8 milliseconds**, and throws away whatever you mashed at the dead
+terminal instead of running it. Give it arguments and the real `tset` takes
+over, sleep and all.
 
-**`⌘⇧R`** is the one for when you *can't* type: a shell stuck in raw mode with
-no echo, an editor that died inside its own full-screen buffer. It is Ghostty's
-own reset, so it needs nothing from the shell — it hands back a readable
-screen, and typing `reset` into that finishes the repair.
+**`⌘⇧R`** is for when you can't type at all. It is Ghostty's own reset and needs
+nothing from the shell, so it works on a shell stuck in raw mode with no echo;
+typing `reset` into the readable screen it hands back finishes the repair.
 
 ### Your windows come back
 
-Nothing you close is gone. Every window's shell lives in a session that outlives
-it, so `⌘W` parks a window and `⌘Q` parks all of them: the shells keep running,
-the builds keep building, the agents keep thinking, with nothing looking at them.
-
-Start Ghostty again and **the first window puts the desk back**: one window per
-parked session, each rejoined to the session it belongs to, with lanes landing
-on their own repo pages. Not a snapshot being replayed: the same processes,
-still running, with their scrollback intact.
-
-Only the *first* window does that. `⌘N` is always a new shell in the directory
-you asked for, never a parked one handed back, because a chord that sometimes
-gives you a stranger's shell in a stranger's directory is a chord you stop
-trusting. To pull the rest back later (you closed a few and changed your mind),
-the palette has **Restore Terminal Windows**, and the [bar](/docs/haus/rooms/bar)'s
-agents pill, `⌘F`'s ⏎ and the **Lanes** picker each reopen one at a time.
+`⌘W` parks a window and `⌘Q` parks all of them: the shells keep running, the
+builds keep building, the agents keep thinking, with nothing looking at them.
+Start Ghostty again and **the first window puts the desk back**, one per parked
+session, each rejoined to the session it belongs to, lanes landing on their own
+repo pages. The same processes, not a snapshot replayed. Only the *first*
+window, though, and never `⌘N`, which is always a new shell in the directory you
+asked for. The palette's **Restore Terminal Windows** pulls the rest back later,
+as do the [bar](/docs/haus/rooms/bar)'s agents pill, `⌘F`'s `⏎` and the
+**Lanes** picker, one at a time.
 
 So the pair worth having in the fingers is `⌃D` versus `⌘W`: **end** a shell you
-are finished with, **close** one you want back. A window closed with `⌘W` is a
-window that returns; if you never end anything, every start is a crowd.
-
-Set `haus.terminal.restoreWindows = false` if you would rather the first window
-were just a window.
-
-**An agent worktree** is the throwaway checkout `⌘⏎` puts a coding agent in: its
-own copy of the repo on its own branch, so several agents can work at once
-without fighting over one set of files. Half the rows above have a `⇧` variant
-because of it: the plain key assumes you want the *real* repo, and `⇧` says stay
-in the copy. The [AI room](/docs/haus/rooms/ai) has the rest of the
-lifecycle: resuming one, setting work aside, cleaning up.
-
-**A lane's terminal is a window like any other**, and its own
-[zmx](https://github.com/neurosnap/zmx) session, which is why `⌘⏎` is held at
-the window layer rather than inside the terminal; [the AI
-room](/docs/haus/rooms/ai) has that story. The session outlives every client
-attached to it, so `⌘W` detaches and the agent keeps thinking, and reopening the
-lane rejoins the live conversation instead of replaying a transcript. The trade
-is splits: zmx has none by design, so [windows](/docs/haus/rooms/windows) tiles
-real windows rather than a second window manager nested inside a terminal. That
-room is worth having and is not required: with it off, lanes open as ordinary
-macOS windows wherever macOS puts them, and the build says so once as a
-warning. Everything else about a lane is the same: `⌘⏎` spawns one, `⌘W`
-detaches, `⌘F` searches this window, and the bar's agents pill still goes to a
-lane and peeks it.
-
-Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
-work don't pile onto one screen. `⌘N`, `⌘⏎` and `⌃⇥` are only taken while
-Ghostty is frontmost, so `⌘⏎` still sends in Slack, `⌘N` still opens a new
-window in your browser, and `⌃⇥` still walks that app's own tabs. The [Launcher](/docs/haus/rooms/launcher) room does that half, and
-gains a **Lanes** command beside them: fuzzy over every lane with a window of
-its own, with its state, `↵` focusing that window or waking a parked one, `/`
-plus a word searching what the agents are *saying* across every live session.
-A checkout `scruff child` opened so one lane could edit a second repo is not on
-the list — its conversation lives in the pane that made it, so there is no
-window here to go to; `scruff` still lists it, and its PR still shows in the
-statusline under the pane that owns it. Live sessions
-are read every time, so a lane you spawned seconds ago is always listed; what
-can lag by up to fifteen minutes is everything the picker knows *about* a lane,
-its branch, its commit subject and whether its work has landed. `⌘↵` forces a
-live read when you can see that half is behind.
+are finished with, **close** one you want back. If you never end anything, every
+start is a crowd. Set `haus.terminal.restoreWindows = false` if you would rather
+the first window were just a window.
 
 ### The page owns the repo
 
-Standing on `T/<repo>` is a statement about which repo you are working in, and
-both spawn chords obey it. `⌘⏎` opens its lane on **that** repo and `⌘N` opens
-its shell in it, on that page, beside the lanes already there — whatever the
-window under your cursor happens to be looking at.
+Each repo's lanes tile on their own page, `T/<repo>`, so pounce work and haus
+work don't pile onto one screen. Standing on one decides which repo the spawn
+chords act on: `⌘⏎` opens its lane on **that** repo and `⌘N` its shell in it,
+whatever the window under your cursor happens to be looking at.
 
-That matters because the window is a weaker signal than it looks. A plain shell
-you dragged onto the page, a session whose directory could only be read as
-*where it was born*, or focus that hasn't caught up with a page you just walked
-to: each of them would answer with some other repo, and `⌘⏎` would open a lane
-in it.
+It is a correction, not a takeover. The window still picks the exact directory
+whenever that directory already belongs to the page's repo, so `⌘N` in a
+subdirectory opens there and `⌘⏎` inside a worktree spawns a sibling lane. Only
+a directory belonging to a *different* repo, or to none, is overridden, with
+that repo's main checkout. Off a page the focused window decides, as before, and
+`⌘⇧N` opts out everywhere, since it already means "don't move me". One caveat: a
+`⌘N` window carries no name saying which page is its own, so the next re-sort
+(<kbd>⇪</kbd> then `` ` ``) sends it home to `T`, while the lanes stay put.
+**`⌘T` is the way out**, the one chord left meaning "a terminal about nothing".
 
-It's a correction, not a takeover. The window still picks the exact directory
-whenever that directory already belongs to the page's repo — `⌘N` in a
-subdirectory still opens there, `⌘⏎` inside a lane's worktree still spawns a
-sibling lane. Only a directory belonging to a *different* repo (or to none) is
-overridden, with that repo's main checkout. Off a page, nothing changes: the
-focused window decides, as before.
+The [launcher](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only)
+carries both chords as palette rows and adds two pickers of its own. **Lanes**
+is fuzzy over every lane that has a window: `↵` focuses it or wakes a parked
+one, and `/` plus a word searches what the agents are *saying* live. A lane
+spawned seconds ago is listed at once, but what the picker knows *about* one,
+its branch, its commit subject, whether the work landed, lags by up to fifteen
+minutes until `⌘↵` forces a live read. **Pages** covers the pages themselves,
+`↵` going to one and `⌥↵` throwing the focused window onto it; the bar's `page`
+pill opens the same list, in move mode on a ⇧ or right-click, and typing a name
+no page has yet makes it. That row is listed only while some page is open, so on
+a Mac with none you open the first with `⌘⏎` and **Pages** comes back with it.
 
-`⌘⇧N` opts out of the whole thing, because it already means "don't move me": it
-keeps the focused window's directory whatever page you are on, the same way it
-already declines the hop out of an agent worktree.
-
-One caveat on where a `⌘N` window ends up: it carries no name saying which page
-is its own, so the next **re-sort everything** (`caps` then `` ` ``) sends it
-home to `T`. The lanes stay where they belong.
-
-**`⌘T` is the way out.** With both spawn chords belonging to a repo, there was
-no chord left that meant "a terminal about nothing" — a scratch shell, an `ssh`,
-a `haus doctor`. `⌘T` goes to the base workspace *taking you with it*, then
-opens a shell in your home directory with nothing handed down.
-
-⌘⏎ and ⌘N have palette rows as well as chords, and those rows are
-[listed on the terminal pages only](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only):
-off a page both are back to inheriting the focused window's directory, so
-neither has anything to work with from a browser. **Spawn Agent** asks which
-repo instead of inheriting one, so it is the row that still works from anywhere.
-
-A **Pages** command covers the pages themselves: `↵` goes to one, `⌥↵` throws
-the focused window onto it and follows it there. The [bar](/docs/haus/rooms/bar)'s
-`page` pill opens the same list, in move mode on a ⇧/right-click. Typing a name
-no page has yet isn't a miss: the tiler makes a page on first use, so you can
-throw a window onto a repo whose first lane hasn't been opened.
-
-The row is listed only while some page is open, including the type-a-name door,
-so on a Mac with no pages at all you open the first one with ⌘⏎ and **Pages**
-comes back with it. It is not scoped to a workspace the way the rows above are
-([why](/docs/haus/rooms/launcher#rows-that-are-listed-on-some-pages-only)).
-
-Every one of those chords is taken **only while Ghostty is frontmost**, so each
-still means whatever it means everywhere else. They are held there rather than
-by the terminal for a plain reason: Ghostty has no keybind action that runs a
-command, and each of these runs one.
-
-There is **no reload chord**, because there is nothing to reload: Ghostty
-watches its own config and applies a change within a second. A `haus rebuild`
-lands on the windows you already have: same directories, live agent
-conversations uninterrupted.
-
-<Callout title="Opening a link">
-`⌘`-click opens the link under the pointer, and `⌘`-hover previews where it
-goes, no shift. It works even though most of what you'll click sits inside a
-program that has taken the mouse (an agent, `lazygit`, `vim`), because Ghostty
-treats a `⌘`-click as a link click and never forwards it: the program only sees
-the ones you make without `⌘`. A bare click still belongs to whatever is
-running.
-
-`⇧` is a different tool for a different job: it's the one modifier Ghostty
-always keeps for itself, which is what lets `⇧`-drag select text over a
-program's mouse grab. Adding it to a link click buys nothing.
-</Callout>
+A lane's terminal is a window like any other, so `⌘W` detaches it and the agent
+keeps thinking; the [AI room](/docs/haus/rooms/ai) has the rest of that
+lifecycle. [Windows](/docs/haus/rooms/windows) is not required: with it off,
+lanes open as ordinary macOS windows and the build warns once.
 
 ## Finding things
 
 `⌘F` opens a search overlay for the focused window, `⌘⇧F` the same overlay
-across every window at once. Either way `Esc` puts you straight back. Results
-appear as you type, with the lines around each hit beside them. `⏎` jumps to the
-window a hit came from, `^y` copies the line, `^s` flips between this-window and
-every-window without losing your query.
-
-The overlay is **sized to its scope**: searching one window, it covers exactly
-that window, because that window's scrollback is the whole haystack. Searching
-every window, it covers the desktop, because there is no one window the results
-belong to. `^s` resizes it as it flips, so the shape always matches what you're
-looking through.
+across every window at once, and `Esc` puts you back. Results appear as you type
+with the lines around each hit beside them. `⏎` jumps to the window a hit came
+from, `^y` copies the line, and `^s` flips between the two scopes without losing
+your query, resizing the overlay as it goes: one window's search covers that
+window, every-window covers the whole desktop.
 
 **In an agent window it searches the conversation, not the terminal.** Claude
 Code and Opencode render in the alt-screen, which has no scrollback at all, so
-searching the grid would only ever find what's on screen this second. Searching
-the stored conversation finds all of it, including text inside collapsed tool
-output. Codex falls back to scrollback; it reports its state like the others but
-carries no conversation id to join to. Every other window gets its full
-scrollback: the *whole* of it, since that is what the session holds.
+searching the grid would only find what is on screen this second; the stored
+conversation has all of it, collapsed tool output included. Codex falls back to
+scrollback, carrying no conversation id to join to. Every other window gets the
+whole of its scrollback.
 
 ## Your review queue
 
 `⌘G` opens [gh-dash](https://github.com/dlvhdr/gh-dash) in a near-fullscreen
-floating window, themed like everything else and gone again on `q`. It's off unless you ask:
+floating window, themed like everything else and gone again on `q`. It's off
+unless you ask:
 
 ```nix
 haus.terminal.ghDash.enable = true;
@@ -283,84 +190,68 @@ haus.git.org = "your-org";     # or your own account
 
 The first line gets you the tabs that are about *you*: issues you opened, ones
 assigned to you, unread notifications, threads you're in. The second is what a
-PR tab needs, because a PR tab is a GitHub search and a search needs a scope.
-Set it and four more appear: **open**, **green** and **red** (the same queue
-split by whether CI passed; together they *are* the merge decision, and a
-branch still building shows in neither), and **shipped**.
-
-Leave `haus.git.org` empty (right if you read several owners at once) and
-those four simply aren't written.
+PR tab needs, since a PR tab is a GitHub search and a search needs a scope. Set
+it and four more appear: **open**, **green**, **red** and **shipped**, where a
+branch still building shows in neither green nor red. Leave `haus.git.org`
+empty, right if you read several owners at once, and those four aren't
+written.
 
 ## yazi peek
 
 `⌘Y` opens a floating file browser with live previews, covering exactly the
-window you pressed it in: peek is rooted at *that* window's directory, so it
-reads as that terminal turning into a file browser rather than as a popup
-landing on your layout. (It covers a lot in a narrow pane: yazi wants a parent
-column, the tree and a live preview side by side. Summon it from a wide window
-when you're browsing rather than glancing.) `Enter` on a file pages it
+window you pressed it in and rooted at that window's directory, so it reads as
+that terminal turning into a file browser. `Enter` on a file pages it
 fullscreen; `Enter` on a directory opens a new window there, which makes peek
-double as a browse-and-pick directory chooser. `q` or `Esc` closes it and
-leaves your layout untouched.
+double as a directory chooser; `q` or `Esc` closes it and leaves your layout
+untouched. Markdown renders through `glow`, code through `bat`, images through
+`chafa`, and `Y` copies a file's *contents*, not its path. Summon it from a wide
+window when you're browsing rather than glancing: yazi wants a parent column,
+the tree and a preview side by side.
 
-Markdown renders through `glow`, code through `bat`, images through `chafa`.
-`Y` copies a file's *contents*, not its path.
-
-Every floating terminal haus summons wears a thin outline that follows the
-window's corner curve, so a dark terminal on a dark window still has an edge:
+Every floating terminal haus summons wears a thin outline following the window's
+corner curve, and stays above the tiled windows behind it whatever you click
+next. Unpinned it would sink behind the first window you click, with Mission
+Control the only way back:
 
 ```nix
 haus.terminal.floatBorder = "accent";  # the default; also "grey", any accent name, or "off"
+haus.terminal.floatOnTop = true;       # the default
 ```
 
-They also stay above the tiled windows behind them, whatever you click next.
-Floating in a tiler is a *layout* — it keeps a window out of the tiling tree and
-says nothing about what is drawn over what — so without this, the peek panel you
-just summoned disappears behind the first window you click, and Mission Control
-is the only way back to it:
-
-```nix
-haus.terminal.floatOnTop = true;  # the default
-```
-
-This works by raising the window's *level*, which only the app that owns a window
-can do. haus can therefore pin the terminals it summons itself and nothing else —
-a floating FaceTime or System Settings window is beyond it, and that is a macOS
-limit rather than a missing setting.
+Pinning raises the window's *level*, which only the app owning a window can do,
+so haus pins the terminals it summons and nothing else. A floating FaceTime
+window is a macOS limit rather than a missing setting.
 
 ### The grants a summoned popup needs
 
-macOS also gates the request behind an **Automation** grant for Ghostty, booked
-against whichever app summoned the popup rather than against haus: Pounce for
-the chords and the palette's own windows, and SketchyBar for the bar's agent
-peek, which summons its own. It asks the first time; `haus permissions` has the
-card if you dismissed it. Declined, those popups still open in front and still
-take focus, then sink like ordinary windows again. The popup that raised the
-dialog is never pinned either way, so summon a second one after answering it.
+Three grants sit behind one popup, and macOS books every one against whichever
+app *summoned* it rather than against haus: Pounce for the chords and the
+palette's own windows, SketchyBar for the bar's agent peek. **Automation** for
+Ghostty is the pin, and declining it leaves those popups opening in front and
+then sinking like ordinary windows. A second Automation grant, for System
+Events, is *where* a popup lands, over the window you summoned it from; the
+[launcher page](/docs/haus/rooms/launcher) covers that one. The bar's peek needs
+a third, **Accessibility** for SketchyBar, because macOS gates driving System
+Events on the calling app as well: Pounce holds it already for its key handling,
+and until SketchyBar has its own the peek pins but opens wherever Ghostty last
+left a window.
 
-That grant is only the pin. Where a popup lands, over the window you summoned
-it from, is a separate Automation grant for System Events from the same app,
-covered on the [launcher page](/docs/haus/rooms/launcher). Each summon asks for
-one of them, so expect two dialogs and a third popup before everything is
-pinned and placed.
+Each summon asks for one of the two Automation grants, and the popup that raised
+a dialog is never pinned itself, so expect two dialogs and a third popup before
+everything is pinned and placed. `haus permissions` has all three cards, under
+the agents pill, if you dismissed them.
 
-The bar's peek asks for one thing more, because macOS gates driving System
-Events on the calling app's **Accessibility** as well. Pounce holds that grant
-already, for its key handling; SketchyBar needs its own, and until it has one
-the peek pins but opens wherever Ghostty last left a window. `haus permissions`
-has a card for it beside the Automation one, both under the agents pill.
-
-One caveat for a machine that has not updated in a while: Pounce releases
-before 2026.09.06 carry no Apple Events entitlement, so macOS never asks for
-Ghostty under Pounce and the Automation pane never lists it. `haus permissions`
-says so on such a machine, and `haus update` is the fix.
+<Callout type="warn" title="A machine that hasn't updated in a while">
+Pounce releases before 2026.09.06 carry no Apple Events entitlement, so macOS
+never asks for Ghostty under Pounce and the Automation pane never lists it.
+`haus permissions` says so on such a machine, and `haus update` is the fix.
+</Callout>
 
 ## Git aliases
 
-Plain zsh, no framework, and a finite set of shortcuts. The names follow the
-widely-used Oh-My-Zsh vocabulary where conventions agree, and deliberately skip
-the ambiguous ones (`gl`, `gr`, `gs`) whose meanings differ between alias
-sets. `g` itself is `git`.
+Plain zsh, no framework, a finite set of shortcuts. The names follow the
+Oh-My-Zsh vocabulary where alias sets agree and skip the ambiguous ones (`gl`,
+`gr`, `gs`) where they don't. `g` itself is `git`.
 
 | | |
 |---|---|
@@ -375,10 +266,9 @@ sets. `g` itself is `git`.
 | Status / stash | `gst` `gss` `gsb` `gsta` `gstl` `gstp` `gsts` |
 | Tag / worktree | `gt` `gwt` `gwta` `gwtl` `gwtr` |
 
-`grs` and `grst` are the file half of what `gco` used to do: `grs <path>`
-throws away an unstaged change, `grst <path>` unstages one.
-
-Add, replace or remove one per host:
+`grs` and `grst` are the file half of what `gco` used to do: `grs <path>` throws
+away an unstaged change, `grst <path>` unstages one. Add, replace or remove one
+per host:
 
 ```nix
 haus.git.shellAliases = {
@@ -390,65 +280,47 @@ haus.git.shellAliases = {
 
 ## Choosing your editor
 
-Name one and the room installs it. `haus.terminal.editorName` takes **zed** (the
-default), **vscode**, **cursor**, **helix**, **neovim**, **vim** or **nano**: one
-choice that installs the editor, sets your `$EDITOR`, and points every "open in
-an editor" action at it. The three apps arrive as casks, so `haus.homebrew.adopt`
-(on by default) claims a copy already on your Mac instead of installing a second
-one; the rest come from nixpkgs.
+`haus.terminal.editorName` takes **zed** (the default), **vscode**, **cursor**,
+**helix**, **neovim**, **vim** or **nano**: one choice that installs the editor,
+sets your `$EDITOR` and points every "open in an editor" action at it. The three
+apps arrive as casks, so `haus.homebrew.adopt` (on by default) claims a copy
+already on your Mac rather than installing a second one; the rest come from
+nixpkgs.
 
 ```nix
 haus.terminal.editorName = "neovim";              # installed, and $EDITOR
 haus.terminal.hijackFileAssociations = true;      # off by default: make it the
-                                                # opener for .json, .md, .nix, …
+                                                  # opener for .json, .md, .nix, …
 ```
 
-Zed comes set up: the Nebelung theme for your flavor and accent, placed and
-selected (it follows the accent on every rebuild, no re-pick in Settings), the
-same mono font as the terminal, and the Nix, TOML, Swift, HTML, Dockerfile and
-Make extensions, which Zed installs the first time it opens with a network. Your
-own settings survive: haus merges its few keys into `settings.json` at
-activation and leaves everything else in that file alone. helix is the other
-editor haus paints from the palette; VS Code, Cursor, neovim, vim and nano
-arrive in their own default colours.
+Zed comes set up: the Nebelung theme for your flavor and accent, following the
+accent on every rebuild with no re-pick in Settings, the terminal's mono font,
+and the Nix, TOML, Swift, HTML, Dockerfile and Make extensions, which Zed
+installs the first time it opens with a network. Your own settings survive,
+since haus merges its few keys into `settings.json` at activation and leaves the
+rest of that file alone. helix is the other editor haus paints from the palette;
+the other five arrive in their own colours.
 
-"Open in an editor" fits the editor. A terminal editor gets a new terminal window
-cwd'd at the project; a GUI editor is handed the project folder and the file
-directly, so the palette's **Nix Config** and the bar's nix pill land in Zed
-with your config open as a workspace.
-
-To point haus at an editor it does **not** install (something your host installs
-itself), set `haus.terminal.editor` instead. That one is a shell command haus
-runs, so it belongs in your host file rather than in a shared desktop, and it
-wins over whatever `editorName` chose:
+"Open in an editor" fits the editor. A terminal editor gets a new terminal
+window cwd'd at the project; a GUI editor is handed the project folder and the
+file, so the palette's **Nix Config** and the bar's nix pill land in Zed with
+your config open as a workspace. To point haus at an editor it does **not**
+install, set `haus.terminal.editor` instead: a shell command, host file only,
+and it wins over whatever `editorName` chose.
 
 ```nix
 haus.terminal.editor = "subl -w";                 # points at it; installs nothing
 ```
 
-## Smaller things you'll notice
-
-- **Nothing is lost when you close a window.** Its shell keeps running in its
-  session; reopen and you land back in it, scrollback intact.
-- **Agent-worktree aware.** A new shell opened inside an agent worktree hops to
-  the parent repo rather than starting in a throwaway checkout. `⌘⇧N` is the
-  no-hop escape hatch.
-- **`Ctrl Tab` really works**, which it usually doesn't on macOS: the OS eats it
-  for focus navigation before any app sees it, so the chord is caught one layer
-  above.
-
 ## GitHub, without the polling
 
-Three things on a haus machine watch GitHub: the bar's octocat pill, the PR
-column in the agent statusline, and the lanes popup. All three *ask* — every
-few seconds, forever — because asking is the only thing that works when GitHub
-has no way to reach you.
-
-`haus.github` gives it one. A Cloudflare tunnel points a hostname you own at a
-receiver on this Mac; GitHub posts each event to it; the three surfaces poll on
-a slow backstop instead and refresh when something actually happens. Far less
-traffic while nothing is happening, at no worse latency when something is — and
-the octocat pill, whose interval was five minutes, now moves inside one.
+The bar's octocat pill, the PR column in the agent statusline and the lanes
+popup all *ask* GitHub, every few seconds, forever, because asking is all you
+can do when GitHub has no way to reach you. `haus.github` gives it one: a
+Cloudflare tunnel points a hostname you own at a receiver on this Mac, GitHub
+posts each event to it, and the three surfaces drop to a slow backstop
+(`haus.github.backstop`) and refresh when something happens. The octocat pill,
+whose interval was five minutes, now moves inside one.
 
 ```nix
 haus.github = {
@@ -462,123 +334,73 @@ haus.github = {
 };
 ```
 
-The shared secret behind that signature is the one thing you have to supply:
-the room declares it, `haus-secret --check` asks you for it after the first
-rebuild, and the same value goes into the hook's settings on GitHub. Until it
-has one the receiver stays dormant and says so in its log.
+The shared secret behind each delivery's signature is the one thing you supply.
+The room declares it, `haus-secret --check` asks for it after the first rebuild,
+and the same value goes into the hook's settings on GitHub; until it has one the
+receiver stays dormant and says so in its log. That signature is the whole
+authentication story: no token lives in this room, and nothing in it can change
+anything on GitHub.
 
-The signature on each delivery is the whole authentication story — there is no
-token anywhere in this room, and nothing in it can change anything on GitHub.
-That is also why `hooks` above creates nothing: it *declares* what should exist,
-and `haus doctor` diffs it against the hooks that really do, then prints the one
-`gh` command that closes the gap for you to run. A rebuild you started for an
-unrelated reason should not be able to reach into an account.
+Which is why `hooks` above creates nothing. It *declares* what should exist, and
+`haus doctor` diffs it against the hooks that really do and prints the one `gh`
+command that closes the gap. The gap worth catching is a hook subscribed to four
+of the five events you care about, healthy from every angle while the one state
+you watch never arrives.
 
-<Callout title="It will tell you what you're missing">
-The most useful thing this check does is catch a hook subscribed to four of the
-five events you care about. That hook looks completely healthy from every angle
-— it is active, it is delivering, GitHub is happy — and the one state you check
-most simply never arrives. Ours was missing `pull_request_review`, so approvals
-had never once been delivered.
-</Callout>
+The bridge slows a poll down and never removes one, since GitHub sends no
+heartbeat to tell "nothing happened" from "the tunnel died": coverage expires
+when the machine stops being able to confirm it, so a laptop that loses the
+tunnel goes back to polling rather than going quiet. `github-signal status`
+answers all of it in one screen: is the receiver listening, is each declared
+hook healthy, when did the last delivery land, which scopes are covered now.
 
-Nothing here removes a poll; it only slows one down. GitHub sends no heartbeat,
-so "nothing happened" and "the tunnel is dead" look exactly alike from this
-side. So every surface keeps a slow poll underneath the bridge
-(`haus.github.backstop`), and the machine's belief that a repository is covered
-*expires* if it stops being able to confirm it with GitHub — a laptop that loses
-the tunnel quietly goes back to polling rather than going quiet.
-
-`github-signal status` is the whole picture in one screen: is the receiver
-listening, is each declared hook healthy, when did the last delivery land, and
-which scopes are actually covered right now.
-
-Deliveries can be handed on, byte for byte, to anything else on the machine that
-speaks GitHub webhooks:
+Deliveries can also be handed on byte for byte to anything else on the machine
+that speaks GitHub webhooks, signature header untouched, so the far end verifies
+each one itself:
 
 ```nix
 haus.github.forwardTo = [ "127.0.0.1:42787" ];   # trill's own bridge
 ```
 
-The signature header rides along untouched, so the far end verifies the delivery
-itself and does not have to trust the receiver in front of it — which is what
-lets you put one there without changing the app at all.
-
 ## Ports have names now
 
-Every dev server you have ever run asked you to remember a number. Two projects
-both default to 3000, so the second one dies on `EADDRINUSE`. You restart the
-first and the tab you had open is now pointed at the other project's app, with
-that project's cookies, because a browser thinks `localhost:3000` is one origin
-no matter what is behind it.
-
-`haus.portless` gives each one a name instead:
+Two projects both default to 3000, the second dies on `EADDRINUSE`, and the tab
+you left open now shows the other project's app with the other project's
+cookies, because a browser thinks `localhost:3000` is one origin.
 
 ```nix
 haus.portless.enable = true;
 ```
 
-One proxy on `:443` owns the machine's ports. Each app registers a hostname
-against a port the proxy assigned, and you open `https://myapp.localhost` — no
-number, real HTTPS, no browser warning. Different names mean different origins,
-so cookies and `localStorage` stop leaking between projects that would
-otherwise share one. Run `portless` where you would have run `npm run dev`;
-everything else is unchanged.
+One proxy on `:443` owns the machine's ports, each app registers a hostname
+against a port the proxy assigned, and you open `https://myapp.localhost`: no
+number, real HTTPS, no browser warning. Different names are different origins,
+so cookies and `localStorage` stop leaking between projects. Run `portless`
+where you would have run `npm run dev`.
 
-### One repo, five agents, five servers
-
-The reason this is in haus rather than in one project's `devDependencies` is
-lanes. `scruff` puts each agent in its own worktree of the *same* repo, so five
-agents running the same dev script want the same port five times. Four of them
-lose — and the one that quietly takes 3001 instead is worse than the ones that
-die, because every hardcoded URL in the project still says 3000 and now points
-at somebody else's work.
-
-Inside a lane, run `portless-lane`:
+Lanes are why this lives in haus rather than one project's `devDependencies`:
+`scruff` puts five agents in five worktrees of the *same* repo, all wanting that
+one port,
+and the one that quietly takes 3001 is worse than the four that die. Inside a
+lane, run `portless-lane`:
 
 ```console
 $ portless-lane npm run dev
 portless-lane: wiggly-crane.myapp.localhost -> :5402
 ```
 
-Each lane gets its own hostname and its own port, derived from the lane's name
-so they are the same every time you restart it — which is what lets you leave a
-tab open on `wiggly-crane.myapp.localhost` for the life of the lane. Outside a
-worktree the command is plain `portless`, so it is safe to put in a script that
-runs in both places.
+Each lane gets its own hostname and port, derived from the lane's name so they
+are the same every restart, which is what lets you leave a tab open on
+`wiggly-crane.myapp.localhost` for the life of the lane. Outside a worktree it
+falls back to plain `portless`, so it is safe in a script that runs in both
+places.
 
-### The one click
-
-HTTPS means a certificate, and a certificate means an authority your browser
-believes. portless generates one on your Mac, and haus will **not** install it
-for you during a rebuild: a CA that vouches for any name is not something that
-should arrive while you are looking the other way. It is a card in
-`haus permissions` instead — one click, and `portless clean` takes it back out.
-
-Until you click it, everything works and every page opens on a warning.
-
-## Works with
-
-- **[AI](/docs/haus/rooms/ai)**: with both rooms on, agent windows get their
-  chords and the worktree lifecycle around them — and each lane's dev server
-  gets its own hostname, which is what `portless-lane` above is for.
-- **[Appearance](/docs/haus/rooms/appearance)**: the whole stack is painted
-  from the same palette.
-- **[Launcher](/docs/haus/rooms/launcher)**: it hosts every terminal chord in
-  this page, and commands that open a terminal land in a window beside yours.
-
-## Remove it
-
-```nix
-haus.developer.enable = false;
-```
-
-The toolchains, the Git tooling and the toolbelt go; the terminal, shell and
-editor stay, because they are the floor rather than the room. Take out one piece
-at a time with `haus.developer.git.enable`, `.toolbelt.enable` or an empty
-`.languages`.
+The HTTPS needs a certificate authority your browser believes. portless
+generates one on your Mac, and haus will **not** install it during a rebuild: a CA that vouches for any name should not
+arrive while you are looking the other way. It is a card in `haus permissions`
+instead, one click, and `portless clean` takes it back out. Until you click it
+everything works and every page opens on a warning.
 
 ## Options
 
-Every setting, with types and defaults:
-[Development](/docs/haus/reference/options#development).
+[Every setting, with types and defaults](/docs/haus/reference/options#development).
