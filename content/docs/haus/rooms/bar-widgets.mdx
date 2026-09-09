@@ -1,28 +1,26 @@
 ---
 title: Writing a bar widget
-description: The framework haus's own pills are written in — one self-describing file, a fetch/render split, tones instead of hexes, and a dropdown you don't have to lay out. The whole contract for a pill of your own.
+description: "The framework haus's own pills are written in: one self-describing file, a fetch/render split, tones instead of hexes, and a dropdown you never lay out."
 icon: bar
 related:
   - title: "Bar"
-    description: "What the bar carries out of the box, which pills you can toggle, and the two-line version of writing your own."
+    description: "What the bar carries out of the box, and which pills you can toggle."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
   - title: "Appearance"
-    description: "Where a tone's colour comes from, and the one line that moves it here and in every other tool at once."
+    description: "Where a tone's colour comes from, and the line that moves it everywhere."
     href: "/docs/haus/rooms/appearance"
     icon: "palette"
 ---
 
-A pill that's a line of text needs no framework — give
+A pill that is a line of text needs no framework: give
 `haus.bar.widgets.<name>.command` a script whose stdout is the label and stop
-reading. This page is the other tier: `script`, the same runtime the clock, the
-CPU graph and the GitHub pill are written in, for when you want a dropdown, a
-click gesture, a graph, or a colour that means something.
+reading. This page is the other tier, `script`, for a pill that wants a
+dropdown, a gesture, a graph, or a colour that means something.
 
-A widget is **one file**. The file says how it's wired, and the runtime owns
-everything the file doesn't say — which bar instance to talk to, event
-wiring, state caching, redraw diffing, colour resolution, batching. A widget
-script never calls `sketchybar`, never reads `$BAR_NAME`, and never names a hex.
+A widget is **one file**. It says how it is wired and the runtime owns the
+rest, so a widget script never calls `sketchybar`, never reads `$BAR_NAME`, and
+never names a hex.
 
 ## The whole shape
 
@@ -51,84 +49,62 @@ barlib_main "$@"
 haus.bar.widgets.pomodoro = {
   script = ./pomodoro.sh;          # the file above, header and all
   style."icon.color" = "$TEAL";    # its identity, and nothing else
-  placement = "bottom-right";      # optional — the menu bar otherwise
+  placement = "bottom-right";      # optional, the menu bar otherwise
 };
 ```
 
-`script` and `style` are **host-only**: `script` runs code on a timer in your
-session and `style` is a shell fragment, so a shared desktop may place, retune
-and switch off any pill but may not bring a new one.
+`script` and `style` are **host-only**, both being code this machine runs, so a
+shared desktop may place, retune and switch off any pill but may not bring a
+new one.
 
 <Callout type="info" title="Both tiers are the same option">
-Setting both `command` and `script` is an error, and so are the leaves that
-belong to one tier only — `icon` on a framework widget (it draws its own
-icon in `render`), `style` on a command widget (the simple tier wears the
-bar's look). Each of those would otherwise read fine and do nothing.
+Setting both `command` and `script` is an error, as is a leaf from the other
+tier: `icon` on a framework widget, which draws its own in `render`, or `style`
+on a command widget, which wears the bar's look.
 </Callout>
 
 ## The header
 
-The `# widget:` lines are the wiring, and they're read **when your Mac is
-built** — so a key that doesn't exist fails the build naming your file, rather
-than parsing green and wiring nothing.
+The `# widget:` lines are the wiring, read **when your Mac is built**, so a key
+that does not exist fails the build naming your file.
 
 | key | value | default | what it does |
 |---|---|---|---|
-| `interval` | seconds | none | how often it ticks. Omit it for a widget that only reacts to events |
-| `popup` | `true` / `false` | `false` | gives it a dropdown, and unlocks the `popup_*` row functions |
+| `interval` | seconds | none | how often it ticks. Omit it for an event-only widget |
+| `popup` | `true` / `false` | `false` | gives it a dropdown, and the `popup_*` row functions |
 | `subscribes` | names, comma-separated | `system_woke` | the events it wakes for |
-| `graph` | a point count | none | makes the item a graph of that width. Needs an `interval` |
+| `graph` | a point count | none | draws the item as a graph that wide. Needs an `interval` |
 | `segments` | names, comma-separated | none | makes the pill a bracket over one item per name |
-| `mark` | one mark name | none | the widget's own hue. Its dropdown headings and sparklines wear it when they name no tone of their own |
+| `mark` | one mark name | none | the widget's own hue, worn by headings and sparklines naming no tone |
 
-Those six are the whole set. There are no keys waiting to be added, and an
-unknown one is a build error rather than a silent no-op.
-
-Each one stands on its own line. A header is a comment with nothing in front of
-`widget:` but the `#`, and leading spaces are fine. A key written at the tail of
-a sentence is prose, not wiring:
-
-```bash
-# the pill's look stays in Nix, because it reads options this file cannot see. widget: interval = 10
-```
-
-haus shipped its own clock that way once. The pill sat frozen at whatever minute
-the last reload happened to catch: no interval parsed, no tick, nothing on any
-log. That line fails the build now, naming your file. Prose *about* a header is
-left alone as long as the example sits in backticks, which is where you want it
-anyway.
+Those six are the whole set. Each stands on its own line, leading spaces are
+fine, and nothing comes before `widget:` but the `#`. A key at the tail of a
+sentence fails the build rather than quietly wiring nothing, and prose *about* a
+header is left alone as long as the example sits in backticks.
 
 ## fetch and render
 
-`fetch` gathers; `render` draws. Between them the runtime does the thing that
-makes a bar cheap to run:
+`emit key=value…` accumulates this tick's state, which the runtime compares
+against the last tick's cached state. Identical state means `render` never runs
+and the bar hears nothing at all. Changed state comes back as shell variables,
+`render` runs, and every component call goes out in one batch.
 
-1. `emit key=value…` accumulates this tick's state.
-2. The runtime compares it against the last tick's cached state.
-3. **Identical → `render` never runs and the bar hears nothing at all.**
-4. Changed → the state comes back as shell variables, `render` runs, and every
-   component call accumulates into one batched call.
-
-That's why `fetch` may be as expensive as it honestly needs to be, and why
-`render` must be pure: it is skipped whenever nothing moved, so anything with a
-side effect in it happens only sometimes, which is the worst way for a bug to
-behave.
+So `fetch` may be as expensive as it needs to be and `render` must be pure:
+skipped whenever nothing moved, a side effect in it fires only sometimes, which
+is the worst way for a bug to behave. `fetch` does not run on a click either, so
+a click never shoves a graph's history sideways and a handler wanting fresh
+numbers gathers its own.
 
 ## Reacting to the pointer
 
-Define whichever you want; the runtime routes to them.
+Define whichever you want and the runtime routes to them: `on_click`, the left
+click and the fallback for any chord you did not define, with `on_right_click`
+and `on_middle_click` beside it; the modifiers `on_cmd_click`, `on_alt_click`,
+`on_shift_click` and `on_ctrl_click`, where the button outranks the modifier;
+and `on_scroll`, `on_hover` and `on_unhover`.
 
-| handler | when |
-|---|---|
-| `on_click` | left click — and the fallback for any chord you didn't define |
-| `on_right_click`, `on_middle_click` | the other buttons |
-| `on_cmd_click`, `on_alt_click`, `on_shift_click`, `on_ctrl_click` | modifiers. The button outranks the modifier |
-| `on_scroll` | the scroll wheel over the pill |
-| `on_hover`, `on_unhover` | the pointer arriving and leaving |
-
-`on_unhover` fires for a pointer flicked straight off the bar as well as one
-that leaves the pill, so write it to be safe to run twice — "the pointer is not
-here" already is.
+`on_unhover` also fires for a pointer flicked straight off the bar, so write it
+to be safe to run twice.
 
 ## Drawing
 
@@ -136,92 +112,81 @@ here" already is.
 glyph and a word.
 
 ```bash
-pill --icon "" --label "3 PRs" --tone warn        # icon and label, one tone
+pill --icon "" --label "3 PRs" --tone warn              # icon and label, one tone
 pill --icon "" --label "3" --tone bad --label-tone dim  # two tones
-pill --icon "" --label "" --mark plum              # identity glyph, no label
-pill --hide                                        # gone for now
+pill --icon "" --label "" --mark plum                   # identity glyph, no label
+pill --hide                                             # gone for now
 ```
 
-- **`--tone` paints the icon, `--label-tone` the label.** Passing both *is* the
-  two-tone pill — the octocat saying how bad while the number says how many.
-- **`--mark` is the icon off the identity axis** instead of the ladder, for a
-  glyph that says *which subject* rather than *how it's going*. Last one wins,
-  so `--mark plum --tone dim` is "this is a podcast, and it's paused".
+- **`--tone` paints the icon, `--label-tone` the label**: the octocat saying how
+  bad, the number how many.
+- **`--mark` takes the icon off the ladder onto the identity axis.** The last
+  colour named wins, so `--mark plum --tone dim` is "a podcast, and it is
+  paused".
 - **Empty means absent.** An empty `--label` stops drawing it *and* re-centres
-  the icon, which matters for a pill whose resting state is hiding a zero.
+  the icon, for a pill whose resting state hides a zero.
 - **`--hide` is the safe one.** It pairs `drawing=off` with `updates=on`, so a
   hidden pill keeps ticking and can bring itself back.
 
-`graph <percent>` pushes one point onto the rolling window drawn behind the
-text, for a widget whose header carries `graph = <width>`.
-
-<Callout type="warn" title="Push points from fetch, never from render">
-`render` is diffed, so a machine sitting at one number would stop advancing the
-window for as long as nothing was happening — a quiet stretch and a stalled
-pill would draw the same flat line. `fetch` also doesn't run on a click, which
-is what stops the pointer from shoving your history sideways. The window is
-`width × interval` seconds wide only if every tick contributes a point.
-
-The history lives in the running item, not a file: after a rebuild a graph pill
-is flat for a whole window while it fills back up. Its colour is
-`style."graph.color"` on the Nix side — identity, named once and never touched
-again by the script.
-</Callout>
+`graph <percent>` pushes a point onto the rolling window behind the text, for a
+header carrying `graph = <width>`. Push from `fetch`, never `render`, which is
+diffed: a quiet stretch and a stalled pill would draw the same flat line. The
+window is `width × interval` seconds wide only if every tick contributes. The
+history lives in the running item, so a rebuild leaves the pill flat for a whole
+window, and the line's colour is `style."graph.color"`.
 
 `segment <name> …` is one member of a pill whose header carries `segments =`.
-SketchyBar colours a label exactly once, so a pill saying three counts in three
-colours can't be one item; the runtime makes it a bracket over one item per
-segment and you address them by bare name. One tone paints both halves of a
-segment — two readings side by side means two segments.
+SketchyBar colours a label exactly once, so three counts in three colours cannot
+be one item: the runtime brackets one item per segment, addressed by bare name.
+One tone paints both halves of a segment, so two readings side by side means
+two segments.
 
-`sb_set <prop>=<val>` is the raw escape for a property no component covers. It
-rides the same batch, and later arguments win. Reaching for it constantly is
-the sign that a component is missing rather than that you needed it.
+`sb_set <prop>=<val>` is the raw escape for a property no component covers, on
+the same batch, later arguments winning.
 
 ## Tones, not colours
 
-A widget names a **tone** and never a hex or a palette key, which is how your
-pill follows the theme every other pill follows.
+A widget names a **tone**, never a hex or a palette key. That is how your pill
+follows the theme every other pill follows.
 
 | tone | what it claims |
 |---|---|
-| `mute` | nothing there — inactive, stale, no verdict |
-| `dim` | present but subordinate — a heading, a row's name, a descriptor |
-| `text` | a live readout carrying no alarm — the ordinary foreground |
+| `mute` | nothing there: inactive, stale, no verdict |
+| `dim` | present but subordinate: a heading, a row's name |
+| `text` | a live readout with no alarm in it |
 | `ok` | green, nothing needed |
 | `busy` | the machine has it, not you |
 | `watch` | worth knowing, nothing to do yet |
 | `warn` | wants a human here |
 | `bad` | the load-bearing thing is broken |
-| `action` | a thing you press — an affordance, not a status |
-| `accent` | haus's own mark — identity, never status |
+| `action` | a thing you press, not a status |
+| `accent` | haus's own mark: identity, never status |
 
-A **mark** is the other axis, for a subject the bar can't know until it runs —
-which client wrote this row, which app is playing. Marks are named for hue
-families on purpose: a mark carries no claim, which is exactly what makes that
-safe.
+A **mark** is the other axis, for a subject the bar cannot know until it runs:
+which client wrote a row, which app is playing. They are named for hue families
+rather than meanings, because a mark makes no claim.
 
 | mark | for |
 |---|---|
-| `warm` | Anthropic's clay — Claude, and VLC |
-| `rust` | a muted red — video in a browser tab |
+| `warm` | Anthropic's clay: Claude, and VLC |
+| `rust` | a muted red: video in a browser tab |
 | `pink` | music with no app of its own |
-| `violet` | Gemini's blue-violet — and a video file playing locally |
+| `violet` | Gemini's blue-violet, and a local video file |
 | `blue` | music in a browser tab |
-| `teal` | OpenAI's green-teal — Codex, and Spotify |
-| `plum` | a subject with no mark of its own, and podcasts |
+| `teal` | OpenAI's green-teal: Codex, and Spotify |
+| `plum` | podcasts, and any subject with no mark of its own |
 
 <Callout type="warn" title="Identity and status never share a hue">
-That's the rule the two axes exist to keep apart, and haus enforces it at build
-time: a mark on a verdict's colour fails the build. Paint a heading yellow and
-it silently starts claiming something is 60% of the way to broken.
+haus enforces it at build time: a mark on a verdict's colour fails the build.
+Paint a heading yellow and it silently claims something is 60% of the way to
+broken.
 </Callout>
 
 ## Dropdowns
 
-Set `popup = true` in the header and define `popup_rows`. The runtime owns the
-frame, the grid, every row's font and height, the rebuild, and closing the
-thing after a click.
+Set `popup = true` and define `popup_rows`. The runtime owns the frame, the
+grid, every row's font and height, the rebuild, and closing the panel after a
+click.
 
 ```bash
 popup_rows() {
@@ -236,57 +201,42 @@ popup_rows() {
 
 | kind | for |
 |---|---|
-| `popup_heading` | a section title, in your widget's hue. A glyph sits in a tinted well. `--count` appends ` · n`; `--badge` puts a capsule on the right; `--hint` a small caption there instead |
-| `popup_row` | a thing you can act on. `--value` lands flush right on the ladder; `--badge` is a capsule; `--hint` a small caption |
-| `popup_item` | one thing in a list: a bold title with a glyph beside it, and under it a small caption with the reading on the right. Two lines, one hit area |
-| `popup_action` | a verb: Refresh, or a command to copy. `--hint` for "2m ago" |
-| `popup_button` | a filled, centred control. Tinted by default; `--solid` for the one primary thing to do. It stands off whatever is above it on its own |
-| `popup_bar` | a name and the number on one line, and under them a real track as full as the number |
+| `popup_heading` | a section title in your widget's hue, glyph in a tinted well. `--count` appends ` · n` |
+| `popup_row` | a thing you can act on |
+| `popup_item` | a bold `--title` with a glyph, a small `--subtitle` under it, the reading on the right. Two lines, one hit area |
+| `popup_action` | a verb: Refresh, or a command to copy |
+| `popup_button` | a filled, centred control, tinted. `--solid` for the one primary thing to do |
+| `popup_bar` | a name and its `--value` on one line, and under them a real track as full as `--percentage` |
 | `popup_graph` | a sparkline the width of the panel, fed `--points "…"` |
-| `popup_note` | an aside — "nothing", "+4 more" |
+| `popup_note` | an aside: "nothing", "+4 more" |
 | `popup_separator` | a hairline between two groups |
 | `popup_space` | nothing, that many points tall |
 | `popup_slider` | a track you aim, like a scrubber |
 | `popup_image` | a row that is entirely a picture |
 
-Every dropdown is a panel on one grid: a glyph column, a text column, and a
-right edge that values, badges and hints all land on. You never name a width
-or a padding. Text that would not fit is cut with an ellipsis rather than
-spilling out of the panel, and `popup_width <points>` at the top of your file
-buys a wider one for a widget whose rows are sentences.
+Every panel is one grid: a glyph column, a text column, and a right edge where
+`--value`, the capsule `--badge` and the small caption `--hint` land. You never
+name a width or a padding; `popup_width <points>` at the top of the file buys a
+wider one, and text that will not fit wears an ellipsis rather than spilling
+out. When a name and its value cannot both fit, the value keeps what it needs,
+up to under half the panel, and the name is the half cut, so `+2 unshipped` is
+never `+2 …`.
 
-A list of things, each with a name and something to say about it, is a run of
-`popup_item`s: an agent and its state, a meeting and when it is, a pull request
-and who opened it. The title takes the text colour, the caption a dim one, and
-the reading on the caption line keeps its own tone, so an item can say which,
-what and how without any of the three sharing a colour. Give the item a
-`--run` and both lines are one button.
+A `popup_row` with no `--run` or `--open` does not light up under the pointer,
+and does nothing. Give a `popup_item` a `--run` and both its lines are one
+button. Every row closes the panel when clicked, `popup_slider` excepted,
+because scrubbing is something you do twice.
 
-A long name never costs you the number. When a name and its value would not
-both fit, the value keeps what it needs (up to under half the panel) and the
-name wears the ellipsis, so `+2 unshipped` is never cut to `+2 …`.
-
-Rows that do something light up under the pointer; rows that don't, don't.
-That is the whole affordance, and it is why a `popup_row` with no `--run` or
-`--open` stays flat.
-
-Every row closes the popup when clicked — a dropdown you have to dismiss
-separately from acting on it is one you dismiss by mistake. The slider is the
-single exception, because scrubbing is something you do twice when the first
-landing was a second out.
-
-With a `--value`, the tone follows the **number**: the name on the left is the
-question and stays dim, the value on the right is the answer and is the only
-half on the ladder. A heading with no tone of its own wears the `mark` your
-header declares, so a pill that is teal in the bar opens a teal panel, not a
-grey one.
+With a `--value` the tone follows the **number**: the name on the left is the
+question and stays dim, the value on the right is the answer and the only half
+on the ladder. A heading with no tone of its own wears the `mark` your header
+declares, so a pill that is teal in the bar opens a teal panel.
 
 ## Listening for things
 
 `subscribes` takes SketchyBar's own events (`front_app_switched`,
-`volume_change`, `system_woke`, …) and any custom name. A name that isn't one of
-SketchyBar's own is declared for you as a custom event and your widget is
-subscribed to it, so two widgets can talk without either knowing the other's
+`volume_change`, `system_woke`, …) and any custom name, which is declared and
+subscribed for you, so two widgets can talk without either knowing the other's
 name:
 
 ```bash
@@ -297,20 +247,23 @@ name:
 bar_emit pomodoro_finished round=3
 ```
 
-`bar_emit` fires an event at **both** bars, which is what you want unless you
-know otherwise — a pill on the bottom bar isn't woken by an event sent only to
-the menu bar.
+`bar_emit` fires at **both** bars: a pill on the bottom bar is not woken by an
+event sent only to the menu bar.
 
 ## Running it by hand
 
 The file the bar runs is the file you wrote, installed at
-`~/.config/sketchybar/widgets/<name>.sh`. That's the whole debugging story:
+`~/.config/sketchybar/widgets/<name>.sh`, which is the whole debugging story:
 
 ```bash
 BAR_ITEM=pomodoro ~/.config/sketchybar/widgets/pomodoro.sh
 ```
 
-It reads its own header, so even a segmented pill draws exactly as the bar
-draws it. `clock.sh` in the haus repository is the smallest complete widget to
-read; the runtime it sources, `~/.config/sketchybar/barlib.sh`, documents every
-function above in its own comments.
+It reads its own header, so even a segmented pill draws as the bar draws it.
+`clock.sh` in the haus repository is the smallest complete widget to read, and
+`~/.config/sketchybar/barlib.sh` documents every function above in its own
+comments.
+
+## Options
+
+[Every setting, with types and defaults](/docs/haus/reference/options#bar).
