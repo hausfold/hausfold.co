@@ -27,6 +27,27 @@ of it.
 This is the other half: what a shift asks of the Mac underneath it. factory runs
 on any machine and names none of this, so the joins are haus's to write down.
 
+## Granting the lease from the desktop
+
+`factory lease grant 12h` is the whole thing, and the desktop has two doors onto
+the same four verbs so you can reach them without a terminal.
+
+The bar's [`factory` pill](/docs/haus/rooms/bar) sits beside the coffee cup,
+because the two answer the same shape of question: what did I leave switched on,
+and when does it stop. It draws the time left on the lease, an infinity sign for
+one that runs until you revoke it, and nothing but its own glyph when none
+stands. Click for 4 hours, 12 hours, until revoked, or Revoke; right-click
+revokes. Like every extra pill it is off until you ask for it:
+
+```nix
+haus.bar.items.factory = true;
+```
+
+The palette carries the same four as **Merge Lease**, with factory's own reading
+of the lease as the prompt above them. Both need `factory` on your PATH, which is
+[`haus.ai.enable`](/docs/haus/rooms/ai), and the pill hides itself entirely on a
+machine that has not got it rather than drawing a control for a missing tool.
+
 ## Keeping the runner alive
 
 `factory watchdog run` is the loop that passes a shift on a cadence, and on a
