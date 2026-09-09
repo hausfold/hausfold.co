@@ -1,6 +1,6 @@
 ---
 title: Merging pull requests overnight
-description: "A haus machine can keep merging while nobody is watching. What a shift asks of the Mac underneath it: the lid lever that survives a closed laptop, the command that hands a red branch to an agent, and the feed it meters against."
+description: "A haus machine can keep merging while nobody is watching. What a shift asks of the Mac underneath it: the launchd agent that keeps the runner alive, the lid lever that survives a closed laptop, the command that hands a red branch to an agent, and the feed it meters against."
 icon: landed
 related:
   - title: "AI"
@@ -26,6 +26,25 @@ of it.
 
 This is the other half: what a shift asks of the Mac underneath it. factory runs
 on any machine and names none of this, so the joins are haus's to write down.
+
+## Keeping the runner alive
+
+`factory watchdog run` is the loop that passes a shift on a cadence, and on a
+haus machine launchd owns it.
+[`haus.ai.factory.enable`](/docs/haus/reference/options#ai) comes on with the AI
+room and installs the agent behind it.
+
+It is a switch about supervision, never about authority. With no lease the
+runner exits in under a fifth of a second and launchd starts it again later, so
+a machine that has never run `factory lease grant` has a job that does nothing
+at all. What it buys is the small-hours case: the runner `lease grant` spawns is
+a detached child of your shell, and a reboot, a panic or an out-of-memory kill
+takes it with nothing to bring it back, leaving the lease standing all night
+with nobody exercising it. Under launchd that death is a restart, and factory's
+pidfile keeps the two copies from ever both passing.
+
+Turn it off on a machine you drive `factory` on by hand, where a runner
+appearing behind you would be a surprise.
 
 ## Keeping the Mac awake
 
@@ -79,6 +98,19 @@ lane it opens is a background one: nothing raises a window or steals focus, and
 the receipt is a notification. Everything else about it, including the checkout
 it will and will not find, is the same as pressing the button, which
 [When GitHub goes red](/docs/haus/rooms/ai#when-github-goes-red) covers.
+
+A shift calls it through a shim, because the two argument lists do not line up:
+factory appends `<repo> <branch> <run url>` to whatever your policy names, and
+the verdict is carried by neither side. `haus-factory-fixer` is that reorder, on
+your `PATH` beside `haus-fix-github`, so the policy names the whole of it:
+
+```json
+"fixer": { "command": ["haus-factory-fixer"] }
+```
+
+`~/.config/factory/config.json` stays yours. haus writes none of it, which is
+why `factory doctor` telling you there is no `fixer.command` is the reminder
+that this line is missing.
 
 <Callout title="It spawns, it does not fix">
 The lane is an ordinary lane running its client interactively, with its own

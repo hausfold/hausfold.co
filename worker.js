@@ -10,9 +10,10 @@
 //                         GitHub keeps hosting bytes and counting downloads
 //   /api/release/<app>  → tiny JSON (tag, asset, size, publishedAt) for
 //                         labelling a download button with the real version
-//                         instead of one hardcoded to go stale. ⚠️ Nothing on
-//                         this site calls it yet — it is here so the landing
-//                         pages have it when they become Next routes.
+//                         instead of one hardcoded to go stale. No page here
+//                         fetches it: its callers are agents and curl, which
+//                         is why it is named on /developers and in llms.txt
+//                         and pinned by openapi.json.
 //   /mcp                → the Model Context Protocol endpoint (Streamable
 //                         HTTP): search the docs, get release metadata, get
 //                         an install command. See the block above serveMcp().
@@ -168,9 +169,6 @@ const SAFE_DESKTOP = /^[a-z][a-z0-9-]*$/;
 
 const BOOTSTRAP = "bootstrap.sh";
 const SAFE_REF = /^[A-Za-z0-9._-]+$/; // no slashes / dots-dots -> no path traversal
-
-// The apps with signed + notarized release artifacts are DOWNLOADABLE in
-// worker-config.js.
 
 // Short domains: one hostname that stands for one page, and 301s to it.
 //
