@@ -96,7 +96,11 @@ brief on argv and prints one name. haus ships none, because the model and the AP
 key are yours; the key belongs in the login keychain via
 [the Security room](/docs/haus/rooms/security#secrets-your-rooms-need), never
 beside the script. Every failure is a warning and a fall back to the random pair,
-so it cannot cost you a lane.
+so it cannot cost you a lane. Spawn Agent hands its own slug down as
+`SCRUFF_NAMER_FALLBACK` for an adapter that cannot reach its model: honour it, or
+an offline spawn is named worse than it would have been. `claude` is scruff's one
+built-in and needs no file, but at 8 to 12 seconds it is slower than the palette
+waits, so Spawn Agent keeps its slug and only a hand-run `scruff spawn` asks it.
 
 ### Which repos it offers
 
@@ -105,10 +109,11 @@ haus.ai.repoRoots = [ "~/code" "~/src" "~/Developer" "~/Projects" "~/.config/nix
 ```
 
 An entry that **is** a repo is offered as itself and never descended into;
-anything else is scanned two levels deep. Naming the list replaces it, and repos
-scruff already knows are offered whether or not they sit under a root. That last
-default entry is the config flake this Mac is built from, which is the repo you
-most often want an agent in.
+anything else is scanned two levels deep. A path that does not exist is skipped
+in silence, so one host file can name roots that only some machines have. Naming
+the list replaces the default, and repos scruff already knows are offered whether
+or not they sit under a root. That last default entry is the config flake this
+Mac is built from, which is the repo you most often want an agent in.
 
 ## Which client gets spawned
 
@@ -118,10 +123,18 @@ haus.ai.default = "claude";                 # what ⌘⏎ spawns
 ```
 
 The four names are `claude` (Claude Code), `codex` (OpenAI Codex), `opencode`
-(OpenCode) and `pi` (pi), all from nixpkgs, so `haus update` moves them.
+(OpenCode) and `pi` (pi), all from nixpkgs, so `haus update` moves them. Two are
+held ahead of it: `claude`, because Claude Code gates models on the client
+version and a stock pin greys out the newest one in `/model` for no visible
+reason; and `pi`, because `--` reached it only in 0.84.3 and scruff puts a `--`
+before a lane's first-turn prompt, so on an older pi a task starting with a dash
+is read as a flag and the pane dies before the agent draws. Both step aside once
+nixpkgs passes them.
+
 `ai.default` must be one of `ai.clients`, and the rebuild says so by name rather
-than failing later, inside the pane, after the checkout exists. The client is
-recorded **with the lane**, so the option only affects new spawns.
+than failing later, inside the pane, after the checkout exists. `clients` defaults
+to an empty list, which is exempt from that check and installs no client. The
+client is recorded **with the lane**, so the option only affects new spawns.
 
 Want a patched build? **Overlay the package** (`claude-code`, `codex`,
 `opencode`, `pi-coding-agent`) rather than adding your own derivation to
@@ -170,15 +183,17 @@ under your existing subscription. Point any tool at it with any API key:
 $ ANTHROPIC_BASE_URL=http://127.0.0.1:3456 ANTHROPIC_API_KEY=x <your tool>
 ```
 
-`haus.ai.meridian.port` moves the number if something already owns 3456; the
-bind address is loopback and is deliberately not an option. It does **not**
-follow `haus.ai.enable`, and **haus points nothing at it**: which endpoint a
-client uses lives in that client's own file (`~/.pi/agent/models.json`,
-OpenCode's config), and those files are yours.
+`haus.ai.meridian.port` moves the number if something already owns 3456. There is
+no option for the bind address: a proxy that answers for your subscription
+without asking who is calling is safe on loopback and an open account on any
+other interface. It does **not** follow `haus.ai.enable`, because the proxy is
+useful to clients haus never installed, and for the same reason **haus points
+nothing at it**: which endpoint a client uses lives in that client's own file
+(`~/.pi/agent/models.json`, OpenCode's config), and those files are yours.
 
 meridian has no credential of its own; it re-uses the OAuth token Claude Code
-keeps in your login keychain, so it runs as a **user** agent and the sign-in is
-a card in `haus permissions`:
+keeps in your login keychain. So it runs as a **user** agent, root having no
+login keychain, and the sign-in is a card in `haus permissions`:
 
 ```console
 $ claude          # then /login, once
@@ -209,10 +224,12 @@ npm prefix alone, and tells you where it is.
 Run eight agents at once and the question is which of them is sitting on a
 permission prompt. The [bar](/docs/haus/rooms/bar)'s `agents` pill answers it for
 a lane, an agent you started by hand, and a conversation in the desktop app
-alike: one mark and a count per state, always in urgency order. Red is ready for
-your turn, sky is working, green is done, and a state with nothing in it draws
-nothing at all, so the robot's own colour answers "is anything asking for me"
-before you have read a digit.
+alike: one mark and a count per state, in urgency order, and a state with
+nothing in it draws nothing at all. Ready for your turn is a filled `?` in red,
+working an open ring in sky, done a tick in green, so the ink thins as the
+urgency does and the shape carries the state where the colours are too small to
+separate. The robot itself takes the most urgent live state's colour, which
+answers "is anything asking for me" before you have read a digit.
 
 Each client's own lifecycle hooks report it, so nothing scrapes the screen. haus
 wires OpenCode's plugin, Codex's hooks and pi's extensions for you. **Claude
@@ -338,10 +355,10 @@ teaching a computer-use step.
 Set [`ai.instructions`](/docs/haus/reference/options#ai) and haus prepends a
 **screen etiquette** section to the file every client reads: prefer looking to
 touching, never foreground an app just to see it, hand feel-tests back to the
-person at the keyboard. Empty, the default, writes no instructions file at all,
-so you get the guard and none of the prose; setting it moves a hand-written file
-already at that client's path aside as `.backup`, quietly, so look before the
-first rebuild after. `HAUS_DESKTOP_OK=1` in a pane's environment switches the
+person at the keyboard. Left empty, the default, haus writes no instructions file
+at all, so you get the guard and none of the prose; setting it moves a
+hand-written file already at that client's path aside as `.backup`, quietly, so
+look before the first rebuild after. `HAUS_DESKTOP_OK=1` in a pane's environment switches the
 guard off there, for a long unattended run where forty prompts is the problem.
 Claude Code and pi are the two that get the guard; the etiquette goes to every
 client.
@@ -381,13 +398,17 @@ machine it runs on, and Claude Code's own picture is a stranger's laptop: the
 working repo and its remotes are trusted, everything else is not. So it asks
 about the ordinary work of a machine running lanes across a dozen repos you own.
 [`ai.autoMode`](/docs/haus/reference/options#ai) is where you correct it, in four
-lists of prose, one fact or rule per string: `environment` is what this machine
-and its repos are, `allow` what is ordinary here, `softDeny` what it should stop
-and ask about, `hardDeny` what it refuses outright.
+lists of prose, one fact or rule per string. `environment` is what this machine
+and its repos are: who owns what, where secrets live, which hosts are disposable,
+what counts as production. `allow` is what is ordinary here. `softDeny` is what
+it should stop and ask about, unless you or an `allow` rule say otherwise, and
+`hardDeny` what it refuses outright, whatever anyone says.
 
-Claude Code's own entries stay in front of yours while `ai.autoMode.keepDefaults`
-is on; turn that off and yours replace them, refusals included, so read the
-result back with `claude auto-mode config` first.
+They are written into `~/.claude/settings.json` on every rebuild, per section, so
+a host naming only `allow` never deletes a `hard_deny` you wrote by hand. Claude
+Code's own entries stay in front of yours while `ai.autoMode.keepDefaults` is on;
+turn that off and yours replace them, refusals included, so read the result back
+with `claude auto-mode config` first.
 
 The [guard](#the-screen-belongs-to-you) decides for itself whether a call touches
 what is in front of your eyes, so an `allow` rule here should leave the screen to
@@ -420,15 +441,16 @@ warns rather than failing the rebuild.
 
 ### Shaping the hold
 
-`haus.ai.keepAwake` is a switch, not a second copy of the dial. The dials live
-with the machinery, in
+The dials live with the machinery, in
 [`haus.power.lidAwake`](/docs/haus/reference/options#haus-power-lidawake-enable),
-and both stops read them: `linger`, how long a hold keeps going past the last
-turn; `maxHold`, how long one unbroken hold may last; and `requirePower`, which
-guards the **lid** hold only, because unplugging is also how you say stop. The
-defaults there are the cautious ones.
+and both stops read them rather than carrying a second copy. `linger` (5 min)
+keeps a hold going past the last turn, so the gap between two turns cannot sleep
+the Mac. `maxHold` (8 hours) caps one unbroken hold, and a genuinely new agent
+lifts the cap early. `requirePower` (on) guards the **lid** hold only, because
+unplugging is also how you say stop; the `idle` hold ignores it.
 
-One of them is not a dial. `while = "always"` is plain closed-display mode,
+A fourth key there is not a dial. `while = "always"` is plain closed-display
+mode,
 agents or no agents, and it is the stop an unattended merge shift wants, because
 a foreman waking on a cadence is idle between passes and the agent-shaped hold
 drops in the gaps. [Merging pull requests overnight](/docs/haus/night-shift) is
