@@ -8,25 +8,16 @@ Almost every haus problem is one of a few known macOS quirks with a known fix.
 Start here, whatever the symptom:
 
 ```sh
-haus doctor      # Nix, the Xcode tools, the background jobs that want
-                 # attention, cask drift, the launcher's Accessibility grant,
-                 # the theme ports and your secrets, in one pass
-haus services    # the whole roster: every background job, what it's for,
-                 # whether it's running or idle by design, and where it logs
+haus doctor      # the whole machine in one pass
+haus services    # every background job, and where each one logs
 ```
 
 `haus doctor` catches a job whose last run failed, not only one that is dead
-right now, so a weekly cleanup of the Nix store that has quietly been exiting
-non-zero every Sunday gets a line.
-
-Reading a job's error log is usually faster than restarting blind, and a job
-that dies again ten seconds after a kick is telling you something that only
-shows up in it. `haus services` prints each log's real path rather than guessing
-at one: the tiler, the bar and the launcher write `<name>.out.log` and
-`<name>.err.log` in `/tmp`, but a job that came with another room logs under
-`~/Library/Logs` or `/var/log`. [What this Mac runs in the
-background](/docs/haus/reference/haus#what-this-mac-runs-in-the-background) is
-the roster and what each job is for.
+right now, so a cleanup quietly exiting non-zero every Sunday gets a line.
+[`haus services`](/docs/haus/reference/haus#what-needs-a-person-and-what-runs-itself)
+prints each log's real path: the tiler, the bar and the launcher write
+`<name>.out.log` and `<name>.err.log` in `/tmp`, a job from another room under
+`~/Library/Logs` or `/var/log`.
 
 ## ⌘Space does nothing
 
@@ -47,23 +38,19 @@ pounce --request-accessibility   # approve the system dialog
 pounce --check-accessibility     # prints true once granted
 ```
 
-The daemon runs the CI-built release app, signed with the hausfold Developer
-ID, so that grant survives rebuilds on its own; see
-[Granting Accessibility](/docs/pounce/install#grant-accessibility). If
-⌘Space still opens **Spotlight**, log out and back in once so the
-symbolic-hotkey reassignment takes.
+The grant survives rebuilds on its own; see [Granting
+Accessibility](/docs/pounce/install#grant-accessibility). If ⌘Space still opens
+**Spotlight**, log out and back in once so the symbolic-hotkey reassignment
+takes.
 
 <Callout title="Palette opens, but slowly?">
-Another hotkey tool (skhd, AeroSpace, Raycast) bound to the same key grabs it
-with an event tap *ahead* of Pounce, so every summon spawns a fresh client
-instead of hitting the daemon's fast path. Registration still reports success
-and the palette still opens, which is what makes it hard to spot. `pounce
-doctor` names the culprit and tells you what to unbind.
+Another hotkey tool bound to the same key can grab it ahead of Pounce, and
+registration still reports success, which is what makes it hard to spot.
+[`pounce doctor`](/docs/pounce/install#check-it-landed) names the culprit.
 
-One line of its output is wrong on a haus machine: if the daemon isn't running
-it suggests `brew services start pounce`, which is the advice for a standalone
-Homebrew install. Here the daemon is the launchd agent above; kick that
-instead.
+One line of its output is wrong here: if the daemon isn't running it suggests
+`brew services start pounce`, the advice for a standalone Homebrew install. On
+this Mac the daemon is the launchd agent above; kick that instead.
 </Callout>
 
 ## Windows won't tile
@@ -95,7 +82,7 @@ running?`, a stray `brew services` copy of SketchyBar is holding the lock. Every
 rebuild evicts it, so `haus rebuild` is the fix.
 
 **Running, but stale** (a pill you added isn't there, or a colour change didn't
-land)? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or from the
+land)? The easy fix is **Reload SketchyBar**, from the ⌘Space palette or the
 haus menu on a left-click of the logo pill. By hand:
 
 ```sh
@@ -112,8 +99,8 @@ path re-resolves it now. And the two bars are separate instances: a lone
 `sketchybar --reload` leaves the bottom one exactly as it was.
 </Callout>
 
-If you'd rather not run a custom bar at all, `haus.bar.enable = false` brings
-the native macOS menu bar back.
+Not wanting a bar at all is a different question: `haus.bar.enable = false`
+brings the native macOS menu bar back.
 
 ## After a macOS upgrade, *every* agent is dead
 
@@ -129,13 +116,13 @@ haus btm    # no-op before Tahoe; on Tahoe+ it reads the BTM store and instructs
 ```
 
 There is **no declarative fix**: the toggle lives in macOS's own BTM store,
-which has no CLI to set it. So it's a one-time manual step: in **System Settings
-▸ General ▸ Login Items & Extensions**, scroll to **Allow in the Background**,
-find the entries named **`sh`** (subtitled *Item from unidentified developer*),
-switch them on and reboot. Already on but still blocked? Flip off, then on, to
-force a database write.
+which has no CLI to set it, so it is a one-time manual step. In **System
+Settings ▸ General ▸ Login Items & Extensions**, scroll to **Allow in the
+Background**, find the entries named **`sh`** (subtitled *Item from unidentified
+developer*), switch them on and reboot. Already on but still blocked? Flip off,
+then on, to force a database write.
 
-You can read the store yourself at any time:
+To read the store yourself:
 
 ```sh
 sudo sfltool dumpbtm | grep -B2 -A8 -iE "nixos|hausfold|darwin-store"
@@ -155,38 +142,33 @@ the way through, and without Full Disk Access that write fails, takes the rest
 of activation with it, and never reaches the launchd agents. The failure is
 nowhere near the symptom.
 
-`haus permissions` walks you through granting it (and everything else this
-Mac still needs a click for), `haus doctor`'s **Permissions** section reports
-it read-only, `haus plan` says
-whether this rebuild needs it before you run one, and `haus rebuild` refuses up
-front whenever the app it runs under lacks it, agent pane or plain terminal
-alike, since the grant follows the app. Better still, sidestep the domain:
-`haus.accessibility.*` reaches every key in it that macOS actually honours
-(all seven, which is every key nix-darwin types there) with a guarded write,
-which costs you the setting and nothing else when the grant is missing. [Changing your Mac with an
-agent](/docs/haus/agent-rebuilds) has the detail.
+`haus permissions` walks you through granting it and `haus plan` says whether
+the next rebuild needs it. Better still, stop writing the domain by hand:
+`haus.accessibility.*` writes the same keys guarded, so a missing grant costs
+you that setting and nothing else. [The one rebuild it
+refuses](/docs/haus/reference/haus#the-one-rebuild-it-refuses) has the CLI side,
+[Changing your Mac with an agent](/docs/haus/agent-rebuilds) the whole rule.
 
 ## Touch ID for sudo beachballs inside a multiplexer
 
-The `pam_reattach` shim isn't loading. It ships with the **security** room and is
-on by default; check the order in `/etc/pam.d/sudo_local`: reattach must come
-*before* the Touch ID line. Outside a multiplexer, Touch ID should just work;
-cancel the prompt to fall back to your password. [Touch
+The `pam_reattach` shim isn't loading. It ships with the **security** room and
+is on by default; check the order in `/etc/pam.d/sudo_local`, where reattach
+must come *before* the Touch ID line. Outside a multiplexer, Touch ID should
+just work; cancel the prompt to fall back to your password. [Touch
 ID](/docs/haus/rooms/security) has the rest.
 
 ## "Refusing to load cask … from an untrusted tap"
 
 Third-party taps fail Homebrew's trust check under a sudo-driven activation.
-haus turns that requirement off globally
-(`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in `/etc/homebrew/brew.env`), so seeing this
-means the file didn't land. Re-run `haus rebuild`, or export the variable in
-your shell for a one-off.
+haus turns that requirement off globally (`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in
+`/etc/homebrew/brew.env`), so seeing this means the file didn't land. Re-run
+`haus rebuild`, or export the variable in your shell for a one-off.
 
 ## An app I removed from my config is still installed
 
 By design. `haus.homebrew.cleanup` is `"none"`, so nothing you installed is ever
-auto-deleted, and **`haus rollback` doesn't rewind Homebrew apps**, because
-they aren't in Nix generations. Remove one by hand:
+auto-deleted, and **`haus rollback` doesn't rewind Homebrew apps**, because they
+aren't in Nix generations. Remove one by hand:
 
 ```sh
 brew uninstall --zap <cask>
@@ -202,24 +184,20 @@ haus rollback       # atomically back to the previous generation
 haus generations    # what you can roll back to
 ```
 
-`haus rebuild` always builds *before* it switches, so a config with an error in
-it can't activate: you get a build failure and a machine exactly as it was. For
-macOS **settings** rather than packages, `haus revert-settings` puts back the
-snapshot `haus capture` took, and the APFS snapshot from install time is the
-coarser rewind.
-
-Want to go further than one generation (switch a room off, or remove haus
-entirely)? [Leaving](/docs/haus/leaving) walks each exit, smallest first.
+For macOS **settings** rather than packages, `haus revert-settings` puts back
+the snapshot `haus capture` took, and the APFS snapshot from install time is the
+coarser rewind. To go further than one generation (switching a room off, or
+removing haus entirely), [Leaving](/docs/haus/leaving) walks each exit, smallest
+first.
 
 ## "Found a Nix at /nix that isn't Determinate"
 
 haus is built on [Determinate Nix](https://docs.determinate.systems/), and the
-installer stops on any `/nix` that Determinate didn't create (single-user or
-multi-user daemon install alike, it's the *flavour* it checks) rather than risk
-breaking the Nix you already have. If you
-have a Nix you don't need, uninstall it and re-run the one-liner; if you want to
-keep it, migrating to Determinate is the supported path. A fresh Mac needs none
-of this; the bootstrap installs Determinate for you.
+installer stops on any `/nix` that Determinate didn't create rather than risk
+breaking the Nix you already have. It checks the *flavour*, so single-user and
+multi-user daemon installs stop it alike. Uninstall the Nix you don't need and
+re-run the one-liner, or migrate it to Determinate, which is the supported path.
+A fresh Mac needs none of this.
 
 ## Still stuck?
 
@@ -242,11 +220,8 @@ of this; the bootstrap installs Determinate for you.
   />
 </Cards>
 
-Still nothing? Run `haus report`. It opens haus's bug form with the output of
-`haus doctor`, your macOS build, your Mac model and the desktop you're on
-already in the diagnostics field, so all that's left to write is what happened.
-On a full machine that report is too long to ride in a link: the form opens with
-the field empty and the block goes to your terminal (or your clipboard, if you
-came from the palette) to paste in. Either way it prints the block first, and
-nothing is filed until you press Submit. `haus report --print` shows the same
-block and the same link without opening a browser.
+Still nothing? `haus report` fills haus's bug form in for you, so all that's
+left to write is what happened. On a full machine the report is too long to ride
+in a link: the form opens empty and the block goes to your terminal, or your
+clipboard if you came from the palette, to paste in. Nothing is filed until you
+press Submit, and `haus report --print` opens no browser at all.
