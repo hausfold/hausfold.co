@@ -57,6 +57,11 @@ brew install --cask hausfold/tap/perch
 
 Same build either way. No account, no sign-in, no licence key.
 
+Homebrew reads the chip you are *running as*, not the one you have, so a
+`/usr/local` Homebrew under Rosetta declines perch on an Apple Silicon Mac that
+would have run it natively. Take the download instead, or install an arm64
+Homebrew.
+
 **Open it once from your Applications folder.** No window opens and **there is
 no Dock icon**: that's deliberate. Look for a small tray icon in your menu bar,
 top right. That's perch, and it's how you reach everything below.
