@@ -4,23 +4,21 @@ description: A desktop is one file whose only top-level key is haus. The closed 
 icon: hammer
 related:
   - title: "Share a desktop"
-    description: "Publishing something inspectable: what the repository holds, what the README owes a reader, and the checklist before you hand it out."
+    description: "What the repository holds, what the README owes a reader, and the checklist before you hand it out."
     href: "/docs/haus/desktops/sharing"
     icon: "share"
   - title: "How the flakes fit together"
-    description: "Where a desktop sits in the priority ladder, and why a pinned input means nothing on your Mac changes until you say so."
+    description: "Where a desktop sits in the priority ladder, and why a pinned input means nothing changes until you say so."
     href: "/docs/haus/internals/flakes"
     icon: "flake"
 ---
 
 A **desktop** is a single `.nix` file whose only top-level key is `haus`. That is
-the entire format, and the smallness is the point: a desktop can't run a script,
-reach a macOS setting haus doesn't already expose, or hand the build a package of
-its own. A stranger can read one in a minute and know the worst it can do, which
-is what makes running one from someone you've never met reasonable.
-
-haus ships four: [hacker, everyday, minimal and
-blank](/docs/haus/desktops/choosing#the-four-that-ship). This page is how you
+the entire format, and the smallness is the point: it cannot run a script, reach
+a macOS setting haus doesn't already expose, or hand the build a package of its
+own. A stranger can read one in a minute and know the worst it can do, which is
+what makes running one from someone you've never met reasonable. haus ships
+[four](/docs/haus/desktops/choosing#the-four-that-ship); this page is how you
 write yours.
 
 ## The format
@@ -42,72 +40,52 @@ write yours.
 }
 ```
 
-There is no `{ pkgs, lib, config, ... }:` header; this is data, not a module
-function. No `system.defaults`, no `pkgs`, no activation hooks, no `imports`.
-Everything stays inside the documented
-[`haus.*` option surface](/docs/haus/reference/options), and only the leaves
-marked safe for desktop data.
-
-Someone selects it the same way they select one of haus's own:
+No `{ pkgs, lib, config, ... }:` header: this is data, not a module function. No
+`system.defaults`, no `pkgs`, no activation hooks, no `imports`, and only the
+[`haus.*` leaves marked safe for desktop data](/docs/haus/reference/options).
+Someone selects it the way they select one of haus's own:
 
 ```nix
 desktop = ./desktops/writer.nix;
 ```
 
-`git add` the file before you rebuild. A config is a git repository and Nix
-reads only its tracked files, so a brand-new desktop that hasn't been staged
-fails with an error about a path that does not exist, naming a file that is
-sitting right there in the directory.
+`git add` it before you rebuild. Nix reads only a config's tracked files, so an
+unstaged desktop fails with an error about a path that does not exist, naming a
+file sitting right there in the directory.
 
 ## A desktop is the whole answer
 
-A host runs **exactly one**, so yours is not a diff against hacker; it is
-the complete selection. Whatever you don't say, the rooms' own neutral defaults
-decide, which for every optional room means **off**.
+A host runs **exactly one**, so yours is not a diff against hacker: whatever you
+don't say, the rooms' own neutral defaults decide, which for every optional room
+means **off**. Check that twice when you port a layer that was stacked on another
+desktop, since what it inherited silently is what it now has to state. haus's own
+`everyday` names `security.passwordlessRebuild` and `focus.enable` for that
+reason.
 
-That is the one thing to check twice when you port a layer that was stacked on
-another desktop: the values it silently inherited are values it now has to
-state. haus's own `everyday` is the worked example. It names
-`security.passwordlessRebuild` and `focus.enable` explicitly, because a layered
-preset inherits them quietly, and a port that drops them drops them just as
-quietly.
-
-Say what your desktop is **for** in a comment at the top, and say what it
+Say what your desktop is **for** in a comment at the top, and what it
 deliberately leaves out. The reason a room is off is the part a reader can't
 reconstruct.
 
 ## Teach it your own first lap
 
-The built-in tour teaches haus's core moves in the bar, one hint at a time. A
-desktop can replace that lap with its own and stay data-only. A desktop
-that turns rooms off usually must, because the built-in one is leader moves plus
-the launcher and has nothing left to teach without them:
+The bar's tour teaches haus's core moves one hint at a time, and a desktop can
+replace that lap with its own without leaving the data surface. One that turns
+rooms off usually must: the built-in lap is three leader moves plus the palette,
+so it has nothing left to teach without them.
 
 ```nix
 haus.tour.steps = [
-  {
-    hint = "Press {palette}, type tour, then hit ↵";
-    detect = "palette";
-  }
-  {
-    hint = "Move to another workspace";
-    detect = "workspace";
-  }
+  { hint = "Press {palette}, type tour, then hit ↵"; detect = "palette"; }
+  { hint = "Move to another workspace"; detect = "workspace"; }
 ];
 ```
 
 Steps run in order and advance on signals haus already emits, never on
-keystrokes. `detect` takes one of `launch`, `workspace`, `navigate`, `resize` or
-`palette`; the first four need windows, and `palette` needs the launcher *and* a
-palette key bound. A left click skips a step. Left at its default `null`,
-`tour.steps` keeps the built-in lap; an **empty** list is a type error, and the
-off switch is `tour.enable = false`.
-
-**Write keys as `{palette}`, `{leader}` and `{leaderName}`, never as a literal
-chord.** They expand to what *that* machine resolved, so a tour you share still
-names the right keys on a host that moved `keys.palette`, where a hardcoded
-`⌘Space` would be wrong invisibly, since you never see the consumer's bar. A
-misspelled placeholder renders as typed, and the rebuild warns and names it.
+keystrokes. **Write keys as `{palette}`, `{leader}` and `{leaderName}`, never a
+literal chord**: they expand to what *that* machine resolved, and a hardcoded
+`⌘Space` is wrong invisibly on a host that moved `keys.palette`, where you never
+see the consumer's bar. `null` keeps the built-in lap, an **empty** list is a
+type error, and the off switch is `tour.enable = false`.
 
 <Callout type="warn" title="The tour is drawn by the bar">
 A rebuild warns when a step needs a room the desktop switched off, but those
@@ -123,19 +101,16 @@ Run the same structural check haus runs against its own desktops:
 haus show ./writer.nix
 ```
 
-It says what class the file is, then either passes it or names exactly what
-escaped: a stray top-level key, an `imports`, a merge or priority instruction,
-an option that isn't a haus option, or a leaf that is host-only. Every rule has
-a fixture behind it, so the message names the file and the option rather than
-failing somewhere deeper. It also prints what the file sets, grouped by room,
-and which rooms it leaves alone, which is the half a `true` never told you.
-It exits non-zero when it fails, so it is also the line to put in your CI;
-[the reference](/docs/haus/reference/haus#reading-a-desktop-or-room-before-you-trust-it)
+It names the file's class, then either passes it or names what escaped: a stray
+top-level key, an `imports`, a merge or priority instruction, a non-haus option,
+or a host-only leaf. It also prints what the file sets grouped by room, and which
+rooms it leaves alone, which a `true` never told you. It exits non-zero on
+failure, so it is the line for your CI; [the
+reference](/docs/haus/reference/haus#reading-a-desktop-or-room-before-you-trust-it)
 has the exit codes and `--json`.
 
-The rules underneath it are `haus.lib.checkDesktop`'s, and on a machine with no
-haus installed you can call that directly (the same rules, reached the long
-way):
+The rules underneath are `haus.lib.checkDesktop`'s, reachable with no haus
+installed:
 
 ```sh
 nix eval --impure --expr \
@@ -149,42 +124,30 @@ from a real host and evaluate:
 nix eval .#darwinConfigurations.myhost.system.drvPath
 ```
 
-[`haus plan`](/docs/haus/reference/haus) is the stronger version of that last
-step: it prints what a rebuild *would* change (packages, settings, files,
-launchd jobs, casks) and changes nothing. It builds first, so it takes longer
-than the eval above; it tells you correspondingly more.
+[`haus plan`](/docs/haus/reference/haus) is the stronger version: it prints what
+a rebuild *would* change (packages, settings, files, launchd jobs, casks) and
+changes nothing. It builds first, so it is slower and tells you more.
 
 ## Leave room for the host
 
-Anything your desktop sets, a consumer overrides with a plain assignment in
-their host file. That already works: the desktop's values arrive below a host's
-in the priority ladder, so nobody needs `lib.mkForce` to disagree with you.
-
-The exception is worth knowing before you set one:
+A consumer overrides anything you set with a plain assignment in their host file.
+Your values arrive below a host's in the priority ladder, so nobody needs
+`lib.mkForce` to disagree with you.
 
 <Callout type="warn" title="A list you set is replaced whole, not added to">
-Every leaf a desktop sets is carried in at the desktop's priority, **a list
-included**, so a host that names `tour.steps`, `keys.leaderExtras` or
-`snippets.matches` at all replaces yours rather than appending to it. Someone
-who wants three of your four entries has to restate all four.
-
-That is the deliberate choice: a host says something, and the host's value is
-what you get. The alternative (lists concatenating) means a consumer can add
-to your list but can never drop one entry from it.
+Every leaf arrives at the desktop's priority, **a list included**, so a host that
+names `tour.steps`, `keys.leaderExtras` or `snippets.matches` at all replaces
+yours rather than appending to it. Someone who wants three of your four entries
+restates all four, so list what your desktop sets in its README.
 
 **Attribute sets are the middle case.** `roster`, `workspaces` and
-`launcher.items` are carried per key, so a host that names one app's field
-leaves the rest of yours standing.
-
-List what your desktop sets in its README, so restating it is possible without
-reading the file.
+`launcher.items` are carried per key, so a host that names one app's field leaves
+the rest of yours standing.
 </Callout>
 
-Which options are which is on the
-[options reference](/docs/haus/reference/options), stated per option and
-generated from the same registry `checkDesktop` reads: *host-only* for the ones
-a desktop may never set, and *desktop-safe per key* for the containers whose
-keys a named rule decides.
+The [options reference](/docs/haus/reference/options) says which is which per
+option: *host-only* for the ones a desktop may never set, *desktop-safe per key*
+for the containers whose keys a named rule decides.
 
 ## What doesn't belong in one
 
@@ -196,19 +159,16 @@ powerful:
 - raw macOS defaults outside `haus.*`;
 - a `pkgs` value, or a `/nix/store` path;
 - activation hooks and shell commands;
-- a display UUID: `haus.displays.main` says "the screen this Mac is using"
-  without naming anyone's hardware. A `shortcut:<uuid>` palette row is refused
-  on the same argument: it names one entry in one Mac's Shortcuts library. The
-  other palette addresses (`cmd:`, `app:`, `setting:`, `mode:`) a desktop may
-  set freely.
-- a private room: `haus.my.*` is the prefix reserved for rooms that live on one
-  Mac, so a file other people run may not name one.
+- a display UUID, and a `shortcut:<uuid>` palette row: each names one Mac's
+  hardware or one Mac's Shortcuts library. `haus.displays.main` and the other
+  palette addresses (`cmd:`, `app:`, `setting:`, `mode:`) are free to set;
+- a private room: `haus.my.*` is reserved for rooms that live on one Mac.
 
 `checkDesktop` refuses every one of them, so this list is what the error message
-will be about rather than a set of rules you have to remember.
+will be about rather than a set of rules to remember.
 
-Naming a *package* is fine and doesn't need `pkgs`: options that take one have a
-`packageName` sibling taking the nixpkgs attribute as a string, so a desktop can
-change the mono font or add a tool without leaving the data-only surface. A
-configuration that genuinely needs `pkgs`, scripts, or arbitrary nix-darwin
-options is a **power module**, and carries a different trust model.
+Naming a *package* needs no `pkgs`: options that take one have a `packageName`
+sibling taking the nixpkgs attribute as a string, so a desktop can change the
+mono font or add a tool and stay data-only. A configuration that genuinely needs
+`pkgs`, scripts or arbitrary nix-darwin options is a **power module**, and
+carries a different trust model.
