@@ -52,20 +52,37 @@ jobs:
 
       # Nothing but this workflow writes ci/options-drift, so replacing its
       # history keeps repeated Monday runs on one PR without rewriting a human
-      # branch.
-      - name: Open or update the drift PR
+      # branch — and lets a run with no drift retire the branch outright.
+      - name: Open, update or retire the drift PR
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           page=content/docs/haus/reference/options.mdx
+          branch=ci/options-drift
+
+          # An open drift PR cannot survive main catching up with it. Its own
+          # `check` job re-renders against haus's tip, so the day anyone
+          # regenerates the page on main the PR's older render goes stale and
+          # stays red — and this job, seeing no drift, used to exit without
+          # touching it. Nothing else writes the branch, so retiring it here is
+          # the only thing that ever clears that.
           if git diff --quiet -- "$page"; then
             echo "options reference is current — nothing to open."
+            open=$(gh pr list --head "$branch" --state open --json number -q '.[].number')
+            if [ -n "$open" ]; then
+              # shellcheck disable=SC2016  # the backticks are markdown, not a subshell
+              gh pr close "$open" --delete-branch --comment \
+                'Superseded: the options reference on `main` already matches haus, so this branch has nothing left to add. Merging it now would take the page backwards. `options-drift.yml` opens a fresh PR the next time haus and the page disagree.'
+              echo "closed #${open} and deleted ${branch}."
+            elif git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+              git push origin --delete "$branch"
+              echo "deleted the leftover ${branch}."
+            fi
             exit 0
           fi
 
           haus_sha=$(git -C .haus rev-parse --short HEAD)
-          branch=ci/options-drift
 
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
