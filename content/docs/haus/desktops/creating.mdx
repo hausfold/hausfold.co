@@ -84,7 +84,8 @@ Steps run in order and advance on signals haus already emits, never on
 keystrokes. **Write keys as `{palette}`, `{leader}` and `{leaderName}`, never a
 literal chord**: they expand to what *that* machine resolved, and a hardcoded
 `⌘Space` is wrong invisibly on a host that moved `keys.palette`, where you never
-see the consumer's bar. `null` keeps the built-in lap, an **empty** list is a
+see the consumer's bar. A misspelled placeholder renders as typed, and the
+rebuild warns and names it. `null` keeps the built-in lap, an **empty** list is a
 type error, and the off switch is `tour.enable = false`.
 
 <Callout type="warn" title="The tour is drawn by the bar">
@@ -172,3 +173,8 @@ sibling taking the nixpkgs attribute as a string, so a desktop can change the
 mono font or add a tool and stay data-only. A configuration that genuinely needs
 `pkgs`, scripts or arbitrary nix-darwin options is a **power module**, and
 carries a different trust model.
+
+## Options
+
+[Every setting, with its type, default and whether a desktop may set
+it](/docs/haus/reference/options).

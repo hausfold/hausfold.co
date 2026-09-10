@@ -37,9 +37,10 @@ job to teach, not your README's.
 <Callout title="Vendoring is still there for a one-off">
 `haus add --vendor github:you/writer-desktop` copies the file into their config
 at `desktops/writer.nix` instead of pinning it, for someone who plans to fork it
-immediately. It stages the file too, which matters: neither `haus show` nor
-`checkDesktop` catches a missing `git add`, because both read what they are
-handed and pass on the very file the rebuild cannot see.
+immediately. It stages the file too, which a hand copy has to do for itself: Nix
+reads only a config's tracked files, and neither `haus show` nor `checkDesktop`
+catches a missing `git add`, because both read what they are handed and pass on
+the very file the rebuild cannot see.
 </Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It
@@ -66,8 +67,8 @@ like tomorrow. Tell them:
   whole](/docs/haus/desktops/creating#leave-room-for-the-host);
 - **that both `haus show` and a real host evaluation passed**.
 
-Not how to override you: a host beats a desktop with a plain assignment, every
-time, without either of you doing anything.
+You do not need to document how to override you: a host beats a desktop with a
+plain assignment, every time.
 
 ## A room is the neighbouring format
 
@@ -96,7 +97,5 @@ itself ships are a different thing and are unaffected, still one line each
 - [ ] You have run it on a Mac, not only evaluated it.
 - [ ] Every room it turns off agrees with the features that depend on that room,
       `tour.steps` included.
-- [ ] The README states the audience, the rooms, the strong opinions, the tested
-      revision and the limits.
-- [ ] Any list-typed option it sets is named in the README.
+- [ ] The README says everything above, list-typed options included.
 - [ ] There is no identity, secret or device-specific data anywhere in it.

@@ -23,7 +23,6 @@ a handful of dials, and every one of them lives in the same file.
 `hosts/<hostname>/default.nix`, where everything on this page goes. It is a plain
 nix-darwin module, so what you write merges with what haus declares.
 
-
 ```sh
 haus edit       # opens it in $EDITOR
 haus rebuild    # builds first; a broken config never activates
@@ -62,7 +61,9 @@ haus.git.org = "analytical-engine";        # the owner whose PRs fill ⌘G's tab
 ```
 
 `org` is where you work rather than who you are, and does nothing until
-`haus.terminal.ghDash.enable = true` sits beside it.
+`haus.terminal.ghDash.enable = true` sits beside it, which in turn needs the Git
+pack (`haus.developer.git.enable`) on: an assertion enforces it, because gh-dash
+authenticates out of `gh`'s own credentials.
 
 ### The look
 
@@ -89,9 +90,8 @@ haus.bar.enable = true;        # false: the native macOS menu bar stays
 haus.bar.items.elgato = true;  # the optional pills are personal, so off unless you ask
 ```
 
-The roster is the most common edit on the machine and has [a page of its
-own](/docs/haus/rooms/apps); [the bar](/docs/haus/rooms/bar) lists its pills,
-[Development](/docs/haus/rooms/development) the editor.
+The roster is the most common edit on the machine:
+[Apps](/docs/haus/rooms/apps) has it, [the bar](/docs/haus/rooms/bar) its pills.
 
 ### Homebrew behaviour
 
@@ -102,7 +102,7 @@ haus.homebrew.upgrade = false;     # upgrade outdated packages each rebuild
 haus.homebrew.adopt = true;        # adopt an already-installed app instead of failing on it
 ```
 
-<Callout type="warn" title="A rebuild keeps a cask installed, not current">
+<Callout type="warn" title="Two Homebrew edges">
 With `autoUpdate` and `upgrade` off a rebuild installs a cask once and leaves the
 version brew first laid down, which is how an app sits old on a fully synced
 machine. Move one with `brew upgrade --cask <name>`.
@@ -135,10 +135,10 @@ desktop](/docs/haus/desktops/blank).
 
 Tiling **without** its keyboard claims is not the switch: `haus.keys.leader =
 "none"` and `haus.keys.windowNav = "none"` keep the tiler arranging windows while
-Caps Lock stays Caps Lock. Only `cmd-space` displaces Spotlight, so the launcher
-has the same escape:
-[`haus.keys.palette`](/docs/haus/rooms/keys#not-fond-of-these-keys) also takes
-`alt-space`, `ctrl-space` or `"none"`.
+Caps Lock stays Caps Lock. The launcher has the same escape: only `cmd-space`
+displaces Spotlight, so moving
+[`haus.keys.palette`](/docs/haus/rooms/keys#not-fond-of-these-keys) to
+`alt-space` or `ctrl-space` (or `"none"`) is how you keep both.
 
 <Callout type="warn" title="the launcher doesn't hand ⌘Space back">
 haus disables Spotlight's shortcut with a one-way write and nothing re-enables
@@ -200,14 +200,14 @@ forcing it while the bar is on puts two bars in one strip of pixels.
 background") haus rewrites on every activation, so a hand flip lasts until the
 next rebuild.
 
-Two more are nix-darwin's own, and they lie.
-**`NSGlobalDomain.AppleInterfaceStyle`** is inert on macOS 26 and mirrors the
-appearance back at you, so a plist read-back calls an inert write applied: use
-`haus.theme.systemAppearance`, which `haus diff` checks it against.
-**`power.sleep.computer`** and its neighbours run `systemsetup`, which cannot say
-*which* power source you mean, and one of them wrote the **charger** profile
-while the Mac was on **battery**: use `haus.power.*`, which says `battery` and
-`charger` separately.
+Two more are nix-darwin's own. **`NSGlobalDomain.AppleInterfaceStyle`** macOS
+ignores outright: on macOS 26 the key is where macOS *mirrors* the appearance
+it's showing rather than a lever, so even a plist read-back agrees with you while
+nothing changes. Use `haus.theme.systemAppearance`; `haus diff` flags the other
+one. **`power.sleep.computer`** and its neighbours work, but not the way they
+read: they run `systemsetup`, which has no way to say *which* power source you
+mean, and one of them wrote the **charger** profile while the Mac was on
+**battery**. Use `haus.power.*`, which says `battery` and `charger` separately.
 </Callout>
 
 ## Secrets
@@ -219,9 +219,9 @@ the login keychain by default, which is why they don't ride along to a second
 machine. [Security](/docs/haus/rooms/security) has the providers.
 
 <Callout title="Publishing your config? Put gitleaks in front of it.">
-Add a [gitleaks](https://github.com/gitleaks/gitleaks) pre-commit hook so a stray
-key never gets to *be* a commit, and scan the history you have **before** you
-flip it public. Deleting a line later doesn't unpublish the key, so rotate
+A [gitleaks](https://github.com/gitleaks/gitleaks) pre-commit hook stops a stray
+key ever getting to *be* a commit. Scan the history you have **before** you flip
+the repo public: deleting a line later doesn't unpublish the key, so rotate
 anything it finds.
 
 ```sh
