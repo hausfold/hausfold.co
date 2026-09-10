@@ -4,7 +4,7 @@ description: "Publishing a desktop someone can read before they run it: what the
 icon: share
 related:
   - title: "Customize a desktop"
-    description: "The other side of the seam: running someone else's desktop and overriding it from your own host file."
+    description: "The other side of the seam: running someone else's desktop and overriding it from your host file."
     href: "/docs/haus/desktops/customizing"
     icon: "dials"
   - title: "Choose a desktop"
@@ -13,9 +13,8 @@ related:
     icon: "choose"
 ---
 
-A desktop is one readable file, so sharing one is mostly about making it easy to
-*read*, and about being honest in the README, which is the part the format
-can't check for you.
+A desktop is one readable file, so sharing one is mostly about being honest in
+the README, which is the part the format can't check for you.
 
 ## Publish something inspectable
 
@@ -28,34 +27,20 @@ writer-desktop/
 └── LICENSE
 ```
 
-Tell them they can read it before they run it. `haus show` takes the repo
-directly, fetches it into the store and reports on it without touching their
-config:
-
-```sh
-haus show github:you/writer-desktop
-```
-
-Once they trust it, `haus add github:you/writer-desktop` pins it and selects
-it (writing the input and the `desktop` line in one edit) and `haus
-rebuild` is the only step left. That's the [CLI
-reference](/docs/haus/reference/haus#pinning-a-desktop-you-found)'s job to
-teach, not the README's: your repository only needs to be readable and
-`haus show`-clean.
+Tell people they can read it before they run it: `haus show
+github:you/writer-desktop` fetches it into the store and reports on it without
+touching their config. Once they trust it, `haus add github:you/writer-desktop`
+pins and selects it in one edit, and `haus rebuild` is the only step left. That
+is the [CLI reference](/docs/haus/reference/haus#pinning-a-desktop-you-found)'s
+job to teach, not your README's.
 
 <Callout title="Vendoring is still there for a one-off">
-`haus add --vendor github:you/writer-desktop` copies the file into their
-config at `desktops/writer.nix` instead of pinning it, for someone who plans
-to fork and edit it immediately. It still has to be `git add`ed: a config
-that is a git repository, which a bootstrap install always is, hands Nix only
-its **tracked** files, and an untracked `writer.nix` is invisible to the
-evaluation no matter what the `desktop` line says. `haus add --vendor` stages
-it for you; anyone still copying a file in by hand should do the same in the
-same breath as downloading it.
-
-Neither `haus show` nor `checkDesktop` catches a missing `git add` for you:
-both read what they are handed, so they pass on the very file the rebuild
-cannot see.
+`haus add --vendor github:you/writer-desktop` copies the file into their config
+at `desktops/writer.nix` instead of pinning it, for someone who plans to fork it
+immediately. It stages the file too, which a hand copy has to do for itself: Nix
+reads only a config's tracked files, and neither `haus show` nor `checkDesktop`
+catches a missing `git add`, because both read what they are handed and pass on
+the very file the rebuild cannot see.
 </Callout>
 
 A flake wrapper can come later if versioned imports turn out to be useful. It
@@ -65,58 +50,45 @@ all.
 
 ## What the README owes a reader
 
-Someone deciding whether to run your desktop is deciding what their Mac will
-feel like tomorrow. Tell them:
+Someone deciding whether to run your desktop is deciding what their Mac will feel
+like tomorrow. Tell them:
 
 - **who it's for**: the kind of person or the kind of work, in a sentence;
 - **which rooms it turns on, and which it deliberately leaves off**, with the
-  reason for the off ones. That reason is the part they cannot reconstruct from
-  the file;
+  reason for the off ones, which is the part they cannot reconstruct from the
+  file;
 - **the strong opinions**: a claimed global hotkey, a remapped Caps Lock, a
   changed default browser, anything that will surprise muscle memory;
 - **which haus revision you tested against**;
-- **what it deliberately doesn't handle**: permissions it expects the person to
-  grant, hardware it assumes, apps it doesn't install;
+- **what it deliberately doesn't handle**: permissions it expects them to grant,
+  hardware it assumes, apps it doesn't install;
 - **any list-typed option it sets** (`tour.steps`, `keys.leaderExtras`,
-  `snippets.matches`), because a host that names the same one
-  [replaces yours whole](/docs/haus/desktops/creating#leave-room-for-the-host)
-  and has to restate the entries it wants to keep;
+  `snippets.matches`), because a host that names the same one [replaces yours
+  whole](/docs/haus/desktops/creating#leave-room-for-the-host);
 - **that both `haus show` and a real host evaluation passed**.
 
-You do not need to document how to override you. Anything a desktop sets, a host
-beats with a plain assignment. That is a property of the seam, and it holds for
-every desktop without either of you doing anything.
+You do not need to document how to override you: a host beats a desktop with a
+plain assignment, every time.
 
 ## A room is the neighbouring format
 
-There are two things you can publish, and the difference is what haus can prove
-about them:
+The other thing you can publish is a **room**: *code* where a desktop is data, an
+ordinary nix-darwin module exported under `darwinModules`, free to install
+packages, write files and run activation steps as root. `haus show` says so and
+checks nothing, which is the honest answer rather than a gap in the tooling.
 
-- a **desktop** is *data*. Its shape is closed, `checkDesktop` reads it leaf by
-  leaf, and it cannot run anything. That is why running one from a stranger is
-  reasonable, and why `haus show` will tell you it passed.
-- a **room** is *code*: an ordinary nix-darwin module, exported under
-  `darwinModules`. It can install packages, write files and run activation
-  steps as root, and haus can tell a reader nothing about what it does.
-  `haus show` says so and checks nothing; that is the honest answer, not a
-  gap in the tooling.
-
-So if what you want to share is a *set of apps* rather than a whole machine,
-that is a room: `haus.photography.enable` bringing the apps, and whatever else
-that capability needs. A machine runs one desktop and as many rooms as it likes.
-A published room claims a plain `haus.<name>`: the reserved `haus.my.*` prefix
-is for rooms that never leave one Mac. Until haus can record which input claimed
-a name, a machine that installs your room warns once per rebuild that nothing
-there says where it came from; that record is coming, and the name is right.
+So a *set of apps* rather than a whole machine is a room:
+`haus.photography.enable` bringing the apps and whatever else that capability
+needs. A machine runs one desktop and as many rooms as it likes. A published room
+claims a plain `haus.<name>`, since `haus.my.*` is reserved for rooms that never
+leave one Mac; until haus can record which input claimed a name, a machine that
+installs yours warns once per rebuild that nothing says where it came from.
 
 <Callout type="info" title="There is no third format: app packs do not exist">
 `haus.lib.pack`, `checkPack`, `haus.packFiles` and `haus.packs` are not options.
-If a config you are reading names one, delete the line. Two formats over two
-trust classes is the whole model, and a third that sits across the line would
-earn its own prompt and its own docs for nobody.
-
-The saved collections haus itself ships are a different thing and are
-unaffected, still one line each (`haus.apps.packs.writing.enable = true`).
+If a config you are reading names one, delete the line. The collections haus
+itself ships are a different thing and are unaffected, still one line each
+(`haus.apps.packs.writing.enable = true`).
 </Callout>
 
 ## Before you share
@@ -125,7 +97,5 @@ unaffected, still one line each (`haus.apps.packs.writing.enable = true`).
 - [ ] You have run it on a Mac, not only evaluated it.
 - [ ] Every room it turns off agrees with the features that depend on that room,
       `tour.steps` included.
-- [ ] The README states the audience, the rooms, the strong opinions, the tested
-      revision and the limits.
-- [ ] Any list-typed option it sets is named in the README.
+- [ ] The README says everything above, list-typed options included.
 - [ ] There is no identity, secret or device-specific data anywhere in it.
