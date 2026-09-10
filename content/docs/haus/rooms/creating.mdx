@@ -17,20 +17,22 @@ Every page above this one documents a **room**: a nix-darwin module under
 `modules/`, plus three lines of registry that put it in the option reference,
 the agent skill and the generated host file at once.
 
-Most of the time you want no room, and
-[Customizing](/docs/haus/desktops/customizing) is the cheaper path. A room
-earns its existence when a package, its launchd job, its config file, its
-theming and the options steering all four have to move and switch as one.
+Most of the time you want no room at all, and
+[Customizing](/docs/haus/desktops/customizing) is the cheaper path: an option
+that already exists, a `haus.roster` entry, a command on a key, a plain
+`system.defaults.…` in your host file. A room earns its existence when a
+package, its launchd job, its config file, its theming and the options steering
+all four have to move and switch as one.
 
 <Callout title="Your machine, or the layer?">
 If it only ever runs on your Mac, write a plain module, name its options
 **`haus.my.*`**, and set them from your **host file**, never a desktop, which
 is a file other people run without your room. haus promises never to ship a
-room under that prefix, and a flake check holds the promise. Under a plain name
-you race a future release, silently: two modules declaring
-different leaves under one namespace merge with no error, one room's switch
-steering the other's. Your Mac warns you once. Publishing drops the prefix for
-a plain `haus.<name>`, the name a stranger types after
+room under that prefix, and a flake check holds the promise. Under a plain
+name you race a future release, silently: two modules declaring different
+leaves under one namespace merge with no error, one room's switch steering the
+other's. Your Mac warns you if you do it anyway. Publishing drops the prefix
+for a plain `haus.<name>`, the name a stranger types after
 [`haus add --room --namespace <ns>`](/docs/haus/reference/haus#pinning-a-room).
 </Callout>
 
@@ -99,9 +101,6 @@ segment names the receiving **room**, not a namespace, so the Bar's slot is
 `_contrib.bar.*` under either of its two. The underscore means wiring rather
 than a setting, and the renderers prune it.
 
-It is also what makes a standalone `darwinModules.<room>` import work: the bare
-foundation plus that one room, and nothing dragging its neighbours in.
-
 ## Default to off, and mean it
 
 An optional room's `enable` defaults to `false`, always. A
@@ -120,8 +119,8 @@ nix eval .#darwinConfigurations.example.system.drvPath
 The first runs the registry check, the desktop seam, the keymap collision check
 and the rest; the second evaluates a whole machine, which is what catches an
 option that type-checks and then contradicts another room. Neither activates.
-[`haus plan`](/docs/haus/reference/haus) shows what a real rebuild would change
-without changing it.
+[`haus plan`](/docs/haus/reference/haus) prints the packages, settings, files
+and launchd jobs a real rebuild would change, and changes none of them.
 
 <Callout type="warn" title="A new option owes a docs page">
 The layer and this site are two repositories, and nothing fails when they
@@ -137,3 +136,6 @@ does not.
   [nebelung](https://github.com/hausfold/nebelung); a room reads the palette.
 - **Hold an app's own logic.** A room installs and configures the app; it is
   not the app.
+- **Switch another room on.** A standalone `darwinModules.<room>` import is the
+  bare foundation plus that one room, and stays true only because no room
+  activates its neighbours.
