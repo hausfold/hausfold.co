@@ -117,8 +117,8 @@ ordinarily the next Monday force-pushes a fresh render onto it and it is green
 again. But if the page on `main` caught up in the meantime — someone regenerated
 it by hand — that run finds no drift and never touches the branch. So the run
 now closes the PR and deletes the branch instead. **A drift PR that is red is
-superseded, not broken**: check `main` against a current haus before trying to
-fix one.
+usually superseded rather than broken**: check `main` against a current haus
+before trying to fix one.
 
 Bar-tables drift is the one that reads a **written** page rather than a
 generated file or a snapshot alone. It parses the two tables under "Tones, not
