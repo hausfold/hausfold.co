@@ -4,75 +4,62 @@ description: "A Mac for someone who doesn't write code: a better menu bar, a sea
 icon: everyday
 related:
   - title: "Choose a desktop"
-    description: "The four that ship, side by side, and how to switch to another one in a single line."
+    description: "The four that ship, side by side, and how to switch."
     href: "/docs/haus/desktops/choosing"
     icon: "choose"
   - title: "Customize a desktop"
-    description: "The one file you edit, the dials worth knowing, and how to beat anything a desktop set."
+    description: "The one file you edit, and beating anything a desktop set."
     href: "/docs/haus/desktops/customizing"
     icon: "dials"
 ---
 
 **everyday** is the same care, aimed at a machine that will never open a
-terminal. A quiet bar with the clock, the battery and the weather; a search box
-on ⌘Space that opens anything; a wallpaper and a set of colours that agree with
-each other. And **none of the developer tooling**: no compilers, no agents,
-nothing installed for a job this Mac isn't doing.
+terminal. A quiet [bar](/docs/haus/rooms/bar) with the clock, the battery and
+the weather. A [search box](/docs/haus/rooms/launcher) on ⌘Space that opens
+anything, and a [notch shelf](/docs/haus/rooms/shelf) for files on their way
+somewhere else. One key to [go quiet](/docs/haus/rooms/focus) and one to come
+back. [Touch ID](/docs/haus/rooms/security) instead of a password for `sudo`,
+the rebuild included, so updating never stops to ask. A [wallpaper and colours
+that agree](/docs/haus/rooms/appearance), and a tour that is one prompt, once:
+press ⌘Space, type, hit Return.
 
-It is a whole answer, not a stripped-down one. Windows behave exactly the way
-they already do, because the fastest way to lose someone is to change what their
+And **none of the developer tooling**: no compilers, no agents, nothing
+installed for a job this Mac isn't doing.
+
+It is a whole answer, not a stripped-down one. Windows behave exactly as they
+already do, because the fastest way to lose someone is to change what their
 machine does when they click.
 
 ```sh
 curl -fsSL https://hausfold.co/everyday.sh | bash
 ```
 
-The URL picks the desktop, so the installer won't ask which one you want.
+The URL picks the desktop, so the installer won't ask.
 [Install](/docs/haus/install) has the rest.
 
 <Callout title="It needs an admin account, and the first setup takes a while">
-This is not a five-second install: it asks for your password once, downloads a
-few GB, and sets things up so it doesn't have to ask again. If you're doing it
-for someone else, do it while sitting next to them.
+Not a five-second install: it asks for your password once, downloads a few GB,
+and sets things up so it doesn't have to ask again. Doing it for someone else?
+Sit next to them.
 </Callout>
-
-## What's in it
-
-| | |
-|---|---|
-| **[the bar](/docs/haus/rooms/bar)** | A clock, battery and weather along the top edge: a better menu bar, not a new one |
-| **[the launcher](/docs/haus/rooms/launcher)** | ⌘Space opens a search box that finds and opens things |
-| **[the shelf](/docs/haus/rooms/shelf)** | A place in the notch for files on their way somewhere else |
-| **[Focus](/docs/haus/rooms/focus)** | One key to go quiet, and one to come back |
-| **[Touch ID](/docs/haus/rooms/security)** | Your fingerprint instead of your password for `sudo`, including the rebuild, so updating never asks |
-| **[the look](/docs/haus/rooms/appearance)** | The haus mark on your palette as a wallpaper, and apps themed to agree with it |
-| **a first lap** | One prompt, once: press ⌘Space, type, hit return. That is the whole tutorial |
 
 ## The judgement calls
 
-A desktop is a set of decisions somebody made on your behalf, so these are the
-four worth seeing before you install it. Every one of them is a line in your own
-file away.
+A desktop is decisions somebody made for you. Two are worth seeing first, and
+both are one line in your own file away.
 
-**Tiling is off.** Tiling is good; remapping Caps-Lock to a leader key on
+**Tiling is off.** Tiling is good; remapping Caps Lock to a leader key on
 someone else's Mac is not. Windows keep the behaviour they already know, which
-is also why this desktop claims no leader key at all.
-
-**The launcher is on.** A search box that opens things is legible to anyone. It
-is the one power feature that needs no explanation.
-
-**The bar is on.** A clock, a battery and the weather is a better menu bar, not
-a different way of thinking about the screen.
+is why this desktop claims no leader key at all.
 
 **Developer tooling is off, and agents with it.** Coding agents on a machine
 that ships no coding tools is a room enabling itself for nobody. If you want
 them, `haus.ai.enable = true` is the line.
 
 <Callout title="If you used the old everyday preset">
-This is the same idea built as a whole desktop rather than a layer over another
-one,
-and two things a layered preset inherits are deliberately off here: the coding
-agents, and the Node toolchain that comes with them.
+Same idea, built as a whole desktop rather than a layer over another one. Two
+things a layered preset inherited are deliberately off: the coding agents, and
+the Node toolchain that came with them.
 [`desktops/everyday.nix`](https://github.com/hausfold/haus/blob/main/desktops/everyday.nix)
 states every difference in full.
 </Callout>
