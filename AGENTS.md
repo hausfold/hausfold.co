@@ -291,8 +291,8 @@ the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
   fact a reader acts on, the warnings. **Verify each fact against the source
   repo**, not another page.
 - **Write for a first-comer, and hold them**: a lede a stranger can finish, then
-  the detail, then a way onward — a `<Cards>` pair at the foot, never a bare "see
-  also". **No page ends without a door out of it.**
+  the detail, then a way onward — the frontmatter's `related:` block, never a bare
+  "see also" in the prose. **No page ends without a door out of it.**
 - **Behavior a reader would already expect gets zero words.** An edit leaves its
   page shorter unless it adds a fact a reader acts on, or a warning.
 - No em dashes in prose. Sentence case in headings. "desktop", never "rice".
@@ -303,6 +303,70 @@ the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
   the group and not rooms. Count the table, never the sidebar group.
 - **A room page documents the room** — the haus wiring, the options, what turns
   on. The app itself lives in its own tree.
+- **A room page's spine**: the enable block up top where there is a switch, and
+  `## Options` last. Works with / Permissions / Remove it fold into the prose; a
+  standing section survives only where its caveat has no natural home — a
+  permission the reader must grant, a removal that does not uninstall. The
+  frontmatter's `related:` does the cross-linking.
+
+### Cutting a page
+
+The haus tree has been through a pass that cut it toward a third of its words,
+page by page. These are the rules that pass paid for, and they bind the next edit
+as much as they bound that one.
+
+- **The keep rules beat any word count.** Every command, path, option name,
+  number, keybind and real caveat stays, and a target you cannot reach without
+  evicting one of them was the wrong target. What goes instead: how a standard
+  thing works, history, a sentence that would sit just as well in another tree's
+  docs, the same fact twice, a section that exists because the template had one.
+- **Measure the skeleton before you trust a target.** `wc -w` counts frontmatter,
+  fenced code and every table pipe, so a page whose skeleton is most of its words
+  has a floor well above a third. Reset the number to the floor; never evict a
+  fact to reach the number.
+- **`reference/options.mdx` is the biggest lever, and it reaches only a page with
+  an `## Options` foot.** A fact the reference carries verbatim is not evicted
+  when such a page drops it, because the link is right there at the bottom. A
+  page earns that foot when the reader's next move is to go and set a `haus.*`
+  option: every page in the Rooms group but `rooms/creating`, plus
+  `desktops/creating` and `desktops/customizing`, and nothing else in the tree.
+  `agent-rebuilds`, `night-shift` and `leaving` name options a reader does not
+  leave to set, so they get no foot and the lever misses them; their floors are
+  identifier density alone. Where such a page does send a reader to the
+  reference, it links inline at the option name (`night-shift.mdx:44`).
+- **The lever cannot reach a caveat the reference has no entry for**, and those
+  are the ones worth their words. Of the four keys haus does not leave as soft
+  defaults (`desktops/customizing.mdx:194`), two — `SLSMenuBarUseBlurredAppearance`
+  and `power.sleep.computer` — appear nowhere in `reference/options.mdx`, while
+  `_HIHideMenuBar` and `AppleInterfaceStyle` do. Grep the reference for the fact
+  itself before you drop it on the lever's word.
+- **A seam that closes for free beats a split, and gets measured first.** A fact
+  another page already carries in full, where the link is already inside the
+  sentence, leaves the tree smaller at no cost. A split only moves words and
+  usually adds: a new page owes an entry in `meta.json`, an icon, a lede and a
+  `related:` block.
+- **A duplicated fact belongs to the page whose subject it is**, not the page it
+  was written on first. The tell is prose that disqualifies its own host —
+  `agent-rebuilds.mdx:101` calls its own paragraph "not an agent rule". Flipping
+  the ownership means editing every "X has the detail" pointer in the same
+  commit, and an identifier diff will not catch what the move drops, because what
+  drops is prose.
+- **A sentence that stops carrying its own context is not compression.** Name the
+  noun — "drag a file", not "a drag" — and a keybind keeps the why that makes it
+  readable, past the budget if that is the cost.
+- **A table of identifiers is not automatically a keep.** A key table survives
+  where the page's prose leans on it. A one-column table with a prose gloss is a
+  list wearing a table's chrome, and it reads better folded into the prose — that
+  is a prose judgement, not the component rule below, since `getLLMText` in
+  `src/lib/source.ts` already carries a markdown table into `llms-full.txt`
+  whole. A catalogue a reader compares across columns (`desktops/choosing`) stays
+  a table, and splitting one of its rows is the honest fix when a single tick
+  stopped meaning two things (`desktops/choosing.mdx:66`).
+- **Diff the claims, not the identifiers.** Compression makes a page wrong more
+  easily than it makes it terse: half of a two-sided caveat over-claims on its
+  own. An identifier diff that comes back empty proves nothing about truth, and a
+  pass that comes back with facts to restore is the pass working, even though it
+  moves the count up.
 
 ### The generated page, and the one that is only pinned
 
