@@ -1,27 +1,26 @@
 ---
 title: What haus is
-description: One file describes your Mac. One command makes the Mac match it. Everything else here is detail.
+description: One file describes your Mac, one command makes the Mac match it. The rest is detail.
 icon: compass
 related:
   - title: "Install"
-    description: "What the one-liner does, how to read it before you run it, and the one command that actually changes the machine."
+    description: "The one-liner, and the command that changes the machine."
     href: "/docs/haus/install"
     icon: "install"
   - title: "Choose a desktop"
-    description: "Which rooms this Mac runs, and what the visible choices are: hacker, everyday, minimal, blank, or one of your own."
+    description: "hacker, everyday, minimal, blank, or your own."
     href: "/docs/haus/desktops/choosing"
     icon: "choose"
   - title: "hacker"
-    description: "The desktop most people install haus by installing: what it turns on, and the first moves that make it click."
+    description: "The desktop most people arrive at, and the first moves that make it click."
     href: "/docs/haus/desktops/hacker"
     icon: "hacker"
 ---
 
 A Mac out of the box is somebody else's idea of a Mac. **haus** is a layer for
 macOS that rebuilds it into yours: the windows, the bar, the shell, the keys,
-the apps, the settings you always change by hand. You describe the machine you
-want in one text file, and one command makes the Mac match it, on any machine
-you own.
+the apps, the settings you always change by hand. One text file describes the
+machine you want, and one command makes the Mac match it.
 
 ```nix
 haus.theme.accent = "sapphire";  # one hue, everywhere
@@ -37,83 +36,63 @@ haus.roster.slack = { key = "s"; name = "Slack"; cask = "slack"; };
 haus rebuild
 ```
 
-Your windows tile, your terminal is themed, Slack is installed and bound to a
-launcher key, and every one of those is a line in git you can read six months
-later.
-
-That is the whole idea. The rest of these pages are the detail.
+Your windows tile, your terminal is themed, Slack is installed on a launcher
+key, and every one of those is a line in git you can read six months later.
 
 ## Why bother
 
-- **It survives the machine.** A new Mac, or a wiped one, is one command away
-  from being the old one, because the old one was text.
-- **It undoes.** A failed build never activates. A regretted change is
+- **It survives the machine.** A wiped Mac is one command from being the old
+  one, because the old one was text.
+- **It undoes.** A failed build never activates, and a regret is
   `haus rollback`, atomic, in seconds.
-- **It's one setting, not forty.** The accent colour lands in the terminal,
-  the file manager, git, the bar and the browser at once, because they all
-  read the same value.
-- **Nothing is buried.** Every knob is a documented option with a default, and
-  `haus edit` opens the file that sets them.
-- **An agent can drive it.** The whole machine in one file, every rebuild
-  reversible: a haus Mac is the rare Mac an agent can reconfigure
-  [quickly, confidently, and safely](/docs/haus/agent-rebuilds).
+- **It's one setting, not forty.** One accent reaches the terminal, the file
+  manager, git, the bar and the browser at once.
+- **Nothing is buried.** Every knob is an option with a default, and `haus edit`
+  opens the file that sets it.
 
 You do **not** need to know [Nix](https://nixos.org) going in. It is what makes
-this reproducible, and the installer sets it up for you. You will pick some of
-it up over time, and that's the whole curve.
+this reproducible, and the installer sets it up.
 
 ## Made for agents
 
-"An agent can drive it" is underselling it. The whole family is built on the
-unix philosophy (everything is a file, everything is a CLI), which happens to
-be exactly what a coding agent needs, and haus leans into it three ways:
+Everything is a file and everything is a CLI, which happens to be exactly what a
+coding agent needs: "make my terminal look like yours" is a diff, a build that
+refuses to activate if it's broken, and one command back if you hate it.
+[Changing your Mac with an agent](/docs/haus/agent-rebuilds) is that loop.
 
-- **The machine is a file an agent can edit.** "Make my terminal look like
-  yours" is a diff, a build that refuses to activate if it's broken, and an
-  atomic rollback if you hate it.
-  [Changing your Mac with an agent](/docs/haus/agent-rebuilds) is the loop.
-- **Agents are a room.** The [AI room](/docs/haus/rooms/ai) installs your
-  agent clients and gives every agent its own checkout of whatever repo it's
-  working on: press **⌘⏎**, get an isolated lane; run five in parallel and
-  they never fight over a branch.
-- **Skills arrive on rebuild.** The hausfold apps each ship an agent skill,
-  the file that teaches Claude Code, Codex or any skill-reading agent to
-  drive them, written to one
-  [family standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md).
-  haus writes skills into each client's home automatically: the haus skill
-  itself, the `hausfold` one that sends a bug report or an idea back to us,
-  scruff's lane and handoff skills, factory's own, trill's when its room is on.
-  Your agents already know the house when they wake up in it.
+The [AI room](/docs/haus/rooms/ai) gives every agent its own checkout of the
+repo it's on, so **⌘⏎** opens an isolated lane and five run at once without
+fighting over a branch. Every rebuild also writes the family's [agent
+skills](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md)
+into each client's home, haus's own among them: your agents already know the
+house when they wake up in it.
 
 ## What's in the box
 
-haus is organised into thirteen **rooms**, each one a capability you can turn
-on, off, or leave alone. An app store stops at the app; a room also wires the
-keys and the macOS settings around it, so the pieces already know each other.
-Turn on the ones you want; the rest cost you nothing.
+haus is organised into **rooms**, each a capability you turn on, off, or leave
+alone. An app store stops at the app; a room wires the keys and the macOS
+settings around it too. The rooms you skip cost nothing.
 
 | Room | What it does |
 |---|---|
-| **[Apps](/docs/haus/rooms/apps)** | One list holds every app, font and CLI tool, and where each installs from |
-| **[Appearance](/docs/haus/rooms/appearance)** | The palette, the accent, the wallpaper, fonts and interface scale |
-| **[Displays](/docs/haus/rooms/displays)** | Per-screen scaling, said as an intent rather than a pixel count |
-| **[Development](/docs/haus/rooms/development)** | Ghostty, zmx, zsh, the editor, Git tooling and language runtimes |
-| **[Windows](/docs/haus/rooms/windows)** | Tiling, workspaces, and a launcher on a tap of Caps-Lock |
+| **[Apps](/docs/haus/rooms/apps)** | Every app, font and CLI tool, and where each installs from |
+| **[Appearance](/docs/haus/rooms/appearance)** | The palette, the accent, the wallpaper, fonts, interface scale |
+| **[Displays](/docs/haus/rooms/displays)** | Per-screen scaling, as an intent rather than a pixel count |
+| **[Development](/docs/haus/rooms/development)** | Ghostty, zmx, zsh, the editor, Git tooling, language runtimes |
+| **[Windows](/docs/haus/rooms/windows)** | Tiling, workspaces, a launcher on a tap of Caps-Lock |
 | **[Bar](/docs/haus/rooms/bar)** | A status bar: workspaces, weather, media, battery, clock |
 | **[Launcher](/docs/haus/rooms/launcher)** | A ⌘Space command palette where every command is a file |
 | **[Shelf](/docs/haus/rooms/shelf)** | A file shelf that drops out of the notch to catch drag-drops |
 | **[Focus](/docs/haus/rooms/focus)** | One quiet switch: Do Not Disturb, your status, your hooks |
-| **[Notifications](/docs/haus/rooms/notifications)** | Whose banners you see: haus draws through trill, and can own the bundle |
+| **[Notifications](/docs/haus/rooms/notifications)** | Whose banners you see, and who owns the bundle |
 | **[AI](/docs/haus/rooms/ai)** | Coding agents, each with its own checkout of the repo |
 | **[Text expansion](/docs/haus/rooms/text-expansion)** | Type a short trigger, get the long thing, in any app |
 | **[Security](/docs/haus/rooms/security)** | Touch ID for `sudo`, lock behaviour, firewall, secrets |
 
-Underneath them is the foundation nobody switches off: the macOS defaults, the
-Homebrew policy and the `haus` CLI itself. The [full
-reference](/docs/haus/reference/options) lists every option in every room, with
-its type and default.
-
-Each piece also stands alone: you can take the whole thing, or just
+Under them is the foundation nobody switches off: the macOS defaults, the
+Homebrew policy and the `haus` CLI. The [full
+reference](/docs/haus/reference/options) lists every option, with its type and
+default. Each piece stands alone too: take all of it, or just
 [pounce](/docs/pounce), or just the palette.
 
 ## Desktops
@@ -129,9 +108,6 @@ that ship and how to tell them apart.
 ## The shape of a haus machine
 
 Your config lives at `~/.config/nix` and it is **yours**: your name, your keys,
-your app list. It imports haus; it never edits it. haus stays upstream, pinned
-to an exact commit, and nothing about your machine changes until you run
-`haus update`.
-
-That split is the whole design. Your identity is never in someone else's repo,
-and their improvements are never a surprise on your machine.
+your app list. It imports haus and never edits it, and haus stays upstream,
+pinned to an exact commit. Your identity never sits in someone else's repo, and
+their improvements are never a surprise on your machine.
