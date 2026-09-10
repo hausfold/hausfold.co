@@ -41,8 +41,8 @@ key, and every one of those is a line in git you can read six months later.
 
 ## Why bother
 
-- **It survives the machine.** A wiped Mac is one command from being the old
-  one, because the old one was text.
+- **It survives the machine.** A new Mac, or a wiped one, is one command from
+  being the old one, because the old one was text.
 - **It undoes.** A failed build never activates, and a regret is
   `haus rollback`, atomic, in seconds.
 - **It's one setting, not forty.** One accent reaches the terminal, the file
@@ -60,12 +60,13 @@ coding agent needs: "make my terminal look like yours" is a diff, a build that
 refuses to activate if it's broken, and one command back if you hate it.
 [Changing your Mac with an agent](/docs/haus/agent-rebuilds) is that loop.
 
-The [AI room](/docs/haus/rooms/ai) gives every agent its own checkout of the
-repo it's on, so **⌘⏎** opens an isolated lane and five run at once without
-fighting over a branch. Every rebuild also writes the family's [agent
-skills](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md)
-into each client's home, haus's own among them: your agents already know the
-house when they wake up in it.
+The [AI room](/docs/haus/rooms/ai) installs your agent clients and gives every
+agent its own checkout of the repo it's on, so **⌘⏎** opens an isolated lane and
+five run at once without fighting over a branch. Every rebuild also writes the
+family's agent skills into each client's home, to one [shared
+standard](https://github.com/hausfold/workshop/blob/main/docs/agent-surface.md):
+haus's own, and the `hausfold` one that sends a bug report or an idea back to
+us. Your agents already know the house when they wake up in it.
 
 ## What's in the box
 
@@ -84,7 +85,7 @@ settings around it too. The rooms you skip cost nothing.
 | **[Launcher](/docs/haus/rooms/launcher)** | A ⌘Space command palette where every command is a file |
 | **[Shelf](/docs/haus/rooms/shelf)** | A file shelf that drops out of the notch to catch drag-drops |
 | **[Focus](/docs/haus/rooms/focus)** | One quiet switch: Do Not Disturb, your status, your hooks |
-| **[Notifications](/docs/haus/rooms/notifications)** | Whose banners you see, and who owns the bundle |
+| **[Notifications](/docs/haus/rooms/notifications)** | Whose banners you see: haus draws through trill, and can own the bundle |
 | **[AI](/docs/haus/rooms/ai)** | Coding agents, each with its own checkout of the repo |
 | **[Text expansion](/docs/haus/rooms/text-expansion)** | Type a short trigger, get the long thing, in any app |
 | **[Security](/docs/haus/rooms/security)** | Touch ID for `sudo`, lock behaviour, firewall, secrets |
@@ -109,5 +110,6 @@ that ship and how to tell them apart.
 
 Your config lives at `~/.config/nix` and it is **yours**: your name, your keys,
 your app list. It imports haus and never edits it, and haus stays upstream,
-pinned to an exact commit. Your identity never sits in someone else's repo, and
-their improvements are never a surprise on your machine.
+pinned to an exact commit, so nothing about your machine changes until you run
+`haus update`. Your identity never sits in someone else's repo, and their
+improvements are never a surprise on your machine.

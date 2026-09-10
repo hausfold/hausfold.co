@@ -8,11 +8,11 @@ related:
     href: "/docs/haus/desktops/hacker#first-moves"
     icon: "steps"
   - title: "Bar"
-    description: "What's on the status bar, and how to turn it off."
+    description: "What's on the status bar, and how to turn any of it off."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
   - title: "Keeping it current"
-    description: "Edit, rebuild, update, roll back."
+    description: "Edit, rebuild, update, roll back, and the restore on your next Mac."
     href: "/docs/haus/keeping-it-current"
     icon: "sync"
 ---
@@ -22,7 +22,8 @@ curl -fsSL https://hausfold.co/haus.sh | bash
 ```
 
 That installs Nix if you don't have it, asks a few questions (which desktop
-among them), and writes your config. It does **not** change your Mac: it writes
+among them), and writes your config. It does **not** change your Mac on its own:
+it writes
 files, prints the one command that activates them, and offers to run that for
 you, so you can stop in between and read what it wrote.
 
@@ -31,6 +32,9 @@ watching (CI, a container, output captured to a file) it takes the defaults and
 never offers to switch.
 
 ## If you already know which desktop you want
+
+Every desktop has its own URL, and typing it answers the question before it's
+asked:
 
 ```sh
 curl -fsSL https://hausfold.co/hacker.sh    | bash   # the full desktop
@@ -83,8 +87,9 @@ commit can't serve you a script off this domain.
 
 It takes a Time Machine local snapshot as a coarse rewind point (non-fatal if
 Time Machine is off), asks its questions, shows a read-only report of what would
-change, then writes `~/.config/nix/` (a small flake importing haus, plus a host
-file of your answers) and commits it to git. **No app you installed is ever
+change (which dotfiles get backed up, which macOS settings change, which casks
+it found), then writes `~/.config/nix/` (a small flake importing haus, plus a
+host file of your answers) and commits it to git. **No app you installed is ever
 removed.**
 
 The questions: your git name and email, a desktop (hacker / everyday / minimal /
@@ -98,8 +103,9 @@ adopt the Homebrew casks you already have.
 <Callout type="warn" title="Dotfiles that would stop the first switch">
 The report names any file that would **stop** the switch rather than be backed
 up: a dotfile that is a *symlink* (a dotfiles repo, `stow`, `chezmoi`), or one
-whose `<file>.backup` name is taken. Home Manager refuses links on purpose,
-because silently deleting a link into your dotfiles repo is the worse failure.
+whose `<file>.backup` name is taken. Home Manager moves regular files aside and
+refuses links on purpose, because silently deleting a link into your dotfiles
+repo is the worse failure.
 Clear each one it lists, or tell haus to skip that file
 (`home.file.".profile".enable = false;`), before the build.
 </Callout>
@@ -116,7 +122,8 @@ nix build .#darwinConfigurations.$(scutil --get LocalHostName).system \
   && sudo ./result/sw/bin/darwin-rebuild switch --flake .
 ```
 
-The first run is slow; it's downloading the world. When it lands, everything
+The build runs first, so a failed build never touches your system. The first
+run is slow; it's downloading the world. When it lands, everything
 arrives at once: apps install, the bar and tiling start, your terminal is
 themed, `haus` joins your `PATH`. After that it's `haus rebuild`.
 
@@ -124,7 +131,7 @@ themed, `haus` joins your `PATH`. After that it's `haus rebuild`.
 
 | To undo | Use |
 |---|---|
-| The macOS settings | the snapshot from step 1 |
+| The macOS settings | the Time Machine snapshot the installer took |
 | Everything haus did | `haus rollback` (atomic, previous generation) |
 | Apps | yours. haus never uninstalls one you added |
 | All of it | [Leaving](/docs/haus/leaving), every exit in turn, smallest first |
@@ -145,12 +152,12 @@ bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 | Variable | Effect |
 |---|---|
 | `HAUS_NONINTERACTIVE=1` | Take the defaults, Determinate's own confirmation included, so a run with no terminal at all (ssh, CI, a provisioning wrapper) gets through |
-| `HAUS_DRY_RUN=1` | Print the config it would write, write nothing; with `--defaults`, silently |
+| `HAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal; pair it with `--defaults` for a silent run |
 | `HAUS_DESKTOP` | `hacker`, `everyday`, `minimal` or `blank`, or `--desktop=<name>` on the command line. Skips that question even interactively, which is what a desktop's URL does |
 | `HAUS_ROOMS` | Rooms to turn on one by one, instead of a desktop's selection |
 | `HAUS_GIT_NAME` / `HAUS_GIT_EMAIL` | Your git identity, which the host file records |
 | `HAUS_ACCENT` / `HAUS_WALLPAPER` / `HAUS_EDITOR` | The look, and the editor (`zed`, `vscode`, `cursor`, `helix`, `neovim`, `vim`, `nano`) |
-| `HAUS_GUI_EDITOR` | Point `$EDITOR` at a command haus does not install (`"subl -w"`); the editor above still installs as fallback |
+| `HAUS_GUI_EDITOR` | Point `$EDITOR` at a command haus does not install (e.g. `"subl -w"`); the editor above still installs as fallback |
 | `HAUS_KEEP` | macOS settings to leave alone (`dock,keyboard,finder`) |
 | `HAUS_DIR` | Scaffold somewhere other than `~/.config/nix` |
 | `HAUS_FROM` | Restore an existing config instead of scaffolding |

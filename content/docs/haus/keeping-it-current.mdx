@@ -27,9 +27,10 @@ haus rebuild    # build first, then switch
 
 For a one-line change, skip the editor: `haus set theme.accent teal` writes the
 setting, type-checks it and rebuilds in one go. The [`haus`
-reference](/docs/haus/reference/haus) has the rest, and the
-[launcher](/docs/haus/rooms/launcher) carries both on ⌘Space (**Rebuild
-System**, **Nix Config**).
+reference](/docs/haus/reference/haus) has the rest. On ⌘Space the
+[launcher](/docs/haus/rooms/launcher) carries **Rebuild System**, which runs
+`haus rebuild` in a floating terminal, and **Nix Config**, which opens your host
+file.
 
 ## Pulling a newer haus
 
@@ -54,9 +55,9 @@ haus generations   # what you can roll back to
 haus doctor        # health check, when it isn't obvious what broke
 ```
 
-When it's a symptom rather than a change (a dead bar, a launcher that won't
-answer), [Troubleshooting](/docs/haus/reference/troubleshooting) has the known
-quirks and the command for each.
+Every switch creates a generation to step back to. When it's a symptom rather
+than a change (a dead bar, a launcher that won't answer), [Troubleshooting](/docs/haus/reference/troubleshooting) has the
+known quirks and the command for each.
 
 <Callout type="warn" title="Rollback doesn't rewind macOS's own settings">
 A generation holds everything Nix wrote (packages, services, login agents), but
@@ -72,9 +73,10 @@ cd ~/.config/nix && git pull
 haus rebuild
 ```
 
-Your config is a git repo, so a second Mac catches up the way any checkout does.
-Both read the same pin from the same lock, so they converge on the same system,
-not roughly the same one.
+Your config is a git repo, so a second Mac catches up the way any checkout does,
+assuming you pushed it somewhere both machines can reach. Both read the same pin
+from the same lock, so they converge on the same system, not roughly the same
+one.
 
 ## A new Mac, or a wiped one
 
@@ -90,7 +92,10 @@ curl -fsSL https://hausfold.co/haus.sh | bash -s -- --from <your-config-remote>
 The one-liner that scaffolds a fresh setup restores an existing one: it clones
 your repo into `~/.config/nix` and skips the interview. On a brand-new Mac the
 Xcode Command Line Tools are missing, so the first run opens Apple's installer
-dialog and stops; approve it and run the line again. It finishes by printing
+dialog and stops; approve it and run the line again. It installs [Determinate
+Nix](https://docs.determinate.systems/) for you; by hand, `--from` is nothing
+more than `xcode-select --install`, that installer and `git clone`. It finishes
+by printing
 [the build and switch pair](/docs/haus/install#build-and-switch) with your
 hostname filled in. When that lands, `haus` is on your `PATH` and `haus doctor`
 is the check that it all came back.
@@ -128,7 +133,8 @@ machine:
   `haus-secret --check` asks for the ones this Mac's rooms need; `secretspec
   check` does the same inside a project of your own. They sit in this Mac's
   login keychain by default, which is why they don't ride along in the clone.
-  Point `haus.secrets.provider` at a cloud vault and they follow you instead.
+  Point `haus.secrets.provider` at a cloud vault and they follow you instead, at
+  the cost of one login to bootstrap it.
 - **Commit signing keys.** Your config names the key *id*; the key *material* is
   yours to import, with whatever agent unlocks it.
 - **Pounce's Accessibility grant.** macOS ties it to the machine, so run
@@ -137,11 +143,14 @@ machine:
 - **Apps you installed by hand.** They won't reappear. Reinstall the ones you
   want, and consider a [roster entry](/docs/haus/rooms/apps) so next time they
   do.
-- **Logins and licences.** Nix restores the app, not your session.
+- **Logins and licences.** Nix restores the app, not your session; sign back
+  into the handful that need it, the App Store among them.
 
 Every app you move off that list and into `haus.roster` is one less thing to
 remember next migration. The goal is a Mac you could wipe on a Tuesday without
 flinching.
 
 Adopting a Mac you set up by hand is a different move, and
-[install](/docs/haus/install) handles it deliberately.
+[install](/docs/haus/install) handles it deliberately: your casks are kept, your
+dotfiles are backed up rather than clobbered, and nothing activates until you
+say so.
