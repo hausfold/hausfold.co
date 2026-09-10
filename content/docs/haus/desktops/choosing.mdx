@@ -22,16 +22,28 @@ related:
 A **room** is one capability (the bar, the launcher, window management) with its
 own options and its own switch. A **desktop** is a complete answer to *what
 should this Mac feel like?*: which rooms are on, and what the visible choices
-are. Your **host file** holds your name, your keys, your overrides and whatever
-`haus set` writes for you. Later layers win, so anything a desktop chose you
-change with a plain assignment: no `lib.mkForce` anywhere.
+are. Your **host file** is where your name, your keys and your own overrides
+live.
+
+```text
+haus foundation          the rooms, their options, safe defaults
+      ↓
+one desktop              hacker, everyday, minimal, blank, or yours
+      ↓
+your host file           identity, secrets, hardware, and any override
+      ↓
+`haus set`               what the palette and your agent write for you
+```
+
+Later layers win, deliberately. Anything a desktop chose, you change with a
+plain assignment in your host file: no `lib.mkForce` anywhere.
 
 ## Exactly one
 
-Desktops don't stack, and the build says so: selecting two is refused whether
-they disagree or not, and so is selecting the same one twice, with a message of
-its own. Choosing again changes one line rather than unpicking a pile. If
-nothing fits,
+A Mac runs **one** desktop. They don't stack, and the build says so: selecting
+two is refused whether they disagree or not, and so is selecting the same one
+twice, with a message of its own. Choosing again changes one line rather than
+unpicking a pile. If nothing fits,
 [Start blank](/docs/haus/desktops/blank) selects nothing, which keeps "build my
 own" one desktop rather than a second mode.
 
@@ -51,12 +63,13 @@ that `everyday` deliberately drops. Read the columns.
 | [Shelf](/docs/haus/rooms/shelf) | ✓ | ✓ | · | · |
 | [Focus](/docs/haus/rooms/focus) | ✓ | ✓ | · | · |
 | [Security](/docs/haus/rooms/security) | ✓ | ✓ | ✓ | · |
-| Theme | ✓ | ✓ | ✓ | · |
+| Theme (the palette) | ✓ | ✓ | ✓ | · |
+| Theme ports | ✓ | ✓ | · | · |
 | Generated wallpaper | ✓ | ✓ | · | · |
 
 ## Selecting one
 
-Your `~/.config/nix/flake.nix` names it in one line, then `haus rebuild`:
+Your `~/.config/nix/flake.nix` names it in one line:
 
 ```nix
 darwinConfigurations.lovelace = haus.mkHaus {
@@ -65,6 +78,12 @@ darwinConfigurations.lovelace = haus.mkHaus {
   host = ./hosts/lovelace;
   desktop = haus.desktops.everyday;
 };
+```
+
+Then apply it:
+
+```sh
+haus rebuild
 ```
 
 Leave the `desktop` line out and you get **hacker**, which is what every
@@ -77,17 +96,19 @@ install](/docs/haus/install#unattended-installs).
 it sets, what it leaves alone and, leaf by leaf, [what would change
 here](/docs/haus/reference/haus#what-would-change-here), including the leaves
 your own host file outranks so the desktop cannot move them at all. It writes
-nothing. `haus add` repeats that check, then pins and selects it in one edit to
-`flake.nix` and `flake.lock`; `haus desktop` switches, `haus remove` unpins.
-[Share a desktop](/docs/haus/desktops/sharing) and the [CLI
-reference](/docs/haus/reference/haus#pinning-a-desktop-you-found) have all
-four.
+nothing in your config. `haus add github:ada/writer-desktop` repeats that
+check, then pins and selects it in one edit to `flake.nix` and `flake.lock`, so
+`haus rebuild` is the only step left. `haus desktop` switches and `haus remove`
+unpins. [Share a desktop](/docs/haus/desktops/sharing) and the [CLI
+reference](/docs/haus/reference/haus#pinning-a-desktop-you-found) have all four
+commands in full.
 </Callout>
 
 ## Changing your mind
 
 Switch the line, rebuild, and `haus rollback` if you don't like it: a desktop
-sets options, and a rebuild computes those from scratch every time. Nothing
-outside haus moves, though. Files you made, apps you installed by hand and the
-macOS settings haus never claimed all stay, and turning a room off removes what
-that room installed without tidying up after you.
+sets options, and a rebuild computes those from scratch every time. What a
+switch does **not** touch is anything outside haus. Files you made, apps you
+installed by hand and the macOS settings haus never claimed all stay, and
+turning a room off removes what that room installed without tidying up after
+you.

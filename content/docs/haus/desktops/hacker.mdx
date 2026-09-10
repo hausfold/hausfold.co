@@ -36,17 +36,19 @@ That URL picks this desktop, so the installer skips the question.
 
 Nearly every [room](/docs/haus): [Windows](/docs/haus/rooms/windows),
 [Bar](/docs/haus/rooms/bar), [Launcher](/docs/haus/rooms/launcher),
-[Shelf](/docs/haus/rooms/shelf), [Development](/docs/haus/rooms/development),
-[Focus](/docs/haus/rooms/focus), [Security](/docs/haus/rooms/security),
-[AI](/docs/haus/rooms/ai) and [Appearance](/docs/haus/rooms/appearance). Each
-has its own switch, so anything the desktop chose your own file overrides in a
-line: see [Customize a desktop](/docs/haus/desktops/customizing).
+[Shelf](/docs/haus/rooms/shelf), [Focus](/docs/haus/rooms/focus),
+[Security](/docs/haus/rooms/security), [AI](/docs/haus/rooms/ai),
+[Development](/docs/haus/rooms/development) with Ghostty, zmx, zsh, a tinted
+prompt and Zed, and [Appearance](/docs/haus/rooms/appearance), whose nebelung
+palette is rendered onto twenty-odd tools at once. Each has its own switch, so
+anything the desktop chose your own file overrides in a line: see [Customize a
+desktop](/docs/haus/desktops/customizing).
 
 ## First moves
 
 The first switch has finished. Windows tile themselves, the menu bar has been
-replaced, ⌘Space belongs to the palette, and `haus` is on your `PATH`. Here's
-the muscle memory.
+replaced, your terminal opens into a themed session, ⌘Space belongs to the
+palette, and `haus` is on your `PATH`. Here's the muscle memory.
 
 | Keys | What happens |
 |---|---|
@@ -60,10 +62,10 @@ the muscle memory.
 It's a leader key now, not a modifier. Tap and release, then press the letter.
 </Callout>
 
-Try these in order: **⇪ T** opens the terminal and tiles it; **⌘Space**, `saf`,
-Return launches Safari; **⇪ ← / →** jumps focus between the two; **⌥/** flips
-the split between horizontal and vertical; **⌘Space**, `emoji`, Return turns the
-palette into an emoji grid.
+Try these in order: tap **⇪ T** and the terminal opens and tiles itself;
+**⌘Space**, type `saf`, Return and Safari launches; **⇪ then ← / →** jumps focus
+between the two; **⌥/** flips the split between horizontal and vertical;
+**⌘Space**, type `emoji`, Return turns the palette into an emoji grid.
 
 One permission to grant: a few palette features use a keyboard path macOS gates
 behind Accessibility. Everything else works without it.
@@ -73,8 +75,9 @@ pounce --request-accessibility
 ```
 
 The rest of the keys live where they're configured:
-[Keys](/docs/haus/rooms/keys) has the leader and every workspace throw,
-[Windows](/docs/haus/rooms/windows) the tiling they drive,
+[Keys](/docs/haus/rooms/keys) has the leader, every workspace throw and how to
+move all of it onto keys you'd rather use;
+[Windows](/docs/haus/rooms/windows) has the tiling they drive,
 [Development](/docs/haus/rooms/development) the terminal's chords and
 [pounce](/docs/pounce/using) the palette. Your own machine carries a live
 cheatsheet too (tap **⇪ /**), generated from your own tables, so trust that one
@@ -83,9 +86,26 @@ when they disagree.
 ## Making it yours
 
 Your settings live in one file, and `haus edit` opens it. The tweaks people
-reach for first are an accent (`haus.theme.accent`), an editor
-(`haus.terminal.editorName`, named so haus installs it), and an app with a
-launcher key and a workspace of its own (`haus.roster`, `haus.workspaces`).
+reach for first are an accent, an editor, and an app with a launcher key and a
+workspace of its own.
+
+```nix
+haus.theme.accent = "sapphire";        # one accent, everywhere
+haus.terminal.editorName = "neovim";   # named, so haus installs it
+
+haus.roster.slack = {                  # an app, with a launcher key
+  key = "s";
+  name = "Slack";
+  appId = "com.tinyspeck.slackmacgap";
+  cask = "slack";
+};
+haus.workspaces.S = {                  # and a workspace of its own
+  key = "s";
+  icon = ":slack:";
+  apps = [ "slack" ];
+};
+```
+
 Then `haus rebuild`. [Customize a
 desktop](/docs/haus/desktops/customizing) is the rest of what that file can
 say, and [the haus reference](/docs/haus/reference/haus) is every command the
