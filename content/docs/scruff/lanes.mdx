@@ -95,6 +95,12 @@ means the lane exists and this machine simply has no hook to put a window on it.
 Report the command scruff printed rather than retrying. With a `--prompt` and a
 namer configured, the name argument is optional.
 
+Pass the name as `--derived-name <name>` rather than positionally when your
+caller worked it out from the task. A positional name is one you typed, and scruff
+[refuses one over the machine's ceiling](/docs/scruff/config#how-long-a-lane-name-may-be)
+rather than shortening it; a derived name is cut to fit instead, which is what a
+launcher with nowhere to print a refusal needs.
+
 ## List what you have going
 
 ```sh

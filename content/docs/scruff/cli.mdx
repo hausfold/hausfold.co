@@ -30,7 +30,7 @@ A verb also refuses an argument it can't explain: exit 1, with nothing run.
 | `scruff new [name]` | a lane on **this** repo, path on stdout · `--open [agent]` / `--agent <id>` / `--cmd '<command>'` |
 | `… --prompt '<task>'` | open it on a first turn instead of a blank pane · `--prompt-file <file\|->` for a brief · `--image <file>` |
 | `scruff child <repo>` | a lane on **another** repo, as a child of this pane |
-| `scruff spawn <repo> <name>` | a named lane for a spawner with no pane of its own. Opened through `[hooks] open`, so **exit 3** means the lane exists and nothing put a window on it. `<name>` is optional with a `--prompt` and a namer configured |
+| `scruff spawn <repo> <name>` | a named lane for a spawner with no pane of its own. Opened through `[hooks] open`, so **exit 3** means the lane exists and nothing put a window on it. `<name>` is optional with a `--prompt` and a namer configured, and goes in `--derived-name` when your caller derived it from the task |
 
 **Type what the listing shows.** Every verb that takes a lane name
 (`scruff <name>`, `focus`, `drop`, `reship`, `runtime up|enter|down`) resolves

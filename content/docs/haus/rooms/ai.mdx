@@ -105,12 +105,18 @@ waits, so Spawn Agent keeps its slug and only a hand-run `scruff spawn` asks it.
 A name also has a ceiling, because the lane's key `scruff/<repo>/<lane>` becomes
 the name of a unix socket and a socket path is short. haus caps that key at 44
 bytes, and the repo's own name spends part of it: a repo called `hausfold.co`
-leaves 25 bytes of lane name, one called `nix` leaves 33. A name scruff or a
-namer chose is trimmed to fit at a word boundary, and a name you typed is
+leaves 25 bytes of lane name, one called `nix` leaves 33. So the same task names
+itself differently in two repos, and in the narrower one a long name loses its
+last word.
+
+Losing a word is the whole of what it costs, and only for a name nobody typed.
+Spawn Agent derives yours from the task and tells scruff so, which is why the cut
+lands on a word and the lane opens either way. Type a name yourself (`scruff
+spawn <repo> <name>`, or `scruff new <name>`) and one over the ceiling is
 [refused with both numbers](/docs/scruff/config#how-long-a-lane-name-may-be)
-rather than quietly shortened. A refusal from the
-palette is not on screen anywhere: Spawn Agent toasts that it could not create
-the worktree, and the numbers are in `~/.cache/haus/spawn-agent.log`.
+instead: shortening a name you chose would put your work on a branch you never
+asked for. You are there to read that refusal. The palette would not be, so it
+never gets one.
 
 ### Which repos it offers
 
