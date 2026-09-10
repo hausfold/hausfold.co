@@ -1,10 +1,10 @@
 ---
 title: Changing your Mac with an agent
-description: "Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely: the skills haus ships, the loop they follow, and the one rebuild they refuse."
+description: "Your machine is text and every rebuild is reversible, so an AI agent can reconfigure it safely: the skills haus writes, the loop they follow, and the one rebuild they refuse."
 icon: wand
 related:
   - title: "AI"
-    description: "The other half: scruff, and running several agents at once without them fighting over one checkout."
+    description: "The room this needs: lanes, clients, and several agents at once without them fighting over one checkout."
     href: "/docs/haus/rooms/ai"
     icon: "agent"
   - title: "Install"
@@ -13,191 +13,128 @@ related:
     icon: "install"
 ---
 
-Point an AI agent at a normal Mac and it `brew install`s things, writes
-dotfiles, and clicks through System Settings on your behalf. On a haus machine
-most of that would be silently undone by the next rebuild, with no record of
-what changed.
-
-Declarative config flips that. Every change is text in one file, `haus rebuild`
-**builds before it switches** so a broken edit never reaches the running system,
-and `haus rollback` puts the last one back in seconds. That makes yours the rare
-machine an agent can reconfigure without it being reckless.
-
-The safety was always there; the missing half was knowledge. So haus ships it.
+Point an AI agent at a normal Mac and it `brew install`s things, writes dotfiles
+and clicks through System Settings, and the next rebuild silently undoes most of
+it. Here every change is text in one file, `haus rebuild` **builds before it
+switches**, and `haus rollback` puts the last one back in seconds. The safety was
+always there. The missing half was knowledge, so haus ships it.
 
 ## The skills haus writes
 
-Every rebuild writes a **skill** called `haus` into the skills directory of each
-client in `haus.ai.clients`: `~/.claude/skills/haus` for Claude Code,
-`~/.codex/skills/haus` for Codex, `~/.config/opencode/skills/haus` for OpenCode,
-`~/.pi/agent/skills/haus` for pi.
-Name no clients at all (or turn the room off, which resolves to the same empty
-list) and the copies are written anyway, so the skill is never the missing piece
-on a machine running a client haus didn't install. One body, one copy per client:
+Every rebuild writes a skill called `haus` into the skills directory of each
+client in `haus.ai.clients`: `~/.claude/skills/haus`, `~/.codex/skills/haus`,
+`~/.config/opencode/skills/haus`, `~/.pi/agent/skills/haus`. Name no clients at
+all, or turn the room off, and the copies are written anyway, so the skill is
+never the missing piece on a machine running a client haus didn't install.
 
 | File | What it is |
 |---|---|
-| `SKILL.md` | The loop, the boundaries, the traps. Capped at 150 lines — it routes, and everything below is where it routes to. |
-| `references/rooms.md` | Which room a request belongs to, and whether that room has a runtime verb as well as options — **generated** from the same revision. Read before `options.md`. |
-| `references/options.md` | Every `haus.*` option, **generated from the exact revision you're pinned to**. |
-| `references/this-machine.md` | Your host: hostname, host-file path, which rooms are on, your theme and keys, your app roster and its taken leader keys, plus the rebuild hazards specific to this machine. |
+| `SKILL.md` | The loop, the boundaries, the traps. Capped at 150 lines: it routes. |
+| `references/rooms.md` | Which room a request belongs to, and whether it has a runtime verb. Read before `options.md`. |
+| `references/options.md` | Every `haus.*` option. |
+| `references/this-machine.md` | Your hostname and host file, the rooms that are on, your theme, keys and app roster with its taken leader keys, and this machine's rebuild hazards. |
 | `references/recipes.md` | Worked examples for the common asks. |
-| `references/vm.md` | How an agent sees its own change without taking your screen: a headless macOS VM it drives over `ssh`, and what to do when that can't answer. |
-| `consumer-AGENTS.md` | A starter `AGENTS.md` for your own config repo. |
-| `consumer-CLAUDE.md` | Its one-line `@AGENTS.md` pointer, for the client that reads only `CLAUDE.md`. |
+| `references/vm.md` | Seeing a change without taking your screen: a headless macOS VM driven over `ssh`. |
+| `consumer-AGENTS.md`, `consumer-CLAUDE.md` | A starter pair for your own config repo. |
 
-The option reference being *generated* is the point: it can only describe
-options that exist on your revision (a confidently-wrong option name costs you
-a failed build), and `haus update` regenerates it with the rest.
+`rooms.md` and `options.md` are **generated from the exact revision you're pinned
+to**, so they cannot name an option you don't have, and `haus update` regenerates
+them.
 
-**`haus` is not the only skill installed.** Every hausfold tool the layer ships
-names its own, and `haus.ai.skill` puts all of them beside each other in the
-same per-client directory. Four of them come from the tools, on any machine:
-`scruff` (the agent-worktree lifecycle: what's open, resume a parked lane, set
-work aside without `git stash`), `handoff` (turning a piece of work into a brief
-a cold session can act on, ending on the clipboard or in a new lane), `factory`
-([merging the pull requests](/docs/haus/night-shift) a filter you typed can
-vouch for, while nobody is watching), and `nebelung` (this machine's exact
-palette, rendered from the revision you're pinned to rather than remembered).
+`haus.ai.skill` puts every hausfold tool's own skill in the same directory. Four
+arrive on any machine: `scruff` (agent worktrees, and setting work aside without
+`git stash`), `handoff` (turning a piece of work into a brief a cold session can
+act on), `factory`
+([merging pull requests](/docs/haus/night-shift) while nobody watches) and
+`nebelung` (this machine's palette). Three wait for their room, because a skill
+for an app your Mac doesn't have is worse than none: `trill` on
+[`haus.notifications.compositor`](/docs/haus/rooms/notifications), `pounce` on
+[`haus.launcher.enable`](/docs/haus/rooms/launcher), `perch` on
+[`haus.shelf.enable`](/docs/haus/rooms/shelf). Those switches are about the room
+rather than the app: `haus-notify` finds a Trill.app you installed yourself
+either way.
 
-A tool whose room is *optional* joins them only when you switch that room on:
-`trill` (sending a notification through the compositor) with
-[`haus.notifications.compositor`](/docs/haus/rooms/notifications), `pounce`
-(driving the command palette) with
-[`haus.launcher.enable`](/docs/haus/rooms/launcher), and `perch` (putting a file
-on the notch shelf) with [`haus.shelf.enable`](/docs/haus/rooms/shelf), because
-a skill for an app your Mac doesn't have is worse than none. Those switches are
-about the room rather than the app: `haus-notify` finds a Trill.app you
-installed yourself either way, and a pounce or perch you installed by hand is
-the same, but the skill waits for the room. Each tool owns and versions its own
-skill; haus only decides that they are installed, so a lock bump can bring a
-better one without a change here.
-
-**haus ships a second skill of its own: `hausfold`.** Nothing we make sends
-telemetry, ever, so a GitHub issue is the only way a rough edge reaches the people
-who made it. And when you notice one you are usually talking to an agent, not to a
-menu bar. This is what lets the agent carry it for you: which of our repos owns
-which symptom, whichever `report` verb or `doctor` fills that repo's bug form in
-for you, and a pull request instead if you would rather fix the thing than
-describe it. It files nothing without asking. It shows you the whole draft
-first, diagnostics block included, and if you say no it drops the subject.
+A second skill of haus's own, `hausfold`, carries a rough edge upstream. Nothing we make sends
+telemetry, so a GitHub issue is the only way one reaches the people who made it,
+and you usually notice one while talking to an agent. It knows which repo owns
+which symptom and whichever `report` verb or `doctor` fills that repo's bug form
+in, and files nothing without showing you the whole draft first, diagnostics block
+included.
 
 <Callout type="tip" title="Check it's there">
-`haus doctor` has an **Agents** section: whether the `haus` skill is installed (it
-checks every client's directory and names the copy it found), whether your
-config repo has an `AGENTS.md` and the `CLAUDE.md` pointer beside it, and
-whether the app you're running from can write macOS's protected settings.
+`haus doctor` has an **Agents** section: whether the `haus` skill is installed
+(it names the copy it found in each client's directory), whether your config repo
+has an `AGENTS.md` and the `CLAUDE.md` pointer beside it, and whether the app
+you're running from can write macOS's protected settings.
 </Callout>
 
 ## The loop it follows
 
-<Steps>
-
-<Step>
-**Orient**: read `references/this-machine.md` and your host file, and check
-`haus status`.
-</Step>
-
-<Step>
-**Find the option**: grep the generated reference. If it isn't listed, it
-doesn't exist on your revision, and the agent should say so rather than guess.
-</Step>
-
-<Step>
-**Edit `~/.config/nix/hosts/<hostname>/default.nix`**, the one file you own.
-</Step>
-
-<Step>
-**Apply with `haus rebuild`**: the build gates the switch.
-</Step>
-
-<Step>
-**Verify, or `haus rollback`.**
-</Step>
-
-</Steps>
+Read `references/this-machine.md` and your host file, and check `haus status`.
+Grep the generated reference for the option; if it isn't listed it doesn't exist
+on your revision, and the agent says so rather than guessing. Edit
+`~/.config/nix/hosts/<hostname>/default.nix`, the one file you own. Apply with
+`haus rebuild`. Verify, or `haus rollback`.
 
 ## What to ask for
 
-Ordinary requests, in your own words:
-
-- *"Install Slack and give it its own workspace"* → an entry in `haus.roster`
-  for the leader key and the Homebrew cask, paired with one in
-  `haus.workspaces` for the workspace and its bar pill.
-- *"Everything's too small"* → `haus.ui.scale`.
-- *"Switch to light mode"* → `haus.theme.flavor` plus
-  `haus.theme.systemAppearance`, so macOS's own Light/Dark moves with the rest.
-- *"Hide the weather in the bar"* → the matching `haus.bar.items.*` toggle.
-- *"Bind a key to open my notes"* → `haus.keys.leaderExtras`.
-
-The skill tells the agent to prefer a `haus.*` option over a raw nix-darwin
-setting, and to say so when nothing covers what you asked, because that's a gap
-in haus, not something to bolt onto your machine.
+Ordinary requests, in your own words. *"Install Slack and give it its own
+workspace"* is `haus.roster` for the leader key and the Homebrew cask, plus
+`haus.workspaces` for the workspace and its bar pill. *"Everything's too small"* is `haus.ui.scale`. *"Switch to
+light mode"* is `haus.theme.flavor` with `haus.theme.systemAppearance`, so
+macOS's own Light/Dark moves too. *"Hide the weather"* is a `haus.bar.items.*`
+toggle. *"Bind a key to my notes"* is `haus.keys.leaderExtras`. The skill prefers
+a `haus.*` option over a raw nix-darwin setting, and says so when nothing covers
+your ask, because that's a gap in haus.
 
 ## What it won't do
 
-- **Touch identity or secrets** without asking: git identity, signing keys,
-  `haus.secrets.*`.
-- **Edit haus itself, `flake.lock`, or anything in `/nix/store`.** Pulling a
-  newer revision is `haus update`, not a hand edit.
-- **Uninstall apps behind your back.** Removing an app from your config stops
-  haus *managing* it; the app stays on disk until you `brew uninstall --zap` it.
+Touch identity or secrets without asking: git identity, signing keys,
+`haus.secrets.*`. Edit haus itself, `flake.lock` or anything in `/nix/store`,
+since a newer revision is `haus update`. Uninstall apps behind your back:
+dropping one from your config stops haus *managing* it, and the app stays on disk
+until you `brew uninstall --zap` it.
 
 <Callout type="warn" title="The one rebuild it will refuse">
 If your host file sets `system.defaults.universalaccess.*` directly, `haus
 rebuild` refuses to run whenever the app it runs under lacks **Full Disk
-Access**, and tells you how to get past it.
+Access**.
 
-That domain is TCC-protected, and the grant belongs to the app the rebuild runs
-under, not to you and not to root. So this is **not an agent rule**: an agent
-pane inside a terminal that holds the grant rebuilds perfectly well, and you at
-that same keyboard, in a terminal nobody has granted, are refused identically.
-Without the grant the write fails partway through activation and takes
-everything after it down too: your bar, tiling and palette come back dead, with
-the symptom nowhere near the cause. Refusing is the kinder failure: nothing is
-changed, and your edit is still on disk.
+That domain is TCC-protected and the grant belongs to the app, not to you and not
+to root, so this is **not an agent rule**: an agent pane in a granted terminal
+rebuilds perfectly well, and you at that same keyboard in an ungranted one are
+refused identically. Without the grant the write fails partway through activation
+and takes everything after it down, so your bar, tiling and palette come back dead
+with the symptom nowhere near the cause. Refusing is the kinder failure: nothing
+changes, and your edit is still on disk.
 
-The way past it is always to stop writing the domain by hand.
-`haus.accessibility.*` reaches every key in it that macOS actually honours
-(seven of them, which is **every key nix-darwin types there**, so the raw form
-reaches nothing the safe one doesn't) with a
-**guarded** write, so without the grant you lose that setting and nothing else,
-and the rebuild runs from anywhere. Otherwise:
-run it from an app that holds the grant, or set `HAUS_FDA_ANYWAY=1` when you know
-better (`HAUS_AGENT_REBUILD=1` is an accepted alias for it).
-
-`haus plan` tells you which grant a rebuild wants *before* it runs, and `haus
-doctor`'s **Permissions** section says whether this app has it.
-`haus.theme.contrast` is a different thing again: haus's own palette axis,
-painted into the apps haus themes rather than into macOS, so it always applies.
+The way past is to stop writing the domain by hand. `haus.accessibility.*`
+reaches every key in it that macOS actually honours (seven of them, which is
+**every key nix-darwin types there**) with a **guarded** write, so a missing grant
+costs you that setting and nothing else. Otherwise, run it from an app that holds
+the grant or set `HAUS_FDA_ANYWAY=1` when you know better (`HAUS_AGENT_REBUILD=1`
+is an accepted alias). `haus plan` says which grant a rebuild wants *before* it
+runs, `haus doctor`'s **Permissions** section whether this app has it.
+`haus.theme.contrast` is unrelated: haus's own palette axis, painted into the apps
+haus themes, so it always applies.
 </Callout>
-
-## When the rebuild fails anyway
-
-The loop above assumes the agent is already in front of you. When a rebuild you
-ran yourself fails, haus offers the same help the other way round: rows under
-the error, or a **Fix it** notification if you have walked off, both running
-`haus fix` — one agent turn over the failing phase, the error and what changed
-in your config since the last good rebuild.
-
-It obeys everything on this page. It never activates, it works only in
-`~/.config/nix`, and its whole change is one commit, so `git -C ~/.config/nix
-revert HEAD` puts it back. See
-[When a rebuild fails](/docs/haus/reference/haus#when-a-rebuild-fails).
 
 ## What a rollback doesn't undo
 
 `haus rollback` rewinds everything Nix manages, instantly. It does **not** rewind
-macOS system settings a rebuild wrote (Dock, keyboard, Finder), and it does not
-rewind Homebrew casks; those live outside Nix generations entirely. A good
-agent says which kind of change it's about to make.
+the macOS settings a rebuild wrote (Dock, keyboard, Finder), and it does not
+rewind Homebrew casks. A good agent says which kind of change it's about to make.
+
+A rebuild *you* ran that fails offers the same help the other way round, in [When
+a rebuild fails](/docs/haus/rooms/ai#when-a-rebuild-fails): `haus fix`, one agent
+turn that never activates and whose whole change is one commit, so `git -C
+~/.config/nix revert HEAD` puts it back.
 
 ## An AGENTS.md for your own config
 
-`~/.config/nix` is your own git repo, your machine in text. Dropping an
-`AGENTS.md` in it orients any agent you open there, whether or not it found the
-skill. A starter pair ships inside the skill; nothing writes it for you, because
-it's your repo:
+`~/.config/nix` is your own git repo, your machine in text. An `AGENTS.md` in it
+orients any agent you open there, skill or no skill. The starter pair ships inside
+the skill; nothing writes it for you, because it's your repo:
 
 ```sh
 # whichever of these exists on your machine; the copies are identical:
@@ -208,24 +145,19 @@ install -m 644 "$skill"/consumer-AGENTS.md ~/.config/nix/AGENTS.md
 install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
 ```
 
-`install -m 644`, not `cp`: the starter pair are symlinks into the Nix store,
-whose files are read-only. A plain `cp` preserves that mode, so you land on an
-`AGENTS.md` your editor refuses to save, on the one file the whole point of
-copying is to then edit.
-
-Two files, because the tools disagree about the filename. **`AGENTS.md` carries
-the rules**: Codex, OpenCode, Cursor, Zed, Copilot and everything else that
-speaks [agents.md](https://agents.md) reads it directly. Claude Code reads only
-`CLAUDE.md`, so the second file is a one-line `@AGENTS.md` import and nothing
-else. Copy one and you orient some of your tools and not others.
+`install -m 644`, not `cp`: the pair are symlinks into the read-only Nix store and
+`cp` preserves that mode, landing you on an `AGENTS.md` your editor refuses to
+save. Two files, because the tools disagree about the filename. **`AGENTS.md`
+carries the rules**, read by Codex, OpenCode, Cursor, Zed, Copilot and everything
+else that speaks [agents.md](https://agents.md); Claude Code reads only `CLAUDE.md`, so that one is
+a one-line `@AGENTS.md` import.
 
 ## Your own instructions, in every client
 
-`haus.ai.instructions` is the other half of what haus writes into an agent's
-home: your always-on operating context, rendered once per installed client at
-the path that client reads (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`,
-`~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md`), under a short
-generated preamble.
+`haus.ai.instructions` is your always-on operating context, rendered once per
+installed client at the path that client reads (`~/.claude/CLAUDE.md`,
+`~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.pi/agent/AGENTS.md`),
+under a short generated preamble.
 
 ```nix
 haus.ai.instructions = ''
@@ -236,35 +168,27 @@ haus.ai.instructions = ''
 ```
 
 Write it **client-neutrally**: the same text reaches whichever agent your ⌘⏎ lane
-spawned, so a line about one client's flags is noise in the other two. Empty (the
-default) writes nothing at all, so a hand-managed instructions file is never
-touched. *Setting* it on a machine that already has one, though, moves yours
-aside to `<file>.backup`. And `haus.ai.skill = false;` stops every one of those
-skills being written, for when you'd rather own each client's skills directory
-yourself.
-
-(Both were `haus.claude.globalMd` and `haus.claude.skill` until August 2026; the
-old names still evaluate, with a warning.)
+spawned. Empty, the default, writes nothing, so a hand-managed instructions file
+is never touched; *setting* it on a machine that already has one moves yours aside
+to `<file>.backup`. `haus.ai.skill = false;` stops every skill above being
+written. (Both were `haus.claude.globalMd` and `haus.claude.skill`; the old names
+still evaluate, with a warning.)
 
 ## Reading the docs, without the skill
 
-On a machine that already has haus, prefer the skill: it is generated from the
-revision you actually run, so it cannot describe an option you don't have.
-Everywhere else, these docs publish themselves in machine-readable form.
-[`/llms.txt`](https://hausfold.co/llms.txt) is a table of contents with
-one-line descriptions, for something that fetches selectively;
-[`/llms-full.txt`](https://hausfold.co/llms-full.txt) is every page inlined,
-for something that would rather read the lot. Any page is also available as
-its own Markdown, from the button above its title.
+On a machine that has haus, prefer the skill: it is generated from the revision
+you actually run. Everywhere else these docs publish themselves machine-readably.
+[`/llms.txt`](https://hausfold.co/llms.txt) is a table of contents for something
+that fetches selectively, [`/llms-full.txt`](https://hausfold.co/llms-full.txt)
+is every page inlined, and any page is its own Markdown from the button above its
+title.
 
 <Callout type="warn" title="It's still your machine">
 An agent that can rebuild your Mac can change how your Mac behaves. The safety
-here is mostly *recovery* rather than prevention: the build gates the switch and
-the rollback is atomic, so mistakes are cheap, not impossible. Read the diff
-before you say yes, exactly as you would for any other change to your config.
-
-One slice does get prevention. Activating (`haus rebuild`, `darwin-rebuild
-switch`) redraws the whole desktop, so it is one of the commands
-[`agent-desktop-guard`](/docs/haus/rooms/ai#the-screen-belongs-to-you) puts back
-in front of you, even in a pane running on auto.
+here is mostly *recovery* rather than prevention: mistakes are cheap, not
+impossible. Read the diff before you say yes. Activating (`haus rebuild`,
+`darwin-rebuild switch`) is the one slice that does get prevention, because it
+redraws the whole desktop:
+[`agent-desktop-guard`](/docs/haus/rooms/ai#the-screen-belongs-to-you) puts `haus
+rebuild` back in front of you, even in a pane running on auto.
 </Callout>
