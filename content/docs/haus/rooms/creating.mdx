@@ -1,77 +1,46 @@
 ---
 title: Create a room
-description: A room is two files and three lines of registry. What one owes the layer, how rooms talk without reaching into each other, and when a plain module in your host is the better answer.
+description: A room is two files and three lines of registry. What one owes the layer, how rooms talk without reaching into each other, and when a plain module in your own config is the better answer.
 icon: blocks
 related:
   - title: "Contributing"
-    description: "The workshop checkout, the bench CLI, and the path a change takes from an edit to a release across several repositories."
+    description: "The workshop checkout, the bench CLI, and the path from an edit to a release."
     href: "/docs/haus/internals/contributing"
     icon: "hammer"
   - title: "Create a desktop"
-    description: "The other half of the model: one data-only file that answers what a Mac should feel like, using the rooms rather than adding one."
+    description: "The other half: one data-only file that uses the rooms rather than adding one."
     href: "/docs/haus/desktops/creating"
     icon: "desktops"
 ---
 
-Every page above this one documents a **room**: a switch, some options, and the
-macOS it configures. A room is not a special format. It is a nix-darwin module
-that keeps to three habits, plus an entry in the registry that makes it show up
-in the option reference, the agent skill and the generated host file without
-anyone writing it down twice.
+Every page above this one documents a **room**: a nix-darwin module under
+[`modules/`](https://github.com/hausfold/haus/tree/main/modules), plus three
+lines of registry that put it in the option reference, the agent skill and the
+generated host file at once.
 
-This page is how you add one.
-
-## First: you probably don't need one
-
-Most "I want my Mac to do X" is answered without a new room, and the answers are
-cheaper in that order:
-
-- **An option that already exists.** The [option
-  reference](/docs/haus/reference/options) is generated from the module system,
-  so it is complete by construction. Search it before anything else.
-- **An app.** [`haus.roster`](/docs/haus/rooms/apps) installs it, gives it a
-  launcher letter and puts its windows on a workspace, in one entry.
-- **A command on a key.** [`haus.keys.leaderExtras`](/docs/haus/rooms/keys)
-  binds the leader plus a key
-  to any command; `haus.launcher.items` puts one in the palette.
-- **A macOS setting haus doesn't expose.** Your host file is a nix-darwin
-  module. Write `system.defaults.…` in it directly and move on; nothing about
-  haus stops you, and [Customizing](/docs/haus/desktops/customizing) is that
-  path.
-
-A room earns its existence when a *set* of things has to move together and be
-switchable as one: a package, its launchd job, its config file, its theming and
-the options that steer all four. One setting is not a room.
+Most of the time you want no room. The
+[option reference](/docs/haus/reference/options) is generated, so search it
+first; then [Customizing](/docs/haus/desktops/customizing), which has
+`haus.roster` for an app, `haus.keys.leaderExtras` or `haus.launcher.items` for
+a command, and `system.defaults.…` in your host file for a macOS setting haus
+doesn't expose. A room earns its existence when a package, its launchd job, its
+config file, its theming and the options steering all four have to move and
+switch as one. One setting is not a room.
 
 <Callout title="Your machine, or the layer?">
-If the answer is only ever going to run on your Mac, write a plain module in
-your own config and stop reading, but name its options **`haus.my.*`**, not a
-plain `haus.<name>`. `haus.my` is reserved: haus promises never to ship a room
-under it, and a check in haus's own CI fails if a release ever tries. Under a
-plain name you are racing a future release for the word, and that race is
-usually silent: two modules declaring *different* leaves under one namespace
-merge with no error, and one room's switch ends up steering the other's. Your
-Mac warns you if you do it anyway.
-
-Set it from your **host file**, not from a desktop: a private room is the one
-thing a shared desktop may never name, since whoever runs that desktop does not
-have the room. A room you go on to *publish* drops the prefix and claims a plain
-`haus.<name>` like any other: the prefix is for what stays on one Mac. That is
-also the name a stranger types, because
-[`haus add --room --namespace <ns>`](/docs/haus/reference/haus#pinning-a-room)
-is how a published room reaches their machine, and it won't guess the namespace
-for them.
-
-Everything below is about a room that lands in
-[`hausfold/haus`](https://github.com/hausfold/haus), where the cost of the
-registry buys you the docs page, the skill and the host template for free, and
-where other people's machines are the reason the rules exist.
+If it only ever runs on your Mac, write a plain module, name its options
+**`haus.my.*`**, and set them from your **host file**, never a desktop, which
+is a file other people run without your room. haus promises never to ship a
+room under that prefix, and a flake check holds the promise. Under a plain
+name you race a future release, silently: two modules declaring different
+leaves under one namespace merge with no error, one room's switch steering the
+other's. Your Mac warns you if you do it anyway. Publishing drops the prefix
+for a plain `haus.<name>`, which is what a stranger writes in their host file
+once [`haus add --room --namespace <ns>`](/docs/haus/reference/haus#pinning-a-room)
+has pinned it.
 </Callout>
 
 ## The two files
-
-A room is a directory under `modules/`, and it splits in a way that looks
-redundant until you hit the reason:
 
 ```
 modules/kettle/
@@ -79,99 +48,59 @@ modules/kettle/
   default.nix     # what happens when they say it
 ```
 
-`options.nix` is a pure `{ lib, ... }` module. No `pkgs`, no `config`, no
-darwin:
+`options.nix` is a `{ lib, ... }` module. It may take `config`, which is how
+one option's default tracks another, and such a default carries a `defaultText`
+so nothing has to force it. It may never touch `pkgs`, or anything from darwin:
+that keeps the option surface evaluable on any platform, which is what lets
+Linux CI render one JSON into the reference page, the `haus` agent skill and a
+fresh install's annotated host file.
 
-```nix
-{ lib, ... }:
-
-{
-  options.haus.kettle = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = ''
-        The room switch. Off drops the package, the agent and the config.
-      '';
-    };
-  };
-}
-```
-
-That purity is load-bearing. Because the option surface evaluates on its own, on
-any platform, it can be **rendered** rather than hand-written: the reference page
-you are three clicks from, the `haus` agent skill installed on every machine, and
-the annotated host file a fresh install gets are all the same JSON, built in
-Linux CI from these files alone.
-
-`default.nix` is the implementation, and it wraps its whole body in the switch:
-
-```nix
-{ config, lib, pkgs, username, ... }:
-
-let
-  cfg = config.haus.kettle;
-in
-lib.mkIf cfg.enable {
-  environment.systemPackages = [ pkgs.kettle ];
-  home-manager.users.${username}.home.file.".config/kettle/config.toml".text = "…";
-}
-```
+`default.nix` takes `{ config, lib, pkgs, username, ... }`, binds
+`cfg = config.haus.kettle`, and wraps its whole body in `lib.mkIf cfg.enable`.
+A user-level config file goes to `home-manager.users.${username}.home.file`.
 
 <Callout type="warn" title="Why the options can't live in default.nix">
-Several rooms wrap everything in `lib.mkIf <room>.enable`. An option declared
-inside that gate vanishes exactly when the module system needs it to decide the
-condition. Hence the split, and hence `modules/options-modules.nix`, which lists
-every room's `options.nix` once so the three renderers above and
-`modules/default.nix` all read the same list.
+An option declared inside that gate vanishes exactly when the module system
+needs it to decide the condition. Hence the split, and hence
+`modules/options-modules.nix`, one list of every room's `options.nix` that the
+renderers and `modules/default.nix` all read.
 </Callout>
 
 ## Three lines of registry
 
 `modules/options-groups.nix` is the room registry, and it **fails closed**: the
 `room-registry` flake check compares it against the evaluated option tree, so a
-namespace or a leaf it doesn't mention is an error rather than a page that
-quietly renders without it.
+namespace or leaf it doesn't mention is an error. A room owes it:
 
-A new room owes it three things:
-
-1. **Every public leaf**, by exact path, under `optionPaths`. An inventory
-   rather than a glob, which is what makes an added option fail loudly instead
-   of inheriting whatever safety its namespace happened to have.
-2. **An owner**, in `roomOwners`: which room a namespace belongs to. Two
-   namespaces can share one room (`haus.bar` and `haus.menuBar` are both the
-   Bar), which is why this table exists separately from the namespace list.
-3. **A blurb**, in `groups`: the one sentence a renderer lays its catalogue out
-   from, and an `order` so people meet the rooms in a sensible sequence rather
-   than alphabetically. The module system has no notion of "identity first,
-   policy last" and no place to hang a sentence about a whole namespace.
+1. **Every public leaf**, by exact path, under `optionPaths`. An inventory, not
+   a glob, so a new option fails loudly. Identity, secrets, tokens and hardware
+   ids are a host's: mark those leaves host-only and no shared desktop can set
+   them.
+2. **An owner**, in `roomOwners`. Two namespaces can share one room:
+   `haus.bar` and `haus.menuBar` are both the Bar.
+3. **A blurb** and an `order`, in `groups`: the sentence a catalogue is laid
+   out from, and where the room sits in it.
 
 Then add the options file to `modules/options-modules.nix` and the
-implementation to `modules/default.nix`, and regenerate the committed metadata:
+implementation to `modules/default.nix`, and regenerate the committed metadata
+that the `site-data-current` check compares against and this site renders from.
+A room whose metadata was never regenerated is a room the docs cannot see.
 
 ```sh
-nix build --no-link --print-out-paths .#site-data
+out=$(nix build --no-link --print-out-paths .#site-data)
+install -m644 "$out"/*.json docs/site-data/
 ```
 
-Copy its JSON into `docs/site-data/` and commit it. The `site-data-current`
-check is what keeps that copy honest, and it is what this site's options
-reference is rendered from, so a room whose metadata was never regenerated is a
-room the docs cannot see.
+## Rooms offer, never reach
 
-## Rooms talk, but never reach
+The Kettle room wants a pill in the bar, a separate room with its own switch
+that this Mac may not have on at all. The rule: **a room may offer something to
+another room, and may never reach into one.** No room reads another's settings,
+and none switches another on.
 
-Rooms sometimes need each other. The Kettle room wants a pill in the bar, and
-the Bar is a separate room, with its own switch, that this Mac may not have
-turned on at all.
-
-The rule is one sentence: **a room may offer something to another room, and may
-never reach into one.** No room reads another room's settings, and no room
-switches another room on.
-
-What makes that possible is a slot, called an *extension point* in the code.
-The receiving room declares one and says what may go in it. Any other room may
-fill it. The receiving room draws whatever it finds, inside its own enable
-gate, so a room that is switched off draws nothing:
+The receiving room declares a slot, an *extension point*, and says what may go
+in it. Any other room may fill it. The receiver draws whatever it finds inside
+its own enable gate:
 
 ```nix
 # in the RECEIVING room's options.nix, here the Bar's
@@ -182,76 +111,48 @@ haus._contrib.bar.brewStatus = contrib.mkExtensionPoint {
 ```
 
 Read the path as an address: `bar` is who receives, `brewStatus` is what is
-being offered. The room doing the asking is not in the path at all, which is
-the point. The Bar draws the pill without knowing who wanted it.
-
-Two things follow, and they are the whole point:
-
-- Switch the Bar off and the pill goes with it. The Kettle keeps boiling.
-- Switch the Kettle off and the Bar's own pills are untouched.
-
-The alternative is the Bar reading `config.haus.kettle.something` for itself.
-Then renaming any Kettle option breaks the Bar, and nothing anywhere records
-that the two were ever connected.
-
-One naming trap. The middle segment names the receiving **room**, not the
-namespace someone happens to write in a host file. The Bar answers to two of
-those, `haus.bar` and `haus.menuBar` (the same pair the registry section above
-turns on, and `menuBar` is not even implemented in `modules/bar/`), and the
-slot is `_contrib.bar.*` either way. Nothing enforces it, because the whole
-tree is internal and never rendered.
-
-That is also what the underscore in `haus._contrib` means: wiring between
-rooms, not a setting anyone writes. The doc renderer prunes those before
-anything is published.
+offered, and the room doing the asking is not in it. So switching the Bar off
+takes the pill with it and the Kettle keeps boiling, and switching the Kettle
+off leaves the Bar's own pills untouched. The middle segment names the
+receiving **room**, not a namespace, so the Bar's slot is `_contrib.bar.*`
+under both `haus.bar` and `haus.menuBar`. Nothing enforces that. The leading
+`_` means wiring rather than a setting, and the renderers prune it.
 
 ## Default to off, and mean it
 
 An optional room's `enable` defaults to `false`, always. A
 [desktop](/docs/haus/desktops/choosing) is the *complete* answer to what a Mac
-should feel like, not a diff, so whatever a desktop doesn't name is decided by
-your room's own neutral default. If that default is `true`, every desktop that
-never heard of your room silently grows it.
-
-Two rooms have no switch on purpose: `core` (macOS itself) and `terminal` (the
-shell) are the floor rather than furniture. If you are reaching for that
-exemption, you are probably not writing a room.
+should feel like, not a diff, so a `true` default grows silently into every
+desktop that never heard of your room. `core` (macOS itself) and `terminal`
+(the shell) have no switch on purpose: they are the floor, not furniture.
 
 ## Prove it
 
 ```sh
 nix flake check
-```
-
-That runs the registry check, the desktop seam, the keymap collision check and
-the rest. Then evaluate a whole machine, which is what catches an option that
-type-checks and then contradicts another room:
-
-```sh
 nix eval .#darwinConfigurations.example.system.drvPath
 ```
 
-Neither builds anything on your Mac and neither activates. To see what a real
-rebuild *would* change, [`haus plan`](/docs/haus/reference/haus) prints the
-packages, settings, files and launchd jobs and changes none of them.
+The first runs the registry check, the desktop seam, the keymap collision check
+and the rest; the second evaluates a whole machine, which is what catches an
+option that type-checks and then contradicts another room. Neither activates,
+and [`haus plan`](/docs/haus/reference/haus) shows what a real rebuild would
+change without changing it.
 
 <Callout type="warn" title="A new option owes a docs page">
-The layer and this site are two repositories, and nothing in either fails when
-they disagree. A new room owes a page under `content/docs/haus/rooms/`, an entry
-in that tree's `meta.json`, and an icon. A changed keybinding owes an edit to
-[Keys](/docs/haus/rooms/keys). The reference page regenerates itself; the
-prose does not.
+The layer and this site are two repositories, and nothing fails when they
+disagree. A new room owes a page under `content/docs/haus/rooms/`, an entry in
+that tree's `meta.json`, and an icon; a changed keybinding owes an edit to
+[Keys](/docs/haus/rooms/keys). The reference page regenerates itself; the prose
+does not.
 </Callout>
 
 ## What a room may not do
 
-- **Name a person or a machine.** Identity, secrets, tokens and hardware ids are
-  a host's, and the registry marks those leaves host-only so a shared desktop
-  cannot set them.
 - **Hold a colour.** Hexes live in
   [nebelung](https://github.com/hausfold/nebelung); a room reads the palette.
-- **Hold another product's logic.** The launcher's behaviour belongs in pounce,
-  the shelf's in perch. A room is the wiring that installs and configures them.
-- **Switch another room on.** See the seam above. A standalone
-  `darwinModules.<room>` import is the bare foundation plus that one room, and
-  it stays true only because no room activates its neighbours.
+- **Hold an app's own logic.** A room installs and configures the app; it is
+  not the app.
+- **Switch another room on.** A standalone `darwinModules.<room>` import is the
+  bare foundation plus that one room, and stays true only because no room
+  activates its neighbours.
