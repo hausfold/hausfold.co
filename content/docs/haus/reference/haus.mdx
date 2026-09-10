@@ -15,9 +15,9 @@ related:
 
 `haus` drives your machine after install, wrapping the Nix build and the
 activation you would otherwise run by hand, and joining your `PATH` with the
-first successful switch. With no argument you get `haus status`. It is the only command an end user needs; `haus.ai.enable` adds one
-more, **`scruff`** ([the AI room](/docs/haus/rooms/ai)), and is also what puts
-`haus fix` on this list.
+first successful switch. With no argument you get `haus status`. It is the only
+command an end user needs; `haus.ai.enable` adds one more, **`scruff`** ([the AI
+room](/docs/haus/rooms/ai)), and is also what puts `haus fix` on this list.
 
 ## Commands
 
@@ -38,8 +38,8 @@ more, **`scruff`** ([the AI room](/docs/haus/rooms/ai)), and is also what puts
 | `haus diff` | What the configuration you're *running* set, versus what macOS actually has right now. |
 | `haus capture [cat…]` | This Mac's current settings as config lines *and* a snapshot. |
 | `haus revert-settings [snapshot\|list]` | Put a captured snapshot back. |
-| `haus options` | Refresh `hosts/<host>/options.nix`: every `haus.*` option at its default, described and commented out. |
-| `haus doctor` | Nix, the Xcode CLT, background jobs wanting attention, cask drift, every permission still waiting on you, your secrets, agent readiness. |
+| `haus options` | Refresh `hosts/<host>/options.nix` from the build this machine is running: every `haus.*` option at its default, described and commented out. |
+| `haus doctor` | Nix, the Xcode CLT, background jobs wanting attention, cask drift, every permission still waiting on you, the theme ports, your secrets, agent readiness. |
 | `haus report` | haus's issue form, with this Mac's details and its whole `haus doctor` report already in the diagnostics field. `--print` opens no browser. |
 | `haus skill [name]` | haus's own agent skill, the file that teaches a coding agent to change this Mac; with a name, one of its reference pages. Always the copy rendered from the revision you pinned. |
 | `haus skill install` | Write that skill into every agent client here that hasn't got it. `--client claude\|codex\|opencode\|pi` for one, `--dir <path>` for elsewhere. [`haus.ai.skill`](/docs/haus/rooms/ai) has normally done it already. |
@@ -61,18 +61,15 @@ haus permissions          # one card at a time, with a button
 haus permissions --list   # just the report; opens nothing, asks nothing
 ```
 
-Where the service has one, the card raises **the real macOS prompt**
-(Accessibility does, so Pounce's grant is one click); otherwise it deep-links
-the exact System Settings pane. **It only ever tells you what it can actually
+Accessibility has a real macOS prompt, so Pounce's grant is one click; the rest
+deep-link a System Settings pane. **It only ever tells you what it can actually
 see.** Automation above all exposes no way to ask, so those cards are marked
-done on your word rather than drawing a tick nothing earned, and `haus
-permissions --reset` forgets only those.
+done on your word, and `haus permissions --reset` forgets only those.
 
 `haus services` is the other half, its log paths read off the plists that
 shipped rather than guessed at. A job that should be running but isn't comes
 with the `launchctl kickstart` line that starts it again, but **idle is often
-the right answer**: a weekly cleanup waiting for its day, a watcher waiting for
-a file, and each line says which kind of idle it is.
+the right answer**, and each line says which kind of idle it is.
 
 Every room contributes its own steps and jobs, so both decks are your machine's
 rather than a fixed list, and `haus doctor` reports both read-only.
@@ -92,15 +89,14 @@ before any file is written; those belong in your host file, via `haus edit`.
 Values take the obvious shell form for strings and JSON for booleans, numbers,
 lists and attribute sets.
 
-`set` takes as many pairs as you like and applies them in **one** rebuild, which
-matters when a single intent spans two options:
+`set` takes as many pairs as you like and applies them in **one** rebuild, so a
+single intent spanning two options never leaves the machine half-switched:
 
 ```sh
 haus set theme.flavor latte theme.systemAppearance flavor
 ```
 
-Two calls would be two rebuilds with the machine half-switched in between. Pairs
-are all-or-nothing: one rejected value rolls the whole call back, and `unset`
+Pairs are all-or-nothing: one rejected value rolls the whole call back, and `unset`
 and `reset` take lists for the same reason. They differ in one place. `reset`
 deletes the override, so whatever your host file or desktop says underneath
 becomes effective again, and a path that had no override is reported rather than
@@ -136,9 +132,8 @@ the second is refused, naming the first and the `haus reset` that clears it.
 
 `haus set` writes an ordinary Nix module to
 `~/.config/nix/hosts/<hostname>/settings/<path>.nix` and stages it, because a
-git-backed flake ignores untracked files. The file *is* the setting: no database
-beside it, safe to read, edit or commit. Neither `set` nor `reset` commits or
-pushes for you.
+git-backed flake ignores untracked files. The file *is* the setting, and neither
+`set` nor `reset` commits or pushes for you.
 
 <Callout title="Also in the launcher">
 The [launcher](/docs/haus/rooms/launcher)'s **Haus Settings** command is the
@@ -161,9 +156,8 @@ haus show file+https://example.org/writer.nix
 ```
 
 A source is fetched into the Nix store and read there. Nothing in **your
-config** is written: not your `flake.nix`, not your lock, not a vendored copy,
-so `show` is safe to run on something you fully intend to refuse. Name one
-desktop with `--file` where a repo holds several.
+config** is written: not your `flake.nix`, not your lock, not a vendored copy.
+Name one desktop with `--file` where a repo holds several.
 
 **A desktop is data haus can check. A room is code, and haus can tell you
 nothing about what it does.** What it can check it checks against the same rules
@@ -178,64 +172,45 @@ easy to confuse: `changed`, its own commit date, and `fetched`, the clock as
 this command ran, which no lock file records. A `file+https://` URL has neither,
 since it pins content and nothing else, and a later `nix flake update` on one
 prints the **same URL on both sides of its arrow** while the content moves
-underneath. `show` says so, because that is the cheap moment to publish from a
-repo instead.
+underneath. `show` says so where the shape is chosen.
 
 <Callout type="info" title="Fetching and reading are two separate acts">
-Reading a `.nix` file means **evaluating** it, and Nix evaluation is not inert:
-a file can read other files and reach the network while it is being read. So
-`show` splits the job. The fetch reaches the network and runs nothing: it pulls
-a *tree*, never locking a flake, so not even a room's own `flake.nix` is
-evaluated. The read reaches nothing: it runs restricted, where no fetch of any
-scheme resolves and the only readable paths are the checker's own and the source
-you named.
+`show` never runs what it reads. The fetch pulls a *tree* without locking a
+flake, so not even a room's own `flake.nix` is evaluated, and the read runs
+restricted, where no fetch of any scheme resolves.
 
 One honest limit: the restriction's unit is the store path, so a desktop fetched
 from a repo can read the other files **its publisher shipped beside it**. It
-still cannot read anything of yours, which is why the report attributes values
-to the fetched tree rather than to one file in it.
+still cannot read anything of yours.
 </Callout>
 
 ### What would change here
 
 On a machine that has a haus config, a passing desktop is compared against your
-own, leaf by leaf:
+own, leaf by leaf: the ones it changes, the ones it turns off, and the ones your
+own config outranks.
 
-```text
-becomes   ~/.config/nix · host mbp · desktop hacker.nix
-
-  ⚠ 1 leaf your own config outranks — the desktop does not move it
-    haus.theme.accent          stays "pink"   (it asks for "teal")
-
-  changes   3 leaves
-    haus.bar.enable            true → false
-    haus.developer.languages   [ "node" ] → [ "rust" "go" ]   ⚠ a list:
-                                              replaced whole, not merged
-
-  turns off 19 leaves the desktop you have sets and this one does not
-```
-
-**A line in your host file outranks any desktop.** That is the ladder working as
-designed, but it means a stranger's file can be full of opinions that do nothing
-on your Mac, and no error anywhere says so. **A list your host names is replaced
-whole, not merged**, because lists combine only between definitions of equal
-rank: yours simply win, all of them.
+**A line in your host file outranks any desktop.** A desktop has to lose to the
+person who chose it, but that means a stranger's file can be full of opinions
+that do nothing on your Mac and no error anywhere says so. **A list your host names is replaced whole,
+not merged**: lists combine only between definitions of equal rank, so the
+desktop's entries never add to yours.
 
 Three things it will not guess at. A leaf inside a list-like option
 (`haus.roster.<app>.key` and its kind) has no option of its own to rank, so the
 values are shown and the winner is not; `haus plan` settles that. A leaf your
 haus has never heard of is a **version gap**, not a bad desktop, so `haus
-update` is the answer and not the file. And a leaf turned off goes back to
-*whatever haus decides*: that value is recorded nowhere on your machine, so no
-number is printed for it.
+update` is the answer and not the file. And a leaf this desktop turns off goes
+back to *whatever haus decides*: that value is recorded nowhere on your machine,
+so no number is printed for it.
 
-This is a **leaf diff, not a rebuild preview**. Turning a room off moves
-packages, files and services that nothing here counts;
-[`haus plan`](#looking-before-you-leap) builds that answer. The comparison
-evaluates *your* flake and never the stranger's, and it still writes nothing,
-including your lock: if your `flake.lock` would have to change to answer, `show`
-says so and skips the section. `--no-diff` skips it outright, and a machine with
-no haus config never sees it, which is what a publisher's CI wants.
+This is a **leaf diff, not a rebuild preview**: turning a room off moves
+packages, files and services that nothing here counts, and
+[`haus plan`](#looking-before-you-leap) builds that answer. It evaluates *your*
+flake and never the stranger's, and writes nothing, your lock included: if your
+`flake.lock` would have to change to answer, `show` says so and skips the
+section. `--no-diff` skips it outright, and a machine with no haus config never
+sees it, which is what a publisher's CI wants.
 
 For CI, the exit code is the contract:
 
@@ -262,8 +237,8 @@ nix run github:hausfold/haus#show -- github:ada/writer-desktop
 
 `haus add` brings it in, rerunning the same check and refusing whatever `show`
 would have. It writes `flake.nix` (the input, and the `desktop` line) and
-`flake.lock` in one edit, after asking. Nothing rebuilds; `haus rebuild` is the
-next step.
+`flake.lock` in one edit, after asking and defaulting to no. Nothing rebuilds;
+`haus rebuild` is the next step.
 
 ```sh
 haus add github:ada/writer-desktop
@@ -282,10 +257,9 @@ lines to add by hand rather than guessing at your `flake.nix`.
 
 ## Pinning a room
 
-A desktop is data. A **room** is code: an ordinary nix-darwin module that can
-install packages, write files and run activation scripts as root. `haus add`
-takes one, but only when you say so, and it never guesses which `haus.<ns>` the
-room means to own:
+A room being code means an ordinary nix-darwin module that can install packages,
+write files and run activation scripts as root. `haus add` takes one, but only
+when you say so, and it never guesses which `haus.<ns>` the room means to own:
 
 ```sh
 haus add --room --namespace photography github:ada/photo-room
@@ -314,8 +288,7 @@ shows the whole edit first (the input, the `extraModules` line, one
 `haus._rooms.claimed.<ns>` per namespace) and writes nothing. `haus remove
 <name>` takes the `extraModules` entry out along with the input, then stops
 short: it can't tell which namespace claim belonged to that room, so it prints
-the `haus reset _rooms.claimed.<ns>` for you to run rather than resetting a
-claim it might not own.
+the `haus reset _rooms.claimed.<ns>` for you to run.
 
 ## Looking before you leap
 
@@ -333,16 +306,13 @@ haus revert-settings   # put that snapshot back
 
 `capture` before a risky change and `revert-settings` after is the
 macOS-defaults equivalent of a generation rollback. It defaults to the Dock,
-keyboard and Finder; name a plist domain to reach anything else. Both read the
-built activation script itself, and both probe macOS live for the accessibility
-keys it accepts silently and then ignores, so neither is trusting a hand-kept
-list.
+keyboard and Finder; name a plist domain to reach anything else. Neither trusts
+a hand-kept list: both read the built activation script and probe macOS live for
+the accessibility keys it accepts silently and then ignores.
 
 `plan` reports packages, macOS settings, **the files written into your home**
-(with the `onChange` hooks each would fire), launchd jobs and new casks. The
-middle one is the one people expect to be missing: switching a bar pill on moves
-a config file and nothing else, which no closure diff would show. Files an
-activation script writes rather than links stay outside that set and won't
+(with the `onChange` hooks each would fire), launchd jobs and new casks. Files
+an activation script writes rather than links stay outside that set and won't
 appear.
 
 <Callout type="warn" title="`plan` reads your config directory, not the one you're standing in">
@@ -359,9 +329,8 @@ HAUS_CONSUMER="$(git rev-parse --show-toplevel)" haus plan
 ## When a rebuild fails
 
 A rebuild that fails leaves you holding a Nix trace and a machine that did not
-change. If [the AI room](/docs/haus/rooms/ai) is on, haus offers to read that
-trace for you, under the error at the terminal or as a **Fix it** notification
-if you have already walked away. That button runs `haus fix`, and so can you.
+change. [The AI room](/docs/haus/rooms/ai) offers to read that trace for you;
+its **Fix it** button runs `haus fix`, and so can you.
 
 ```sh
 haus fix              # fix the rebuild that just failed
@@ -371,15 +340,14 @@ haus fix --dry-run    # print what the agent would be told, and run nothing
 It gives the client `haus.ai.default` names one turn in `~/.config/nix`, with
 the failing phase, the error, what changed in your config since the last good
 rebuild, and the haus revision you are pinned to. Then it checks the answer
-itself, since the config has to evaluate again, and says which of four things
-happened: fixed, fixed by undoing an edit you had not committed yet, nothing
-changed, or still broken. The transcript is `~/.local/state/haus/fix.log`, and
-`HAUS_NO_FIX=1` turns the offer off for a rebuild without turning the room off.
+itself, since the config has to evaluate again. The transcript is
+`~/.local/state/haus/fix.log`, and `HAUS_NO_FIX=1` turns the offer off for a
+rebuild without turning the room off.
 
 Two things it will not do:
 
 - **It never activates.** Applying the fix is `haus rebuild`, and that stays
-  yours to run. The agent is told the same, in as many words.
+  yours to run.
 - **It never runs where there is no undo.** The agent works with its permission
   prompts off, because the offer is meant to be answerable from a notification
   when nobody is watching the terminal. What bounds it instead is that it works
@@ -400,12 +368,12 @@ Two things it will not do:
 
 A host file that writes `system.defaults.universalaccess.*` directly needs
 **Full Disk Access** for the app the rebuild runs under, and `haus rebuild`
-refuses up front without it rather than aborting activation partway and taking
-every background service down. The grant follows the app, so a plain terminal
-nobody has granted is caught exactly as an agent pane is. `haus plan` says which
-grant a rebuild wants before it runs; `haus.accessibility.*` sidesteps the
-domain, and `HAUS_FDA_ANYWAY=1` overrides when you know better. [Changing your
-Mac with an agent](/docs/haus/agent-rebuilds) has the whole rule.
+refuses up front without it. The grant follows the app rather than the person,
+so a plain terminal nobody has granted is refused and an agent pane inside a
+granted one goes through. `haus plan` says which grant a rebuild wants before it
+runs, `haus.accessibility.*` sidesteps the domain and `HAUS_FDA_ANYWAY=1`
+overrides. [Changing your Mac with an
+agent](/docs/haus/agent-rebuilds) has the whole rule.
 
 ## Colour, and what a pipe gets
 
@@ -420,7 +388,6 @@ CLICOLOR_FORCE=1 haus status | less -R
 ```
 
 A rebuild's phase lines follow the same fence: a live region repainted in place
-on a terminal, one plain line per phase anywhere else, a pipe or a file or CI or
-an agent pane or `ssh mac haus rebuild`. `haus show` and `haus-activate` obey
-the rule too, so a publisher's CI log and a failed activation's message are both
-plain text by default.
+on a terminal, one plain line per phase into a pipe, a file, CI or an agent
+pane. `haus show` and `haus-activate` obey the rule too, so a publisher's CI log
+and a failed activation's message are both plain text by default.
