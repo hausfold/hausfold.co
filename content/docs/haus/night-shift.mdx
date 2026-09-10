@@ -27,12 +27,8 @@ machine and names none of this, so the joins are haus's to write down.
 ## Granting the lease from the desktop
 
 `factory lease grant 12h` is the whole thing, and the desktop has two doors onto
-the same four verbs. The bar's [`factory` pill](/docs/haus/rooms/bar) sits beside
-the coffee cup, because the two answer the same question: what did I leave
-switched on, and when does it stop. It draws the time left, an infinity sign for a
-lease that runs until you revoke it, and its own glyph alone when none stands.
-Click for 4 hours, 12 hours, until revoked, or Revoke; right-click revokes. Like
-every extra pill it waits to be asked for:
+the same four verbs. The bar's [`factory` pill](/docs/haus/rooms/bar#toggling-pills)
+draws what is left of the lease and hands you all four, once you ask for it:
 
 ```nix
 haus.bar.items.factory = true;
@@ -40,8 +36,7 @@ haus.bar.items.factory = true;
 
 The palette carries the same four as **Merge Lease**, with factory's own reading
 of the lease as the prompt above them. Both need `factory` on your `PATH`, which
-is [`haus.ai.enable`](/docs/haus/rooms/ai); without it the pill hides itself
-rather than drawing a control for a missing tool.
+is [`haus.ai.enable`](/docs/haus/rooms/ai).
 
 ## Keeping the runner alive
 
