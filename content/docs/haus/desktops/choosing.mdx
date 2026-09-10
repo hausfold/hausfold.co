@@ -20,16 +20,18 @@ related:
 **haus supplies rooms. A desktop curates them. Your host file makes one yours.**
 
 A **room** is one capability (the bar, the launcher, window management) with its
-own options and its own switch. A **desktop** says which rooms are on. Your
-**host file** holds your name, your keys, your overrides and whatever `haus set`
-writes for you. Later layers win, so anything a desktop chose you change with a
-plain assignment: no `lib.mkForce` anywhere.
+own options and its own switch. A **desktop** is a complete answer to *what
+should this Mac feel like?*: which rooms are on, and what the visible choices
+are. Your **host file** holds your name, your keys, your overrides and whatever
+`haus set` writes for you. Later layers win, so anything a desktop chose you
+change with a plain assignment: no `lib.mkForce` anywhere.
 
 ## Exactly one
 
-Desktops don't stack, and the build says so: two are refused whether they
-disagree or not, and so is the same one twice, with a message of its own.
-Choosing again changes one line rather than unpicking a pile. If nothing fits,
+Desktops don't stack, and the build says so: selecting two is refused whether
+they disagree or not, and so is selecting the same one twice, with a message of
+its own. Choosing again changes one line rather than unpicking a pile. If
+nothing fits,
 [Start blank](/docs/haus/desktops/blank) selects nothing, which keeps "build my
 own" one desktop rather than a second mode.
 
@@ -65,9 +67,9 @@ darwinConfigurations.lovelace = haus.mkHaus {
 };
 ```
 
-Leave the `desktop` line out and you get **hacker**, which every machine
-installed before desktops existed is still running. The installer writes it for you, and
-`HAUS_DESKTOP=minimal` picks another on an [unattended
+Leave the `desktop` line out and you get **hacker**, which is what every
+machine installed before desktops existed is still running. The installer writes
+the line for you, and `HAUS_DESKTOP=minimal` picks another on an [unattended
 install](/docs/haus/install#unattended-installs).
 
 <Callout title="A desktop you found online is one command, not a hand-edit">

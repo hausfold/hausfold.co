@@ -37,7 +37,8 @@ Everything else is the room catalogue's own neutral defaults doing the work.
 The foundation, and only that:
 
 - **the `haus` CLI**: `rebuild`, `plan`, `diff`, `set`, `rollback`, `update`;
-- **the app roster**: the one list driving what's installed and from where;
+- **the app roster**: the one list driving what's installed and from where,
+  ready for entries you add;
 - **the Nix and rebuild plumbing**: pinned inputs, generations, garbage
   collection;
 - **haus's safe macOS defaults**, nearly all of them soft, so your host outranks
@@ -46,8 +47,10 @@ The foundation, and only that:
 
 ## What you don't
 
-No optional room is on, and no global hotkey is claimed: Caps Lock stays Caps
-Lock, ⌘Space stays Spotlight's. The wallpaper is left alone, the tour doesn't
+No optional room is on: no bar, no tiling, no launcher, no shelf, no coding
+agents, no developer toolbelt, no Touch ID for `sudo`. No global hotkey is
+claimed either: Caps Lock stays Caps Lock, ⌘Space stays Spotlight's. The
+wallpaper is left alone, the tour doesn't
 run, and no theme files are written into apps you already had. That last one is
 the point of Blank rather than a stripped hacker: nothing reaches outside haus
 to change something you didn't ask for.

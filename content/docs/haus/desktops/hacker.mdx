@@ -39,8 +39,8 @@ Nearly every [room](/docs/haus): [Windows](/docs/haus/rooms/windows),
 [Shelf](/docs/haus/rooms/shelf), [Development](/docs/haus/rooms/development),
 [Focus](/docs/haus/rooms/focus), [Security](/docs/haus/rooms/security),
 [AI](/docs/haus/rooms/ai) and [Appearance](/docs/haus/rooms/appearance). Each
-has its own switch, so anything it chose you override in a line: [Customize a
-desktop](/docs/haus/desktops/customizing).
+has its own switch, so anything the desktop chose your own file overrides in a
+line: see [Customize a desktop](/docs/haus/desktops/customizing).
 
 ## First moves
 
@@ -72,18 +72,21 @@ behind Accessibility. Everything else works without it.
 pounce --request-accessibility
 ```
 
-The rest live where they're configured: [Keys](/docs/haus/rooms/keys) has the
-leader and every workspace throw, [Windows](/docs/haus/rooms/windows) the tiling
-they drive, [Development](/docs/haus/rooms/development) the terminal's chords and
-[pounce](/docs/pounce/using) the palette. Your own machine's copy (tap **⇪ /**)
-is generated from your tables, so trust it when they disagree.
+The rest of the keys live where they're configured:
+[Keys](/docs/haus/rooms/keys) has the leader and every workspace throw,
+[Windows](/docs/haus/rooms/windows) the tiling they drive,
+[Development](/docs/haus/rooms/development) the terminal's chords and
+[pounce](/docs/pounce/using) the palette. Your own machine carries a live
+cheatsheet too (tap **⇪ /**), generated from your own tables, so trust that one
+when they disagree.
 
 ## Making it yours
 
 Your settings live in one file, and `haus edit` opens it. The tweaks people
-reach for first: an accent (`haus.theme.accent`), an editor
-(`haus.terminal.editorName`, named so haus installs it), an app with a launcher
-key and a workspace of its own (`haus.roster`, `haus.workspaces`). Then
-`haus rebuild`. [Customize a desktop](/docs/haus/desktops/customizing) is the
-rest of what that file can say, and [the haus
-reference](/docs/haus/reference/haus) every command the CLI has.
+reach for first are an accent (`haus.theme.accent`), an editor
+(`haus.terminal.editorName`, named so haus installs it), and an app with a
+launcher key and a workspace of its own (`haus.roster`, `haus.workspaces`).
+Then `haus rebuild`. [Customize a
+desktop](/docs/haus/desktops/customizing) is the rest of what that file can
+say, and [the haus reference](/docs/haus/reference/haus) is every command the
+CLI has.
