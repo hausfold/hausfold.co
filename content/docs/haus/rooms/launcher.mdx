@@ -45,6 +45,16 @@ haus.launcher.plugins = [ "docker" "tailscale" ];
 Naming one installs the CLI behind it: `bluetooth` brings `blueutil`. An app or
 daemon stays yours to provide.
 
+## Haus Settings
+
+Three haus settings change from the palette, no host file involved: *Make text
+bigger* (`ui.scale` 1.35), *Switch to light mode* (`theme.flavor` latte and
+`theme.systemAppearance` flavor, sent together) and *High contrast on*
+(`theme.contrast` high). Each runs
+[`haus set`](/docs/haus/reference/haus#changing-a-setting-without-opening-an-editor)
+in a floating terminal you can watch. The palette keeps no settings of its own,
+so the type checking, the file it writes and the rebuild are all haus's.
+
 ## Rows that are listed on some pages only
 
 **New Agent Lane** (⌘⏎), **New Shell Window** (⌘N) and its `⇧` twin act on the

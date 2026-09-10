@@ -96,6 +96,9 @@ single intent spanning two options never leaves the machine half-switched:
 haus set theme.flavor latte theme.systemAppearance flavor
 ```
 
+The [launcher](/docs/haus/rooms/launcher#haus-settings)'s **Haus Settings**
+command sends exactly that pair.
+
 Pairs are all-or-nothing: one rejected value rolls the whole call back, and `unset`
 and `reset` take lists for the same reason. They differ in one place. `reset`
 deletes the override, so whatever your host file or desktop says underneath
@@ -134,13 +137,6 @@ the second is refused, naming the first and the `haus reset` that clears it.
 `~/.config/nix/hosts/<hostname>/settings/<path>.nix` and stages it, because a
 git-backed flake ignores untracked files. The file *is* the setting, and neither
 `set` nor `reset` commits or pushes for you.
-
-<Callout title="Also in the launcher">
-The [launcher](/docs/haus/rooms/launcher)'s **Haus Settings** command is the
-same mechanism behind three intent-sized buttons: *Make text bigger*, *Switch to
-light mode*, *High contrast on*. The palette keeps no settings of its own; it
-calls `haus set`.
-</Callout>
 
 ## Reading a desktop or room before you trust it
 
