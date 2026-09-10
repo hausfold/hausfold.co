@@ -120,11 +120,17 @@ binding it actually armed, and what beat it to a hotkey if something did.
 
 ## Remove it
 
+Installed with Homebrew:
+
 ```sh
 brew services stop pounce
 brew uninstall pounce
 brew untap hausfold/tap
 ```
+
+From the DMG instead: quit Pounce and drag `Pounce.app` to the Trash. First
+launch registered a login item, so check **System Settings ▸ General ▸ Login
+Items & Extensions** afterwards.
 
 Your own commands and config live in `~/.config/pounce` and are left where they
 are: keep or archive that directory separately. Remove Pounce from **System

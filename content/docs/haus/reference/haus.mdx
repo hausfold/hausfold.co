@@ -369,18 +369,21 @@ Two things it will not do:
 A host file that writes `system.defaults.universalaccess.*` directly needs
 **Full Disk Access** for the app the rebuild runs under, and `haus rebuild`
 refuses up front without it. That domain is TCC-protected and the grant follows
-the app rather than the person, so a plain terminal nobody has granted is refused
-and an agent pane inside a granted one goes through. That is the kinder failure:
-the write would otherwise abort activation partway and take everything after it
-down, leaving your bar, tiling and palette dead with the symptom nowhere near the
-cause. Refused, nothing has changed and your edit is still on disk.
+the app rather than the person, root included, so a plain terminal nobody has
+granted is refused and an agent pane inside a granted one goes through. That is
+the kinder failure: the write would otherwise abort activation partway and take
+everything after it down, leaving your bar, tiling and palette dead with the
+symptom nowhere near the cause. Refused, nothing has changed and your edit is
+still on disk.
 
 `haus plan` says which grant a rebuild wants before it runs, `haus doctor`'s
-**Permissions** section whether this app has it. `haus.accessibility.*` sidesteps
-the domain with a guarded write, so a missing grant costs that setting and
-nothing else, and `HAUS_FDA_ANYWAY=1` overrides (`HAUS_AGENT_REBUILD=1` is an
-accepted alias). `haus.theme.contrast` is unrelated: haus's own palette axis,
-painted into the apps haus themes, so it always applies.
+**Permissions** section whether this app has it. `haus.accessibility.*`
+sidesteps the domain with a guarded write, so a missing grant costs that setting
+and nothing else, and its seven keys cover **every key nix-darwin types there**:
+the unguarded form is never the only way to say what you meant.
+`HAUS_FDA_ANYWAY=1` overrides it anyway (`HAUS_AGENT_REBUILD=1` is an accepted
+alias). `haus.theme.contrast` is unrelated: haus's own palette axis, painted
+into the apps haus themes, so it always applies.
 
 ## Colour, and what a pipe gets
 
