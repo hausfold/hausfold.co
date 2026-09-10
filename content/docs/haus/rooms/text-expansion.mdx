@@ -24,29 +24,28 @@ haus.snippets = {
 haus rebuild
 ```
 
-The table is written to `~/.config/espanso/match/default.yml`. Only the plain
+The table lands in `~/.config/espanso/match/default.yml`. Only the plain
 trigger→replace form is exposed here, so dynamic matches (dates, shell output,
 forms) go in a hand-written `.yml` beside it, which espanso loads too.
 
 <Callout type="warn" title="Your table replaces the desktop's, it doesn't extend it">
-`matches` is one value, not an accumulator: naming it in your host discards
+`matches` is one value, not an accumulator: setting it in your host discards
 whatever the desktop set. Restate both, or keep yours in that hand-written
-`.yml`, where nothing overwrites anything.
+`.yml`, which nothing overwrites.
 </Callout>
 
 ## The grant
 
 Espanso needs a one-time macOS **Accessibility** grant: System Settings ▸
 Privacy & Security ▸ Accessibility ▸ Espanso. Until you give it, nothing
-expands. haus installs the signed Espanso.app cask rather than running a
-nix-store binary, so the identity it is keyed to survives reboots and nixpkgs
-bumps: you click it once.
+expands. haus installs Espanso as a signed app, so the grant survives reboots
+and updates: you click it once.
 
 ## Remove it
 
-`haus.snippets.enable = false;` and rebuild. Revoke the grant yourself, and
-delete any hand-written `.yml` you added: haus never wrote those, so it doesn't
-take them away.
+`haus.snippets.enable = false;` and rebuild. Revoke the grant and delete any
+hand-written `.yml` yourself: haus never wrote those, so it doesn't take them
+away.
 
 ## Options
 
