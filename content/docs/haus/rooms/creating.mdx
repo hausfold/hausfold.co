@@ -45,9 +45,11 @@ modules/kettle/
 ```
 
 `options.nix` declares `options.haus.kettle` and touches no `pkgs` and nothing
-from darwin, so Linux CI can evaluate the option surface alone and render it
-into the reference page, the `haus` agent skill and a fresh install's annotated
-host file. `default.nix` wraps its whole body in `lib.mkIf cfg.enable`.
+from darwin, so the option surface evaluates on its own, on any platform. That
+is what lets Linux CI render one JSON into the reference page, the `haus` agent
+skill and a fresh install's annotated host file rather than anyone writing
+those three by hand. `default.nix` wraps its whole body in
+`lib.mkIf cfg.enable`.
 
 <Callout type="warn" title="Why the options can't live in default.nix">
 An option declared inside that gate vanishes exactly when the module system
