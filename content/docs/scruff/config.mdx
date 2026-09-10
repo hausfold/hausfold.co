@@ -94,10 +94,44 @@ name = ["ollama", "run", "qwen3:4b", "{{.Prompt}}"]
 | | |
 |---|---|
 | a name you passed | always wins. The namer is only ever asked about a lane that has none, so `scruff new fix` and the ⌘⏎ path never start a process |
-| the shape of a name | one to three lowercase `[a-z0-9-]` words, 24 characters at most, with the repo's own name dropped. A listing already tells you which repo a lane is in |
+| the shape of a name | one to three lowercase `[a-z0-9-]` words, 24 characters at most (fewer where [`name_max`](#how-long-a-lane-name-may-be) says so), with the repo's own name dropped. A listing already tells you which repo a lane is in |
 | an answer that is not one | **rejected whole, never cleaned up**: prose, a flag, a path, a traversal, anything non-ASCII. The output is a model's text on its way to becoming a branch name and a path, so it is not trusted |
 | anything else going wrong | the same fallback to the random pair, with a warning. No adapter file, a namer that is not installed, a run over 30 seconds. **A namer can never cost you a lane**, only its name |
 | what it costs | one model call on the create path. The built-in returns in 8 to 12 seconds, most of it the client's own start-up |
+
+## How long a lane name may be
+
+A lane name is a branch and a directory, and both take almost anything. It is
+also an identity whatever opens your lanes has to hold, and that can have a
+ceiling the filesystem does not. A multiplexer naming a unix socket after the
+session is the common one: the whole path fits in 104 bytes, so on a Mac the
+session name has about 46 to live in, and one byte past that the session cannot
+be created at all. The lane exists, its window dies on a launch error, and the
+only diagnosis flashes in a window that has already closed.
+
+`name_max` is the machine stating that ceiling, in bytes, over the key scruff
+writes for a lane (`scruff/<repo>/<lane>`):
+
+```toml
+name_max = "44"
+```
+
+**There is no key by default** and nothing is capped without one; it reads
+quoted or bare. The cap counts the whole key rather than the name, because the
+repo is half of what has to fit: 44 leaves 25 bytes for a lane in `hausfold.co`
+and 33 for one in `nix`.
+
+What happens at the line depends on who chose the name.
+
+| | |
+|---|---|
+| a name **scruff chose** | built to fit, stopping on a whole word: `docs-displays-expansion`, never `docs-displays-expansion-sl` |
+| a name **you passed** | refused, **exit 1**, with the bytes it had, the bytes it gets and what is spending the rest. Trimming it quietly would put your work on a branch you never asked for |
+| the `-2` a collision adds | counts against the budget too, and splits the same way |
+
+A repo whose own name eats the budget gets no cap rather than an impossible one,
+and `scruff hook create` can only warn: on that path your client has already made
+the branch, so there is nothing left to refuse.
 
 ## Adapters
 
