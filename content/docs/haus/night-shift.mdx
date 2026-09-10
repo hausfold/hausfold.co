@@ -1,10 +1,10 @@
 ---
 title: Merging pull requests overnight
-description: "A haus machine can keep merging while nobody is watching. What a shift asks of the Mac underneath it: the launchd agent that keeps the runner alive, the lid lever that survives a closed laptop, the command that hands a red branch to an agent, and the feed it meters against."
+description: "What an overnight merge shift asks of the Mac underneath it: the launchd agent, the lid lever, the command that hands a red branch to an agent, and the feed it meters against."
 icon: landed
 related:
   - title: "AI"
-    description: "The room all of this needs: lanes, the clients, the switch that keeps a run alive when nobody touches the keyboard, and the button that hands a red branch to an agent."
+    description: "The room all of this needs: lanes, clients, and the switch that keeps a run alive with nobody at the keyboard."
     href: "/docs/haus/rooms/ai"
     icon: "agent"
   - title: "Notifications"
@@ -12,71 +12,58 @@ related:
     href: "/docs/haus/rooms/notifications"
     icon: "notifications"
   - title: "Changing your Mac with an agent"
-    description: "The other unattended agent on this machine: the skills haus writes, the loop they follow, and the one rebuild they refuse."
+    description: "The other unattended agent here: the skills haus writes, and the one rebuild they refuse."
     href: "/docs/haus/agent-rebuilds"
     icon: "wand"
 ---
 
 [factory](https://github.com/hausfold/factory) merges the pull requests a filter
 you wrote can vouch for, on a cadence, while you are asleep.
-[`haus.ai.enable`](/docs/haus/rooms/ai) puts it on your `PATH` along with its
-agent skill, `factory`, which teaches an agent the verbs around a shift. Its
-README is the manual for the shift itself, and this page is not a second copy
-of it.
-
-This is the other half: what a shift asks of the Mac underneath it. factory runs
-on any machine and names none of this, so the joins are haus's to write down.
+[`haus.ai.enable`](/docs/haus/rooms/ai) puts it on your `PATH` with its agent
+skill, `factory`, and its README is the manual for the shift itself. This page is
+the other half: what a shift asks of the Mac underneath it, which factory runs
+without naming, so the joins are haus's to write down.
 
 ## Granting the lease from the desktop
 
 `factory lease grant 12h` is the whole thing, and the desktop has two doors onto
-the same four verbs so you can reach them without a terminal.
-
-The bar's [`factory` pill](/docs/haus/rooms/bar) sits beside the coffee cup,
-because the two answer the same shape of question: what did I leave switched on,
-and when does it stop. It draws the time left on the lease, an infinity sign for
-one that runs until you revoke it, and nothing but its own glyph when none
-stands. Click for 4 hours, 12 hours, until revoked, or Revoke; right-click
-revokes. Like every extra pill it is off until you ask for it:
+the same four verbs. The bar's [`factory` pill](/docs/haus/rooms/bar) sits beside
+the coffee cup, because the two answer the same question: what did I leave
+switched on, and when does it stop. It draws the time left, an infinity sign for a
+lease that runs until you revoke it, and its own glyph alone when none stands.
+Click for 4 hours, 12 hours, until revoked, or Revoke; right-click revokes. Like
+every extra pill it waits to be asked for:
 
 ```nix
 haus.bar.items.factory = true;
 ```
 
 The palette carries the same four as **Merge Lease**, with factory's own reading
-of the lease as the prompt above them. Both need `factory` on your PATH, which is
-[`haus.ai.enable`](/docs/haus/rooms/ai), and the pill hides itself entirely on a
-machine that has not got it rather than drawing a control for a missing tool.
+of the lease as the prompt above them. Both need `factory` on your `PATH`, which
+is [`haus.ai.enable`](/docs/haus/rooms/ai); without it the pill hides itself
+rather than drawing a control for a missing tool.
 
 ## Keeping the runner alive
 
-`factory watchdog run` is the loop that passes a shift on a cadence, and on a
-haus machine launchd owns it.
-[`haus.ai.factory.enable`](/docs/haus/reference/options#ai) comes on with the AI
-room and installs the agent behind it.
+`factory watchdog run` is the loop that passes a shift on a cadence, and launchd
+owns it here. [`haus.ai.factory.enable`](/docs/haus/reference/options#ai) comes on
+with the AI room and installs the agent behind it.
 
-It is a switch about supervision, never about authority. With no lease the
-runner exits in under a fifth of a second and launchd starts it again later, so
-a machine that has never run `factory lease grant` has a job that does nothing
-at all. What it buys is the small-hours case: the runner `lease grant` spawns is
-a detached child of your shell, and a reboot, a panic or an out-of-memory kill
-takes it with nothing to bring it back, leaving the lease standing all night
+It is a switch about supervision, never about authority: with no lease the runner
+exits in under a fifth of a second, so a machine that has never run `factory lease
+grant` has a job that does nothing. What it buys is the small-hours case. The
+runner `lease grant` spawns is a detached child of your shell, so a reboot, a
+panic or an out-of-memory kill takes it and leaves the lease standing all night
 with nobody exercising it. Under launchd that death is a restart, and factory's
-pidfile keeps the two copies from ever both passing.
-
-Turn it off on a machine you drive `factory` on by hand, where a runner
-appearing behind you would be a surprise.
+pidfile keeps two copies from both passing. Turn it off on a machine you drive
+`factory` on by hand, where a runner appearing behind you would be a surprise.
 
 ## Keeping the Mac awake
 
-`haus.ai.keepAwake` is the switch that gets reached for here, and for a shift it
-is the wrong one. It means *while my agents are working*, and what raises it is
-an agent turn: a client's hook writes the hold, and the runner passing
-`factory shift` on a cadence is a plain process that writes nothing. So a quiet
-night raises no hold at all, and a busy one holds only while a fixer lane it
-opened is mid-turn.
-
-An unattended shift wants the lid lever named directly, in your own power block:
+`haus.ai.keepAwake` is the switch reached for here, and for a shift it is the
+wrong one: it means *while my agents are working*, and the runner passing `factory
+shift` on a cadence is a plain process that raises no hold. An unattended shift
+names the lid lever directly, in your own power block:
 
 ```nix
 haus.power.lidAwake = {
@@ -85,84 +72,79 @@ haus.power.lidAwake = {
 };
 ```
 
-`always` is a plain hold rather than an agent-shaped one, so two of the dials
-[Shaping the hold](/docs/haus/rooms/ai#shaping-the-hold) describes have nothing
-left to act on. `maxHold` caps a hold that leaked, and there is no signal here to
-leak, so a twelve-hour night is not cut off at hour eight; `linger` has nothing
-to linger for. `requirePower` still applies, which keeps unplugging as a way to
-say stop.
+That is a plain hold rather than an agent-shaped one, so two of the dials
+[Shaping the hold](/docs/haus/rooms/ai#shaping-the-hold) describes have nothing to
+act on: `maxHold` caps a hold that leaked, and with no signal to leak a twelve-hour
+night is not cut off at hour eight; `linger` has nothing to linger for.
+`requirePower` still applies, so unplugging is still a way to say stop.
 
 <Callout type="warn" title="Nothing on screen says the lid is being held">
-The bar's coffee pill reports the agent-shaped hold, not this one. `always` is a
-root daemon holding macOS's `disablesleep`, and it draws nothing at all. Your
-shift's own notifications are the only receipt, and they stop when the shift
-does. The hold does not: it lasts until you set the option back and rebuild. If
-the lid stays shut and the fans stay on the morning after, this is the first
-thing to check.
+The bar's coffee pill reports the agent-shaped hold, not this one: `always` is a
+root daemon holding macOS's `disablesleep`, and it draws nothing. Your shift's own
+notifications are the only receipt, and they stop when the shift does. The hold
+does not, and lasts until you set the option back and rebuild. If the lid stays
+shut and the fans stay on the morning after, check this first.
 </Callout>
 
 ## Handing a red branch to an agent
 
-The [github pill](/docs/haus/rooms/bar)'s **Fix with AI** row is a button, and
-underneath it is a command you can call yourself:
+The [github pill](/docs/haus/rooms/bar)'s **Fix with AI** row is a button over a
+command you can call yourself:
 
 ```sh
 haus-fix-github main ci "$url"
 ```
 
-Three arguments. What is broken (a branch name, or a pull request number), which
+Three arguments: what is broken (a branch name, or a pull request number), which
 of those it is (`ci` for a red default branch, `checks-red` or `conflicts` for a
-pull request), and the URL of the failure.
-
-It is on your `PATH` whenever the AI room is on and installs a client, and the
-lane it opens is a background one: nothing raises a window or steals focus, and
-the receipt is a notification. Everything else about it, including the checkout
-it will and will not find, is the same as pressing the button, which
-[When GitHub goes red](/docs/haus/rooms/ai#when-github-goes-red) covers.
+pull request), and the URL of the failure. It is on your `PATH` whenever the AI
+room is on and installs a client, and the lane it opens is a background one, so
+nothing raises a window and the receipt is a notification. Everything else,
+including the checkout it will and will not find, is [When GitHub goes
+red](/docs/haus/rooms/ai#when-github-goes-red).
 
 A shift calls it through a shim, because the two argument lists do not line up:
 factory appends `<repo> <branch> <run url>` to whatever your policy names, and
-the verdict is carried by neither side. `haus-factory-fixer` is that reorder, on
-your `PATH` beside `haus-fix-github`, so the policy names the whole of it:
+neither side carries the verdict. `haus-factory-fixer` is that reorder, on your
+`PATH` beside `haus-fix-github`, so the policy names the whole of it:
 
 ```json
 "fixer": { "command": ["haus-factory-fixer"] }
 ```
 
-`~/.config/factory/config.json` stays yours. haus writes none of it, which is
-why `factory doctor` telling you there is no `fixer.command` is the reminder
-that this line is missing.
+`~/.config/factory/config.json` stays yours and haus writes none of it, which is
+why `factory doctor` reporting no `fixer.command` is the reminder that this line
+is missing.
 
 <Callout title="It spawns, it does not fix">
 The lane is an ordinary lane running its client interactively, with its own
-permission gate and its own checkout. Nothing here bounds what it then does, so
-whether a fix reaches your machine is still the repo's tooling and your review in
-the morning. `haus rebuild` is machine-wide, and it stays yours.
+permission gate and checkout. Nothing here bounds what it does, so whether a fix
+reaches your machine is still the repo's tooling and your review in the morning.
+`haus rebuild` is machine-wide, and it stays yours.
 </Callout>
 
 ## The feed it meters against
 
-factory's budget gate is optional and reads a file you point it at. On a haus
-machine the file to point it at is `~/.cache/claude-statusline/usage-claude.tsv`,
-which the [AI room](/docs/haus/rooms/ai) writes: Claude Code's statusline stashes
-your percentages on every render, and a refresher the bar also drives fills the
-gaps by asking Anthropic directly.
+factory's budget gate is optional and reads a file you point it at. Here that file
+is `~/.cache/claude-statusline/usage-claude.tsv`, written by the [AI
+room](/docs/haus/rooms/ai): Claude Code's statusline stashes your percentages on
+every render, and a refresher the bar drives fills the gaps by asking Anthropic
+directly.
 
 <Callout type="warn" title="The feed needs a terminal in the picture">
 That refresher polls with the credentials a terminal `claude` renews, which the
-Claude Code macOS app never writes. Run a shift on a machine where nothing has
-opened a terminal session for most of a day and the feed goes stale. factory does
-not then overspend: it reports `budget: unknown` and opens **no fixer lanes at
-all**, which is a quiet night that looks like a calm one. If a morning's log is
-all `budget unknown`, this is why.
+Claude Code macOS app never writes, so a machine where nothing has opened a
+terminal session for most of a day goes stale. factory does not then overspend: it
+reports `budget: unknown` and opens **no fixer lanes at all**, which is a quiet
+night that looks like a calm one. If a morning's log is all `budget unknown`, this
+is why.
 </Callout>
 
 ## What a night sounds like
 
-Two notification sources turn up on a night like this: `factory` for the shift's
-own cards, and `haus.github.fix` for every lane the fixer opens. Both are matched
-exactly, so a rule on one leaves the other speaking, and both want
-[the Notifications room](/docs/haus/rooms/notifications), which is where the
-rules live and which factory sends through directly. Choosing what a merge is
-allowed to wake you for is the difference between a calmer morning and a night
-you stop reading.
+Two notification sources turn up: `factory` for the shift's own cards, and
+`haus.github.fix` for every lane the fixer opens. Both are matched exactly, so a
+rule on one leaves the other speaking, and both want [the Notifications
+room](/docs/haus/rooms/notifications), which factory sends through directly.
+Choosing what a merge may wake you for is the difference between a calmer morning
+and a night you stop reading.
