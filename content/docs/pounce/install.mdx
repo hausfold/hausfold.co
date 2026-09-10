@@ -117,3 +117,17 @@ pounce doctor
 
 It reports whether the daemon is up, whether Accessibility is granted, every
 binding it actually armed, and what beat it to a hotkey if something did.
+
+## Remove it
+
+```sh
+brew services stop pounce
+brew uninstall pounce
+brew untap hausfold/tap
+```
+
+Your own commands and config live in `~/.config/pounce` and are left where they
+are: keep or archive that directory separately. Remove Pounce from **System
+Settings ▸ Privacy & Security ▸ Accessibility** if it is still listed. Inside
+[haus](/docs/haus/rooms/launcher) the room owns the app instead, so the way out
+there is `haus.launcher.enable = false`.

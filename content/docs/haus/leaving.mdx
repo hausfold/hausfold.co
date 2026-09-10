@@ -144,19 +144,10 @@ brew uninstall <formula>
 brew uninstall --cask <cask>          # add --zap to take its data too
 ```
 
-**Pounce installed on its own** is the opposite case. If you installed the launcher
-through Homebrew rather than as a haus room (removing the *room* is just
-`haus.launcher.enable = false` above):
-
-```sh
-brew services stop pounce
-brew uninstall pounce
-brew untap hausfold/tap
-```
-
-Your own commands and config live in `~/.config/pounce`; keep or archive that
-separately, and remove Pounce from **System Settings ▸ Privacy & Security ▸
-Accessibility** if it's still listed.
+**Pounce installed on its own** is the opposite case. Dropping the launcher room
+is `haus.launcher.enable = false` above, but a copy you installed through
+Homebrew is yours to take off:
+[Remove it](/docs/pounce/install#remove-it) has the commands.
 
 ## Remove Determinate Nix
 
