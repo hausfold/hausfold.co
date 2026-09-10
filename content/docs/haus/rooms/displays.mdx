@@ -11,8 +11,8 @@ related:
 
 This room scales a screen, so the whole Mac gets bigger or smaller, apps haus
 has never heard of included; `haus.ui.scale` and `haus.fonts` only resize
-haus's own surfaces. There is no switch: an empty `haus.displays` leaves every
-screen as macOS has it.
+haus's own surfaces. An empty `haus.displays` leaves every screen as macOS has
+it.
 
 ```nix
 haus.displays = {
@@ -26,25 +26,17 @@ haus.displays = {
 haus rebuild
 ```
 
-## How big
-
-`uiScale` is one of `more-space`, `default`, `slightly-larger-text`,
-`larger-text` and `largest-text`, each resolved against the ladder of modes
-*that* panel reports rather than a pixel count, which is why
-`slightly-larger-text` earns its keep where the ladder is long. The mode is set
-permanently, so it survives a reboot.
-
-A desktop may name `internal` and `main`; a UUID is **host-only**. Where two
-selectors land on the same screen the more specific one wins, which is what
-lets a host refine a broad profile such as `haus.appearance.largePrint` (it
-sets `displays.main.uiScale`) whatever the activation order. A monitor that
-isn't plugged in is skipped with a note rather than failing the rebuild.
+`uiScale` is an intent, not a pixel count: `more-space`, `default`,
+`slightly-larger-text`, `larger-text`, `largest-text`, each resolved against
+the ladder of modes *that* screen reports. A monitor that isn't attached is
+skipped with a note, not a failed rebuild. A desktop may name `internal` and
+`main`; a UUID is **host-only**.
 
 ## Remove it
 
 Delete the entry and rebuild. That stops *managing* the screen rather than
-restoring it: the panel keeps whatever mode it last had, so set the position
-you want explicitly.
+restoring it: the panel keeps its last mode, so set the position you want
+explicitly.
 
 ## Options
 
