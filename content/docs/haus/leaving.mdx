@@ -13,10 +13,9 @@ related:
     icon: "sync"
 ---
 
-haus has defaults, not demands. Switching off one room, returning to an earlier
-generation, removing the system layer and removing Nix are four operations of very
-different sizes, in that order. **Start with the smallest one that solves your
-problem.**
+haus has defaults, not demands. Rolling back a generation, switching off one room,
+removing the system layer and removing Nix are four operations of very different
+sizes. **Start with the smallest one that solves your problem.**
 
 <Callout type="warn" title="Keep your config before you remove anything">
 `~/.config/nix` is *your* machine described in text, not generated state. Archive
@@ -40,8 +39,9 @@ haus rollback <number>   # a specific one
 
 That restores everything Nix wrote: packages, agents, shell config, paths. It does
 **not** touch macOS's own preferences, which a rebuild sets imperatively: the
-Dock, Finder, the keyboard, the menu bar, file associations. Those have their own
-commands, and without a snapshot System Settings is the way back:
+Dock, Finder, the keyboard, the menu bar, file associations. Those have
+their own pair of commands, and System Settings is the way back if you never
+captured a snapshot:
 
 ```sh
 haus capture              # snapshot the live settings before a risky change
@@ -75,8 +75,8 @@ haus edit
 haus rebuild
 ```
 
-The native menu bar comes back on its own, since haus rewrites that key at every
-activation. Caps Lock comes back on the next **restart**: the remap is a `hidutil`
+The native menu bar comes back on its own: haus rewrites that key at every
+activation, so switching bar off is enough. Caps Lock comes back on the next **restart**: the remap is a `hidutil`
 property that lasts until you reboot, so the session you rebuilt in keeps it.
 **Spotlight's ⌘Space** never comes back on its own, because the launcher disables
 that shortcut with a one-way write; re-enable it in System Settings ▸ Keyboard ▸
@@ -91,8 +91,8 @@ keys back.
 ## Take down the system layer
 
 This removes nix-darwin's system integration and leaves Nix installed for
-everything else that uses it. Run nix-darwin's own uninstaller, or the locally
-installed `sudo darwin-uninstaller` if that can't run:
+everything else that uses it. Run nix-darwin's own uninstaller, falling back to the
+locally installed `sudo darwin-uninstaller` if that can't run:
 
 ```sh
 sudo nix --extra-experimental-features "nix-command flakes" \
@@ -101,7 +101,7 @@ sudo nix --extra-experimental-features "nix-command flakes" \
 
 **Read the plan before confirming.** It removes the managed system links, static
 files and launchd services, then restores the Nix daemon the installer supplied.
-Restart when it finishes. Your config still isn't useless: keep it if you might
+Restart when it finishes. Your config isn't made useless by this: keep it if you might
 come back, or move it out of the active path with `mv ~/.config/nix
 ~/.config/nix.archive`.
 
@@ -144,8 +144,9 @@ brew uninstall <formula>
 brew uninstall --cask <cask>          # add --zap to take its data too
 ```
 
-If you installed the launcher through Homebrew rather than as a haus room
-(removing the *room* is just `haus.launcher.enable = false` above):
+**Pounce installed on its own** is the opposite case. If you installed the launcher
+through Homebrew rather than as a haus room (removing the *room* is just
+`haus.launcher.enable = false` above):
 
 ```sh
 brew services stop pounce

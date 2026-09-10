@@ -21,8 +21,8 @@ related:
 you wrote can vouch for, on a cadence, while you are asleep.
 [`haus.ai.enable`](/docs/haus/rooms/ai) puts it on your `PATH` with its agent
 skill, `factory`, and its README is the manual for the shift itself. This page is
-the other half: what a shift asks of the Mac underneath it, which factory runs
-without naming, so the joins are haus's to write down.
+the other half: what a shift asks of the Mac underneath it. factory runs on any
+machine and names none of this, so the joins are haus's to write down.
 
 ## Granting the lease from the desktop
 
@@ -50,8 +50,8 @@ owns it here. [`haus.ai.factory.enable`](/docs/haus/reference/options#ai) comes 
 with the AI room and installs the agent behind it.
 
 It is a switch about supervision, never about authority: with no lease the runner
-exits in under a fifth of a second, so a machine that has never run `factory lease
-grant` has a job that does nothing. What it buys is the small-hours case. The
+exits in under a fifth of a second and launchd starts it again later, so a machine
+that has never run `factory lease grant` has a job that does nothing. What it buys is the small-hours case. The
 runner `lease grant` spawns is a detached child of your shell, so a reboot, a
 panic or an out-of-memory kill takes it and leaves the lease standing all night
 with nobody exercising it. Under launchd that death is a restart, and factory's
@@ -62,8 +62,9 @@ pidfile keeps two copies from both passing. Turn it off on a machine you drive
 
 `haus.ai.keepAwake` is the switch reached for here, and for a shift it is the
 wrong one: it means *while my agents are working*, and the runner passing `factory
-shift` on a cadence is a plain process that raises no hold. An unattended shift
-names the lid lever directly, in your own power block:
+shift` on a cadence is a plain process that raises no hold. A quiet night raises
+none at all, and a busy one holds only while a fixer lane it opened is mid-turn.
+An unattended shift names the lid lever directly, in your own power block:
 
 ```nix
 haus.power.lidAwake = {
@@ -72,7 +73,7 @@ haus.power.lidAwake = {
 };
 ```
 
-That is a plain hold rather than an agent-shaped one, so two of the dials
+`always` is a plain hold rather than an agent-shaped one, so two of the dials
 [Shaping the hold](/docs/haus/rooms/ai#shaping-the-hold) describes have nothing to
 act on: `maxHold` caps a hold that leaked, and with no signal to leak a twelve-hour
 night is not cut off at hour eight; `linger` has nothing to linger for.
@@ -99,9 +100,10 @@ Three arguments: what is broken (a branch name, or a pull request number), which
 of those it is (`ci` for a red default branch, `checks-red` or `conflicts` for a
 pull request), and the URL of the failure. It is on your `PATH` whenever the AI
 room is on and installs a client, and the lane it opens is a background one, so
-nothing raises a window and the receipt is a notification. Everything else,
-including the checkout it will and will not find, is [When GitHub goes
-red](/docs/haus/rooms/ai#when-github-goes-red).
+nothing raises a window or steals focus and the receipt is a notification.
+Everything else, including the checkout it will and will not find, is the same as
+pressing the button, which [When GitHub goes
+red](/docs/haus/rooms/ai#when-github-goes-red) covers.
 
 A shift calls it through a shim, because the two argument lists do not line up:
 factory appends `<repo> <branch> <run url>` to whatever your policy names, and

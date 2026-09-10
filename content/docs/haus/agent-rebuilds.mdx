@@ -37,13 +37,14 @@ never the missing piece on a machine running a client haus didn't install.
 | `references/vm.md` | Seeing a change without taking your screen: a headless macOS VM driven over `ssh`. |
 | `consumer-AGENTS.md`, `consumer-CLAUDE.md` | A starter pair for your own config repo. |
 
-The two read-first references are **generated from the exact revision you're
-pinned to**, so they cannot name an option you don't have, and `haus update`
-regenerates them.
+`rooms.md` and `options.md` are **generated from the exact revision you're pinned
+to**, so they cannot name an option you don't have, and `haus update` regenerates
+them.
 
 `haus.ai.skill` puts every hausfold tool's own skill in the same directory. Four
 arrive on any machine: `scruff` (agent worktrees, and setting work aside without
-`git stash`), `handoff`, `factory`
+`git stash`), `handoff` (turning a piece of work into a brief a cold session can
+act on), `factory`
 ([merging pull requests](/docs/haus/night-shift) while nobody watches) and
 `nebelung` (this machine's palette). Three wait for their room, because a skill
 for an app your Mac doesn't have is worse than none: `trill` on
@@ -53,7 +54,7 @@ for an app your Mac doesn't have is worse than none: `trill` on
 rather than the app: `haus-notify` finds a Trill.app you installed yourself
 either way.
 
-A ninth, `hausfold`, carries a rough edge upstream. Nothing we make sends
+A second skill of haus's own, `hausfold`, carries a rough edge upstream. Nothing we make sends
 telemetry, so a GitHub issue is the only way one reaches the people who made it,
 and you usually notice one while talking to an agent. It knows which repo owns
 which symptom and whichever `report` verb or `doctor` fills that repo's bug form
@@ -78,8 +79,8 @@ on your revision, and the agent says so rather than guessing. Edit
 ## What to ask for
 
 Ordinary requests, in your own words. *"Install Slack and give it its own
-workspace"* is `haus.roster` for the leader key and the cask, plus
-`haus.workspaces`. *"Everything's too small"* is `haus.ui.scale`. *"Switch to
+workspace"* is `haus.roster` for the leader key and the Homebrew cask, plus
+`haus.workspaces` for the workspace and its bar pill. *"Everything's too small"* is `haus.ui.scale`. *"Switch to
 light mode"* is `haus.theme.flavor` with `haus.theme.systemAppearance`, so
 macOS's own Light/Dark moves too. *"Hide the weather"* is a `haus.bar.items.*`
 toggle. *"Bind a key to my notes"* is `haus.keys.leaderExtras`. The skill prefers
@@ -147,8 +148,8 @@ install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
 `install -m 644`, not `cp`: the pair are symlinks into the read-only Nix store and
 `cp` preserves that mode, landing you on an `AGENTS.md` your editor refuses to
 save. Two files, because the tools disagree about the filename. **`AGENTS.md`
-carries the rules**, read by everything that speaks
-[agents.md](https://agents.md); Claude Code reads only `CLAUDE.md`, so that one is
+carries the rules**, read by Codex, OpenCode, Cursor, Zed, Copilot and everything
+else that speaks [agents.md](https://agents.md); Claude Code reads only `CLAUDE.md`, so that one is
 a one-line `@AGENTS.md` import.
 
 ## Your own instructions, in every client
