@@ -458,7 +458,9 @@ Four things about CI that its own docs don't carry:
 
 Three **drift tripwires** read haus's committed `docs/site-data/`, each also on a
 Monday cron: `options-drift.yml` re-renders `reference/options.mdx` (the cron
-opens one long-lived PR), `keybindings-drift.yml` snapshots the binding surface
+opens one long-lived PR, and closes it on any run that finds no drift — that PR's own
+`check` re-renders against haus's tip, so once `main` has caught up by hand it
+can never go green), `keybindings-drift.yml` snapshots the binding surface
 the keybinding pages describe, `bar-tables-drift.yml` holds `rooms/bar-widgets`'s
 two tables to haus's tone ladder and mark set. None needs Nix.
 `preview-sweep.yml` (daily, or

@@ -111,6 +111,15 @@ that hand-edits what they cover. Options drift opens or updates one generated
 PR; the other two only *fail*, on purpose — their fix is prose someone has to
 read, not a regeneration.
 
+That generated PR is disposable, and it used to strand. Its own `check` job
+re-renders against haus's tip, so the branch goes red as soon as haus moves;
+ordinarily the next Monday force-pushes a fresh render onto it and it is green
+again. But if the page on `main` caught up in the meantime — someone regenerated
+it by hand — that run finds no drift and never touches the branch. So the run
+now closes the PR and deletes the branch instead. **A drift PR that is red is
+usually superseded rather than broken**: check `main` against a current haus
+before trying to fix one.
+
 Bar-tables drift is the one that reads a **written** page rather than a
 generated file or a snapshot alone. It parses the two tables under "Tones, not
 colours" and holds their row names and order to haus's lists exactly, then
