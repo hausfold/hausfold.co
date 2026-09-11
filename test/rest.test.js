@@ -224,7 +224,10 @@ describe('/v1/batch', () => {
     expect(big.status).toBe(400);
     const bigBody = await big.text();
     expect(bigBody).toContain('batch_too_large');
-    expect(bigBody).toContain('/v1/jobs');
+    expect(bigBody).toContain('20');
+    // serveJobCreate applies the same MAX_BATCH, so this message must not offer
+    // /v1/jobs as the way to run a bigger one. The cap is what it says.
+    expect(bigBody).not.toContain('/v1/jobs');
   });
 });
 
@@ -258,6 +261,12 @@ describe('/v1/jobs', () => {
     const done = await poll.json();
     expect(done.status).toBe('done');
     expect(done.result.results[0].ok).toBe(true);
+  });
+
+  it('takes the same operation cap a batch does', async () => {
+    const res = await post({ operations: Array.from({ length: 21 }, () => ({ op: 'search', query: 'x' })) });
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe('job_too_large');
   });
 
   it('404s an unknown job id', async () => {

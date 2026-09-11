@@ -288,7 +288,7 @@
     "/v1/batch": {
       "post": {
         "summary": "Run several read operations in one request",
-        "description": "Takes an array of operations (search, release, install) and answers with one result per operation, in order. Per-operation failures come back as ok:false entries, not as a failed request. For more than 20 operations, use POST /v1/jobs. Supports the Idempotency-Key header: the first response is remembered for 24h and a retry with the same key is answered from memory with Idempotency-Replayed: true.",
+        "description": "Takes an array of operations (search, release, install) and answers with one result per operation, in order. Per-operation failures come back as ok:false entries, not as a failed request. At most 20 operations, which is also a job's cap; POST /v1/jobs differs by answering 202 at once rather than waiting. Supports the Idempotency-Key header: the first response is remembered for 24h and a retry with the same key is answered from memory with Idempotency-Replayed: true.",
         "operationId": "batchOperations",
         "tags": [
           "v1"
