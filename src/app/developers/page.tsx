@@ -8,19 +8,24 @@ import { developersGraph, developersPageMeta } from '@/lib/jsonld';
 // audience that arrives with a script instead of a browser: coding agents,
 // CI jobs, anyone wiring hausfold into a tool.
 //
-// Two things this page is careful about, both from AGENTS.md:
+// Three things this page is careful about, all from AGENTS.md:
 //
-//   - Every fact here is read off worker.js (and now public/openapi.json,
-//     which test/openapi.test.js pins to the Worker's routing surface). An
-//     endpoint documented here that the Worker does not answer is a claim
-//     the products don't back.
+//   - Every fact here is read off worker.js (and public/openapi.json, which
+//     test/openapi.test.js pins to the Worker's routing surface). An endpoint
+//     documented here that the Worker does not answer is a claim the products
+//     don't back.
 //   - The links: an internal docs page is a `<Link>`; anything the Worker
 //     itself answers (installers, /download, /api/*, /mcp) or any static
 //     file (/openapi.json) is a plain `<a>`, because `next/link` would
 //     client-navigate to a route the router has never heard of.
+//   - Each URL is described ONCE, in the section whose subject it is: every
+//     /mcp spelling in the MCP section, /auth.md and the OAuth documents in
+//     the auth section. A URL glossed twice drifts on the second edit.
 //
 // The copy says no counts. The endpoints live in openapi.json; prose that
-// numbers them rots one commit after the next one lands.
+// numbers them rots one commit after the next one lands. What the docs trees
+// explain better than a paragraph here could (what a desktop is, what each
+// one builds) is a link, not a paragraph.
 //
 // The `<title>` names the resources rather than the section, because the
 // queries that should land here are for the things by name: "hausfold API",
@@ -62,12 +67,10 @@ export default function Developers() {
           <p className="standfirst">Everything here is public.</p>
           <div className="lede">
             <p>
-              hausfold.co answers machines as well as people: this page is the surface written
-              down. No API keys, no accounts, nothing to sign up for. If you are an
-              agent reading this: the same list lives in{' '}
+              hausfold.co answers machines as well as people. No API keys, no accounts, nothing
+              to sign up for. If you are an agent reading this: the same list is in{' '}
               <a href="/openapi.json">openapi.json</a>, the when-to-use version is{' '}
-              <a href="/agent.txt">agent.txt</a>, and the hausfold MCP server below is the
-              fastest way in.
+              <a href="/agent.txt">agent.txt</a>, and the MCP server below is the fastest way in.
             </p>
           </div>
         </header>
@@ -75,46 +78,40 @@ export default function Developers() {
         <section className="block">
           <h2>Install the software</h2>
           <p>
-            Each desktop has a URL that installs it. The script is haus&apos;s{' '}
-            <code>bootstrap.sh</code>, served plain so it survives a{' '}
-            <code>curl | bash</code>, with the desktop written into it:
+            Each desktop has its own URL, and <code>haus.sh</code> asks which:
           </p>
           <Command>{'curl -fsSL https://hausfold.co/hacker.sh | bash'}</Command>
           <p>
-            <code>hacker</code>, <code>everyday</code> and <code>minimal</code> are pinned by
-            their URLs; <code>haus.sh</code> installs the layer and asks instead.{' '}
-            <Link href="/docs/haus">The docs</Link> explain what a desktop is and what each one
-            builds. A <code>?ref=v2026.07.18</code> release tag may be appended to pin the script
-            itself, but nothing published relies on it.
+            <Link href="/docs/haus/install">The install page</Link> has the rest: the other URLs,
+            what each desktop builds, and the <code>?ref=</code> tag that pins the script itself.
           </p>
         </section>
 
         <section className="block">
           <h2>Check a version</h2>
           <p>
-            Every app on this site ships signed, notarized releases on GitHub. The release
-            endpoint answers with the real latest version, so a download button never hardcodes
-            one:
+            Every app here ships signed, notarized releases on GitHub, and the release endpoint
+            answers with the real latest version:
           </p>
           <Command>{'curl -fsSL https://hausfold.co/api/release/pounce'}</Command>
           <p>
             The JSON carries <code>tag</code>, <code>asset</code>, <code>size</code>,{' '}
-            <code>url</code> and <code>publishedAt</code>. The asset URL is also reachable as a
-            stable redirect: <a href="/download/pounce">download/pounce</a> 302s to the latest
-            DMG, preferring it over the archive the Homebrew formula takes.
+            <code>url</code> and <code>publishedAt</code>.{' '}
+            <a href="/download/pounce">download/pounce</a> 302s to that same asset, preferring
+            the DMG over the archive the Homebrew formula takes.
           </p>
         </section>
 
         <section className="block">
           <h2>Read the documentation as text</h2>
           <p>
-            The docs under <Link href="/docs/haus">/docs</Link> exist in plain-text forms, so a
-            tool can load them without a browser: <a href="/llms.txt">llms.txt</a> is the index,
-            <a href="/llms-full.txt">llms-full.txt</a> is every page&apos;s full text, and{' '}
-            <a href="/api/search">api/search</a> is the complete search index (Orama JSON: a
-            row per page, carrying that page&apos;s breadcrumbs, and a row per section under it,
-            carrying a <code>page_id</code> back to it). The MCP server below scores that same
-            index, and resolves each section&apos;s trail from its page before answering.
+            <Link href="/docs/haus">The docs</Link> come as plain text too:{' '}
+            <a href="/llms.txt">llms.txt</a> is the index,{' '}
+            <a href="/llms-full.txt">llms-full.txt</a> every page in full, and{' '}
+            <a href="/api/search">api/search</a> the Orama search index{' '}
+            <code>search_docs</code> below scores: a row per page carrying its breadcrumbs, and a
+            row per section carrying a <code>page_id</code> back to it, which the search resolves
+            into a trail before answering.
           </p>
         </section>
 
@@ -124,192 +121,139 @@ export default function Developers() {
             <a href="/mcp">
               <code>/mcp</code>
             </a>{' '}
-            speaks JSON-RPC 2.0 over Streamable HTTP: POST a request, get JSON back. It is
-            stateless (no session ids, nothing to initialize beyond the handshake) and answers
-            with open CORS, so browser-resident agents can call it as well as command-line ones.
-            Point any MCP client at it:
+            speaks JSON-RPC 2.0 over Streamable HTTP. It is stateless (no session ids, nothing
+            to initialize past the handshake) and answers with open CORS, so a browser-resident
+            agent can call it as well as a command-line one:
           </p>
           <Command>
             {"curl -fsSL https://hausfold.co/mcp \\\n  -H 'content-type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'"}
           </Command>
-          <p>The tools, all read-only over the same public data:</p>
-          <ul className="index" role="list">
-            <li>
-              <code>get_install_command</code>, the install one-liner for a desktop. Called
-              without one it returns every URL and what each pins; the shape is the same list
-              either way.
-            </li>
-            <li>
-              <code>get_latest_release</code>, the latest signed macOS release of an app: tag,
-              asset, size, direct download URL, publish date.
-            </li>
-            <li>
-              <code>search_docs</code>, full-text search over the docs, returning page URLs,
-              breadcrumbs and excerpts.
-            </li>
-          </ul>
           <p>
-            Every tool carries explicit read-only annotations, so an agent knows nothing here
-            writes before calling, and an output schema, so a client can plan against the shape
-            it will get back. A successful call returns that object as{' '}
-            <code>structuredContent</code> beside the text block; a failure returns{' '}
-            <code>{'{ error: { code, message } }'}</code> in both, with <code>isError</code>{' '}
-            set. A docs-only transport serves <code>search_docs</code> alone
-            at{' '}
+            The tools, all read-only over the same public data: <code>get_install_command</code>{' '}
+            (every installer URL and what each pins), <code>get_latest_release</code> (an
+            app&apos;s latest signed macOS release) and <code>search_docs</code> (page URLs,
+            breadcrumbs and excerpts). Each carries read-only annotations and an output schema.
+            A success returns that object as <code>structuredContent</code>; a failure returns{' '}
+            <code>{'{ error: { code, message } }'}</code> with <code>isError</code> set.
+          </p>
+          <p>
+            The same endpoint answers at <code>/.well-known/mcp</code>, with its server card at{' '}
+            <a href="/mcp/server-card">/mcp/server-card</a> and{' '}
+            <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>.
+            Mind the suffix: <a href="/.well-known/mcp.json">/.well-known/mcp.json</a> is a
+            manifest, the path without the <code>.json</code> is the transport.{' '}
             <a href="/mcp/docs">
               <code>/mcp/docs</code>
             </a>{' '}
-            for agents that only want to read, and{' '}
+            serves <code>search_docs</code> alone, and{' '}
             <a href="/mcp.json">
               <code>/mcp.json</code>
             </a>{' '}
-            names both servers in the agent-plugins.org shape, with a flat twin at{' '}
-            <a href="/.well-known/mcp.json">
-              <code>/.well-known/mcp.json</code>
-            </a>{' '}
-            for a reader that wants one URL rather than a map.
+            names both servers in the agent-plugins.org shape, the well-known spelling its flat
+            twin.
           </p>
         </section>
 
         <section className="block">
-          <h2>The hausfold REST API: search and ask</h2>
+          <h2>The hausfold REST API: search, ask and batch</h2>
           <p>
-            The REST surface under <code>/v1</code> serves the same ranked doc search the MCP
-            tool does, cursor-paginated so a crawler can walk the whole result set without
-            guessing shapes:
+            The <code>/v1</code> surface serves the same ranked doc search the MCP tool does,
+            cursor-paginated:
           </p>
           <Command>{'curl -fsSL "https://hausfold.co/v1/search?q=notifications&limit=10"'}</Command>
           <p>
             <code>/v1/desktops</code>, <code>/v1/apps</code> and{' '}
-            <code>/v1/releases/pounce</code> round out the surface; every operation has a typed
-            schema in the spec. <a href="/ask">/ask</a> is the NLWeb-shaped front door: a
-            natural-language query in, ranked excerpts out, JSON by default or{' '}
-            <code>text/event-stream</code> when the request asks to stream. Rate limiting is
-            generous and the <code>RateLimit-*</code> headers ride on every response, so an
-            agent can self-throttle by reading, not by being throttled.
+            <code>/v1/releases/pounce</code> round out the reads. <a href="/ask">/ask</a> is the
+            NLWeb-shaped front door: a natural-language query in, ranked excerpts out, JSON by
+            default or <code>text/event-stream</code> on request. The limit
+            is 600 requests a minute per edge node, and the <code>RateLimit-*</code> headers ride
+            on every response.
           </p>
           <p>
-            Every <code>/v1</code> data read accepts <code>sandbox=true</code> (the batch and
-            job bodies take <code>&quot;sandbox&quot;: true</code> instead), answering with
-            deterministic sample payloads and no live release lookups. It exists for
-            exercising a client against the documented shapes; the rate limit still applies,
-            and nothing on this surface is writable in any mode.
+            <code>POST /v1/batch</code> bundles at most 20 reads into one round trip, one{' '}
+            <code>ok</code> flag per entry. It takes an <code>Idempotency-Key</code>: a retry
+            with the same key within a day is answered from memory with{' '}
+            <code>Idempotency-Replayed: true</code>. Bigger runs go to{' '}
+            <code>POST /v1/jobs</code>, answered <code>202</code> with a <code>Location</code> to
+            poll.
           </p>
-        </section>
-
-        <section className="block">
-          <h2>Batch and jobs</h2>
           <p>
-            An agent acting across the family can bundle reads into one round trip with{' '}
-            <code>POST /v1/batch</code> (at most 20 operations, one <code>ok</code> flag per
-            entry). The endpoint accepts an <code>Idempotency-Key</code> header: a retry with
-            the same key within a day is answered from memory with{' '}
-            <code>Idempotency-Replayed: true</code>, so a network retry can never double-apply
-            anything. Bigger runs go to <code>POST /v1/jobs</code>, answered{' '}
-            <code>202</code> with a <code>Location</code> to poll.
+            Every read accepts <code>sandbox=true</code> (the batch and job bodies take{' '}
+            <code>&quot;sandbox&quot;: true</code>), answering with deterministic sample payloads
+            and no live release lookups. The rate limit still applies, and nothing on this
+            surface is writable in any mode.
           </p>
         </section>
 
         <section className="block">
-          <h2>Errors, versioning, and auth</h2>
+          <h2>Errors, versioning and auth</h2>
           <p>
-            Every failure on this surface is{' '}
+            Every failure is{' '}
             <a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457</a>{' '}
-            <code>application/problem+json</code> with a machine-readable <code>code</code>; a
-            page that does not exist answers a real <code>404</code> with a markdown body
-            pointing agents at the index, not a 200 in disguise. <code>/v1</code> is
-            path-versioned, and the deprecation policy (a{' '}
-            <code>Deprecation: true</code> header plus a <code>Sunset</code> date, announced
-            ahead of it) is written into the spec. There are no credentials:{' '}
-            <a href="/auth.md">/auth.md</a> is the markdown account of that, and the only
-            supported method is <code>anonymous</code>.
+            <code>application/problem+json</code> with a machine-readable <code>code</code>, and
+            a page that does not exist answers a real <code>404</code> with a markdown body
+            pointing agents at the index. <code>/v1</code> is path-versioned, and the deprecation
+            policy (a <code>Deprecation: true</code> header plus a <code>Sunset</code> date,
+            announced ahead of it) is in the spec.
           </p>
-        </section>
-
-        <section className="block">
-          <h2>Authenticate a client before its first call</h2>
           <p>
-            The well-known documents below describe this host&apos;s authentication posture to
-            an agent that probes before it calls.{' '}
+            There are no credentials: <a href="/auth.md">/auth.md</a> is the markdown account of
+            that, and the only supported method is <code>anonymous</code>.{' '}
             <a href="/.well-known/oauth-protected-resource">
               <code>/.well-known/oauth-protected-resource</code>
             </a>{' '}
-            is the RFC 9728 Protected Resource Metadata: <code>resource</code> names this
-            host, <code>resource_documentation</code> points at <code>/auth.md</code>, and{' '}
-            <code>authorization_servers</code> is empty because no token is needed to reach
-            it.{' '}
+            is the RFC 9728 metadata, its <code>authorization_servers</code> empty because no
+            token is needed to reach this host.{' '}
             <a href="/.well-known/oauth-authorization-server">
               <code>/.well-known/oauth-authorization-server</code>
             </a>{' '}
-            is the RFC 8414 Authorization Server Metadata of an issuer that grants nothing:{' '}
-            <code>grant_types_supported</code> and <code>response_types_supported</code> are
-            empty, so a client knows before its first request that no token can be had. The
-            endpoints it names are real rather than dead links, and each answers the
-            protocol&apos;s own refusal: <code>/oauth/authorize</code> says there is no client
-            to authorize, <code>/oauth/token</code> answers{' '}
-            <code>unsupported_grant_type</code>, and <code>/.well-known/jwks.json</code> is an
-            empty key set.{' '}
+            is RFC 8414 metadata for an issuer that grants nothing, and the endpoints it names
+            answer the protocol&apos;s own refusal rather than 404ing:{' '}
+            <code>/oauth/authorize</code> has no client to authorize, <code>/oauth/token</code>{' '}
+            answers <code>unsupported_grant_type</code>, and{' '}
+            <code>/.well-known/jwks.json</code> is an empty key set.
+          </p>
+          <p>
             <a href="/.well-known/http-message-signatures-directory">
               <code>/.well-known/http-message-signatures-directory</code>
             </a>{' '}
-            is the Web Bot Auth directory: a JWK Set with the Ed25519 key this host signs its
-            own outbound requests with. When the Worker fetches an install script or a release
-            from GitHub on your behalf, that request carries{' '}
-            <code>Signature-Agent: &quot;https://hausfold.co&quot;</code>, a{' '}
-            <code>Signature-Input</code> covering the authority and the agent header under{' '}
-            <code>tag=&quot;web-bot-auth&quot;</code>, and the <code>Signature</code>. The
-            directory response is signed with the same key; an empty <code>keys</code> array
-            means the key is not installed on the Worker and those requests go out unsigned.
-            Nothing you send to this host needs a signature.
+            is the Web Bot Auth directory: a JWK Set holding the Ed25519 key this host signs its
+            own outbound requests with, and signed with it. When the Worker fetches
+            an install script or a release from GitHub for you, that request carries{' '}
+            <code>Signature-Agent: &quot;https://hausfold.co&quot;</code> and a{' '}
+            <code>Signature</code> under <code>tag=&quot;web-bot-auth&quot;</code>. An empty{' '}
+            <code>keys</code> array means the key is not installed and those requests go out
+            unsigned. Nothing you send to this host needs a signature.
           </p>
         </section>
 
         <section className="block">
           <h2>Discovery for agents</h2>
           <p>
-            A machine that lands here by name, without reading this page first, is answered where it
-            looks: the MCP endpoint also answers at <code>/.well-known/mcp</code>, with its server
-            card at <a href="/mcp/server-card">/mcp/server-card</a> and{' '}
-            <a href="/.well-known/mcp/server-card.json">/.well-known/mcp/server-card.json</a>. Mind
-            the suffix on <code>/.well-known/mcp</code>:{' '}
-            <a href="/.well-known/mcp.json">/.well-known/mcp.json</a> is the manifest, and the path
-            without the <code>.json</code> is the transport.{' '}
-            <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is the A2A
-            agent card, and <a href="/a2a">/a2a</a> the JSON-RPC interface it names: POST{' '}
-            <code>SendMessage</code> with a question as a text part, or a data part naming a skill,
-            and the reply is a Message carrying the same answer the MCP tools give.{' '}
+            A machine that arrives by name is answered where it looks.{' '}
+            <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a> is
+            the A2A agent card and <a href="/a2a">/a2a</a> the JSON-RPC interface it names,
+            answering <code>SendMessage</code> with the same answers the MCP tools give.{' '}
             <a href="/.well-known/agent-skills/index.json">/.well-known/agent-skills/index.json</a>{' '}
-            lists the domain&apos;s agent skills (docs search, install, releases), and{' '}
+            lists the domain&apos;s agent skills,{' '}
             <a href="/.well-known/api-catalog">/.well-known/api-catalog</a> is the RFC 9727
-            catalog pointing here. <a href="/sitemap.xml">/sitemap.xml</a> is the
-            whole URL list; <a href="/schema.jsonl">/schema.jsonl</a> carries the structured
-            data as JSON Lines.
+            catalog, <a href="/.well-known/ard.json">/.well-known/ard.json</a> the Agentic
+            Resource Discovery catalog naming both MCP transports, the spec, the plugin and the
+            skill, <a href="/sitemap.xml">/sitemap.xml</a> the whole URL list, and{' '}
+            <a href="/schema.jsonl">/schema.jsonl</a> the structured data as JSON Lines. The repo
+            itself is an <a href="https://agent-plugins.org/">Agent Plugin</a>: its{' '}
+            <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">plugin.json</a>{' '}
+            ships the same MCP server and a skill for install and release lookups.
           </p>
           <p>
             Text over HTML, wherever you ask for it. <a href="/index.md">/index.md</a> and{' '}
-            <a href="/agent.txt">/agent.txt</a> are this domain in one page, written for an
-            agent that arrived with no context, which <code>/</code> also answers to{' '}
-            <code>?mode=agent</code> or <code>Accept: text/markdown</code>. Every docs page has
-            a markdown twin at its own URL plus <code>.md</code>, and asking the page itself
-            for <code>text/markdown</code> serves that twin at the page&apos;s own URL. Quality
-            values are honoured, so <code>text/markdown;q=0.9, text/html;q=0.8</code> gets
-            markdown and <code>text/html, text/markdown;q=0.5</code> gets the page. Every HTML
-            response carries <code>Vary: Accept, User-Agent, Accept-Encoding</code>, and a page
-            whose only representation is HTML answers <code>406</code> to a client that accepts
-            neither HTML nor a wildcard.
-          </p>
-          <p>
-            Two more name the whole catalog rather than one document.{' '}
-            <a href="/.well-known/ard.json">.well-known/ard.json</a> is the Agentic Resource
-            Discovery catalog: both MCP transports, the OpenAPI spec, and the plugin and skill
-            below. And the
-            repo behind this site is an <a href="https://agent-plugins.org/">Agent Plugin</a>:
-            its{' '}
-            <a href="https://github.com/hausfold/hausfold.co/blob/main/plugin.json">
-              plugin.json
-            </a>{' '}
-            ships the same MCP server as an <code>mcp.json</code> entry, plus a skill covering
-            install and release lookups.
+            <a href="/agent.txt">/agent.txt</a> are this domain in one page, which <code>/</code>{' '}
+            also answers to <code>?mode=agent</code> or <code>Accept: text/markdown</code>. Every
+            docs page has a markdown twin at its own URL plus <code>.md</code>, and{' '}
+            <code>Accept: text/markdown</code> serves that twin at the page&apos;s own URL.
+            Quality values are honoured. Every HTML response carries{' '}
+            <code>Vary: Accept, User-Agent, Accept-Encoding</code>, and a page with no markdown
+            representation answers <code>406</code>.
           </p>
           <p>
             Through DNS, before any HTTP at all. SVCB records under{' '}
@@ -317,10 +261,9 @@ export default function Developers() {
             <code>_index._agents.hausfold.co</code> points at the ARD catalog above, and{' '}
             <code>_mcp._agents.hausfold.co</code> names the MCP server on{' '}
             <code>hausfold.co:443</code> with <code>alpn=mcp</code> and its server card as the
-            capability document. The draft&apos;s own keys ride as <code>key65400</code> (the
-            capability locator, a URL) and <code>key65409</code> (the same document as a suffix
-            under <code>/.well-known/</code>), numbered as its reference implementation numbers
-            them until IANA assigns theirs.
+            capability document. The draft&apos;s own keys ride as <code>key65400</code> (a
+            capability URL) and <code>key65409</code> (the same document as a suffix under{' '}
+            <code>/.well-known/</code>) until IANA assigns theirs.
           </p>
           <Command>
             {
@@ -335,9 +278,9 @@ export default function Developers() {
             <a href="/openapi.json">
               <code>/openapi.json</code>
             </a>{' '}
-            is the OpenAPI 3.1 description of everything the Worker answers, including the
-            well-known surfaces above. If you are generating a client, generate it from that; this
-            page is the readable half, and the spec is what CI keeps in step with the Worker.
+            is the OpenAPI 3.1 description of everything the Worker answers, the well-known
+            surfaces included. Generate a client from there: this page is the readable half, and
+            the spec is what CI keeps in step with the Worker.
           </p>
         </section>
 
