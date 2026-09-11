@@ -45,9 +45,9 @@ the same place, and a [haus](/docs/haus) machine flips it for you.
 
 The [**latest release**](https://hausfold.co/download/perch) is a signed,
 notarized download: unzip it and drag `Perch.app` into your **Applications**
-folder. Gatekeeper clears it, so you get macOS's ordinary *"downloaded from the
-Internet, are you sure?"* confirmation the first time you open it, and nothing
-else: no *unidentified developer* block, no right-click-Open, no `xattr`.
+folder. Gatekeeper clears it, so the first open is macOS's ordinary *"downloaded
+from the Internet, are you sure?"* and nothing else: no *unidentified developer*
+block, no right-click-Open, no `xattr`.
 
 Or, if you have Homebrew:
 
@@ -70,13 +70,12 @@ out you liked it. It comes back in the menu bar only: no window, no Dock icon.
 
 ## 4. Try it
 
-Grab any file and start dragging it *up toward the notch*. A shelf drops down
-to catch it. Let go.
+Grab any file and start dragging it *up toward the notch*. A shelf drops down to
+catch it. Let go.
 
 Pile in as much as you like, from as many places as you like, then drag a tile
-back out to wherever it's actually going. Your originals never move: perch
-copies in and copies out. [Using the shelf](/docs/perch/using) is what to read
-next.
+back out to wherever it's actually going. [Using the
+shelf](/docs/perch/using) is what to read next.
 
 ## 5. The phone half
 
@@ -116,19 +115,17 @@ open shelf grows a quiet strip along its bottom edge and the menu bar menu
 grows a matching row; dismissing a version dismisses that version, and the
 next release asks again.
 
-The button knows how you installed perch and does the right thing for that
-install. Three of the four are owned by something that already updates them, so
-the button hands you the command: `brew upgrade --cask perch`, `haus update` or
-`nix flake update perch`. Swapping the bundle under Homebrew or haus would only
-be undone by their next run.
+The button knows how you installed perch. Three of the four routes are owned by
+something that already updates them, so it hands you the command instead:
+`brew upgrade --cask perch`, `haus update` or `nix flake update perch`. Swapping
+the bundle under Homebrew or haus would only be undone by their next run.
 
-A copy you dragged in yourself has no such owner, and it gets **Update Now**:
-one click downloads the release, checks it is a build of ours that Apple
-notarized, replaces the app and reopens it, in about as long as the download
-takes. Your shelf survives it, because staged items live in perch's own
-container rather than in the app bundle. If anything fails, perch says so in the
-strip and the button goes back to opening the release page. It never leaves you
-without an app.
+A copy you dragged in yourself has no such owner, and it gets **Update Now**: one
+click downloads the release, checks it is a build of ours that Apple notarized,
+replaces the app and reopens it. Your shelf survives it, because staged items
+live in perch's own container rather than in the app bundle. If anything fails,
+perch says so in the strip and the button goes back to opening the release
+page.
 
 Settings ▸ Updates turns the check off altogether.
 
