@@ -11,7 +11,7 @@ ref then in existence still reached both artifacts after the rewrite, and they
 stay fetchable on a repo that has just been made public. So **rewriting history
 on a repo that has ever had a pull request is hygiene, not removal.** A new repo
 has no PR refs, no blob and no old revisions, and needs no support ticket to make
-that true. The cost was 33 commits of a placeholder page.
+that true. The cost was 33 commits of a placeholder page and its first real week.
 
 *(The specifics stay in the old repo's own README, where the repo is private.
 Publishing the exact paths and commits would be handing over the fetch recipe.)*

@@ -48,7 +48,7 @@ commit its output — CI fails on a hand-edit.
 
 - [Development](docs/development.md) — the repo map, the generated files, what CI checks
 - [Deploying](docs/deploying.md) — CI, a preview Worker per PR, and why the token needs DNS
-- [Design](docs/design.md) — greyscale at rest, borrowed colour, both themes, empty frames
+- [Design](docs/design.md) — greyscale at rest, borrowed colour, why light isn't latte, empty frames
 - [History](docs/history.md) — why this repo starts at one commit
 - [AGENTS.md](AGENTS.md) — the rules in full, for people and coding agents alike
 

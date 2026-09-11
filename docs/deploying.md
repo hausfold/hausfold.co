@@ -2,8 +2,8 @@
 
 Pushing to `main` deploys, and there is no staging — the trigger and the path
 filter are [`deploy.yml`](../.github/workflows/deploy.yml) and AGENTS.md ▸
-Deploying. This page is the rest: the by-hand path, the preview Worker, and why
-the token needs DNS.
+Deploying. This page is the rest: the by-hand path, the preview Worker, the DNS
+the token needs, and what to watch at the edge.
 
 `deploy.yml` runs `npm ci && npm run build` before it uploads, because `out/` is
 gitignored. By hand, when you need it — an unpushed change, a broken token:
@@ -21,9 +21,9 @@ The three secrets and the exact Cloudflare permissions each one wants are listed
 in the workflow's own header. Prefer the push: CI holds the token with DNS:Edit.
 
 One secret lives on the Worker rather than in the repo — `WEB_BOT_AUTH_KEY`,
-which `worker-sign.js` signs outbound requests with. It is set once from a
-checkout and survives every deploy after; minting, rotating and the `--dev-vars`
-local loop are AGENTS.md's machine-routes table. Without it the site still works,
+which [`worker-sign.js`](../worker-sign.js) signs outbound requests with. It is
+set once from a checkout and survives every deploy after; minting, rotating and
+the `--dev-vars` local loop are AGENTS.md ▸ The machine-facing routes. Without it the site still works,
 the signatures directory is empty, and the smoke test warns.
 
 ## a preview Worker per PR

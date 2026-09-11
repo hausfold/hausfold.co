@@ -12,7 +12,8 @@ npm run types:check && npm run lint  # what CI runs first
 `npm run dev` is the loop for everything with a URL. Reach for `wrangler dev`
 whenever you touch a *path*: it's the same asset server as production, so it's
 the only way to see `_redirects`, `_headers`, `not_found_handling` and
-`worker.js` behave. AGENTS.md ▸ Deploying lists the redirects to check.
+`worker.js` behave. AGENTS.md ▸ Deploying lists the redirects worth checking;
+`public/_redirects` is all of them.
 
 ## the map
 
@@ -93,12 +94,14 @@ npm run bar-tables:update -- --haus /path/to/haus   # accept a rewording, after 
 ```
 
 `gen-options.mjs` renders haus's prose, it never rewrites it — what it decides
-is how much arrives at once, and AGENTS.md's options-reference table has the
-folding rules and their thresholds. Two more shaping decisions live only in the
-script: a one-token example goes on the metadata line instead of into a fenced
-block, and an indented block inside a description is fenced rather than
-flattened into a paragraph. None of them can be tuned from this side by editing
-the page.
+is how much arrives at once. A description over ~700 characters opens on its
+first paragraph and keeps the rest behind `More detail`; AGENTS.md's
+options-reference table has that rule and the 240-character one for a shared
+description, and the constants are `FOLD_OVER`, `FOLD_MIN_REST` and
+`SHARED_FOLD_OVER` in the script. Two more shaping decisions live only there: a
+one-token example goes on the metadata line instead of into a fenced block, and
+an indented block inside a description is fenced rather than flattened into a
+paragraph. None of them can be tuned from this side by editing the page.
 
 Three weekly workflows watch `hausfold/haus`, and all three also fail on a PR
 that hand-edits what they cover. Options drift opens or updates one generated
