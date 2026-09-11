@@ -770,47 +770,10 @@ body {
    `.topnav` above: one page's style, deleted with the page. */
 
 .aside code,
-.block p code,
-.facts code {
+.block p code {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.86em;
   color: var(--ink-2);
-}
-
-/* --- fact lists ---------------------------------------------------- */
-
-/* One term, one clause. A table would rule four lines to say two
-   things; this says them in the same left edge as the prose. */
-.facts {
-  margin: 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1.1rem;
-  max-width: 58ch;
-}
-
-.facts dt {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.82rem;
-  color: var(--ink);
-  line-height: 1.75;
-}
-
-.facts dd {
-  margin: 0;
-  color: var(--ink-2);
-  line-height: 1.75;
-}
-
-@media (max-width: 30rem) {
-  .facts {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
-  }
-
-  .facts dd {
-    margin-bottom: 0.65rem;
-  }
 }
 
 .plain {
