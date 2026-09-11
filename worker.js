@@ -435,18 +435,36 @@ function excerpt(content, idx) {
   return (start > 0 ? "…" : "") + slice + (start + 220 < content.length ? "…" : "");
 }
 
-function searchDocsScored(sections, query) {
-  // Term count + a breadcrumb boost: crude next to Orama's BM25, but the
-  // corpus is short sections, thousands of them, and the query is usually one or two
-  // domain words, which is the case this is tuned for. Returns the whole
-  // scored, sorted list; the excerpt (the only expensive half) is made
-  // per result by whoever slices.
-  const terms = query
+// The query's terms, lowercased. One-character tokens are dropped: they match
+// almost everything and say almost nothing.
+function searchTerms(query) {
+  return query
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((t) => t.length > 1);
+}
+
+// The singular of a term, or null where no rule applies. Only ever reached as
+// a fallback for a term the whole corpus is silent on (see searchDocsScored),
+// so a rule that guesses wrong costs nothing: the query was returning nothing
+// anyway.
+function singular(term) {
+  if (term.length > 4 && term.endsWith("ies")) return term.slice(0, -3) + "y";
+  if (term.length > 4 && /(ch|sh|ss|x|z)es$/.test(term)) return term.slice(0, -2);
+  if (term.length >= 4 && term.endsWith("s") && !/(ss|us|is)$/.test(term)) return term.slice(0, -1);
+  return null;
+}
+
+// Term count + a breadcrumb boost: crude next to Orama's BM25, but the corpus
+// is short sections, thousands of them, and the query is usually one or two
+// domain words, which is the case this is tuned for. Unsorted; the excerpt
+// (the only expensive half) is made per result by whoever slices.
+//
+// `unmatched` is the terms no section said, which is what lets the caller
+// decide whether to try again in the singular.
+function scorePass(sections, terms) {
   const scored = [];
-  if (!terms.length) return scored;
+  const unmatched = new Set(terms);
   for (const doc of sections) {
     const content = doc.content ?? "";
     const lower = content.toLowerCase();
@@ -456,18 +474,83 @@ function searchDocsScored(sections, query) {
       let count = 0;
       let idx = lower.indexOf(term);
       if (idx === -1) continue;
+      unmatched.delete(term);
+      // ⚠️ The excerpt anchors on the first term that MATCHED, and is taken
+      // here because the loop below advances `idx` past it. Anchoring on
+      // terms[0], as this did, left it at -1 for every section the query's
+      // FIRST word is absent from, and excerpt() answers -1 with the head of
+      // the section — no part of the query in it. Against the live index that
+      // was 23 of 152 hits over realistic queries, nearly all of them
+      // questions, which open on a word the docs do not use. A hit whose
+      // terms[0] does match is unmoved: the loop reaches that term first and
+      // takes the index it always took.
+      if (first === -1) first = idx;
       while (idx !== -1 && count < 20) {
         count++;
         idx = lower.indexOf(term, idx + term.length);
       }
       score += count;
       if ((doc.breadcrumbs ?? []).join(" ").toLowerCase().includes(term)) score += 3;
-      if (first === -1) first = lower.indexOf(terms[0]);
     }
     if (score > 0) scored.push({ doc, score, idx: first });
   }
+  return { scored, unmatched };
+}
+
+// ⚠️ Section rows do not get one url each. fumadocs gives every text row under
+// a heading that heading's url, so a section of fifteen paragraphs is fifteen
+// rows pointing at one anchor — against the live index `scruff park` scored
+// 262 rows over 115 distinct places, the same url up to fifteen times, each
+// with a different excerpt. A result list is a list of places, so the rows are
+// collapsed to one hit per url.
+//
+// The best-scoring row of a url wins. On a tie the longer content wins: a
+// heading row's content is the heading, which the url's own fragment already
+// says, so the paragraph is the more useful excerpt of the two.
+//
+// It sorts first rather than trusting a caller to: a Map keeps a replaced
+// key's original POSITION, so collapsing an unsorted list would leave a url
+// sitting where its worst row landed. Sorted, a url's first row is its best,
+// only the tie can displace, and the collapse cannot reorder.
+function collapseByUrl(scored) {
+  const best = new Map();
   scored.sort((a, b) => b.score - a.score);
-  return scored;
+  for (const row of scored) {
+    const held = best.get(row.doc.url);
+    const better =
+      !held ||
+      row.score > held.score ||
+      (row.score === held.score &&
+        (row.doc.content ?? "").length > (held.doc.content ?? "").length);
+    if (better) best.set(row.doc.url, row);
+  }
+  return [...best.values()];
+}
+
+// Returns the whole scored, sorted, collapsed list.
+//
+// ⚠️ A term the whole corpus is silent on is retried once in its singular
+// form. Matching is substring, so it already covers the other direction —
+// `keybinding` finds `keybindings` — and the gap was one-way: `keybindings`
+// matched nothing at all while the docs say `keybinding`, and the tool's own
+// description offers it as an example query (worker-config.js). Stemming
+// every term instead is worse here, because the stem of a word the docs do
+// say is usually not a word: `macos` would widen to `maco`, `nixpkgs` to
+// `nixpkg`, `does` to `doe`. As a fallback none of those fire, since each of
+// them matches as typed.
+//
+// The retry re-scores from scratch, with the terms that did match left alone.
+// Scoring a mixed set in one pass would leave `idx` and the counts describing
+// two different term lists.
+function searchDocsScored(sections, query) {
+  const terms = searchTerms(query);
+  if (!terms.length) return [];
+  let pass = scorePass(sections, terms);
+  if (pass.unmatched.size) {
+    const relaxed = terms.map((t) => (pass.unmatched.has(t) && singular(t)) || t);
+    if (relaxed.some((t, i) => t !== terms[i])) pass = scorePass(sections, relaxed);
+  }
+  return collapseByUrl(pass.scored);
 }
 
 const toHit = ({ doc, score, idx }) => ({
