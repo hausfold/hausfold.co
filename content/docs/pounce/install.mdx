@@ -68,18 +68,16 @@ Free the key in **System Settings → Keyboard → Keyboard Shortcuts →
 Spotlight**, then restart the daemon.
 </Callout>
 
-Would you rather keep Spotlight where it is? The hotkey is a line of
-[config](/docs/pounce/config#config-file); the `hotkey` block takes a `key`
-and a list of `modifiers`:
+Would you rather keep Spotlight where it is? The hotkey is one line of
+[config](/docs/pounce/config#config-file):
 
 ```jsonc
 { "hotkey": { "key": "space", "modifiers": ["opt"] } }   // ⌥Space instead
 ```
 
-(On a haus machine you write `haus.keys.palette = "alt-space"` instead, and the
-rebuild generates that block for you.) Inside
-[haus](/docs/haus/rooms/launcher) ⌘Space is handed over for you either way,
-because haus turns Spotlight's binding off.
+On a haus machine you write `haus.keys.palette = "alt-space"` instead, and
+[⌘Space is handed over for you](/docs/haus/rooms/launcher) either way, because
+haus turns Spotlight's binding off.
 
 ## Grant Accessibility
 
@@ -93,14 +91,14 @@ pounce --request-accessibility    # approve the dialog
 pounce --check-accessibility      # prints true when granted
 ```
 
-Pounce is honest about why it asks: a global hotkey that works over every app
-can't be had without it. Three things ask for their own the first time you use
-them: the camera peek, the Bluetooth plugin, and Lock Screen or Force Quit,
-which drive System Events and make macOS ask for Automation. A command of your
-own that tells an app through AppleScript gets an Automation prompt of its own,
-one per app. Nothing else out of the box: no Input Monitoring, no Screen
-Recording, no Full Disk Access. (Inside haus, Copy Text from Screen adds Screen
-Recording; see [the Launcher room](/docs/haus/rooms/launcher).)
+A global hotkey that works over every app can't be had without it. Three things
+ask for their own the first time you use them: the camera peek, the Bluetooth
+plugin, and Lock Screen or Force Quit, which drive System Events and make macOS
+ask for Automation. A command of your own that tells an app through AppleScript
+gets an Automation prompt of its own, one per app. Nothing else out of the box:
+no Input Monitoring, no Screen Recording, no Full Disk Access. (Inside haus, Copy
+Text from Screen adds Screen Recording; see [the Launcher
+room](/docs/haus/rooms/launcher).)
 
 <Callout title="Nix rebuilds and Accessibility">
 Inside haus, the desktop installs the CI-built release app, signed with the

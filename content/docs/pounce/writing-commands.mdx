@@ -27,12 +27,11 @@ osascript -e 'display notification "🐾" with title "Pounce"'
 
 Put it in `~/.config/pounce/commands/`, summon the palette, type `hello`.
 
-That `osascript` line is the whole API speaking: a command is any executable,
-and Pounce neither knows nor cares how it draws. The commands **shipped in
-Pounce itself** go through a `notify()` helper instead, so they render through
-[trill](https://github.com/hausfold/trill) on a Mac that has it and fall back to
-exactly the line above on one that doesn't. Copy that helper if you want the
-same, and keep the one-liner if you don't.
+That `osascript` line is the whole API speaking: a command is any executable, and
+Pounce neither knows nor cares how it draws. The commands shipped in Pounce
+itself go through a `notify()` helper, so they render through
+[trill](https://github.com/hausfold/trill) where it exists and fall back to
+exactly the line above where it doesn't.
 
 The registry re-scans every time you summon. Scripts don't need the executable
 bit (Pounce runs them with `bash` either way), but they **must** end in `.sh`,
@@ -55,13 +54,12 @@ write into the same header: haus adds `cheat` and `cheatWhen` for its
 [cheatsheet](/docs/haus/rooms/launcher), and pounce reads straight past them.
 
 <Callout type="warn" title="Spacing is forgiving, but the `#` needs a space after it">
-The header is hand-typed and a line that fails to parse says nothing at all:
-the row just quietly carries its filename instead of its name. So the parser
-is generous about whitespace. The line may be indented, the `#` may be
-followed by any run of spaces or tabs, and `=` may have any spacing around it
-or none. The value is trimmed at both ends, spaces and tabs only, so a
-non-breaking space (what ⌥Space types on macOS) survives into the value and
-you won't see why.
+A line that fails to parse says nothing at all: the row quietly carries its
+filename instead of its name. So the parser is generous. The line may be
+indented, the `#` may be followed by any run of spaces or tabs, and `=` may have
+any spacing around it or none. The value is trimmed at both ends, spaces and tabs
+only, so a non-breaking space (what ⌥Space types on macOS) survives into the
+value and you won't see why.
 
 The one thing required is *some* whitespace after the `#`. Written
 `#pounce: name = Say Hello`, the line above is an ordinary comment and the row
@@ -70,21 +68,14 @@ lists as `say-hello`.
 
 ## What a command says it will do
 
-A command is a file, usually somebody else's, and the row in the palette says
-only its name. Three keys let the script say more before anything runs it:
-
-```bash
-# pounce: mutates = true      changes state that outlives the palette
-# pounce: confirm = true      the palette asks before running it
-# pounce: network = true      it talks to the internet
-```
-
-They are the **author's claim**, and Pounce verifies none of them. What they
-buy is `pounce list [--json]`, which prints every command with its
-declarations *and the path of the script*, so the claim can be checked against
-the file. `confirm` buys one thing more: a sheet in front of the command, in
-the palette, where a person is browsing rows. `pounce run cmd:<id>` and a
-hotkey deliberately do not ask, because naming a command is already deliberate.
+A command is a file, usually somebody else's, and the row says only its name.
+`mutates`, `confirm` and `network` let the script say more before anything runs
+it. They are the **author's claim**, and Pounce verifies none of them. What they
+buy is [`pounce list [--json]`](/docs/pounce/cli#subcommands), which prints every
+command with its declarations *and the path of the script*, so the claim can be
+checked against the file. `confirm` buys one thing more: a sheet in front of the
+command, where a person is browsing rows. `pounce run cmd:<id>` and a hotkey
+deliberately do not ask, because naming a command is already deliberate.
 
 <Callout type="warn" title="`confirm` on a `submenu` asks at the wrong moment">
 The sheet gates the palette's run of *the script*, so on a two-step command it
@@ -120,10 +111,9 @@ registry is rebuilt on the keystroke, and a fork there is paid on every summon
 for a row that is usually listed anyway.
 
 Like the config scoping it hides the **row**, never the command: `pounce run
-cmd:<id>` and any hotkey on it keep working. And `pounce doctor` names every
-command that declares one, the file it is watching and whether that file is
-hiding it right now; without that, a hidden row is indistinguishable from a row
-you never installed.
+cmd:<id>` and any hotkey on it keep working. `pounce doctor` names every command
+that declares one, the file it is watching and whether that file is hiding it
+right now.
 
 <Callout title="haus does this to one row">
 The [Launcher room](/docs/haus/rooms/launcher)'s **Pages** picker watches
@@ -145,42 +135,34 @@ service=$(list_services | pounce -p "Service:")
 ```
 
 When the second step is a **search** rather than a list, pass `--chain`: on an
-empty match Enter hands the raw text back, and `--chain` tells Pounce that text
-feeds another `pounce`, holding the window's loading skeleton instead of fading
-between steps:
+empty match Enter hands the raw text back, and the window holds its loading
+skeleton instead of fading between steps:
 
 ```bash
 query=$(printf '' | pounce --chain -p "App Store — type a search, then Enter")
 [ -n "$query" ] && mas search "$query" | pounce -p "Install:"
 ```
 
-When the step the user answers by **picking a row** is followed by another
-`pounce`, pass `--chain-rows` instead. A row commit is a separate question from
-a typed one, and the same step often wants opposite answers for the same key:
+When the step is answered by **picking a row** instead, pass `--chain-rows`:
 
 ```bash
 repo=$(list_repos | pounce --grid --chain-rows enter -p "Which repo?")
 [ -n "$repo" ] && printf '' | pounce -p "What should it do in $repo?"
 ```
 
-Without it a row pick dismisses the window on a short fade, and the next step
-has to open into that fade. Land inside it and the new box is taken back down
-as the old one finishes closing, which reads as the palette losing a keystroke.
-Both flags take an action list, so a picker whose Enter opens a window and whose
-`⌘↵` reopens the picker asks for `--chain-rows cmd` alone.
+Without it a row pick dismisses the window on a short fade and the next step
+opens into that fade, which reads as the palette losing a keystroke. Both flags
+take an action list, so a picker whose Enter opens a window and whose `⌘↵`
+reopens the picker asks for `--chain-rows cmd` alone.
 
 ## A step that takes a paragraph
 
-A step whose answer is a sentence wants more than a filter box. Three flags
-turn a `pounce` step into one, and haus's **Spawn Agent** command is the worked
-example:
-
-- `--actions` labels more than one verb on a rowless prompt. Return hands back
-  `<action>\ttext`, where action is `enter` / `cmd` / `opt` / `ctrl`.
-- `⇧↵` inserts a newline, and the box grows with the text.
-- `--draft <key>` files the query on every non-commit dismissal;
-  `pounce drafts <key> get <i>` reads it back, and `--query <text>` reopens the
-  box pre-filled for editing.
+A step whose answer is a sentence wants more than a filter box. Three
+[flags](/docs/pounce/cli#flags) turn a `pounce` step into one, and haus's **Spawn
+Agent** command is the worked example: `--actions` labels more than one verb on a
+rowless prompt, `--draft <key>` files the query on every non-commit dismissal
+(`pounce drafts <key> get <i>` reads it back, `--query <text>` reopens the box
+pre-filled), and `⇧↵` inserts a newline as the box grows with the text.
 
 ```sh
 sel=$(printf '' | pounce --chain enter,opt --draft my-prompt \
@@ -195,16 +177,15 @@ esac
 
 ## Pounce as a generic picker
 
-Beyond commands, `pounce` is a dmenu-style picker: pipe it lines, get the
-chosen one on stdout.
+Beyond commands, `pounce` is a dmenu-style picker: pipe it lines, get the chosen
+one back.
 
 ```sh
 printf 'a\nb\nc\n' | pounce -p "pick one:"
 ```
 
-A piped list keeps **your order** (only the launcher's own apps get sorted),
-so a ranking your script already computed survives into the picker. Each line
-can carry extra tab-separated columns:
+A piped list keeps **your order**, so a ranking your script already computed
+survives into the picker. Each line can carry extra tab-separated columns:
 
 ```
 title <TAB> subtitle <TAB> icon <TAB> actions <TAB> group
@@ -214,12 +195,10 @@ title <TAB> subtitle <TAB> icon <TAB> actions <TAB> group
 are modifier combos); `group` is an optional section header, as Force Quit does
 with *Applications* / *Background*.
 
-Pass `--grid` and the same lines are drawn as a two-column card grid instead: a
-rectangle per option with its icon and description, which is the shape a step
-that offers *things* wants (projects, machines, images). Nothing else changes,
-so a script switches between the two by adding or removing one flag. Group
-headers are the one thing a grid drops; a header is a full-width band and a card
-has no full width to give one.
+Pass [`--grid`](/docs/pounce/cli#flags) and the same lines are drawn as a
+two-column card grid instead, which is the shape a step that offers *things*
+wants (projects, machines, images). Group headers are the one thing a grid drops:
+a header is a full-width band and a card has no full width to give one.
 
 ### What a picker hands back
 
@@ -233,11 +212,10 @@ dismisses:
 `action` is `enter` / `cmd` / `opt` / `ctrl`, whichever key committed, so the
 row's own text is field **2** and a `case` on field 1 sees the verb.
 
-`--dial` is the one flag that changes that shape. A dial is a small set of
-mutually exclusive values the step carries alongside whatever is being typed or
-chosen, drawn as a chip in the action bar and stepped in place with `⇥` / `⇧⇥`
-(`⌃⇥` moves between dials). It exists for the side-question too small to deserve
-a picker of its own and too real to hardcode:
+[`--dial`](/docs/pounce/cli#flags) is the one flag that changes that shape. A
+dial is a small set of mutually exclusive values the step carries alongside
+whatever is being typed or chosen, stepped in place with `⇥` / `⇧⇥` (`⌃⇥` moves
+between dials), for the side-question too small to deserve a picker of its own:
 
 ```sh
 sel=$(list_repos | pounce -p "Repo:" --dial "model=sonnet|opus|haiku")
@@ -249,16 +227,14 @@ dials and field 3 is the row. `--dial` is repeatable, and several dials share
 that one field as `name=value;name=value` in the order you declared them, so
 an option value can contain neither `;` nor `=` nor `|` nor a tab.
 
-Only callers that passed `--dial` ever see three fields; everything else keeps
-the two-field shape forever. Split for the middle field being absent anyway: a
-resident daemon older than the flag ignores it and answers in two. Each dial
-reopens on the value it committed last time, per option set, and cycling then
-pressing Esc changes nothing.
+Only callers that passed `--dial` ever see three fields. Split for the middle
+field being absent anyway: a resident daemon older than the flag ignores it and
+answers in two. Each dial reopens on the value it committed last time, per option
+set, and cycling then pressing Esc changes nothing.
 
 ## Reading real ones
 
 The [built-in
 commands](https://github.com/hausfold/pounce/tree/main/pkgs/pounce-commands/commands)
-are copy-pasteable examples of submenus, grouping and icons, and they are the
-same kind of file yours is, in the same format, with no privileged API between
-them and you.
+are copy-pasteable examples of submenus, grouping and icons, and the same kind of
+file yours is.

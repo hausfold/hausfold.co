@@ -32,20 +32,18 @@ pounce config init      # writes ~/.config/pounce/config.json
 pounce config print     # …or just look at it, touching nothing
 ```
 
-`pounce settings` (also the **Pounce Settings** row in the palette, or
-`mode:settings` for a hotkey of your own) opens panes of cards built from the
-same table that writes the annotated config, showing the value pounce will
-actually use rather than what the file says before clamping. There is no second
-copy of your settings: a click rewrites exactly **one line** of `config.json`,
-so your comments, your ordering and any key pounce has never heard of survive.
-Setting something back to its default comments its line out again, which is this
-file's own grammar for "unset".
+[`pounce settings`](/docs/pounce/cli#subcommands) (also the **Pounce Settings**
+row, or `mode:settings` for a hotkey of your own) shows the value pounce will
+actually use rather than what the file says before clamping, and it edits this
+file rather than shadowing it: a click rewrites exactly **one line**, so your
+comments, your ordering and any key pounce has never heard of survive. Setting
+something back to its default comments its line out again, which is this file's
+own grammar for "unset".
 
-`init` writes **every** setting at its default, one commented-out line each
-with a sentence above it. Nothing changes until you uncomment a line, and you
-make the file minimal by deleting the lines you never touched. It never
-overwrites an existing config (it writes `config.json.new` beside it instead;
-`--force` replaces).
+`init` writes **every** setting at its default, one commented-out line each with
+a sentence above it, so you make the file minimal by deleting the lines you never
+touched. It never overwrites an existing config: it writes `config.json.new`
+beside it, and `--force` replaces.
 
 <Callout type="warn" title="Inside haus, `config init` refuses">
 Your `config.json` is generated from `haus.launcher.*`, and the next rebuild
@@ -144,31 +142,24 @@ behaviours](/docs/pounce/beyond-launching); both blocks are startup-only, so
 **any** edit inside them needs the daemon restart above, not just flipping
 `enabled`.
 
-`systemSettings` is the one block worth tuning rather than flipping. Every
-System Settings pane is a row, and so is every setting *inside* one: `⏎` opens
-the pane already scrolled to what you picked. The titles and their synonyms come
-from the panes' own search index, so "full disk access" and "night shift" find
-the right screen even when that isn't what the row is called. There are about
-700 individual settings and Accessibility alone ships 342 of them, which is why
-two of the three keys exist: `subItemMinQuery` keeps short queries about your
+`systemSettings` is the one block worth tuning rather than flipping. There are
+about 700 individual settings and Accessibility alone ships 342 of them, which is
+why two of the three keys exist: `subItemMinQuery` keeps short queries about your
 apps, and `maxPerPane` stops one pane from being the whole answer. Panes
 themselves are always searchable, and start ranked below everything at an empty
-query until you use them.
+query until you use them. What those rows are, and where their names come from,
+is [Commands](/docs/pounce/commands#built-in-commands).
 
-`windowMode` and `scale` are independent knobs (proportions vs. size) and
-they compose: a compact launcher at `1.4` is still the compact layout, just
-bigger. Values outside 0.8–2.0 clamp rather than reject. On haus, `scale` is
-written for you from `haus.ui.scale`.
+`windowMode` and `scale` compose: a compact launcher at `1.4` is still the
+compact layout, just bigger. Values outside 0.8–2.0 clamp rather than reject. On
+haus, `scale` is written for you from `haus.ui.scale`.
 
-`fontFamily` is the third of that set and answers a different question: `scale`
-picks how big the launcher is drawn, this picks what it is drawn *in*. It is a
-family name as Font Book spells it, and it reaches every string in the UI: the
-rows, the emoji, clipboard, screenshot and camera panels, the cheatsheet, both
-switchers and the Settings window. Left out (the default) you get macOS's own,
-and naming the system font gets you the system font rather than a frozen copy of
-it. Pounce installs nothing, so a family this Mac doesn't have falls back
-quietly. Keycaps and code previews stay monospaced whatever you put here, and SF
-Symbols keep Apple's metrics. On haus it is written for you from
+`fontFamily` is a family name as Font Book spells it, and it reaches every string
+in the UI. Left out (the default) you get macOS's own, and naming the system font
+gets you the system font rather than a frozen copy of it. Pounce installs
+nothing, so a family this Mac doesn't have falls back quietly. Keycaps and code
+previews stay monospaced whatever you put here, and SF Symbols keep Apple's
+metrics. On haus it is written for you from
 [`haus.fonts.sans.name`](/docs/haus/reference/options/#haus-fonts-sans-name),
 which moves pounce, perch and trill together.
 
@@ -176,29 +167,27 @@ which moves pounce, perch and trill together.
 `"stage": { "enabled": false }` gives you the flat list Pounce has always shown,
 and `tiles` clamps to 1–12 rather than rejecting. A bare `"stage": false` is not
 that: the block is only read as an object, so it is ignored in silence and the
-stage stays on. `"windowMode": "compact"` has no stage at all, so
-the key does nothing there: compact means an empty query shows *nothing* until
-you type, and a strip of tiles is emphatically something.
+stage stays on. `"windowMode": "compact"` has no stage at all, so the key does
+nothing there.
 
 ## How it learns (`ranking`)
 
-Four switches, all on, and together they are most of the difference between a
-palette that ranks and one that is shaped by the person using it. Turn them all
-off and you have fuzzy match plus frecency, which is what pounce did before they
-existed. [How ranking works](/docs/pounce/using#how-ranking-works) is the same
-story from the other side.
+Four switches, all on. Turn them all off and you have fuzzy match plus frecency,
+which is what pounce did before they existed. [How ranking
+works](/docs/pounce/using#how-ranking-works) tells the same story from the
+reader's side, in full.
 
 | Key | On means |
 |---|---|
-| `learnFromQueries` | The row you keep taking for a query, and for each prefix of it, wins the next time you type it. The only signal that can surface a row the search itself rejected, so `mail` can come to mean Superhuman. Two picks, never one |
-| `stickyTiles` | Tiles hold their positions across summons, so `⌘3` is the same thing next week. Slots go to habit alone and change one at a time, only when a challenger clearly outgrows the weakest; two tiles already on the strip trade places on the same terms, one pair a summon and only when one is worth more than twice the other. Off, the strip is the ranked list's first few rows again and moves whenever the list does |
-| `useContext` | A small tilt towards what you reach for from *here*: the app in front, the workspace, the part of the day, weekday or weekend. Promotion only, in proportion to how much likelier an item is here than in general |
-| `predictNext` | The **NEXT** info card, offering what usually follows what you just did. `⇥` takes it, `⏎` never does, and it appears only when the pairing is strong |
+| `learnFromQueries` | The row you keep taking for a query, and for each prefix of it, wins the next time you type it. Two picks, never one |
+| `stickyTiles` | Tiles hold their positions across summons, so `⌘3` is the same thing next week. Off, the strip is the ranked list's first few rows again and moves whenever the list does |
+| `useContext` | A promotion towards what you reach for from *here*: the app in front, the workspace, the part of the day, weekday or weekend |
+| `predictNext` | The **NEXT** info card, offering what usually follows what you just did. `⇥` takes it, `⏎` never does |
 
 <Callout title="A fresh pounce has no tiles">
 `stickyTiles` gives slots to habits, and a pounce nobody has used yet has none,
-so the strip starts empty and fills as you work. That is the intended shape: the
-alternative is opening on seven alphabetical accidents you then have to unlearn.
+so the strip starts empty and fills as you work. The alternative is opening on
+seven alphabetical accidents you then have to unlearn.
 </Callout>
 
 ## Themes
@@ -210,8 +199,8 @@ one palette for both modes.
 Any `theme` value that isn't built-in resolves to
 `~/.config/pounce/themes/<name>.json`: a flat catppuccin-style `name → "#hex"`
 map ([nebelung's](https://github.com/hausfold/nebelung) `palette/*.hex.json`
-files verbatim), which is how a desktop's `theme.flavor` / `theme.contrast`
-reach Pounce without a rebuild. Pounce reads `base`,
+files verbatim), which is how a desktop's palette reaches Pounce without a
+rebuild. Pounce reads `base`,
 `surface0`–`surface2`, `text`, `subtext0`, `overlay0`, `mauve` and `blue`; a
 file missing any of them falls back to the built-in default. A file also
 *shadows* a built-in of the same name, so `themes/nebelung.json` wins over the
@@ -227,9 +216,8 @@ curl -fsSLo ~/.config/pounce/themes/nebelung-latte.json \
 
 ## Per-item settings (`items`)
 
-One map for what you'd otherwise want a key each: hide a row, give it a search
-shorthand, give it a global key, list it only where it is useful. Each entry is
-keyed by an **item key**:
+One map: hide a row, give it a search shorthand, give it a global key, or list it
+only where it is useful. Each entry is keyed by an **item key**:
 
 | Item key | Addresses |
 |---|---|
@@ -269,17 +257,15 @@ Two more decorate the row rather than change what it does:
   badge beside the row: `"cmd:focus": { "state": "pounce focus status" }` shows
   **On** or **Off**. It never runs on the keystroke that opens the palette:
   results are cached 30s, a stale one refreshes in the background under a 1.5s
-  cap, and the row simply appears without a badge until one lands. The command
-  runs with the daemon's grants, repeatedly, so it must be `status`-shaped and
-  never `toggle`.
+  cap, and the row appears without a badge until one lands. It runs with the
+  daemon's grants, repeatedly, so it must be `status`-shaped and never `toggle`.
 
 ### Rows that only exist where they work
 
 `enabled` is a decision you make once. `workspaces` and `bundleIds` are asked
-again on every summon, so a row can be listed only where it means something. The
-case they were built for is a command that acts on *the window you were looking
-at*: it reads the focused terminal's directory, and opened over a browser it has
-nothing to read.
+again on every summon, so a row can be listed only where it means something: a
+command that reads the focused terminal's directory has nothing to read over a
+browser.
 
 `workspaces` takes workspace names (a bare string works for one). `"T"` matches
 the page `T` and every `T/…` child, the shape [`pages`](#walking-a-family-of-workspaces-pages)
@@ -291,29 +277,24 @@ that even if you never turn the ⌃Tab walk on. **With no readable `mruFile` thi
 filters nothing**, deliberately: a Mac that cannot answer the question would
 otherwise hide the row forever.
 
-`bundleIds` takes bundle ids and lists the row only while one of them is
-frontmost, also ignoring case. To read a bundle id off any running app:
+`bundleIds` lists the row only while one of those apps is frontmost, also
+ignoring case; read one off any running app with
 `osascript -e 'id of app "Notes"'`. The same string is what
-`apps.hideBundleIds`, `apps.demoteBundleIds` and `autoQuit.exclude` want. Set both and the row wants both, which is worth
-knowing before you add one to a row that already carries the other.
+`apps.hideBundleIds`, `apps.demoteBundleIds` and `autoQuit.exclude` want. Set
+both keys and the row wants both.
 
-Either way it scopes the **row**, never a `hotkey` on the same item, the same
-way `enabled: false` leaves a key armed. Scoping a chord instead is
+Either way it scopes the **row**, never a `hotkey` on the same item, the same way
+`enabled: false` leaves a key armed. Scoping a chord instead is
 [`appHotkeys`](#chords-that-only-exist-over-one-app-apphotkeys), which has to
-consume the keystroke to do it.
+consume the keystroke to do it. Neither asks *is there anything here to act on*:
+that is the command script's own
+[`whenFile`](/docs/pounce/writing-commands#a-row-that-hides-when-there-is-nothing-to-act-on).
 
 A row that never appears looks exactly like a row you never installed, so
 `pounce doctor` names every scoped item, what it asks for, the page you are on
 and which rows that leaves out. It fails outright when something asks about
 `workspaces` while `mruFile` is unset or points somewhere it cannot read, since
 both leave the scoping doing nothing.
-
-Both of these ask **where you are**: `workspaces` from a file, `bundleIds` from
-the frontmost app, neither with a subprocess. *Is there anything to act on at
-all* is a different question, and it belongs to the command script rather than to
-this config: a
-[`whenFile` header](/docs/pounce/writing-commands#a-row-that-hides-when-there-is-nothing-to-act-on)
-names a file that can hide its own row.
 
 <Callout title="haus does this to three rows">
 The [Launcher room](/docs/haus/rooms/launcher) lists **New Agent Lane**, **New
@@ -331,16 +312,15 @@ leaves Globe native.
 
 ### Leader sequences
 
-Add a space for a two-step key: `"opt+space e"` is ⌥Space then E, the
-Emacs/VS Code notation. Sequences sharing a leader share it (⌥Space registers
-once), and can run longer than two steps.
+Add a space for a two-step key: `"opt+space e"` is ⌥Space then E, the Emacs/VS
+Code notation. Sequences sharing a leader share it (⌥Space registers once), and
+can run longer than two steps.
 
-The payoff on a tiling setup: a leader can't collide with the ⌥/⌘ chords a
-window manager already owns, and it needs **no Accessibility grant**: pressing
-it grabs the next-step keys as ordinary global hotkeys for ~2s and releases
-them the instant one fires. Escape cancels; hesitate ~0.45s and a which-key
-overlay lists the next keys. `pounce doctor` reports every binding it actually
-armed.
+On a tiling setup a leader can't collide with the ⌥/⌘ chords a window manager
+already owns, and it needs **no Accessibility grant**: pressing it grabs the
+next-step keys as ordinary global hotkeys for ~2s and releases them the instant
+one fires. Escape cancels; hesitate ~0.45s and a which-key overlay lists the next
+keys. `pounce doctor` reports every binding it armed.
 
 ### Driving Pounce from another binder
 
@@ -361,8 +341,8 @@ pounce gets the key:
 
 | | |
 |---|---|
-| `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: macOS's own Globe handler sits below the event stream a tap can see, so the Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but it wants a logout to take, and even then the two are racing |
-| `"remap"` | Takes Fn away at the HID layer instead: it becomes F19, which pounce binds like any ordinary key. No Accessibility for this binding, and nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
+| `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: macOS's own Globe handler sits below the event stream a tap can see, so the Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but it wants a logout to take and the two are still racing |
+| `"remap"` | Takes Fn away at the HID layer: it becomes F19, which pounce binds like any ordinary key. No Accessibility, nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
 
 `remap` undoes itself and falls back to the tap if F19 is already taken or the
 keyboard doesn't expose Fn. Standalone it is applied while the daemon runs and
@@ -393,11 +373,10 @@ hidutil property --set '{"UserKeyMapping":[]}'   # clears ALL mappings, not just
 
 ## Chords that only exist over one app (`appHotkeys`)
 
-A global hotkey is all-or-nothing: macOS either swallows the chord everywhere
-or nowhere. `appHotkeys` is the other shape. Each scope names a `bundleId` and
-the chords to consume **while that app is frontmost**. Everywhere else the
-keystroke is passed through untouched, so ⌘N still opens a new window in your
-browser.
+A global hotkey is all-or-nothing: macOS swallows the chord everywhere or
+nowhere. `appHotkeys` is the other shape. Each scope names a `bundleId` and the
+chords to consume **while that app is frontmost**; everywhere else the keystroke
+passes through untouched, so ⌘N still opens a new window in your browser.
 
 ```jsonc
 "appHotkeys": {
@@ -410,31 +389,29 @@ browser.
 ```
 
 `target` is the same item-key grammar as `items` and `pounce run`, so a scoped
-chord and a palette row are one address. It reads keys as they pass, so it
-needs Accessibility, and it is armed at startup: an edit wants the daemon
-bounce above.
+chord and a palette row are one address. It reads keys as they pass, so it needs
+Accessibility, and it is armed at startup.
 
 ## Walking a family of workspaces (`pages`)
 
-Hold a modifier, tap a key, step through the **non-empty** AeroSpace workspaces
-under a prefix in most-recent-first order: ⌘Tab's muscle memory, aimed at
-workspaces instead of windows. Keep holding and a HUD comes up: a row per page,
-with the windows on it listed underneath, so you pick a page by recognising
-what is on it rather than by remembering its name. **Nothing is focused until
-you land** on the release; ↵ lands early, ⎋ leaves you where you were.
+⌘Tab's muscle memory, aimed at workspaces instead of windows: hold a modifier,
+tap a key, step through the **non-empty** AeroSpace workspaces under a prefix,
+most recent first. Keep holding and a HUD lists each page with the windows on it,
+so you pick by recognising what is there rather than by remembering its name.
+**Nothing is focused until you land** on the release; ↵ lands early, ⎋ leaves you
+where you were.
 
 ```jsonc
 "pages": { "enabled": true, "prefix": "T", "modifiers": ["ctrl"], "key": "tab" }
 ```
 
-`prefix` matches a workspace named `T` or anything under `T/`. Recency comes
-from `mruFile`, a newest-first list your window manager's workspace-change hook
-pushes onto; because the walk visits nothing on the way, passing through three
-pages doesn't rank them above where you started. That file has a second reader:
-its head line is how the palette answers "which page am I on" when an item
-carries [`workspaces`](#rows-that-only-exist-where-they-work), which is why it
-is worth setting even with `enabled: false`. `bundleId` scopes the chord
-like a scope above, which is how a browser keeps ⌃Tab for its own tabs.
+`prefix` matches a workspace named `T` or anything under `T/`. Recency comes from
+`mruFile`, a newest-first list your window manager's workspace-change hook pushes
+onto; because the walk visits nothing on the way, passing through three pages
+doesn't rank them above where you started. Its head line is also how the palette
+answers [which page you are on](#rows-that-only-exist-where-they-work).
+`bundleId` scopes the chord like a scope above, which is how a browser keeps ⌃Tab
+for its own tabs.
 
 <Callout title="haus wires both for you">
 The [Development room](/docs/haus/rooms/development) sets these up as the lane
@@ -445,9 +422,9 @@ keyboard: ⌘N/⌘⇧N open a shell window over Ghostty, ⌘⏎ starts an agent 
 
 ## A modifier and a click (`mouseChords`)
 
-A window-manager keybind can only ever reach the window you are already in. A
-mouse chord acts on the window **under the pointer**, so "zoom that one over
-there" is one gesture instead of focus-then-zoom.
+A mouse chord acts on the window **under the pointer** rather than the one you
+are in, so "zoom that one over there" is one gesture instead of
+focus-then-zoom.
 
 ```jsonc
 "mouseChords": {
@@ -460,17 +437,16 @@ there" is one gesture instead of focus-then-zoom.
 
 That makes **⌥ + right-click** zoom whichever window you clicked to fill its own
 workspace, focusing it on the way; `fullscreen` is a toggle, so the same chord
-puts it back. It needs [AeroSpace](https://github.com/nikitabobko/AeroSpace) (the
-action shells out to `aerospace fullscreen --window-id`) and the Accessibility
-grant every consuming tap needs, and it is read once at daemon start.
+puts it back. It needs [AeroSpace](https://github.com/nikitabobko/AeroSpace)
+(`aerospace fullscreen --window-id`) and Accessibility, and it is read once at
+daemon start.
 
 One deliberate no-op: a window **alone** on its workspace does not zoom. It
-already fills the workspace, so the click would change nothing you can see while
-arming AeroSpace's fullscreen mode against windows that do not exist yet, and the
-next one to open there would open behind it. Zooming back **out** always works,
-even for a window whose siblings have closed since. The guard needs AeroSpace to
-answer a window listing; when it does not, the chord fires ungated rather than
-leaving you with a chord that does nothing.
+already fills the workspace, and arming AeroSpace's fullscreen mode there would
+make the next window open behind it. Zooming back **out** always works, even for
+a window whose siblings have closed since. The guard needs AeroSpace to answer a
+window listing; when it cannot, the chord fires ungated rather than leaving you
+with a chord that does nothing.
 
 The click is consumed over *every* app, so the chord you pick is a chord you give
 up everywhere:
