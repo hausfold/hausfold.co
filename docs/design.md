@@ -1,9 +1,10 @@
 # design
 
 `public/hausfold.css` carries the palette, type and layout decisions in its
-header comment, and [AGENTS.md](../AGENTS.md#rules-that-are-easy-to-break-by-accident) has the rules in full —
-the six accents, the four hover exceptions, the motion bar, the component bar.
-This page is the reasoning under them, which is the part a rule can't carry.
+header comment, and [AGENTS.md](../AGENTS.md#rules-that-are-easy-to-break-by-accident)
+has the rules in full — the six accents, the four hover exceptions, the motion
+bar, the component bar. This page is the reasoning under them, which is the part
+a rule can't carry.
 
 ## why the house holds no hue
 
@@ -20,8 +21,9 @@ accents, out of the same vendored nebelung port — and it's chrome, not page.
 
 **The docs are the other exception**: one hue per tree, at rest, so a reader can
 tell `/docs/haus` from `/docs/pounce` with the page upside down. A landing page
-is read once; a docs page is lived in. Four of the six accents are now spent as
-tree hues, which is exactly why there is no seventh to hand out.
+is read once; a docs page is lived in. Five of the six accents are spent as tree
+hues — one per root folder, `haus` on `--a-nebelung` — which is exactly why there
+is no seventh to hand out.
 
 ## why the light theme isn't latte
 
