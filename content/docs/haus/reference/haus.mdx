@@ -30,7 +30,7 @@ room](/docs/haus/rooms/ai)), and is also what puts `haus fix` on this list.
 | `haus generations` | What you can roll back to. |
 | `haus status` | The current generation, and how stale the pinned haus is. |
 | `haus edit` | Your host file in `$EDITOR`. |
-| `haus set <path> <value>…` | Write an override, type-check it, rebuild once. With no arguments, search every option this machine has and pick ([below](#changing-a-setting-without-opening-an-editor)). |
+| `haus set <path> <value>…` | Write an override, type-check it, rebuild once. A path on its own prompts for the value, and no arguments at all searches every option this machine has ([below](#changing-a-setting-without-opening-an-editor)). |
 | `haus get [path]` | One declared value; with no path, your overrides. `--json` for the same as data. |
 | `haus unset <path>…` | Set nullable options to `null`, then rebuild once. |
 | `haus reset <path>…` | Drop overrides and inherit the value underneath again. |
@@ -87,7 +87,19 @@ haus reset theme.accent     # inherit the desktop's value again
 `system.defaults.*` or `homebrew.*` path, or an option that doesn't exist, fails
 before any file is written; those belong in your host file, via `haus edit`.
 Values take the obvious shell form for strings and JSON for booleans, numbers,
-lists and attribute sets.
+lists and attribute sets. Lists take commas as well, which is the form to reach
+for when your shell is eating the quotes out of the JSON:
+
+```sh
+haus set zen.userStyles github,gmail,youtube
+haus set zen.userStyles '["github","gmail","youtube"]'   # the same list
+haus set zen.userStyles '[github, gmail, youtube]'       # and so is this
+```
+
+The comma form is only for list options, and it never splits on spaces outside
+brackets. `haus.focus.hooks` holds shell commands, so `say hello` there is one
+hook and not two. Get it wrong and the refusal is one line naming the type the
+option wanted and the type your value became, not a page of Nix.
 
 `set` takes as many pairs as you like and applies them in **one** rebuild, so a
 single intent spanning two options never leaves the machine half-switched:
@@ -105,6 +117,19 @@ deletes the override, so whatever your host file or desktop says underneath
 becomes effective again, and a path that had no override is reported rather than
 fatal. `unset` writes `null` unconditionally, so it succeeds only where the
 option's type admits `null`.
+
+Know the path but not the value? Leave the value off:
+
+```sh
+haus set zen.userStyles
+```
+
+That prompts for the one option, showing its type and what the machine holds
+today, with today's value already in the box, so adding one entry to a list of
+forty is typing `,wikipedia` on the end rather than spelling all forty again.
+An option whose type names a closed set gets the list to pick from instead, and
+a list *of* a closed set (`haus.ai.clients`) gets a multi-select with today's
+members already ticked.
 
 When you don't know what a setting is called, `haus set` with no arguments asks
 instead, searching path *and* description, so `light mode` finds `theme.flavor`
