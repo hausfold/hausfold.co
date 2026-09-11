@@ -39,6 +39,15 @@ const makeCaches = () => ({
   },
 });
 
+// Shaped the way the built index actually is, which is the thing this fixture
+// got wrong for as long as it existed: ONLY a `type: 'page'` row carries
+// `breadcrumbs`. A section row has a `page_id` pointing at its page and no
+// trail of its own, and worker.js's withBreadcrumbs() is what joins the two.
+// Inventing breadcrumbs on the section rows here is what let every assertion
+// below pass while production answered `breadcrumbs: []`.
+//
+// Page titles deliberately avoid the words the queries below search for, so a
+// page row never competes with its own sections for the top result.
 const DOCS = [
   {
     id: '/docs/haus',
@@ -49,20 +58,34 @@ const DOCS = [
     url: '/docs/haus',
   },
   {
+    id: '/docs/trill',
+    page_id: '/docs/trill',
+    type: 'page',
+    content: 'Quiet banners',
+    breadcrumbs: ['Docs', 'trill', 'Rules'],
+    url: '/docs/trill',
+  },
+  {
     id: '/docs/trill-3',
     page_id: '/docs/trill',
     type: 'text',
     content:
       'Quiet banners are composed by the trill daemon. A rule can silence a single app\nby name, and rules.json is the only dial.',
-    breadcrumbs: ['Docs', 'trill', 'Rules'],
     url: '/docs/trill/rules',
+  },
+  {
+    id: '/docs/scruff',
+    page_id: '/docs/scruff',
+    type: 'page',
+    content: 'Parking work',
+    breadcrumbs: ['Docs', 'scruff', 'Start'],
+    url: '/docs/scruff',
   },
   {
     id: '/docs/scruff-1',
     page_id: '/docs/scruff',
     type: 'text',
     content: 'Set work aside with scruff park, never git stash.',
-    breadcrumbs: ['Docs', 'scruff', 'Start'],
     url: '/docs/scruff',
   },
 ];
@@ -271,6 +294,17 @@ describe('tools/call · search_docs', () => {
     expect(parsed.results[0].url).toBe('/docs/trill/rules');
     expect(parsed.results[0].breadcrumbs).toEqual(['Docs', 'trill', 'Rules']);
     expect(parsed.results[0].excerpt).toContain('rules.json');
+  });
+
+  it('gives a section the breadcrumbs of the page it sits on', async () => {
+    // The section rows in the index carry none of their own. Before the join
+    // this came back [], while the tool's description and outputSchema both
+    // said a result carries a trail.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'stash' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results[0].url).toBe('/docs/scruff');
+    expect(parsed.results[0].breadcrumbs).toEqual(['Docs', 'scruff', 'Start']);
   });
 
   it('caches the parsed index per assets binding', async () => {

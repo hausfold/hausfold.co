@@ -390,9 +390,35 @@ async function docsSections(env) {
   const res = await assets.fetch(new Request("https://hausfold.co/api/search"));
   if (!res.ok) return null;
   const index = await res.json();
-  const sections = Object.values(index.docs?.docs ?? {});
+  const sections = withBreadcrumbs(Object.values(index.docs?.docs ?? {}));
   DOCS_CACHE.set(assets, sections);
   return sections;
+}
+
+// Only the index's page-level documents carry `breadcrumbs`. The heading and
+// text sections beneath them — which is 4900 of the ~4970 rows, and so nearly
+// every result a search returns — carry a `page_id` and no trail at all, so
+// every hit went out with `breadcrumbs: []` while the tool's description and
+// its outputSchema both promised one. The same absence made the +3 breadcrumb
+// boost in searchDocsScored dead weight on all but the 59 page rows.
+//
+// Resolved once per isolate, beside the parse the DOCS_CACHE already holds,
+// rather than per result: the join is a single pass and the array it returns
+// is what every later reader (the MCP tool, /v1, /a2a, /ask) sees.
+//
+// ⚠️ A section inherits its page's trail UNCHANGED — the page's own title is
+// deliberately not appended. A page hit and a section hit on the same page
+// would otherwise report two different depths for the same place, and the
+// heading a section matched is already in its excerpt.
+function withBreadcrumbs(sections) {
+  const byPage = new Map();
+  for (const doc of sections) {
+    if (doc.breadcrumbs?.length) byPage.set(doc.page_id ?? doc.id, doc.breadcrumbs);
+  }
+  if (!byPage.size) return sections;
+  return sections.map((doc) =>
+    doc.breadcrumbs?.length ? doc : { ...doc, breadcrumbs: byPage.get(doc.page_id) ?? [] },
+  );
 }
 
 // An excerpt around the first match. The `…` pairs and the 80-char lead-in
