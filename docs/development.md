@@ -133,7 +133,7 @@ the digest the build recomputes; one that edits only the index fails loud.
 | workflow | on a PR touching | what it does |
 |---|---|---|
 | `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
-| `worker.yml` | `worker.js`, `test/`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS` |
+| `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, `scripts/submit-openai-app.sh`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The two scripts are in the filter because the suite *parses* them |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
 | `bar-tables-drift.yml` | `scripts/check-bar-tables.mjs`, `src/data/bar-tables.json`, `rooms/bar-widgets.mdx` | `check-bar-tables.mjs` against haus's published tone ladder and mark set. The page is in that filter because this one *parses* it |
 | `dns.yml` | nothing on a PR (no secrets there); `main`, on `scripts/dns-aid.mjs` or `worker-config.js`, plus a Monday cron | converges the DNS-AID records under `_agents.hausfold.co` on the table, then asks 1.1.1.1 what it sees. `test/dns-aid.test.js` covers the table on PRs through `worker.yml`; see [deploying](deploying.md#the-dns-aid-records) |

@@ -17,12 +17,15 @@
 # they watch one thing and test another. One array is the only way that
 # survives a resubmission.
 #
-# THE ONE DRIFT THAT MATTERS: the arrays below are written against MCP_TOOLS in
-# worker-config.js, and nothing checks them. Three tools is why ANNOTATIONS has
-# nine rows — every tool answers Read Only, Open World and Destructive — so a
-# fourth tool means three more justifications, a starter prompt that reaches
-# it, and a test case that proves it. `check` probes the SERVER, not this file:
-# it can pass while the submission describes a server that no longer exists.
+# THE SEAM: the arrays below are written against MCP_TOOLS in worker-config.js.
+# Three tools is why ANNOTATIONS has nine rows — every tool answers Read Only,
+# Open World and Destructive — so a fourth tool means three more justifications,
+# a positive case that reaches it, and a probe in `check`. test/submission.test.js
+# holds all of that, and holds each justification's STATED value to the hint the
+# server actually reports, so `npm test` fails rather than a reviewer noticing.
+#
+# What no test can see: `check` probes the SERVER, and the copy below describes
+# it. Both can be true while the video shows something else.
 #
 # The third positive case (POSITIVE[2]) asks for the asset's byte size on
 # purpose, and the video runs it third. A bare "what's the latest version"
@@ -76,8 +79,8 @@ NEGATIVE=(
 )
 
 ANNOTATIONS=(
-"get_install_command	Read Only: True	It returns rows from a table of hausfold's four desktops that is compiled into the server. Nothing is written, stored or executed. The install command comes back as text for the user to run on their own machine if they choose to."
-"get_install_command	Open World: False	The answer comes from that same in-server table, which is also what generates the tool's desktop enum. There is no network call and no third-party API, so the set of possible answers is those four desktops and does not change between calls."
+"get_install_command	Read Only: True	It returns rows from the four-row desktop table compiled into the server. Nothing is written, stored or executed. The install command comes back as text for the user to run on their own machine if they choose to."
+"get_install_command	Open World: False	The answer comes from that same in-server table, which is also what generates the tool's desktop enum. There is no network call and no third-party API, so the set of possible answers is those four rows and does not change between calls."
 "get_install_command	Destructive: False	Nothing is created, changed or deleted anywhere. The tool hands back a shell one-liner as text. Installing is something the user does afterwards, outside ChatGPT."
 "get_latest_release	Read Only: True	It looks up published release metadata for two Mac apps, Pounce and Perch: tag, file name, size, download URL and publish date. It reads GitHub's public releases API with no credentials attached, so it could not write there even if asked to."
 "get_latest_release	Open World: True	It calls GitHub's public API at request time. The answer changes whenever a new release is published, so it depends on a system outside this server and cannot be predicted from the input alone."
@@ -99,7 +102,7 @@ field() {
 
 step_check() {
   head_ "Does the server still answer the way the submission says it does?"
-  note "seven calls against $MCP_URL, the ones the test cases promise"
+  note "every call the test cases promise, against $MCP_URL"
   local failed=0
   probe "install command, hacker"  '{"name":"get_install_command","arguments":{"desktop":"hacker"}}' 'https://hausfold.co/hacker.sh | bash' || failed=1
   probe "every desktop listed"     '{"name":"get_install_command","arguments":{}}' '"minimal"' || failed=1
@@ -130,7 +133,7 @@ step_check() {
     warn "fix it before you record, or the video records the bug."
     confirm CONTINUE
   else
-    ok "all eight answer as written"
+    ok "everything the submission promises still answers"
   fi
 }
 
@@ -146,14 +149,14 @@ probe() { # probe "label" '<params json>' "<needle>"
 }
 
 step_annotations() {
-  head_ "MCP tab — the nine annotation justifications"
+  head_ "MCP tab — the ${#ANNOTATIONS[@]} annotation justifications"
   note "the portal reads the VALUES off the server and asks you for the reasons"
   local n=0 tool flag why
   for row in "${ANNOTATIONS[@]}"; do
     n=$((n+1)); IFS=$'\t' read -r tool flag why <<<"$row"
-    field "$n/9  $tool · $flag" "$why"
+    field "$n/${#ANNOTATIONS[@]}  $tool · $flag" "$why"
   done
-  ok "nine justifications in"
+  ok "${#ANNOTATIONS[@]} justifications in"
 }
 
 step_record() {
@@ -163,7 +166,7 @@ step_record() {
   note "without being in the shot."
   note ""
   note "one new chat, hausfold connector on, developer mode."
-  note "run the five below in order and EXPAND each tool-call card, so the"
+  note "run the ${#POSITIVE[@]} below in order and EXPAND each tool-call card, so the"
   note "reviewer sees the tool name and the JSON it answered with."
   note "no narration needed. two minutes is plenty."
   echo
@@ -172,11 +175,11 @@ step_record() {
   for row in "${POSITIVE[@]}"; do
     n=$((n+1)); IFS=$'\t' read -r prompt rest <<<"$row"
     copy "$prompt"
-    printf '\n      %s%d/5%s %s\n' "$b" "$n" "$r" "$prompt"
+    printf '\n      %s%d/%d%s %s\n' "$b" "$n" "${#POSITIVE[@]}" "$r" "$prompt"
     note "copied — ⌘V into ChatGPT, ↵, wait for the answer, expand the card"
     read -r -p "      press ↵ when that answer is on screen "
   done
-  ok "five prompts run — stop the recording (⌘⇧5 stop button, or ⌃⌘Esc)"
+  ok "${#POSITIVE[@]} prompts run — stop the recording (⌘⇧5 stop button, or ⌃⌘Esc)"
   note "save it as: $VIDEO"
   pause
   if [ -f "$VIDEO" ]; then
@@ -199,22 +202,22 @@ step_record() {
 }
 
 step_starters() {
-  head_ "Prompts tab — four starter prompts"
+  head_ "Prompts tab — ${#STARTERS[@]} starter prompts"
   note "one per tool, plus one that needs two of them. A starter that only"
   note "ever fires one tool teaches nobody when to reach for the app."
   local n=0
-  for p in "${STARTERS[@]}"; do n=$((n+1)); field "$n/4  starter prompt" "$p"; done
-  ok "four starters in"
+  for p in "${STARTERS[@]}"; do n=$((n+1)); field "$n/${#STARTERS[@]}  starter prompt" "$p"; done
+  ok "${#STARTERS[@]} starters in"
 }
 
 step_testing() {
-  head_ "Testing tab — five positive, three negative"
+  head_ "Testing tab — ${#POSITIVE[@]} positive, ${#NEGATIVE[@]} negative"
   note "each case is a few fields. If the form shows fewer boxes than this"
   note "walks, press ↵ past the ones it does not have."
   local n=0 prompt expected shape data why
   for row in "${POSITIVE[@]}"; do
     n=$((n+1)); IFS=$'\t' read -r prompt expected shape data <<<"$row"
-    printf '\n%s   ── positive %d of 5 ──%s\n' "$b" "$n" "$r"
+    printf '\n%s   ── positive %d of %d ──%s\n' "$b" "$n" "${#POSITIVE[@]}" "$r"
     field "prompt"            "$prompt"
     field "expected behavior" "$expected"
     field "result shape"      "$shape"
@@ -223,12 +226,12 @@ step_testing() {
   n=0
   for row in "${NEGATIVE[@]}"; do
     n=$((n+1)); IFS=$'\t' read -r prompt expected why <<<"$row"
-    printf '\n%s   ── negative %d of 3 ──%s\n' "$b" "$n" "$r"
+    printf '\n%s   ── negative %d of %d ──%s\n' "$b" "$n" "${#NEGATIVE[@]}" "$r"
     field "prompt"                  "$prompt"
     field "expected safe behavior"  "$expected"
     field "reasoning"               "$why"
   done
-  ok "eight cases in"
+  ok "$(( ${#POSITIVE[@]} + ${#NEGATIVE[@]} )) cases in"
 }
 
 step_global() {
