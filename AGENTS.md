@@ -442,6 +442,14 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
   `ViewOptionsPopover` with four hardcoded destinations (Markdown, GitHub source,
   two assistants), because **the list is an endorsement**. It sits in `.hf-meta`
   above the title, before the `h1` in the DOM.
+- **`<Steps>` numbers by CSS counter, so the numerals are not in the Markdown
+  twin** and the JSX indents the step bodies four spaces there. It earns that
+  where the ORDER is the point and the page would otherwise type its own numerals
+  into headings — [`perch/install`](content/docs/perch/install.mdx), its one
+  caller, did exactly that until 2026-09-11 and the anchors moved when it
+  stopped. A set of things a reader picks from is a list. The look is
+  "an ordered procedure" in `src/app/global.css`; **`.fd-step` must stay
+  `position: static`** or every number jumps off the rail.
 
 ### Gotchas paid for already
 
