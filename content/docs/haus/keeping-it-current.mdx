@@ -82,23 +82,35 @@ one.
 
 The payoff for describing a machine as text is a restore, not a weekend in
 System Settings. It assumes one thing, that `~/.config/nix` is **pushed
-somewhere you can clone it from**. If it isn't, that's today's five-minute
-job.
+somewhere you can clone it from**. If it isn't, that's today's five-minute job.
+
+<Callout title="No remote yet? One command.">
+`~/.config/nix` is already a git repo with a first commit in it, so all it needs
+is somewhere to go:
 
 ```sh
+cd ~/.config/nix
+gh repo create nix-config --private --source=. --remote=origin --push
+```
+
+Private, because the config names your hostnames, your paths and the ids of your
+secrets, though never their values. `gh` comes with the [Development
+room](/docs/haus/rooms/development)'s git pack, and wants one `gh auth login`.
+</Callout>
+
+```sh
+# clones your config into ~/.config/nix and skips the interview
 curl -fsSL https://hausfold.co/haus.sh | bash -s -- --from <your-config-remote>
 ```
 
-The one-liner that scaffolds a fresh setup restores an existing one: it clones
-your repo into `~/.config/nix` and skips the interview. On a brand-new Mac the
-Xcode Command Line Tools are missing, so the first run opens Apple's installer
-dialog and stops; approve it and run the line again. It installs [Determinate
-Nix](https://docs.determinate.systems/) for you; by hand, `--from` is nothing
-more than `xcode-select --install`, that installer and `git clone`. It finishes
-by printing
-[the build and switch pair](/docs/haus/install#build-and-switch) with your
-hostname filled in. When that lands, `haus` is on your `PATH` and `haus doctor`
-is the check that it all came back.
+On a brand-new Mac the Xcode Command Line Tools are missing, so the first run
+opens Apple's installer dialog and stops. Approve it and run the line again.
+
+It installs [Determinate Nix](https://docs.determinate.systems/) for you and
+finishes by printing [the build and switch
+pair](/docs/haus/install#build-and-switch) with your hostname filled in. When
+that lands, `haus` is on your `PATH`, and `haus doctor` is the check that it all
+came back.
 
 <Callout title="New hostname? Name the host you want.">
 Your config declares each machine by hostname, and a new one isn't picked up on
@@ -122,7 +134,8 @@ machine**, and `haus btm` prints the one thing to click.
 
 App Store entries are the exception. Installing from an `appStoreId` is opt-in
 (`haus.appStore.install`), and even switched on it only fetches apps your Apple
-account already owns: a paid app is bought in App Store.app once, by you.
+Account already owns. Buying a paid one is still yours to do, once, in App
+Store.app.
 
 ### The bits Nix doesn't carry
 
@@ -137,9 +150,11 @@ machine:
   the cost of one login to bootstrap it.
 - **Commit signing keys.** Your config names the key *id*; the key *material* is
   yours to import, with whatever agent unlocks it.
-- **Pounce's Accessibility grant.** macOS ties it to the machine, so run
-  `pounce --request-accessibility` once more ([Pounce
-  config](/docs/pounce/config)).
+- **The permission grants.** macOS ties Accessibility, Full Disk Access and the
+  rest to the machine, so a restored Mac starts with none of them.
+  [`haus permissions`](/docs/haus/reference/haus#what-needs-a-person-and-what-runs-itself)
+  walks the ones this generation actually needs, one card at a time;
+  `haus permissions --list` just reports.
 - **Apps you installed by hand.** They won't reappear. Reinstall the ones you
   want, and consider a [roster entry](/docs/haus/rooms/apps) so next time they
   do.
