@@ -1,16 +1,13 @@
 /* ------------------------------------------------------------------
-   hausfold.co — the whole site's stylesheet. ⚠️ Nothing `<link>`s it any
-   more: since 2026-08-14 it reaches the browser through
-   `src/app/global.css`'s `@import`, inlined into Next's own bundle at build
-   time. It stays here because this is the path that import names and the
-   path `scripts/sync-nebelung.mjs` writes.
+   hausfold.co — the whole site's stylesheet, the landing half and the
+   docs half alike. ⚠️ Nothing `<link>`s it: it reaches the browser
+   through `src/app/global.css`'s `@import`, inlined into Next's own
+   bundle at build time. It stays here because this is the path that
+   import names and the path `scripts/sync-nebelung.mjs` writes.
 
-   It was inline in index.html until 2026-08-08, when /desktops arrived
-   and there were five pages to keep in agreement — the landing page,
-   the two under /desktops, 404, and perch's privacy policy, which had
-   been hand-syncing its own copy of the tokens since it was written.
-   One file, one set of tokens; the alternative was the same 200 lines
-   pasted five times and drifting by the second edit.
+   One file, one set of tokens, and that is the whole reason it exists:
+   the alternative is every surface that needs them keeping its own copy
+   and drifting by the second edit.
 
    Palette: nebelung's neutral ramp in dark, every value pushed one
             step outward for contrast (crust/subtext1/overlay2/
