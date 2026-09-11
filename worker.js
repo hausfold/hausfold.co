@@ -891,7 +891,7 @@ async function serveOAuthTokenError(request, headers) {
 // A plain JSON API so agents that never adopted MCP still have typed,
 // documented, paginated access. Every response carries the RateLimit trio;
 // every failure carries RFC 9457 problem+json; the batch POST accepts an
-// Idempotency-Key; a too-big batch turns into a 202 job at POST /v1/jobs.
+// Idempotency-Key; POST /v1/jobs takes the same cap and answers 202 at once.
 // The deprecation policy it operates under is written in openapi.json's
 // info.description: /v1 is path-versioned, a deprecated endpoint answers
 // with Deprecation: true and a Sunset date before it goes away.
@@ -1187,7 +1187,7 @@ async function serveBatch(request, env, H) {
     return problemResponse(
       400,
       "Batch too large",
-      `A batch takes at most ${MAX_BATCH} operations; for more, use POST /v1/jobs and poll.`,
+      `A batch takes at most ${MAX_BATCH} operations, and so does a job; send fewer.`,
       "batch_too_large",
       H,
     );
