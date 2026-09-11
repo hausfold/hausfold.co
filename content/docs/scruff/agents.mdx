@@ -13,14 +13,13 @@ related:
     icon: "sdk"
 ---
 
-scruff is a CLI with a frozen JSON contract and six exit codes that each mean a
-different recovery, which is already a shape an agent drives well. The gap is
-knowledge: a session on a stranger's machine has never heard of `scruff park`,
-so when their human says *"stash this"* it reaches for `git stash` and pops
-somebody else's work into a tree that never asked for it.
+scruff is a CLI with a frozen JSON contract and six exit codes, which is already
+a shape an agent drives well. The gap is knowledge: a session that has never
+heard of `scruff park` reaches for `git stash` when its human says *"stash
+this"*, and pops somebody else's work into a tree that never asked for it.
 
-Two skills close that gap. Both live in the repo and both are ≤150 lines,
-because a skill nobody loads is a skill nobody has.
+Two skills close that gap. Both live in the repo and both are ≤150 lines, because
+a skill nobody loads is a skill nobody has.
 
 | | teaches |
 |---|---|
@@ -104,13 +103,11 @@ at most 150 lines, no flag dumps, and a `description` that names **the phrases a
 user says** rather than the features the tool has. A description written as a
 feature summary is true, well written, and never loads.
 
-The build enforces the mechanical half: it fails if the frontmatter is missing
-or unterminated, if `name:` disagrees with the directory, or if the file passes
-150 lines. Each of those produces a skill that installs, lists, and is never
-loaded.
+The build enforces the mechanical half, failing if the frontmatter is missing or
+unterminated, if `name:` disagrees with the directory, or if the file passes 150
+lines. Each of those produces a skill that installs, lists, and is never loaded.
 
-And every claim in them has to be runnable. The skills quote two of scruff's
-four frozen contracts, `--json` output and exit codes, plus the command names
-and flags, so a verb or a field that changes changes the skill in the same pull
-request. They are not documentation that drifted; they are downstream consumers
-of the freeze.
+Every claim in them has to be runnable, too. The skills quote two of scruff's
+four frozen contracts, `--json` output and exit codes, plus the command names and
+flags, so a verb or a field that changes changes the skill in the same pull
+request.

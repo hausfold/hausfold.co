@@ -122,21 +122,20 @@ you can ask the stream what it can ever send.
 
 ## What is frozen
 
-Four things are versioned and breaking-change-gated, because downstreams pin
-them within a day: the **registry schema**, this **`--json` output**, the **hook
-protocol**, and the **exit codes**. So are the user-facing command names and
-flags. Changing one is a semver major conversation, not a refactor.
+Four things are versioned and breaking-change-gated: the **registry schema**,
+this **`--json` output**, the **hook protocol**, and the **exit codes**. So are
+the user-facing command names and flags. Changing one is a semver major
+conversation, not a refactor.
 
 Field **additions** are non-breaking, which means the other half of the deal is
 yours: **ignore unknown keys.**
 
 ## The registry is local, and stays local
 
-Two things follow from that, and both bite a consumer rather than scruff. The
-rows hold **absolute paths on one machine**, so a lane is not meaningful on a
-different box: don't ship one across. And mutation takes an exclusive lock, so
-two writers meet **exit 5** rather than losing an update.
+Two things follow, and both bite a consumer rather than scruff. The rows hold
+**absolute paths on one machine**, so a lane is not meaningful on a different
+box. And mutation takes an exclusive lock, so two writers meet **exit 5** rather
+than losing an update.
 
 Pointing `SCRUFF_STATE` at a network share does not make scruff distributed, it
-makes the lock a lie. A remote transport speaking this same protocol is a
-different question, and an open one.
+makes the lock a lie.

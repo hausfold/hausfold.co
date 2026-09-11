@@ -19,14 +19,12 @@ mid-thought can take work with it.
 
 The fix is a worktree each, and making one is table stakes: your client probably
 has a flag for it already. What nothing owns is the rest of the life. The branch
-still alive after the pane died. The checkout nobody is sitting in. The tree
-with forty uncommitted minutes in it. The branch whose PR merged yesterday and
-which has kept committing since.
+still alive after the pane died. The checkout nobody is sitting in. The tree with
+forty uncommitted minutes in it. The branch whose PR merged yesterday and has
+kept committing since.
 
-**scruff** owns that. It is one Go binary, it works on any git repo with any
-client, and if you have ever run `git worktree list` through a graveyard trying
-to remember which of those you can safely delete, it is the thing that makes the
-graveyard go away.
+**scruff** owns that. One Go binary, any git repo, any client, and no more
+reading `git worktree list` trying to remember which rows are safe to delete.
 
 ```sh
 cd "$(scruff new fix-flaky-test)"  # a lane on this repo: new checkout, new branch, path on stdout
@@ -46,8 +44,7 @@ reaped.
 Not a *worktree*, git's word for the checkout on disk, because a parked lane has
 no checkout at all and the branch is what survives. Not an *agent*, which here
 means the client a lane runs (`claude`, `codex`, `opencode`, `pi`). Not a
-*session*, which belongs to your multiplexer. The overload was the bug, so the
-three words are reserved and a lane is a lane.
+*session*, which belongs to your multiplexer. Those three words are reserved.
 
 ```
 create ──▶ live ──▶ parked ──▶ live ──▶ landed ──▶ reaped
@@ -55,14 +52,14 @@ create ──▶ live ──▶ parked ──▶ live ──▶ landed ──▶
              └────────┴────────────────────┘
 ```
 
-The **branch is the durable artifact and the directory is disposable**. That one
-sentence explains most of scruff's behaviour: closing a pane can delete a
-checkout without anybody losing anything, and `scruff <name>` builds it back.
+The **branch is the durable artifact and the directory is disposable**, which is
+most of scruff's behaviour in one line: closing a pane can delete a checkout
+without anybody losing anything, and `scruff <name>` builds it back.
 
 ## Three invariants, in this order
 
-scruff's product is not "makes worktrees". It is this state machine and the three
-promises it keeps, in priority order:
+scruff's product is not "makes worktrees". It is this state machine and three
+promises, in priority order:
 
 1. **Never lose work.** Every destructive path parks first. The failure
    direction is always *a branch lingers*, never *a tree vanished*.

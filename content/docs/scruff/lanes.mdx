@@ -24,7 +24,7 @@ cd "$(scruff new fix-flaky-test)"  # or your own
 ```
 
 `scruff new` prints **the new checkout path and nothing else** on stdout, which
-is what makes `cd "$(…)"` work. Every diagnostic goes to stderr. It is a
+is what makes `cd "$(…)"` work; every diagnostic goes to stderr. It is a
 contract, not a style choice.
 
 The checkout lands **outside** the repo, at
@@ -49,12 +49,11 @@ scruff new --prompt-file brief.md   # or `-` for stdin
 scruff new --prompt '…' --image screenshot.png
 ```
 
-A prompt implies `--open`: the client starts on a first turn rather than an
-empty prompt. `--prompt-file` is the one to reach for when the task is a
-*brief*, which is usually a markdown list several paragraphs long. scruff puts a
-`--` before the prompt when the client supports one, because a task that starts
-with a dash is otherwise read as a flag and the pane dies before the agent
-draws.
+A prompt implies `--open`: the client starts on a first turn rather than an empty
+prompt, and `--prompt-file` is the one to reach for when the task is a *brief*
+several paragraphs long. scruff puts a `--` before the prompt where the client
+supports one, because a task starting with a dash is otherwise read as a flag and
+the pane dies before the agent draws.
 
 <Callout type="info" title="A lane can name itself after the task">
 Give a lane a prompt and no name, set `namer = "claude"` in the config, and it
@@ -121,20 +120,18 @@ can carry a suffix: `live+3` is [three commits past a merged
 PR](/docs/scruff/landing#when-a-lane-outran-its-pr), `~3` is the lookalike that
 wants the opposite treatment.
 
-A lane in **another repo** sits under the one that spawned it, marked `└`. It is
-nested rather than hidden: its branch and its PR are its own, closing the
-parent's pane does not reap it, and this listing is where it surfaces once that
-pane is gone. A lane in the *same* repo is a sibling however it was opened. It
-has its own window and its own branch off the same main, so it draws at the top
-level rather than under whichever pane pressed the key.
+A lane in **another repo** sits under the one that spawned it, marked `└`, and it
+is nested rather than hidden: its branch and its PR are its own, and closing the
+parent's pane does not reap it. A lane in the *same* repo is a sibling however it
+was opened, with its own window and its own branch off the same main, so it draws
+at the top level.
 
 `scruff --json` is the same listing for machines, and its shape is
 [a frozen contract](/docs/scruff/json).
 
 <Callout type="warn" title="A listing is not read-only">
-Every `scruff` and `scruff --json` also sweeps parked branches that have since
-landed. It is harmless, the invariants still hold, but don't poll it under the
-impression that you are only looking.
+Every `scruff` also sweeps parked branches that have since landed. Harmless, and
+the invariants still hold, but it is not a read-only command.
 </Callout>
 
 ## Pick one back up
@@ -152,17 +149,15 @@ A parked lane has no checkout on disk; resuming builds it back from the branch.
 scruff reopens whichever client the lane was **made** with, so a Codex lane comes
 back in Codex however your default has moved since.
 
-By default it continues the **newest conversation in that checkout**, because a
-lane's own directory is one only that lane's agent ever ran in, and offering a
-picker there asks you to answer a question with one answer. `--pick` is for when
-the newest is not the one you wanted. The exception scruff makes for itself: a
-lane spawned by `scruff child`, whose conversation lives in a shared parent
-checkout full of unrelated sessions, gets the picker, because there scruff
-genuinely cannot name the right chat.
+By default it continues the **newest conversation in that checkout**: a lane's
+own directory is one only that lane's agent ever ran in, so a picker there asks
+you to answer a question with one answer. `--pick` is for when the newest is not
+the one you wanted. The one exception is a lane spawned by `scruff child`, whose
+conversation lives in a shared parent checkout full of unrelated sessions, so it
+gets the picker.
 
-Nothing records a session id, deliberately. A recorded id goes stale the moment
-a session is forked or compacted, and it fails **silently into the wrong chat**,
-which is worse than a picker.
+Nothing records a session id, deliberately: a recorded id goes stale the moment a
+session is forked or compacted, and it fails **silently into the wrong chat**.
 
 ## Go to the one that is already open
 
@@ -182,9 +177,10 @@ Its usual caller is not a human. On a machine with
 ## The two traps on day one
 
 <Callout type="warn" title="Commit something immediately">
-A brand-new lane has **zero commits of its own**, so it is trivially contained
-in the default branch and another session's `scruff reap` may take it. scruff
-reports that state as `fresh` rather than `merged`, but the checkout is still
+A brand-new lane has **zero commits of its own**, so it is trivially contained in
+the default branch and another session's `scruff reap` may take it. scruff
+reports it as [`fresh` rather than
+merged](/docs/scruff/landing#the-four-verdicts), but the checkout is still
 sweepable. Make a commit and it stops being.
 </Callout>
 

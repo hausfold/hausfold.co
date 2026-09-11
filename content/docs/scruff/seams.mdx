@@ -13,17 +13,16 @@ related:
     icon: "json"
 ---
 
-scruff grew out of one machine, and it inherited that machine's answers to
-questions that only *look* universal. "Landed" means merged into the default
-branch. "Resume" means become the client process. Every one of those is a house
-rule wearing a universal name, and every one of them is wrong somewhere: a shop
-that merges into a release train, a machine that can enumerate its own panes
-better than `lsof` can, a multiplexer user who wants a new pane rather than a
-hijacked one.
+scruff inherited one machine's answers to questions that only *look* universal.
+"Landed" means merged into the default branch. "Resume" means become the client
+process. Each is a house rule wearing a universal name, and each is wrong
+somewhere: a shop that merges into a release train, a machine that can enumerate
+its own panes better than `lsof` can, a multiplexer user who wants a new pane
+rather than a hijacked one.
 
 The fix is not more configuration keys. It is to name each decision, ship
 scruff's answer as the **default** rather than the **mechanism**, and let you
-replace it. That is the difference between a tool and a substrate.
+replace it.
 
 ## The protocol
 
@@ -45,10 +44,9 @@ the ways a script dies **by accident** (a `1` from `set -e`, `126` from a lost
 executable bit, `127` from a typo) can never be mistaken for an opinion.
 
 **Every failure mode defers.** A broken hook costs you the override, never the
-operation, because scruff is in the path of every pane open and a stale store
-path must not be able to close that door. It costs you the override *loudly*: a
-policy that silently stopped applying is worse than one that never existed,
-because you still believe it is in force.
+operation, because scruff is in the path of every pane open. It costs you the
+override *loudly*: a policy that silently stopped applying is worse than one that
+never existed.
 
 ```toml
 # ~/.config/scruff/config.toml
@@ -85,10 +83,10 @@ object on stdin, and as environment variables.
 
 The environment is `SCRUFF_HOOK` plus `SCRUFF_*` for every template variable:
 `SCRUFF_PATH`, `SCRUFF_MAIN`, `SCRUFF_REPO`, `SCRUFF_NAME`, `SCRUFF_BRANCH`,
-`SCRUFF_PARENT`, `SCRUFF_CWD`. Three fields are spelled apart from scruff's own
-variables, all for the same reason: **a hook leaks its environment into every
-pane it spawns**, so a field that reused one of those names would hand scruff
-back its own input.
+`SCRUFF_PARENT`, `SCRUFF_CWD`. Three are spelled apart from
+[scruff's own variables](/docs/scruff/config#environment), for one reason: **a
+hook leaks its environment into every pane it spawns**, so a field reusing one of
+those names would hand scruff back its own input.
 
 | the lane's | not | because that is scruff's |
 |---|---|---|
@@ -126,16 +124,14 @@ and a flag only one consumer can honour belongs in that consumer.
 
 ## What is deliberately not a seam
 
-**`reapable` is absent, and it was built, tested and pulled back out.**
-Reapability reaches through *three* of scruff's inherited opinions at once,
-occupancy, dirtiness and landedness, and a seam over the lot of them is a bigger
-commitment than the six above, because a `yes` on a dirty tree is the one answer
-that destroys work. Overriding `landed` already moves the rung that matters
-most.
+**`reapable` is absent, deliberately.** It reaches through *three* inherited
+opinions at once, occupancy, dirtiness and landedness, and a `yes` on a dirty
+tree is the one answer that destroys work. Overriding `landed` already moves the
+rung that matters most.
 
-Two more are about scruff not sawing off the branch it is sitting on, rather than
-about policy, and no seam can reach them: the checkout scruff is being **run
-from** is never swept, and a **stray** is only ever reported.
+Two more are about scruff not sawing off the branch it is sitting on rather than
+about policy, and no seam can reach
+[either](/docs/scruff/landing#sweeping).
 
 ## Client hooks: the other direction
 

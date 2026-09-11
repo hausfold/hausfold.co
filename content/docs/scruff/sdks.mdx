@@ -27,11 +27,10 @@ itself has to be on `PATH`, or you pass its path in.
 
 ## scruff stays a binary
 
-There is no daemon, no port, no auth, no supervisor and no socket semantics to
-pin before a single consumer exists. The SDKs shell out, and the frozen contract
-is [the `--json` envelope](/docs/scruff/json), not the registry file. Adding a
-`scruff serve` later is purely additive, because the protocol would be the same
-either way.
+There is no daemon, no port, no auth and no socket semantics to pin before a
+single consumer exists. The SDKs shell out, and the frozen contract is [the
+`--json` envelope](/docs/scruff/json), not the registry file. Adding a `scruff
+serve` later is purely additive.
 
 ```ts
 import { ScruffClient } from "@hausfold/scruff";
@@ -104,12 +103,11 @@ speed; a seam replaces `lsof` outright.
 ## Five clients, one number
 
 They all carry the same version, and it is forced rather than chosen: npm, PyPI
-and crates.io are immutable registries that already hold published numbers, so
-the version is a **compatibility contract** read by people who pinned against
-it, not a date. Five clients agreeing about one wire format is the invariant the
-whole arrangement exists to protect, and five drifting version lines would hide
-a divergence instead of surfacing it. A breaking change in the Rust client alone
-bumps all five.
+and crates.io are immutable registries, so the version is a **compatibility
+contract** read by people who pinned against it, not a date. Five clients
+agreeing about one wire format is the invariant the whole arrangement protects,
+and five drifting version lines would hide a divergence instead of surfacing it.
+A breaking change in the Rust client alone bumps all five.
 
 <Callout type="info" title="Go's module path has moved twice">
 `github.com/nebelhaus/holt` through `v0.2.8`, `github.com/hausfold/holt`
