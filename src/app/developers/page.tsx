@@ -149,8 +149,8 @@ export default function Developers() {
             <a href="/mcp.json">
               <code>/mcp.json</code>
             </a>{' '}
-            names both servers in the agent-plugins.org shape, the well-known spelling its flat
-            twin.
+            names both servers in the agent-plugins.org shape, with the well-known spelling a
+            flat twin for a reader that wants one URL rather than a map.
           </p>
         </section>
 
@@ -252,8 +252,9 @@ export default function Developers() {
             docs page has a markdown twin at its own URL plus <code>.md</code>, and{' '}
             <code>Accept: text/markdown</code> serves that twin at the page&apos;s own URL.
             Quality values are honoured. Every HTML response carries{' '}
-            <code>Vary: Accept, User-Agent, Accept-Encoding</code>, and a page with no markdown
-            representation answers <code>406</code>.
+            <code>Vary: Accept, User-Agent, Accept-Encoding</code>, and a page whose only
+            representation is HTML answers <code>406</code> to a client that accepts neither HTML
+            nor a wildcard.
           </p>
           <p>
             Through DNS, before any HTTP at all. SVCB records under{' '}
