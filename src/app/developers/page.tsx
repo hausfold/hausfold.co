@@ -78,19 +78,20 @@ export default function Developers() {
         <section className="block">
           <h2>Install the software</h2>
           <p>
-            Each desktop has its own URL, and <code>haus.sh</code> asks which:
+            Each desktop this site installs has its own URL, and <code>haus.sh</code> asks which:
           </p>
           <Command>{'curl -fsSL https://hausfold.co/hacker.sh | bash'}</Command>
           <p>
-            <Link href="/docs/haus/install">The install page</Link> has the rest: the other URLs,
-            what each desktop builds, and the <code>?ref=</code> tag that pins the script itself.
+            <code>hacker</code>, <code>everyday</code> and <code>minimal</code> are pinned by
+            their URLs, and <code>?ref=v2026.07.18</code> pins the script itself to a release tag.{' '}
+            <Link href="/docs/haus">The docs</Link> say what a desktop is and what each one builds.
           </p>
         </section>
 
         <section className="block">
           <h2>Check a version</h2>
           <p>
-            Every app here ships signed, notarized releases on GitHub, and the release endpoint
+            pounce and perch ship signed, notarized releases on GitHub, and the release endpoint
             answers with the real latest version:
           </p>
           <Command>{'curl -fsSL https://hausfold.co/api/release/pounce'}</Command>
@@ -130,7 +131,8 @@ export default function Developers() {
           </Command>
           <p>
             The tools, all read-only over the same public data: <code>get_install_command</code>{' '}
-            (every installer URL and what each pins), <code>get_latest_release</code> (an
+            (the desktop you name, or every URL and what each pins), <code>get_latest_release</code>{' '}
+            (an
             app&apos;s latest signed macOS release) and <code>search_docs</code> (page URLs,
             breadcrumbs and excerpts). Each carries read-only annotations and an output schema.
             A success returns that object as <code>structuredContent</code>; a failure returns{' '}
@@ -166,16 +168,16 @@ export default function Developers() {
             <code>/v1/releases/pounce</code> round out the reads. <a href="/ask">/ask</a> is the
             NLWeb-shaped front door: a natural-language query in, ranked excerpts out, JSON by
             default or <code>text/event-stream</code> on request. The limit
-            is 600 requests a minute per edge node, and the <code>RateLimit-*</code> headers ride
-            on every response.
+            is 600 requests a minute, counted per client IP and per edge node, and the{' '}
+            <code>RateLimit-*</code> headers ride on every response.
           </p>
           <p>
             <code>POST /v1/batch</code> bundles at most 20 reads into one round trip, one{' '}
             <code>ok</code> flag per entry. It takes an <code>Idempotency-Key</code>: a retry
             with the same key within a day is answered from memory with{' '}
-            <code>Idempotency-Replayed: true</code>. Bigger runs go to{' '}
-            <code>POST /v1/jobs</code>, answered <code>202</code> with a <code>Location</code> to
-            poll.
+            <code>Idempotency-Replayed: true</code>. <code>POST /v1/jobs</code> takes the
+            same operations asynchronously, answered <code>202</code> with a <code>Location</code>{' '}
+            to poll.
           </p>
           <p>
             Every read accepts <code>sandbox=true</code> (the batch and job bodies take{' '}
@@ -220,8 +222,9 @@ export default function Developers() {
             is the Web Bot Auth directory: a JWK Set holding the Ed25519 key this host signs its
             own outbound requests with, and signed with it. When the Worker fetches
             an install script or a release from GitHub for you, that request carries{' '}
-            <code>Signature-Agent: &quot;https://hausfold.co&quot;</code> and a{' '}
-            <code>Signature</code> under <code>tag=&quot;web-bot-auth&quot;</code>. An empty{' '}
+            <code>Signature-Agent: &quot;https://hausfold.co&quot;</code>, a{' '}
+            <code>Signature-Input</code> covering the authority and the agent header under{' '}
+            <code>tag=&quot;web-bot-auth&quot;</code>, and the <code>Signature</code>. An empty{' '}
             <code>keys</code> array means the key is not installed and those requests go out
             unsigned. Nothing you send to this host needs a signature.
           </p>
