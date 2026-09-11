@@ -72,9 +72,9 @@
 @import 'fumadocs-ui/css/preset.css';
 
 /* The site's own tokens and type. Inlined by PostCSS at build time, which is
-   now the ONLY way it reaches a browser: the landing pages became Next routes
-   on 2026-08-14 and nothing `<link>`s `/hausfold.css` any more. It stays under
-   `public/` because that is where `scripts/sync-nebelung.mjs` writes it.
+   the ONLY way it reaches a browser: the landing pages are Next routes and
+   nothing `<link>`s `/hausfold.css`. It stays under `public/` because that is
+   where `scripts/sync-nebelung.mjs` writes it.
 
    Its layout classes (.sheet, .index, .block…) are no longer unused here —
    they are what every landing route is built out of, which is what makes
