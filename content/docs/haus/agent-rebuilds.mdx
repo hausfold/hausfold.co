@@ -41,18 +41,20 @@ never the missing piece on a machine running a client haus didn't install.
 to**, so they cannot name an option you don't have, and `haus update` regenerates
 them.
 
-`haus.ai.skill` puts every hausfold tool's own skill in the same directory. Four
-arrive on any machine: `scruff` (agent worktrees, and setting work aside without
-`git stash`), `handoff` (turning a piece of work into a brief a cold session can
-act on), `factory`
-([merging pull requests](/docs/haus/night-shift) while nobody watches) and
-`nebelung` (this machine's palette). Three wait for their room, because a skill
-for an app your Mac doesn't have is worse than none: `trill` on
-[`haus.notifications.compositor`](/docs/haus/rooms/notifications), `pounce` on
-[`haus.launcher.enable`](/docs/haus/rooms/launcher), `perch` on
-[`haus.shelf.enable`](/docs/haus/rooms/shelf). Those switches are about the room
-rather than the app: `haus-notify` finds a Trill.app you installed yourself
-either way.
+`haus.ai.skill` puts every hausfold tool's own skill in the same directory, and
+each one follows the room that installs the tool, because a skill for something
+your Mac doesn't have is worse than none. `nebelung` (this machine's palette) is
+the only one with nothing to wait for: there's no binary behind it. `scruff`
+(agent worktrees, and setting work aside without `git stash`), `handoff` (turning
+a piece of work into a brief a cold session can act on) and `factory`
+([merging pull requests](/docs/haus/night-shift) while nobody watches) come with
+[the AI room](/docs/haus/rooms/ai), which is what puts `scruff` and `factory` on
+your PATH. `trill` waits for
+[`haus.notifications.compositor`](/docs/haus/rooms/notifications), `pounce` for
+[`haus.launcher.enable`](/docs/haus/rooms/launcher), `perch` for
+[`haus.shelf.enable`](/docs/haus/rooms/shelf). Those three switches are about the
+room rather than the app, so `haus-notify` finds a Trill.app you installed
+yourself either way.
 
 A second skill of haus's own, `hausfold`, carries a rough edge upstream. Nothing we make sends
 telemetry, so a GitHub issue is the only way one reaches the people who made it,
@@ -70,22 +72,65 @@ you're running from can write macOS's protected settings.
 
 ## The loop it follows
 
-Read `references/this-machine.md` and your host file, and check `haus status`.
-Grep the generated reference for the option; if it isn't listed it doesn't exist
-on your revision, and the agent says so rather than guessing. Edit
-`~/.config/nix/hosts/<hostname>/default.nix`, the one file you own. Apply with
-`haus rebuild`. Verify, or `haus rollback`.
+<Steps>
+
+<Step>
+
+### Read the machine
+
+`references/this-machine.md`, your host file, and `haus status`.
+
+</Step>
+
+<Step>
+
+### Find the option
+
+Grep the generated reference. **If it isn't listed it doesn't exist on your
+revision, and the agent says so rather than guessing.**
+
+</Step>
+
+<Step>
+
+### Edit one file
+
+`~/.config/nix/hosts/<hostname>/default.nix`, the one file you own.
+
+</Step>
+
+<Step>
+
+### Apply
+
+`haus rebuild`.
+
+</Step>
+
+<Step>
+
+### Verify, or roll back
+
+`haus rollback` puts the last generation back in seconds.
+
+</Step>
+
+</Steps>
 
 ## What to ask for
 
-Ordinary requests, in your own words. *"Install Slack and give it its own
-workspace"* is `haus.roster` for the leader key and the Homebrew cask, plus
-`haus.workspaces` for the workspace and its bar pill. *"Everything's too small"* is `haus.ui.scale`. *"Switch to
-light mode"* is `haus.theme.flavor` with `haus.theme.systemAppearance`, so
-macOS's own Light/Dark moves too. *"Hide the weather"* is a `haus.bar.items.*`
-toggle. *"Bind a key to my notes"* is `haus.keys.leaderExtras`. The skill prefers
-a `haus.*` option over a raw nix-darwin setting, and says so when nothing covers
-your ask, because that's a gap in haus.
+Ordinary requests, in your own words.
+
+| You say | It reaches for |
+|---|---|
+| *"Install Slack and give it its own workspace"* | `haus.roster`, for the leader key and the Homebrew cask, plus `haus.workspaces` for the workspace and its bar pill |
+| *"Everything's too small"* | `haus.ui.scale` |
+| *"Switch to light mode"* | `haus.theme.flavor` with `haus.theme.systemAppearance`, so macOS's own Light/Dark moves too |
+| *"Hide the weather"* | a `haus.bar.items.*` toggle |
+| *"Bind a key to my notes"* | `haus.keys.leaderExtras` |
+
+The skill prefers a `haus.*` option over a raw nix-darwin setting, and says so
+when nothing covers your ask, because that's a gap in haus.
 
 ## What it won't do
 
@@ -119,18 +164,22 @@ turn that never activates and whose whole change is one commit, so `git -C
 
 ## An AGENTS.md for your own config
 
-`~/.config/nix` is your own git repo, your machine in text. An `AGENTS.md` in it
-orients any agent you open there, skill or no skill. The starter pair ships inside
-the skill; nothing writes it for you, because it's your repo:
+`~/.config/nix` is your own git repo, your machine in text, and an `AGENTS.md` in
+it orients any agent you open there, skill or no skill: what the repo is, which
+file is yours to edit, and that a change lands with `haus rebuild`. A starter pair
+ships inside the skill, and an agent that has the skill offers to copy it in the
+first time you work there. Nothing writes it for you, because it's your repo. By
+hand it's two lines:
 
 ```sh
-# whichever of these exists on your machine; the copies are identical:
-#   ~/.claude/skills/haus · ~/.codex/skills/haus
-#   ~/.config/opencode/skills/haus · ~/.pi/agent/skills/haus
 skill=~/.claude/skills/haus
 install -m 644 "$skill"/consumer-AGENTS.md ~/.config/nix/AGENTS.md
 install -m 644 "$skill"/consumer-CLAUDE.md ~/.config/nix/CLAUDE.md
 ```
+
+Every client gets its own identical copy of the skill, so without Claude Code
+point `skill` at `~/.codex/skills/haus`, `~/.config/opencode/skills/haus` or
+`~/.pi/agent/skills/haus` instead.
 
 `install -m 644`, not `cp`: the pair are symlinks into the read-only Nix store and
 `cp` preserves that mode, landing you on an `AGENTS.md` your editor refuses to
@@ -158,8 +207,7 @@ Write it **client-neutrally**: the same text reaches whichever agent your ⌘⏎
 spawned. Empty, the default, writes nothing, so a hand-managed instructions file
 is never touched; *setting* it on a machine that already has one moves yours aside
 to `<file>.backup`. `haus.ai.skill = false;` stops every skill above being
-written. (Both were `haus.claude.globalMd` and `haus.claude.skill`; the old names
-still evaluate, with a warning.)
+written.
 
 ## Reading the docs, without the skill
 
