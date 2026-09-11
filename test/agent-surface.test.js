@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import { readFileSync } from 'node:fs';
-import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, AUTHORIZATION_SERVER, JWKS } from '../worker-config.js';
+import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, AUTHORIZATION_SERVER, JWKS, OPENAI_APPS_CHALLENGE } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -254,6 +254,16 @@ describe('RFC 8414 authorization server metadata (an issuer that grants nothing)
   it('there is no openid-configuration: this host is not an OpenID Provider', async () => {
     const res = await worker.fetch(req('/.well-known/openid-configuration'), {});
     expect(res.status).toBe(404);
+  });
+
+  it('/.well-known/openai-apps-challenge serves the bare token, no trailing newline', async () => {
+    const res = await worker.fetch(req('/.well-known/openai-apps-challenge'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/plain');
+    // Byte for byte: OpenAI's checker compares the body to what it minted,
+    // so a stray newline or a padded constant fails the verification.
+    expect(await res.text()).toBe(OPENAI_APPS_CHALLENGE);
+    expect(OPENAI_APPS_CHALLENGE).toMatch(/^\S+$/);
   });
 });
 
