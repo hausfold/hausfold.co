@@ -173,7 +173,8 @@ are the lines you can cross without noticing.
 - **No screenshots, and never a stale one**, and **no `og:image`** — both
   decisions, not gaps; a validator's flag is not a bug. A landing page that ever
   holds an image needs `images: { unoptimized: true }` in `next.config.mjs`. The
-  scene to reshoot is the workshop's `assets/SHOTLIST.md` slot-2 cell.
+  scene and its disqualifiers are the workshop's `assets/SHOTLIST.md` slot-2
+  cell.
 - **The column leans LEFT and the measure is 41rem**, off an implied `--page-max`
   of 78rem; `--measure` caps text blocks at 58/62ch and side padding changes in
   `--gutter`, never `.sheet`. Two that break silently: **`100cqw`, not `100vw`**
