@@ -24,7 +24,6 @@ home in one motion.
 It has no Dock icon and asks for no permissions. It only ever sees what you
 hand it: a drop, a right-click, `perch add`, or a folder you pointed it at.
 
-These pages are the manual, and there is no shorter version of them.
 Installing is one [download](https://hausfold.co/download/perch) on an Apple
 Silicon Mac, or one command:
 
@@ -32,18 +31,14 @@ Silicon Mac, or one command:
 brew install --cask hausfold/tap/perch
 ```
 
-[Install](/docs/perch/install) is the whole path in order: the one macOS
-setting that steals the drop if you leave it on, the signed download, pairing
-the free iPhone companion, and the Nix flake. It is also what
-[perch.hausfold.co](https://perch.hausfold.co) points at, which is the short
-form to hand someone. The source and the
-changelog are at [github.com/hausfold/perch](https://github.com/hausfold/perch),
-and the menu bar's **Report a Bug…** opens the issue form there with your
-version, macOS build, Mac model and install route already filled in: Homebrew,
-haus, Nix, a dragged copy, or *install not recognised*, which is the line you
-would never have thought to include and is often the answer. Nothing is sent by
-that click: it opens a page and you write the report. There is no
-telemetry in perch, so that form is the only way anything reaches us.
+[Install](/docs/perch/install) is the whole path in order, and it is what
+[perch.hausfold.co](https://perch.hausfold.co) points at, the short form to hand
+someone. The source and the changelog are at
+[github.com/hausfold/perch](https://github.com/hausfold/perch), and the menu
+bar's **Report a Bug…** opens the issue form there with your version, macOS
+build, Mac model and install route already filled in. Nothing is sent by that
+click: it opens a page and you write the report. There is no telemetry in perch,
+so that form is the only way anything reaches us.
 
 ## What it holds
 
@@ -53,11 +48,9 @@ lot; whatever the destination accepts leaves the shelf, and a refused drop
 springs back. Pin a tile and it stays after a successful drag, ready for
 the next destination.
 
-**It hands out copies.** perch stages its own copy of whatever you drop and
-hands out copies of that. It never moves, renames, edits or deletes the thing
-you dragged in, so an interrupted drag cannot lose data. A tile only appears
-once its copy has finished, so nothing on the shelf is half-written and quitting
-doesn't lose it.
+**It hands out copies.** perch stages its own copy of whatever you drop and hands
+out copies of that, so it never moves, renames, edits or deletes the thing you
+dragged in, and an interrupted drag cannot lose data.
 
 ## What it doesn't do
 
@@ -71,12 +64,12 @@ doesn't lose it.
 
 ## Made for agents
 
-The shelf has a command line, and the command line means **coding agents can
-hand you things**. `perch add <file>` puts anything on the shelf from any
-script or terminal, so an agent that just rendered a chart, exported a report
-or built an installer can leave it where your hand already is, instead of
-naming a path in a wall of text for you to copy out. `perch list` and `perch
-rm` are the other direction: what is on the shelf, and taking something off it.
+The shelf has a command line, and that means **coding agents can hand you
+things**. [`perch add <file>`](/docs/perch/install#the-perch-command) puts
+anything on the shelf from any script, so an agent that just rendered a chart or
+built an installer can leave it where your hand already is, instead of naming a
+path in a wall of text for you to copy out. `perch list` and `perch rm` go the
+other way.
 
 perch ships an **agent skill** teaching Claude Code, Codex or any
 skill-reading agent when to reach for the shelf, and just as deliberately what
@@ -89,13 +82,11 @@ into every agent client on the Mac. Every hausfold app ships one, to a single
 
 **Where do my files live?** Where they already were. perch keeps its copies
 inside its own sandbox container, and it only ever knows about the things you
-handed it. The [privacy policy](/perch/privacy) is the whole story, and
-it's shorter than this page.
+handed it. The [privacy policy](/perch/privacy) is the whole story.
 
-**What licence?** [MIT](https://github.com/hausfold/perch/blob/main/LICENSE).
-Every line of perch is public and readable on GitHub, and you may read it,
-change it, build it and ship it. There is no paid tier, no licence key and no
-feature held back: the app in these pages is the whole app.
+**What licence?** [MIT](https://github.com/hausfold/perch/blob/main/LICENSE), and
+every line is readable on GitHub. No paid tier, no licence key and no feature
+held back: the app in these pages is the whole app.
 
 **Another shelf app?** There are others, and they're good. perch's angle is
 dependability and restraint: copies rather than moves, no permissions to grant,

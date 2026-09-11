@@ -17,12 +17,12 @@ related:
 
 - **⌘Space**: the default hotkey, registered in-process by the daemon so it
   opens instantly.
-- **Fn/Globe**: a lone tap opens the emoji and symbols grid. Fn combinations
-  keep working; this reuses Pounce's Accessibility grant and only replaces
-  Globe's stock action while armed. (On by default inside haus;
-  `"mode:emoji": { "hotkey": "fn" }` elsewhere.)
-- Change either in [config](/docs/pounce/config#config-file): the `hotkey`
-  block takes a `key` and `modifiers`.
+- **Fn/Globe**: a lone tap opens the emoji and symbols grid, and Fn combinations
+  keep working. On by default inside haus;
+  `"mode:emoji": { "hotkey": "fn" }` elsewhere, and
+  [`fnKey`](/docs/pounce/config#the-fnglobe-key-fnkey) decides how pounce takes
+  the key at all.
+- Change either in [config](/docs/pounce/config#config-file).
 
 Not opening at all? [Install](/docs/pounce/install#one-key-to-free-up) covers
 the ⌘Space collision with Spotlight, which fails silently.
@@ -30,33 +30,30 @@ the ⌘Space collision with Spotlight, which fails silently.
 ## Before you type
 
 An empty palette is three zones rather than one list: a **strip of tiles** for
-the handful of things you actually reach for, the **familiar list** beneath it,
-and a row of **info cards** along the bottom. Type a single character and the
-whole thing yields to ranked results; search itself is untouched.
+the handful of things you reach for, the **familiar list** beneath it, and a row
+of **info cards** along the bottom. One character and the whole thing yields to
+ranked results; search itself is untouched.
 
 A tile is still a row, with the same [per-item](/docs/pounce/config#per-item-settings-items)
-alias and hotkey and the same `⏎`, but the strip is not the list's own head. Slots go
-to habit alone and then **hold still**, changing one tile at a time and only when
-something new clearly outgrows the weakest tile, which is what makes `⌘1`–`⌘9`
-worth learning: the third tile is the same thing next week. Held still, not held
-wrong: two tiles already on the strip trade places when one is worth more than
-twice the other, one pair a summon, so an order settled months ago can still
-catch up with you. `←` / `→` walk the
-strip, `↓` drops into the list, `↑` comes back. The list keeps its full length,
-so turning the stage on never costs you rows. A pounce with no history yet has
-no tiles at all; the strip grows as habits form.
+alias and hotkey and the same `⏎`, but the strip is not the list's own head.
+Slots go to habit alone and then **hold still**, changing one tile at a time and
+only when something new clearly outgrows the weakest, which is what makes
+`⌘1`–`⌘9` worth learning: the third tile is the same thing next week. Held still,
+not held wrong: two tiles already on the strip trade places when one is worth
+more than twice the other, one pair a summon. The list beneath keeps its full
+length, so turning the stage on never costs you rows, and a pounce with no
+history yet has no tiles at all.
 
 A card draws only when it has something to say, so the row is news rather than
 furniture: **NEXT** is what usually follows what you just did (`⇥` takes it),
 **CLIPBOARD** is your last copy, and **TODAY** is the resting face when neither
 has anything, with the date and the time.
 
-`"stage": { "enabled": false }` in [config](/docs/pounce/config#config-file)
-gives you the flat list instead, and `"stage": { "tiles": 3 }` makes them fewer.
-Each tile is sized to its own title and a strip longer than the window scrolls,
-so the count is a ceiling rather than a fitting problem. In
-`"windowMode": "compact"` there is no stage: compact's whole promise is that an
-empty query shows nothing.
+The [`stage` block](/docs/pounce/config#config-file) turns the strip off or makes
+it fewer tiles. Each tile is sized to its own title and a strip longer than the
+window scrolls, so the count is a ceiling rather than a fitting problem. In
+`"windowMode": "compact"` there is no stage at all: compact's whole promise is
+that an empty query shows nothing.
 
 ## Navigating
 
@@ -78,43 +75,38 @@ selected row.
 
 ## How ranking works
 
-Match quality leads, and then a few things about you decide the near-ties, so
-the thing you want is usually already on top:
+Match quality leads, and a few things about you settle the near-ties:
 
 - **Fuzzy match quality**: consecutive runs, word-boundary hits, and titles
   counting double subtitles.
-- **Habit, on two clocks.** Every use is counted twice: once against a 24-hour
-  half-life (what you're doing *today*) and once against a 30-day one (who you
-  are). A burst this afternoon can outrank a daily habit without erasing it, and
-  a quiet week is not evidence against one. Each use decays from its own moment,
-  so a click adds one use rather than reviving every use you ever made.
+- **Habit, on two clocks.** Every use is counted twice, against a 24-hour
+  half-life (what you're doing *today*) and a 30-day one (who you are), so a
+  burst this afternoon can outrank a daily habit without erasing it. Each use
+  decays from its own moment, so a click adds one use rather than reviving every
+  use you ever made.
 - **The row you keep taking for those letters.** Pounce remembers the query, and
   every prefix of it, against what you picked: take Cursor for `vs` twice and
   `vs` means Cursor, however tightly something else matches. It is the only
   signal that can surface a row the search itself rejected, which is how `mail`
   comes to mean Superhuman. Two confident picks, never one.
 - **Where you are.** The app you pressed the key over, the workspace in front of
-  you, the part of the day, weekday or weekend. An item is lifted only in
-  proportion to how much likelier it is *here* than in general, and never sunk
-  for being new somewhere: it settles near-ties, and typing a name still means
-  that name.
+  you, the part of the day, weekday or weekend. An item is lifted in proportion
+  to how much likelier it is *here* than in general, and never sunk for being new
+  somewhere.
 - **A freshly-installed boost** for anything installed in the last week,
   halving every two days.
 
-The last three are switches (`ranking` in [config](/docs/pounce/config#how-it-learns-ranking));
-turn them all off and you have fuzzy match plus frecency, which is what pounce
-did before they existed.
-
-An app you'd rather never see can be hidden or sunk with `apps.hideBundleIds` /
-`apps.demoteBundleIds`, and any row can take a search shorthand; see
+The last three are
+[switches](/docs/pounce/config#how-it-learns-ranking). An app you'd rather never
+see can be hidden or sunk with `apps.hideBundleIds` / `apps.demoteBundleIds`, and
+any row can take a search shorthand:
 [per-item settings](/docs/pounce/config#per-item-settings-items).
 
-**What comes next** is deliberately not one of them. Two things you keep doing
-in that order, within a few minutes, become the NEXT card on an empty palette,
-taken with `⇥`, never `⏎`, which belongs to the selection. It never moves
-anything in the list, and it only appears when the pairing is strong, so most
-summons show nothing at all: a wrong guess costs a glance and can't displace the
-row you were reaching for.
+**What comes next** is deliberately not one of them. Two things you keep doing in
+that order, within a few minutes, become the NEXT card on an empty palette, taken
+with `⇥`, never `⏎`, which belongs to the selection. It never moves anything in
+the list and appears only when the pairing is strong, so a wrong guess costs a
+glance and can't displace the row you were reaching for.
 
 ## Quick answers
 
@@ -134,15 +126,13 @@ A query no engine can parse just falls through to normal results, and anything
 without a digit skips the engines entirely: `safari` stays a search.
 
 Currency uses the European Central Bank's daily reference rates, cached locally
-so it keeps answering offline. It is one of only two things that touch the
-network (the other is the hourly release check), and
-`quickAnswers.currency` in [config](/docs/pounce/config#config-file) turns it
-off.
+so it keeps answering offline, and
+[`quickAnswers.currency`](/docs/pounce/config#config-file) turns it off.
 
 ## The built-in modes
 
-The palette is not the only window Pounce draws. Each of these is an item you
-can run from the palette, bind to a key of its own, or launch from a script:
+Each is an item: run it from the palette, bind it to a key of its own, or launch
+it from a script.
 
 | Mode | What it is |
 |---|---|
@@ -152,7 +142,7 @@ can run from the palette, bind to a key of its own, or launch from a script:
 | `mode:screenshots` | A browser for the shots you've taken |
 | `mode:camera` | A live camera peek |
 
-`pounce run mode:clipboard` opens one directly; `"mode:clipboard": { "hotkey":
-"cmd+shift+v" }` in [config](/docs/pounce/config#per-item-settings-items) gives
-it a key. The cheatsheet overlay (`pounce --cheatsheet`) is the sixth window,
-and takes its content from `~/.config/pounce/cheatsheet.json`.
+`pounce run mode:clipboard` opens one directly, and
+[`items`](/docs/pounce/config#per-item-settings-items) gives it a key of its own.
+The cheatsheet overlay (`pounce --cheatsheet`) is the sixth window, and takes its
+content from `~/.config/pounce/cheatsheet.json`.

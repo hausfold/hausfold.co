@@ -33,9 +33,6 @@ tree it took.
 
 ## Never `git stash`, once you have two agents
 
-This is the single most valuable thing scruff does, and it is worth being blunt
-about why.
-
 `git stash` looks like it belongs to the checkout you are standing in. **It does
 not.** The stash is one ref in the repo's shared `.git` directory, so every
 worktree of a repo *and* the main checkout push and pop the **same stack**. Two

@@ -61,11 +61,10 @@ is how many seconds a booted guest gets to start answering ssh, `180` by
 default.
 
 **`up` returns when a shell answers, not when the guest has an address.** `tart
-ip` answers the moment the guest takes a DHCP lease, most of a minute before
-sshd accepts anything, so an address on its own is one your first `ssh` cannot
-use. scruff waits for the shell and prints the address only once something has
-answered on it. If nothing does inside the wait, `up` exits **1** naming the
-boot log, and leaves the guest running so you can look at it; `down` stops and
+ip` answers the moment the guest takes a DHCP lease, most of a minute before sshd
+accepts anything, so scruff waits for the shell and prints the address only once
+something has answered on it. If nothing does inside the wait, `up` exits **1**
+naming the boot log and leaves the guest running for you to look at; `down`
 removes it.
 
 The guest's console goes to that boot log, `$SCRUFF_STATE/runtime/scruff-<lane>.log`,
@@ -86,9 +85,9 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@$(tart ip 
 Needs [`tart`](https://tart.run) on `PATH`. Without it the verb **degrades**
 with the install command rather than failing.
 
-It is built in only because its `setup` is four commands and two waits, which
-one argv slot cannot hold. Nothing else about it is privileged: a `tart.toml` of
-your own still wins wholesale, and
+It is built in only because its `setup` is four commands and two waits, which one
+argv slot cannot hold. Nothing else about it is privileged: your own `tart.toml`
+still wins wholesale, and
 
 ```sh
 scruff runtime eject tart

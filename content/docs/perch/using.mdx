@@ -34,9 +34,8 @@ there's a pile without opening it.
 
 ## Other ways in
 
-A drag is the one you'll use, but it isn't the only way in, and none of the
-others behave any differently: each stages a copy the way a drop does, and your
-originals are only ever read.
+A drag is the one you'll use, and none of the others behaves differently: each
+stages a copy the way a drop does.
 
 | | |
 |---|---|
@@ -59,14 +58,10 @@ Renaming doesn't: the tile you already have is that file, whatever it is called
 now. Dragging an item *out* of the shelf into a watched folder doesn't put it
 back either; perch recognises what it just wrote.
 
-**perch knows where your screenshots go**, and offers that folder at the top of
-the pane by name — including on a Mac that saves them somewhere other than the
-Desktop. One click opens the folder panel already pointed at it, and the offer
-goes away once you've taken it. The click is still the permission: knowing where
-a folder is isn't being given it, so the panel is what actually hands it over.
-
-What you get is an ordinary watched folder. Nothing treats it differently
-afterwards, and **Stop Watching** on its own row is the only way it leaves.
+The screenshot folder perch offers at the top of the pane is one click, and the
+click is still the permission: knowing where a folder is is not being given it,
+so the panel is what hands it over. What you get is an ordinary watched folder,
+and **Stop Watching** on its own row is the only way it leaves.
 
 <Callout type="warn" title="Turn the floating screenshot thumbnail off too">
 It doesn't preview a saved file, it *holds* the capture and writes it out about
@@ -142,10 +137,9 @@ that file; the one it writes lives inside its own sandbox container.
 
 One key in it has no switch at all: `"fontFamily"` sets the proportional family
 the shelf, Settings and the pairing window are set in, and left out you get
-macOS's own. The shelf is a five-second surface, so there is no picker for the
-same reason there is none for the accent below: on a haus machine
-[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) writes it for you,
-and moves perch, pounce and trill together. A standalone Mac names it by hand.
+macOS's own. On a haus machine
+[`haus.fonts.sans.name`](/docs/haus/rooms/appearance#type) writes it for you and
+moves perch, pounce and trill together; a standalone Mac names it by hand.
 
 There is no theme picker in that list, on purpose. The shelf paints from
 [nebelung](https://github.com/hausfold/nebelung) and follows macOS Light/Dark
@@ -171,9 +165,8 @@ than failing.
 
 `accent` is the one colour the shelf *emphasises* with: the ember's pips under
 the notch, a pinned tile, the filled button on a notice. It takes a Catppuccin
-role name (resolved against whichever palette is in force, so the hue follows
-the flavour and the polarity by itself) or a literal `"#rrggbb"`. Leave it out
-and the shelf accents with the palette's own `green`, which under stock
-nebelung is the sage of the app icon. Label colour on a filled accent is chosen
-for contrast against the accent, not the panel. Changes are picked up the next
-time the shelf opens, with no relaunch.
+role name (resolved against whichever palette is in force, so the hue follows the
+flavour and the polarity) or a literal `"#rrggbb"`. Leave it out and the shelf
+accents with the palette's own `green`, the sage of the app icon under stock
+nebelung. Changes are picked up the next time the shelf opens, with no
+relaunch.

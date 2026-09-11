@@ -14,8 +14,8 @@ related:
 ---
 
 `landed` is the predicate the whole safety story rests on: it decides whether a
-branch **dies**. Getting it wrong in the permissive direction destroys work, so
-scruff spends more effort here than anywhere else in the binary.
+branch **dies**, and getting it wrong in the permissive direction destroys
+work.
 
 ## Landed, across every merge shape
 
@@ -50,12 +50,11 @@ answered) and a `confidence`.
 
 <Callout type="warn" title="fresh is not yes">
 A lane cut from the default branch five seconds ago is trivially *contained in*
-the default branch, because it **is** the default branch. Before `fresh` existed,
-every consumer that rendered a verdict rendered a brand-new lane as **merged**.
-Render it as *nothing yet*.
+the default branch, because it **is** the default branch. Render it as *nothing
+yet*, never as merged.
 
-It is a label, not a gate: a never-committed branch has nothing to lose, so it
-is still sweepable. That is why the first thing to do in a new lane is commit
+It is a label, not a gate: a never-committed branch has nothing to lose, so it is
+still sweepable. That is why the first thing to do in a new lane is commit
 something.
 </Callout>
 
@@ -65,11 +64,10 @@ so it is surfaced with a `?` in the listing and left alone.
 
 ## Uncertainty resolves to keep
 
-No `gh`, no network, a rate limit, an archived repo: every one of those means
-scruff **cannot prove** the branch landed, and every one of them keeps the
-branch. The run exits **3**, says so in `warnings`, and shows a marker in the
-listing. Silent degradation is how a user learns to distrust a tool, so scruff
-does not do it.
+No `gh`, no network, a rate limit, an archived repo: every one means scruff
+**cannot prove** the branch landed, and every one keeps the branch. The run exits
+**3**, says so in `warnings`, and shows a marker in the listing rather than
+degrading in silence.
 
 ## Sweeping
 
@@ -104,20 +102,17 @@ repo, name, branch, SHA, why, and the PR.
 scruff reaped
 ```
 
-This exists because a branch deletion destroys its own evidence. `git branch -D`
-takes the branch's reflog with it, so a lane that vanished between two listings
-leaves a repo where the only honest answer is "something deleted it, and the
-record of what died with the thing it recorded". The ledger outlives git's own
-reflog entry, which makes every reap **reversible** rather than merely
-attributable, and `scruff reaped` prints the `git branch` line that brings one
-back.
+A branch deletion destroys its own evidence: `git branch -D` takes the branch's
+reflog with it, so a lane that vanished between two listings leaves nothing
+behind to say what it was. The ledger outlives that reflog entry, which makes
+every reap **reversible** rather than merely attributable, and `scruff reaped`
+prints the `git branch` line that brings one back.
 
 ### Work that will never land
 
-Two lanes can never land, and neither of them is "not landed yet": a branch
-whose PR was **closed unmerged**, and a branch in a repo that has been
-**archived**. Both read exactly like an in-flight branch, so they used to outlive
-everything around them with no signal at all.
+Two lanes can never land, and neither of them is "not landed yet": a branch whose
+PR was **closed unmerged**, and a branch in a repo that has been **archived**.
+Both read exactly like an in-flight branch.
 
 `reap` names them and refuses to take them, on purpose. The asymmetry is the
 design: **`reap` is automatic, so it may only ever take landed work; `drop` is a
@@ -181,9 +176,7 @@ watch, use `--pid 0` and refresh inside the 90 second TTL. A lease can only ever
 *save* a lane from the sweep, never condemn one.
 
 <Callout type="info" title="occupied is not the same as a pane">
-What scruff observes is a process with its cwd in the checkout, and a dev
-server, a file watcher or a daemon orphaned to pid 1 is not a pane. So
-`occupied` means "something is standing here", and `occupied_by` names it. A
-refusal that says *a pane is open* about a stray daemon sends you looking for a
-window that does not exist.
+What scruff observes is a process with its cwd in the checkout, and a dev server,
+a file watcher or a daemon orphaned to pid 1 is not a pane. So `occupied` means
+"something is standing here", and `occupied_by` names it.
 </Callout>

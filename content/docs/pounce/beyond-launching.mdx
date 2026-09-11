@@ -15,7 +15,13 @@ related:
 
 Both of these are **off by default**, and both need the [Accessibility
 grant](/docs/pounce/install#grant-accessibility). They share one grant and one
-set of observers, so turning both on costs one approval, not two.
+set of observers, so turning both on costs one approval, not two. Both blocks are
+also [captured when the daemon arms](/docs/pounce/config#config-file), so **any**
+edit inside them needs a restart, not just a re-open:
+
+```sh
+launchctl kickstart -k "gui/$(id -u)/com.hausfold.pounce"
+```
 
 ## A window switcher, not an app switcher
 
@@ -44,22 +50,11 @@ outside it: with two windows tiled side by side, the most recent is one you're
 already looking at, so landing there wouldn't be a switch. The skipped siblings
 are still the rows right below you.
 
-Family, not workspace name. A workspace whose name has a `/` in it (`T/haus`,
-`T/main`) is a page of `T`, and the whole `T` family counts as one place, so
-walking pages and then tapping ⌘⇥ takes you off `T` altogether rather than back
-to the page you just left. Getting *between* pages is the page walk's job. The
-rule is the name before the first `/`, and it is not keyed on `pages.prefix`:
-⌘⇥'s default doesn't change shape depending on whether the page chord is
-configured.
-
-<Callout title="It is a startup setting">
-The `windows` block is captured when the daemon arms, so an edit needs a
-restart, not just a re-open:
-
-```sh
-launchctl kickstart -k "gui/$(id -u)/com.hausfold.pounce"
-```
-</Callout>
+Family, not workspace name: a workspace with a `/` in it (`T/haus`, `T/main`) is
+a page of `T`, and the whole `T` family counts as one place, so walking pages and
+then tapping ⌘⇥ takes you off `T` altogether rather than back to the page you
+just left. Getting *between* pages is the page walk's job. The rule is the name
+before the first `/` and is not keyed on `pages.prefix`.
 
 ## Quit an app when its last window closes
 
@@ -95,6 +90,3 @@ the Docker Desktop dashboard asks Docker to quit, which stops your containers.
 The same shape catches media players, torrent clients, and any chat app you
 keep open for notifications. That's what `exclude` is for.
 </Callout>
-
-The whole `autoQuit` block is startup-only too, so **any** edit inside it needs
-the daemon restart above, not just flipping `enabled`.

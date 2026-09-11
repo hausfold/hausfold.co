@@ -51,9 +51,8 @@ scruff sharper rather than possible:
 
 Missing either one **degrades toward keep, never toward delete.** The command
 still runs, exits **3** instead of 0, and says in `warnings` which signal it
-could not get. That is the whole safety model in one sentence: scruff would
-rather leave you a branch to tidy up than take one it could not prove was
-finished.
+could not get. scruff would rather leave you a branch to tidy up than take one it
+could not prove was finished.
 
 <Callout type="info" title="A container or a CI runner has no lsof to ask">
 Anywhere the process holding a checkout is not visible as a cwd, say so
