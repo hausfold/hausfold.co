@@ -11,6 +11,8 @@
     "bindings:update": "node scripts/check-rice-bindings.mjs --update",
     "bar-tables:check": "node scripts/check-bar-tables.mjs",
     "bar-tables:update": "node scripts/check-bar-tables.mjs --update",
+    "rooms:check": "node scripts/check-rooms.mjs",
+    "rooms:update": "node scripts/check-rooms.mjs --update",
     "palette": "node scripts/sync-nebelung.mjs",
     "palette:check": "node scripts/sync-nebelung.mjs --check",
     "types:check": "NEXT_TELEMETRY_DISABLED=1 next typegen && tsc --noEmit",

@@ -3,6 +3,10 @@ title: Create a room
 description: A room is two files and three lines of registry. What one owes the layer, how rooms talk without reaching into each other, and when a plain module in your own config is the better answer.
 icon: blocks
 related:
+  - title: "Share a room"
+    description: "Publishing yours: the flake output haus pins, the namespace you claim, and what the README owes a stranger."
+    href: "/docs/haus/rooms/sharing"
+    icon: "share"
   - title: "Contributing"
     description: "The workshop checkout, the bench CLI, and the path from an edit to a release."
     href: "/docs/haus/internals/contributing"
@@ -13,7 +17,7 @@ related:
     icon: "desktops"
 ---
 
-Every page above this one documents a **room**: a nix-darwin module under
+Every room in the [catalogue](/docs/haus/rooms) is a nix-darwin module under
 [`modules/`](https://github.com/hausfold/haus/tree/main/modules), plus three
 lines of registry that put it in the option reference, the agent skill and the
 generated host file at once.
@@ -139,12 +143,13 @@ option that type-checks and then contradicts another room. Neither activates,
 and [`haus plan`](/docs/haus/reference/haus) shows what a real rebuild would
 change without changing it.
 
-<Callout type="warn" title="A new option owes a docs page">
-The layer and this site are two repositories, and nothing fails when they
-disagree. A new room owes a page under `content/docs/haus/rooms/`, an entry in
-that tree's `meta.json`, and an icon; a changed keybinding owes an edit to
-[Keys](/docs/haus/rooms/keys). The reference page regenerates itself; the prose
-does not.
+<Callout type="warn" title="A room landing in haus owes a docs page">
+The layer and this site are two repositories. A room owes a page under
+`content/docs/haus/rooms/`, a row in that tree's `meta.json`, a card in the
+[catalogue](/docs/haus/rooms) and an icon, and the site's `rooms-drift` check
+goes red until it has them. A changed keybinding owes an edit to
+[Keys](/docs/haus/rooms/keys), and nothing catches that one. The reference page
+regenerates itself; the prose does not.
 </Callout>
 
 ## What a room may not do

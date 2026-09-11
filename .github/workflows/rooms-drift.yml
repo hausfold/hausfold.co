@@ -1,0 +1,45 @@
+# Fail when haus's room catalogue moves past what this site says it is.
+#
+# The catalogue is data in haus (`modules/options-groups.nix`, published as
+# `docs/site-data/groups.json`). The script holds the cards and the namespace
+# table on `rooms/index.mdx`, and the ---Rooms--- group in the haus tree's
+# `meta.json`, to that list exactly, and snapshots haus's own wording so a
+# rewording upstream reaches a human here.
+name: rooms drift
+
+on:
+  schedule:
+    - cron: '15 9 * * 1'
+  workflow_dispatch: {}
+  # Both the page and `meta.json` are PARSED, and a room page's existence is
+  # checked, so an edit here can break this on its own with nothing upstream
+  # having moved. `rooms/**` rather than the index alone: deleting a room's
+  # page is exactly the case the existence check exists for.
+  push:
+    paths:
+      - 'scripts/check-rooms.mjs'
+      - 'src/data/rooms.json'
+      - 'content/docs/haus/rooms/**'
+      - 'content/docs/haus/meta.json'
+      - '.github/workflows/rooms-drift.yml'
+  pull_request:
+    paths:
+      - 'scripts/check-rooms.mjs'
+      - 'src/data/rooms.json'
+      - 'content/docs/haus/rooms/**'
+      - 'content/docs/haus/meta.json'
+      - '.github/workflows/rooms-drift.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: hausfold/haus
+          path: .haus
+      - run: node scripts/check-rooms.mjs --haus .haus

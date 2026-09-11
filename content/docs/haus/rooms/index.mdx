@@ -1,0 +1,168 @@
+---
+title: Rooms
+description: "What haus can do, one capability at a time: what each room turns on, the name you write for it, and where a room somebody else wrote fits."
+icon: rooms
+related:
+  - title: "Create a room"
+    description: "Two files and three lines of registry, plus the rule that keeps rooms out of each other."
+    href: "/docs/haus/rooms/creating"
+    icon: "blocks"
+  - title: "haus.* options"
+    description: "Every leaf inside these namespaces, with its type, its default and the file that declares it."
+    href: "/docs/haus/reference/options"
+    icon: "options"
+---
+
+A **room** is one capability you turn on, off, or leave alone. An app store
+stops at the app; a room wires the keys, the launchd job and the macOS settings
+around it too, and the rooms you skip cost nothing at all: no package, no job,
+no setting touched.
+
+Many of them are one line in your host file.
+
+```nix
+haus.shelf.enable = true;
+```
+
+<Cards>
+  <Card
+    icon={<Icon name="apps" />}
+    title="Apps"
+    href="/docs/haus/rooms/apps"
+    description="Every app, font and CLI tool, where each installs from, and what a rebuild does to anything you added by hand."
+  />
+  <Card
+    icon={<Icon name="palette" />}
+    title="Appearance"
+    href="/docs/haus/rooms/appearance"
+    description="The palette, the accent, the wallpaper, the fonts, and the macOS surfaces that follow them."
+  />
+  <Card
+    icon={<Icon name="display" />}
+    title="Displays"
+    href="/docs/haus/rooms/displays"
+    description="Per-screen scaling, said as an intent rather than a pixel count."
+  />
+  <Card
+    icon={<Icon name="shell" />}
+    title="Development"
+    href="/docs/haus/rooms/development"
+    description="Ghostty, zmx, zsh, the editor and the browser, plus Git tooling, the CLI toolbelt and language runtimes."
+  />
+  <Card
+    icon={<Icon name="tiling" />}
+    title="Windows"
+    href="/docs/haus/rooms/windows"
+    description="Tiling, named workspaces, hot corners, and a leader key that throws a window anywhere."
+  />
+  <Card
+    icon={<Icon name="bar" />}
+    title="Bar"
+    href="/docs/haus/rooms/bar"
+    description="A status bar: workspaces, weather, media, battery, clock, and a second one at the bottom if you want it."
+  />
+  <Card
+    icon={<Icon name="launcher" />}
+    title="Launcher"
+    href="/docs/haus/rooms/launcher"
+    description="A ⌘Space command palette where every command is a file."
+  />
+  <Card
+    icon={<Icon name="shelf" />}
+    title="Shelf"
+    href="/docs/haus/rooms/shelf"
+    description="A file shelf that drops out of the notch to catch what you drag at it."
+  />
+  <Card
+    icon={<Icon name="notifications" />}
+    title="Notifications"
+    href="/docs/haus/rooms/notifications"
+    description="Whose banners you see: haus draws through trill, can own the bundle, and announces new mail."
+  />
+  <Card
+    icon={<Icon name="moon" />}
+    title="Focus"
+    href="/docs/haus/rooms/focus"
+    description="One quiet switch for Do Not Disturb, your status and your own hooks, plus scenes your Mac can enter by itself."
+  />
+  <Card
+    icon={<Icon name="agent" />}
+    title="AI"
+    href="/docs/haus/rooms/ai"
+    description="Coding agents, each with its own checkout of the repo it is working on."
+  />
+  <Card
+    icon={<Icon name="expand" />}
+    title="Text expansion"
+    href="/docs/haus/rooms/text-expansion"
+    description="Type a short trigger, get the long thing, in any app."
+  />
+  <Card
+    icon={<Icon name="shield" />}
+    title="Security"
+    href="/docs/haus/rooms/security"
+    description="Touch ID for sudo, lock and login-window behaviour, the firewall, and where secret values come from."
+  />
+</Cards>
+
+Under all of them is the foundation nobody switches off: the macOS defaults, the
+Homebrew policy and the `haus` CLI. Development's terminal has no switch either,
+on purpose. It is the floor, not furniture.
+
+## The names you write
+
+A room's name is editorial. A **namespace** is what you type, and one room can
+own several: Text expansion is `haus.snippets`, and the Bar is `haus.bar` for its
+own bar and `haus.menuBar` for the one macOS draws.
+
+| Room | Namespaces |
+|---|---|
+| [Apps](/docs/haus/rooms/apps) | `haus.appStore`, `haus.apps`, `haus.homebrew` |
+| [Appearance](/docs/haus/rooms/appearance) | `haus.appearance`, `haus.theme`, `haus.wallpaper`, `haus.fonts`, `haus.accessibility`, `haus.animations`, `haus.screenshots`, `haus.sound` |
+| [Displays](/docs/haus/rooms/displays) | `haus.displays` |
+| [Development](/docs/haus/rooms/development) | `haus.terminal`, `haus.zen`, `haus.portless`, `haus.developer`, `haus.github` |
+| [Windows](/docs/haus/rooms/windows) | `haus.hotCorners`, `haus.windows` |
+| [Bar](/docs/haus/rooms/bar) | `haus.menuBar`, `haus.bar` |
+| [Launcher](/docs/haus/rooms/launcher) | `haus.launcher` |
+| [Shelf](/docs/haus/rooms/shelf) | `haus.shelf` |
+| [Notifications](/docs/haus/rooms/notifications) | `haus.notifications`, `haus.mail` |
+| [Focus](/docs/haus/rooms/focus) | `haus.focus` |
+| [AI](/docs/haus/rooms/ai) | `haus.ai` |
+| [Text expansion](/docs/haus/rooms/text-expansion) | `haus.snippets` |
+| [Security](/docs/haus/rooms/security) | `haus.lock`, `haus.security`, `haus.secrets` |
+| Shared surfaces | `haus.roster`, `haus.workspaces`, `haus.ui`, `haus.keys`, `haus.tour` |
+| Your machine | `haus.git`, `haus.locale`, `haus.power` |
+
+The last two rows are not rooms. **Shared surfaces** are read by more than one
+room, which is why none of them owns one: the app list every room installs into,
+the workspaces the bar and the tiler both draw, [the keys haus
+claims](/docs/haus/rooms/keys), the interface scale, the first-run tour.
+**Your machine** is the handful of facts about you rather than about a room, and
+no desktop may set them, yours included.
+
+## A room somebody else wrote
+
+There are exactly two things a person can publish: a
+[desktop](/docs/haus/desktops/sharing) and a room. A desktop is data, so
+`haus show` reads one and reports what it would set before you run it. **A room
+is code**, and that difference is the whole of what you are deciding.
+
+```sh
+haus show github:ada/photo-room
+haus add --room --namespace photography github:ada/photo-room
+```
+
+`haus show` classifies whatever you hand it and stops: on a room it says it
+cannot check it, and exits 3. It can do no better, because pinning a room locks
+it, and locking a flake input evaluates its `flake.nix`, which already runs the
+author's code before any rebuild. That is why
+[`haus add --room`](/docs/haus/reference/haus#pinning-a-room) is answered by
+typing, never by `-y`.
+
+You name the namespace yourself, because a room's own cannot be read without
+running it. haus records the claim, and refuses the rebuild if two inputs turn
+out to want the same `haus.<name>`. Nothing here vouches for the code. Read it,
+or trust whoever wrote it.
+
+Everything on this page is haus's own. [Share a room](/docs/haus/rooms/sharing)
+is how you publish one of yours.

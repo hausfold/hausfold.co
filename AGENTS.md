@@ -29,6 +29,7 @@ URLs are public too.
 |---|---|
 | the landing page | `src/app/page.tsx` |
 | what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
+| the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Cards, namespace table and the `---Rooms---` group are all held to haus's registry by `scripts/check-rooms.mjs`; `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
 | a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. No catalogue: `index.mdx`'s `## Desktops` is three sentences and a link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s |
 | **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
 | the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh`, `/minimal.sh` answer by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
@@ -300,10 +301,14 @@ the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
   page shorter unless it adds a fact a reader acts on, or a warning.
 - No em dashes in prose. Sentence case in headings. "desktop", never "rice".
   Never "opinionated" of haus.
-- **Never put a count of the rooms on a page.** `content/docs/haus/index.mdx`'s
-  table is the room list; `meta.json`'s `---Rooms---` group is always longer,
-  because `rooms/keys`, `rooms/bar-widgets` and `rooms/creating` are pages in
-  the group and not rooms. Count the table, never the sidebar group.
+- **Never put a count of the rooms on a page**, and never hand-maintain a second
+  room list. `content/docs/haus/rooms/index.mdx` is the catalogue: its cards, its
+  namespace table and the `---Rooms---` group in `meta.json` are all held to
+  haus's registry by `scripts/check-rooms.mjs`, which also fails when a room haus
+  publishes has no page here. The group is one row per room plus the catalogue
+  at its head; a page *about* rooms goes in `---Build on it---`, and a shared
+  surface (`rooms/keys`) goes in `---Reference---`. A count is still
+  forbidden because nothing checks prose.
 - **A room page documents the room** — the haus wiring, the options, what turns
   on. The app itself lives in its own tree.
 - **A room page's spine**: the enable block up top where there is a switch, and
@@ -331,8 +336,11 @@ as much as they bound that one.
   an `## Options` foot.** A fact the reference carries verbatim is not evicted
   when such a page drops it, because the link is right there at the bottom. A
   page earns that foot when the reader's next move is to go and set a `haus.*`
-  option: every page in the Rooms group but `rooms/creating`, plus
-  `desktops/creating` and `desktops/customizing`, and nothing else in the tree.
+  option: every page in the Rooms group but `rooms/index`, plus `rooms/keys`,
+  `rooms/bar-widgets`, `desktops/creating` and `desktops/customizing`, and
+  nothing else in the tree. `rooms/index`, `rooms/creating` and `rooms/sharing`
+  send a reader to a room or to somebody's flakeref, never to an option;
+  `rooms/creating` links the reference inline instead (`creating.mdx:24`).
   `agent-rebuilds`, `night-shift` and `leaving` name options a reader does not
   leave to set, so they get no foot and the lever misses them; their floors are
   identifier density alone. Where such a page does send a reader to the
@@ -377,6 +385,15 @@ as much as they bound that one.
 `scripts/check-bar-tables.mjs` to `modules/bar/{tones,marks}.nix`. The prose is
 yours. Not yours: the rung **names** and **order** (quietest first); the first
 column's header word, `tone` and `mark`; each being a plain markdown table.
+
+`rooms/index` is **written** on the same terms, pinned by
+`scripts/check-rooms.mjs` to `modules/options-groups.nix`. Yours: every card's
+one-line gloss and the prose around it, because haus writes its blurbs for the
+options reference and they point at that page's layout ("a shared surface
+below"). Not yours: which rooms there are, their **titles**, their **order**,
+each card's `href`, the namespaces in the `| Room |` table, or what sits in the
+`---Rooms---` group. A room haus publishes with no page here is a failure, not a
+gap to write up later.
 
 `reference/options.mdx` is **rendered** by `scripts/gen-options.mjs` from haus's
 committed `docs/site-data/`. Four things it alone may do:
@@ -542,13 +559,15 @@ Four things about CI that its own docs don't carry:
   fails right after a publish is the resolver's cache (negative TTL 1800s, record
   TTL 3600s) and warns; the Monday `--check` goes red.
 
-Three **drift tripwires** read haus's committed `docs/site-data/`, each also on a
+Four **drift tripwires** read haus's committed `docs/site-data/`, each also on a
 Monday cron: `options-drift.yml` re-renders `reference/options.mdx` (the cron
 opens one long-lived PR, and closes it on any run that finds no drift — that PR's own
 `check` re-renders against haus's tip, so once `main` has caught up by hand it
 can never go green), `keybindings-drift.yml` snapshots the binding surface
 the keybinding pages describe, `bar-tables-drift.yml` holds `rooms/bar-widgets`'s
-two tables to haus's tone ladder and mark set. None needs Nix.
+two tables to haus's tone ladder and mark set, and `rooms-drift.yml` holds the
+catalogue on `rooms/index` and the `---Rooms---` group to haus's room registry.
+None needs Nix.
 `preview-sweep.yml` (daily, or
 `gh workflow run preview-sweep.yml -f dry_run=true`) is the backstop for a
 preview Worker whose PR closed without the delete firing.
