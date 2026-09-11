@@ -111,9 +111,10 @@ export default function Developers() {
             The docs under <Link href="/docs/haus">/docs</Link> exist in plain-text forms, so a
             tool can load them without a browser: <a href="/llms.txt">llms.txt</a> is the index,
             <a href="/llms-full.txt">llms-full.txt</a> is every page&apos;s full text, and{' '}
-            <a href="/api/search">api/search</a> is the complete search index (Orama JSON, one
-            entry per page section with its URL and breadcrumbs). The MCP server below scores
-            that same index.
+            <a href="/api/search">api/search</a> is the complete search index (Orama JSON: a
+            row per page, carrying that page&apos;s breadcrumbs, and a row per section under it,
+            carrying a <code>page_id</code> back to it). The MCP server below scores that same
+            index, and resolves each section&apos;s trail from its page before answering.
           </p>
         </section>
 

@@ -492,9 +492,10 @@ const DOCS_INDEX = {
       // row with neither field, which this fixture used to do, describes an
       // index that cannot be built.
       a: {
-        id: 'a',
+        id: '/docs/trill/rules',
         page_id: '/docs/trill/rules',
         type: 'page',
+        tags: [],
         content: 'The notifications room wires trill banners and rules.json is the dial.',
         breadcrumbs: ['Docs', 'trill', 'Rules'],
         url: '/docs/trill/rules',
