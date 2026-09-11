@@ -396,7 +396,7 @@ async function docsSections(env) {
 }
 
 // Only the index's page-level documents carry `breadcrumbs`. The heading and
-// text sections beneath them — which is 4900 of the ~4970 rows, and so nearly
+// text sections beneath them — all but 59 of the ~4,970 rows, and so nearly
 // every result a search returns — carry a `page_id` and no trail at all, so
 // every hit went out with `breadcrumbs: []` while the tool's description and
 // its outputSchema both promised one. The same absence made the +3 breadcrumb
