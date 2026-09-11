@@ -134,16 +134,18 @@ service=$(list_services | pounce -p "Service:")
 [ -n "$service" ] && toggle_service "$service"
 ```
 
-When the second step is a **search** rather than a list, pass `--chain`: on an
-empty match Enter hands the raw text back, and the window holds its loading
-skeleton instead of fading between steps:
+When the second step is a **search** rather than a list, pass
+[`--chain`](/docs/pounce/cli#flags): on an empty match Enter hands the raw text
+back, and the window holds its loading skeleton instead of fading between
+steps:
 
 ```bash
 query=$(printf '' | pounce --chain -p "App Store — type a search, then Enter")
 [ -n "$query" ] && mas search "$query" | pounce -p "Install:"
 ```
 
-When the step is answered by **picking a row** instead, pass `--chain-rows`:
+When the step is answered by **picking a row** instead, pass
+[`--chain-rows`](/docs/pounce/cli#flags):
 
 ```bash
 repo=$(list_repos | pounce --grid --chain-rows enter -p "Which repo?")

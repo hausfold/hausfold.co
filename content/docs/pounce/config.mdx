@@ -142,9 +142,11 @@ behaviours](/docs/pounce/beyond-launching); both blocks are startup-only, so
 **any** edit inside them needs the daemon restart above, not just flipping
 `enabled`.
 
-`systemSettings` is the one block worth tuning rather than flipping. There are
-about 700 individual settings and Accessibility alone ships 342 of them, which is
-why two of the three keys exist: `subItemMinQuery` keeps short queries about your
+`systemSettings` is the one block worth tuning rather than flipping. Every pane
+is a row and so is every setting inside one, with `⏎` opening the pane already
+scrolled to what you picked. There are about 700 individual settings and
+Accessibility alone ships 342 of them, which is why two of the three keys
+exist: `subItemMinQuery` keeps short queries about your
 apps, and `maxPerPane` stops one pane from being the whole answer. Panes
 themselves are always searchable, and start ranked below everything at an empty
 query until you use them. What those rows are, and where their names come from,
@@ -199,8 +201,9 @@ one palette for both modes.
 Any `theme` value that isn't built-in resolves to
 `~/.config/pounce/themes/<name>.json`: a flat catppuccin-style `name → "#hex"`
 map ([nebelung's](https://github.com/hausfold/nebelung) `palette/*.hex.json`
-files verbatim), which is how a desktop's palette reaches Pounce without a
-rebuild. Pounce reads `base`,
+files verbatim), which is how a desktop's
+[`theme.flavor` / `theme.contrast`](/docs/haus/rooms/appearance) reach Pounce
+without a rebuild. Pounce reads `base`,
 `surface0`–`surface2`, `text`, `subtext0`, `overlay0`, `mauve` and `blue`; a
 file missing any of them falls back to the built-in default. A file also
 *shadows* a built-in of the same name, so `themes/nebelung.json` wins over the
@@ -277,14 +280,15 @@ that even if you never turn the ⌃Tab walk on. **With no readable `mruFile` thi
 filters nothing**, deliberately: a Mac that cannot answer the question would
 otherwise hide the row forever.
 
-`bundleIds` lists the row only while one of those apps is frontmost, also
-ignoring case; read one off any running app with
+`bundleIds` takes bundle ids, and lists the row only while one of them is
+frontmost, also ignoring case; read one off any running app with
 `osascript -e 'id of app "Notes"'`. The same string is what
 `apps.hideBundleIds`, `apps.demoteBundleIds` and `autoQuit.exclude` want. Set
 both keys and the row wants both.
 
-Either way it scopes the **row**, never a `hotkey` on the same item, the same way
-`enabled: false` leaves a key armed. Scoping a chord instead is
+Both ask **where you are**, neither with a subprocess. Either way it scopes the
+**row**, never a `hotkey` on the same item, the same way `enabled: false` leaves
+a key armed. Scoping a chord instead is
 [`appHotkeys`](#chords-that-only-exist-over-one-app-apphotkeys), which has to
 consume the keystroke to do it. Neither asks *is there anything here to act on*:
 that is the command script's own
@@ -342,7 +346,7 @@ pounce gets the key:
 | | |
 |---|---|
 | `"tap"` | The default. An event tap, so it needs Accessibility, and it **shares** the key: macOS's own Globe handler sits below the event stream a tap can see, so the Emoji & Symbols picker can still open alongside pounce's. Turning off System Settings ▸ Keyboard ▸ "Press 🌐 key to" helps, but it wants a logout to take and the two are still racing |
-| `"remap"` | Takes Fn away at the HID layer: it becomes F19, which pounce binds like any ordinary key. No Accessibility, nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
+| `"remap"` | Takes Fn away at the HID layer: it becomes F19, which pounce binds like any ordinary key. No Accessibility for this binding, and nothing left to race. The cost is that Fn stops being Fn everywhere: no Fn+arrows, no Fn+Delete, no Fn+F1–F12 |
 
 `remap` undoes itself and falls back to the tap if F19 is already taken or the
 keyboard doesn't expose Fn. Standalone it is applied while the daemon runs and
@@ -390,7 +394,8 @@ passes through untouched, so ⌘N still opens a new window in your browser.
 
 `target` is the same item-key grammar as `items` and `pounce run`, so a scoped
 chord and a palette row are one address. It reads keys as they pass, so it needs
-Accessibility, and it is armed at startup.
+Accessibility, and it is armed at startup: an edit wants the [daemon
+restart](#config-file).
 
 ## Walking a family of workspaces (`pages`)
 
