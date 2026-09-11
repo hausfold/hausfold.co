@@ -5110,7 +5110,7 @@ A gauge pill showing AI usage (Claude Code/Codex subscription rate limits as %, 
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.aiUsage</span></summary>
 
-Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
+Where a plan caps a model family INSIDE the weekly window rather than beside it (a Max plan lets Fable take up to half the week, and gives nothing back for it), that family gets its own gauge in the dropdown, under the weekly it is carved out of. It stays in the dropdown and never reaches the pill's own label, which answers how close you are to being stopped: a spent ceiling is often the highest number on the machine and still changes nothing about what you can run next, since every other model is still there. Families are read from the account rather than named here, so a new ceiling shows up without a haus release. Claude and Opencode are read off disk; Codex has no local usage data, so its row is polled from your ChatGPT account with the OAuth token in ~/.codex/auth.json (refreshed and rewritten in place) — no Codex login on the machine, no call is made. Claude's row is pushed by its statusline; the Codex and Opencode rows are pulled by the pill itself on a 3-minute TTL, so they stay current on a machine that never opens Claude at all. Claude and Opencode also get a `tokens` block in the dropdown — raw tokens moved today, this week, this month and all time (cache reads and all), two periods to a line so a full set reads as a 2×2, purely for the fun of watching the number climb. A period with nothing in it is left out rather than printed as a zero, so the block simply gets smaller, and a closing `∑ Everything` adds every provider up when more than one is reporting. It is a score, not a limit: nothing acts on it, and it never reaches the pill's own label. Claude's is summed from your transcripts on a 15-minute TTL behind an index, so only sessions that grew since the last pass are re-read; Codex has no row because it keeps no local history to count.
 
 </details>
 
@@ -7918,23 +7918,26 @@ rather than `git worktree`.
 
 <summary>More detail<span className="sr-only"> on haus.ai.skill</span></summary>
 
-Six skills on any machine. Two are haus's own: `haus` (this
-machine's setup) and `hausfold` (carrying a complaint about anything we
-make upstream — which repo owns the symptom, the `report` verb that
-fills its bug form's diagnostics field in, and the fork to a pull
-request; it files nothing without asking you first). Then scruff's
-own two — `scruff` (the lane lifecycle) and `handoff` (turning work into a
-brief a cold session can act on, ending on the clipboard or in a new
-lane) — factory's `factory` (the merge verbs; a live lease runs the
-shift itself, so the skill is what an agent does around it) — and `nebelung`
-(this machine's exact palette, rendered from the lock rather than
-remembered). A tool whose room is OPTIONAL adds its own only when that
-room is on: `trill` (sending a notification) with
-`haus.notifications.compositor`, `pounce` (driving the command palette)
-with `haus.launcher.enable`, `perch` (putting files on the notch shelf)
-with `haus.shelf.enable` — because a skill for an app this Mac doesn't
-have is worse than none.
-Those switches are about the ROOM, not about the app: `haus-notify` and
+Three arrive whatever else this Mac runs. Two are haus's own: `haus`
+(this machine's setup) and `hausfold` (carrying a complaint about
+anything we make upstream — which repo owns the symptom, the `report`
+verb that fills its bug form's diagnostics field in, and the fork to a
+pull request; it files nothing without asking you first). The third is
+`nebelung` (this machine's exact palette, rendered from the lock rather
+than remembered), which has no binary behind it to be missing.
+
+Every other skill follows the ROOM that installs its tool, because a
+skill for something this Mac doesn't have is worse than none. `scruff`
+(the lane lifecycle), `handoff` (turning work into a brief a cold
+session can act on, ending on the clipboard or in a new lane) and
+`factory` (the merge verbs; a live lease runs the shift itself, so the
+skill is what an agent does around it) need `haus.ai.enable`, the room
+that puts `scruff` and `factory` on PATH. `trill` (sending a
+notification) needs `haus.notifications.compositor`, `pounce` (driving
+the command palette) `haus.launcher.enable`, `perch` (putting files on
+the notch shelf) `haus.shelf.enable`.
+
+Those are switches about the ROOM, not about the app: `haus-notify` and
 the `trill` command find a hand-installed Trill.app at runtime whatever
 this option says, and a machine running a hand-installed pounce, perch
 or Trill.app with the room off gets no skill for it until the room is
