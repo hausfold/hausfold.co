@@ -390,9 +390,39 @@ async function docsSections(env) {
   const res = await assets.fetch(new Request("https://hausfold.co/api/search"));
   if (!res.ok) return null;
   const index = await res.json();
-  const sections = Object.values(index.docs?.docs ?? {});
+  const sections = withBreadcrumbs(Object.values(index.docs?.docs ?? {}));
   DOCS_CACHE.set(assets, sections);
   return sections;
+}
+
+// Only the index's `type: 'page'` documents carry `breadcrumbs`. The heading
+// and text sections beneath them — nearly the whole index, and so nearly every
+// result a search returns — carry a `page_id` and no trail at all, so a hit
+// went out with `breadcrumbs: []` while the tool's description and its
+// outputSchema both promised one. `[]` satisfies a required array, which is
+// why nothing validating the output ever objected. The same absence made the
+// +3 breadcrumb boost in searchDocsScored dead weight everywhere but the
+// handful of page rows.
+//
+// Resolved once per isolate, beside the parse the DOCS_CACHE already holds,
+// rather than per result: the join is a single pass and the array it returns
+// is what every later reader (the MCP tool, /v1, /a2a, /ask) sees.
+//
+// ⚠️ A section inherits its page's trail UNCHANGED — the page's own title is
+// deliberately not appended. A page hit and a section hit on the same page
+// would otherwise report two different depths for the same place, and the
+// heading a section sits under is already in its `url`, as the fragment.
+// (The trail is the folder path: fumadocs pops the page node when it builds
+// it, so no row's breadcrumbs name the page itself.)
+function withBreadcrumbs(sections) {
+  const byPage = new Map();
+  for (const doc of sections) {
+    if (doc.breadcrumbs?.length) byPage.set(doc.page_id, doc.breadcrumbs);
+  }
+  if (!byPage.size) return sections;
+  return sections.map((doc) =>
+    doc.breadcrumbs?.length ? doc : { ...doc, breadcrumbs: byPage.get(doc.page_id) ?? [] },
+  );
 }
 
 // An excerpt around the first match. The `…` pairs and the 80-char lead-in
@@ -407,7 +437,7 @@ function excerpt(content, idx) {
 
 function searchDocsScored(sections, query) {
   // Term count + a breadcrumb boost: crude next to Orama's BM25, but the
-  // corpus is ~3800 short sections and the query is usually one or two
+  // corpus is short sections, thousands of them, and the query is usually one or two
   // domain words, which is the case this is tuned for. Returns the whole
   // scored, sorted list; the excerpt (the only expensive half) is made
   // per result by whoever slices.

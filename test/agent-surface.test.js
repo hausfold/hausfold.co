@@ -485,8 +485,17 @@ describe('the /v1 sandbox', () => {
 const DOCS_INDEX = {
   docs: {
     docs: {
+      // Every row here is a `type: 'page'` row, which is the only kind the
+      // built index gives a `breadcrumbs` to. A section row carries a
+      // `page_id` and no trail of its own — test/mcp.test.js holds that shape
+      // and the join in worker.js that resolves it. Writing breadcrumbs onto a
+      // row with neither field, which this fixture used to do, describes an
+      // index that cannot be built.
       a: {
-        id: 'a',
+        id: '/docs/trill/rules',
+        page_id: '/docs/trill/rules',
+        type: 'page',
+        tags: [],
         content: 'The notifications room wires trill banners and rules.json is the dial.',
         breadcrumbs: ['Docs', 'trill', 'Rules'],
         url: '/docs/trill/rules',

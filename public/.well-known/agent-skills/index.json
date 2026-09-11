@@ -6,7 +6,7 @@
       "type": "skill-md",
       "description": "Search and read the hausfold manuals (haus, pounce, perch, scruff, trill) as text. Use when a question about a haus.* option, a keyboard shortcut, an install step, or any behaviour of these Mac tools needs an authoritative answer.",
       "url": "/.well-known/agent-skills/hausfold-docs-search/SKILL.md",
-      "digest": "sha256:151b057d5f3c48c81f2f29d4c0c532fb0aaa87518ff4b57c911e1f51fe4daa85"
+      "digest": "sha256:4f22e57692e402aa5e5c5edd2bb8cc7a3ea383a4e83a3514713d24f068a793fc"
     },
     {
       "name": "hausfold-install",

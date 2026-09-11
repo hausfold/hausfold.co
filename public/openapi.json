@@ -51,7 +51,7 @@
     "/v1/search": {
       "get": {
         "summary": "Full-text search of the documentation, cursor-paginated",
-        "description": "Scores the same index /api/search serves (one entry per page section) and returns ranked excerpts. Page with 'cursor' until next_cursor is null.",
+        "description": "Scores the same index /api/search serves (a row per page and a row per section under it) and returns ranked excerpts. Page with 'cursor' until next_cursor is null.",
         "operationId": "searchDocs",
         "tags": [
           "v1",

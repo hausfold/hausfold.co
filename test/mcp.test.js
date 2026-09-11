@@ -39,31 +39,81 @@ const makeCaches = () => ({
   },
 });
 
+// Shaped the way the built index actually is, which is the thing this fixture
+// got wrong for as long as it existed: ONLY a `type: 'page'` row carries
+// `breadcrumbs`. A section row has a `page_id` pointing at its page and no
+// trail of its own, and worker.js's withBreadcrumbs() is what joins the two.
+// Inventing breadcrumbs on the section rows here is what let every assertion
+// below pass while production answered `breadcrumbs: []`.
+//
+// Page titles deliberately avoid the words the queries below search for, so a
+// page row never competes with its own sections for the top result.
 const DOCS = [
+  // Shaped the way a built index actually is, which is what this fixture got
+  // wrong for as long as it existed: ONLY a `type: 'page'` row carries
+  // `breadcrumbs`. Every row carries a `page_id`; a section row's own `url` is
+  // its page's url plus the `#fragment` of the heading it sits under, and a
+  // page row's `id` is its url. worker.js's withBreadcrumbs() is the join.
+  // Inventing breadcrumbs on the section rows here is what let every assertion
+  // below pass while production answered `breadcrumbs: []`.
+  //
+  // A page row's `content` is the page TITLE, and these titles deliberately
+  // avoid the words the queries below search for, so a page never competes
+  // with its own sections for the top result.
   {
     id: '/docs/haus',
     page_id: '/docs/haus',
     type: 'page',
     content: 'What haus is',
     breadcrumbs: ['Docs', 'haus', 'Start'],
+    tags: [],
     url: '/docs/haus',
   },
   {
-    id: '/docs/trill-3',
-    page_id: '/docs/trill',
+    // The competitor in the ranking test below: it says `scruff` twice where
+    // the scruff-tree row says it once, so without the breadcrumb boost this
+    // row wins. It is in the haus tree, so the boost cannot reach it.
+    id: '/docs/haus-7',
+    page_id: '/docs/haus',
+    type: 'text',
+    content: 'A lane made by scruff is a worktree, and scruff reaps it once the branch lands.',
+    tags: [],
+    url: '/docs/haus#agents',
+  },
+  {
+    id: '/docs/trill/rules',
+    page_id: '/docs/trill/rules',
+    type: 'page',
+    content: 'Composing',
+    breadcrumbs: ['Docs', 'trill', 'Rules'],
+    tags: [],
+    url: '/docs/trill/rules',
+  },
+  {
+    id: '/docs/trill/rules-3',
+    page_id: '/docs/trill/rules',
     type: 'text',
     content:
       'Quiet banners are composed by the trill daemon. A rule can silence a single app\nby name, and rules.json is the only dial.',
-    breadcrumbs: ['Docs', 'trill', 'Rules'],
-    url: '/docs/trill/rules',
+    tags: [],
+    url: '/docs/trill/rules#the-dial',
+  },
+  {
+    id: '/docs/scruff',
+    page_id: '/docs/scruff',
+    type: 'page',
+    content: 'Parking work',
+    breadcrumbs: ['Docs', 'scruff', 'Start'],
+    tags: [],
+    url: '/docs/scruff',
   },
   {
     id: '/docs/scruff-1',
     page_id: '/docs/scruff',
     type: 'text',
     content: 'Set work aside with scruff park, never git stash.',
-    breadcrumbs: ['Docs', 'scruff', 'Start'],
-    url: '/docs/scruff',
+    tags: [],
+    url: '/docs/scruff#park',
   },
 ];
 
@@ -268,9 +318,20 @@ describe('tools/call · search_docs', () => {
     const body = await res.json();
     expect(env.ASSETS.fetch).toHaveBeenCalledTimes(1);
     const parsed = JSON.parse(body.result.content[0].text);
-    expect(parsed.results[0].url).toBe('/docs/trill/rules');
+    expect(parsed.results[0].url).toBe('/docs/trill/rules#the-dial');
     expect(parsed.results[0].breadcrumbs).toEqual(['Docs', 'trill', 'Rules']);
     expect(parsed.results[0].excerpt).toContain('rules.json');
+  });
+
+  it('gives a section the breadcrumbs of the page it sits on', async () => {
+    // The section rows in the index carry none of their own. Before the join
+    // this came back [], while the tool's description and outputSchema both
+    // said a result carries a trail.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'stash' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results[0].url).toBe('/docs/scruff#park');
+    expect(parsed.results[0].breadcrumbs).toEqual(['Docs', 'scruff', 'Start']);
   });
 
   it('caches the parsed index per assets binding', async () => {
@@ -281,11 +342,19 @@ describe('tools/call · search_docs', () => {
   });
 
   it('ranks a breadcrumb match above a deeper body mention', async () => {
+    // /docs/haus#agents says `scruff` twice, /docs/scruff#park says it once —
+    // so on term count alone the haus row wins, and only the +3 for the term
+    // appearing in the scruff row's inherited trail puts it on top. The scores
+    // are pinned because the assertion above them passed for years with one
+    // candidate in the set and would have passed with the boost deleted.
     const env = { ASSETS: assetsWithDocs() };
     const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'scruff' } }), env);
     const body = await res.json();
     const parsed = JSON.parse(body.result.content[0].text);
-    expect(parsed.results[0].url).toBe('/docs/scruff');
+    expect(parsed.results.map((hit) => [hit.url, hit.score])).toEqual([
+      ['/docs/scruff#park', 4],
+      ['/docs/haus#agents', 2],
+    ]);
   });
 
   it('refuses an empty query', async () => {

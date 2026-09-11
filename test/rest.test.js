@@ -35,20 +35,35 @@ const makeCaches = () => {
 const DOCS_INDEX = {
   docs: {
     docs: {
+      // Every row here is a `type: 'page'` row, which is the only kind the
+      // built index gives a `breadcrumbs` to. A section row carries a
+      // `page_id` and no trail of its own — test/mcp.test.js holds that shape
+      // and the join in worker.js that resolves it. Writing breadcrumbs onto a
+      // row with neither field, which this fixture used to do, describes an
+      // index that cannot be built.
       a: {
-        id: 'a',
+        id: '/docs/trill/rules',
+        page_id: '/docs/trill/rules',
+        type: 'page',
+        tags: [],
         content: 'The notifications room wires trill banners and rules.json is the dial.',
         breadcrumbs: ['Docs', 'trill', 'Rules'],
         url: '/docs/trill/rules',
       },
       b: {
-        id: 'b',
+        id: '/docs/haus/bar',
+        page_id: '/docs/haus/bar',
+        type: 'page',
+        tags: [],
         content: 'The bar draws pills and row kinds; popup_item opens a dropdown.',
         breadcrumbs: ['Docs', 'haus', 'Bar'],
         url: '/docs/haus/bar',
       },
       c: {
-        id: 'c',
+        id: '/docs/trill',
+        page_id: '/docs/trill',
+        type: 'page',
+        tags: [],
         content: 'Notifications can also be quiet banners composed by the daemon.',
         breadcrumbs: ['Docs', 'trill', 'Start'],
         url: '/docs/trill',

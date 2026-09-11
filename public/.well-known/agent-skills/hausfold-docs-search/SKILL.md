@@ -27,8 +27,10 @@ Handshake first (`initialize`), then `tools/call`. Or skip MCP entirely:
   Best when you will ask several questions across a topic.
 - A markdown twin of any page: its URL plus `.md`, e.g.
   `https://hausfold.co/docs/haus/install.md`
-- `https://hausfold.co/api/search`: the raw Orama search index (JSON, one
-  entry per page section with URL and breadcrumbs).
+- `https://hausfold.co/api/search`: the raw Orama search index (JSON: a row per
+  page with that page's breadcrumbs, plus a row per section under it with a
+  `page_id` back to its page. Only the page rows carry a trail; the tools
+  resolve a section's from its page).
 
 ## Choosing a page
 
