@@ -18,87 +18,71 @@ related:
 ---
 
 ```sh
+# scaffold your config; it asks which desktop
 curl -fsSL https://hausfold.co/haus.sh | bash
-```
 
-That installs Nix if you don't have it, asks a few questions (which desktop
-among them), and writes your config. It does **not** change your Mac on its own:
-it writes
-files, prints the one command that activates them, and offers to run that for
-you, so you can stop in between and read what it wrote.
+# or answer that in the URL, and skip the question
+curl -fsSL https://hausfold.co/hacker.sh   | bash   # the full desktop
+curl -fsSL https://hausfold.co/everyday.sh | bash   # if you don't write code
+curl -fsSL https://hausfold.co/minimal.sh  | bash   # just the themed shell
 
-Piped or not, it reaches your terminal and interviews you. Where nobody is
-watching (CI, a container, output captured to a file) it takes the defaults and
-never offers to switch.
-
-## If you already know which desktop you want
-
-Every desktop has its own URL, and typing it answers the question before it's
-asked:
-
-```sh
-curl -fsSL https://hausfold.co/hacker.sh    | bash   # the full desktop
-curl -fsSL https://hausfold.co/everyday.sh  | bash   # for someone who doesn't write code
-curl -fsSL https://hausfold.co/minimal.sh   | bash   # just the themed shell
-```
-
-Same script: the URL sets the desktop and skips that question. `haus.sh` is the
-one that asks. For the flag instead, give `bash` a `-s --`:
-
-```sh
+# same answer as a flag
 curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=minimal
+
+# read it first, or pin an exact release and diff it against GitHub
+curl -fsSL https://hausfold.co/haus.sh | less
+curl -fsSL 'https://hausfold.co/haus.sh?ref=v2026.07.19' | less
 ```
+
+That installs Nix if you don't have it, asks a few questions, and writes your
+config. Piped or not, it reaches your terminal and interviews you. It does
+**not** change your Mac on its own: it writes files, prints the one command that
+activates them, and offers to run that for you, so you can stop in between and
+read what it wrote.
 
 Every desktop is a set of values for the same options, so anything one chose
 your own file overrides in a line. Changing your mind is that line, not a
 reinstall.
+
+The URL proxies
+[`bootstrap.sh`](https://github.com/hausfold/haus/blob/main/bootstrap.sh) from
+the public repo. A desktop's URL serves that file with two lines added at the
+top naming the desktop, so `haus.sh` is the one to diff. You get the latest
+release by default, tags are dated, and a **release tag is the only thing
+`?ref=` accepts**: anything else is refused rather than fetched, so a link
+carrying someone else's commit can't serve you a script off this domain.
 
 ## Before you start
 
 - A **Mac on Apple Silicon**, running a recent macOS. Intel isn't supported.
 - **Xcode Command Line Tools.** The installer prompts for them if they're
   missing, then asks you to re-run.
+- **No Nix yet, or [Determinate Nix](https://docs.determinate.systems/)**, which
+  the installer lays down for you. Any other Nix at `/nix` stops it.
 - **10–15 minutes** and a few GB of download for the first build.
-
-You don't need Nix first: the bootstrap installs [Determinate
-Nix](https://docs.determinate.systems/), and if you already run stock Nix it
-stops and explains rather than touching your install.
-
-## Read it first, if you like
-
-The URL proxies
-[`bootstrap.sh`](https://github.com/hausfold/haus/blob/main/bootstrap.sh) from
-the public repo, and it's boring on purpose.
-
-```sh
-curl -fsSL https://hausfold.co/haus.sh | less
-
-# or pin an exact release and diff it against GitHub
-curl -fsSL 'https://hausfold.co/haus.sh?ref=v2026.07.19' | less
-```
-
-A desktop's URL serves that file with two lines added at the top naming the
-desktop, so `haus.sh` is the one to diff. You get the latest release by default,
-tags are dated, and a **release tag is the only thing `?ref=` accepts**:
-anything else is refused rather than fetched, so a link carrying someone else's
-commit can't serve you a script off this domain.
 
 ## What it does
 
-It takes a Time Machine local snapshot as a coarse rewind point (non-fatal if
-Time Machine is off), asks its questions, shows a read-only report of what would
-change (which dotfiles get backed up, which macOS settings change, which casks
-it found), then writes `~/.config/nix/` (a small flake importing haus, plus a
-host file of your answers) and commits it to git. **No app you installed is ever
-removed.**
+<Steps>
 
-The questions: your git name and email, a desktop (hacker / everyday / minimal /
-custom), an accent colour, a wallpaper, and an editor. haus installs the one you
-name, Zed, VS Code, Cursor, helix, neovim, vim or nano (the three apps as casks,
-adopting a copy already on your Mac rather than laying down a second one), or
-"other" for a command of your own that haus points at and does not install. Then
-whether to keep your current Dock, keyboard and Finder settings, and whether to
-adopt the Homebrew casks you already have.
+<Step>
+**Takes a rewind point.** A Time Machine local snapshot, coarse but free. If
+Time Machine is off it warns and carries on.
+</Step>
+
+<Step>
+**Asks its questions.** Your git name and email, a desktop (hacker / everyday /
+minimal / custom), an accent colour, a wallpaper, and an editor: Zed, VS Code,
+Cursor, helix, neovim, vim or nano, or "other" for a command of your own that
+haus points at and does not install. The three apps arrive as casks, adopting a
+copy already on your Mac rather than laying down a second one. Then whether to
+keep your current Dock, keyboard and Finder settings, and whether to adopt the
+Homebrew casks you already have.
+</Step>
+
+<Step>
+**Shows a read-only report.** Which dotfiles get backed up, which macOS settings
+change, which casks it found.
 
 <Callout type="warn" title="Dotfiles that would stop the first switch">
 The report names any file that would **stop** the switch rather than be backed
@@ -109,10 +93,20 @@ repo is the worse failure.
 Clear each one it lists, or tell haus to skip that file
 (`home.file.".profile".enable = false;`), before the build.
 </Callout>
+</Step>
 
-Nothing is active yet. The last thing it asks, wherever there's a terminal to
-ask on, is whether to change that: say yes and it runs the two commands below,
-then `haus doctor`. Unattended it stops here and prints them.
+<Step>
+**Writes `~/.config/nix/` and commits it to git.** A small flake importing haus,
+plus a host file of your answers. **No app you installed is ever removed.**
+</Step>
+
+<Step>
+**Offers to activate.** Nothing is live yet. The last thing it asks, wherever
+there's a terminal to ask on, is whether to run the two commands below, then
+`haus doctor`. Unattended it stops here and prints them.
+</Step>
+
+</Steps>
 
 ## Build and switch
 
@@ -122,10 +116,10 @@ nix build .#darwinConfigurations.$(scutil --get LocalHostName).system \
   && sudo ./result/sw/bin/darwin-rebuild switch --flake .
 ```
 
-The build runs first, so a failed build never touches your system. The first
-run is slow; it's downloading the world. When it lands, everything
-arrives at once: apps install, the bar and tiling start, your terminal is
-themed, `haus` joins your `PATH`. After that it's `haus rebuild`.
+The build runs first, so a failed build never touches your system. **The first
+run is slow; it's downloading the world.** When it lands, everything arrives at
+once: apps install, the bar and tiling start, your terminal is themed, `haus`
+joins your `PATH`. After that it's `haus rebuild`.
 
 ## If you regret it
 
