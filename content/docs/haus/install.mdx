@@ -58,7 +58,8 @@ carrying someone else's commit can't serve you a script off this domain.
 - **Xcode Command Line Tools.** The installer prompts for them if they're
   missing, then asks you to re-run.
 - **No Nix yet, or [Determinate Nix](https://docs.determinate.systems/)**, which
-  the installer lays down for you. Any other Nix at `/nix` stops it.
+  the installer lays down for you. Any other Nix at `/nix` stops the install and
+  is left where it is.
 - **10–15 minutes** and a few GB of download for the first build.
 
 ## What it does
@@ -66,18 +67,18 @@ carrying someone else's commit can't serve you a script off this domain.
 <Steps>
 
 <Step>
-**Takes a rewind point.** A Time Machine local snapshot, coarse but free. If
-Time Machine is off it warns and carries on.
+**Takes a rewind point.** A Time Machine local snapshot, before anything
+mutates. If Time Machine is off it warns and carries on.
 </Step>
 
 <Step>
 **Asks its questions.** Your git name and email, a desktop (hacker / everyday /
-minimal / custom), an accent colour, a wallpaper, and an editor: Zed, VS Code,
-Cursor, helix, neovim, vim or nano, or "other" for a command of your own that
-haus points at and does not install. The three apps arrive as casks, adopting a
-copy already on your Mac rather than laying down a second one. Then whether to
-keep your current Dock, keyboard and Finder settings, and whether to adopt the
-Homebrew casks you already have.
+minimal / custom), an accent colour, a wallpaper, and an editor. haus installs
+the one you name, Zed, VS Code, Cursor, helix, neovim, vim or nano, or "other"
+for a command of your own that haus points at and does not install. The three
+apps arrive as casks, adopting a copy already on your Mac rather than laying
+down a second one. Then whether to keep your current Dock, keyboard and Finder
+settings, and whether to adopt the Homebrew casks you already have.
 </Step>
 
 <Step>
