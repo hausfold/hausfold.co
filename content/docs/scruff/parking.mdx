@@ -26,6 +26,11 @@ That is the same thing the pane-close hook does, so a lane you close mid-thought
 is a lane you can resume mid-thought. Doing it on demand is for the other case:
 you need a clean tree for a minute, and you want it back.
 
+The argument is a **label**, never a lane name. `park` works on the checkout you
+are standing in, so naming another lane on a clean tree is **exit 2** and the way
+to reach that one instead; on a dirty tree the park still happens, and says whose
+tree it took.
+
 ## Never `git stash`, once you have two agents
 
 This is the single most valuable thing scruff does, and it is worth being blunt
@@ -66,7 +71,7 @@ the rest of scruff safe to automate:
 |---|---|
 | a pane closes on unlanded work | the tree is parked, the checkout goes, the branch stays |
 | `scruff reap` meets a dirty lane | it **keeps** it and names what is in the way. An automatic sweep may only ever take *finished* work, so it never parks and sweeps in one motion |
-| `scruff drop` meets a dirty lane | it refuses with **exit 2** and tells you to park first. Dropping is deliberate, so it asks rather than deciding for you |
+| `scruff drop` meets a dirty lane | it refuses with **exit 2**, names the files in the way, and gives you the `cd` into that lane's checkout to park them from. Dropping is deliberate, so it asks rather than deciding for you |
 
 The decision "does this dirty tree actually need a commit?" is the
 [`preserve` seam](/docs/scruff/seams#the-six-shipped-seams). The built-in answer is
