@@ -30,6 +30,8 @@
 # the one fact only the tool has.
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CONFIG="$REPO_ROOT/worker-config.js"
 MCP_URL="https://hausfold.co/mcp"
 CHALLENGE_URL="https://hausfold.co/.well-known/openai-apps-challenge"
 PORTAL="https://platform.openai.com/apps"
@@ -61,15 +63,15 @@ STARTERS=(
 
 POSITIVE=(
 "Give me the install command for the hausfold hacker desktop.	Calls get_install_command with desktop: \"hacker\" and answers with the one-line installer, unedited.	One desktops row. command is exactly \`curl -fsSL https://hausfold.co/hacker.sh | bash\`, pins is \"hacker\", and note says what running it does.	None. The endpoint is public and unauthenticated, so there is no account, key or seeded data to set up."
-"What hausfold desktops are there, and how do I install each one?	Calls get_install_command with no argument and lists every desktop instead of guessing at one.	Four desktops rows: haus, hacker, everyday, minimal. The haus row's pins is null, because that URL asks which desktop to build rather than answering.	None."
-"Ask hausfold for the latest Pounce release: the exact asset file name, its size in bytes, and the download URL.	Calls get_latest_release with app: \"pounce\". The asset's byte size is not a fact any other source has, so an answer without the tool call cannot be produced from memory or from a web search.	tag like v2026.09.11, asset ending -macos.dmg, size in bytes, a github.com/hausfold/pounce/releases/download URL, and an ISO publishedAt.	None. Pounce has published releases, so this answers for any reviewer at any time."
+"What hausfold desktops are there, and how do I install each one?	Calls get_install_command with no argument and lists every desktop instead of guessing at one.	Four desktops rows: the haus chooser plus the three desktops hacker, everyday and minimal. The haus row's pins is null, because that URL asks which desktop to build rather than answering.	None."
+"Ask hausfold for the latest Pounce release: the exact asset file name, its size in bytes, and the download URL.	Calls get_latest_release with app: \"pounce\". The exact asset file name and byte size for the current release are what the tool is for, so an answer from memory is stale or invented and the tool card carries the real ones.	tag like v2026.09.11, asset ending -macos.dmg, size in bytes, a github.com/hausfold/pounce/releases/download URL, and an ISO publishedAt.	None. Pounce has published releases, so this answers for any reviewer at any time."
 "Search the hausfold docs for how notifications work.	Calls search_docs with that query and cites the pages it found instead of answering from memory.	A results array, highest score first, each row carrying a site-relative /docs/... url, breadcrumbs, an excerpt and a score.	None."
 "I want hausfold's Perch. What's the newest build, and what do the docs say about it?	Chains two tools in one turn: get_latest_release with app: \"perch\", then search_docs for the Perch documentation.	A release payload for perch and a separate results array, answered together, with the download facts kept apart from the docs citations.	None."
 )
 
 NEGATIVE=(
-"Get me the latest release of trill.	The tool answers isError with error.code unknown_app and the message \"unknown app 'trill'. Available: pounce, perch\". The assistant relays that and names the two apps that do have downloads.	trill ships inside the haus layer rather than as a notarized download, so there is no artifact to link to. The failure comes back in the server's own vocabulary, and the assistant must not invent a releases URL to fill the gap."
-"Give me the install command for the Windows desktop.	The tool answers isError with error.code unknown_desktop and lists haus, hacker, everyday, minimal. The assistant says hausfold is macOS only and offers the four real desktops.	Everything hausfold makes is nix-darwin on a Mac. A fabricated hausfold.co/windows.sh would be a command a user actually pastes into a shell, so a plausible guess here is worse than a refusal."
+"Get me the latest release of trill.	The tool answers isError with error.code unknown_app and the message \"unknown app 'trill'. Available: pounce, perch\". The assistant relays that and names the two apps that do have downloads.	trill is not one of the server's two downloadable apps. It has notarized releases but no cask and no one-line install, and haus.notifications.compositor is its only front door. The failure comes back in the server's own vocabulary, and the assistant must not invent a releases URL to fill the gap."
+"Give me the install command for the Windows desktop.	The tool answers isError with error.code unknown_desktop and lists haus, hacker, everyday, minimal. The assistant says the desktops are macOS only and offers the three real ones.	The desktops this server installs are nix-darwin on a Mac, so there is no Windows row to return. A fabricated hausfold.co/windows.sh would be a command a user actually pastes into a shell, so a plausible guess here is worse than a refusal."
 "Uninstall haus from this Mac and delete my nix config.	No tool call. Every tool on this server is read-only and none of them touches the machine, so the assistant explains it can only look things up here, and at most searches the docs for the removal steps for the user to run themselves.	The server is a reference surface with no write path. An app that implied it had reached into the filesystem would be claiming a capability it does not have."
 )
 
@@ -97,25 +99,38 @@ field() {
 
 step_check() {
   head_ "Does the server still answer the way the submission says it does?"
-  note "six calls against $MCP_URL, the ones the test cases promise"
+  note "seven calls against $MCP_URL, the ones the test cases promise"
   local failed=0
   probe "install command, hacker"  '{"name":"get_install_command","arguments":{"desktop":"hacker"}}' 'https://hausfold.co/hacker.sh | bash' || failed=1
   probe "every desktop listed"     '{"name":"get_install_command","arguments":{}}' '"minimal"' || failed=1
   probe "latest release, pounce"   '{"name":"get_latest_release","arguments":{"app":"pounce"}}' '-macos.dmg' || failed=1
+  probe "latest release, perch"    '{"name":"get_latest_release","arguments":{"app":"perch"}}' '-macos' || failed=1
   probe "docs search"              '{"name":"search_docs","arguments":{"query":"notifications","limit":3}}' '"results"' || failed=1
   probe "unknown app is an error"  '{"name":"get_latest_release","arguments":{"app":"trill"}}' 'unknown_app' || failed=1
   probe "unknown desktop is too"   '{"name":"get_install_command","arguments":{"desktop":"windows"}}' 'unknown_desktop' || failed=1
-  if curl -fsS --max-time 20 "$CHALLENGE_URL" 2>/dev/null | grep -q .; then
-    ok "domain challenge still served"
+  # The portal compares the body to the string it minted, with NO trailing
+  # newline, so anything weaker than a byte-for-byte match passes while the
+  # listing quietly unverifies. cmp compares length too.
+  local want tmp
+  want="$(sed -n 's/^export const OPENAI_APPS_CHALLENGE = "\(.*\)";$/\1/p' "$CONFIG" 2>/dev/null)"
+  tmp="$(mktemp)"
+  if ! curl -fsS --max-time 20 "$CHALLENGE_URL" -o "$tmp" 2>/dev/null; then
+    bad "$CHALLENGE_URL did not answer — the listing will unverify"; failed=1
+  elif [ -z "$want" ]; then
+    warn "no OPENAI_APPS_CHALLENGE in $CONFIG — only checked that the URL answers"
+  elif printf '%s' "$want" | cmp -s - "$tmp"; then
+    ok "domain challenge matches worker-config.js, byte for byte"
   else
-    bad "$CHALLENGE_URL is empty — the listing will unverify"; failed=1
+    bad "$CHALLENGE_URL is not OPENAI_APPS_CHALLENGE byte for byte (a trailing"
+    bad "newline counts) — the listing will unverify"; failed=1
   fi
+  rm -f "$tmp"
   if [ "$failed" = 1 ]; then
     warn "something the submission promises is not true right now."
     warn "fix it before you record, or the video records the bug."
     confirm CONTINUE
   else
-    ok "all seven answer as written"
+    ok "all eight answer as written"
   fi
 }
 
@@ -227,7 +242,8 @@ step_global() {
 step_submit() {
   head_ "Submit tab"
   local yt; yt="$(cat "$STATE/video-url" 2>/dev/null || true)"
-  [ -n "$yt" ] && note "video: $yt" || warn "no video URL saved — run the record step first"
+  if [ -n "$yt" ]; then note "video: $yt"
+  else warn "no video URL saved — run the record step first"; fi
   field "release notes" "First submission. A read-only MCP server for hausfold's Mac software: the one-line install command for each desktop, the latest signed and notarized macOS release of Pounce and Perch, and full-text search of the documentation. No authentication, because the endpoint is public and every tool is a read, so a reviewer needs no credentials and no test account. The demo video runs the five positive test cases in the order they are listed."
   [ -n "$yt" ] && field "demo video URL" "$yt"
   note "then the policy attestations."
