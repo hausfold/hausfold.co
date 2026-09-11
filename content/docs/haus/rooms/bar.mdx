@@ -114,7 +114,7 @@ haus.bar.items = {
 | `caffeinate` | A coffee cup: click for 1, 2, 4, 8 hours or until stopped; right-click allows sleep. |
 | `factory` | How much longer this Mac may keep landing pull requests unattended, beside the cup because the two answer the same question: what did I leave switched on, and when does it stop. It draws the time left, an infinity sign for a lease that runs until you revoke it, and its own glyph alone when none stands. Click for 4 hours, 12 hours, until revoked, or Revoke; right-click revokes. Without `factory` on your PATH, which is [`haus.ai.enable`](/docs/haus/rooms/ai), it hides rather than drawing a control for a missing tool. [Merging overnight](/docs/haus/night-shift) is the setup it belongs to. |
 | `agents` | [Agent](/docs/haus/rooms/ai) lanes and Claude Code desktop sessions: red when one is waiting on you, click to jump there. |
-| `aiUsage` | AI quota spent, for the client you last actually **used**; click for each provider's windows and reset times. Grey means old, not low. |
+| `aiUsage` | AI quota spent, for the client you last actually **used**; click for each provider's windows and reset times. Each capped model family gets a gauge of its own in there. Grey means old, not low. |
 | `github` | What's waiting on you, from `haus.bar.github.sources`: searches, the `ci` board, or your own command. The number is how many, the octocat how bad, and **red means a red default branch and nothing else**. Right-click refreshes; with the [AI room](/docs/haus/rooms/ai#when-github-goes-red) on, a stuck row gets **Fix with AI**. Needs the [Development room](/docs/haus/rooms/development)'s git, `gh auth login`, and `haus.git.org` or your own sources; with neither, the build fails. |
 | `trill` | A bell for [trill](/docs/trill)'s inbox; right-click (or ⌥-click) shows only the questions waiting on you. Nothing without Trill.app, dim while its daemon is down. |
 | `elgato` | Toggles an Elgato Key Light. |
@@ -125,6 +125,19 @@ rides the **terminal** client's login, which lasts about nine hours; past that
 it greys until you run `claude` in a terminal. A `user:profile` token in
 `~/.config/haus/claude-usage-token` (`umask 077`; `claude setup-token` won't
 mint one) overrides it.
+
+**The weekly limit can have a ceiling inside it.** A plan can cap a model family
+within the weekly window, so that family is spent for the week while the weekly
+gauge above it still reads a calm 50%. Today that is Fable on a Max plan, at up
+to half the week. The dropdown draws each ceiling as its own gauge under the
+weekly it comes out of, and a newly capped family appears on its own, with no
+haus release.
+
+It stays in the dropdown. The pill's own number is the worse of session and
+weekly, and nothing else, because a spent ceiling is often the highest number on
+your account and still stops nothing: every other model is right there. Those
+gauges need the same account poll as the Claude row above, so no login means no
+gauge, and an hour after the last answer they dim.
 
 The **focus** pill rides `haus.focus.enable` instead; only its placement is a
 bar setting.
