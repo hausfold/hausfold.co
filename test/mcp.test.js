@@ -39,15 +39,6 @@ const makeCaches = () => ({
   },
 });
 
-// Shaped the way the built index actually is, which is the thing this fixture
-// got wrong for as long as it existed: ONLY a `type: 'page'` row carries
-// `breadcrumbs`. A section row has a `page_id` pointing at its page and no
-// trail of its own, and worker.js's withBreadcrumbs() is what joins the two.
-// Inventing breadcrumbs on the section rows here is what let every assertion
-// below pass while production answered `breadcrumbs: []`.
-//
-// Page titles deliberately avoid the words the queries below search for, so a
-// page row never competes with its own sections for the top result.
 const DOCS = [
   // Shaped the way a built index actually is, which is what this fixture got
   // wrong for as long as it existed: ONLY a `type: 'page'` row carries
@@ -114,6 +105,103 @@ const DOCS = [
     content: 'Set work aside with scruff park, never git stash.',
     tags: [],
     url: '/docs/scruff#park',
+  },
+  {
+    id: '/docs/perch/shelf',
+    page_id: '/docs/perch/shelf',
+    type: 'page',
+    content: 'Holding things',
+    breadcrumbs: ['Docs', 'perch', 'Start'],
+    tags: [],
+    url: '/docs/perch/shelf',
+  },
+  // The three rows below share one `url`, which is what a built index is
+  // really like: fumadocs gives every text row under a heading that heading's
+  // url, so one anchor is as many rows as it has paragraphs. Every fixture
+  // here gave each row a url of its own, so nothing could see the collapse.
+  {
+    id: '/docs/perch/shelf-1',
+    page_id: '/docs/perch/shelf',
+    type: 'heading',
+    content: 'Keybinding',
+    tags: [],
+    url: '/docs/perch/shelf#keybinding',
+  },
+  {
+    id: '/docs/perch/shelf-2',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content: 'The keybinding that opens the notch is the one you already press.',
+    tags: [],
+    url: '/docs/perch/shelf#keybinding',
+  },
+  {
+    id: '/docs/perch/shelf-3',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content: 'A drag onto the notch is the other way in, and the notch is where it waits.',
+    tags: [],
+    url: '/docs/perch/shelf#keybinding',
+  },
+  // A long section whose only query word is past the 200th character, which is
+  // as far as excerpt() reads when it has no anchor.
+  {
+    id: '/docs/perch/shelf-4',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content:
+      'Padding, and only padding, standing between the head of this section and ' +
+      'the one word below that a query could be looking for. It is here because ' +
+      'a short section cannot tell a good anchor from no anchor at all: both ' +
+      'answer with the whole of it. The lanyard is at the end.',
+    tags: [],
+    url: '/docs/perch/shelf#lanyard',
+  },
+  // Three rows on two anchors, all scoring on 'tray': the first and third
+  // share one, the second holds the other and outscores both. Sorted, the
+  // pair collapses behind the single. Unsorted, the Map would keep the
+  // displaced row's position and put the pair first.
+  {
+    id: '/docs/perch/shelf-5',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content: 'A tray holds it.',
+    tags: [],
+    url: '/docs/perch/shelf#tray-a',
+  },
+  {
+    id: '/docs/perch/shelf-6',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content: 'The tray, and the tray beside it.',
+    tags: [],
+    url: '/docs/perch/shelf#tray-b',
+  },
+  {
+    id: '/docs/perch/shelf-7',
+    page_id: '/docs/perch/shelf',
+    type: 'text',
+    content: 'The first tray again, at much greater length than the row already held for it.',
+    tags: [],
+    url: '/docs/perch/shelf#tray-a',
+  },
+  // `pkgs` and `pkg` sit on separate anchors so a query for the longer one
+  // can prove it never widened to the shorter.
+  {
+    id: '/docs/haus-8',
+    page_id: '/docs/haus',
+    type: 'text',
+    content: 'An option taking a package has a pkgs sibling beside it.',
+    tags: [],
+    url: '/docs/haus#packages',
+  },
+  {
+    id: '/docs/haus-9',
+    page_id: '/docs/haus',
+    type: 'text',
+    content: 'The pkg name is read off the formula, never typed twice.',
+    tags: [],
+    url: '/docs/haus#naming',
   },
 ];
 
@@ -355,6 +443,76 @@ describe('tools/call · search_docs', () => {
       ['/docs/scruff#park', 4],
       ['/docs/haus#agents', 2],
     ]);
+  });
+
+  it('collapses the rows of one anchor into a single hit', async () => {
+    // Three rows in the fixture carry '/docs/perch/shelf#keybinding'. Two of
+    // them say 'notch', so before the collapse a search returned that one
+    // place twice, differing only in excerpt.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'notch' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results.map((hit) => hit.url)).toEqual(['/docs/perch/shelf#keybinding']);
+    expect(parsed.results[0].score).toBe(2); // the higher-scoring of the two rows
+    expect(parsed.results[0].excerpt).toContain('A drag onto the notch');
+  });
+
+  it('keeps the paragraph over the heading when the two tie', async () => {
+    // The heading row's content is the heading, which the url's fragment
+    // already says. Both rows score 1 for 'keybinding'; the longer one is the
+    // more useful excerpt.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'keybinding' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results).toHaveLength(1);
+    expect(parsed.results[0].excerpt).toBe('The keybinding that opens the notch is the one you already press.');
+  });
+
+  it('retries a term no section says in the singular', async () => {
+    // Matching is substring, so 'keybinding' already found 'keybindings'. The
+    // gap was one-way: the plural matched nothing at all, and it is the
+    // example query the tool's own inputSchema offers.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'keybindings' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results.map((hit) => hit.url)).toEqual(['/docs/perch/shelf#keybinding']);
+  });
+
+  it('leaves a term the docs do say alone', async () => {
+    // The fallback fires only for a term the whole corpus is silent on. Were
+    // it a blanket stem instead, 'pkgs' would widen to 'pkg' and drag in the
+    // other anchor — and so would 'macos', 'nixpkgs' and 'does'.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'pkgs' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results.map((hit) => hit.url)).toEqual(['/docs/haus#packages']);
+  });
+
+  it('anchors the excerpt on the first term that matched, not the first typed', async () => {
+    // 'hopscotch' is in no section, so anchoring on it left the excerpt at the
+    // head of a section that does answer the query. A question is the common
+    // shape of this: it opens on a word the docs never use.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(
+      rpc('tools/call', { name: 'search_docs', arguments: { query: 'hopscotch lanyard' } }),
+      env,
+    );
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results.map((hit) => hit.url)).toEqual(['/docs/perch/shelf#lanyard']);
+    expect(parsed.results[0].excerpt).toContain('lanyard');
+  });
+
+  it('collapses without reordering what it collapsed', async () => {
+    // The third row displaces the first on its anchor. The anchor has to keep
+    // the place its best row won, behind the single row that outscores it.
+    const env = { ASSETS: assetsWithDocs() };
+    const res = await post(rpc('tools/call', { name: 'search_docs', arguments: { query: 'tray' } }), env);
+    const parsed = JSON.parse((await res.json()).result.content[0].text);
+    expect(parsed.results.map((hit) => [hit.url, hit.score])).toEqual([
+      ['/docs/perch/shelf#tray-b', 2],
+      ['/docs/perch/shelf#tray-a', 1],
+    ]);
+    expect(parsed.results[1].excerpt).toContain('at much greater length');
   });
 
   it('refuses an empty query', async () => {

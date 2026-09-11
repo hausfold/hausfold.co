@@ -68,6 +68,25 @@ const DOCS_INDEX = {
         breadcrumbs: ['Docs', 'trill', 'Start'],
         url: '/docs/trill',
       },
+      // A heading and the paragraph under it, sharing one anchor, which is
+      // what the built index is really like. They are one place, so `total`
+      // and the cursor have to count them once.
+      d: {
+        id: '/docs/haus/bar-1',
+        page_id: '/docs/haus/bar',
+        type: 'heading',
+        tags: [],
+        content: 'Tones',
+        url: '/docs/haus/bar#tones',
+      },
+      e: {
+        id: '/docs/haus/bar-2',
+        page_id: '/docs/haus/bar',
+        type: 'text',
+        tags: [],
+        content: 'A tone is the quiet end of the ladder, and a tone never shouts.',
+        url: '/docs/haus/bar#tones',
+      },
     },
   },
 };
@@ -115,6 +134,13 @@ describe('/v1/search', () => {
     expect(body.query).toBe('notifications');
     expect(body.total).toBe(2);
     expect(body.results[0].url).toBe('/docs/trill/rules');
+    expect(body.next_cursor).toBeNull();
+  });
+
+  it('counts places, not index rows, in total', async () => {
+    const body = await (await getV1('/v1/search?q=tone')).json();
+    expect(body.total).toBe(1); // two rows, one anchor
+    expect(body.results.map((hit) => hit.url)).toEqual(['/docs/haus/bar#tones']);
     expect(body.next_cursor).toBeNull();
   });
 
