@@ -42,9 +42,9 @@ to**, so they cannot name an option you don't have, and `haus update` regenerate
 them.
 
 `haus.ai.skill` puts every hausfold tool's own skill in the same directory, and
-each one follows the room that installs the tool, because a skill for something
-your Mac doesn't have is worse than none. `nebelung` (this machine's palette) is
-the only one with nothing to wait for: there's no binary behind it. `scruff`
+a skill with a binary behind it follows the room that installs that binary,
+because instructions for a command your Mac hasn't got are worse than none. Only
+`nebelung` (this machine's palette) has no room to wait for. `scruff`
 (agent worktrees, and setting work aside without `git stash`), `handoff` (turning
 a piece of work into a brief a cold session can act on) and `factory`
 ([merging pull requests](/docs/haus/night-shift) while nobody watches) come with
@@ -111,7 +111,8 @@ revision, and the agent says so rather than guessing.**
 
 ### Verify, or roll back
 
-`haus rollback` puts the last generation back in seconds.
+Check the change is really there, in the app it belongs to. If it isn't,
+`haus rollback`.
 
 </Step>
 
