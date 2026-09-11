@@ -81,8 +81,9 @@ So a *set of apps* rather than a whole machine is a room:
 `haus.photography.enable` bringing the apps and whatever else that capability
 needs. A machine runs one desktop and as many rooms as it likes. A published room
 claims a plain `haus.<name>`, since `haus.my.*` is reserved for rooms that never
-leave one Mac; until haus can record which input claimed a name, a machine that
-installs yours warns once per rebuild that nothing says where it came from.
+leave one Mac: `haus add --room --namespace <ns>` records who claimed the name,
+and a namespace nobody has claimed warns once per rebuild that nothing says where
+it came from. [Share a room](/docs/haus/rooms/sharing) is the rest of it.
 
 <Callout type="info" title="There is no third format: app packs do not exist">
 `haus.lib.pack`, `checkPack`, `haus.packFiles` and `haus.packs` are not options.

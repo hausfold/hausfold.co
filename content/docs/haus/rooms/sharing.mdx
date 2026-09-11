@@ -1,0 +1,96 @@
+---
+title: Share a room
+description: "Publishing a room somebody else can install: the flake output haus pins, the namespace you claim, and what the README owes a reader who cannot check your code."
+icon: share
+related:
+  - title: "Create a room"
+    description: "The two files, the registry entry, and the rule that keeps rooms out of each other."
+    href: "/docs/haus/rooms/creating"
+    icon: "blocks"
+  - title: "Share a desktop"
+    description: "The neighbouring format: data rather than code, and readable before it runs."
+    href: "/docs/haus/desktops/sharing"
+    icon: "share"
+---
+
+A desktop is data, so a reader can check one before running it. A room is
+**code**, and no amount of tooling changes that: `haus show --room` reports the
+class and checks nothing, which is the honest answer rather than a gap. What you
+publish, and what your README says, is the whole of what a stranger has to go
+on.
+
+## What you publish
+
+A flake whose `darwinModules` carries the room:
+
+```text
+photo-room/
+├── README.md
+├── flake.nix          # outputs.darwinModules.default = ./module;
+├── module/
+│   ├── options.nix    # what a host may say
+│   └── default.nix    # what happens when they say it
+└── LICENSE
+```
+
+[`haus add --room`](/docs/haus/reference/haus#pinning-a-room) wires it into the
+consumer's flake: the input, the outputs pattern, and the line that imports it.
+
+```nix
+extraModules = [ photo-room.darwinModules.default ];
+```
+
+`default` is the attribute it assumes, so export `default` unless you have a
+reason not to. The module
+itself is [Create a room](/docs/haus/rooms/creating): the options/implementation
+split, `enable` defaulting to false, and offering through
+`haus._contrib.<receiver>` rather than reaching into another room.
+
+## Claim a plain namespace
+
+Publishing is what drops the `haus.my.` prefix. That prefix is reserved for
+rooms that never leave one Mac, and haus promises never to ship under it; a
+published room takes a plain `haus.<name>`, and the person installing it names
+that namespace themselves:
+
+```sh
+haus add --room --namespace photography github:ada/photo-room
+```
+
+haus cannot read the namespace out of your room without running it, which is the
+one thing that command must not do before its confirmation. So the installer
+types it, haus records the claim, and the next rebuild **refuses** if a second
+input turns up wanting the same name. A namespace nobody has claimed only warns,
+once per rebuild.
+
+Pick a name that describes the capability rather than your project, and say it
+in the README's first paragraph. It is the one string every user of your room
+has to type correctly.
+
+## What the README owes a reader
+
+Someone installing your room is running your activation scripts as root. Tell
+them:
+
+- **the namespace**, and every `haus.<ns>.*` option under it worth setting;
+- **what it installs**: packages, casks, launchd jobs, files it writes outside
+  the Nix store;
+- **what it does as root**, if anything, in the activation step;
+- **the permissions it expects them to grant**, and where macOS will ask;
+- **which rooms it offers something to** through `haus._contrib`, and what
+  disappears when the receiving room is off;
+- **which haus revision you tested against**;
+- **that `enable` defaults to false**, and what a person gets when they turn it
+  on with nothing else set.
+
+There is no room registry, so the flakeref is the distribution. Tag releases, keep the default branch installable, and do not
+force-push a revision somebody has pinned.
+
+## Before you share
+
+- [ ] `nix flake check` passes, and a real host evaluates with the room imported.
+- [ ] You have rebuilt a Mac with it, not only evaluated it.
+- [ ] `enable = false` leaves the machine exactly as it was.
+- [ ] The namespace is plain, not `haus.my.*`, and the README leads with it.
+- [ ] Nothing in it is identity, a secret, or specific to your hardware.
+- [ ] The README says what runs as root.

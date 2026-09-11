@@ -123,9 +123,17 @@ const icons = {
   expand: { icon: TextCursorInput },
   shield: { icon: ShieldCheck },
   choose: { icon: ListChecks },
-  // The last row in the Rooms group: how to write one. `hammer` would have
-  // done, but it is already what "Create a desktop" and "Contributing" wear,
-  // and three identical glyphs in one sidebar stop saying anything.
+  // "Rooms, as a kind of thing" — the catalogue at the head of the ---Rooms---
+  // group, and the glyph a card wears when it points at the set rather than at
+  // one room. The same Blocks `blocks` carries, for the same reason `dials` and
+  // `options` share SlidersHorizontal: the catalogue and "Create a room" are
+  // the two pages about rooms in general, and every member of the group
+  // already owns a glyph of its own.
+  rooms: { icon: Blocks },
+  // "Create a room", now the head of the ---Build on it--- group. `hammer`
+  // would have done, but it is already what "Create a desktop" and
+  // "Contributing" wear, and three identical glyphs in one sidebar stop saying
+  // anything.
   blocks: { icon: Blocks },
 
   // The scruff tree's pages. `compass`, `install`, `agent`, `dials` and

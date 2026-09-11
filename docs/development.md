@@ -80,9 +80,10 @@ that morning. The price is that drift is *pulled*: `--latest` is the asking.
 (No node? `nix run nixpkgs#nodejs -- scripts/sync-nebelung.mjs`.)
 
 **The options reference** (`content/docs/haus/reference/options.mdx`), **the
-keybinding snapshot** (`src/data/rice-bindings.json`) and **the bar's two colour
-tables** (on `rooms/bar-widgets`) all read haus's committed `docs/site-data/`,
-so none of them needs Nix:
+keybinding snapshot** (`src/data/rice-bindings.json`), **the bar's two colour
+tables** (on `rooms/bar-widgets`) and **the room catalogue** (`rooms/index.mdx`
+and the `---Rooms---` group) all read haus's committed `docs/site-data/`, so none
+of them needs Nix:
 
 ```sh
 npm run options -- --haus /path/to/haus             # regenerate
@@ -91,6 +92,8 @@ npm run bindings:check -- --haus /path/to/haus      # did haus's bindings move?
 npm run bindings:update -- --haus /path/to/haus     # accept them, after reviewing the prose
 npm run bar-tables:check -- --haus /path/to/haus    # do the tone/mark tables still match?
 npm run bar-tables:update -- --haus /path/to/haus   # accept a rewording, after reading it
+npm run rooms:check -- --haus /path/to/haus         # is the catalogue still haus's room list?
+npm run rooms:update -- --haus /path/to/haus        # accept a reworded blurb, after reading it
 ```
 
 `gen-options.mjs` renders haus's prose, it never rewrites it — what it decides
@@ -136,6 +139,7 @@ the digest the build recomputes; one that edits only the index fails loud.
 | `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, `scripts/submit-openai-app.sh`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The two scripts are in the filter because the suite *parses* them |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
 | `bar-tables-drift.yml` | `scripts/check-bar-tables.mjs`, `src/data/bar-tables.json`, `rooms/bar-widgets.mdx` | `check-bar-tables.mjs` against haus's published tone ladder and mark set. The page is in that filter because this one *parses* it |
+| `rooms-drift.yml` | `scripts/check-rooms.mjs`, `src/data/rooms.json`, `content/docs/haus/rooms/**`, the haus tree's `meta.json` | `check-rooms.mjs` against haus's room registry: the cards and namespace table on `rooms/index`, the `---Rooms---` group, and whether every room haus publishes has a page. The page and `meta.json` are in the filter because this one *parses* both |
 | `dns.yml` | nothing on a PR (no secrets there); `main`, on `scripts/dns-aid.mjs` or `worker-config.js`, plus a Monday cron | converges the DNS-AID records under `_agents.hausfold.co` on the table, then asks 1.1.1.1 what it sees. `test/dns-aid.test.js` covers the table on PRs through `worker.yml`; see [deploying](deploying.md#the-dns-aid-records) |
 
 The reproducible-build check is the one that isn't boilerplate: the export is
