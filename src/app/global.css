@@ -965,12 +965,11 @@ article h1,
 
 /* --- an ordered procedure -------------------------------------------- */
 
-/* `<Steps>` and `<Step>` have been registered in src/components/mdx.tsx since
-   the Starlight port and had never been called, so they were still wearing
-   fumadocs' default: a 2rem grey pill, filled with `--color-fd-secondary`
-   and set in SF, hanging off a plain hairline. That is the same "chip inside
-   a box" the cards rule above takes apart, and at a numeral's size the fill
-   is the only thing you see.
+/* `<Steps>` and `<Step>` were registered in src/components/mdx.tsx with no
+   page calling them, so they were still wearing fumadocs' default: a 2rem
+   grey pill, filled with `--color-fd-secondary` and set in SF, hanging off a
+   plain hairline. That is the same "chip inside a box" the cards rule above
+   takes apart, and at a numeral's size the fill is the only thing you see.
 
    What replaces it is the rail the rest of these pages already use — a
    callout's coloured edge, `.hf-more[open]`'s left rule — with the number
@@ -979,11 +978,17 @@ article h1,
    number is apparatus and the chrome here is mono; the accent, because the
    number answers *where am I in this*, which is the one thing colour is for.
 
-   Numbering is CSS counters, so a step reordered in the MDX renumbers
-   itself. Note what that means for the Markdown twin and `llms-full.txt`:
-   the headings and the prose survive intact, but the numerals do not, and
-   the JSX indents the body four spaces. Wrap a procedure in this when the
-   ORDER is the point; a list of things a reader picks from is a list. */
+   ⚠️ This block overrides four of fumadocs' declarations and INHERITS the
+   rest of its `.fd-step::before`: `position: absolute`, `content:
+   counter(step)` and the flex centring are all still theirs. A fumadocs bump
+   that drops any of the three moves every numeral, and nothing here catches
+   it — the rail is the tell.
+
+   Two things this shape assumes. The fill is `--ground`, so a `<Steps>`
+   belongs at page level: inside a callout or a `.hf-card` the numeral punches
+   a page-coloured hole in a surface that isn't. And the numerals are CSS
+   counters, so they are not in the Markdown twin — which is why
+   `src/lib/source.ts` unwraps both tags when it serializes one. */
 .fd-steps {
   margin-block: 1.75rem;
   margin-inline-start: 0;

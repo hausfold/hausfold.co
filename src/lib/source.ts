@@ -108,7 +108,33 @@ const docs = defineDocs({
       },
     }),
     postprocess: {
-      includeProcessedMarkdown: true,
+      // The Markdown twin (`/docs/<path>.md`, `llms-full.txt`) is re-serialized
+      // from the same mdast the page renders from, and a JSX element is emitted
+      // verbatim with its children indented under it. For `<Steps>` that is not
+      // cosmetic: `<Steps>` and `<Step>` each end their HTML block at the blank
+      // line after them, so the four spaces in front of every line of a step's
+      // body make the whole procedure an INDENTED CODE BLOCK to any CommonMark
+      // reader. A page's steps would arrive at an agent as one grey slab.
+      //
+      // Fumadocs' own stringifier already has the answer — `filterElement`
+      // returning `children-only` splices a JSX element's children in at the
+      // parent's indentation — but `remarkLLMs` overrides `filterElement` with
+      // "keep everything", and only the `stringify` hook it delegates to
+      // survives. So say it here, for the two elements that are pure layout:
+      // the headings, prose and fences come through as themselves, and the
+      // numerals, which are CSS counters, do not come through at all.
+      //
+      // ⚠️ Deliberately only these two. `Callout`, `Card`, `Tabs` and `Icon`
+      // stay verbatim: their attributes carry meaning a reader loses if the
+      // tag is dropped (a callout's `title`, a card's `href`).
+      includeProcessedMarkdown: {
+        stringify(node, _parent, state, info) {
+          if (node.type !== 'mdxJsxFlowElement') return;
+          if (node.name !== 'Steps' && node.name !== 'Step') return;
+
+          return state.containerFlow(node, info);
+        },
+      },
     },
   },
   meta: {
