@@ -442,6 +442,21 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
   `ViewOptionsPopover` with four hardcoded destinations (Markdown, GitHub source,
   two assistants), because **the list is an endorsement**. It sits in `.hf-meta`
   above the title, before the `h1` in the DOM.
+- **`<Steps>` numbers by CSS counter**, so a step reordered in the MDX renumbers
+  itself and the numerals are not in the Markdown twin. It earns its tag where
+  the ORDER is the point and the page would otherwise type numerals into its own
+  headings; a set of things a reader picks from is a list. Its one caller is
+  [`perch/install`](content/docs/perch/install.mdx), whose anchors are plain
+  heading slugs (`#the-phone-half`) — **a fragment never reaches the Worker, so
+  `_redirects` cannot rescue an old one**. Three pieces, and each is load-bearing:
+  the look is "an ordered procedure" in `src/app/global.css`, which overrides
+  four of fumadocs' `.fd-step::before` declarations and **inherits its `position`,
+  its `content: counter(step)` and its flex centring** — and `.fd-step` itself
+  must stay `position: static`, or every number jumps 1.9rem off the rail; the
+  numeral is punched out in `--ground`, so **`<Steps>` belongs at page level, not
+  inside a callout or a card**; and `postprocess.includeProcessedMarkdown` in
+  `src/lib/source.ts` unwraps both tags for the twin, **without which a step's
+  body is a four-space-indented code block** to every Markdown reader.
 
 ### Gotchas paid for already
 

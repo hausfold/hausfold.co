@@ -963,6 +963,78 @@ article h1,
   height: 1.35rem;
 }
 
+/* --- an ordered procedure -------------------------------------------- */
+
+/* `<Steps>` and `<Step>` were registered in src/components/mdx.tsx with no
+   page calling them, so they were still wearing fumadocs' default: a 2rem
+   grey pill, filled with `--color-fd-secondary` and set in SF, hanging off a
+   plain hairline. That is the same "chip inside a box" the cards rule above
+   takes apart, and at a numeral's size the fill is the only thing you see.
+
+   What replaces it is the rail the rest of these pages already use — a
+   callout's coloured edge, `.hf-more[open]`'s left rule — with the number
+   sitting ON the rail rather than in a badge on it, punched out of the page
+   ground so the line breaks cleanly around each one. Mono, because a step
+   number is apparatus and the chrome here is mono; the accent, because the
+   number answers *where am I in this*, which is the one thing colour is for.
+
+   ⚠️ This block overrides four of fumadocs' declarations and INHERITS the
+   rest of its `.fd-step::before`: `position: absolute`, `content:
+   counter(step)` and the flex centring are all still theirs. A fumadocs bump
+   that drops any of the three moves every numeral, and nothing here catches
+   it — the rail is the tell.
+
+   Two things this shape assumes. The fill is `--ground`, so a `<Steps>`
+   belongs at page level: inside a callout or a `.hf-card` the numeral punches
+   a page-coloured hole in a surface that isn't. And the numerals are CSS
+   counters, so they are not in the Markdown twin — which is why
+   `src/lib/source.ts` unwraps both tags when it serializes one. */
+.fd-steps {
+  margin-block: 1.75rem;
+  margin-inline-start: 0;
+  padding-inline-start: 1.9rem;
+  border-inline-start: 1px solid var(--accent-line);
+}
+
+/* 🚨 `.fd-step` stays `position: static`, and that is load-bearing: the
+   number is absolutely positioned with no `top`, so it keeps its static
+   position vertically (level with the step's first line) while resolving
+   `inset-inline-start` against `.fd-steps` — the nearest positioned
+   ancestor, whose padding box starts exactly at the rule. Give `.fd-step` a
+   `position` and every number jumps 1.9rem to the right. */
+.fd-step::before {
+  inset-inline-start: -0.85rem;
+  width: 1.7rem;
+  height: auto;
+  /* Down onto the heading's x-height. `margin-top` rather than `top`, which
+     would replace the static position the rule above depends on. */
+  margin-top: 0.3rem;
+  padding-block: 0.3rem;
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* The heading is the step's title and the rail is already announcing a new
+   one, so it doesn't need the air an h3 takes between two paragraphs. */
+.fd-step > :first-child {
+  margin-top: 0;
+}
+
+.fd-step > :last-child {
+  margin-bottom: 0;
+}
+
+/* Steps are siblings in one procedure, not sections of a page: the gap
+   between them is what says "next", and it is the same gap on all of them. */
+.fd-step + .fd-step {
+  margin-top: 1.75rem;
+}
+
 /* --- the code ramp --------------------------------------------------- */
 
 /* Shiki is configured (src/lib/shiki-theme.ts) to emit `var(--nb-*)` for
