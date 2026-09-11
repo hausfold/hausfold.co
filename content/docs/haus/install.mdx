@@ -18,20 +18,7 @@ related:
 ---
 
 ```sh
-# scaffold your config; it asks which desktop
 curl -fsSL https://hausfold.co/haus.sh | bash
-
-# or answer that in the URL, and skip the question
-curl -fsSL https://hausfold.co/hacker.sh   | bash   # the full desktop
-curl -fsSL https://hausfold.co/everyday.sh | bash   # if you don't write code
-curl -fsSL https://hausfold.co/minimal.sh  | bash   # just the themed shell
-
-# same answer as a flag
-curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=minimal
-
-# read it first, or pin an exact release and diff it against GitHub
-curl -fsSL https://hausfold.co/haus.sh | less
-curl -fsSL 'https://hausfold.co/haus.sh?ref=v2026.07.19' | less
 ```
 
 That installs Nix if you don't have it, asks a few questions, and writes your
@@ -40,9 +27,27 @@ config. Piped or not, it reaches your terminal and interviews you. It does
 activates them, and offers to run that for you, so you can stop in between and
 read what it wrote.
 
+One of the questions is which desktop. Name it in the URL, or give `bash` a
+flag, and it's already answered:
+
+```sh
+curl -fsSL https://hausfold.co/hacker.sh   | bash   # the full desktop
+curl -fsSL https://hausfold.co/everyday.sh | bash   # if you don't write code
+curl -fsSL https://hausfold.co/minimal.sh  | bash   # just the themed shell
+
+# or as a flag, on the URL that asks
+curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=minimal
+```
+
 Every desktop is a set of values for the same options, so anything one chose
 your own file overrides in a line. Changing your mind is that line, not a
 reinstall.
+
+```sh
+# read it first, or pin an exact release and diff it against GitHub
+curl -fsSL https://hausfold.co/haus.sh | less
+curl -fsSL 'https://hausfold.co/haus.sh?ref=v2026.07.19' | less
+```
 
 The URL proxies
 [`bootstrap.sh`](https://github.com/hausfold/haus/blob/main/bootstrap.sh) from
