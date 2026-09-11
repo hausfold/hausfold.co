@@ -59,7 +59,8 @@
 //                       → the proof-of-control token OpenAI's app portal
 //                         fetches before it will list the MCP server above.
 //                         Public by design and served bare, no trailing
-//                         newline, because the checker compares the body
+//                         newline, because the checker compares the body to
+//                         the string it minted
 //   /.well-known/mcp/server-card.json
 //                       → the MCP server card (SEP-2127 shape), derived from
 //                         the same MCP_TOOLS table the /mcp endpoint serves,

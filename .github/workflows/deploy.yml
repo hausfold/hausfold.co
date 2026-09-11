@@ -341,6 +341,22 @@ jobs:
             verdict "/.well-known/http-message-signatures-directory did not answer as the directory media type"
           fi
 
+          # The proof of control OpenAI's app portal fetches before it will
+          # list /mcp. `npm test` calls worker.fetch directly, so it cannot
+          # show that a request for this path reaches the Worker instead of
+          # the static 404 — and that is the failure with no alarm on it: the
+          # listing simply stops verifying. Byte-exact against the constant,
+          # because the checker compares the body to the string it minted.
+          expected=$(sed -n 's/^export const OPENAI_APPS_CHALLENGE = "\(.*\)";$/\1/p' worker-config.js)
+          probe "https://hausfold.co/.well-known/openai-apps-challenge"
+          if [ -z "$expected" ]; then
+            verdict "worker-config.js no longer spells OPENAI_APPS_CHALLENGE the way this probe reads it"
+          elif [ "$probe_code" = 200 ] && grep -qx "$expected" "$BODY"; then
+            echo "ok    /.well-known/openai-apps-challenge"
+          else
+            verdict "/.well-known/openai-apps-challenge answered $probe_code without the token in worker-config.js"
+          fi
+
           # And the site itself still serves, so a passthrough regression shows
           # up here rather than as a quiet outage.
           probe "https://hausfold.co/"

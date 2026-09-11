@@ -148,9 +148,10 @@ export const JWKS = { keys: [] };
 // The token OpenAI's app portal fetches from
 // /.well-known/openai-apps-challenge to prove we control this hostname before
 // it will list the MCP server. It is a proof-of-control string, not a
-// credential — it grants nothing, it is meant to be read by anyone, and the
-// portal re-checks it, so it stays here after the verification passes:
-// removing it unverifies the listing.
+// credential — it grants nothing and it is meant to be read by anyone. Keep
+// it after the verification passes: the portal is free to check again, and
+// nothing tells us when it does, so the cost of holding a public string is
+// smaller than the cost of a listing that quietly unverifies.
 //
 // ⚠️ No whitespace around it, and worker.js serves it bare with no trailing
 // newline, because the checker compares the response body to the string it

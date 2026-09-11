@@ -122,6 +122,16 @@ describe('well-known discovery documents', () => {
       expect(res.headers.get('content-type'), path).toContain('application/json');
     }
   });
+
+  it('/.well-known/openai-apps-challenge serves the bare token, no trailing newline', async () => {
+    const res = await worker.fetch(req('/.well-known/openai-apps-challenge'), {});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/plain');
+    // Byte for byte: OpenAI's checker compares the body to what it minted,
+    // so a stray newline or a padded constant fails the verification.
+    expect(await res.text()).toBe(OPENAI_APPS_CHALLENGE);
+    expect(OPENAI_APPS_CHALLENGE).toMatch(/^\S+$/);
+  });
 });
 
 describe('RFC 8414 authorization server metadata (an issuer that grants nothing)', () => {
@@ -254,16 +264,6 @@ describe('RFC 8414 authorization server metadata (an issuer that grants nothing)
   it('there is no openid-configuration: this host is not an OpenID Provider', async () => {
     const res = await worker.fetch(req('/.well-known/openid-configuration'), {});
     expect(res.status).toBe(404);
-  });
-
-  it('/.well-known/openai-apps-challenge serves the bare token, no trailing newline', async () => {
-    const res = await worker.fetch(req('/.well-known/openai-apps-challenge'), {});
-    expect(res.status).toBe(200);
-    expect(res.headers.get('content-type')).toContain('text/plain');
-    // Byte for byte: OpenAI's checker compares the body to what it minted,
-    // so a stray newline or a padded constant fails the verification.
-    expect(await res.text()).toBe(OPENAI_APPS_CHALLENGE);
-    expect(OPENAI_APPS_CHALLENGE).toMatch(/^\S+$/);
   });
 });
 
