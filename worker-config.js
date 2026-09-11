@@ -145,6 +145,19 @@ export const AUTHORIZATION_SERVER = {
 // worker-sign.js.)
 export const JWKS = { keys: [] };
 
+// The token OpenAI's app portal fetches from
+// /.well-known/openai-apps-challenge to prove we control this hostname before
+// it will list the MCP server. It is a proof-of-control string, not a
+// credential — it grants nothing and it is meant to be read by anyone. Keep
+// it after the verification passes: the portal is free to check again, and
+// nothing tells us when it does, so the cost of holding a public string is
+// smaller than the cost of a listing that quietly unverifies.
+//
+// ⚠️ No whitespace around it, and worker.js serves it bare with no trailing
+// newline, because the checker compares the response body to the string it
+// minted rather than trimming it.
+export const OPENAI_APPS_CHALLENGE = "N7WuPKdjS6LawHM7XHT4S8zOseNBs0kVmmX0R7lPqVg";
+
 // The MCP tool table. Descriptions and schemas are what agents see; the enum
 // values are derived from the tables above so a desktop or app added to one
 // place reaches the tool list without a second edit.

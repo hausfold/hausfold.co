@@ -55,6 +55,12 @@
 //                         6749 §5.2's own shape; GET is 405
 //   /.well-known/jwks.json
 //                       → an empty JWK Set: nothing is signed, so no key
+//   /.well-known/openai-apps-challenge
+//                       → the proof-of-control token OpenAI's app portal
+//                         fetches before it will list the MCP server above.
+//                         Public by design and served bare, no trailing
+//                         newline, because the checker compares the body to
+//                         the string it minted
 //   /.well-known/mcp/server-card.json
 //                       → the MCP server card (SEP-2127 shape), derived from
 //                         the same MCP_TOOLS table the /mcp endpoint serves,
@@ -122,6 +128,7 @@ import {
   PROTECTED_RESOURCE,
   AUTHORIZATION_SERVER,
   JWKS,
+  OPENAI_APPS_CHALLENGE,
 } from "./worker-config.js";
 import { rateLimit, problemResponse, PROBLEM_CONTENT_TYPE } from "./worker-api.js";
 // Every fetch this Worker makes on a visitor's behalf goes through
@@ -2438,6 +2445,12 @@ const hausfold = {
         return new Response(JSON.stringify(PROTECTED_RESOURCE, null, 2), {
           headers: { "content-type": "application/json", "cache-control": "public, max-age=300" },
         });
+      }
+      // Proof of control for OpenAI's app portal, which fetches this before
+      // it will list /mcp and again after. Bare token, no trailing newline:
+      // the checker compares the body to the string it minted.
+      if (cleanPath === "/.well-known/openai-apps-challenge") {
+        return text(OPENAI_APPS_CHALLENGE, 200, { "cache-control": "public, max-age=300" });
       }
       if (cleanPath === DIRECTORY_PATH) return serveSignatureDirectory(request, env);
     }
