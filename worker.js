@@ -1472,7 +1472,13 @@ function handleV1(request, env, url, ctx) {
 // worker-config.js, which scripts/dns-aid.mjs reads to publish the
 // `_a2a._agents.hausfold.co` SVCB record: the endpoint can only move in DNS
 // and in HTTP together.
-const { cardUrl: A2A_CARD_URL, ...A2A_INTERFACE } = A2A_ENDPOINT;
+//
+// 🚨 The three keys are named, never spread. A2A_INTERFACE is published
+// verbatim in the card's `supportedInterfaces`, and A2A_ENDPOINT is a shared
+// table now: a key added there for the DNS half (an `alpn`, a `port`) would
+// ride into the card's wire shape on a rest spread and nothing would say so.
+const { url, protocolBinding, protocolVersion, cardUrl: A2A_CARD_URL } = A2A_ENDPOINT;
+const A2A_INTERFACE = { url, protocolBinding, protocolVersion };
 const A2A_CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
@@ -2239,7 +2245,7 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   at /.well-known/ard.json), _mcp._agents.hausfold.co (the MCP server,
   alpn=mcp, with the server card as its capability document) and
   _a2a._agents.hausfold.co (the A2A agent, alpn=a2a, with the agent card as
-  its).
+  its capability document).
 - Every indexable URL: https://hausfold.co/sitemap.xml. Structured data as
   JSON Lines: https://hausfold.co/schema.jsonl.
 

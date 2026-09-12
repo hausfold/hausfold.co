@@ -279,10 +279,10 @@ export default function Developers() {
             <code>_mcp._agents.hausfold.co</code> names the MCP server on{' '}
             <code>hausfold.co:443</code> with <code>alpn=mcp</code> and its server card as the
             capability document, and <code>_a2a._agents.hausfold.co</code> names the A2A agent
-            on the same host with <code>alpn=a2a</code> and the agent card as its. One protocol
-            per record, and the endpoint each card names is the one served over HTTP. The
-            draft&apos;s own keys ride as <code>key65400</code> (a capability URL) and{' '}
-            <code>key65409</code> (the same document as a suffix under{' '}
+            on the same host with <code>alpn=a2a</code> and the agent card as its capability
+            document. One protocol per record. The draft&apos;s own keys ride as{' '}
+            <code>key65400</code> (a capability URL) and <code>key65409</code> (the same
+            document as a suffix under{' '}
             <code>/.well-known/</code>) until IANA assigns theirs.
           </p>
           <Command>
