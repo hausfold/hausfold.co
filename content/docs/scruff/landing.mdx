@@ -127,6 +127,24 @@ somebody is standing in, and it refuses a dirty tree with no PR to fall back on
 rather than deciding for you: park it first. And it writes the same ledger line,
 so a drop is as reversible as a reap.
 
+When several have piled up, `--dead-ends` is the same thing said once:
+
+```sh
+scruff reap --dead-ends
+```
+
+It sweeps the landed lanes as usual, then retires every dead end it named,
+through the same code `drop` runs: the same refusals, a line in the ledger for
+each, the undo printed as it goes. A lane it can't take (somebody is standing in
+it, the tree is dirty) is kept and named, and the run carries on to the next.
+
+A closed PR is not forever, which is why this is a flag and not the default. You
+can reopen one on GitHub as long as the branch is still there, and scruff treats
+an **open** PR on the branch as the last word: close #12, open #13 on the same
+branch, and the lane is in review, not rejected. `reap` asks the forge fresh on
+every run, so a PR you reopened a minute ago is safe from the sweep you start
+now.
+
 ## When a lane outran its PR
 
 You merge the PR, keep talking to the agent, and it makes a few more commits.
