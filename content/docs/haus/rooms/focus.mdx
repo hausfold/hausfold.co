@@ -1,6 +1,6 @@
 ---
 title: Focus
-description: One switch for Do Not Disturb, Slack and your own hooks, plus scenes your Mac enters by itself.
+description: One switch for Do Not Disturb, Slack and your own hooks, a timer on it, and scenes your Mac enters by itself.
 icon: moon
 related:
   - title: "Bar"
@@ -36,6 +36,37 @@ Without a launcher the invoking app needs them itself (sketchybar's is
 asked again after a rebuild moves it), and without Full Disk Access `focus
 status` is its own memory and drifts when you toggle from Control Center or
 your phone.
+
+## Quiet for a while
+
+`focus 25` turns Do Not Disturb on and turns it back off in twenty-five minutes.
+The moon pill counts down in minutes while it runs, so you can see how long is
+left without asking.
+
+```sh
+focus 25        # a bare number is minutes
+focus 90min     # so are 90m and 90min
+focus 1h        # an hour, up to a day
+focus timer     # what is left
+focus timer off # drop the countdown, stay quiet
+```
+
+The palette carries a row per duration. Two by default, and you pick them:
+
+```nix
+haus.focus.timers = [ 25 60 ];   # Focus 25m, Focus 60m in ⌘Space
+```
+
+A timer ends only the quiet it started. Turn quiet off and on again by hand
+while one runs and it forgets itself rather than ending the quiet you just
+chose. Entering a scene does the same, because a scene owns the whole state
+while it is on. It checks about once a minute, Control Center and your phone
+included, so quiet switched off and straight back on inside one of those gaps is
+the sequence it can miss.
+
+What gets written down is the time it ends, not the process waiting for it, so a
+reboot or a rebuild in the middle loses nothing. A timer that ran out while the
+Mac was shut ends the quiet on the way back up.
 
 ## The Slack leg
 
