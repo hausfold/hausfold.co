@@ -184,60 +184,6 @@ subpath`.
 Pointing agents at haus itself?
 [Contributing](/docs/haus/internals/contributing) covers a family repo.
 
-## One subscription, every agent
-
-Claude Code talks to your Claude subscription. Everything else, pi, OpenCode, an
-editor plugin, anything speaking the Anthropic wire format, wants a metered API
-key, so the same work costs twice depending on the pane you did it in.
-
-```nix
-haus.ai.meridian.enable = true;
-```
-
-That runs [meridian](https://github.com/rynfar/meridian) as a login agent on
-`http://127.0.0.1:3456`, answering Anthropic API requests by driving Claude Code
-under your existing subscription. Point any tool at it with any API key:
-
-```console
-$ ANTHROPIC_BASE_URL=http://127.0.0.1:3456 ANTHROPIC_API_KEY=x <your tool>
-```
-
-`haus.ai.meridian.port` moves the number if something already owns 3456. There is
-no option for the bind address: a proxy that answers for your subscription
-without asking who is calling is safe on loopback and an open account on any
-other interface. It does **not** follow `haus.ai.enable`, because the proxy is
-useful to clients haus never installed, and for the same reason **haus points
-nothing at it**: which endpoint a client uses lives in that client's own file
-(`~/.pi/agent/models.json`, OpenCode's config), and those files are yours.
-
-meridian has no credential of its own; it re-uses the OAuth token Claude Code
-keeps in your login keychain. So it runs as a **user** agent, root having no
-login keychain, and the sign-in is a card in `haus permissions`:
-
-```console
-$ claude          # then /login, once
-$ curl -s http://127.0.0.1:3456/health
-{"status":"healthy","auth":{"loggedIn":true,"subscriptionType":"max"}}
-```
-
-Until you sign in it answers 401, and the clients pointed at it look broken
-rather than signed out. `http://127.0.0.1:3456/telemetry` is its own dashboard;
-the log is `~/Library/Logs/haus-meridian.log`.
-
-haus adds one thing, and only to traffic already pointed here: pi's extension
-stamps pi's session id on every request that already says
-`x-meridian-agent: pi`, so meridian resumes the session instead of replaying the
-conversation each turn. One three-message exchange measured 4,414 cache-write
-tokens and none read without it, against 116 written and 4,312 read with it.
-`HAUS_PI_SESSION_AFFINITY=0` turns it off.
-
-<Callout type="warn" title="Already running meridian by hand?">
-An `npm install -g` and a LaunchAgent plist you wrote get **evicted** when you
-turn this on: two of them race for the same port, and one loses the bind and
-retries forever. haus boots the old label out and removes its plist, leaves the
-npm prefix alone, and tells you where it is.
-</Callout>
-
 ## Knowing which agent needs you
 
 Run eight agents at once and the question is which of them is sitting on a

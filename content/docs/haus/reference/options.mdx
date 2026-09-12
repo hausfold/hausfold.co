@@ -6780,7 +6780,7 @@ Example:
 
 ## Focus
 
-One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges — plus the named states (`scenes`) around it, of which quiet is the built-in one. A scene can carry a `when` (a daily window, a network, the power source, the screens) and be entered for you, on a rule that never overrides a state you chose.
+One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges. `focus 25` puts a fuse on it — quiet now, quiet off again in twenty-five minutes, counting down on the bar — and the named states (`scenes`) around it are the same switch with more members, of which quiet is the built-in one. A scene can carry a `when` (a daily window, a network, the power source, the screens) and be entered for you, on a rule that never overrides a state you chose.
 
 ### haus.focus
 
@@ -6788,7 +6788,7 @@ One quiet switch: Do Not Disturb, optional Slack status, and your hooks — plus
 
 <div className="hf-optindex">
 
-[`enable`](#haus-focus-enable) [`hooks`](#haus-focus-hooks) [`scenes`](#haus-focus-scenes) [`scenes.<name>.apps.closeOnExit`](#haus-focus-scenes-name-apps-closeonexit) [`scenes.<name>.apps.open`](#haus-focus-scenes-name-apps-open) [`scenes.<name>.audio.input`](#haus-focus-scenes-name-audio-input) [`scenes.<name>.description`](#haus-focus-scenes-name-description) [`scenes.<name>.dnd`](#haus-focus-scenes-name-dnd) [`scenes.<name>.hooks`](#haus-focus-scenes-name-hooks) [`scenes.<name>.preventSleep`](#haus-focus-scenes-name-preventsleep) [`scenes.<name>.restorePreviousState`](#haus-focus-scenes-name-restorepreviousstate) [`scenes.<name>.when.days`](#haus-focus-scenes-name-when-days) [`scenes.<name>.when.displays`](#haus-focus-scenes-name-when-displays) [`scenes.<name>.when.power`](#haus-focus-scenes-name-when-power) [`scenes.<name>.when.time`](#haus-focus-scenes-name-when-time) [`scenes.<name>.when.wifi`](#haus-focus-scenes-name-when-wifi) [`slack.enable`](#haus-focus-slack-enable) [`slack.snooze`](#haus-focus-slack-snooze) [`slack.statusEmoji`](#haus-focus-slack-statusemoji) [`slack.statusText`](#haus-focus-slack-statustext) [`slack.tokenCommand`](#haus-focus-slack-tokencommand) [`triggers.interval`](#haus-focus-triggers-interval)
+[`enable`](#haus-focus-enable) [`hooks`](#haus-focus-hooks) [`scenes`](#haus-focus-scenes) [`scenes.<name>.apps.closeOnExit`](#haus-focus-scenes-name-apps-closeonexit) [`scenes.<name>.apps.open`](#haus-focus-scenes-name-apps-open) [`scenes.<name>.audio.input`](#haus-focus-scenes-name-audio-input) [`scenes.<name>.description`](#haus-focus-scenes-name-description) [`scenes.<name>.dnd`](#haus-focus-scenes-name-dnd) [`scenes.<name>.hooks`](#haus-focus-scenes-name-hooks) [`scenes.<name>.key`](#haus-focus-scenes-name-key) [`scenes.<name>.preventSleep`](#haus-focus-scenes-name-preventsleep) [`scenes.<name>.restorePreviousState`](#haus-focus-scenes-name-restorepreviousstate) [`scenes.<name>.when.days`](#haus-focus-scenes-name-when-days) [`scenes.<name>.when.displays`](#haus-focus-scenes-name-when-displays) [`scenes.<name>.when.power`](#haus-focus-scenes-name-when-power) [`scenes.<name>.when.time`](#haus-focus-scenes-name-when-time) [`scenes.<name>.when.wifi`](#haus-focus-scenes-name-when-wifi) [`slack.enable`](#haus-focus-slack-enable) [`slack.snooze`](#haus-focus-slack-snooze) [`slack.statusEmoji`](#haus-focus-slack-statusemoji) [`slack.statusText`](#haus-focus-slack-statustext) [`slack.tokenCommand`](#haus-focus-slack-tokencommand) [`timers`](#haus-focus-timers) [`triggers.interval`](#haus-focus-triggers-interval)
 
 </div>
 
@@ -6870,8 +6870,8 @@ here is an error. Shape quiet through `haus.focus.slack` and
 With the launcher room on, every scene is a palette row too — a
 generated `Scene: <name>` command, plus `Leave Scene`, each with a line
 on the cheatsheet's Palette Commands page — so entering one doesn't
-mean remembering its name in a terminal. A `haus.keys.leaderExtras`
-chord remains the way to give one a key.
+mean remembering its name in a terminal. Give a scene a `key` and it
+gets a leader binding and its cheatsheet row generated as well.
 
 A scene with a `when` is entered for you — a daily window, a set of
 weekdays, a Wi-Fi network, the power source, how many screens are
@@ -6987,6 +6987,37 @@ paired.
 Scripts run on entry and exit, each called with "on" or "off" —
 the same contract as `haus.focus.hooks`, scoped to this scene.
 Failures are logged, never fatal.
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
+#### `haus.focus.scenes.<name>.key` [#haus-focus-scenes-name-key]
+
+`null or string` · default `null` · e.g. `"r"`
+
+A launch-mode key for this scene: tap the leader, then this key,
+to enter the scene — and the same key again to leave it. The
+cheatsheet row is generated beside the binding, so the key and
+its caption cannot drift.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.focus.scenes.&lt;name>.key</span></summary>
+
+An AeroSpace key name, and a POSITION on a US keyboard like
+every other key in this config (`haus.keys.layout` moves the
+letters onto the keys that print them). It shares launch mode
+with the app roster, the numbered workspaces and their throws,
+the fixed actions (`v`, `f`, `z`, `,`, `.`, `` ` ``, `-`, `=`,
+`/`, esc and the arrows) and `haus.keys.leaderExtras`, so a key
+one of those already claims is refused at eval rather than
+silently shadowing it.
+
+Needs `haus.windows.enable` and `haus.keys.leader != "none"` —
+launch mode is the tiler's, and a machine that claims no leader
+has no launch mode to bind into. Without either, the scene keeps
+its palette row and loses only the key.
+
+</details>
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
@@ -7186,6 +7217,48 @@ it is kept. Set this only to fetch the token some other way.
 
 <small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
 
+#### `haus.focus.timers` [#haus-focus-timers]
+
+`list of (positive integer, meaning >0)` · default `[ 25 60 ]`
+
+Minutes offered as palette rows — a `Focus 25m` command per entry, each
+with a line on the cheatsheet's Palette Commands page. Empty means no
+rows; the CLI takes any duration either way.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.focus.timers</span></summary>
+
+`focus <minutes>` is quiet with a fuse on it: it turns Do Not Disturb
+on, writes down when to stop, and a launchd one-shot turns it back off
+at the end. A bare number is MINUTES here, where `awake 3` is hours —
+each verb takes the unit it is used in — and `25m`, `90min` and `1h`
+are spelled out in both. A day is the ceiling: past that you want a
+scene, which has a name and can say what else it changes.
+
+It ends only the quiet it started. A quiet you switch off and on again
+while the timer runs is a different quiet — one you chose — and the
+timer forgets itself rather than ending it; so does entering a scene,
+which owns the whole state while it runs. It checks about once a
+minute, including for Focus turned off from Control Center or a phone,
+so off-and-straight-back-on inside one of those gaps is the sequence it
+can miss. `focus timer` says what is left, and `focus timer off` drops
+the countdown while keeping you quiet.
+
+</details>
+
+Example:
+
+```nix
+[
+  25
+  50
+  90
+]
+```
+
+<small>Declared in [`modules/focus/options.nix`](https://github.com/hausfold/haus/blob/main/modules/focus/options.nix).</small>
+
 #### `haus.focus.triggers.interval` [#haus-focus-triggers-interval]
 
 `positive integer, meaning >0` · default `30`
@@ -7213,7 +7286,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`autoMode.allow`](#haus-ai-automode-allow) [`autoMode.environment`](#haus-ai-automode-environment) [`autoMode.hardDeny`](#haus-ai-automode-harddeny) [`autoMode.keepDefaults`](#haus-ai-automode-keepdefaults) [`autoMode.softDeny`](#haus-ai-automode-softdeny) [`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`factory.enable`](#haus-ai-factory-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`meridian.enable`](#haus-ai-meridian-enable) [`meridian.port`](#haus-ai-meridian-port) [`namer`](#haus-ai-namer) [`pi.packages`](#haus-ai-pi-packages) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`autoMode.allow`](#haus-ai-automode-allow) [`autoMode.environment`](#haus-ai-automode-environment) [`autoMode.hardDeny`](#haus-ai-automode-harddeny) [`autoMode.keepDefaults`](#haus-ai-automode-keepdefaults) [`autoMode.softDeny`](#haus-ai-automode-softdeny) [`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`factory.enable`](#haus-ai-factory-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`namer`](#haus-ai-namer) [`pi.packages`](#haus-ai-pi-packages) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
@@ -7681,71 +7754,6 @@ room installs, so with the room off nothing would ever report a turn.
 </details>
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
-
-#### `haus.ai.meridian.enable` [#haus-ai-meridian-enable]
-
-`boolean` · default `false`
-
-Serve your Claude Max subscription to every Anthropic-compatible client
-on this Mac, from a proxy on loopback. Point a tool at
-`http://127.0.0.1:3456` with any API key and it talks to your
-subscription rather than to a metered API key — which is what makes an
-agent that is not Claude Code (pi, opencode, crush, an editor plugin)
-cost what the subscription already costs instead of billing per token.
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.ai.meridian.enable</span></summary>
-
-It is not an agent and does not need one: `haus.ai.enable` is about
-whether this machine runs coding agents, and this is an ENDPOINT that is
-useful to anything speaking the Anthropic wire format. So the two
-switches are independent — turning agents off never takes the proxy away
-from a client haus does not install.
-
-The credential is Claude Code's. meridian reads the OAuth token out of
-the login keychain (`Claude Code-credentials`) or
-`~/.claude/.credentials.json`, which is why this is a per-user launchd
-agent rather than a daemon: a root daemon can see neither. Signing in is
-a card in `haus permissions` — until you have, the proxy answers 401 and
-the clients pointed at it look broken.
-
-haus does not point anything at it. The file that tells a client to use
-the proxy is that client's own (`~/.pi/agent/models.json`,
-`~/.config/opencode/…`) and haus writes none of them — see the AI room's
-`clientScopeNote`. This room's job ends at "the port answers".
-
-One thing haus does add to traffic you have already pointed here: pi's
-extension stamps `x-session-affinity` on requests that already carry
-`x-meridian-agent: pi`, without which meridian replays the whole
-conversation every turn instead of resuming its SDK session — see
-`modules/terminal/pi/agent-state.ts`. It never makes a client address
-this proxy; it only stops one that already does from paying for every
-cache write twice. `HAUS_PI_SESSION_AFFINITY=0` turns it off. The
-resume path has a degenerate mode — a session whose cache reads stop
-growing while every turn re-writes the tail — and
-`haus-cache-watchdog.ts` banners it; `HAUS_PI_CACHE_WATCHDOG=0` turns
-the banner off.
-
-</details>
-
-<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
-
-#### `haus.ai.meridian.port` [#haus-ai-meridian-port]
-
-`16 bit unsigned integer; between 0 and 65535 (both inclusive)` · default `3456`
-
-The port the proxy listens on, upstream's default. Every client you
-point at it names this number, so moving it means editing each of those
-files by hand — it is here for the machine that already has something on
-3456, not as a thing to tune.
-
-The bind address is 127.0.0.1 and is not an option. A proxy that answers
-for your subscription with no authentication is safe on loopback and is
-an open account on any other interface, so this room does not offer the
-leaf that would make that a one-word change.
-
-<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
 
 #### `haus.ai.namer` [#haus-ai-namer]
 
