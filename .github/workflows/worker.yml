@@ -43,6 +43,12 @@ on:
       - '.github/workflows/worker.yml'
   workflow_dispatch: {}
 
+# Cancel a superseded PR run, and only a PR run: any other event keys on its
+# own commit, so a merge run of main is never cancelled by the next merge.
+concurrency:
+  group: worker-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
