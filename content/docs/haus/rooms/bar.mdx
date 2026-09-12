@@ -95,7 +95,9 @@ haus.bar.media.width = 16;        # characters; 32 by default, a maximum
 ## Toggling pills
 
 Every right-side pill is one boolean; `clock`, `weather`, `media`, `battery`
-and `wifi` default on, the rest off. A pill set `false` is never created.
+and `wifi` default on, the rest off. The exception is `factory`, which follows
+[`haus.ai.enable`](/docs/haus/rooms/ai), the room that puts the binary behind it
+on your `PATH`. A pill set `false` is never created.
 
 ```nix
 haus.bar.items = {
@@ -112,7 +114,7 @@ haus.bar.items = {
 | `volume` | Output volume and mute. |
 | `calendar` | Your next meeting, `in 12m · Design review`, filling the pill five minutes either side. **Right-click joins**; left-click opens the day. |
 | `caffeinate` | A coffee cup: click for 1, 2, 4, 8 hours or until stopped; right-click allows sleep. |
-| `factory` | How much longer this Mac may keep landing pull requests unattended, beside the cup because the two answer the same question: what did I leave switched on, and when does it stop. It draws the time left, an infinity sign for a lease that runs until you revoke it, and its own glyph alone when none stands. Click for 4 hours, 12 hours, until revoked, or Revoke; right-click revokes. Without `factory` on your PATH, which is [`haus.ai.enable`](/docs/haus/rooms/ai), it hides rather than drawing a control for a missing tool. [Merging overnight](/docs/haus/night-shift) is the setup it belongs to. |
+| `factory` | How much longer this Mac may keep landing pull requests unattended, beside the cup because the two answer the same question: what did I leave switched on, and when does it stop. It draws the time left, an infinity sign for a lease that runs until you revoke it, and its own glyph alone when none stands. Click for 4 hours, 12 hours, until revoked, or Revoke; right-click revokes. The one pill you get without asking: it comes on with [`haus.ai.enable`](/docs/haus/rooms/ai), because that room is what puts the binary here. Without `factory` on your PATH it hides rather than drawing a control for a missing tool. [Merging overnight](/docs/haus/night-shift) is the setup it belongs to. |
 | `agents` | [Agent](/docs/haus/rooms/ai) lanes and Claude Code desktop sessions: red when one is waiting on you, click to jump there. |
 | `aiUsage` | AI quota spent, for the client you last actually **used**; click for each provider's windows and reset times. Each capped model family gets a gauge of its own in there. Grey means old, not low. |
 | `github` | What's waiting on you, from `haus.bar.github.sources`: searches, the `ci` board, or your own command. The number is how many, the octocat how bad, and **red means a red default branch and nothing else**. Right-click refreshes; with the [AI room](/docs/haus/rooms/ai#when-github-goes-red) on, a stuck row gets **Fix with AI**. Needs the [Development room](/docs/haus/rooms/development)'s git, `gh auth login`, and `haus.git.org` or your own sources; with neither, the build fails. |

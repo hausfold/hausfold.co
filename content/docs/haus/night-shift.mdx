@@ -28,10 +28,12 @@ machine and names none of this, so the joins are haus's to write down.
 
 `factory lease grant 12h` is the whole thing, and the desktop has two doors onto
 the same four verbs. The bar's [`factory` pill](/docs/haus/rooms/bar#toggling-pills)
-draws what is left of the lease and hands you all four, once you ask for it:
+draws what is left of the lease and hands you all four. It is on as soon as
+[`haus.ai.enable`](/docs/haus/rooms/ai) is, since that is what puts `factory` on
+the machine. To keep the lease and lose the pill:
 
 ```nix
-haus.bar.items.factory = true;
+haus.bar.items.factory = false;
 ```
 
 The palette carries the same four as **Merge Lease**, with factory's own reading
