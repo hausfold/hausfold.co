@@ -66,6 +66,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       # This config is read from the PR head, and the deploy overrides only
       # `--name`. Without this check, a PR could add a route to
