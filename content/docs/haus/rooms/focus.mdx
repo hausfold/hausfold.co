@@ -7,6 +7,10 @@ related:
     description: "Where the moon pill sits."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
+  - title: "Keys"
+    description: "Launch mode, where a scene's key lives."
+    href: "/docs/haus/rooms/keys"
+    icon: "keys"
 ---
 
 **Focus** is the quiet switch. The moon pill, **Toggle Focus** in the palette
@@ -89,6 +93,7 @@ haus.focus.scenes.recording = {
 
 ```sh
 focus scene recording
+focus scene toggle recording  # enter it, or leave it if it's on
 focus scene list
 focus scene status        # the scene, "quiet", or "off"
 focus scene off
@@ -99,11 +104,27 @@ what the scene changed, so one entered while already quiet leaves you quiet
 (`restorePreviousState = false` if you'd rather not). The pill and `focus off`
 release a scene too, hold and microphone included.
 
-`quiet` is the built-in scene, shaped by `slack` and `hooks`; it, `off`, `list`
-and `status` are refused as names. With [the
+`quiet` is the built-in scene, shaped by `slack` and `hooks`; it, `off`, `list`,
+`status` and `toggle` are refused as names. With [the
 launcher](/docs/haus/rooms/launcher) on, every scene is a **Scene: recording**
-row in ⌘Space with **Leave Scene** beside it; `haus.keys.leaderExtras` with
-`command = "$HOME/.local/bin/focus scene recording"` gives it a key.
+row in ⌘Space with **Leave Scene** beside it.
+
+### Give a scene a key
+
+```nix
+haus.focus.scenes.recording.key = "r";   # the leader, then r
+```
+
+The binding, and with [the launcher](/docs/haus/rooms/launcher) on its line on
+the cheatsheet, are both made from that one field. The key toggles: press it
+again to leave.
+
+The key shares [launch mode](/docs/haus/rooms/keys) with your app roster, the
+numbered workspaces, the fixed launch-mode actions (`v`, `f`, `z`, `,`, `.`,
+`` ` ``, `-`, `=`, `/`, the arrows) and `haus.keys.leaderExtras`. A key one of
+those already owns is refused when you rebuild, rather than quietly shadowing
+it. It needs the [Windows](/docs/haus/rooms/windows) room; without it the scene
+loses the key and nothing else.
 
 ### Enter a scene automatically
 
