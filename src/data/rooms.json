@@ -105,7 +105,7 @@
       "namespaces": [
         "focus"
       ],
-      "blurb": "One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges — plus the named states (`scenes`) around it, of which quiet is the built-in one. A scene can carry a `when` (a daily window, a network, the power source, the screens) and be entered for you, on a rule that never overrides a state you chose."
+      "blurb": "One quiet switch: Do Not Disturb, an optional status somewhere else, and your own hooks on both edges. `focus 25` puts a fuse on it — quiet now, quiet off again in twenty-five minutes, counting down on the bar — and the named states (`scenes`) around it are the same switch with more members, of which quiet is the built-in one. A scene can carry a `when` (a daily window, a network, the power source, the screens) and be entered for you, on a rule that never overrides a state you chose."
     },
     {
       "key": "ai",
