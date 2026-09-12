@@ -34,6 +34,7 @@ src/components/
   sheet.tsx                       the colophon and the GitHub mark inside it
   command.tsx                     a fenced command with its copy button
   mdx.tsx, page-actions.tsx       what the docs render, and the "Open in…" menu
+  steps.tsx                       the ordered procedure's two divs; its look is global.css's
 src/lib/
   page-meta.ts                    a page's canonical + og: tags, in one call
   jsonld.ts                       the homepage JSON-LD graph (page, /index.jsonld, /schema.jsonl)
