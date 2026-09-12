@@ -32,6 +32,16 @@
 # The `schemamap:` line is the NLWeb Schema Feeds draft's robots.txt directive;
 # it points at the Schema Map listing our structured-data feeds
 # (public/schemamap.xml -> /schema.jsonl).
+#
+# The `Agentmap:` line is Agentic Resource Discovery's robots.txt directive
+# (agenticresourcediscovery.org/spec/). It points at /.well-known/ard.json,
+# the ARD catalog — one entry per thing an agent can call on this domain, each
+# with its media type, URL and the questions it answers. This directive is one
+# of the ways ARD defines to advertise that file; the others we use are the
+# well-known path itself and the `<link rel="ard">` every page carries from
+# src/app/layout.tsx. A fourth place names the same file without being an ARD
+# mechanism: scripts/dns-aid.mjs publishes it as the `_index._agents` record's
+# capability document. Renaming the catalog is an edit in all four.
 
 User-agent: *
 Allow: /
@@ -65,3 +75,4 @@ Disallow: /
 
 Sitemap: https://hausfold.co/sitemap.xml
 schemamap: https://hausfold.co/schemamap.xml
+Agentmap: https://hausfold.co/.well-known/ard.json

@@ -48,6 +48,25 @@ export const metadata: Metadata = {
       { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico' },
     ],
+    // Not icons. `icons.other` is Next's documented escape hatch for an
+    // arbitrary `<link rel>` in the head (generate-metadata.md: it emits
+    // `<link rel={rel} href={url}>` verbatim), and there is no other field
+    // that will: `alternates.types` only ever writes rel="alternate", and
+    // `other` writes `<meta>`. This is the head half of Agentic Resource
+    // Discovery: of the ways ARD defines to advertise a catalog we use three,
+    // this link plus the well-known path and a robots.txt `Agentmap:` line.
+    // All of them name /.well-known/ard.json, the one catalog.
+    //
+    // Two rels for one document: ARD renamed the relation from `ai-catalog`
+    // to `ard` (and the path from ai-catalog.json to ard.json) before 1.0, and
+    // says a consumer MAY treat the predecessor names as equivalent. Ours do,
+    // because consumers still reading the old name exist. Drop the second
+    // line, worker.js's /.well-known/ai-catalog.json route and the note in
+    // AGENTS.md together when they don't.
+    other: [
+      { rel: 'ard', url: `${siteUrl}/.well-known/ard.json`, type: 'application/json' },
+      { rel: 'ai-catalog', url: `${siteUrl}/.well-known/ard.json`, type: 'application/json' },
+    ],
   },
 };
 
