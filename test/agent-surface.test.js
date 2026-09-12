@@ -687,3 +687,75 @@ describe('/a2a (A2A JSON-RPC binding)', () => {
     }
   });
 });
+
+// Agentic Resource Discovery (agenticresourcediscovery.org/spec/): one
+// catalog, advertised three ways. The catalog is a static file; what is worth
+// pinning is that the three advertisements point at THAT file and not at a
+// second one, and that the predecessor path the spec renamed away from still
+// answers with the same document instead of a 404.
+describe('Agentic Resource Discovery', () => {
+  const CATALOG = '/.well-known/ard.json';
+  const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
+  const catalogText = read(`public${CATALOG}`);
+  const assetsServing = (body = catalogText, status = 200) => {
+    const seen = [];
+    return { seen, fetch: async (r) => (seen.push(r.url), new Response(body, { status })) };
+  };
+
+  it('the catalog carries the three parts ARD requires of it', () => {
+    const catalog = JSON.parse(catalogText);
+    expect(typeof catalog.specVersion).toBe('string');
+    expect(catalog.host.displayName).toBeTruthy();
+    expect(catalog.host.identifier).toBeTruthy();
+    expect(catalog.entries.length).toBeGreaterThan(0);
+    for (const entry of catalog.entries) {
+      // urn:air:<publisher>:<namespace>:<name>, publisher a real FQDN — the
+      // domain-anchored form is what makes an entry authoritative with no
+      // central registration, so a hand-written id that drops it is a bug.
+      expect(entry.identifier, entry.url).toMatch(/^urn:air:hausfold\.co:[^:]+:[^:]+$/);
+      for (const key of ['type', 'url', 'description']) {
+        expect(entry, `${entry.identifier} ${key}`).toHaveProperty(key);
+      }
+      expect(() => new URL(entry.url), entry.identifier).not.toThrow();
+    }
+  });
+
+  it('all three advertisements name that one catalog', () => {
+    expect(read('public/robots.txt')).toContain(`Agentmap: https://hausfold.co${CATALOG}`);
+    const layout = read('src/app/layout.tsx');
+    // Next writes `icons.other` into the head verbatim; both relations are
+    // the same href, so the head can never offer a second catalog.
+    for (const rel of ['ard', 'ai-catalog']) expect(layout, rel).toContain(`rel: '${rel}'`);
+    expect(layout).toContain(`\${siteUrl}${CATALOG}`);
+    expect(read('src/app/developers/page.tsx')).toContain(CATALOG);
+  });
+
+  it('the predecessor path answers with the catalog itself, not a copy of it', async () => {
+    const assets = assetsServing();
+    const res = await worker.fetch(req('/.well-known/ai-catalog.json'), { ASSETS: assets });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('application/json');
+    expect(res.headers.get('link')).toContain(`<${CATALOG}>; rel="canonical"`);
+    // Read off the asset, so an edit to the catalog is an edit to both URLs.
+    expect(assets.seen).toEqual([`https://hausfold.co${CATALOG}`]);
+    expect(await res.json()).toEqual(JSON.parse(catalogText));
+  });
+
+  it('answers HEAD with the GET headers, and problem+json rather than the 404 page', async () => {
+    const head = await worker.fetch(
+      req('/.well-known/ai-catalog.json', { method: 'HEAD' }),
+      { ASSETS: assetsServing() },
+    );
+    expect(head.status).toBe(200);
+    expect(head.headers.get('content-type')).toContain('application/json');
+
+    for (const env of [{ ASSETS: assetsServing('nope', 404) }, {}]) {
+      const res = await worker.fetch(req('/.well-known/ai-catalog.json'), env);
+      expect(res.status).toBe(502);
+      const body = await res.json();
+      expect(body.code).toBe('upstream_unavailable');
+      // A client that lands on the dead alias is told where the live one is.
+      expect(body.detail).toContain(CATALOG);
+    }
+  });
+});

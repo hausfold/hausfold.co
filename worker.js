@@ -2307,6 +2307,43 @@ async function serveLlmsMd(env) {
   });
 }
 
+// The ARD catalog at the name it used to have. Agentic Resource Discovery
+// renamed the well-known path from /.well-known/ai-catalog.json to
+// /.well-known/ard.json (and the link relation from `ai-catalog` to `ard`)
+// before 1.0, and says a publisher serving the new path alone is discoverable
+// by every conformant consumer. public/.well-known/ard.json is that path, and
+// it is the only catalog; this route re-serves the same bytes at the
+// predecessor spelling for consumers written before the rename, which is the
+// same trade /llms.md makes for scanners that probe only the .md spelling.
+//
+// Not a copy in public/: a second file is a second thing to keep true, and
+// these two would drift the first time an entry changed. Delete this route,
+// the rel="ai-catalog" link in src/app/layout.tsx and AGENTS.md's note on it
+// together the day nothing probes the old name.
+async function serveAiCatalog(env) {
+  const fail = () =>
+    problemResponse(
+      502,
+      "Catalog unavailable",
+      "The ARD catalog could not be read. It is a static file: https://hausfold.co/.well-known/ard.json is the canonical path and answers directly.",
+      "upstream_unavailable",
+    );
+  if (!env?.ASSETS) return fail();
+  const upstream = await env.ASSETS.fetch(
+    new Request("https://hausfold.co/.well-known/ard.json"),
+  );
+  if (!upstream.ok) return fail();
+  return new Response(upstream.body, {
+    status: 200,
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "public, max-age=3600",
+      // One document, two URLs: say which one is the document.
+      link: '</.well-known/ard.json>; rel="canonical"',
+    },
+  });
+}
+
 // RFC 9727 API catalog: a linkset advertising where the service description
 // (openapi.json), the MCP endpoint, and the human prose live. The profile
 // parameter on the content type is what the RFC requires; a static file could
@@ -2547,6 +2584,7 @@ const hausfold = {
     // discovery document should see its headers, not the site's 404.
     if (request.method === "GET" || request.method === "HEAD") {
       if (cleanPath === "/.well-known/agent-card.json") return serveAgentCard(request);
+      if (cleanPath === "/.well-known/ai-catalog.json") return serveAiCatalog(env);
       if (cleanPath === "/mcp.json") return serveMcpManifest();
       if (cleanPath === "/.well-known/mcp.json") return serveWellKnownMcpManifest();
       if (cleanPath === "/.well-known/oauth-authorization-server") {
