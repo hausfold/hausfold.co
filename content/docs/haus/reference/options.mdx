@@ -5062,6 +5062,10 @@ The focus (Do-Not-Disturb) pill is separate — it rides
 haus.focus.enable, not this set. It can still be moved to the second bar
 with `haus.bar.bottom.items.focus`.
 
+`factory`, the merge-lease pill, is the one leaf here whose default is
+not fixed: it follows `haus.ai.enable`, the room that puts the `factory`
+binary on the machine. Set it either way to say so yourself.
+
 This is the MENU BAR's set, and it is one group: the movable pills all
 sit on the right, because its left is the workspace pills, the front app
 and the leader picker, and its center is kept clear — that is the one
@@ -5190,7 +5194,7 @@ The merge lease, beside the coffee pill: whether this Mac may land pull requests
 
 <summary>More detail<span className="sr-only"> on haus.bar.items.factory</span></summary>
 
-Click for the grants: 4 hours, 12 hours, until revoked, and a Revoke button that goes solid red while there is authority to take back. RIGHT-CLICK revokes without opening anything. The pill hides itself entirely on a Mac with no `factory` on PATH, which is any machine with `haus.ai.enable` off, and comes back on its own the moment that binary lands. It reads `factory lease status --json` and writes nothing: the lease lives in a machine-local file no pull request can edit, which is the whole reason unattended merge authority is safe to grant at all. While one stands, `factory watchdog run` passes `factory shift` on a cadence and merges what the filter you typed can vouch for; `haus.ai.factory.enable` is what keeps that runner alive under launchd.
+Click for the grants: 4 hours, 12 hours, until revoked, and a Revoke button that goes solid red while there is authority to take back. RIGHT-CLICK revokes without opening anything. The one pill haus draws without being asked: it is on by default wherever `haus.ai.enable` is, because that room is what puts `factory` on this Mac and a Mac that has it has a lease to report. `haus.bar.items.factory = false` is how you keep the lease and lose the pill. The pill hides itself entirely on a Mac with no `factory` on PATH, which is any machine with `haus.ai.enable` off, and comes back on its own the moment that binary lands — so installing the tool by hand is enough, with no rebuild to remember. It reads `factory lease status --json` and writes nothing: the lease lives in a machine-local file no pull request can edit, which is the whole reason unattended merge authority is safe to grant at all. While one stands, `factory watchdog run` passes `factory shift` on a cadence and merges what the filter you typed can vouch for; `haus.ai.factory.enable` is what keeps that runner alive under launchd.
 
 </details>
 
@@ -7514,7 +7518,11 @@ On, this room brings its clients, `scruff` and the lifecycle wiring on its
 own. What it adds to OTHER rooms it adds only when they are present: the
 `c` alias arrives with the terminal, the
 `agents` pill with the bar, the agent commands with the launcher. None
-of those rooms is switched on by turning this one on.
+of those rooms is switched on by turning this one on. One of those
+arrivals is unasked: a bar on this machine draws the merge-lease pill by
+default, because `factory` is here and a lease is a thing you leave
+switched on (`haus.bar.items.factory = false` if you would rather not
+see it).
 
 Off is right for any machine not running coding agents — it's a large
 surface a non-developer never sees. The neutral default installs no
