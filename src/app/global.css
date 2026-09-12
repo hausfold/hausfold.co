@@ -720,8 +720,8 @@ article h1,
 
 /* `:not(.not-prose)` is doing real work, not defending against a hypothetical.
    Fumadocs builds components out of headings — a Card's title is an `<h3
-   class="not-prose text-sm">`, a Step's label likewise — and they sit inside
-   the prose container, so a bare `.prose h3` catches them. That put the
+   class="not-prose text-sm">` — and they sit inside the prose container, so
+   a bare `.prose h3` catches them. That put the
    display serif on a 14px UI label, which is the exact size and weight this
    split exists to get the serif *out* of. `not-prose` is fumadocs' own mark
    for "this is furniture, not text"; honouring it is the narrowest way to
@@ -965,74 +965,150 @@ article h1,
 
 /* --- an ordered procedure -------------------------------------------- */
 
-/* `<Steps>` and `<Step>` were registered in src/components/mdx.tsx with no
-   page calling them, so they were still wearing fumadocs' default: a 2rem
-   grey pill, filled with `--color-fd-secondary` and set in SF, hanging off a
-   plain hairline. That is the same "chip inside a box" the cards rule above
-   takes apart, and at a numeral's size the fill is the only thing you see.
+/* `<Steps>` / `<Step>` render as `src/components/steps.tsx`'s two divs, so
+   nothing below inherits from fumadocs' preset; every declaration a numeral
+   depends on is in this block.
 
-   What replaces it is the rail the rest of these pages already use — a
-   callout's coloured edge, `.hf-more[open]`'s left rule — with the number
-   sitting ON the rail rather than in a badge on it, punched out of the page
-   ground so the line breaks cleanly around each one. Mono, because a step
-   number is apparatus and the chrome here is mono; the accent, because the
-   number answers *where am I in this*, which is the one thing colour is for.
+   The shape is a folio: the step's number is set in the display serif, at
+   the size of a chapter number rather than a list marker, and it hangs in
+   a column of its own to the left of the prose, on the same baseline as the
+   step's title. A hairline rail runs down the middle of that column from
+   one numeral to the next and stops at the last: the numerals are the
+   nodes, the rail is what joins them, and where it ends the procedure is
+   over. The accent is spent on the numeral alone, because the number is
+   the one thing here that answers *where am I in this*; the rail is
+   `--accent-line` like every other rule that orients.
 
-   ⚠️ This block overrides four of fumadocs' declarations and INHERITS the
-   rest of its `.fd-step::before`: `position: absolute`, `content:
-   counter(step)` and the flex centring are all still theirs. A fumadocs bump
-   that drops any of the three moves every numeral, and nothing here catches
-   it — the rail is the tell.
+   The numeral is not a box beside the heading: it is the heading's own
+   `::before`, an inline-block pulled into the column by a negative start
+   margin. That is what puts it on the title's baseline for free — an
+   inline-block's baseline is its text's, and `vertical-align: baseline`
+   does the rest — whatever level the title is (perch/install writes `##`,
+   haus/agent-rebuilds `###`) and whatever the two fonts' metrics. A step
+   therefore opens with its title, or with a paragraph; a step whose first
+   child is a fence or a callout would put the numeral inside it.
 
-   Two things this shape assumes. The fill is `--ground`, so a `<Steps>`
-   belongs at page level: inside a callout or a `.hf-card` the numeral punches
-   a page-coloured hole in a surface that isn't. And the numerals are CSS
-   counters, so they are not in the Markdown twin — which is why
-   `src/lib/source.ts` unwraps both tags when it serializes one. */
-.fd-steps {
-  margin-block: 1.75rem;
-  margin-inline-start: 0;
-  padding-inline-start: 1.9rem;
-  border-inline-start: 1px solid var(--accent-line);
+   The rail is `.hf-step::before`, one per step, from the top of the step to
+   the top of the next. The numeral paints the page ground over it with
+   `padding-block` (the punch-out), and a matching negative `margin-block`
+   keeps that padding out of the line box, so a bigger numeral never opens
+   the title's first line. Two things follow. The fill is `--ground`, so a
+   `<Steps>` belongs at page level and not inside a callout or a card,
+   where it would punch page-coloured holes in a surface that isn't; and
+   the numerals are CSS counters, so they are not in the Markdown twin,
+   which is why `src/lib/source.ts` unwraps both tags when it serializes one.
+
+   The geometry is container-relative: `.hf-steps` is an inline-size
+   container and the numeral, its column and the gutter beside it are all
+   `cqi` clamps, so the figure is a chapter number on a laptop and a
+   marginal one on a phone, with the same rail through both and no
+   breakpoint to keep in step with fumadocs'. */
+.hf-steps {
+  /* The figure, the column it sits in (the rail runs down its middle), the
+     gutter between the column and the prose, and the air between steps.
+     Named here so the four rules below spend the same numbers. */
+  /* The floor keeps the figure taller than an h2's line box above the
+     baseline: below it the heading owns the top of the line, the numeral's
+     punch-out starts under the step's top edge, and the rail shows over the
+     first number. */
+  --hf-step-numeral: clamp(1.9rem, 0.95rem + 3.4cqi, 2.5rem);
+  --hf-step-column: calc(var(--hf-step-numeral) * 1.15);
+  --hf-step-gutter: clamp(0.7rem, 0.35rem + 1.5cqi, 1.25rem);
+  --hf-step-gap: 2.75rem;
+
+  container-type: inline-size;
+  counter-reset: step;
+  margin-block: 2rem 2.5rem;
 }
 
-/* 🚨 `.fd-step` stays `position: static`, and that is load-bearing: the
-   number is absolutely positioned with no `top`, so it keeps its static
-   position vertically (level with the step's first line) while resolving
-   `inset-inline-start` against `.fd-steps` — the nearest positioned
-   ancestor, whose padding box starts exactly at the rule. Give `.fd-step` a
-   `position` and every number jumps 1.9rem to the right. */
-.fd-step::before {
-  inset-inline-start: -0.85rem;
-  width: 1.7rem;
-  height: auto;
-  /* Down onto the heading's x-height. `margin-top` rather than `top`, which
-     would replace the static position the rule above depends on. */
-  margin-top: 0.3rem;
-  padding-block: 0.3rem;
-  border-radius: 0;
-  background: var(--ground);
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-/* The heading is the step's title and the rail is already announcing a new
-   one, so it doesn't need the air an h3 takes between two paragraphs. */
-.fd-step > :first-child {
-  margin-top: 0;
-}
-
-.fd-step > :last-child {
-  margin-bottom: 0;
+.hf-step {
+  position: relative;
+  counter-increment: step;
+  padding-inline-start: calc(var(--hf-step-column) + var(--hf-step-gutter));
 }
 
 /* Steps are siblings in one procedure, not sections of a page: the gap
    between them is what says "next", and it is the same gap on all of them. */
-.fd-step + .fd-step {
-  margin-top: 1.75rem;
+.hf-step + .hf-step {
+  margin-top: var(--hf-step-gap);
+}
+
+/* The rail, from this numeral to the next. It reaches across the gap to the
+   next step's top, where that step's numeral covers its end; the last step
+   draws none, so the line stops at the last number. */
+.hf-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: calc(-1 * var(--hf-step-gap));
+  inset-inline-start: calc(var(--hf-step-column) / 2 - 0.5px);
+  width: 1px;
+  background: var(--accent-line);
+}
+
+/* The first rail has nothing arriving from above, so it starts inside its
+   own numeral rather than at the step's edge: whatever the title's line box
+   does, no stub shows over the first number. */
+.hf-step:first-child::before {
+  top: calc(var(--hf-step-numeral) / 2);
+}
+
+/* The title is the step's first line and the rail is already announcing a
+   new step, so it takes none of the air an h2 takes between two sections.
+
+   Fumadocs renders a heading as `flex … items-center gap-1`, the anchor and
+   the `#` button being its items, and that centres the numeral on the whole
+   title rather than sitting it on the first line: a title that wraps on a
+   phone puts the figure between its two lines. Baseline alignment is the
+   fix. The button keeps its centring, and the flex gap moves onto it so the
+   title starts flush with the body below. Both are no-ops on a step that
+   opens with a paragraph. */
+.hf-step > :first-child {
+  margin-top: 0;
+  align-items: baseline;
+  gap: 0;
+}
+
+.hf-step > :first-child > button {
+  align-self: center;
+  margin-inline-start: 0.25rem;
+}
+
+.hf-step > :last-child {
+  margin-bottom: 0;
+}
+
+/* Inside a procedure the numeral is the heading's mark, so the h2's rule and
+   accent tick would be saying it twice. */
+.hf-step > h2 {
+  border-bottom: 0;
+  padding-bottom: 0;
+  background-image: none;
+}
+
+/* The numeral. `position: relative` is what paints its ground over the rail:
+   the rail is a positioned box too, and positioned boxes paint in tree
+   order, which puts the heading's pseudo above the step's. */
+.hf-step > :first-child::before {
+  content: counter(step);
+  position: relative;
+  display: inline-block;
+  box-sizing: content-box;
+  width: var(--hf-step-column);
+  margin-inline: calc(-1 * (var(--hf-step-column) + var(--hf-step-gutter)))
+    var(--hf-step-gutter);
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+  background: var(--ground);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: var(--hf-step-numeral);
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums;
+  text-align: center;
 }
 
 /* --- the code ramp --------------------------------------------------- */
@@ -1145,6 +1221,16 @@ figure.shiki button:hover {
   border-radius: var(--radius-md);
   padding: 0.08em 0.3em;
   font-size: 0.86em;
+}
+
+/* A path has no break opportunity a browser will take, and
+   `~/.config/nix/hosts/<hostname>/default.nix` is wider than a phone's prose
+   column, so in running text it may break anywhere rather than run past the
+   edge: nothing scrolls sideways. Scoped to a paragraph or a list item on
+   purpose. `anywhere` also shrinks min-content, and on a table cell that lets
+   auto layout squeeze a column of option names down to a character's width. */
+.prose :is(p, li) > code {
+  overflow-wrap: anywhere;
 }
 
 /* --- the table of contents ------------------------------------------- */

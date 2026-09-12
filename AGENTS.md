@@ -429,11 +429,14 @@ at rest — `/docs/haus` wears `--a-nebelung` (mauve), `/docs/pounce` `--a-pounc
   block holding fumadocs' ~20 `transition-colors`, handing back only the ⌂ mark's
   0.7s fade. **Code keeps nebelung's ramp** — Shiki emits `var(--nb-token-*)`.
 - **Headings are the serif** (`--font-display`), **body is SF** (`--font-sans`),
-  **chrome stays mono**; landing pages set New York throughout. Three rules spend
-  `--font-display`: `h1`, `h2/h3/h4`, `body:has(.sheet)`. **A landing page whose
-  `<main>` is not a `.sheet` silently comes out in SF**, and **heading rules must
-  exclude `.not-prose`** — a Card's title is an `<h3 class="not-prose text-sm">`,
-  and a bare `.prose h3` puts the serif on a 14px label.
+  **chrome stays mono**; landing pages set New York throughout. Four rules spend
+  `--font-display`: `h1`, `h2/h3/h4`, `body:has(.sheet)`, and a step's numeral
+  (`.hf-step > :first-child::before`), which is the title's figure rather than
+  chrome and is set explicitly because a step may open with a paragraph. **A
+  landing page whose `<main>` is not a `.sheet` silently comes out in SF**, and
+  **heading rules must exclude `.not-prose`** — a Card's title is an
+  `<h3 class="not-prose text-sm">`, and a bare `.prose h3` puts the serif on a
+  14px label.
 
 ### Icons, components, and the sidebar's missing list
 
@@ -451,8 +454,10 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
   one back is a positioning decision. The way back is the `⌂` in the nav.
 - `src/components/mdx.tsx` registers Callout, Card/Cards, Step/Steps, Tab/Tabs,
   `Icon`, and nothing else. **A component the prose could have been hides the
-  prose from search and from `llms-full.txt`.** Three are ours: **`Card`** wraps
-  fumadocs' with `.hf-card`; **`Separator`** (`src/components/sidebar-parts.tsx`)
+  prose from search and from `llms-full.txt`.** Four are ours: **`Card`** wraps
+  fumadocs' with `.hf-card`; **`Steps`/`Step`** (`src/components/steps.tsx`)
+  are two bare divs, `.hf-steps`/`.hf-step`, so nothing in fumadocs' preset
+  reaches a numeral; **`Separator`** (`src/components/sidebar-parts.tsx`)
   labels a sidebar group with `.hf-group` rather than `#nd-sidebar p`, because
   **a bare element selector inside fumadocs' chrome** hits three things; and
   **`ViewOptions`** (`src/components/page-actions.tsx`) **replaces** fumadocs'
@@ -470,14 +475,16 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
   which nests under an `##` and so titles its steps `###`; those land in the ToC,
   and that is the cost of the tag on a page that is not itself the procedure.
   Three pieces, and each is load-bearing: the look is "an ordered procedure" in
-  `src/app/global.css`, which overrides four of fumadocs' `.fd-step::before`
-  declarations and **inherits its `position`, its `content: counter(step)` and
-  its flex centring** — and `.fd-step` itself
-  must stay `position: static`, or every number jumps 1.9rem off the rail; the
-  numeral is punched out in `--ground`, so **`<Steps>` belongs at page level, not
-  inside a callout or a card**; and `postprocess.includeProcessedMarkdown` in
+  `src/app/global.css` — the numeral is the step's **first child's `::before`**,
+  hung into a column on the title's own baseline, so **a step opens with its
+  title or a paragraph**, never a fence or a callout; it is punched out of the
+  rail in `--ground`, so **`<Steps>` belongs at page level, not inside a
+  callout or a card**; and `postprocess.includeProcessedMarkdown` in
   `src/lib/source.ts` unwraps both tags for the twin, **without which a step's
-  body is a four-space-indented code block** to every Markdown reader.
+  body is a four-space-indented code block** to every Markdown reader. The
+  figure and the gutter are `cqi` clamps off `.hf-steps` and the column is
+  1.15× the figure, so a phone and a laptop get one design at two scales and
+  there is no breakpoint of ours to keep in step with fumadocs'.
 
 ### Gotchas paid for already
 
