@@ -275,11 +275,14 @@ export default function Developers() {
           <p>
             Through DNS, before any HTTP at all. SVCB records under{' '}
             <code>_agents.hausfold.co</code> follow DNS-AID, the IETF draft for agent discovery:{' '}
-            <code>_index._agents.hausfold.co</code> points at the ARD catalog above, and{' '}
+            <code>_index._agents.hausfold.co</code> points at the ARD catalog above,{' '}
             <code>_mcp._agents.hausfold.co</code> names the MCP server on{' '}
             <code>hausfold.co:443</code> with <code>alpn=mcp</code> and its server card as the
-            capability document. The draft&apos;s own keys ride as <code>key65400</code> (a
-            capability URL) and <code>key65409</code> (the same document as a suffix under{' '}
+            capability document, and <code>_a2a._agents.hausfold.co</code> names the A2A agent
+            on the same host with <code>alpn=a2a</code> and the agent card as its capability
+            document. One protocol per record. The draft&apos;s own keys ride as{' '}
+            <code>key65400</code> (a capability URL) and <code>key65409</code> (the same
+            document as a suffix under{' '}
             <code>/.well-known/</code>) until IANA assigns theirs.
           </p>
           <Command>

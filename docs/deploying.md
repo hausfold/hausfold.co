@@ -56,14 +56,16 @@ reason the deploy token needs **Zone → DNS:Edit** and not just Workers scopes.
 
 ## the DNS-AID records
 
-Two SVCB records under `_agents.hausfold.co` let an agent find the MCP server
-through DNS alone (DNS-AID, `draft-mozleywilliams-dnsop-dnsaid-02`):
-`_index._agents` points at the ARD catalog, `_mcp._agents` at the MCP server.
-They are the one part of the machine-facing surface that a deploy does not
-carry, so they have a workflow of their own.
+SVCB records under `_agents.hausfold.co` let an agent find this domain's
+machine surface through DNS alone (DNS-AID,
+`draft-mozleywilliams-dnsop-dnsaid-02`): `_index._agents` points at the ARD
+catalog, and there is one record per protocol served — `_mcp._agents` for the
+MCP server, `_a2a._agents` for the A2A agent, each naming its own capability
+document. They are the one part of the machine-facing surface that a deploy
+does not carry, so they have a workflow of their own.
 
 The table is [`scripts/dns-aid.mjs`](../scripts/dns-aid.mjs), derived from
-`MCP_TRANSPORTS` in `worker-config.js`, and
+`MCP_TRANSPORTS` and `A2A_ENDPOINT` in `worker-config.js`, and
 [`dns.yml`](../.github/workflows/dns.yml) converges the zone on it: create,
 update and delete, **under `_agents.hausfold.co` and nowhere else**. A record
 added there by hand is removed on the next push — that is the contract, so the

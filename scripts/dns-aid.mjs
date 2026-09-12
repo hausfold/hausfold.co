@@ -3,17 +3,22 @@
 // DNS-AID (draft-mozleywilliams-dnsop-dnsaid-02) is agent discovery through
 // DNS: SVCB records under `_agents.<domain>` name the endpoints an agent can
 // talk to, so a client that knows only the domain finds the MCP server without
-// reading a page first. Two records:
+// reading a page first. One record per protocol the site already speaks:
 //
 //   _index._agents.hausfold.co   the organization index: a ServiceMode pointer
 //                                at the ARD catalog, /.well-known/ard.json
 //   _mcp._agents.hausfold.co     the MCP server: alpn=mcp on hausfold.co:443,
 //                                capability document = the MCP server card
+//   _a2a._agents.hausfold.co     the A2A agent: alpn=a2a on hausfold.co:443,
+//                                capability document = the agent card
 //
-// The records are DATA, derived from the same table worker.js serves from: the
-// MCP record's target is the hostname of MCP_TRANSPORTS.hausfold.url and its
-// capability document is the server card that Worker answers, so a transport
-// that moves in worker-config.js moves in DNS on the next push.
+// The records are DATA, derived from the same tables worker.js serves from:
+// the MCP record's target is the hostname of MCP_TRANSPORTS.hausfold.url and
+// its capability document is the server card that Worker answers, the A2A
+// record's are A2A_ENDPOINT.cardUrl's, so an endpoint that moves in
+// worker-config.js moves in DNS on the next push. No record here is a
+// capability of its own: each names a document the site already serves over
+// HTTP, at the spelling a resolver-first client looks under.
 // test/dns-aid.test.js holds every path a record names to a document the site
 // actually serves.
 //
@@ -65,7 +70,7 @@
 // script says so and moves on. docs/deploying.md has the one-click alternative.
 
 import { pathToFileURL } from 'node:url';
-import { MCP_TRANSPORTS } from '../worker-config.js';
+import { MCP_TRANSPORTS, A2A_ENDPOINT } from '../worker-config.js';
 
 export const ZONE = 'hausfold.co';
 export const TTL = 3600;
@@ -83,6 +88,7 @@ export const COMMENT = 'DNS-AID. Managed by hausfold/hausfold.co scripts/dns-aid
 export function desiredRecords() {
   const mcp = new URL(MCP_TRANSPORTS.hausfold.url);
   const card = `${mcp.origin}/.well-known/mcp/server-card.json`;
+  const a2aCard = new URL(A2A_ENDPOINT.cardUrl);
   return [
     {
       name: `_index._agents.${ZONE}`,
@@ -112,12 +118,32 @@ export function desiredRecords() {
         [KEY.wellKnown]: wellKnownSuffix(card),
       },
     },
+    {
+      name: `_a2a._agents.${ZONE}`,
+      type: 'SVCB',
+      ttl: TTL,
+      priority: 1,
+      target: a2aCard.hostname,
+      // The A2A agent card, at the path A2A's discovery convention and the
+      // draft's own worked example both use (Figure 1: alpn=a2a with
+      // `well-known=agent-card.json`). The JSON-RPC interface the card names
+      // is not in the record: the draft has one capability document per
+      // record and the card is it, so a client reads /a2a off the card's
+      // `supportedInterfaces` the way an HTTP-first client already does.
+      params: {
+        mandatory: 'alpn,port',
+        alpn: 'a2a',
+        port: '443',
+        [KEY.cap]: a2aCard.href,
+        [KEY.wellKnown]: wellKnownSuffix(a2aCard.href),
+      },
+    },
   ];
 }
 
 // Every `well-known` value is a suffix under /.well-known/ on the record's
 // target (draft Figure 1: `well-known=agent-card.json`), never a full path, so
-// the two records read the same way and dns-aid-core's catalog pointer, which
+// every record reads the same way and dns-aid-core's catalog pointer, which
 // fetches https://<target>/.well-known/<value>, resolves the index.
 export const wellKnownUrl = (r) => `https://${r.target}/.well-known/${r.params[KEY.wellKnown]}`;
 function wellKnownSuffix(url) {

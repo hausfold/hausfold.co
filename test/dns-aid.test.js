@@ -11,7 +11,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
-import { MCP_TRANSPORTS } from '../worker-config.js';
+import { MCP_TRANSPORTS, A2A_ENDPOINT } from '../worker-config.js';
 import {
   ZONE,
   KEY,
@@ -56,9 +56,9 @@ beforeEach(() => {
 const byName = () => Object.fromEntries(desiredRecords().map((r) => [r.name, r]));
 
 describe('the record table', () => {
-  it('publishes the two well-known entrypoints, and only under _agents', () => {
+  it('publishes the index and one record per protocol served, and only under _agents', () => {
     const names = desiredRecords().map((r) => r.name);
-    expect(names).toEqual([`_index._agents.${ZONE}`, `_mcp._agents.${ZONE}`]);
+    expect(names).toEqual([`_index._agents.${ZONE}`, `_mcp._agents.${ZONE}`, `_a2a._agents.${ZONE}`]);
     for (const n of names) expect(inScope(n)).toBe(true);
   });
 
@@ -85,6 +85,7 @@ describe('the record table', () => {
   it('carries one agent protocol per record (draft §3.1.1)', () => {
     for (const r of desiredRecords()) expect(r.params.alpn).not.toContain(',');
     expect(byName()[`_mcp._agents.${ZONE}`].params.alpn).toBe('mcp');
+    expect(byName()[`_a2a._agents.${ZONE}`].params.alpn).toBe('a2a');
   });
 
   it("spells DNS-AID's unregistered keys as keyNNNNN in the private-use range", () => {
@@ -126,6 +127,26 @@ describe('what the records point at is what the site serves', () => {
     expect(res.headers.get('content-type')).toContain('application/mcp-server-card+json');
     const card = await res.json();
     expect(card.serverUrl).toBe(MCP_TRANSPORTS.hausfold.url);
+  });
+
+  it('the A2A record targets the agent card, which names the interface it is published for', async () => {
+    const r = byName()[`_a2a._agents.${ZONE}`];
+    const cap = new URL(r.params[KEY.cap]);
+    expect(r.target).toBe(cap.hostname);
+    expect(wellKnownUrl(r)).toBe(cap.href);
+    // draft Figure 1 spells the A2A record's capability document exactly this
+    // way, so the suffix is the one a consumer that reads only `well-known`
+    // already looks for.
+    expect(r.params[KEY.wellKnown]).toBe('agent-card.json');
+
+    const res = await worker.fetch(req(cap.pathname), {});
+    expect(res.status).toBe(200);
+    const card = await res.json();
+    // The record names the card; the card names /a2a. A client that arrives
+    // through DNS reaches the same JSON-RPC binding as one that arrives
+    // through HTTP.
+    expect(card.supportedInterfaces.map((i) => i.url)).toContain(A2A_ENDPOINT.url);
+    expect(new URL(A2A_ENDPOINT.url).hostname).toBe(r.target);
   });
 
   it('the index record names the ARD catalog in public/.well-known', () => {
@@ -201,18 +222,21 @@ describe('the plan', () => {
     );
     const p = plan(existing);
     expect(drift(p)).toBe(0);
-    expect(p.keep).toHaveLength(2);
+    expect(p.keep).toHaveLength(3);
   });
 
   it('creates what is missing, updates what drifted, deletes what the table does not name', () => {
-    const [index, mcp] = desiredRecords();
+    const [index, mcp, a2a] = desiredRecords();
     const existing = [
       // the index record as published
       fromApi(api({ name: index.name, data: { priority: 1, target: 'hausfold.co.', value: svcParamsText(index.params) } })),
       // the MCP record with a stale target
       fromApi(api({ id: 'stale', name: mcp.name, data: { priority: 1, target: 'old.example.', value: svcParamsText(mcp.params) } })),
-      // a record under _agents nobody asked for (Cloudflare's content form)
-      fromApi(api({ id: 'extra', name: `_a2a._agents.${ZONE}`, content: '1 hausfold.co. alpn=a2a port=443' })),
+      // the A2A record as published
+      fromApi(api({ name: a2a.name, data: { priority: 1, target: 'hausfold.co.', value: svcParamsText(a2a.params) } })),
+      // a protocol record under _agents nobody asked for, added by hand in the
+      // dashboard (Cloudflare's content form)
+      fromApi(api({ id: 'extra', name: `_acp._agents.${ZONE}`, content: '1 hausfold.co. alpn=acp port=443' })),
       // a TXT at the index name: also not in the table, also removed
       { id: 'txt', type: 'TXT', name: index.name, ttl: 3600, priority: 0, target: '', params: {} },
     ];
@@ -220,7 +244,7 @@ describe('the plan', () => {
     expect(p.create).toHaveLength(0);
     expect(p.update.map((u) => u.id)).toEqual(['stale']);
     expect(p.delete.map((d) => d.id).sort()).toEqual(['extra', 'txt']);
-    expect(p.keep).toHaveLength(1);
+    expect(p.keep).toHaveLength(2);
   });
 
   it('never touches a record outside _agents, even one the zone lists beside them', () => {
@@ -231,7 +255,7 @@ describe('the plan', () => {
     ];
     const p = plan(outside);
     expect(p.delete).toHaveLength(0);
-    expect(p.create).toHaveLength(2);
+    expect(p.create).toHaveLength(3);
   });
 
   it('sends Cloudflare a dotted target, a quoted value and the comment', () => {
@@ -257,8 +281,8 @@ describe('a zone record this table never learned', () => {
     };
     const p = plan([odd]);
     expect(p.update.map((u) => u.id)).toEqual(['odd']);
-    expect(p.create.map((c) => c.record.name)).toEqual([`_mcp._agents.${ZONE}`]);
-    expect(drift(p)).toBe(2);
+    expect(p.create.map((c) => c.record.name)).toEqual([`_mcp._agents.${ZONE}`, `_a2a._agents.${ZONE}`]);
+    expect(drift(p)).toBe(3);
   });
 });
 
@@ -298,9 +322,15 @@ describe('the Cloudflare client', () => {
     const p = plan(existing);
     await apply(p, env);
     const writes = calls.slice(1).map((c) => `${c.method} ${c.url.split('/zones/zone1')[1]}`);
-    expect(writes).toEqual(['POST /dns_records', 'PUT /dns_records/r1', 'DELETE /dns_records/r2']);
+    expect(writes).toEqual([
+      'POST /dns_records',
+      'POST /dns_records',
+      'PUT /dns_records/r1',
+      'DELETE /dns_records/r2',
+    ]);
     expect(calls[1].body.name).toBe(`_mcp._agents.${ZONE}`);
-    expect(calls[2].body.data.value).toContain('key65409="ard.json"');
+    expect(calls[2].body.name).toBe(`_a2a._agents.${ZONE}`);
+    expect(calls[3].body.data.value).toContain('key65409="ard.json"');
   });
 
   it('reports a DNSSEC the token may not flip instead of failing the records', async () => {
