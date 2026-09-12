@@ -301,8 +301,9 @@ installs the first time it opens with a network. It is also pointed at
 haus Mac gets, so hovering a `haus.*` option in your host file tells you what
 it does. Your own settings survive, since haus merges its few keys into
 `settings.json` at activation and leaves the rest of that file alone. helix is
-the other editor haus paints from the palette; the other five arrive in their
-own colours.
+the other editor haus writes settings for, and it gets the same nixd wiring in
+a `languages.toml` haus owns outright; the other five arrive in their own
+colours, with nixd on PATH for you to point them at.
 
 "Open in an editor" fits the editor. A terminal editor gets a new terminal
 window cwd'd at the project; a GUI editor is handed the project folder and the
