@@ -45,21 +45,22 @@
 // as dns-aid-core, the draft's reference implementation, numbers them. When
 // IANA assigns real numbers, KEY below is the one place to change.
 //
-// No ARD row, on purpose. ARD (agenticresourcediscovery.org/spec/, v0.91)
-// lists DNS among its discovery mechanisms — "Service Binding records that
-// point to either a static entry source (e.g. _entries._agents.example.com) or
-// a dynamic Agent Registry search endpoint (e.g. _search._agents.example.com)"
+// No ARD row, on purpose. ARD (agenticresourcediscovery.org/spec/, read at
+// v0.91) lists DNS among its discovery mechanisms — "Service Binding records
+// that point to either a static entry source (e.g. _entries._agents.example.com)
+// or a dynamic Agent Registry search endpoint (e.g. _search._agents.example.com)"
 // — and stops there: no record type beyond "service binding", no SvcParamKeys,
 // nothing a consumer is told to do with one. Its normative resolution is HTTP
-// alone (fetch /.well-known/ard.json, honour rel="ard"), and the one place the
-// spec reaches for DNS by name it reaches for DNS-AID. So `_entries._agents`
-// would be `_index._agents` pointing at the same file in a wire format we
-// invented, and `_search._agents` would advertise an ARD Agent Registry — the
-// §5.3 POST /search and POST /explore query model — that this domain does not
-// run (/v1/search is docs search). Revisit when ARD specifies the record: a
-// type, the keys, and what a consumer does with them. Until then this table is
-// DNS-AID's alone, and the test that pins these two names is the fence.
-
+// alone (fetch /.well-known/ard.json, honour rel="ard"), and the only DNS wire
+// format it cites is DNS-AID's, in §5.3.2.1's federated routing. So
+// `_entries._agents` would be `_index._agents` pointing at the same file in a
+// format we invented, and `_search._agents` would advertise an ARD Agent
+// Registry — the §5.3 POST /search and POST /explore query model — that this
+// domain does not run (/v1/search is docs search). Revisit when ARD specifies
+// the record: a type, the keys, and what a consumer does with them. Until then
+// this table is DNS-AID's alone, held there by the test that asserts the name
+// set exactly rather than only the _agents suffix.
+//
 // The deploy token cannot flip DNSSEC (that needs Zone Settings:Edit); the
 // script says so and moves on. docs/deploying.md has the one-click alternative.
 
