@@ -2320,7 +2320,7 @@ async function serveLlmsMd(env) {
 // these two would drift the first time an entry changed. Delete this route,
 // the rel="ai-catalog" link in src/app/layout.tsx and AGENTS.md's note on it
 // together the day nothing probes the old name.
-async function serveAiCatalog(env) {
+async function serveAiCatalog(request, env) {
   const fail = () =>
     problemResponse(
       502,
@@ -2333,7 +2333,8 @@ async function serveAiCatalog(env) {
     new Request("https://hausfold.co/.well-known/ard.json"),
   );
   if (!upstream.ok) return fail();
-  return new Response(upstream.body, {
+  // Null on HEAD, the way serveAgentCard does: the headers are the answer.
+  return new Response(request.method === "HEAD" ? null : upstream.body, {
     status: 200,
     headers: {
       "content-type": "application/json",
@@ -2584,7 +2585,7 @@ const hausfold = {
     // discovery document should see its headers, not the site's 404.
     if (request.method === "GET" || request.method === "HEAD") {
       if (cleanPath === "/.well-known/agent-card.json") return serveAgentCard(request);
-      if (cleanPath === "/.well-known/ai-catalog.json") return serveAiCatalog(env);
+      if (cleanPath === "/.well-known/ai-catalog.json") return serveAiCatalog(request, env);
       if (cleanPath === "/mcp.json") return serveMcpManifest();
       if (cleanPath === "/.well-known/mcp.json") return serveWellKnownMcpManifest();
       if (cleanPath === "/.well-known/oauth-authorization-server") {

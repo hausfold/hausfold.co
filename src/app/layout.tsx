@@ -53,9 +53,9 @@ export const metadata: Metadata = {
     // `<link rel={rel} href={url}>` verbatim), and there is no other field
     // that will: `alternates.types` only ever writes rel="alternate", and
     // `other` writes `<meta>`. This is the head half of Agentic Resource
-    // Discovery, which advertises a catalog three ways — the well-known path,
-    // a robots.txt `Agentmap:` line, and this link. All three name
-    // /.well-known/ard.json, the one catalog.
+    // Discovery: of the ways ARD defines to advertise a catalog we use three,
+    // this link plus the well-known path and a robots.txt `Agentmap:` line.
+    // All of them name /.well-known/ard.json, the one catalog.
     //
     // Two rels for one document: ARD renamed the relation from `ai-catalog`
     // to `ard` (and the path from ai-catalog.json to ard.json) before 1.0, and

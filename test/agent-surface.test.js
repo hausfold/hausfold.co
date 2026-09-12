@@ -689,10 +689,11 @@ describe('/a2a (A2A JSON-RPC binding)', () => {
 });
 
 // Agentic Resource Discovery (agenticresourcediscovery.org/spec/): one
-// catalog, advertised three ways. The catalog is a static file; what is worth
-// pinning is that the three advertisements point at THAT file and not at a
-// second one, and that the predecessor path the spec renamed away from still
-// answers with the same document instead of a 404.
+// catalog, advertised several ways. The catalog is a static file; what is
+// worth pinning is that every place naming it points at THAT file and not at
+// a second one, and that the predecessor path the spec renamed away from
+// still answers with the same document instead of a 404. The DNS mechanism
+// names it too — test/dns-aid.test.js owns that end.
 describe('Agentic Resource Discovery', () => {
   const CATALOG = '/.well-known/ard.json';
   const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
@@ -720,7 +721,7 @@ describe('Agentic Resource Discovery', () => {
     }
   });
 
-  it('all three advertisements name that one catalog', () => {
+  it('every place that names the catalog names that one path', () => {
     expect(read('public/robots.txt')).toContain(`Agentmap: https://hausfold.co${CATALOG}`);
     const layout = read('src/app/layout.tsx');
     // Next writes `icons.other` into the head verbatim; both relations are

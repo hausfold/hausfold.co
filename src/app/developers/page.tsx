@@ -249,11 +249,13 @@ export default function Developers() {
             ships the same MCP server and a skill for install and release lookups.
           </p>
           <p>
-            That ARD catalog is advertised the three ways the spec defines: the well-known
+            That ARD catalog is advertised three of the ways ARD defines: the well-known
             path above, an <code>Agentmap:</code> line in{' '}
             <a href="/robots.txt">/robots.txt</a>, and a{' '}
-            <code>{'<link rel="ard">'}</code> in the head of every page here. ARD renamed
-            both the path and the relation shortly before 1.0, so{' '}
+            <code>{'<link rel="ard">'}</code> in the head of every page here. ARD defines
+            a DNS mechanism too, and the SVCB records further down point at this same
+            catalog. The path and the relation are both renames, from{' '}
+            <code>ai-catalog.json</code> and <code>ai-catalog</code>, so{' '}
             <a href="/.well-known/ai-catalog.json">/.well-known/ai-catalog.json</a> answers
             with the same document and the head carries{' '}
             <code>{'rel="ai-catalog"'}</code> beside the new one. One catalog, the older
