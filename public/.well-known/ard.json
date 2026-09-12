@@ -200,6 +200,7 @@
     },
     {
       "identifier": "urn:air:hausfold.co:plugin:hausfold-co",
+      "displayName": "hausfold.co Agent Plugin manifest",
       "type": "application/json",
       "url": "https://raw.githubusercontent.com/hausfold/hausfold.co/main/plugin.json",
       "description": "Agent Plugins manifest: the same MCP server as an mcp.json entry, bundled with the haus-install skill.",
@@ -228,6 +229,7 @@
     },
     {
       "identifier": "urn:air:hausfold.co:skill:haus-install",
+      "displayName": "haus-install agent skill",
       "type": "application/agent-skills+md",
       "url": "https://raw.githubusercontent.com/hausfold/hausfold.co/main/skills/haus-install/SKILL.md",
       "description": "Agent skill covering desktop installation from hausfold.co and release lookups.",

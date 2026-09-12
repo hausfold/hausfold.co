@@ -714,8 +714,13 @@ describe('Agentic Resource Discovery', () => {
       // domain-anchored form is what makes an entry authoritative with no
       // central registration, so a hand-written id that drops it is a bug.
       expect(entry.identifier, entry.url).toMatch(/^urn:air:hausfold\.co:[^:]+:[^:]+$/);
-      for (const key of ['type', 'url', 'description']) {
+      // §4.2: identifier, displayName, type, and exactly one of url or data.
+      // `displayName` is the one an entry loses silently — a consumer drops
+      // the whole entry rather than the field, so seven entries become five
+      // with nothing in the file to look wrong.
+      for (const key of ['displayName', 'type', 'url', 'description']) {
         expect(entry, `${entry.identifier} ${key}`).toHaveProperty(key);
+        expect(entry[key], `${entry.identifier} ${key}`).toBeTruthy();
       }
       expect(() => new URL(entry.url), entry.identifier).not.toThrow();
     }
