@@ -14,6 +14,7 @@ on:
   # this script PARSES bar-widgets.mdx, so an edit here can break the check on
   # its own, with nothing upstream having moved.
   push:
+    branches: [main]
     paths:
       - 'scripts/check-bar-tables.mjs'
       - 'src/data/bar-tables.json'
@@ -28,6 +29,12 @@ on:
 
 permissions:
   contents: read
+
+# Cancel a superseded PR run, and only a PR run: any other event keys on its
+# own commit, so a merge run of main is never cancelled by the next merge.
+concurrency:
+  group: bar-tables-drift-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   drift:

@@ -16,6 +16,7 @@ on:
   # having moved. `rooms/**` rather than the index alone: deleting a room's
   # page is exactly the case the existence check exists for.
   push:
+    branches: [main]
     paths:
       - 'scripts/check-rooms.mjs'
       - 'src/data/rooms.json'
@@ -32,6 +33,12 @@ on:
 
 permissions:
   contents: read
+
+# Cancel a superseded PR run, and only a PR run: any other event keys on its
+# own commit, so a merge run of main is never cancelled by the next merge.
+concurrency:
+  group: rooms-drift-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   drift:

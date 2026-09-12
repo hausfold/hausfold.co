@@ -8,6 +8,7 @@ on:
     - cron: '0 9 * * 1'
   workflow_dispatch: {}
   push:
+    branches: [main]
     paths:
       - 'scripts/check-rice-bindings.mjs'
       - 'src/data/rice-bindings.json'
@@ -20,6 +21,12 @@ on:
 
 permissions:
   contents: read
+
+# Cancel a superseded PR run, and only a PR run: any other event keys on its
+# own commit, so a merge run of main is never cancelled by the next merge.
+concurrency:
+  group: keybindings-drift-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   drift:
