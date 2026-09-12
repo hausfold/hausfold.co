@@ -335,6 +335,21 @@ export const MCP_TOOLS = [
 // after MCP_TOOLS, which it is filtered from.
 export const DOCS_MCP_TOOLS = MCP_TOOLS.filter((t) => t.name === "search_docs");
 
+// Where the A2A agent answers, and where its card is. Here rather than in
+// worker.js for the same reason MCP_TRANSPORTS is: scripts/dns-aid.mjs derives
+// the `_a2a._agents.hausfold.co` SVCB record from these two — the record's
+// target is the card's hostname and its capability document is the card — and
+// workerd refuses a named export from worker.js. The card is served at the
+// path A2A's own discovery convention puts it at, which is also the DNS-AID
+// draft's worked example (`well-known=agent-card.json`), so the HTTP and DNS
+// spellings of "where is the card" are one string.
+export const A2A_ENDPOINT = {
+  url: "https://hausfold.co/a2a",
+  cardUrl: "https://hausfold.co/.well-known/agent-card.json",
+  protocolBinding: "JSONRPC",
+  protocolVersion: "1.0",
+};
+
 // The A2A (Agent2Agent) skills: what /.well-known/agent-card.json publishes
 // and what /a2a answers. Each row names the MCP tool that does the work, so a
 // skill is a second name for a tool and never a fourth capability —

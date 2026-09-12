@@ -123,6 +123,7 @@ import {
   MCP_TOOLS,
   DOCS_MCP_TOOLS,
   A2A_SKILLS,
+  A2A_ENDPOINT,
   MCP_PROTOCOL_VERSION,
   MCP_TRANSPORTS,
   PROTECTED_RESOURCE,
@@ -1467,12 +1468,11 @@ function handleV1(request, env, url, ctx) {
 // A 0.3 client calling `message/send` is told which version this is
 // (VersionNotSupportedError) rather than getting a bare method-not-found.
 
-const A2A_INTERFACE = {
-  url: "https://hausfold.co/a2a",
-  protocolBinding: "JSONRPC",
-  protocolVersion: "1.0",
-};
-const A2A_CARD_URL = "https://hausfold.co/.well-known/agent-card.json";
+// The interface and the card URL both come from A2A_ENDPOINT in
+// worker-config.js, which scripts/dns-aid.mjs reads to publish the
+// `_a2a._agents.hausfold.co` SVCB record: the endpoint can only move in DNS
+// and in HTTP together.
+const { cardUrl: A2A_CARD_URL, ...A2A_INTERFACE } = A2A_ENDPOINT;
 const A2A_CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "POST, OPTIONS",
@@ -2236,8 +2236,10 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
   https://hausfold.co/.well-known/agent-skills/index.json,
   https://hausfold.co/.well-known/api-catalog, https://hausfold.co/mcp.json.
 - Through DNS (DNS-AID): SVCB records at _index._agents.hausfold.co (pointing
-  at /.well-known/ard.json) and _mcp._agents.hausfold.co (the MCP server,
-  alpn=mcp, with the server card as its capability document).
+  at /.well-known/ard.json), _mcp._agents.hausfold.co (the MCP server,
+  alpn=mcp, with the server card as its capability document) and
+  _a2a._agents.hausfold.co (the A2A agent, alpn=a2a, with the agent card as
+  its).
 - Every indexable URL: https://hausfold.co/sitemap.xml. Structured data as
   JSON Lines: https://hausfold.co/schema.jsonl.
 
