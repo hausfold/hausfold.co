@@ -89,6 +89,7 @@ haus.focus.scenes.recording = {
 
 ```sh
 focus scene recording
+focus scene toggle recording   # enter it, or leave it if it's on
 focus scene list
 focus scene status        # the scene, "quiet", or "off"
 focus scene off
@@ -99,11 +100,26 @@ what the scene changed, so one entered while already quiet leaves you quiet
 (`restorePreviousState = false` if you'd rather not). The pill and `focus off`
 release a scene too, hold and microphone included.
 
-`quiet` is the built-in scene, shaped by `slack` and `hooks`; it, `off`, `list`
-and `status` are refused as names. With [the
+`quiet` is the built-in scene, shaped by `slack` and `hooks`; it, `off`, `list`,
+`status` and `toggle` are refused as names. With [the
 launcher](/docs/haus/rooms/launcher) on, every scene is a **Scene: recording**
-row in ⌘Space with **Leave Scene** beside it; `haus.keys.leaderExtras` with
-`command = "$HOME/.local/bin/focus scene recording"` gives it a key.
+row in ⌘Space with **Leave Scene** beside it.
+
+### Give a scene a key
+
+```nix
+haus.focus.scenes.recording.key = "r";   # the leader, then r
+```
+
+The binding and its line on the cheatsheet are both made from that one field, so
+they can't disagree with each other or with the scene's name. The key toggles:
+press it again to leave, since one keystroke has nowhere to put a second half.
+
+It shares [launch mode](/docs/haus/rooms/keys) with your app roster, the
+numbered workspaces and `haus.keys.leaderExtras`, so a key one of those already
+owns is refused when you rebuild instead of quietly shadowing it. Needs the
+[windows room](/docs/haus/rooms/windows); without it the scene keeps its palette
+row and loses only the key.
 
 ### Enter a scene automatically
 
