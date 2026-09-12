@@ -296,10 +296,12 @@ haus.terminal.hijackFileAssociations = true;      # off by default: make it the
 Zed comes set up: the Nebelung theme for your flavor and accent, following the
 accent on every rebuild with no re-pick in Settings, the terminal's mono font,
 and the Nix, TOML, Swift, HTML, Dockerfile and Make extensions, which Zed
-installs the first time it opens with a network. Your own settings survive,
-since haus merges its few keys into `settings.json` at activation and leaves the
-rest of that file alone. helix is the other editor haus paints from the palette;
-the other five arrive in their own colours.
+installs the first time it opens with a network. It is also pointed at the [Nix
+language server](#your-config-explains-itself) below, so your own config
+explains itself as you read it. Your own settings survive, since haus merges its
+few keys into `settings.json` at activation and leaves the rest of that file
+alone. helix is the other editor haus paints from the palette; the other five
+arrive in their own colours.
 
 "Open in an editor" fits the editor. A terminal editor gets a new terminal
 window cwd'd at the project; a GUI editor is handed the project folder and the
@@ -310,6 +312,38 @@ and it wins over whatever `editorName` chose.
 
 ```nix
 haus.terminal.editor = "subl -w";                 # points at it; installs nothing
+```
+
+## Your config explains itself
+
+Every haus Mac is configured in Nix, and sooner or later you open
+`hosts/<name>/default.nix` to change something. So every haus Mac gets
+[nixd](https://github.com/nix-community/nixd), the Nix language server, whether
+or not the Development room is on. It is part of the floor, not part of the
+toolbelt.
+
+Zed is wired to it with no setup. Put the cursor on an option in your host file
+and you get the same description you would find in the [option
+reference](/docs/haus/reference/options): hover explains it, go to definition
+jumps to the line in haus that declares it, and typing `haus.` completes against
+the options **this machine** actually has, since the server evaluates your flake
+rather than a generic schema.
+
+Any other editor finds `nixd` on your PATH the moment you point its Nix
+extension at it, and to teach it the same trick about your own options, hand it
+these two settings:
+
+```json
+"nixpkgs": { "expr": "(builtins.getFlake \"/Users/you/.config/nix\").darwinConfigurations.yourhost.pkgs" },
+"options": { "darwin": { "expr": "(builtins.getFlake \"/Users/you/.config/nix\").darwinConfigurations.yourhost.options" } }
+```
+
+If your config flake lives somewhere other than `~/.config/nix`, Zed's copy of
+those is yours to correct:
+
+```nix
+programs.zed-editor.userSettings.lsp.nixd.settings.options.darwin.expr =
+  "(builtins.getFlake \"/Users/you/dotfiles\").darwinConfigurations.yourhost.options";
 ```
 
 ## GitHub, without the polling
