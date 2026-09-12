@@ -7213,7 +7213,7 @@ The AI room: whether this machine runs coding agents at all, which clients it in
 
 <div className="hf-optindex">
 
-[`autoMode.allow`](#haus-ai-automode-allow) [`autoMode.environment`](#haus-ai-automode-environment) [`autoMode.hardDeny`](#haus-ai-automode-harddeny) [`autoMode.keepDefaults`](#haus-ai-automode-keepdefaults) [`autoMode.softDeny`](#haus-ai-automode-softdeny) [`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`factory.enable`](#haus-ai-factory-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`meridian.enable`](#haus-ai-meridian-enable) [`meridian.port`](#haus-ai-meridian-port) [`namer`](#haus-ai-namer) [`pi.packages`](#haus-ai-pi-packages) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
+[`autoMode.allow`](#haus-ai-automode-allow) [`autoMode.environment`](#haus-ai-automode-environment) [`autoMode.hardDeny`](#haus-ai-automode-harddeny) [`autoMode.keepDefaults`](#haus-ai-automode-keepdefaults) [`autoMode.softDeny`](#haus-ai-automode-softdeny) [`clients`](#haus-ai-clients) [`default`](#haus-ai-default) [`enable`](#haus-ai-enable) [`factory.enable`](#haus-ai-factory-enable) [`instructions`](#haus-ai-instructions) [`keepAwake`](#haus-ai-keepawake) [`namer`](#haus-ai-namer) [`pi.packages`](#haus-ai-pi-packages) [`repoRoots`](#haus-ai-reporoots) [`skill`](#haus-ai-skill)
 
 </div>
 
@@ -7681,71 +7681,6 @@ room installs, so with the room off nothing would ever report a turn.
 </details>
 
 <small>Declared in [`modules/ai/options.nix`](https://github.com/hausfold/haus/blob/main/modules/ai/options.nix).</small>
-
-#### `haus.ai.meridian.enable` [#haus-ai-meridian-enable]
-
-`boolean` · default `false`
-
-Serve your Claude Max subscription to every Anthropic-compatible client
-on this Mac, from a proxy on loopback. Point a tool at
-`http://127.0.0.1:3456` with any API key and it talks to your
-subscription rather than to a metered API key — which is what makes an
-agent that is not Claude Code (pi, opencode, crush, an editor plugin)
-cost what the subscription already costs instead of billing per token.
-
-<details className="hf-more">
-
-<summary>More detail<span className="sr-only"> on haus.ai.meridian.enable</span></summary>
-
-It is not an agent and does not need one: `haus.ai.enable` is about
-whether this machine runs coding agents, and this is an ENDPOINT that is
-useful to anything speaking the Anthropic wire format. So the two
-switches are independent — turning agents off never takes the proxy away
-from a client haus does not install.
-
-The credential is Claude Code's. meridian reads the OAuth token out of
-the login keychain (`Claude Code-credentials`) or
-`~/.claude/.credentials.json`, which is why this is a per-user launchd
-agent rather than a daemon: a root daemon can see neither. Signing in is
-a card in `haus permissions` — until you have, the proxy answers 401 and
-the clients pointed at it look broken.
-
-haus does not point anything at it. The file that tells a client to use
-the proxy is that client's own (`~/.pi/agent/models.json`,
-`~/.config/opencode/…`) and haus writes none of them — see the AI room's
-`clientScopeNote`. This room's job ends at "the port answers".
-
-One thing haus does add to traffic you have already pointed here: pi's
-extension stamps `x-session-affinity` on requests that already carry
-`x-meridian-agent: pi`, without which meridian replays the whole
-conversation every turn instead of resuming its SDK session — see
-`modules/terminal/pi/agent-state.ts`. It never makes a client address
-this proxy; it only stops one that already does from paying for every
-cache write twice. `HAUS_PI_SESSION_AFFINITY=0` turns it off. The
-resume path has a degenerate mode — a session whose cache reads stop
-growing while every turn re-writes the tail — and
-`haus-cache-watchdog.ts` banners it; `HAUS_PI_CACHE_WATCHDOG=0` turns
-the banner off.
-
-</details>
-
-<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
-
-#### `haus.ai.meridian.port` [#haus-ai-meridian-port]
-
-`16 bit unsigned integer; between 0 and 65535 (both inclusive)` · default `3456`
-
-The port the proxy listens on, upstream's default. Every client you
-point at it names this number, so moving it means editing each of those
-files by hand — it is here for the machine that already has something on
-3456, not as a thing to tune.
-
-The bind address is 127.0.0.1 and is not an option. A proxy that answers
-for your subscription with no authentication is safe on loopback and is
-an open account on any other interface, so this room does not offer the
-leaf that would make that a one-word change.
-
-<small>Declared in [`modules/meridian/options.nix`](https://github.com/hausfold/haus/blob/main/modules/meridian/options.nix).</small>
 
 #### `haus.ai.namer` [#haus-ai-namer]
 
