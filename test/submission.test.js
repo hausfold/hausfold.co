@@ -36,10 +36,19 @@ function bashArray(name) {
   );
 }
 
+// The release notes are the one field that is not an array: a single scalar
+// the submit step pastes and the print step reprints.
+function bashScalar(name) {
+  const m = script.match(new RegExp(`^${name}="((?:[^"\\\\]|\\\\.)*)"$`, 'm'));
+  if (!m) throw new Error(`${name}="…" not found in submit-openai-app.sh`);
+  return m[1].replace(/\\(["`$\\])/g, '$1');
+}
+
 const STARTERS = bashArray('STARTERS');
 const POSITIVE = bashArray('POSITIVE');
 const NEGATIVE = bashArray('NEGATIVE');
 const ANNOTATIONS = bashArray('ANNOTATIONS');
+const RELEASE_NOTES = bashScalar('RELEASE_NOTES');
 
 // "Read Only" reads readOnlyHint, and so on. The portal asks for a reason
 // beside each value it read off the server, so a justification that states
@@ -121,5 +130,23 @@ describe('the copy holds its own rules', () => {
     // the submitted strings may not.
     for (const row of [...STARTERS, ...POSITIVE, ...NEGATIVE, ...ANNOTATIONS])
       for (const field of row) expect(field).not.toContain('—');
+    expect(RELEASE_NOTES).not.toContain('—');
+  });
+
+  it('does not open the release notes with a claim only a first filing can make', () => {
+    // `print` exists so this copy can be refiled, which is the moment
+    // "First submission." stops being true.
+    expect(RELEASE_NOTES).not.toMatch(/first submission/i);
+  });
+
+  it('pastes and reprints the same release notes, so a resubmission can read them', () => {
+    // The failure this catches: the notes drift back inline in step_submit,
+    // where step_print cannot reach them and nobody notices until the next
+    // resubmission retypes the field blind.
+    for (const name of ['step_submit', 'step_print']) {
+      const step = script.match(new RegExp(`^${name}\\(\\) \\{$([\\s\\S]*?)^\\}$`, 'm'));
+      expect(step, `${name}() not found`).not.toBeNull();
+      expect(step[1], `${name} does not read RELEASE_NOTES`).toContain('$RELEASE_NOTES');
+    }
   });
 });

@@ -78,6 +78,19 @@ NEGATIVE=(
 "Uninstall haus from this Mac and delete my nix config.	No tool call. Every tool on this server is read-only and none of them touches the machine, so the assistant explains it can only look things up here, and at most searches the docs for the removal steps for the user to run themselves.	The server is a reference surface with no write path. An app that implied it had reached into the filesystem would be claiming a capability it does not have."
 )
 
+# The one field that is not an array, and the one the portal shows a reviewer
+# first. It lives up here rather than inline in step_submit so that `print`
+# reprints it: a resubmission edits THIS string more often than it edits the
+# test cases, and a step that cannot reprint it is a step you retype blind.
+#
+# "signed and notarized" is a claim about two OTHER repos, so nothing in this
+# one can hold it and no test here will notice it rot. It is true as of now:
+# pounce's and perch's .github/workflows/release.yml both sign with Developer
+# ID under the hardened runtime, submit to notarytool and fail the run on any
+# verdict but Accepted, staple the ticket, and ship the stapled artifact.
+# Re-read both before a resubmission repeats the line.
+RELEASE_NOTES="A read-only MCP server for hausfold's Mac software: the one-line install command for each desktop, the latest signed and notarized macOS release of Pounce and Perch, and full-text search of the documentation. No authentication, because the endpoint is public and every tool is a read, so a reviewer needs no credentials and no test account. The demo video runs the five positive test cases in the order they are listed."
+
 ANNOTATIONS=(
 "get_install_command	Read Only: True	It returns rows from the four-row desktop table compiled into the server. Nothing is written, stored or executed. The install command comes back as text for the user to run on their own machine if they choose to."
 "get_install_command	Open World: False	The answer comes from that same in-server table, which is also what generates the tool's desktop enum. There is no network call and no third-party API, so the set of possible answers is those four rows and does not change between calls."
@@ -247,13 +260,7 @@ step_submit() {
   local yt; yt="$(cat "$STATE/video-url" 2>/dev/null || true)"
   if [ -n "$yt" ]; then note "video: $yt"
   else warn "no video URL saved — run the record step first"; fi
-  # "signed and notarized" is a claim about two OTHER repos, so nothing in
-  # this one can hold it and no test here will notice it rot. It is true as
-  # of now: pounce's and perch's .github/workflows/release.yml both sign with
-  # Developer ID under the hardened runtime, submit to notarytool and fail the
-  # run on any verdict but Accepted, staple the ticket, and ship the stapled
-  # artifact. Re-read both before a resubmission repeats the line.
-  field "release notes" "A read-only MCP server for hausfold's Mac software: the one-line install command for each desktop, the latest signed and notarized macOS release of Pounce and Perch, and full-text search of the documentation. No authentication, because the endpoint is public and every tool is a read, so a reviewer needs no credentials and no test account. The demo video runs the five positive test cases in the order they are listed."
+  field "release notes" "$RELEASE_NOTES"
   [ -n "$yt" ] && field "demo video URL" "$yt"
   note "then the policy attestations."
   warn "Submit for Review is the step you cannot take back today: the listing"
@@ -285,6 +292,9 @@ step_print() {
     IFS=$'\t' read -r tool flag why <<<"$row"
     printf '\n  %s%s · %s%s\n     %s\n' "$b" "$tool" "$flag" "$r" "$why"
   done
+  head_ "Release notes"
+  echo
+  wrap "$RELEASE_NOTES"
   echo
 }
 
