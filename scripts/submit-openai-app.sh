@@ -67,7 +67,7 @@ STARTERS=(
 POSITIVE=(
 "Give me the install command for the hausfold hacker desktop.	Calls get_install_command with desktop: \"hacker\" and answers with the one-line installer, unedited.	One desktops row. command is exactly \`curl -fsSL https://hausfold.co/hacker.sh | bash\`, pins is \"hacker\", and note says what running it does.	None. The endpoint is public and unauthenticated, so there is no account, key or seeded data to set up."
 "What hausfold desktops are there, and how do I install each one?	Calls get_install_command with no argument and lists every desktop instead of guessing at one.	Four desktops rows: the haus chooser plus the three desktops hacker, everyday and minimal. The haus row's pins is null, because that URL asks which desktop to build rather than answering.	None."
-"Ask hausfold for the latest Pounce release: the exact asset file name, its size in bytes, and the download URL.	Calls get_latest_release with app: \"pounce\". The exact asset file name and byte size for the current release are what the tool is for, so an answer from memory is stale or invented and the tool card carries the real ones.	tag like v2026.09.11, asset ending -macos.dmg, size in bytes, a github.com/hausfold/pounce/releases/download URL, and an ISO publishedAt.	None. Pounce has published releases, so this answers for any reviewer at any time."
+"Ask hausfold for the latest Pounce release: the exact asset file name, its size in bytes, and the download URL.	Calls get_latest_release with app: \"pounce\". The exact asset file name and byte size for the current release are what the tool is for, so an answer from memory is stale or invented and the tool card carries the real ones.	tag like v2026.09.11, asset ending -macos.*, size in bytes, a github.com/hausfold/pounce/releases/download URL, and an ISO publishedAt.	None. Pounce has published releases, so this answers for any reviewer at any time."
 "Search the hausfold docs for how notifications work.	Calls search_docs with that query and cites the pages it found instead of answering from memory.	A results array, highest score first, each row carrying a site-relative /docs/... url, breadcrumbs, an excerpt and a score.	None."
 "I want hausfold's Perch. What's the newest build, and what do the docs say about it?	Chains two tools in one turn: get_latest_release with app: \"perch\", then search_docs for the Perch documentation.	A release payload for perch and a separate results array, answered together, with the download facts kept apart from the docs citations.	None."
 )
@@ -106,7 +106,7 @@ step_check() {
   local failed=0
   probe "install command, hacker"  '{"name":"get_install_command","arguments":{"desktop":"hacker"}}' 'https://hausfold.co/hacker.sh | bash' || failed=1
   probe "every desktop listed"     '{"name":"get_install_command","arguments":{}}' '"minimal"' || failed=1
-  probe "latest release, pounce"   '{"name":"get_latest_release","arguments":{"app":"pounce"}}' '-macos.dmg' || failed=1
+  probe "latest release, pounce"   '{"name":"get_latest_release","arguments":{"app":"pounce"}}' '-macos.' || failed=1
   probe "latest release, perch"    '{"name":"get_latest_release","arguments":{"app":"perch"}}' '-macos' || failed=1
   probe "docs search"              '{"name":"search_docs","arguments":{"query":"notifications","limit":3}}' '"results"' || failed=1
   probe "unknown app is an error"  '{"name":"get_latest_release","arguments":{"app":"trill"}}' 'unknown_app' || failed=1
@@ -247,7 +247,13 @@ step_submit() {
   local yt; yt="$(cat "$STATE/video-url" 2>/dev/null || true)"
   if [ -n "$yt" ]; then note "video: $yt"
   else warn "no video URL saved — run the record step first"; fi
-  field "release notes" "First submission. A read-only MCP server for hausfold's Mac software: the one-line install command for each desktop, the latest signed and notarized macOS release of Pounce and Perch, and full-text search of the documentation. No authentication, because the endpoint is public and every tool is a read, so a reviewer needs no credentials and no test account. The demo video runs the five positive test cases in the order they are listed."
+  # "signed and notarized" is a claim about two OTHER repos, so nothing in
+  # this one can hold it and no test here will notice it rot. It is true as
+  # of now: pounce's and perch's .github/workflows/release.yml both sign with
+  # Developer ID under the hardened runtime, submit to notarytool and fail the
+  # run on any verdict but Accepted, staple the ticket, and ship the stapled
+  # artifact. Re-read both before a resubmission repeats the line.
+  field "release notes" "A read-only MCP server for hausfold's Mac software: the one-line install command for each desktop, the latest signed and notarized macOS release of Pounce and Perch, and full-text search of the documentation. No authentication, because the endpoint is public and every tool is a read, so a reviewer needs no credentials and no test account. The demo video runs the five positive test cases in the order they are listed."
   [ -n "$yt" ] && field "demo video URL" "$yt"
   note "then the policy attestations."
   warn "Submit for Review is the step you cannot take back today: the listing"
