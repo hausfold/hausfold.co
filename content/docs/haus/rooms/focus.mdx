@@ -7,6 +7,10 @@ related:
     description: "Where the moon pill sits."
     href: "/docs/haus/rooms/bar"
     icon: "bar"
+  - title: "Keys"
+    description: "Launch mode, where a scene's key lives."
+    href: "/docs/haus/rooms/keys"
+    icon: "keys"
 ---
 
 **Focus** is the quiet switch. The moon pill, **Toggle Focus** in the palette
@@ -89,7 +93,7 @@ haus.focus.scenes.recording = {
 
 ```sh
 focus scene recording
-focus scene toggle recording   # enter it, or leave it if it's on
+focus scene toggle recording  # enter it, or leave it if it's on
 focus scene list
 focus scene status        # the scene, "quiet", or "off"
 focus scene off
@@ -111,15 +115,16 @@ row in ⌘Space with **Leave Scene** beside it.
 haus.focus.scenes.recording.key = "r";   # the leader, then r
 ```
 
-The binding and its line on the cheatsheet are both made from that one field, so
-they can't disagree with each other or with the scene's name. The key toggles:
-press it again to leave, since one keystroke has nowhere to put a second half.
+The binding, and with [the launcher](/docs/haus/rooms/launcher) on its line on
+the cheatsheet, are both made from that one field. The key toggles: press it
+again to leave.
 
-It shares [launch mode](/docs/haus/rooms/keys) with your app roster, the
-numbered workspaces and `haus.keys.leaderExtras`, so a key one of those already
-owns is refused when you rebuild instead of quietly shadowing it. Needs the
-[windows room](/docs/haus/rooms/windows); without it the scene keeps its palette
-row and loses only the key.
+The key shares [launch mode](/docs/haus/rooms/keys) with your app roster, the
+numbered workspaces, the fixed launch-mode actions (`v`, `f`, `z`, `,`, `.`,
+`` ` ``, `-`, `=`, `/`, the arrows) and `haus.keys.leaderExtras`. A key one of
+those already owns is refused when you rebuild, rather than quietly shadowing
+it. It needs the [Windows](/docs/haus/rooms/windows) room; without it the scene
+loses the key and nothing else.
 
 ### Enter a scene automatically
 
