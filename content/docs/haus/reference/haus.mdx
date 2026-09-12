@@ -51,6 +51,7 @@ room](/docs/haus/rooms/ai)), and is also what puts `haus fix` on this list.
 | `haus add <src>` | Pin a desktop and select it, or a room with `--room --namespace <ns>`. Writes `flake.nix` and `flake.lock`, never rebuilds. |
 | `haus desktop [name]` | Every desktop this machine can select, built in and pinned, or switch to one. |
 | `haus remove <name> [replacement]` | Unpin a desktop or a room. A desktop falls back to `blank` if it was the one selected. |
+| `haus version` | The haus release this machine is running, on its own line and nothing else, so `$(haus version)` is the value. `haus --version` is the same command. The revision you have pinned is printed beside it as a note; whether upstream has moved past it is `haus status`. |
 
 ## What needs a person, and what runs itself
 
