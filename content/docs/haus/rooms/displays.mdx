@@ -32,6 +32,45 @@ the ladder of modes *that* screen reports. A monitor that isn't attached is
 skipped with a note, not a failed rebuild. A desktop may name `internal` and
 `main`; a UUID is **host-only**.
 
+## Arrangement
+
+Where a display sits relative to another, as a relation rather than a pixel
+origin:
+
+```nix
+haus.displays.internal.arrangement = {
+  side = "right-of";   # right-of | left-of | above | below
+  of = "main";         # which display this one sits beside
+  align = "top";       # top/center/bottom for right-of and left-of,
+                       # left/center/right for above and below
+                       # (null pins the shared edge)
+};
+```
+
+Set `side` and `of` together: an arrangement with only one of them doesn't
+eval, and the error says so rather than guessing.
+
+The origin is computed at each activation from both panels' current point
+sizes, so the same relation follows a scaling change. Because origins are in
+points, every `uiScale` entry applies before any `arrangement` entry; where two
+displays each carry an arrangement, the one named in `of` is placed first, so a
+desk can be built in relations. A cycle is refused at eval.
+
+`main` is part of what an arrangement asserts: macOS makes a display main by
+putting it at the origin (0, 0), and a relation can put one there. When it
+does, that display becomes main. Check what a relation resolves to before you
+commit it:
+
+```sh
+hausdisp arrange internal right-of main top --dry-run
+hausdisp list   # prints the `at x,y` to compare against
+```
+
+An arrangement is about a desk, so it applies only while BOTH displays are
+attached; an absent one is skipped with a note and re-asserted at the next
+activation after the dock returns. Between activations macOS keeps its own
+remembered arrangement.
+
 ## Remove it
 
 Delete the entry and rebuild. That stops *managing* the screen rather than
