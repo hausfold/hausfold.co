@@ -467,24 +467,26 @@ never a Lucide name, and `loader({ icon })` in `src/lib/source.ts` resolves it.
 - **`<Steps>` numbers by CSS counter**, so a step reordered in the MDX renumbers
   itself and the numerals are not in the Markdown twin. It earns its tag where
   the ORDER is the point and the page would otherwise type numerals into its own
-  headings; a set of things a reader picks from is a list. Two callers:
+  headings; a set of things a reader picks from is a list. Three callers:
+  [`haus/install`](content/docs/haus/install.mdx), whose steps open with a
+  bold-led paragraph and no heading;
   [`perch/install`](content/docs/perch/install.mdx), whose anchors are plain
   heading slugs (`#the-phone-half`) — **a fragment never reaches the Worker, so
   `_redirects` cannot rescue an old one** — and
   [`haus/agent-rebuilds`](content/docs/haus/agent-rebuilds.mdx)'s rebuild loop,
   which nests under an `##` and so titles its steps `###`; those land in the ToC,
   and that is the cost of the tag on a page that is not itself the procedure.
-  Three pieces, and each is load-bearing: the look is "an ordered procedure" in
-  `src/app/global.css` — the numeral is the step's **first child's `::before`**,
-  hung into a column on the title's own baseline, so **a step opens with its
-  title or a paragraph**, never a fence or a callout; it is punched out of the
-  rail in `--ground`, so **`<Steps>` belongs at page level, not inside a
-  callout or a card**; and `postprocess.includeProcessedMarkdown` in
-  `src/lib/source.ts` unwraps both tags for the twin, **without which a step's
-  body is a four-space-indented code block** to every Markdown reader. The
-  figure and the gutter are `cqi` clamps off `.hf-steps` and the column is
-  1.15× the figure, so a phone and a laptop get one design at two scales and
-  there is no breakpoint of ours to keep in step with fumadocs'.
+  Three pieces, and each is load-bearing: the look is "an ordered procedure"
+  in `src/app/global.css` — the numeral is the step's **first child's
+  `::before`**, in `em` of that child and hung into a column on its baseline,
+  so **a step opens with its title or a paragraph**, never a fence or a
+  callout; it is punched out of the rail in `--ground`, so **`<Steps>` belongs
+  at page level, not inside a callout or a card**; and
+  `postprocess.includeProcessedMarkdown` in `src/lib/source.ts` unwraps both
+  tags for the twin, **without which a step's body is a four-space-indented
+  code block** to every Markdown reader. The figure, its column and the gutter
+  are `cqi` clamps off `.hf-steps`, so a phone and a laptop get one design at
+  two scales and there is no breakpoint of ours to keep in step with fumadocs'.
 
 ### Gotchas paid for already
 
