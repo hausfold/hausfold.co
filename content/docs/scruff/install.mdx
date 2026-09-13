@@ -1,6 +1,6 @@
 ---
 title: Install
-description: One binary, no runtime, no account. Nix or Go, the two optional tools that make it sharper, and the one line that proves it took.
+description: One binary, no runtime, no account. Homebrew, Nix or Go, the two optional tools that make it sharper, and the one line that proves it took.
 icon: install
 related:
   - title: "Working in lanes"
@@ -17,10 +17,16 @@ scruff is a single Go binary with no runtime, no daemon, no port and nothing to
 sign in to. Pick whichever of these you already have.
 
 ```sh
+brew install hausfold/tap/scruff                          # from our tap
 nix run github:hausfold/scruff                            # try it, install nothing
 nix profile install github:hausfold/scruff                # keep it
 go install github.com/hausfold/scruff/cmd/scruff@latest   # or, with Go 1.26+
 ```
+
+The Homebrew entry lives in [hausfold/tap](https://github.com/hausfold/homebrew-tap)
+and it compiles rather than unpacking a binary, so the first install downloads a
+Go toolchain and takes a minute. Nothing else about it is different: same
+version, same behaviour, and `brew upgrade` follows the releases.
 
 Then, from inside any git repo:
 

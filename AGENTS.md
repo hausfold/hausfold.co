@@ -273,8 +273,8 @@ you can't place is usually two pages.
 
 **Adding a tab is a positioning change.** The test: **can a stranger install this
 without haus?** pounce is one `brew install`; perch is
-`brew install --cask hausfold/tap/perch`; scruff is one `nix run` or
-`go install`. nebelung and a desktop do not clear it.
+`brew install --cask hausfold/tap/perch`; scruff is
+`brew install hausfold/tap/scruff`. nebelung and a desktop do not clear it.
 
 **`trill` is a tab admitted WITHOUT clearing that bar**, on the user's explicit
 instruction — an exception, not a precedent. Its tree is **one page**, opening
