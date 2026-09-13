@@ -29,7 +29,7 @@ URLs are public too.
 | the landing page | `src/app/page.tsx` |
 | what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
 | the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Cards, namespace table and the `---Rooms---` group are all held to haus's registry by `scripts/check-rooms.mjs`; `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
-| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is the gallery on [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s, and it is **rendered from `worker-config.js`'s `DESKTOPS`** by `npm run desktops` — the foundation first, then what hausfold presents from its own URL, then what installs by flakeref. Write the row, not the block; `index.mdx`'s `## Desktops` is three sentences and a link to it |
+| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is the gallery on [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s, and it is **rendered from `worker-config.js`'s `DESKTOPS`** by `npm run desktops` — what hausfold presents from its own URL first (the foundation among them), then what installs by flakeref. Write the row, not the block; `index.mdx`'s `## Desktops` is three sentences and a link to it |
 | **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
 | the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` installs the foundation and asks no desktop question; `/hacker.sh` selects a desktop by URL. **A desktop is a row in `DESKTOPS`, not a new route**; a URL that stops being presented moves to `RETIRED_INSTALLERS` (`worker-config.js`), never out. **The reverse does not hold: a `DESKTOPS` row is not automatically a URL.** A row with a `flakeref` is a gallery card for a desktop in its own repo, installed by `--desktop=<flakeref>`, and `/<name>.sh` routes on `INSTALLER_DESKTOPS` so that name 404s |
 | the install *script* (`bootstrap.sh`) | `hausfold/haus` — the Worker proxies it and pins the ref |
@@ -372,10 +372,10 @@ as much as they bound that one.
   `src/lib/source.ts` already carries a markdown table into `llms-full.txt`
   whole. A catalogue a reader compares across columns stays a table, and
   splitting one of its rows is the honest fix when a single tick stopped meaning
-  two things — `rooms/index`'s namespace table is one. `desktops/choosing`'s
-  foundation-against-hacker grid was the example until the gallery replaced it: a
-  column per desktop is a table that stops working at the fourth one, so the
-  gallery is one block per row, rendered from `DESKTOPS`.
+  two things. `desktops/choosing`'s foundation-against-hacker grid was the worked
+  example until the gallery replaced it: a column per desktop is a table that
+  stops working at the fourth one, so the gallery is one block per row, rendered
+  from `DESKTOPS`.
 - **Diff the claims, not the identifiers.** Compression makes a page wrong more
   easily than it makes it terse: half of a two-sided caveat over-claims on its
   own. An identifier diff that comes back empty proves nothing about truth, and a

@@ -754,7 +754,7 @@
     "/haus.sh": {
       "get": {
         "summary": "Install script for the haus foundation; selects no desktop",
-        "description": "Proxies haus's bootstrap.sh with nothing pinned. It installs the foundation, the layer with no desktop, which changes nothing you can see until a room is turned on, and asks no desktop question. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`.",
+        "description": "Proxies haus's bootstrap.sh with nothing pinned. It installs the foundation, the layer with no desktop, which changes nothing you can see until a room is turned on, and asks no desktop question. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`. The script itself takes flags from its caller, so `| bash -s -- --desktop=<flakeref>` selects a desktop that has no URL here; /v1/desktops carries that line per row.",
         "operationId": "getHausInstaller",
         "tags": [
           "install"

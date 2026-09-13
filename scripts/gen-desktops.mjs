@@ -81,6 +81,32 @@ function fence(lines) {
   ].join('\n');
 }
 
+// The card links the flakeref at the place a reader can read the file. Derived
+// from the flakeref itself rather than from a second field, because a row that
+// carried both could disagree with itself, and a row that carried neither used
+// to render `https://github.com/undefined` and ship green.
+//
+// Only the two schemes that are a browsable repository are linked. bootstrap.sh
+// also takes `file+https://…/writer.nix`, which is a file and not a page, and
+// anything else is a scheme nobody has decided the markup for. Both refuse here
+// rather than guess, the same way an `image` does.
+function sourceUrl(name, flakeref) {
+  if (flakeref.startsWith('github:')) {
+    return `https://github.com/${flakeref.slice('github:'.length)}`;
+  }
+  if (flakeref.startsWith('git+https://')) return flakeref.slice('git+'.length);
+  throw new Error(
+    [
+      `The '${name}' row's flakeref is '${flakeref}', which this script cannot turn into a link.`,
+      '',
+      'It links github:owner/repo and git+https://… because both are a page a',
+      'reader can open. Decide what the card should point at for this one, then',
+      'teach sourceUrl in scripts/gen-desktops.mjs the shape.',
+      '',
+    ].join('\n'),
+  );
+}
+
 function block(name) {
   const row = desktopRow(name);
   const { pin, flakeref } = { pin: null, flakeref: null, ...DESKTOPS[name] };
@@ -115,12 +141,16 @@ function block(name) {
   const heading = foundation ? 'The foundation' : name;
 
   const by = flakeref
-    ? `**By ${row.author}**, at [\`${flakeref}\`](https://github.com/${DESKTOPS[name].repo}).`
+    ? `**By ${row.author}**, at [\`${flakeref}\`](${sourceUrl(name, flakeref)}).`
     : `**By ${row.author}.**`;
 
+  // "switches on", not "rooms", and the distinction is load-bearing: Appearance
+  // has no switch of its own, so a desktop that decides a font and an accent
+  // sets values in it without ever turning it on. A card headed "Rooms" would
+  // contradict `desktops/hacker`, which counts Appearance among hacker's.
   const turns = row.rooms.length
-    ? `Rooms on: ${row.rooms.map((key) => `[${rooms.get(key)}](/docs/haus/rooms/${key})`).join(', ')}.`
-    : 'No room is switched on, which is the whole of what it is.';
+    ? `Rooms it switches on: ${row.rooms.map((key) => `[${rooms.get(key)}](/docs/haus/rooms/${key})`).join(', ')}.`
+    : 'It switches no room on, which is the whole of what it is.';
 
   // Where to read more. A desktop with a page here gets it; the foundation gets
   // the section above, which is the same page's long answer.

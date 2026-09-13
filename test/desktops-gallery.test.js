@@ -46,18 +46,35 @@ describe('the desktops table', () => {
   it('keeps the two kinds of row apart: a URL here, or a flakeref', () => {
     for (const [name, row] of Object.entries(DESKTOPS)) {
       if (row.flakeref) {
-        // No `pin`: there is no URL of ours for one to belong to.
+        // No `pin` and no `repo`: there is no URL of ours for a pin to belong to,
+        // and no script of ours to proxy from a repo.
         expect(row, name).not.toHaveProperty('pin');
+        expect(row, name).not.toHaveProperty('repo');
         expect(INSTALLER_DESKTOPS, name).not.toHaveProperty(name);
         expect(desktopRow(name).command, name).toContain(`--desktop=${row.flakeref}`);
       } else {
+        // `repo` is what `serveInstaller` fetches bootstrap.sh from, so an
+        // installer row without one serves nothing.
         expect(row, name).toHaveProperty('pin');
+        expect(row.repo, name).toMatch(/^[\w.-]+\/[\w.-]+$/);
         expect(INSTALLER_DESKTOPS, name).toHaveProperty(name);
         expect(desktopRow(name).command, name).toBe(
           `curl -fsSL https://hausfold.co/${name}.sh | bash`,
         );
       }
+      // Required by /v1/desktops and by the tool's outputSchema, so the key is
+      // present even on a row that left the field out.
+      expect(desktopRow(name), name).toHaveProperty('image');
     }
+  });
+
+  // The gallery's order is the table's declaration order, on the page and in the
+  // API alike, and the page's lede states it as a rule. This is what makes it
+  // one: a row appended in the wrong place would otherwise land mid-gallery
+  // with nothing to say so.
+  it('declares every URL row before every flakeref row', () => {
+    const kinds = Object.values(DESKTOPS).map((row) => (row.flakeref ? 'flakeref' : 'url'));
+    expect(kinds).toEqual([...kinds].sort().reverse());
   });
 });
 

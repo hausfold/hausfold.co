@@ -56,8 +56,10 @@ export function WebMcpTools() {
       },
       {
         name: 'get_hausfold_install_command',
+        // Deliberately names no desktop: the enum below is pinned to DESKTOPS and
+        // this prose is not, so a list here would be the half that goes stale.
         description:
-          'The one-line install command for a desktop in the gallery, with its author, what it is for and the rooms it turns on. haus installs the foundation with no desktop, hacker installs the hacker desktop, producer installs a studio Mac from its own repo by flag.',
+          'The one-line install command for a desktop in the gallery, with its author, what it is for and the rooms it switches on. `haus` is the foundation, the layer with no desktop.',
         inputSchema: {
           type: 'object',
           properties: {

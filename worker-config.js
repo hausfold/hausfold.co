@@ -39,10 +39,11 @@
 // each fetches is that repo's `bootstrap.sh`, and `hacker` ships inside it as
 // `desktops/hacker.nix`; `repo` exists to say where the script comes from, so
 // the day a desktop lives in a repo we don't own, it is already where that
-// goes.
+// goes. `repo` belongs to this kind of row alone.
 //
 // **A `flakeref`**: a desktop in its own repo, with NO installer URL on this
-// domain and no `pin`. It installs by flag (`--desktop=<flakeref>`, haus
+// domain, no `pin` and no `repo` — it proxies no script, and the flakeref is
+// already where the source lives. It installs by flag (`--desktop=<flakeref>`, haus
 // #733), which is how anybody's desktop installs; being in the gallery buys a
 // card, not a short URL. That is deliberate — the domain never lends its name
 // to a repo nobody read — and it is why `INSTALLER_DESKTOPS` below, not this
@@ -67,11 +68,10 @@ export const DESKTOPS = {
     image: null,
   },
   producer: {
-    repo: "hausfold/producer-desktop",
     flakeref: "github:hausfold/producer-desktop",
     author: "hausfold",
     blurb:
-      "A studio Mac: Ableton, RX and Resolve keep the screen, the palette opens on ⌘Space, and the tiler stays off so Caps Lock is still Caps Lock.",
+      "A studio Mac, built around Ableton, RX and Resolve and leaving all three alone: the palette opens on ⌘Space, and the tiler stays off so Caps Lock is still Caps Lock.",
     rooms: ["bar", "launcher", "shelf", "focus", "security"],
     image: null,
   },
@@ -95,7 +95,10 @@ export const INSTALLER_DESKTOPS = Object.fromEntries(
 // flakeref row, which has no URL to pin anything; a client that wants to know
 // which kind it is reads `flakeref`.
 export function desktopRow(desktop) {
-  const { pin = null, flakeref = null, author, blurb, rooms, image } = DESKTOPS[desktop];
+  // `image` defaults too: `/v1/desktops` and the tool's outputSchema both mark
+  // it required, so a row that omits it must still answer null rather than drop
+  // the key.
+  const { pin = null, flakeref = null, image = null, author, blurb, rooms } = DESKTOPS[desktop];
   return {
     desktop,
     author,
