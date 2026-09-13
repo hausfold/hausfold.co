@@ -88,6 +88,36 @@ clear it.
 full table, plus the middle ground where the tiler keeps working but gives your
 keys back.
 
+## Take the whole thing off
+
+One verb, and it does the four steps below in the only order that works:
+
+```sh
+haus uninstall        # prints the plan, asks once
+haus uninstall --yes  # skip the question
+```
+
+It prints what it is about to remove and what it is going to leave, then puts
+your macOS settings back from the snapshot the installer took, removes
+nix-darwin, removes every launchd agent haus wrote, removes Nix, and finally
+cleans up the dotfile links that have just gone dead. It leaves
+`~/.config/nix`, Homebrew and its casks, and your TCC grants, and it names each
+one with the command that removes it.
+
+<Callout type="info" title="Why the order matters">
+Each step depends on the one before it. `haus revert-settings` has to run while
+haus is still installed, because it is about to be deleted with everything
+else. The Determinate uninstaller refuses to run at all while nix-darwin is
+installed. nix-darwin removes its two system daemons and leaves the agents in
+`~/Library/LaunchAgents` exactly where they are, so those have to go
+separately, or they come back at every login and respawn every ten seconds
+against a store that is gone. And a Home Manager symlink only reads as dead
+once Nix is removed, so the cleanup has to be last.
+</Callout>
+
+The rest of this page is the same route by hand, one step at a time, for a
+machine where `haus` is already gone or where you want to stop part way.
+
 ## Take down the system layer
 
 This removes nix-darwin's system integration and leaves Nix installed for
@@ -101,6 +131,25 @@ sudo nix --extra-experimental-features "nix-command flakes" \
 
 **Read the plan before confirming.** It removes the managed system links, static
 files and launchd services, then restores the Nix daemon the installer supplied.
+
+<Callout type="warn" title="It leaves your login agents behind">
+"launchd services" there means the two *system* daemons. Everything haus runs
+in your login session stays in `~/Library/LaunchAgents`, still enabled, and
+once Nix is gone those point at nothing: SketchyBar, AeroSpace and Pounce come
+back at every login and respawn every ten seconds, forever. Take them out
+yourself:
+
+```sh
+for p in ~/Library/LaunchAgents/*.plist; do
+  grep -q -e /nix/store -e /run/current-system "$p" || continue
+  label=$(basename "$p" .plist)
+  launchctl bootout "gui/$UID/$label" 2>/dev/null
+  rm -f "$p"
+done
+```
+
+`haus uninstall` does this for you, which is the reason it exists.
+</Callout>
 Restart when it finishes. Your config isn't made useless by this: keep it if you might
 come back, or move it out of the active path with `mv ~/.config/nix
 ~/.config/nix.archive`.
@@ -169,8 +218,12 @@ deleting pieces of `/nix` by hand.
 ## What to check afterwards
 
 No uninstaller can reconstruct every preference that existed before an install.
-**`haus revert-settings` is the real answer if you captured a snapshot.** This
-list is for when you didn't:
+**`haus revert-settings` is the real answer, and you almost certainly have a
+snapshot to give it**: the installer takes one of the Dock, Finder and keyboard
+domains before the first switch, so the verb works without your ever having run
+`haus capture`. `haus revert-settings list` shows what is there. This list is
+for anything outside those three domains, and for an install old enough to
+predate the snapshot:
 
 - the Dock's autohide, position, size and animations
 - key repeat, press-and-hold, and the trackpad's tap-to-click and three-finger drag
@@ -190,9 +243,11 @@ list is for when you didn't:
   passwordless-`sudo` rule for rebuilds, which is the one with a security
   consequence
 
-The installer takes an APFS snapshot before it starts, but macOS purges local
-snapshots within about a day, so treat it as luck rather than a plan. Then confirm
-what's actually gone:
+The installer also takes an APFS snapshot before it starts, but that one is a
+whole-volume restore from Recovery rather than a settings undo, and macOS purges
+local snapshots within about a day. Treat it as luck rather than a plan; the
+settings snapshot above is the one to reach for. Then confirm what's actually
+gone:
 
 ```sh
 command -v haus || echo "haus is no longer on PATH"
