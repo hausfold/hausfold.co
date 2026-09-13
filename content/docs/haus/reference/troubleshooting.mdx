@@ -159,10 +159,12 @@ ID](/docs/haus/rooms/security) has the rest.
 
 ## "Refusing to load cask … from an untrusted tap"
 
-Third-party taps fail Homebrew's trust check under a sudo-driven activation.
-haus turns that requirement off globally (`HOMEBREW_NO_REQUIRE_TAP_TRUST=1` in
-`/etc/homebrew/brew.env`), so seeing this means the file didn't land. Re-run
-`haus rebuild`, or export the variable in your shell for a one-off.
+Third-party taps fail Homebrew's trust check under the sudo-driven activation a
+rebuild runs. Everything your config declares is stamped `trusted: true` in the
+Brewfile activation hands to `brew bundle`, so a rebuild never meets this.
+Seeing it means the cask came from somewhere haus doesn't know about: a tap you
+added by hand, or a `brew bundle` of your own. Declare it in your config and
+`haus rebuild`.
 
 ## An app I removed from my config is still installed
 

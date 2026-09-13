@@ -1820,6 +1820,12 @@ Resolution and per-display behaviour, addressed by which screen you mean rather 
 
 Per-display overrides, keyed by which screen you mean.
 
+<div className="hf-optindex">
+
+[`haus.displays`](#haus-displays) [`<name>.arrangement`](#haus-displays-name-arrangement) [`<name>.arrangement.align`](#haus-displays-name-arrangement-align) [`<name>.arrangement.of`](#haus-displays-name-arrangement-of) [`<name>.arrangement.side`](#haus-displays-name-arrangement-side) [`<name>.uiScale`](#haus-displays-name-uiscale)
+
+</div>
+
 #### `haus.displays` [#haus-displays]
 
 `attribute set of (submodule)` · default `{ }`
@@ -1867,6 +1873,85 @@ Example:
   };
 }
 ```
+
+<small>Declared in [`modules/displays/options.nix`](https://github.com/hausfold/haus/blob/main/modules/displays/options.nix).</small>
+
+#### `haus.displays.<name>.arrangement` [#haus-displays-name-arrangement]
+
+`null or (submodule)` · default `null`
+
+Where this display sits relative to another, as a relation rather
+than a pixel origin — macOS's own arrangement editor, said in a way
+a desktop can write. The origin is COMPUTED at each activation from
+both panels' current point sizes, the same derived-not-tabulated
+taste as `uiScale`, so the same relation follows a scaling change
+automatically.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.displays.&lt;name>.arrangement</span></summary>
+
+Order is load-bearing: origins are in points, and a `uiScale` change
+moves every origin, so this room applies every `uiScale` entry
+before any `arrangement` entry and a profile never computes against
+a stale point size. Where two displays each carry an `arrangement`,
+the one named in `of` is placed first, so a desk can be built in
+relations; a cycle is refused at eval.
+
+`main` is part of what this asserts, not a separate setting:
+macOS makes a display main by putting it at the origin (0, 0), and
+a relation can put one there. When it does, that display becomes
+main. `hausdisp arrange … --dry-run` prints the origin a relation
+resolves to before you write it into the host file, and `hausdisp
+list` prints the `at x,y` to compare it against.
+
+An arrangement is about a desk, so it applies only while BOTH
+displays are attached: an absent one is skipped with a note, like
+an absent `uiScale`, and re-asserted at the next activation after
+the dock returns. Between activations macOS keeps its own
+remembered arrangement.
+
+</details>
+
+Example:
+
+```nix
+{
+  align = "top";
+  of = "internal";
+  side = "right-of";
+}
+```
+
+<small>Declared in [`modules/displays/options.nix`](https://github.com/hausfold/haus/blob/main/modules/displays/options.nix).</small>
+
+#### `haus.displays.<name>.arrangement.align` [#haus-displays-name-arrangement-align]
+
+`null or one of "top", "center", "bottom", "left", "right"` · default `null` · e.g. `"top"`
+
+Along the other axis: `top`/`center`/`bottom` for
+`right-of`/`left-of`, `left`/`center`/`right` for
+`above`/`below`. null (the default) pins the shared edge —
+the top edge for a horizontal side, the left edge for a
+vertical one.
+
+<small>Declared in [`modules/displays/options.nix`](https://github.com/hausfold/haus/blob/main/modules/displays/options.nix).</small>
+
+#### `haus.displays.<name>.arrangement.of` [#haus-displays-name-arrangement-of]
+
+`string` · no default · e.g. `"internal"`
+
+Which display this one is placed beside — `internal`, `main`,
+or a persistent display UUID, the same selectors
+`haus.displays` is keyed by. May not name this display itself.
+
+<small>Declared in [`modules/displays/options.nix`](https://github.com/hausfold/haus/blob/main/modules/displays/options.nix).</small>
+
+#### `haus.displays.<name>.arrangement.side` [#haus-displays-name-arrangement-side]
+
+`one of "right-of", "left-of", "above", "below"` · no default · e.g. `"right-of"`
+
+Which side of the other display this one sits on.
 
 <small>Declared in [`modules/displays/options.nix`](https://github.com/hausfold/haus/blob/main/modules/displays/options.nix).</small>
 
