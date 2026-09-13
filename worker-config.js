@@ -9,26 +9,109 @@
 //
 // The Worker's bundle is built from worker.js; wrangler inlines this import.
 
-// The installers this site presents, by the name in their URL. A key here is
-// a promise that `hausfold.co/<key>.sh` keeps resolving AND a row in every
-// listing (/v1/desktops, the MCP tool, the agent view), so only what the site
-// actually presents belongs in it.
+// The desktops gallery: every desktop this site presents, in the order it
+// presents them. One table, read by `/v1/desktops`, the MCP tool, the agent
+// view, the A2A skill and `content/docs/haus/desktops/choosing.mdx` alike, so
+// a row added here reaches all five.
 //
-// `pin: null` is the front door. `/haus.sh` installs the foundation — the
-// layer with no desktop selected: no bar, no tiling, no palette, no wallpaper
-// until a room is turned on — and asks no desktop question at all. A pinned row
-// selects that desktop instead; the URL is the choice. A desktop is a starter
-// template on top of the foundation, and `hacker` is the one that ships.
+// A row is a promise to present that desktop, and it carries what a card
+// needs:
 //
-// ⚠️ Both rows map to `hausfold/haus` because the file each fetches is that
-// repo's `bootstrap.sh`, and `hacker` ships inside it as `desktops/hacker.nix`.
-// The row exists to say which desktop the URL means, not which repo it came
-// from; the day a desktop lives in a repo we don't own, `repo` is already
-// where that goes.
+//   author   whose name goes on the card. Not derived from `repo`: a desktop
+//            hausfold publishes for someone else would name them, not us.
+//   blurb    one sentence, the whole of what the card says it is for.
+//   rooms    the rooms it switches ON, in the registry's order (the keys in
+//            src/data/rooms.json). A room with no switch of its own —
+//            Appearance — is not in the list even when the desktop sets values
+//            inside it, because the list answers "what turns on".
+//   image    a screenshot, when one exists. Null on every row today: this site
+//            ships no screenshots (AGENTS.md says why), and the field is here
+//            so `/v1/desktops` can carry one the day a desktop has it.
+//
+// ⚠️ Two kinds of row, and `flakeref` is the whole difference.
+//
+// **No `flakeref`**: hausfold presents it from this domain, and the key is the
+// name in the URL — a promise that `hausfold.co/<key>.sh` keeps resolving.
+// `pin` says which desktop that URL selects, and `pin: null` is the front
+// door: `/haus.sh` installs the foundation, the layer with no desktop (no bar,
+// no tiling, no palette, no wallpaper until a room is turned on) and asks no
+// desktop question at all. Both rows map to `hausfold/haus` because the file
+// each fetches is that repo's `bootstrap.sh`, and `hacker` ships inside it as
+// `desktops/hacker.nix`; `repo` exists to say where the script comes from, so
+// the day a desktop lives in a repo we don't own, it is already where that
+// goes. `repo` belongs to this kind of row alone.
+//
+// **A `flakeref`**: a desktop in its own repo, with NO installer URL on this
+// domain, no `pin` and no `repo` — it proxies no script, and the flakeref is
+// already where the source lives. It installs by flag (`--desktop=<flakeref>`, haus
+// #733), which is how anybody's desktop installs; being in the gallery buys a
+// card, not a short URL. That is deliberate — the domain never lends its name
+// to a repo nobody read — and it is why `INSTALLER_DESKTOPS` below, not this
+// table, is what `/<name>.sh` routes on.
 export const DESKTOPS = {
-  haus: { repo: "hausfold/haus", pin: null },
-  hacker: { repo: "hausfold/haus", pin: "hacker" },
+  haus: {
+    repo: "hausfold/haus",
+    pin: null,
+    author: "hausfold",
+    blurb:
+      "The layer and nothing on screen: the haus CLI, the shell, the app roster and the rebuild plumbing, with every optional room left off.",
+    rooms: [],
+    image: null,
+  },
+  hacker: {
+    repo: "hausfold/haus",
+    pin: "hacker",
+    author: "hausfold",
+    blurb:
+      "Keyboard-first, for someone who writes code all day: tiled windows, a bar, the palette on ⌘Space, coding agents and a themed terminal.",
+    rooms: ["development", "windows", "bar", "launcher", "shelf", "focus", "ai", "security"],
+    image: null,
+  },
+  producer: {
+    flakeref: "github:hausfold/producer-desktop",
+    author: "hausfold",
+    blurb:
+      "A studio Mac, built around Ableton, RX and Resolve and leaving all three alone: the palette opens on ⌘Space, and the tiler stays off so Caps Lock is still Caps Lock.",
+    rooms: ["bar", "launcher", "shelf", "focus", "security"],
+    image: null,
+  },
 };
+
+// The rows `/<name>.sh` serves: the ones with no `flakeref`, which is the same
+// thing as the ones whose key is a URL this domain promises. Derived rather
+// than a second list, so a row can't be in one and missing from the other.
+export const INSTALLER_DESKTOPS = Object.fromEntries(
+  Object.entries(DESKTOPS).filter(([, row]) => row.flakeref == null),
+);
+
+// One gallery row, the shape every surface hands back: `/v1/desktops`, the
+// `get_install_command` tool, the `install` batch op and the A2A skill all call
+// this, so none of them can describe a desktop differently from the others.
+//
+// `command` is the one line that installs it on a fresh Mac, and the two kinds
+// of row differ only there: a hausfold URL, or `/haus.sh` plus the
+// `--desktop=<flakeref>` flag that pins and selects a desktop from its own
+// repo. `pins` is the desktop a hausfold URL selects and stays null on a
+// flakeref row, which has no URL to pin anything; a client that wants to know
+// which kind it is reads `flakeref`.
+export function desktopRow(desktop) {
+  // `image` defaults too: `/v1/desktops` and the tool's outputSchema both mark
+  // it required, so a row that omits it must still answer null rather than drop
+  // the key.
+  const { pin = null, flakeref = null, image = null, author, blurb, rooms } = DESKTOPS[desktop];
+  return {
+    desktop,
+    author,
+    blurb,
+    rooms,
+    image,
+    flakeref,
+    command: flakeref
+      ? `curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=${flakeref}`
+      : `curl -fsSL https://hausfold.co/${desktop}.sh | bash`,
+    pins: pin,
+  };
+}
 
 // Installer URLs that were published and are no longer presented. A URL that
 // was in someone's shell history keeps resolving forever (the same promise
@@ -214,15 +297,16 @@ export const MCP_TOOLS = [
     name: "get_install_command",
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     description:
-      "Get the one-line install command for a hausfold desktop. Answers with a `desktops` list " +
-      "either way: one row for the desktop you name, every row when you omit it.",
+      "Get the one-line install command for a hausfold desktop, with the card the gallery shows " +
+      "for it: who wrote it, what it is for, and the rooms it turns on. Answers with a " +
+      "`desktops` list either way: one row for the desktop you name, every row when you omit it.",
     inputSchema: {
       type: "object",
       properties: {
         desktop: {
           type: "string",
           enum: Object.keys(DESKTOPS),
-          description: "The desktop to install. Omit to list every desktop.",
+          description: "The desktop to install. Omit to list the whole gallery.",
         },
       },
       required: [],
@@ -238,14 +322,42 @@ export const MCP_TOOLS = [
             type: "object",
             properties: {
               desktop: { type: "string", enum: Object.keys(DESKTOPS) },
+              author: { type: "string", description: "Who publishes this desktop." },
+              blurb: { type: "string", description: "One sentence on what it is for." },
+              rooms: {
+                type: "array",
+                items: { type: "string" },
+                description:
+                  "The rooms it switches on, by the name in haus's registry. Empty for the foundation, which switches none on.",
+              },
+              image: {
+                type: ["string", "null"],
+                description: "A screenshot URL, or null when there is none.",
+              },
+              flakeref: {
+                type: ["string", "null"],
+                description:
+                  "For a desktop in its own repo, the flakeref `--desktop=` takes. Null for one hausfold serves from its own URL.",
+              },
               command: { type: "string", description: "The one-line installer to run." },
               pins: {
                 type: ["string", "null"],
-                description: "The desktop this URL pins, or null for /haus.sh, which installs the foundation with no desktop.",
+                description:
+                  "The desktop this URL pins. Null for /haus.sh, which installs the foundation with no desktop, and null on a flakeref row, which has no URL here at all.",
               },
               note: { type: "string", description: "What running that line does." },
             },
-            required: ["desktop", "command", "pins", "note"],
+            required: [
+              "desktop",
+              "author",
+              "blurb",
+              "rooms",
+              "image",
+              "flakeref",
+              "command",
+              "pins",
+              "note",
+            ],
           },
         },
       },
@@ -389,7 +501,8 @@ export const A2A_SKILLS = [
     description:
       "The one-line shell command that installs a haus desktop on a Mac. Send a data part naming " +
       `the skill and, optionally, a desktop (${Object.keys(DESKTOPS).join(", ")}); without one ` +
-      "the reply lists every desktop.",
+      "the reply lists the whole gallery, each row with its author, what it is for and the rooms " +
+      "it turns on.",
     tags: ["install", "shell", "macos"],
     examples: ['{"skill": "install-command", "desktop": "hacker"}', '{"skill": "install-command"}'],
     inputModes: ["application/json"],

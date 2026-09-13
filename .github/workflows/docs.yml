@@ -78,6 +78,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # The gallery block on `desktops/choosing` is rendered from
+      # `worker-config.js`'s DESKTOPS, the same table `/v1/desktops` serves, so
+      # a hand edit to it would make the page claim something the API does not.
+      # `npm test` checks the same thing and runs in the Worker job, which fires
+      # on the table; this step is the half that fires on the page.
+      - name: The desktops gallery is in step with the table
+        run: npm run desktops:check
+
       # Both builds start from no Turbopack cache — the same state a deploy
       # runs in, since CI never restores `.next`.
       #

@@ -29,9 +29,9 @@ URLs are public too.
 | the landing page | `src/app/page.tsx` |
 | what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
 | the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Cards, namespace table and the `---Rooms---` group are all held to haus's registry by `scripts/check-rooms.mjs`; `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
-| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s: the foundation first (what the installer selects), then every desktop that ships; `index.mdx`'s `## Desktops` is three sentences and a link to it |
+| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is the gallery on [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s, and it is **rendered from `worker-config.js`'s `DESKTOPS`** by `npm run desktops` — what hausfold presents from its own URL first (the foundation among them), then what installs by flakeref. Write the row, not the block; `index.mdx`'s `## Desktops` is three sentences and a link to it |
 | **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
-| the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` installs the foundation and asks no desktop question; `/hacker.sh` selects a desktop by URL. **A desktop is a row in `DESKTOPS`, not a new route**; a URL that stops being presented moves to `RETIRED_INSTALLERS` (`worker-config.js`), never out |
+| the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` installs the foundation and asks no desktop question; `/hacker.sh` selects a desktop by URL. **A desktop is a row in `DESKTOPS`, not a new route**; a URL that stops being presented moves to `RETIRED_INSTALLERS` (`worker-config.js`), never out. **The reverse does not hold: a `DESKTOPS` row is not automatically a URL.** A row with a `flakeref` is a gallery card for a desktop in its own repo, installed by `--desktop=<flakeref>`, and `/<name>.sh` routes on `INSTALLER_DESKTOPS` so that name 404s |
 | the install *script* (`bootstrap.sh`) | `hausfold/haus` — the Worker proxies it and pins the ref |
 | the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/haus-install/SKILL.md`, with `skills.sh.json` and `plugin.json` at the root; all three describe the same three capabilities and move together |
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (`./haus` in the workshop; `./hausfold.co` is this repo) |
@@ -370,9 +370,12 @@ as much as they bound that one.
   list wearing a table's chrome, and it reads better folded into the prose — that
   is a prose judgement, not the component rule below, since `getLLMText` in
   `src/lib/source.ts` already carries a markdown table into `llms-full.txt`
-  whole. A catalogue a reader compares across columns (`desktops/choosing`) stays
-  a table, and splitting one of its rows is the honest fix when a single tick
-  stopped meaning two things (`desktops/choosing`'s room table).
+  whole. A catalogue a reader compares across columns stays a table, and
+  splitting one of its rows is the honest fix when a single tick stopped meaning
+  two things. `desktops/choosing`'s foundation-against-hacker grid was the worked
+  example until the gallery replaced it: a column per desktop is a table that
+  stops working at the fourth one, so the gallery is one block per row, rendered
+  from `DESKTOPS`.
 - **Diff the claims, not the identifiers.** Compression makes a page wrong more
   easily than it makes it terse: half of a two-sided caveat over-claims on its
   own. An identifier diff that comes back empty proves nothing about truth, and a
@@ -385,6 +388,17 @@ as much as they bound that one.
 `scripts/check-bar-tables.mjs` to `modules/bar/{tones,marks}.nix`. The prose is
 yours. Not yours: the rung **names** and **order** (quietest first); the first
 column's header word, `tone` and `mark`; each being a plain markdown table.
+
+`desktops/choosing`'s gallery is the one **rendered block inside a written
+page**: everything between `{/* desktops:start ` and `{/* desktops:end */}` comes
+from `worker-config.js`'s `DESKTOPS` through `scripts/gen-desktops.mjs`, and a
+hand edit is reverted by `npm run desktops:check` (docs.yml) and red in
+`npm test` (`test/desktops-gallery.test.js`). Yours: every other section, the
+lede above the block and the callout below it. Not yours, because they are the
+API's answer too: each card's heading, its author line, its blurb, the rooms it
+names and the two commands. Fix a blurb in the row. A row with an `image` makes
+the script refuse rather than guess, since the site ships no screenshots and
+nothing has decided what a card with one looks like.
 
 `rooms/index` is **written** on the same terms, pinned by
 `scripts/check-rooms.mjs` to `modules/options-groups.nix`. Yours: every card's
@@ -600,23 +614,41 @@ because they are positioning:
 - **Changing what the site claims hausfold is.** A new claim needs a decision
   behind it.
 - **Adding a desktop.** It must exist and install for a stranger first — **no
-  empty slots, no coming-soon entries**. What `hacker` cleared: a file in
-  `hausfold/haus/desktops/<name>.nix`; a row in `worker-config.js`'s
-  `DESKTOPS`, so `hausfold.co/<name>.sh` installs it and every listing carries
-  it; a page at `content/docs/haus/desktops/<name>.mdx` whose every fact is
-  read off that `.nix`, with an un-hued icon in `src/lib/icons.tsx` and an
-  entry under `---Desktops---` in `content/docs/haus/meta.json`; a column in
-  [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
-  **No landing page.** **The foundation has no `DESKTOPS` row of its own**:
-  `/haus.sh` IS the foundation — the layer with no desktop, which the
-  installer selects unless a URL names one — and it is a section of
+  empty slots, no coming-soon entries**. Two shapes of row, and the gallery card
+  is all they share.
+
+  **One hausfold presents from its own URL**, which is what `hacker` cleared: a
+  file in `hausfold/haus/desktops/<name>.nix`; a row in `worker-config.js`'s
+  `DESKTOPS` carrying `pin`, `author`, `blurb` and `rooms`, so
+  `hausfold.co/<name>.sh` installs it and every listing carries it; `npm run
+  desktops` to re-render the gallery; a `/<name>.sh` path in
+  `public/openapi.json`; a page at `content/docs/haus/desktops/<name>.mdx` whose
+  every fact is read off that `.nix`, with an un-hued icon in `src/lib/icons.tsx`
+  and an entry under `---Desktops---` in `content/docs/haus/meta.json`.
+  **No landing page.**
+
+  **One that lives in its own repo** is a `DESKTOPS` row with a `flakeref` and
+  no `pin`, and that row is the whole change: `author`, `blurb`, `rooms`, then
+  `npm run desktops`. It deliberately gets **no `.sh` URL, no `openapi.json`
+  path, no page here and no `meta.json` entry** — `hausfold.co/<name>.sh` 404s,
+  and `test/worker.test.js` pins that it does. The bar it clears instead is
+  `nix run github:hausfold/haus#show` passing on the file, because a card on
+  this domain is a recommendation: read the `.nix` before you write the row.
+
+  **The foundation is the `haus` row, `pin: null`**, not a desktop of its own:
+  `/haus.sh` IS the foundation — the layer with no desktop, which the installer
+  selects unless a URL names one — and its long answer is a section of
   `desktops/choosing`, not a page. **Retiring a desktop** is the reverse, plus
-  two things that never go: its installer URL moves to `RETIRED_INSTALLERS`
-  (and stays in `openapi.json` as `deprecated: true`) and its docs path gets a
-  `_redirects` line onto `desktops/choosing`. Three hand-written copies name
-  the installers and are not generated from anything: `skills/haus-install/SKILL.md`,
+  two things that never go for a row that had a URL: that URL moves to
+  `RETIRED_INSTALLERS` (and stays in `openapi.json` as `deprecated: true`) and
+  its docs path gets a `_redirects` line onto `desktops/choosing`. A flakeref row
+  promised neither, so retiring one is deleting the row. Three hand-written
+  copies name the installers and are not generated from anything:
+  `skills/haus-install/SKILL.md`,
   `public/.well-known/agent-skills/hausfold-install/SKILL.md` (then
-  `node scripts/gen-agent-skills.mjs` for its digest) and `src/lib/jsonld.ts`.
+  `node scripts/gen-agent-skills.mjs` for its digest) and `src/lib/jsonld.ts`;
+  a flakeref row reaches none of them, because none of them lists a desktop
+  that has no URL.
 - **Adding a product name that isn't real yet.** It needs a row in `PRESENCE.md`
   ([`hausfold/ops`](https://github.com/hausfold/ops), private) first. **One
   narrow exception**: the last line of `#made` may carry a workshop-stage name

@@ -121,8 +121,15 @@
 // you choose by URL, and the retired ones (RETIRED_INSTALLERS) still resolve
 // for whoever saved the command.
 //
+// ⚠️ Not every gallery row is an installer. A DESKTOPS row with a `flakeref`
+// lives in its own repo and has no URL on this domain, so the route below keys
+// on INSTALLER_DESKTOPS: `/producer.sh` must 404 like any other missing path
+// while `producer` still appears in every listing.
+//
 import {
   DESKTOPS,
+  INSTALLER_DESKTOPS,
+  desktopRow,
   RETIRED_INSTALLERS,
   DOWNLOADABLE,
   MCP_TOOLS,
@@ -610,14 +617,14 @@ async function callTool(name, args, env) {
       const wanted = desktop == null ? Object.keys(DESKTOPS) : [desktop];
       return toolResult({
         desktops: wanted.map((key) => {
-          const { pin } = DESKTOPS[key];
+          const row = desktopRow(key);
           return {
-            desktop: key,
-            command: `curl -fsSL https://hausfold.co/${key}.sh | bash`,
-            pins: pin ?? null,
-            note: pin
-              ? `installs the '${pin}' desktop by URL`
-              : "installs the foundation: the layer with no desktop, so no bar, tiling, palette or wallpaper until a room is turned on",
+            ...row,
+            note: row.flakeref
+              ? `installs the '${key}' desktop from ${row.flakeref}. It has no URL on hausfold.co: the flag pins the repo as an input and selects it, the same thing 'haus add' does on a Mac that already has haus`
+              : row.pins
+                ? `installs the '${row.pins}' desktop by URL`
+                : "installs the foundation: the layer with no desktop, so no bar, tiling, palette or wallpaper until a room is turned on",
           };
         }),
       });
@@ -1122,11 +1129,7 @@ function serveV1Desktops(url, H) {
       H,
     );
   }
-  const all = Object.entries(DESKTOPS).map(([desktop, { pin }]) => ({
-    desktop,
-    command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`,
-    pins: pin ?? null,
-  }));
+  const all = Object.keys(DESKTOPS).map(desktopRow);
   return jsonResponse(paginate(all, offset, limit), H);
 }
 
@@ -1206,22 +1209,13 @@ async function runOp(op, env, sandbox = false) {
         return {
           op: opName,
           ok: true,
-          data: Object.entries(DESKTOPS).map(([key, { pin }]) => ({
-            desktop: key,
-            command: `curl -fsSL https://hausfold.co/${key}.sh | bash`,
-            pins: pin ?? null,
-          })),
+          data: Object.keys(DESKTOPS).map(desktopRow),
         };
       }
       if (!Object.hasOwn(DESKTOPS, desktop)) {
         return { op: opName, ok: false, error: { status: 404, code: "unknown_desktop" } };
       }
-      const { pin } = DESKTOPS[desktop];
-      return {
-        op: opName,
-        ok: true,
-        data: { desktop, command: `curl -fsSL https://hausfold.co/${desktop}.sh | bash`, pins: pin ?? null },
-      };
+      return { op: opName, ok: true, data: desktopRow(desktop) };
     }
     default:
       return { op: opName ?? null, ok: false, error: { status: 400, code: "unknown_op" } };
@@ -2188,17 +2182,28 @@ No authentication anywhere: no keys, no accounts, nothing to buy.
 curl -fsSL https://hausfold.co/hacker.sh | bash
 \`\`\`
 
-The foundation and every desktop install from their own URL:
+The foundation and every desktop hausfold presents install from their own URL:
 
-${Object.keys(DESKTOPS)
+${Object.keys(INSTALLER_DESKTOPS)
   .map((d) =>
-    DESKTOPS[d].pin
-      ? `- https://hausfold.co/${d}.sh installs the '${DESKTOPS[d].pin}' desktop, no questions asked`
+    INSTALLER_DESKTOPS[d].pin
+      ? `- https://hausfold.co/${d}.sh installs the '${INSTALLER_DESKTOPS[d].pin}' desktop, no questions asked`
       : `- https://hausfold.co/${d}.sh installs the foundation: no desktop, so no bar, tiling, palette or wallpaper until a room is turned on`,
   )
   .join("\n")}
 
 A release tag (e.g. ?ref=v2026.07.18) may pin the script to an exact haus release.
+
+A desktop that lives in its own repo has no URL here. It installs by flag, and
+the gallery carries the flakeref to pass:
+
+${Object.entries(DESKTOPS)
+  .filter(([, row]) => row.flakeref)
+  .map(([d]) => `- ${d}: ${desktopRow(d).command}`)
+  .join("\n")}
+
+GET https://hausfold.co/v1/desktops is the whole gallery as JSON: author, what
+each one is for, the rooms it turns on, and the line that installs it.
 
 ### Check a release
 
@@ -2483,7 +2488,7 @@ function notAcceptable(url) {
 }
 
 async function serveInstaller(desktop, url, env) {
-  const { repo, pin } = DESKTOPS[desktop] ?? RETIRED_INSTALLERS[desktop];
+  const { repo, pin } = INSTALLER_DESKTOPS[desktop] ?? RETIRED_INSTALLERS[desktop];
   const pinned = url.searchParams.get("ref");
   // A visitor's pin is held to the tag shape (see RELEASE_TAG); a resolved or
   // deploy-pinned ref is re-checked against SAFE_REF because neither is
@@ -2528,7 +2533,8 @@ const hausfold = {
     const installer = url.pathname.match(/^\/([a-z0-9-]+)\.sh$/);
     if (
       installer &&
-      (Object.hasOwn(DESKTOPS, installer[1]) || Object.hasOwn(RETIRED_INSTALLERS, installer[1]))
+      (Object.hasOwn(INSTALLER_DESKTOPS, installer[1]) ||
+        Object.hasOwn(RETIRED_INSTALLERS, installer[1]))
     ) {
       return serveInstaller(installer[1], url, env);
     }

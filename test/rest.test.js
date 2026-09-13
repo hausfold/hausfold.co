@@ -171,16 +171,44 @@ describe('/v1/search', () => {
 });
 
 describe('/v1/desktops and /v1/apps', () => {
-  it('lists every desktop with its install command', async () => {
+  it('lists every desktop with its card and its install command', async () => {
     const { results, total } = await (await getV1('/v1/desktops')).json();
-    expect(total).toBe(2);
+    expect(total).toBe(3);
     const hacker = results.find((r) => r.desktop === 'hacker');
     expect(hacker.command).toBe('curl -fsSL https://hausfold.co/hacker.sh | bash');
     expect(hacker.pins).toBe('hacker');
+    expect(hacker.flakeref).toBeNull();
+    // What a card needs, which is the whole reason the row grew past a URL.
+    expect(hacker.author).toBe('hausfold');
+    expect(hacker.blurb).toMatch(/\S/);
+    expect(hacker.rooms).toContain('bar');
+    expect(hacker.image).toBeNull();
+    // The foundation switches no room on, and an empty list says so rather
+    // than the field being absent.
+    expect(results.find((r) => r.desktop === 'haus').rooms).toEqual([]);
+    // Declaration order is gallery order: the rows hausfold serves from its
+    // own URL first, then the ones that install by flakeref.
+    expect(results.map((r) => r.desktop)).toEqual(['haus', 'hacker', 'producer']);
     // The retired installers (worker-config.js's RETIRED_INSTALLERS) still
     // serve, and must never be listed: a listing is what hands a URL to a new
     // reader, and these exist only for a command already in someone's history.
-    expect(results.map((r) => r.desktop)).toEqual(['haus', 'hacker']);
+    expect(results.map((r) => r.desktop)).not.toContain('everyday');
+  });
+
+  // The interesting row. A desktop in its own repo is in the gallery and has
+  // no URL on this domain, so its command is the flag that pins and selects it.
+  it('gives a desktop in its own repo the flag instead of a URL', async () => {
+    const { results } = await (await getV1('/v1/desktops')).json();
+    const producer = results.find((r) => r.desktop === 'producer');
+    expect(producer.flakeref).toBe('github:hausfold/producer-desktop');
+    expect(producer.command).toBe(
+      'curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=github:hausfold/producer-desktop',
+    );
+    // Nothing on this domain pins it, and the row says so instead of naming a
+    // URL that does not exist.
+    expect(producer.pins).toBeNull();
+    expect(producer.command).not.toContain('producer.sh');
+    expect(producer.author).toBe('hausfold');
   });
 
   it('lists the downloadable apps with their URLs', async () => {

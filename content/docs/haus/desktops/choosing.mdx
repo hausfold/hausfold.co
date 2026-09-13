@@ -102,34 +102,84 @@ same one twice, with a message of its own. Choosing again changes one line rathe
 than unpicking a pile, and "build my own" is the foundation plus your host file
 rather than a second mode with its own rules.
 
-## The one that ships
+## The gallery
 
-**[hacker](/docs/haus/desktops/hacker)** is for someone keyboard-first who writes
-code all day: tiled windows, a bar, the ⌘Space palette, coding agents, a themed
-terminal. Beside the foundation, room by room:
+Every desktop this site presents: the ones hausfold serves from their own URL
+first, then the ones that install by flakeref. Each card is one row of the table
+`/v1/desktops` serves, so a reader and an agent asking for an install command are
+told the same thing.
 
-| | foundation | [hacker](/docs/haus/desktops/hacker) |
-|---|:-:|:-:|
-| **For** | building your own | keyboard-first, developer, tiled |
-| [Development](/docs/haus/rooms/development) | · | ✓ |
-| [AI](/docs/haus/rooms/ai) | · | ✓ |
-| [Windows](/docs/haus/rooms/windows) | · | ✓ |
-| [Bar](/docs/haus/rooms/bar) | · | ✓ |
-| [Launcher](/docs/haus/rooms/launcher) | · | ✓ |
-| [Shelf](/docs/haus/rooms/shelf) | · | ✓ |
-| [Focus](/docs/haus/rooms/focus) | · | ✓ |
-| [Security](/docs/haus/rooms/security) | · | ✓ |
-| Theme ports | · | ✓ |
-| Generated wallpaper | · | ✓ |
-| Caps Lock as leader, ⌘Space as palette | · | ✓ |
+A card lists the rooms a desktop *switches on*.
+[Appearance](/docs/haus/rooms/appearance) has no switch of its own, so it is
+never in the list even when a desktop picks the accent and the font through it.
 
-Select it at install by typing its URL, or later on a machine that already has
-haus:
+{/* desktops:start — rendered from worker-config.js's DESKTOPS by `npm run desktops`.
+    Edit the row, not this block: `npm run desktops:check` reverts a hand edit. */}
+
+### The foundation
+
+**By hausfold.** The layer and nothing on screen: the haus CLI, the shell, the
+app roster and the rebuild plumbing, with every optional room left off.
+
+It switches no room on, which is the whole of what it is. [What you get, in
+full](#none-the-foundation).
+
+```sh
+curl -fsSL https://hausfold.co/haus.sh | bash   # a fresh Mac
+haus desktop none && haus rebuild               # one that has haus already
+```
+
+### hacker
+
+**By hausfold.** Keyboard-first, for someone who writes code all day: tiled
+windows, a bar, the palette on ⌘Space, coding agents and a themed terminal.
+
+Rooms it switches on: [Development](/docs/haus/rooms/development),
+[Windows](/docs/haus/rooms/windows), [Bar](/docs/haus/rooms/bar),
+[Launcher](/docs/haus/rooms/launcher), [Shelf](/docs/haus/rooms/shelf),
+[Focus](/docs/haus/rooms/focus), [AI](/docs/haus/rooms/ai),
+[Security](/docs/haus/rooms/security). [hacker's own
+page](/docs/haus/desktops/hacker) has the first moves that make it click.
 
 ```sh
 curl -fsSL https://hausfold.co/hacker.sh | bash   # a fresh Mac
 haus desktop hacker && haus rebuild               # one that has haus already
 ```
+
+### producer
+
+**By hausfold**, at
+[`github:hausfold/producer-desktop`](https://github.com/hausfold/producer-desktop).
+A studio Mac, built around Ableton, RX and Resolve and leaving all three alone:
+the palette opens on ⌘Space, and the tiler stays off so Caps Lock is still Caps
+Lock.
+
+Rooms it switches on: [Bar](/docs/haus/rooms/bar),
+[Launcher](/docs/haus/rooms/launcher), [Shelf](/docs/haus/rooms/shelf),
+[Focus](/docs/haus/rooms/focus), [Security](/docs/haus/rooms/security).
+
+There is no `hausfold.co/producer.sh`: a short installer URL here is one
+hausfold publishes, and every other desktop installs by flakeref instead. `haus
+show github:hausfold/producer-desktop` prints what it would change before you
+pin it.
+
+```sh
+# a fresh Mac
+curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=github:hausfold/producer-desktop
+# one that has haus already
+haus add github:hausfold/producer-desktop && haus rebuild
+```
+
+{/* desktops:end */}
+
+<Callout title="A desktop claims more than its rooms">
+The rooms are the visible half. A desktop also makes machine-wide claims, and
+those are what a rebuild would take from you: hacker ports the theme into apps
+you already use, generates a wallpaper, and claims Caps Lock as the leader and
+⌘Space as the palette. producer claims ⌘Space and leaves Caps Lock alone.
+`haus plan` lists what a rebuild would change here, leaf by leaf, and `haus show
+<flakeref>` does the same for a desktop you have not selected yet.
+</Callout>
 
 ## Selecting and switching
 

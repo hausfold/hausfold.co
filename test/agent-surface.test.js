@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits } from '../worker-api.js';
 import { readFileSync } from 'node:fs';
-import { MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, AUTHORIZATION_SERVER, JWKS, OPENAI_APPS_CHALLENGE } from '../worker-config.js';
+import { DESKTOPS, INSTALLER_DESKTOPS, MCP_TOOLS, DOCS_MCP_TOOLS, A2A_SKILLS, PROTECTED_RESOURCE, AUTHORIZATION_SERVER, JWKS, OPENAI_APPS_CHALLENGE } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -345,6 +345,22 @@ describe('/agent.txt — the agent view as a dedicated instructions file', () =>
     const body = await res.text();
     expect(body).toContain('When to use this');
     expect(body).toBe(await (await worker.fetch(req('/index.md'), {})).text());
+  });
+
+  // The view is built from the table, so a desktop added to the gallery reaches
+  // it with no second edit. Both halves of the table have to land: an installer
+  // URL for the rows this domain serves, and the flag for a row that has none —
+  // otherwise an agent reads the list and invents hausfold.co/producer.sh.
+  it('names every gallery row, each by the way it actually installs', async () => {
+    const body = await (await worker.fetch(req('/agent.txt'), {})).text();
+    for (const name of Object.keys(INSTALLER_DESKTOPS)) {
+      expect(body, name).toContain(`https://hausfold.co/${name}.sh installs`);
+    }
+    for (const [name, row] of Object.entries(DESKTOPS).filter(([, r]) => r.flakeref)) {
+      expect(body, name).toContain(`--desktop=${row.flakeref}`);
+      expect(body, name).not.toContain(`https://hausfold.co/${name}.sh`);
+    }
+    expect(body).toContain('https://hausfold.co/v1/desktops');
   });
 });
 
