@@ -52,6 +52,7 @@ room](/docs/haus/rooms/ai)), and is also what puts `haus fix` on this list.
 | `haus desktop [name]` | What this machine can select: `none` (the foundation), the built-in desktops and the pinned ones, marking the current one; with a name, switch to it. `haus desktop none` drops back to the foundation. |
 | `haus remove <name> [replacement]` | Unpin a desktop or a room. A desktop falls back to `none`, the foundation, if it was the one selected. |
 | `haus version` | The haus release this machine is running, on its own line and nothing else, so `$(haus version)` is the value. `haus --version` is the same command. The revision you have pinned is printed beside it as a note; whether upstream has moved past it is `haus status`. |
+| `haus uninstall` | Take haus off this Mac, in the one order that works: settings, nix-darwin, the launchd jobs, Nix, then the dotfiles. Prints the plan and asks once; `--yes` skips the question. [Leaving](/docs/haus/leaving) is the long version. |
 
 ## What needs a person, and what runs itself
 
