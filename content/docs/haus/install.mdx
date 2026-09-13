@@ -47,6 +47,29 @@ A desktop is a set of values for the same options, so anything one chose your
 own file overrides in a line. Changing your mind is `haus desktop`, not a
 reinstall.
 
+`--desktop` also takes a flakeref, so a desktop someone else published installs
+on the same line:
+
+```sh
+curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=github:ada/writer-desktop
+```
+
+Anything with a `:` or a `/` in it is read as a source rather than a name, so a
+`git+https://git.example.org/ada/desktop` clone or a lone
+`file+https://example.org/writer.nix` works the same way, and every bare name
+still means what it did. Nothing is written until the source passes
+`haus show`, which fetches it, checks it is data and not code, and prints the
+whole report of what it sets. A failure ends the install there, with nothing
+written. What gets written then is the edit
+[`haus add`](/docs/haus/reference/haus#pinning-a-desktop-you-found) makes: the
+source pinned as an input named off the repo (`writer`), and the line selecting
+it. One third-party desktop at a time, and `haus remove writer` unpins it.
+
+None of this needs a listing on this site. A desktop gets a short
+`hausfold.co/<name>.sh` URL only when hausfold publishes it; anything else
+installs by flag. Publishing one of your own is
+[Share a desktop](/docs/haus/desktops/sharing).
+
 ```sh
 # read it first, or pin an exact release and diff it against GitHub
 curl -fsSL https://hausfold.co/haus.sh | less
@@ -156,7 +179,7 @@ bash -c "$(curl -fsSL https://hausfold.co/haus.sh)"
 |---|---|
 | `HAUS_NONINTERACTIVE=1` | Take the defaults, Determinate's own confirmation included, so a run with no terminal at all (ssh, CI, a provisioning wrapper) gets through |
 | `HAUS_DRY_RUN=1` | Print the config it would write, write nothing. Still asks the questions if you have a terminal; pair it with `--defaults` for a silent run |
-| `HAUS_DESKTOP` | `hacker`, or `--desktop=hacker` on the command line: select that desktop instead of the foundation, which is what `hacker.sh` sets. Unset, no desktop is selected. `blank`, `everyday` and `minimal` are retired and still read ([what each becomes](/docs/haus/desktops/choosing#retired-names)) |
+| `HAUS_DESKTOP` | `hacker`, or `--desktop=hacker` on the command line: select that desktop instead of the foundation, which is what `hacker.sh` sets. Unset, no desktop is selected. Takes a flakeref to someone else's desktop too (`github:ada/writer-desktop`), on the terms above: checked with `haus show` first, and a failure writes nothing. `blank`, `everyday` and `minimal` are retired and still read ([what each becomes](/docs/haus/desktops/choosing#retired-names)) |
 | `HAUS_ROOMS` | Rooms to turn on from the start, one `enable = true;` host line each: `bar`, `windows`, `launcher`, `shelf`, `focus`, `ai`, `development`, `security`. Ignored when a desktop is selected, since that desktop decides |
 | `HAUS_GIT_NAME` / `HAUS_GIT_EMAIL` | Your git identity, which the host file records |
 | `HAUS_ACCENT` / `HAUS_WALLPAPER` / `HAUS_EDITOR` | The accent, one of the generated wallpaper looks (`minimal`, `orbits`, `constellation`, `flow`, `bold`, or `none`; unset, the foundation leaves your picture alone and a desktop sets its own, which for hacker is `minimal`), and the editor (`zed`, `vscode`, `cursor`, `helix`, `neovim`, `vim`, `nano`) |
