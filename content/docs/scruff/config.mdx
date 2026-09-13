@@ -208,6 +208,10 @@ The bucket directory is **cosmetic**. Every command re-derives a lane's main
 checkout from the checkout itself, so nothing ever parses identity out of a
 path.
 
+Identity comes from `origin`, and `origin` wins even when a second remote
+disagrees. In a fork that has consequences beyond the bucket name, which
+[Landing](/docs/scruff/landing#working-in-a-fork) covers.
+
 ```sh
 scruff doctor                  # where the base is, among everything else it reports
 scruff doctor --migrate-base   # move it to ~/.cache/scruff

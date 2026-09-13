@@ -79,7 +79,7 @@ lane refuses, and names them.
 
 | | |
 |---|---|
-| `scruff doctor` | diagnose this machine and the repo you're standing in: the base and how it resolved, git, the forge CLI and whether it is authenticated, occupancy, whether the filesystem can reflink, submodules / LFS / sparse-checkout, which rung answered the default-branch question, then the findings: stale registry rows, stray checkouts, orphan branches, disk per repo. `--json` for the same as data |
+| `scruff doctor` | diagnose this machine and the repo you're standing in: the base and how it resolved, git, the forge CLI and whether it is authenticated, occupancy, whether the filesystem can reflink, submodules / LFS / sparse-checkout, every remote and the identity it would give, which rung answered the default-branch question, then the findings: remotes that disagree about who the repo is, a repo with no remote at all, stale registry rows, stray checkouts, orphan branches, disk per repo. `--json` for the same as data |
 | `scruff doctor --migrate-base` | move the base to `~/.cache/scruff`. Refuses with exit 2 while any lane is occupied, repairs every checkout, leaves the old path a symlink |
 | `scruff skill [<name>]` | print an [agent skill](/docs/scruff/agents) — scruff's own, or `handoff` |
 | `scruff skill install` | write every skill into every agent client on the machine. `--client claude\|codex\|opencode\|pi` or `--dir <path>` to name one |
