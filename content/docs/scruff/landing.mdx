@@ -69,6 +69,45 @@ No `gh`, no network, a rate limit, an archived repo: every one means scruff
 **3**, says so in `warnings`, and shows a marker in the listing rather than
 degrading in silence.
 
+## Working in a fork
+
+`origin` your fork, `upstream` the project, pull requests opened from one to the
+other. **`origin` wins**, so scruff knows this repo as your fork, and your fork
+is where it looks for your pull requests. It will not find them there, because
+they live in the project.
+
+Nothing breaks, but one rung of the ladder goes quiet. What is left is what git
+alone can prove, which still covers a merge commit or a rebase once you have
+pulled the project's branch back down. A **squash** merge leaves nothing to
+prove, so the lane reads `no` and `reap` keeps it. Right way round, and it does
+mean a fork is a repo where lanes pile up.
+
+`scruff doctor` names it rather than leaving you to work it out:
+
+```
+findings
+  fork remotes     you/kilo
+                   this repo's remotes disagree about who it is: identity is
+                   you/kilo, and upstream is antirez/kilo. scruff keys on
+                   origin, so every PR query asks you/kilo …
+```
+
+Two ways to act on it. `scruff drop <name>` takes one lane by hand, which is
+always allowed because a person typed the name. Or write a
+[`landed` seam](/docs/scruff/seams) that asks the project instead of your fork,
+and the sweep works again:
+
+```toml
+# ~/.config/scruff/config.toml
+[hooks]
+landed = "~/.local/bin/scruff-landed-upstream"
+```
+
+scruff will not pick the second remote for you. `upstream` is a habit, not a
+declaration: it is `up` on somebody else's machine and a vendor mirror nobody
+sends a PR to on a third. Choosing one of them to believe would be a guess, and
+this is the one thing scruff does that deletes a branch.
+
 ## Sweeping
 
 ```sh
