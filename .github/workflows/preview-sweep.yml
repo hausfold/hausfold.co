@@ -50,6 +50,13 @@ permissions:
   contents: read
   pull-requests: read
 
+# One sweep at a time, and never cancel the one that is running. Nothing
+# supersedes a sweep the way a newer push supersedes a deploy: a later run asks
+# the same question of whatever Workers exist then, so killing this one only
+# leaves today's leaks serving until tomorrow's cron. Each delete is
+# independent and an already-gone Worker counts as success, so there is nothing
+# half-written to protect — the flag is here so a `dry_run` dispatch queues
+# behind a live sweep instead of taking it out.
 concurrency:
   group: preview-sweep
   cancel-in-progress: false
