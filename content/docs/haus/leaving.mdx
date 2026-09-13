@@ -49,9 +49,10 @@ haus revert-settings      # put the last snapshot back, byte for byte
 haus revert-settings list # every snapshot you've taken
 ```
 
-**The wallpaper is the sharpest case.** `haus.wallpaper.style` defaults to
-`minimal`, so the desktop is stamped at every activation and macOS keeps no record
-of what was there before. Rolling back doesn't bring yours back: re-pick it in
+**The wallpaper is the sharpest case.** The foundation leaves it alone, but
+hacker sets `haus.wallpaper.style` to `minimal`, so on that desktop the picture
+is stamped at every activation and macOS keeps no record of what was there
+before. Rolling back doesn't bring yours back: re-pick it in
 System Settings **and** set `haus.wallpaper.style = "none"`, or the next rebuild
 stamps over it again.
 

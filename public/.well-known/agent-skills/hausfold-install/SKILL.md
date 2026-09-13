@@ -1,6 +1,6 @@
 ---
 name: hausfold-install
-description: Install a haus desktop (hacker, everyday, minimal) on a macOS machine with one shell command. Use when the user wants their Mac rebuilt from a config file, wants one of the named desktops, or asks how to try haus.
+description: Install haus on a macOS machine with one shell command, as the foundation (no desktop) or as the hacker desktop. Use when the user wants their Mac rebuilt from a config file, wants the hacker desktop, or asks how to try haus.
 ---
 
 # Install haus
@@ -8,17 +8,20 @@ description: Install a haus desktop (hacker, everyday, minimal) on a macOS machi
 One command, run by the user (not you) in a terminal:
 
 ```sh
-curl -fsSL https://hausfold.co/hacker.sh | bash
+curl -fsSL https://hausfold.co/haus.sh | bash
 ```
 
-The URL names the desktop:
+The URL says what is selected:
 
-- `hacker.sh`: tiling windows, a bar, a themed terminal. The one most people
-  mean when they install haus.
-- `everyday.sh`: a better menu bar and a search box that opens anything, none
-  of the developer tooling.
-- `minimal.sh`: just the themed shell on an otherwise stock macOS.
-- `haus.sh`: installs the layer and asks which desktop to build.
+- `haus.sh`: the foundation. The layer with no desktop: no bar, no tiling, no
+  palette, no wallpaper. Rooms are turned on afterwards, one line each, or a
+  desktop is selected with `haus desktop hacker`.
+- `hacker.sh`: the hacker desktop. Tiling windows, a bar, a themed terminal,
+  the one desktop haus ships.
+
+`everyday.sh` and `minimal.sh` still resolve for whoever saved them, but are
+retired: each installs the foundation plus the rooms that desktop turned on.
+Never hand one to a new user.
 
 ## Before you run it
 

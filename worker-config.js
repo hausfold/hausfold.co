@@ -9,29 +9,38 @@
 //
 // The Worker's bundle is built from worker.js; wrangler inlines this import.
 
-// The desktops this site installs, by the name in their URL. A key here is a
-// promise that `hausfold.co/<key>.sh` keeps resolving, so only desktops the
-// site actually presents belong in it.
+// The installers this site presents, by the name in their URL. A key here is
+// a promise that `hausfold.co/<key>.sh` keeps resolving AND a row in every
+// listing (/v1/desktops, the MCP tool, the agent view), so only what the site
+// actually presents belongs in it.
 //
-// ⚠️ Every row maps to `hausfold/haus` because all four desktops ship *inside*
-// the layer's own repo, as `desktops/<name>.nix` — that is not a spelling
-// mistake, and the file each row fetches is that one repo's `bootstrap.sh`.
-// (`nebelung.sh` would be the wrong name for any of them: nebelung is the
-// palette, not a desktop.) The row exists to say which desktop the
-// URL means, not which repo it came from; the day a desktop lives in a repo
-// we don't own, `repo` is already where that goes.
+// `pin: null` is the front door. `/haus.sh` installs the foundation — the
+// layer with no desktop selected: no bar, no tiling, no palette, no wallpaper
+// until a room is turned on — and asks no desktop question at all. A pinned row
+// selects that desktop instead; the URL is the choice. A desktop is a starter
+// template on top of the foundation, and `hacker` is the one that ships.
 //
-// `pin: null` is the entry point that asks. `/haus.sh` installs the layer and
-// lets bootstrap's own interview choose, which is what someone who hasn't
-// decided wants; every other row skips that one question because the URL they
-// typed already answered it.
-//
-// 🚨 `blank` is deliberately absent. It is a real desktop in the repo — the
-// null selection, for someone assembling rooms by hand — but it is not a thing
-// this site presents, and a key here is a promise to keep serving it.
+// ⚠️ Both rows map to `hausfold/haus` because the file each fetches is that
+// repo's `bootstrap.sh`, and `hacker` ships inside it as `desktops/hacker.nix`.
+// The row exists to say which desktop the URL means, not which repo it came
+// from; the day a desktop lives in a repo we don't own, `repo` is already
+// where that goes.
 export const DESKTOPS = {
   haus: { repo: "hausfold/haus", pin: null },
   hacker: { repo: "hausfold/haus", pin: "hacker" },
+};
+
+// Installer URLs that were published and are no longer presented. A URL that
+// was in someone's shell history keeps resolving forever (the same promise
+// `_redirects` makes for a page), so these are served by `/<name>.sh` exactly
+// as a DESKTOPS row is — but they appear in no listing, so nothing hands them
+// to a new reader. bootstrap.sh reads the pinned name as a retired spelling
+// and installs the foundation plus the rooms that desktop turned on.
+//
+// 🚨 Never move a key from here back to DESKTOPS, and never delete one: the
+// first re-presents a desktop haus no longer ships, the second breaks a
+// command someone saved.
+export const RETIRED_INSTALLERS = {
   everyday: { repo: "hausfold/haus", pin: "everyday" },
   minimal: { repo: "hausfold/haus", pin: "minimal" },
 };
@@ -232,7 +241,7 @@ export const MCP_TOOLS = [
               command: { type: "string", description: "The one-line installer to run." },
               pins: {
                 type: ["string", "null"],
-                description: "The desktop this URL pins, or null when the URL asks which to build.",
+                description: "The desktop this URL pins, or null for /haus.sh, which installs the foundation with no desktop.",
               },
               note: { type: "string", description: "What running that line does." },
             },

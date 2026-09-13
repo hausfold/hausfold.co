@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
-import { DESKTOPS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
+import { DESKTOPS, RETIRED_INSTALLERS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
 import { DIRECTORY_PATH, DIRECTORY_CONTENT_TYPE } from '../worker-sign.js';
 
 const spec = JSON.parse(readFileSync(new URL('../public/openapi.json', import.meta.url), 'utf8'));
@@ -23,9 +23,20 @@ describe('openapi.json vs worker.js', () => {
   });
 
   it('declares an install route for every desktop in DESKTOPS', () => {
-    expect(Object.keys(DESKTOPS).sort()).toEqual(['everyday', 'hacker', 'haus', 'minimal']);
+    expect(Object.keys(DESKTOPS).sort()).toEqual(['hacker', 'haus']);
     for (const desktop of Object.keys(DESKTOPS)) {
       expect(spec.paths[`/${desktop}.sh`]).toBeDefined();
+      expect(spec.paths[`/${desktop}.sh`].get.deprecated).toBeUndefined();
+    }
+  });
+
+  // A retired installer keeps its path in the spec, marked deprecated: a
+  // client generated from an older spec keeps its two operations, and one
+  // generated from this spec learns not to offer them.
+  it('keeps every retired installer in the spec as deprecated', () => {
+    expect(Object.keys(RETIRED_INSTALLERS).sort()).toEqual(['everyday', 'minimal']);
+    for (const name of Object.keys(RETIRED_INSTALLERS)) {
+      expect(spec.paths[`/${name}.sh`].get.deprecated).toBe(true);
     }
   });
 

@@ -18,9 +18,8 @@ URLs are public too.
   `/terms` is no-warranty terms of use for a free API, never sales terms.
 - Say **desktop**, not "rice", in user-facing copy; keep "rice" only in
   quotations, URLs, filenames and code identifiers.
-- **Never call haus "opinionated" in platform-level copy.** A desktop (`hacker`,
-  `everyday`, `minimal`) is, and `desktops/hacker`'s description says so; the
-  layer is not. Name the macOS pain instead: *the settings you always change by
+- **Never call haus "opinionated" in platform-level copy.** A desktop (`hacker`)
+  is, and `desktops/hacker`'s description says so; the layer is not. Name the macOS pain instead: *the settings you always change by
   hand*. `/`'s hero closes **"Nothing by hand, and open all the way down."**
 
 ## Where does it go?
@@ -30,9 +29,9 @@ URLs are public too.
 | the landing page | `src/app/page.tsx` |
 | what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
 | the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Cards, namespace table and the `---Rooms---` group are all held to haus's registry by `scripts/check-rooms.mjs`; `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
-| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. No catalogue: `index.mdx`'s `## Desktops` is three sentences and a link to [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s |
+| a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s: the foundation first (what the installer selects), then every desktop that ships; `index.mdx`'s `## Desktops` is three sentences and a link to it |
 | **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
-| the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` asks which desktop; `/hacker.sh`, `/everyday.sh`, `/minimal.sh` answer by URL. **A desktop is a row in `DESKTOPS`, not a new route** |
+| the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` installs the foundation and asks no desktop question; `/hacker.sh` selects a desktop by URL. **A desktop is a row in `DESKTOPS`, not a new route**; a URL that stops being presented moves to `RETIRED_INSTALLERS` (`worker-config.js`), never out |
 | the install *script* (`bootstrap.sh`) | `hausfold/haus` — the Worker proxies it and pins the ref |
 | the **skill agents install** (`npx skills add hausfold/hausfold.co`) | `skills/haus-install/SKILL.md`, with `skills.sh.json` and `plugin.json` at the root; all three describe the same three capabilities and move together |
 | the **layer** — any `haus.*` option, the rooms, the `haus` CLI | `hausfold/haus` (`./haus` in the workshop; `./hausfold.co` is this repo) |
@@ -88,7 +87,7 @@ on hausfold.co.
 **`run_worker_first = true` in `wrangler.toml` must be `true`, never an array.**
 Without it the assets binding answers `perch.hausfold.co/` with `out/index.html`
 and `worker.js` never runs; an array is an allowlist, and `["/"]` 404s
-`/haus.sh`, `/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/*` and
+`/haus.sh`, `/hacker.sh`, the retired installer URLs, `/download/*` and
 `/api/release/*` at once. `npm test` passes under either value (it calls
 `worker.fetch` directly); the guard is a grep in `worker.yml` over both wrangler
 configs. Don't delete it as a duplicate of the deploy smoke check, which
@@ -373,7 +372,7 @@ as much as they bound that one.
   `src/lib/source.ts` already carries a markdown table into `llms-full.txt`
   whole. A catalogue a reader compares across columns (`desktops/choosing`) stays
   a table, and splitting one of its rows is the honest fix when a single tick
-  stopped meaning two things (`desktops/choosing.mdx:66`).
+  stopped meaning two things (`desktops/choosing`'s room table).
 - **Diff the claims, not the identifiers.** Compression makes a page wrong more
   easily than it makes it terse: half of a two-sided caveat over-claims on its
   own. An identifier diff that comes back empty proves nothing about truth, and a
@@ -601,17 +600,23 @@ because they are positioning:
 - **Changing what the site claims hausfold is.** A new claim needs a decision
   behind it.
 - **Adding a desktop.** It must exist and install for a stranger first — **no
-  empty slots, no coming-soon entries**. What each shipped one cleared: a file in
-  `hausfold/haus/desktops/<name>.nix`; a row in `worker.js`'s `DESKTOPS`, so
-  `hausfold.co/<name>.sh` installs it; a page at
-  `content/docs/haus/desktops/<name>.mdx` whose every fact is read off that
-  `.nix`, with an un-hued icon in `src/lib/icons.tsx` and an entry under
-  `---Desktops---` in `content/docs/haus/meta.json`; a row in
+  empty slots, no coming-soon entries**. What `hacker` cleared: a file in
+  `hausfold/haus/desktops/<name>.nix`; a row in `worker-config.js`'s
+  `DESKTOPS`, so `hausfold.co/<name>.sh` installs it and every listing carries
+  it; a page at `content/docs/haus/desktops/<name>.mdx` whose every fact is
+  read off that `.nix`, with an un-hued icon in `src/lib/icons.tsx` and an
+  entry under `---Desktops---` in `content/docs/haus/meta.json`; a column in
   [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx)'s table.
-  **No landing page.** **`blank` has no `DESKTOPS` row and no installer URL**: it
-  is the null selection, and `hausfold.co/blank.sh` would promise a machine it
-  does not produce. It **does** keep its docs page, and that is the right shape:
-  a page can explain a null selection, a `curl | bash` cannot.
+  **No landing page.** **The foundation has no `DESKTOPS` row of its own**:
+  `/haus.sh` IS the foundation — the layer with no desktop, which the
+  installer selects unless a URL names one — and it is a section of
+  `desktops/choosing`, not a page. **Retiring a desktop** is the reverse, plus
+  two things that never go: its installer URL moves to `RETIRED_INSTALLERS`
+  (and stays in `openapi.json` as `deprecated: true`) and its docs path gets a
+  `_redirects` line onto `desktops/choosing`. Three hand-written copies name
+  the installers and are not generated from anything: `skills/haus-install/SKILL.md`,
+  `public/.well-known/agent-skills/hausfold-install/SKILL.md` (then
+  `node scripts/gen-agent-skills.mjs` for its digest) and `src/lib/jsonld.ts`.
 - **Adding a product name that isn't real yet.** It needs a row in `PRESENCE.md`
   ([`hausfold/ops`](https://github.com/hausfold/ops), private) first. **One
   narrow exception**: the last line of `#made` may carry a workshop-stage name

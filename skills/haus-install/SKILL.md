@@ -6,22 +6,23 @@ description: Install haus (a nix-darwin desktop layer for macOS) from hausfold.c
 # hausfold
 
 hausfold makes free and open source software for macOS. haus is the nix-darwin
-layer; the desktops it builds (hacker, everyday, minimal) are configurations
-you write `haus.*` options against. No purchasing, no accounts.
+layer; a desktop (hacker is the one that ships) is a starter template on top of
+it, a configuration you write `haus.*` options against. No purchasing, no
+accounts.
 
-## Installing a desktop
+## Installing haus
 
-One line, no sudo, no keys. Each desktop has its own URL:
+One line, no sudo, no keys:
 
 ```sh
-curl -fsSL https://hausfold.co/hacker.sh | bash
+curl -fsSL https://hausfold.co/haus.sh | bash
 ```
 
-`hacker.sh`, `everyday.sh` and `minimal.sh` each install that desktop. The
-URL writes the choice into the script, so the installer does not ask again.
-`haus.sh` (no desktop in the name) installs the layer and asks which desktop
-to build. The script is haus's own `bootstrap.sh`, proxied byte-for-byte with
-one line added.
+`haus.sh` installs the foundation: the layer with no desktop selected, so no
+bar, tiling, palette or wallpaper until a room is turned on, and asks no desktop
+question. `hacker.sh` installs the hacker desktop instead; the URL writes the
+choice into the script. The script is haus's own `bootstrap.sh`, proxied
+byte-for-byte with one line added.
 
 Docs: https://hausfold.co/docs/haus/
 
@@ -62,5 +63,6 @@ unauthenticated.
 - The install script is served from the desktop repo's latest release tag;
   before that repo has any release, it is served from `main`. A desktop name
   with a `DESKTOPS` row is installable by URL from the moment the row lands.
-- `blank` is the null selection for assembling rooms by hand. It has no
-  installer URL on purpose.
+- `everyday.sh` and `minimal.sh` were published and still resolve, but are
+  retired: each installs the foundation plus the rooms that desktop turned on.
+  Never hand one to a new user; `haus.sh` and `hacker.sh` are the two.

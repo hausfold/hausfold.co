@@ -65,7 +65,7 @@ export const faqJsonLd = {
       name: 'How do I install it?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'curl -fsSL https://hausfold.co/hacker.sh | bash installs the hacker desktop. Replace hacker with everyday or minimal, or use haus.sh to be asked.',
+        text: 'curl -fsSL https://hausfold.co/haus.sh | bash installs the foundation: the layer with no desktop, so no bar, tiling, palette or wallpaper until you turn a room on. hacker.sh installs the hacker desktop instead.',
       },
     },
     {

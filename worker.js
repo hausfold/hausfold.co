@@ -2,9 +2,10 @@
 //
 //   /<desktop>.sh       → PROXIES haus's bootstrap.sh as text/plain with that
 //                         desktop pinned, so the install one-liner is exactly:
-//                             curl -fsSL https://hausfold.co/minimal.sh | bash
-//                         `/haus.sh` is the same script with nothing pinned,
-//                         for someone who hasn't chosen yet and wants asking
+//                             curl -fsSL https://hausfold.co/hacker.sh | bash
+//                         `/haus.sh` is the same script with nothing pinned:
+//                         the foundation, no desktop — no bar, tiling,
+//                         palette or wallpaper until a room is turned on
 //   /download/<app>     → 302 to the latest GitHub release's macOS artifact,
 //                         so the product pages (and curl) get a stable URL while
 //                         GitHub keeps hosting bytes and counting downloads
@@ -98,8 +99,9 @@
 // Two things about the shape, and both are decisions:
 //
 //   - The installer is named after the desktop you are installing —
-//     `hausfold.co/minimal.sh`. hausfold.co is the platform's door, not one
-//     desktop's, so there is deliberately no single `/init.sh`.
+//     `hausfold.co/hacker.sh` — or after the layer when you are installing
+//     none. hausfold.co is the platform's door, not one desktop's, so there
+//     is deliberately no single `/init.sh`.
 //   - The resolution table is data. A desktop is a row, not a route. What
 //     happens when a desktop lives in a repo we don't own is deliberately
 //     deferred, but the row already has a `repo` field for it.
@@ -114,11 +116,14 @@
 // `releases/latest` falls back to a tag that doesn't know `hacker` and every
 // `/hacker.sh` install breaks. Don't yank it; supersede it.
 //
-// `/haus.sh` is the front door, and it pins nothing on purpose: the name is
-// the point when you know it, and the question is the point when you don't.
+// `/haus.sh` is the front door, and it pins nothing on purpose: it installs
+// the foundation and asks no desktop question. A desktop is a starter template
+// you choose by URL, and the retired ones (RETIRED_INSTALLERS) still resolve
+// for whoever saved the command.
 //
 import {
   DESKTOPS,
+  RETIRED_INSTALLERS,
   DOWNLOADABLE,
   MCP_TOOLS,
   DOCS_MCP_TOOLS,
@@ -612,7 +617,7 @@ async function callTool(name, args, env) {
             pins: pin ?? null,
             note: pin
               ? `installs the '${pin}' desktop by URL`
-              : "installs the layer and asks which desktop to build",
+              : "installs the foundation: the layer with no desktop, so no bar, tiling, palette or wallpaper until a room is turned on",
           };
         }),
       });
@@ -1951,9 +1956,8 @@ async function serveMcpPost(request, env, table = MCP_TABLE) {
 }
 
 // Write the chosen desktop into the script we serve, so `curl -fsSL
-// https://hausfold.co/minimal.sh | bash` installs minimal without the reader
-// having to remember an env var or answer a question they already answered by
-// typing the URL.
+// https://hausfold.co/hacker.sh | bash` installs hacker without the reader
+// having to remember an env var: typing the URL was the choice.
 //
 // Three things about the shape, each paid for:
 //
@@ -2184,13 +2188,13 @@ No authentication anywhere: no keys, no accounts, nothing to buy.
 curl -fsSL https://hausfold.co/hacker.sh | bash
 \`\`\`
 
-Every desktop installs from its own URL:
+The foundation and every desktop install from their own URL:
 
 ${Object.keys(DESKTOPS)
   .map((d) =>
     DESKTOPS[d].pin
       ? `- https://hausfold.co/${d}.sh installs the '${DESKTOPS[d].pin}' desktop, no questions asked`
-      : `- https://hausfold.co/${d}.sh installs the layer and asks which desktop to build`,
+      : `- https://hausfold.co/${d}.sh installs the foundation: no desktop, so no bar, tiling, palette or wallpaper until a room is turned on`,
   )
   .join("\n")}
 
@@ -2479,7 +2483,7 @@ function notAcceptable(url) {
 }
 
 async function serveInstaller(desktop, url, env) {
-  const { repo, pin } = DESKTOPS[desktop];
+  const { repo, pin } = DESKTOPS[desktop] ?? RETIRED_INSTALLERS[desktop];
   const pinned = url.searchParams.get("ref");
   // A visitor's pin is held to the tag shape (see RELEASE_TAG); a resolved or
   // deploy-pinned ref is re-checked against SAFE_REF because neither is
@@ -2522,7 +2526,10 @@ const hausfold = {
     // falls through to the assets binding and 404s like any other missing
     // path, rather than becoming a fetch of a repo nobody vouched for.
     const installer = url.pathname.match(/^\/([a-z0-9-]+)\.sh$/);
-    if (installer && Object.hasOwn(DESKTOPS, installer[1])) {
+    if (
+      installer &&
+      (Object.hasOwn(DESKTOPS, installer[1]) || Object.hasOwn(RETIRED_INSTALLERS, installer[1]))
+    ) {
       return serveInstaller(installer[1], url, env);
     }
     // The visual standard. Extensionful and exact, so nothing else markdown-

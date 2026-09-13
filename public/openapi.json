@@ -117,7 +117,7 @@
     "/v1/desktops": {
       "get": {
         "summary": "Every installable desktop and the URL that installs it",
-        "description": "One row per desktop. 'pins' is the desktop the URL pre-answers, or null for /haus.sh, which installs the layer and asks.",
+        "description": "One row per installer. 'pins' is the desktop the URL selects, or null for /haus.sh, which installs the foundation with no desktop.",
         "operationId": "listDesktops",
         "tags": [
           "v1",
@@ -753,8 +753,8 @@
     },
     "/haus.sh": {
       "get": {
-        "summary": "Install script for the haus layer; asks which desktop to build",
-        "description": "Proxies haus's bootstrap.sh with nothing pinned, so the installer interviews you. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`.",
+        "summary": "Install script for the haus foundation; selects no desktop",
+        "description": "Proxies haus's bootstrap.sh with nothing pinned. It installs the foundation, the layer with no desktop, which changes nothing you can see until a room is turned on, and asks no desktop question. Run it with `curl -fsSL https://hausfold.co/haus.sh | bash`.",
         "operationId": "getHausInstaller",
         "tags": [
           "install"
@@ -773,7 +773,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The installer as plain text, pinned via HAUS_DESKTOP. `x-hausfold-ref` names the ref it was fetched from.",
+            "description": "The installer as plain text, with nothing pinned. `x-hausfold-ref` names the ref it was fetched from.",
             "headers": {
               "x-hausfold-ref": {
                 "description": "The ref the script was proxied from (a release tag, or main before the first release).",
@@ -804,7 +804,7 @@
     "/hacker.sh": {
       "get": {
         "summary": "Install script for the hacker desktop, pinned by URL",
-        "description": "Same script as /haus.sh with the hacker desktop pinned, so the installer does not ask. `x-hausfold-desktop` echoes the pin.",
+        "description": "Same script as /haus.sh with the hacker desktop pinned, so the installer selects it. `x-hausfold-desktop` echoes the pin.",
         "operationId": "getHackerInstaller",
         "tags": [
           "install"
@@ -833,8 +833,8 @@
     },
     "/everyday.sh": {
       "get": {
-        "summary": "Install script for the everyday desktop, pinned by URL",
-        "description": "Same shape as /hacker.sh for the everyday desktop.",
+        "summary": "Retired installer URL for the everyday desktop; still resolves",
+        "description": "The everyday desktop is retired. This URL keeps resolving for a command already saved in a shell history: it serves the same script as /haus.sh with `everyday` pinned, which the installer reads as a retired name and turns into the foundation plus the rooms that desktop turned on. Not listed by /v1/desktops or the MCP tool; use /haus.sh or /hacker.sh for anything new.",
         "operationId": "getEverydayInstaller",
         "tags": [
           "install"
@@ -855,13 +855,14 @@
               "text/plain": {}
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/minimal.sh": {
       "get": {
-        "summary": "Install script for the minimal desktop, pinned by URL",
-        "description": "Same shape as /hacker.sh for the minimal desktop.",
+        "summary": "Retired installer URL for the minimal desktop; still resolves",
+        "description": "The minimal desktop is retired. This URL keeps resolving for a command already saved in a shell history: it serves the same script as /haus.sh with `minimal` pinned, which the installer reads as a retired name and turns into the foundation plus the rooms that desktop turned on. Not listed by /v1/desktops or the MCP tool; use /haus.sh or /hacker.sh for anything new.",
         "operationId": "getMinimalInstaller",
         "tags": [
           "install"
@@ -882,7 +883,8 @@
               "text/plain": {}
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/download/{app}": {
@@ -2345,7 +2347,7 @@
               "string",
               "null"
             ],
-            "description": "The desktop this URL pre-answers, or null for /haus.sh, which asks."
+            "description": "The desktop this URL selects, or null for /haus.sh, which installs the foundation."
           }
         },
         "required": [

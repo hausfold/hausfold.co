@@ -78,13 +78,14 @@ export default function Developers() {
         <section className="block">
           <h2>Install the software</h2>
           <p>
-            Each desktop this site installs has its own URL, and <code>haus.sh</code> asks which:
+            <code>haus.sh</code> installs the foundation, the layer with no desktop, so no bar, tiling,
+            palette or wallpaper until a room is turned on; a desktop has its own URL:
           </p>
           <Command>{'curl -fsSL https://hausfold.co/hacker.sh | bash'}</Command>
           <p>
-            <code>hacker</code>, <code>everyday</code> and <code>minimal</code> are pinned by
-            their URLs, and <code>?ref=v2026.07.18</code> pins the script itself to a release tag.{' '}
-            <Link href="/docs/haus">The docs</Link> say what a desktop is and what each one builds.
+            <code>hacker</code> is pinned by its URL, and <code>?ref=v2026.07.18</code> pins the
+            script itself to a release tag. <Link href="/docs/haus">The docs</Link> say what a
+            desktop is and what the foundation leaves alone.
           </p>
         </section>
 

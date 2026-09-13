@@ -147,9 +147,9 @@ const icons = {
   json: { icon: Braces },
   sdk: { icon: Package },
 
-  // The four desktops, one page each under `haus/desktops/`. All four are the
-  // SAME glyph, on purpose (2026-08-16, the user's call): they sit in one
-  // contiguous run inside the ---Desktops--- group, between pages that are
+  // The desktop pages under `haus/desktops/` — one today, hacker. Every
+  // desktop wears the SAME glyph, on purpose (2026-08-16, the user's call):
+  // they sit in one contiguous run inside the ---Desktops--- group, between pages that are
   // *about* desktops (choosing, customizing, creating, sharing), and four
   // identical marks in a row is what makes "these are the items, the rest is
   // the manual" legible at a glance. The rule that three identical glyphs
@@ -166,15 +166,12 @@ const icons = {
   // and the link turned inward, which is exactly the condition for dropping
   // a hue.
   hacker: { icon: Monitor },
-  everyday: { icon: Monitor },
-  minimal: { icon: Monitor },
-  blank: { icon: Monitor },
 
   // "Desktops, as a kind of thing" — the glyph a card uses when it points at
   // the group rather than at one of them (`rooms/creating`'s way onward to
   // `desktops/creating`). ⚠️ It was the sidebar's last way-out row until
   // 2026-08-16; that row is gone and this entry is NOT, because content names
-  // it. The same Monitor the four members wear, which is now the point rather
+  // it. The same Monitor every member wears, which is now the point rather
   // than a coincidence. No hue: a desktop owns no accent anywhere on this
   // site.
   desktops: { icon: Monitor },

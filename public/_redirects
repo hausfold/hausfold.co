@@ -40,10 +40,27 @@
 # history actually calls. Deleting a page never touches an installer URL.
 /desktops/hacker      /docs/haus/desktops/hacker/      301
 /desktops/hacker/     /docs/haus/desktops/hacker/      301
-/desktops/everyday    /docs/haus/desktops/everyday/    301
-/desktops/everyday/   /docs/haus/desktops/everyday/    301
-/desktops/minimal     /docs/haus/desktops/minimal/     301
-/desktops/minimal/    /docs/haus/desktops/minimal/     301
+/desktops/everyday    /docs/haus/desktops/choosing/    301
+/desktops/everyday/   /docs/haus/desktops/choosing/    301
+/desktops/minimal     /docs/haus/desktops/choosing/    301
+/desktops/minimal/    /docs/haus/desktops/choosing/    301
+
+# The everyday, minimal and blank desktops are retired: the installer selects
+# no desktop now (the foundation), and each of those was either a name for
+# that or a set of rooms, which is one host line per room. Their pages went
+# with them; `desktops/choosing` carries the foundation and the retired names
+# under one heading, so every old link lands on the sentence that explains it.
+# The two /desktops/<name> lines above point straight there rather than
+# chaining through a page that no longer exists. Their installer URLs are NOT
+# redirected and must not be: `worker-config.js`'s RETIRED_INSTALLERS keeps
+# `/everyday.sh` and `/minimal.sh` serving, because a `curl | bash` in
+# someone's shell history has no way to follow a 301.
+/docs/haus/desktops/everyday    /docs/haus/desktops/choosing/    301
+/docs/haus/desktops/everyday/   /docs/haus/desktops/choosing/    301
+/docs/haus/desktops/minimal     /docs/haus/desktops/choosing/    301
+/docs/haus/desktops/minimal/    /docs/haus/desktops/choosing/    301
+/docs/haus/desktops/blank       /docs/haus/desktops/choosing/    301
+/docs/haus/desktops/blank/      /docs/haus/desktops/choosing/    301
 
 # /haus is a redirect for the second time. It 301'd here from 2026-08-14 to
 # 2026-08-17, was a real page again while `/` was the house's index and the

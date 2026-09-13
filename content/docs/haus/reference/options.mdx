@@ -2195,8 +2195,10 @@ its login comes from.
 When true, build a small opener app and make it the default handler
 for ~80 text/code extensions (json, md, ts, nix, rs, go, kdl, …), so
 opening or clicking those files opens them in haus.terminal.editor — a
-GUI editor directly, a terminal editor in a new terminal window. The
-app declares the types itself (not just `duti`) so
+GUI editor directly, a terminal editor in a new terminal window. One
+exception: a file inside an Obsidian vault (any vault the app has
+registered) opens in Obsidian, so a clicked link to a note lands in
+the note. The app declares the types itself (not just `duti`) so
 extensions nothing else on the machine declares still bind. Off by
 default: silently rewriting your file associations is a jarring,
 hard-to-undo change, so it's strictly opt-in. (Extensionless executables
@@ -9361,7 +9363,7 @@ another.
 What opens the command palette. Registered in-process by the
 daemon, so it's near-instant and doesn't go through AeroSpace.
 
-"cmd-space" — what the hacker and everyday desktops both pick — is the
+"cmd-space" — what the hacker desktop picks — is the
 one value that also DISABLES Spotlight's own ⌘Space, because the two
 can't share it. Every other value leaves Spotlight alone, including
 "none", the default, which hands the palette's job back to Spotlight
@@ -9489,7 +9491,8 @@ disabled.
 Authoring a tour is also the ONLY way to have one without windows: the
 built-in lap is three leader moves plus the palette, so `tour.enable` on a
 machine with `windows.enable = false` draws nothing at all.
-`desktops/everyday.nix` is the worked example — one step, the launcher.
+The smallest authored tour is one step, the launcher:
+`{ hint = "press {palette}, type tour, hit ↵ — that's how you open anything"; detect = "palette"; }`.
 
 </details>
 

@@ -18,7 +18,7 @@ the entire format, and the smallness is the point: it cannot run a script, reach
 a macOS setting haus doesn't already expose, or hand the build a package of its
 own. A stranger can read one in a minute and know the worst it can do, which is
 what makes running one from someone you've never met reasonable. haus ships
-[four](/docs/haus/desktops/choosing#the-four-that-ship); this page is how you
+[one](/docs/haus/desktops/choosing#the-one-that-ships); this page is how you
 write yours.
 
 ## The format
@@ -59,8 +59,8 @@ A host runs **exactly one**, so yours is not a diff against hacker: whatever you
 don't say, the rooms' own neutral defaults decide, which for every optional room
 means **off**. Check that twice when you port a layer that was stacked on another
 desktop, since what it inherited silently is what it now has to state. haus's own
-`everyday` names `security.passwordlessRebuild` and `focus.enable` for that
-reason.
+`hacker` names `security.touchId.passwordlessRebuild` and `focus.enable` rather
+than assuming them, for that reason.
 
 Say what your desktop is **for** in a comment at the top, and what it
 deliberately leaves out. The reason a room is off is the part a reader can't
