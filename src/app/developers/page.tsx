@@ -84,7 +84,9 @@ export default function Developers() {
           <Command>{'curl -fsSL https://hausfold.co/hacker.sh | bash'}</Command>
           <p>
             <code>hacker</code> is pinned by its URL, and <code>?ref=v2026.07.18</code> pins the
-            script itself to a release tag. <Link href="/docs/haus">The docs</Link> say what a
+            script itself to a release tag. A desktop that lives in its own repo has no URL here and
+            installs by flag instead, <code>--desktop=&lt;flakeref&gt;</code>, which{' '}
+            <a href="/v1/desktops">/v1/desktops</a> carries per row. <Link href="/docs/haus">The docs</Link> say what a
             desktop is and what the foundation leaves alone.
           </p>
         </section>
@@ -132,7 +134,8 @@ export default function Developers() {
           </Command>
           <p>
             The tools, all read-only over the same public data: <code>get_install_command</code>{' '}
-            (the desktop you name, or every URL and what each pins), <code>get_latest_release</code>{' '}
+            (the desktop you name, or the whole gallery: author, blurb, the rooms it turns on, and
+            the line that installs it), <code>get_latest_release</code>{' '}
             (an
             app&apos;s latest signed macOS release) and <code>search_docs</code> (page URLs,
             breadcrumbs and excerpts). Each carries read-only annotations and an output schema.
@@ -165,7 +168,7 @@ export default function Developers() {
           </p>
           <Command>{'curl -fsSL "https://hausfold.co/v1/search?q=notifications&limit=10"'}</Command>
           <p>
-            <code>/v1/desktops</code>, <code>/v1/apps</code> and{' '}
+            <code>/v1/desktops</code> is the desktops gallery, <code>/v1/apps</code> and{' '}
             <code>/v1/releases/pounce</code> round out the reads. <a href="/ask">/ask</a> is the
             NLWeb-shaped front door: a natural-language query in, ranked excerpts out, JSON by
             default or <code>text/event-stream</code> on request. The limit

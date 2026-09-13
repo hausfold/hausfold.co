@@ -13,6 +13,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
+import { DESKTOPS } from '../worker-config.js';
 
 const RELEASE_KEY = 'https://hausfold.co/__latest_release/hausfold/haus';
 
@@ -169,6 +170,20 @@ describe('the desktop table', () => {
     globalThis.fetch = makeFetch([]);
     const res = await worker.fetch(req('/init.sh'), {});
     expect(res.status).toBe(404);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  // Being in the gallery is not being an installer. `producer` is a DESKTOPS
+  // row with a `flakeref`: it appears in every listing, and this domain
+  // promises it no URL, so the route keys on INSTALLER_DESKTOPS rather than on
+  // DESKTOPS. A 200 here would be hausfold serving a script for a repo whose
+  // only claim is a card.
+  it('does not serve a gallery row that lives in its own repo', async () => {
+    globalThis.fetch = makeFetch([]);
+    for (const name of Object.keys(DESKTOPS).filter((d) => DESKTOPS[d].flakeref)) {
+      const res = await worker.fetch(req(`/${name}.sh`), {});
+      expect(res.status, `/${name}.sh`).toBe(404);
+    }
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 });

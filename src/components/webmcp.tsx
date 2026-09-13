@@ -57,13 +57,15 @@ export function WebMcpTools() {
       {
         name: 'get_hausfold_install_command',
         description:
-          'The one-line install command: haus installs the foundation with no desktop, hacker installs the hacker desktop.',
+          'The one-line install command for a desktop in the gallery, with its author, what it is for and the rooms it turns on. haus installs the foundation with no desktop, hacker installs the hacker desktop, producer installs a studio Mac from its own repo by flag.',
         inputSchema: {
           type: 'object',
           properties: {
             desktop: {
+              // Hand-written because this is a browser bundle and cannot import
+              // worker-config.js. test/openapi.test.js pins it to DESKTOPS.
               type: 'string',
-              enum: ['haus', 'hacker'],
+              enum: ['haus', 'hacker', 'producer'],
             },
           },
           required: ['desktop'],

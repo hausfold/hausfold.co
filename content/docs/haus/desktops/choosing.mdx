@@ -102,34 +102,79 @@ same one twice, with a message of its own. Choosing again changes one line rathe
 than unpicking a pile, and "build my own" is the foundation plus your host file
 rather than a second mode with its own rules.
 
-## The one that ships
+## The gallery
 
-**[hacker](/docs/haus/desktops/hacker)** is for someone keyboard-first who writes
-code all day: tiled windows, a bar, the ⌘Space palette, coding agents, a themed
-terminal. Beside the foundation, room by room:
+Every desktop this site presents: the foundation first, then the one that ships,
+then anything that lives in its own repo. Each card is one row of the table
+`/v1/desktops` serves, so a reader and an agent asking for an install command
+are told the same thing.
 
-| | foundation | [hacker](/docs/haus/desktops/hacker) |
-|---|:-:|:-:|
-| **For** | building your own | keyboard-first, developer, tiled |
-| [Development](/docs/haus/rooms/development) | · | ✓ |
-| [AI](/docs/haus/rooms/ai) | · | ✓ |
-| [Windows](/docs/haus/rooms/windows) | · | ✓ |
-| [Bar](/docs/haus/rooms/bar) | · | ✓ |
-| [Launcher](/docs/haus/rooms/launcher) | · | ✓ |
-| [Shelf](/docs/haus/rooms/shelf) | · | ✓ |
-| [Focus](/docs/haus/rooms/focus) | · | ✓ |
-| [Security](/docs/haus/rooms/security) | · | ✓ |
-| Theme ports | · | ✓ |
-| Generated wallpaper | · | ✓ |
-| Caps Lock as leader, ⌘Space as palette | · | ✓ |
+{/* desktops:start — rendered from worker-config.js's DESKTOPS by `npm run desktops`.
+    Edit the row, not this block: `npm run desktops:check` reverts a hand edit. */}
 
-Select it at install by typing its URL, or later on a machine that already has
-haus:
+### The foundation
+
+**By hausfold.** The layer and nothing on screen: the haus CLI, the shell, the
+app roster and the rebuild plumbing, with every optional room left off.
+
+No room is switched on, which is the whole of what it is. [What you get, in
+full](#none-the-foundation).
+
+```sh
+curl -fsSL https://hausfold.co/haus.sh | bash   # a fresh Mac
+haus desktop none && haus rebuild               # one that has haus already
+```
+
+### hacker
+
+**By hausfold.** Keyboard-first, for someone who writes code all day: tiled
+windows, a bar, the palette on ⌘Space, coding agents and a themed terminal.
+
+Rooms on: [Development](/docs/haus/rooms/development),
+[Windows](/docs/haus/rooms/windows), [Bar](/docs/haus/rooms/bar),
+[Launcher](/docs/haus/rooms/launcher), [Shelf](/docs/haus/rooms/shelf),
+[Focus](/docs/haus/rooms/focus), [AI](/docs/haus/rooms/ai),
+[Security](/docs/haus/rooms/security). [hacker's own
+page](/docs/haus/desktops/hacker) has the first moves that make it click.
 
 ```sh
 curl -fsSL https://hausfold.co/hacker.sh | bash   # a fresh Mac
 haus desktop hacker && haus rebuild               # one that has haus already
 ```
+
+### producer
+
+**By hausfold**, at
+[`github:hausfold/producer-desktop`](https://github.com/hausfold/producer-desktop).
+A studio Mac: Ableton, RX and Resolve keep the screen, the palette opens on
+⌘Space, and the tiler stays off so Caps Lock is still Caps Lock.
+
+Rooms on: [Bar](/docs/haus/rooms/bar), [Launcher](/docs/haus/rooms/launcher),
+[Shelf](/docs/haus/rooms/shelf), [Focus](/docs/haus/rooms/focus),
+[Security](/docs/haus/rooms/security).
+
+There is no `hausfold.co/producer.sh`: a short installer URL here is one
+hausfold publishes, and every other desktop installs by flakeref instead. `haus
+show github:hausfold/producer-desktop` prints what it would change before you
+pin it.
+
+```sh
+# a fresh Mac
+curl -fsSL https://hausfold.co/haus.sh | bash -s -- --desktop=github:hausfold/producer-desktop
+# one that has haus already
+haus add github:hausfold/producer-desktop && haus rebuild
+```
+
+{/* desktops:end */}
+
+<Callout title="A desktop claims more than its rooms">
+The rooms are the visible half. A desktop also makes machine-wide claims, and
+they are what a rebuild would take from you: hacker ports the theme into apps
+you already use, generates a wallpaper, and takes two keys, Caps Lock as the
+leader and ⌘Space as the palette. producer takes ⌘Space alone and leaves Caps
+Lock as Caps Lock. `haus show <desktop>` lists every claim, leaf by leaf,
+before you rebuild.
+</Callout>
 
 ## Selecting and switching
 

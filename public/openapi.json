@@ -116,8 +116,8 @@
     },
     "/v1/desktops": {
       "get": {
-        "summary": "Every installable desktop and the URL that installs it",
-        "description": "One row per installer. 'pins' is the desktop the URL selects, or null for /haus.sh, which installs the foundation with no desktop.",
+        "summary": "The desktops gallery: every desktop this site presents",
+        "description": "One row per desktop: its author, what it is for, the rooms it turns on, and the one line that installs it. A row with a 'flakeref' lives in its own repo and has no installer URL here, so its command is /haus.sh plus --desktop=<flakeref>; 'pins' is the desktop a hausfold URL selects, null for /haus.sh, which installs the foundation with no desktop.",
         "operationId": "listDesktops",
         "tags": [
           "v1",
@@ -2338,6 +2338,36 @@
           "desktop": {
             "type": "string"
           },
+          "author": {
+            "type": "string",
+            "description": "Who publishes this desktop."
+          },
+          "blurb": {
+            "type": "string",
+            "description": "One sentence on what it is for."
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The rooms it switches on, by the name in haus's registry. Empty for the foundation, which switches none on."
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A screenshot URL, or null when there is none. Null on every row today.",
+            "format": "uri"
+          },
+          "flakeref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "For a desktop in its own repo, the flakeref --desktop= takes. Null for one hausfold serves from its own URL."
+          },
           "command": {
             "type": "string",
             "description": "The one-line install command."
@@ -2347,11 +2377,16 @@
               "string",
               "null"
             ],
-            "description": "The desktop this URL selects, or null for /haus.sh, which installs the foundation."
+            "description": "The desktop this URL selects. Null for /haus.sh, which installs the foundation, and null on a flakeref row, which has no URL here at all."
           }
         },
         "required": [
           "desktop",
+          "author",
+          "blurb",
+          "rooms",
+          "image",
+          "flakeref",
           "command",
           "pins"
         ]

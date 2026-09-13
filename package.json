@@ -7,6 +7,8 @@
     "start": "serve out",
     "options": "node scripts/gen-options.mjs",
     "options:check": "node scripts/gen-options.mjs --check",
+    "desktops": "node scripts/gen-desktops.mjs",
+    "desktops:check": "node scripts/gen-desktops.mjs --check",
     "bindings:check": "node scripts/check-rice-bindings.mjs",
     "bindings:update": "node scripts/check-rice-bindings.mjs --update",
     "bar-tables:check": "node scripts/check-bar-tables.mjs",

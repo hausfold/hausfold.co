@@ -350,11 +350,32 @@ describe('tools/call · get_install_command', () => {
     expect(parsed.desktops.find((r) => r.desktop === 'haus').pins).toBeNull();
   });
 
+  it('carries the card: author, blurb and the rooms it turns on', async () => {
+    const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'hacker' } }));
+    const [row] = JSON.parse((await res.json()).result.content[0].text).desktops;
+    expect(row.author).toBe('hausfold');
+    expect(row.blurb).toMatch(/\S/);
+    expect(row.rooms).toContain('bar');
+    expect(row.image).toBeNull();
+    expect(row.flakeref).toBeNull();
+  });
+
+  // A gallery row with no installer URL. The note is the part that matters: an
+  // agent handed this row must not go looking for hausfold.co/producer.sh.
+  it('answers for a desktop in its own repo with the flag, and says there is no URL', async () => {
+    const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'producer' } }));
+    const [row] = JSON.parse((await res.json()).result.content[0].text).desktops;
+    expect(row.flakeref).toBe('github:hausfold/producer-desktop');
+    expect(row.command).toContain('--desktop=github:hausfold/producer-desktop');
+    expect(row.pins).toBeNull();
+    expect(row.note).toContain('no URL on hausfold.co');
+  });
+
   it('reports an unknown desktop as an isError result, not an RPC fault', async () => {
     const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'rice' } }));
     const body = await res.json();
     expect(body.result.isError).toBe(true);
-    expect(body.result.content[0].text).toContain('Available: haus, hacker');
+    expect(body.result.content[0].text).toContain('Available: haus, hacker, producer');
   });
 });
 

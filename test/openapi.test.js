@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import worker from '../worker.js';
-import { DESKTOPS, RETIRED_INSTALLERS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
+import { DESKTOPS, INSTALLER_DESKTOPS, RETIRED_INSTALLERS, DOWNLOADABLE, MCP_TOOLS, AUTHORIZATION_SERVER } from '../worker-config.js';
 import { DIRECTORY_PATH, DIRECTORY_CONTENT_TYPE } from '../worker-sign.js';
 
 const spec = JSON.parse(readFileSync(new URL('../public/openapi.json', import.meta.url), 'utf8'));
@@ -22,11 +22,23 @@ describe('openapi.json vs worker.js', () => {
     expect(spec.openapi).toMatch(/^3\.1\./);
   });
 
-  it('declares an install route for every desktop in DESKTOPS', () => {
-    expect(Object.keys(DESKTOPS).sort()).toEqual(['hacker', 'haus']);
-    for (const desktop of Object.keys(DESKTOPS)) {
+  it('declares an install route for every desktop served from its own URL', () => {
+    expect(Object.keys(INSTALLER_DESKTOPS).sort()).toEqual(['hacker', 'haus']);
+    for (const desktop of Object.keys(INSTALLER_DESKTOPS)) {
       expect(spec.paths[`/${desktop}.sh`]).toBeDefined();
       expect(spec.paths[`/${desktop}.sh`].get.deprecated).toBeUndefined();
+    }
+  });
+
+  // The other half of the same rule: a gallery row with a flakeref has no URL
+  // on this domain, so the spec must not grow one for it. A path here would be
+  // a promise the Worker does not keep — /producer.sh 404s (worker.test.js
+  // pins that) — and a generated client would offer an installer that isn't.
+  it('declares no install route for a desktop that lives in its own repo', () => {
+    const byFlakeref = Object.keys(DESKTOPS).filter((d) => DESKTOPS[d].flakeref);
+    expect(byFlakeref).toEqual(['producer']);
+    for (const desktop of byFlakeref) {
+      expect(spec.paths[`/${desktop}.sh`]).toBeUndefined();
     }
   });
 
@@ -207,13 +219,19 @@ describe('openapi.json vs worker.js', () => {
     expect(spec.paths['/mcp'].post.description).toContain('Stateless');
   });
 
-  it('the WebMCP tool enum names every DOWNLOADABLE app (no silent drift)', () => {
+  it('the WebMCP tool enums name every DOWNLOADABLE app and every desktop (no silent drift)', () => {
     // webmcp.tsx is a browser bundle; it cannot import worker-config.js, so
-    // it hand-writes the app enum. This test is the pin that keeps the two
-    // in step: DOWNLOADABLE grows, the enum must grow with it.
+    // it hand-writes both enums. This test is the pin that keeps the three
+    // in step: DOWNLOADABLE or DESKTOPS grows, the enum must grow with it.
     const webmcp = readFileSync(new URL('../src/components/webmcp.tsx', import.meta.url), 'utf8');
     for (const app of DOWNLOADABLE) {
       expect(webmcp, `enum should include '${app}'`).toContain(`'${app}'`);
+    }
+    // Every row, not just the installers: the tool reads /v1/desktops, which is
+    // the whole gallery, so a desktop missing here is one a browser agent is
+    // told does not exist.
+    for (const desktop of Object.keys(DESKTOPS)) {
+      expect(webmcp, `enum should include '${desktop}'`).toContain(`'${desktop}'`);
     }
   });
 

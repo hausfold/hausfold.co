@@ -97,6 +97,22 @@ npm run rooms:check -- --haus /path/to/haus         # is the catalogue still hau
 npm run rooms:update -- --haus /path/to/haus        # accept a reworded blurb, after reading it
 ```
 
+**The desktops gallery** on `desktops/choosing` reads nothing outside this repo:
+it is rendered from `worker-config.js`'s `DESKTOPS`, the same table
+`/v1/desktops` serves, so the page and the API cannot describe a desktop
+differently.
+
+```sh
+npm run desktops            # re-render the block after editing a row
+npm run desktops:check      # is the committed block current?
+```
+
+Only the block between the two `{/* desktops:… */}` markers is generated; the
+lede above it and the callout below are this repo's prose. Both ends are checked
+twice on purpose: `npm test` (`test/desktops-gallery.test.js`) is what runs when
+the table changed, `desktops:check` in `docs.yml` is what runs when only the page
+did.
+
 `gen-options.mjs` renders haus's prose, it never rewrites it — what it decides
 is how much arrives at once. A description over ~700 characters opens on its
 first paragraph and keeps the rest behind `More detail`; AGENTS.md's
@@ -136,8 +152,8 @@ the digest the build recomputes; one that edits only the index fails loud.
 
 | workflow | on a PR touching | what it does |
 |---|---|---|
-| `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
-| `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, `scripts/submit-openai-app.sh`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The two scripts are in the filter because the suite *parses* them |
+| `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, `desktops:check`, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
+| `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, `scripts/gen-desktops.mjs`, `scripts/submit-openai-app.sh`, `desktops/choosing.mdx`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The scripts and the page are in the filter because the suite *parses* them |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
 | `bar-tables-drift.yml` | `scripts/check-bar-tables.mjs`, `src/data/bar-tables.json`, `rooms/bar-widgets.mdx` | `check-bar-tables.mjs` against haus's published tone ladder and mark set. The page is in that filter because this one *parses* it |
 | `rooms-drift.yml` | `scripts/check-rooms.mjs`, `src/data/rooms.json`, `content/docs/haus/rooms/**`, the haus tree's `meta.json` | `check-rooms.mjs` against haus's room registry: the cards and namespace table on `rooms/index`, the `---Rooms---` group, and whether every room haus publishes has a page. The page and `meta.json` are in the filter because this one *parses* both |
