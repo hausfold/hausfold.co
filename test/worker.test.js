@@ -146,12 +146,12 @@ describe('the desktop table', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  // `blank` is a real desktop in hausfold/haus — the null selection, for
-  // someone assembling rooms by hand — and it is deliberately not in the
-  // table, because a key here is a promise to keep serving that URL and this
-  // site does not present it. If a page for it ever lands, this test is the
-  // one to change, not to delete.
-  it('does not serve blank.sh — a real desktop the site does not present', async () => {
+  // `blank` never had an installer URL: it was a name for the null selection
+  // (the foundation, which `/haus.sh` IS now) and is retired in haus. It is
+  // deliberately not in either table, because a key there is a promise to
+  // keep serving a URL, and this one was never served. If that ever changes,
+  // this test is the one to change, not to delete.
+  it('does not serve blank.sh — never a URL this site served', async () => {
     globalThis.fetch = makeFetch([]);
     const res = await worker.fetch(req('/blank.sh'), {});
     expect(res.status).toBe(404);
@@ -175,7 +175,7 @@ describe('the desktop table', () => {
 
 describe('the desktop pin — what /<desktop>.sh writes into the script', () => {
   // The one place this Worker modifies what it proxies. `curl | bash` passes
-  // no arguments, so a URL that means "install minimal" can only mean it by
+  // no arguments, so a URL that means "install hacker" can only mean it by
   // putting something in the script itself.
   const withShebang = (body) => [
     { match: 'raw.githubusercontent.com/hausfold/haus/main/bootstrap.sh', body },
@@ -183,18 +183,33 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
 
   it('exports the desktop, and answers with it in a header', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\nset -eu\n'));
-    const res = await worker.fetch(req('/minimal.sh'), { REF: 'main' });
+    const res = await worker.fetch(req('/hacker.sh'), { REF: 'main' });
     expect(res.status).toBe(200);
-    expect(res.headers.get('x-hausfold-desktop')).toBe('minimal');
-    expect(await res.text()).toContain('export HAUS_DESKTOP=minimal\n');
+    expect(res.headers.get('x-hausfold-desktop')).toBe('hacker');
+    expect(await res.text()).toContain('export HAUS_DESKTOP=hacker\n');
+  });
+
+  // A URL that was published keeps resolving — someone's shell history calls
+  // it — but it is no longer presented: not a DESKTOPS row, so not in any
+  // listing (rest.test.js pins that half). It pins its old name, which
+  // bootstrap reads as a retired spelling and turns into the foundation plus
+  // that desktop's rooms.
+  it('still serves a retired installer URL, pinned by its old name', async () => {
+    globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\nset -eu\n'));
+    for (const name of ['everyday', 'minimal']) {
+      const res = await worker.fetch(req(`/${name}.sh`), { REF: 'main' });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-hausfold-desktop')).toBe(name);
+      expect(await res.text()).toContain(`export HAUS_DESKTOP=${name}\n`);
+    }
   });
 
   // One variable, and only one. A bootstrap old enough not to read it asks the
   // question the URL already answered — a degradation, not a break.
   it('exports the desktop under exactly one name', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\n'));
-    const body = await (await worker.fetch(req('/everyday.sh'), { REF: 'main' })).text();
-    expect(body).toContain('HAUS_DESKTOP=everyday');
+    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
+    expect(body).toContain('HAUS_DESKTOP=hacker');
     expect(body).not.toMatch(/DESKTOP=\S+ /);
   });
 
@@ -203,7 +218,7 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
   // directly, and a file whose first line is an `export` has no interpreter.
   it('keeps the shebang on the first line', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash\nset -eu\n'));
-    const body = await (await worker.fetch(req('/minimal.sh'), { REF: 'main' })).text();
+    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
     expect(body.split('\n')[0]).toBe('#!/usr/bin/env bash');
     // and the rest of the script survives the surgery
     expect(body).toContain('set -eu');
@@ -214,15 +229,15 @@ describe('the desktop pin — what /<desktop>.sh writes into the script', () => 
   // the one outcome pinDesktop must never produce.
   it('keeps the shebang first even when it is the only line', async () => {
     globalThis.fetch = makeFetch(withShebang('#!/usr/bin/env bash'));
-    const body = await (await worker.fetch(req('/minimal.sh'), { REF: 'main' })).text();
+    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
     expect(body.startsWith('#!/usr/bin/env bash')).toBe(true);
-    expect(body).toContain('HAUS_DESKTOP=minimal');
+    expect(body).toContain('HAUS_DESKTOP=hacker');
   });
 
   it('still pins a script that has no shebang at all', async () => {
     globalThis.fetch = makeFetch(withShebang('set -eu\n'));
-    const body = await (await worker.fetch(req('/minimal.sh'), { REF: 'main' })).text();
-    expect(body).toContain('HAUS_DESKTOP=minimal');
+    const body = await (await worker.fetch(req('/hacker.sh'), { REF: 'main' })).text();
+    expect(body).toContain('HAUS_DESKTOP=hacker');
     expect(body).toContain('set -eu');
   });
 

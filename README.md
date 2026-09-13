@@ -3,8 +3,8 @@
 **The house's front door — and the URL that installs the house.**
 
 ```sh
-curl -fsSL https://hausfold.co/haus.sh | bash      # asks which desktop
-curl -fsSL https://hausfold.co/minimal.sh | bash   # or answer it by URL
+curl -fsSL https://hausfold.co/haus.sh | bash      # the foundation: no desktop, no bar, no tiling, no palette
+curl -fsSL https://hausfold.co/hacker.sh | bash    # or a desktop, by URL
 ```
 
 [hausfold.co](https://hausfold.co) is the landing pages, the docs, and that

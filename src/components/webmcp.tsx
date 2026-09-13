@@ -57,13 +57,13 @@ export function WebMcpTools() {
       {
         name: 'get_hausfold_install_command',
         description:
-          'The one-line install command for a hausfold desktop (haus, hacker, everyday, minimal).',
+          'The one-line install command: haus installs the foundation with no desktop, hacker installs the hacker desktop.',
         inputSchema: {
           type: 'object',
           properties: {
             desktop: {
               type: 'string',
-              enum: ['haus', 'hacker', 'everyday', 'minimal'],
+              enum: ['haus', 'hacker'],
             },
           },
           required: ['desktop'],

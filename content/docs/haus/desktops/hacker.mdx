@@ -4,7 +4,7 @@ description: "An opinionated macOS, raised in the fog: tiling windows, a bar, a 
 icon: hacker
 related:
   - title: "Choose a desktop"
-    description: "The four that ship, side by side, and how to switch."
+    description: "The foundation, this desktop beside it, and how to switch."
     href: "/docs/haus/desktops/choosing"
     icon: "choose"
   - title: "Customize a desktop"
@@ -19,7 +19,8 @@ related:
 
 **hacker** is a Mac arranged like a tiling Linux rig, but native to the grain
 of the Mac: fog-grey, keyboard-first, and the same after you wipe the machine.
-It is the desktop you get if you don't pick one.
+It is the one desktop haus ships. The installer selects none unless you ask
+for this one by URL.
 
 You never edit the desktop to use it: the installer scaffolds a thin config of
 your own at `~/.config/nix` that consumes it as an input, so your machine stays
@@ -29,7 +30,8 @@ yours and haus stays upstream.
 curl -fsSL https://hausfold.co/hacker.sh | bash
 ```
 
-That URL picks this desktop, so the installer skips the question.
+That URL selects this desktop; `haus.sh` installs the foundation instead, and
+`haus desktop hacker` selects it on a machine that already has haus.
 [Install](/docs/haus/install) has the rest.
 
 ## What it turns on

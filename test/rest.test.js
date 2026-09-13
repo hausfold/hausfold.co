@@ -173,10 +173,14 @@ describe('/v1/search', () => {
 describe('/v1/desktops and /v1/apps', () => {
   it('lists every desktop with its install command', async () => {
     const { results, total } = await (await getV1('/v1/desktops')).json();
-    expect(total).toBe(4);
+    expect(total).toBe(2);
     const hacker = results.find((r) => r.desktop === 'hacker');
     expect(hacker.command).toBe('curl -fsSL https://hausfold.co/hacker.sh | bash');
     expect(hacker.pins).toBe('hacker');
+    // The retired installers (worker-config.js's RETIRED_INSTALLERS) still
+    // serve, and must never be listed: a listing is what hands a URL to a new
+    // reader, and these exist only for a command already in someone's history.
+    expect(results.map((r) => r.desktop)).toEqual(['haus', 'hacker']);
   });
 
   it('lists the downloadable apps with their URLs', async () => {
@@ -218,7 +222,7 @@ describe('/v1/batch', () => {
     const res = await postBatch({
       operations: [
         { op: 'search', query: 'notifications' },
-        { op: 'install', desktop: 'minimal' },
+        { op: 'install', desktop: 'hacker' },
         { op: 'install', desktop: 'nope' },
         { op: 'nonsense' },
       ],

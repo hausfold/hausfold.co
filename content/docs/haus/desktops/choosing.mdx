@@ -1,12 +1,12 @@
 ---
 title: Choose a desktop
-description: haus supplies rooms; a desktop curates them; your host file makes one yours. The four that ship, side by side, and how to switch.
+description: haus installs as the foundation, with no desktop and nothing on screen. A desktop is a starter template on top of it. hacker is the one that ships; selecting, switching and leaving one is a line.
 icon: choose
 related:
-  - title: "Start blank"
-    description: "The from-scratch desktop, and adding rooms one at a time."
-    href: "/docs/haus/desktops/blank"
-    icon: "blank"
+  - title: "hacker"
+    description: "The one desktop that ships, and the first moves that make it click."
+    href: "/docs/haus/desktops/hacker"
+    icon: "hacker"
   - title: "Customize a desktop"
     description: "The one file you edit, and beating anything a desktop set."
     href: "/docs/haus/desktops/customizing"
@@ -20,15 +20,15 @@ related:
 **haus supplies rooms. A desktop curates them. Your host file makes one yours.**
 
 A **room** is one capability (the bar, the launcher, window management) with its
-own options and its own switch. A **desktop** is a complete answer to *what
-should this Mac feel like?*: which rooms are on, and what the visible choices
-are. Your **host file** is where your name, your keys and your own overrides
-live.
+own options and its own switch. A **desktop** is a starter template: a complete
+answer to *what should this Mac feel like?*, with which rooms are on and what the
+visible choices are. Your **host file** is where your name, your keys and your
+own overrides live.
 
 ```text
 haus foundation          the rooms, their options, safe defaults
       ↓
-one desktop              hacker, everyday, minimal, blank, or yours
+one desktop, or none     hacker, one you found, or nothing at all
       ↓
 your host file           identity, secrets, hardware, and any override
       ↓
@@ -38,58 +38,126 @@ your host file           identity, secrets, hardware, and any override
 Later layers win, deliberately. Anything a desktop chose, you change with a
 plain assignment in your host file: no `lib.mkForce` anywhere.
 
-## Exactly one
+## None: the foundation
 
-A Mac runs **one** desktop. They don't stack, and the build says so: selecting
-two is refused whether they disagree or not, and so is selecting the same one
-twice, with a message of its own. Choosing again changes one line rather than
-unpicking a pile. If nothing fits,
-[Start blank](/docs/haus/desktops/blank) selects nothing, which keeps "build my
-own" one desktop rather than a second mode.
+The installer selects no desktop. Your `flake.nix` says so in one line, and the
+line is written out rather than left off, because leaving it off means
+something else (below):
 
-## The four that ship
+```nix
+desktop = null;
+```
 
-Not a ladder where each contains the last: `minimal` keeps the developer tooling
-that `everyday` deliberately drops. Read the columns.
+What you get is the foundation, and only that:
 
-| | [hacker](/docs/haus/desktops/hacker) | [everyday](/docs/haus/desktops/everyday) | [minimal](/docs/haus/desktops/minimal) | [blank](/docs/haus/desktops/blank) |
-|---|:-:|:-:|:-:|:-:|
-| **For** | keyboard-first, developer, tiled | someone who doesn't write code | the themed shell, stock macOS | building your own |
-| [Development](/docs/haus/rooms/development) | ✓ | · | ✓ | · |
-| [AI](/docs/haus/rooms/ai) | ✓ | · | · | · |
-| [Windows](/docs/haus/rooms/windows) | ✓ | · | · | · |
-| [Bar](/docs/haus/rooms/bar) | ✓ | ✓ | · | · |
-| [Launcher](/docs/haus/rooms/launcher) | ✓ | ✓ | · | · |
-| [Shelf](/docs/haus/rooms/shelf) | ✓ | ✓ | · | · |
-| [Focus](/docs/haus/rooms/focus) | ✓ | ✓ | · | · |
-| [Security](/docs/haus/rooms/security) | ✓ | ✓ | ✓ | · |
-| Theme (the palette) | ✓ | ✓ | ✓ | · |
-| Theme ports | ✓ | ✓ | · | · |
-| Generated wallpaper | ✓ | ✓ | · | · |
+- **the `haus` CLI**: `rebuild`, `plan`, `diff`, `set`, `rollback`, `update`;
+- **zsh**, enabled with no switch of its own. The shell *experience* (a tinted
+  prompt, git, the toolbelt) is [Development](/docs/haus/rooms/development)'s;
+- **the app roster**: the one list driving what's installed and from where,
+  ready for entries you add;
+- **the Nix and rebuild plumbing**: pinned inputs, generations, garbage
+  collection;
+- **haus's safe macOS defaults**, nearly all of them soft, so your host outranks
+  them with a plain assignment. ([Two menu-bar keys are
+  not](/docs/haus/desktops/customizing#beating-a-default-haus-set), and say so.)
 
-## Selecting one
+What you don't get is anything on screen. No optional room is on: no bar, no
+tiling, no launcher, no shelf, no coding agents, no developer toolbelt, no Touch
+ID for `sudo`. No global hotkey is claimed: Caps Lock stays Caps Lock, ⌘Space
+stays Spotlight's. The wallpaper is left alone, the tour doesn't run, and no
+theme files are written into apps you already had. The one thing that does
+change is the macOS defaults above, softly, and the installer asks which of the
+Dock, keyboard and Finder settings to keep as yours.
 
-Your `~/.config/nix/flake.nix` names it in one line:
+From there, every room is one line in your host file, or one command:
+
+```sh
+haus set bar.enable true       # the bar
+haus set launcher.enable true  # the launcher
+haus set keys.palette cmd-space
+haus rebuild
+```
+
+A room enabled is a room that works: each ships a neutral, useful configuration,
+so the bar draws and the launcher opens with nothing tuned. Tune it from that
+room's page afterwards, or leave it. [Rooms](/docs/haus/rooms) is the list.
+
+<Callout title="Rooms don't switch each other on">
+Turning on the Bar doesn't bring the launcher, and Development doesn't bring
+coding agents. Where two rooms cooperate (agent pills on the bar, agent commands
+in the launcher) the extra appears only when *both* are on, and its absence
+never disables the room that offered it.
+</Callout>
+
+Turning on most of the catalogue means you are describing a desktop that already
+exists: select it and override the two or three things you disagree with. If what
+you have is genuinely yours and you want it on a second Mac, that's a [desktop of
+your own](/docs/haus/desktops/creating).
+
+## Exactly one, or none
+
+A Mac runs **one** desktop, or none. They don't stack, and the build says so:
+selecting two is refused whether they disagree or not, and so is selecting the
+same one twice, with a message of its own. Choosing again changes one line rather
+than unpicking a pile, and "build my own" is the foundation plus your host file
+rather than a second mode with its own rules.
+
+## The one that ships
+
+**[hacker](/docs/haus/desktops/hacker)** is for someone keyboard-first who writes
+code all day: tiled windows, a bar, the ⌘Space palette, coding agents, a themed
+terminal. Beside the foundation, room by room:
+
+| | foundation | [hacker](/docs/haus/desktops/hacker) |
+|---|:-:|:-:|
+| **For** | building your own | keyboard-first, developer, tiled |
+| [Development](/docs/haus/rooms/development) | · | ✓ |
+| [AI](/docs/haus/rooms/ai) | · | ✓ |
+| [Windows](/docs/haus/rooms/windows) | · | ✓ |
+| [Bar](/docs/haus/rooms/bar) | · | ✓ |
+| [Launcher](/docs/haus/rooms/launcher) | · | ✓ |
+| [Shelf](/docs/haus/rooms/shelf) | · | ✓ |
+| [Focus](/docs/haus/rooms/focus) | · | ✓ |
+| [Security](/docs/haus/rooms/security) | · | ✓ |
+| Theme ports | · | ✓ |
+| Generated wallpaper | · | ✓ |
+| Caps Lock as leader, ⌘Space as palette | · | ✓ |
+
+Select it at install by typing its URL, or later on a machine that already has
+haus:
+
+```sh
+curl -fsSL https://hausfold.co/hacker.sh | bash   # a fresh Mac
+haus desktop hacker && haus rebuild               # one that has haus already
+```
+
+## Selecting and switching
+
+Your `~/.config/nix/flake.nix` names the desktop in one line, and `haus desktop`
+reads and rewrites that line so you don't have to:
 
 ```nix
 darwinConfigurations.lovelace = haus.mkHaus {
   username = "ada";
   hostname = "lovelace";
   host = ./hosts/lovelace;
-  desktop = haus.desktops.everyday;
+  desktop = haus.desktops.hacker;   # or null for the foundation
 };
 ```
 
-Then apply it:
-
 ```sh
-haus rebuild
+haus desktop            # none, the built-in desktops, and any you pinned; → marks the current one
+haus desktop hacker     # select hacker
+haus desktop none       # back to the foundation
+haus rebuild            # nothing changes until this
 ```
 
-Leave the `desktop` line out and you get **hacker**, which is what every
-machine installed before desktops existed is still running. The installer writes
-the line for you, and `HAUS_DESKTOP=minimal` picks another on an [unattended
-install](/docs/haus/install#unattended-installs).
+<Callout type="warn" title="Leave the line out and you get hacker">
+A `mkHaus` call with no `desktop` line selects **hacker**, because every machine
+installed before desktops existed has no such line, and that has always meant
+the developer desktop. The installer writes `desktop = null;` for exactly this
+reason. If you compose your flake by hand and want the foundation, say so.
+</Callout>
 
 <Callout title="A desktop you found online is one command, not a hand-edit">
 `haus show github:ada/writer-desktop` fetches it into the store and reports what
@@ -111,4 +179,24 @@ sets options, and a rebuild computes those from scratch every time. What a
 switch does **not** touch is anything outside haus. Files you made, apps you
 installed by hand and the macOS settings haus never claimed all stay, and
 turning a room off removes what that room installed without tidying up after
-you.
+you. Homebrew casks a desktop brought in stay on disk too, unless
+[`haus.homebrew.cleanup`](/docs/haus/rooms/apps) says otherwise.
+
+## Retired names
+
+Three desktops used to ship beside hacker. A config that still names one keeps
+building the machine it always did, for one release, and warns on every rebuild
+with the line that replaces it. Each was either a name for the foundation or a
+set of rooms, and a set of rooms is one host line per room now:
+
+| was | is |
+|---|---|
+| `blank` | `desktop = null;` and nothing else. It never set anything. |
+| `minimal` | `desktop = null;` plus `haus.developer.enable = true;` (and `haus.security.touchId.enable = true;` for Touch ID `sudo`). |
+| `everyday` | `desktop = null;` plus `haus.bar.enable`, `haus.launcher.enable`, `haus.shelf.enable`, `haus.focus.enable` and `haus.security.touchId.enable`, each `= true;`, then `haus.keys.palette = "cmd-space";` and `haus.wallpaper.style = "minimal";`. |
+
+Their install URLs still resolve, so a command saved in a shell history lands a
+working machine: `everyday.sh` and `minimal.sh` install the foundation with the
+lines in their rows already written into the host file (the wallpaper too,
+unless `HAUS_WALLPAPER` says otherwise), and say so on the way. `HAUS_DESKTOP`
+reads `blank` and `none` as the foundation and `HAUS_PRESET=full` as hacker.

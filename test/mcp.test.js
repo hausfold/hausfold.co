@@ -354,7 +354,7 @@ describe('tools/call · get_install_command', () => {
     const res = await post(rpc('tools/call', { name: 'get_install_command', arguments: { desktop: 'rice' } }));
     const body = await res.json();
     expect(body.result.isError).toBe(true);
-    expect(body.result.content[0].text).toContain('Available: haus, hacker, everyday, minimal');
+    expect(body.result.content[0].text).toContain('Available: haus, hacker');
   });
 });
 

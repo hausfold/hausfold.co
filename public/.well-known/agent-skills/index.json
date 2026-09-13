@@ -11,9 +11,9 @@
     {
       "name": "hausfold-install",
       "type": "skill-md",
-      "description": "Install a haus desktop (hacker, everyday, minimal) on a macOS machine with one shell command. Use when the user wants their Mac rebuilt from a config file, wants one of the named desktops, or asks how to try haus.",
+      "description": "Install haus on a macOS machine with one shell command, as the foundation (no desktop) or as the hacker desktop. Use when the user wants their Mac rebuilt from a config file, wants the hacker desktop, or asks how to try haus.",
       "url": "/.well-known/agent-skills/hausfold-install/SKILL.md",
-      "digest": "sha256:7bfd492df0d6a28815a55b17070fefe2c31a9b3b56c2aaa592ebb9687a1b4328"
+      "digest": "sha256:d855dd56c13b89a5c5d2bff5a5e5f02b36d55c5fc9e17b122ab84fca9436e263"
     },
     {
       "name": "hausfold-releases",

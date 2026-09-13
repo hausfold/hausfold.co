@@ -84,9 +84,10 @@ not_found_handling = "404-page"
 # unmatched path with 404.html instead of falling through to the Worker.
 #
 # So `["/"]` 404'd every Worker route on the site at once — `/haus.sh`,
-# `/hacker.sh`, `/minimal.sh`, `/everyday.sh`, `/download/{perch,pounce}` and
-# `/api/release/*`. The four installers are the URLs AGENTS.md calls the last
-# thing here that may ever 404: they are in shell histories and in print.
+# `/hacker.sh`, the retired `/minimal.sh` and `/everyday.sh`,
+# `/download/{perch,pounce}` and `/api/release/*`. The installers are the URLs
+# AGENTS.md calls the last thing here that may ever 404: they are in shell
+# histories and in print, the retired two included.
 #
 # ⚠️ **`npm test` cannot catch this.** The Worker's own unit tests pass
 # identically under either value, because they call `worker.fetch` directly and
