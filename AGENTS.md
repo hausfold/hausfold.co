@@ -247,9 +247,13 @@ page (its twin, at the page's own URL); bots keep their User-Agent route and
 - **A HEAD answers with the GET's headers** (`curl -sI` is what a readiness
   scanner runs): `finishAssetResponse()` builds one answer for both methods, and
   every route the Worker *writes* (`/index.md`, `/agent.txt`, `/llms.md`,
-  `/design.md`, the twins, `/ask`, `/v1/*`) already does.
-  `test/agent-surface.test.js` pins HEAD on three of the discovery documents;
-  nothing pins the rest.
+  `/design.md`, the twins, `/ask`, `/v1/*`) does. On `/v1` and `/ask` it is
+  **one wrapper at the dispatch** (`withoutBody()`), never a null-body fork in a
+  `serveV1*`; the POST-only `/v1/batch` and `/v1/jobs` refuse a HEAD the way
+  they refuse a GET. `test/rest.test.js` pins HEAD on `/ask` and every `/v1`
+  route, `test/worker.test.js` on the pages, `test/agent-surface.test.js` on
+  three of the discovery documents; nothing pins `/index.md`, `/agent.txt`,
+  `/llms.md`, `/design.md` or the twins.
 - **A wildcard never selects markdown and never out-votes a named type.** `*/*`
   keeps getting the page; `text/html` or `text/*` set the bar; a tie goes to
   markdown.
