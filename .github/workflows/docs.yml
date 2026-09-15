@@ -86,6 +86,14 @@ jobs:
       - name: The desktops gallery is in step with the table
         run: npm run desktops:check
 
+      # Same split for the rooms gallery: `rooms/index`'s cards and its
+      # published-rooms block are rendered from `worker-config.js`'s ROOMS, the
+      # table `/v1/rooms` serves. (`npm run rooms:drift` is the other tripwire
+      # on that page, and it needs a haus checkout, so it lives in its own
+      # workflow.)
+      - name: The rooms gallery is in step with the table
+        run: npm run rooms:check
+
       # Both builds start from no Turbopack cache — the same state a deploy
       # runs in, since CI never restores `.next`.
       #

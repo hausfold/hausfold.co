@@ -93,25 +93,35 @@ npm run bindings:check -- --haus /path/to/haus      # did haus's bindings move?
 npm run bindings:update -- --haus /path/to/haus     # accept them, after reviewing the prose
 npm run bar-tables:check -- --haus /path/to/haus    # do the tone/mark tables still match?
 npm run bar-tables:update -- --haus /path/to/haus   # accept a rewording, after reading it
-npm run rooms:check -- --haus /path/to/haus         # is the catalogue still haus's room list?
-npm run rooms:update -- --haus /path/to/haus        # accept a reworded blurb, after reading it
+npm run rooms:drift -- --haus /path/to/haus         # is the catalogue still haus's room list?
+npm run rooms:drift:update -- --haus /path/to/haus  # accept a reworded blurb, after reading it
 ```
 
-**The desktops gallery** on `desktops/choosing` reads nothing outside this repo:
-it is rendered from `worker-config.js`'s `DESKTOPS`, the same table
-`/v1/desktops` serves, so the page and the API cannot describe a desktop
+**The two galleries** read nothing outside this repo. Each is rendered from a
+table in `worker-config.js` — `DESKTOPS` and `ROOMS`, the tables `/v1/desktops`
+and `/v1/rooms` serve — so a page and the API cannot describe the same thing
 differently.
 
 ```sh
-npm run desktops            # re-render the block after editing a row
+npm run desktops            # re-render desktops/choosing after editing a row
 npm run desktops:check      # is the committed block current?
+npm run rooms               # re-render rooms/index after editing a row
+npm run rooms:check         # are its two blocks current?
 ```
 
-Only the block between the two `{/* desktops:… */}` markers is generated; the
-lede above it and the callout below are this repo's prose. Both ends are checked
-twice on purpose: `npm test` (`test/desktops-gallery.test.js`) is what runs when
-the table changed, `desktops:check` in `docs.yml` is what runs when only the page
-did.
+Only what sits between the markers is generated — `{/* desktops:… */}` on
+`desktops/choosing`, `{/* rooms:… */}` and `{/* rooms:published:… */}` on
+`rooms/index` — and the prose around them is this repo's. Both ends are checked
+twice on purpose: `npm test` (`test/desktops-gallery.test.js`,
+`test/rooms-gallery.test.js`) is what runs when a table changed, `desktops:check`
+and `rooms:check` in `docs.yml` are what run when only a page did.
+
+The rooms gallery has one more link in its chain than the desktops one, because
+which rooms exist is haus's answer rather than ours: haus's registry →
+`src/data/rooms.json` (the snapshot, `rooms:drift`) → `ROOMS` (the sentence and
+the icon) → the page. `rooms:drift` is the only step that needs a haus checkout,
+and it is the one that fails when haus publishes a room this site has no row
+for.
 
 `gen-options.mjs` renders haus's prose, it never rewrites it — what it decides
 is how much arrives at once. A description over ~700 characters opens on its
@@ -152,11 +162,11 @@ the digest the build recomputes; one that edits only the index fails loud.
 
 | workflow | on a PR touching | what it does |
 |---|---|---|
-| `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, `desktops:check`, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
-| `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, `scripts/gen-desktops.mjs`, `scripts/submit-openai-app.sh`, `desktops/choosing.mdx`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The scripts and the page are in the filter because the suite *parses* them |
+| `docs.yml` | `src/`, `content/`, `public/`, the build config | type-check, lint, `desktops:check`, `rooms:check`, then **two cold builds diffed against each other**, plus a non-empty `out/api/search` |
+| `worker.yml` | `worker.js`, `test/`, `scripts/dns-aid.mjs`, the two gallery renderers, `scripts/submit-openai-app.sh`, `desktops/choosing.mdx`, `rooms/index.mdx`, `src/data/rooms.json`, either wrangler config, the package files | `npm test`, plus: both wrangler configs must name the same `main` and `ASSETS`. The scripts and the pages are in the filter because the suite *parses* them; the room snapshot is because `worker-config.js` imports it, so it is part of the Worker |
 | `palette.yml` | `public/hausfold.css`, `src/lib/shared.ts`, either favicon, `scripts/` | `sync-nebelung.mjs --check` against the pinned revision |
 | `bar-tables-drift.yml` | `scripts/check-bar-tables.mjs`, `src/data/bar-tables.json`, `rooms/bar-widgets.mdx` | `check-bar-tables.mjs` against haus's published tone ladder and mark set. The page is in that filter because this one *parses* it |
-| `rooms-drift.yml` | `scripts/check-rooms.mjs`, `src/data/rooms.json`, `content/docs/haus/rooms/**`, the haus tree's `meta.json` | `check-rooms.mjs` against haus's room registry: the cards and namespace table on `rooms/index`, the `---Rooms---` group, and whether every room haus publishes has a page. The page and `meta.json` are in the filter because this one *parses* both |
+| `rooms-drift.yml` | `scripts/check-rooms.mjs`, `worker-config.js`, `src/data/rooms.json`, `content/docs/haus/rooms/**`, the haus tree's `meta.json` | `check-rooms.mjs` against haus's room registry: the `ROOMS` gallery table, the cards and namespace table on `rooms/index`, the `---Rooms---` group, and whether every room haus publishes has a page. The page and `meta.json` are in the filter because this one *parses* both |
 | `dns.yml` | nothing on a PR (no secrets there); `main`, on `scripts/dns-aid.mjs` or `worker-config.js`, plus a Monday cron | converges the DNS-AID records under `_agents.hausfold.co` on the table, then asks 1.1.1.1 what it sees. `test/dns-aid.test.js` covers the table on PRs through `worker.yml`; see [deploying](deploying.md#the-dns-aid-records) |
 
 The reproducible-build check is the one that isn't boilerplate: the export is

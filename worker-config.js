@@ -9,6 +9,12 @@
 //
 // The Worker's bundle is built from worker.js; wrangler inlines this import.
 
+// haus's room registry, snapshotted into this repository by
+// `scripts/check-rooms.mjs --update` and inlined into the bundle the same way
+// this module is: the Worker cannot reach haus at runtime, so `/v1/rooms`
+// reads the snapshot. ROOMS, below, is what this side of the boundary adds.
+import roomRegistry from "./src/data/rooms.json" with { type: "json" };
+
 // The desktops gallery: every desktop this site presents, in the order it
 // presents them. One table, read by `/v1/desktops`, the MCP tool, the agent
 // view, the A2A skill and `content/docs/haus/desktops/choosing.mdx` alike, so
@@ -127,6 +133,160 @@ export const RETIRED_INSTALLERS = {
   everyday: { repo: "hausfold/haus", pin: "everyday" },
   minimal: { repo: "hausfold/haus", pin: "minimal" },
 };
+
+// ---------------------------------------------------------------------------
+// The rooms gallery: every room this site presents, in the order it presents
+// them. One table, read by `/v1/rooms` and by
+// `content/docs/haus/rooms/index.mdx` alike, so a row added here reaches both.
+//
+// What is NOT here: which rooms exist, their titles, their order, and the
+// `haus.*` namespaces each one owns. That is haus's registry
+// (`modules/options-groups.nix`, published as `docs/site-data/groups.json`),
+// snapshotted into src/data/rooms.json and imported at the top of this file. A
+// second hand-typed copy of the room list is the drift `check-rooms.mjs`
+// exists to catch, so the snapshot IS the copy and one script keeps it honest.
+//
+// What IS here is this repository's half of a card: the sentence and the icon.
+// haus writes its blurbs for the options reference, where they say things like
+// "a shared surface below" and where Notifications' runs to 630 characters and
+// cites a file path in the haus tree. A card, the CLI and `/v1/rooms` all want
+// the short sentence instead, and this is where it is written once.
+//
+// ⚠️ Two kinds of row, and `flakeref` is the whole difference.
+//
+// **No `flakeref`**: a room haus ships. Its key is the registry's key, which
+// is also its page here, and `check-rooms.mjs` holds this half to the registry
+// exactly — one row per room haus publishes, in haus's order. Nothing installs
+// it, because it is already installed: its page says which option turns it on,
+// and `command` is null.
+//
+// **A `flakeref`**: somebody else's room, in its own repo. It carries its own
+// `title` and the `namespace` haus files it under, because neither can be read
+// without running the author's code (rooms/index says why), and it installs
+// with `haus add --room --namespace`. None today, and a row here is a promise
+// that hausfold has read the code, so no row goes in ahead of the reading.
+//
+// `icon` is the page's alone and `/v1/rooms` does not serve it. It is a name
+// from src/lib/icons.tsx, and it sits on the row so that everything one card
+// needs is in one place.
+export const ROOMS = {
+  apps: {
+    icon: "apps",
+    author: "hausfold",
+    blurb:
+      "Every app, font and CLI tool, where each installs from, and what a rebuild does to anything you added by hand.",
+  },
+  appearance: {
+    icon: "palette",
+    author: "hausfold",
+    blurb:
+      "The palette, the accent, the wallpaper, the fonts, and the macOS surfaces that follow them.",
+  },
+  displays: {
+    icon: "display",
+    author: "hausfold",
+    blurb: "Per-screen scaling, said as an intent rather than a pixel count.",
+  },
+  development: {
+    icon: "shell",
+    author: "hausfold",
+    blurb:
+      "Ghostty, zmx, zsh, the editor and the browser, plus Git tooling, the CLI toolbelt and language runtimes.",
+  },
+  windows: {
+    icon: "tiling",
+    author: "hausfold",
+    blurb:
+      "Tiling, named workspaces, hot corners, and a leader key that throws a window anywhere.",
+  },
+  bar: {
+    icon: "bar",
+    author: "hausfold",
+    blurb:
+      "A status bar: workspaces, weather, media, battery, clock, and a second one at the bottom if you want it.",
+  },
+  launcher: {
+    icon: "launcher",
+    author: "hausfold",
+    blurb: "A ⌘Space command palette where every command is a file.",
+  },
+  shelf: {
+    icon: "shelf",
+    author: "hausfold",
+    blurb: "A file shelf that drops out of the notch to catch what you drag at it.",
+  },
+  notifications: {
+    icon: "notifications",
+    author: "hausfold",
+    blurb:
+      "Whose banners you see: haus draws through trill, can own the bundle, and announces new mail.",
+  },
+  focus: {
+    icon: "moon",
+    author: "hausfold",
+    blurb:
+      "One quiet switch for Do Not Disturb, your status and your own hooks, with a timer on it and scenes your Mac can enter by itself.",
+  },
+  ai: {
+    icon: "agent",
+    author: "hausfold",
+    blurb: "Coding agents, each with its own checkout of the repo it is working on.",
+  },
+  "text-expansion": {
+    icon: "expand",
+    author: "hausfold",
+    blurb: "Type a short trigger, get the long thing, in any app.",
+  },
+  security: {
+    icon: "shield",
+    author: "hausfold",
+    blurb:
+      "Touch ID for sudo, lock and login-window behaviour, the firewall, and where secret values come from.",
+  },
+};
+
+// The registry, keyed and rooms-only. The two owners that are not rooms — the
+// shared surfaces and the host — are in the snapshot because the namespace
+// table on rooms/index resolves every public `haus.*` name through it. They
+// are not rooms, so they are not in the gallery.
+export const ROOM_REGISTRY = Object.fromEntries(
+  roomRegistry.rooms.filter((room) => room.kind === "room").map((room) => [room.key, room]),
+);
+
+// One gallery row, the shape every surface hands back. `/v1/rooms` calls this,
+// and so does the renderer behind rooms/index, so neither can describe a room
+// differently from the other.
+//
+// The registry answers for a room haus ships: its title, the namespaces it
+// owns, the page it has here. A room in its own repo has none of those on this
+// side, so the row carries its own title and the one namespace the reader
+// claims for it, and `docs` is null rather than a URL that 404s.
+// `rooms` defaults to the table and is a parameter so that the renderer behind
+// rooms/index can be handed one: there is no third-party row today, and a shape
+// nothing renders is a shape nothing checks.
+export function roomRow(room, rooms = ROOMS) {
+  const { flakeref = null, namespace = null, title = null, author, blurb } = rooms[room];
+  // Keyed off `flakeref`, not off whether the registry happens to have the key:
+  // a third-party row named `bar` would otherwise be handed the Bar room's page
+  // and its namespaces, and nothing downstream would notice.
+  const registry = flakeref ? null : ROOM_REGISTRY[room];
+  return {
+    room,
+    title: registry ? registry.title : title,
+    author,
+    blurb,
+    namespaces: registry
+      ? registry.namespaces.map((ns) => `haus.${ns}`)
+      : [`haus.${namespace}`],
+    flakeref,
+    docs: registry ? `https://hausfold.co/docs/haus/rooms/${room}` : null,
+    // A room haus ships is already on the machine; turning it on is an option
+    // in your host file, which its page names. Only somebody else's room has
+    // an install line, and `haus add --room` is answered by typing rather than
+    // by `-y` because pinning a room runs its author's code.
+    command: flakeref ? `haus add --room --namespace ${namespace} ${flakeref}` : null,
+  };
+}
 
 // The apps with signed + notarized release artifacts on GitHub. Keys are the
 // URL slugs; each repo lives at github.com/hausfold/<app>.

@@ -14,11 +14,14 @@ on:
   # Both the page and `meta.json` are PARSED, and a room page's existence is
   # checked, so an edit here can break this on its own with nothing upstream
   # having moved. `rooms/**` rather than the index alone: deleting a room's
-  # page is exactly the case the existence check exists for.
+  # page is exactly the case the existence check exists for. `worker-config.js`
+  # since the gallery table moved there: a room haus publishes owes a ROOMS row
+  # as much as it owes a page.
   push:
     branches: [main]
     paths:
       - 'scripts/check-rooms.mjs'
+      - 'worker-config.js'
       - 'src/data/rooms.json'
       - 'content/docs/haus/rooms/**'
       - 'content/docs/haus/meta.json'
@@ -26,6 +29,7 @@ on:
   pull_request:
     paths:
       - 'scripts/check-rooms.mjs'
+      - 'worker-config.js'
       - 'src/data/rooms.json'
       - 'content/docs/haus/rooms/**'
       - 'content/docs/haus/meta.json'

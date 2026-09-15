@@ -10,13 +10,21 @@
 // to hold pages that are not rooms and a hand-typed table on the layer's front
 // page came to be the census.
 //
-// Three live checks and one snapshot, and the split is the same one
+// Four live checks and one snapshot, and the split is the same one
 // `check-bar-tables.mjs` makes:
 //
+//   * the GALLERY TABLE — `worker-config.js`'s ROOMS, which `/v1/rooms` serves
+//     and `npm run rooms` renders the page's cards from — is held to the room
+//     list exactly, names and order both. This is the check that fires first
+//     when haus publishes a room: the row is what the card, the API and the
+//     CLI all read, so a room with no row is a room this site cannot present.
 //   * the room LIST — names, order, and the page each one points at — is held
-//     to the data exactly. A room added to haus with no page here is the case
-//     this exists for: `rooms/creating.mdx` has told authors they owe a page
-//     since the day it was written, and nothing checked it.
+//     to the data exactly. The cards are RENDERED from ROOMS, so this is the
+//     far end of that chain rather than a second copy to edit: it catches a
+//     page nobody re-rendered as well as a row nobody wrote. A room added to
+//     haus with no page here is the other case it exists for:
+//     `rooms/creating.mdx` has told authors they owe a page since the day it
+//     was written, and nothing checked it.
 //   * the ---Rooms--- group is held to the same list, so the group stays one
 //     row per room plus the catalogue at its head. That is the invariant the
 //     old AGENTS.md rule ("count the table, never the sidebar group") existed
@@ -35,10 +43,14 @@
 // Usage:
 //   node scripts/check-rooms.mjs --haus <haus-checkout>
 //   node scripts/check-rooms.mjs --haus <haus-checkout> --update
+//
+// (`npm run rooms:drift`, and `npm run rooms:drift:update`. `npm run rooms`
+// is the other half: it renders the page from ROOMS and needs no checkout.)
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ROOMS } from '../worker-config.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SNAPSHOT = join(here, '../src/data/rooms.json');
@@ -91,6 +103,29 @@ const nsOf = (owner) => owner.namespaces.map((ns) => `haus.${ns}`);
 const problems = [];
 
 // ---------------------------------------------------------------------------
+// The gallery table.
+//
+// `worker-config.js`'s ROOMS is this repository's half of a card: the sentence
+// and the icon, one row per room, in haus's order. `/v1/rooms` serves it and
+// `npm run rooms` renders the page's cards from it, so a room haus publishes
+// with no row here is a room the site cannot present at all — the API omits
+// it and the renderer refuses. A third-party row (one with a `flakeref`) is
+// skipped: haus does not ship it, so the registry has nothing to say about it.
+const galleryRooms = Object.keys(ROOMS).filter((key) => !ROOMS[key].flakeref);
+const registryRooms = rooms.map((room) => room.key);
+if (JSON.stringify(galleryRooms) !== JSON.stringify(registryRooms)) {
+  problems.push(
+    [
+      "worker-config.js's ROOMS is not haus's room list.",
+      `    haus:  ${registryRooms.join(', ')}`,
+      `    ROOMS: ${galleryRooms.join(', ')}`,
+      '  Order counts as much as membership: the gallery is read in the order haus',
+      '  publishes, and the cards are rendered straight off this table.',
+    ].join('\n'),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // The cards.
 //
 // Anchored on the `<Cards>` element rather than on a heading: the heading above
@@ -103,6 +138,12 @@ const problems = [];
 // `/>` after `<Card`: every card carries `icon={<Icon name="…" />}`, so a lazy
 // match to the first one ends the card at its icon and reads every attribute as
 // empty. That failure is silent in the worst way — thirteen cards, all blank.
+//
+// The block is RENDERED now (`scripts/gen-rooms.mjs`), and this check still
+// parses it: the renderer proves the page matches the table, and this proves
+// the page matches haus, so a stale page fails here even when nobody has run
+// the renderer. The fix is never to edit the cards — it is the row, then
+// `npm run rooms`.
 const mdx = readFileSync(PAGE, 'utf8');
 const cardsBlock = /<Cards>([\s\S]*?)<\/Cards>/.exec(mdx);
 if (!cardsBlock) {
@@ -274,9 +315,13 @@ if (problems.length) {
 The catalogue is data in haus (\`modules/options-groups.nix\`), published as
 \`docs/site-data/groups.json\`. Fix this side:
 
-  content/docs/haus/rooms/index.mdx     the cards and the namespace table
+  worker-config.js                      the ROOMS row: its sentence and its icon
+  content/docs/haus/rooms/index.mdx     the namespace table (the cards are rendered)
   content/docs/haus/meta.json           the ---Rooms--- group
   content/docs/haus/rooms/<room>.mdx    a page for a room that has none
+
+re-render the cards from the table:
+  npm run rooms
 
 then refresh the snapshot:
   node scripts/check-rooms.mjs --haus <haus-checkout> --update`);

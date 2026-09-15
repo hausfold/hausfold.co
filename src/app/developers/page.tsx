@@ -168,7 +168,9 @@ export default function Developers() {
           </p>
           <Command>{'curl -fsSL "https://hausfold.co/v1/search?q=notifications&limit=10"'}</Command>
           <p>
-            <code>/v1/desktops</code> is the desktops gallery, <code>/v1/apps</code> and{' '}
+            <code>/v1/desktops</code> is the desktops gallery and <code>/v1/rooms</code> the
+            rooms one; a desktop row carries the line that installs it, a room row the{' '}
+            <code>haus.*</code> names it owns and its page in the docs. <code>/v1/apps</code> and{' '}
             <code>/v1/releases/pounce</code> round out the reads. <a href="/ask">/ask</a> is the
             NLWeb-shaped front door: a natural-language query in, ranked excerpts out, JSON by
             default or <code>text/event-stream</code> on request. The limit
