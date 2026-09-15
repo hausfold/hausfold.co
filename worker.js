@@ -131,6 +131,8 @@ import {
   INSTALLER_DESKTOPS,
   desktopRow,
   RETIRED_INSTALLERS,
+  ROOMS,
+  roomRow,
   DOWNLOADABLE,
   MCP_TOOLS,
   DOCS_MCP_TOOLS,
@@ -1133,6 +1135,43 @@ function serveV1Desktops(url, H) {
   return jsonResponse(paginate(all, offset, limit), H);
 }
 
+// The rooms gallery, the same table `content/docs/haus/rooms/index.mdx`
+// renders: haus's own rooms first, in haus's own order, then anybody else's.
+// Every row is one card — what the room is, who wrote it, the `haus.*` names
+// it owns — and `command` is the line that installs it, which only a room in
+// somebody else's repo has.
+function serveV1Rooms(url, H) {
+  // Ten, the default openapi.json's shared `limit` parameter documents, not
+  // "all of them": there are more rooms than desktops and the count only
+  // grows, so a caller that wants the whole gallery in one answer asks for it
+  // (`?limit=50`) rather than being handed a page size nothing wrote down.
+  const limit = clampLimit(url.searchParams.get("limit"), 1, 50, 10);
+  const offset = decodeCursor(url.searchParams.get("cursor"));
+  if (offset === null) {
+    return problemResponse(
+      400,
+      "Invalid cursor",
+      "The 'cursor' query parameter is not a cursor this API issued.",
+      "invalid_cursor",
+      H,
+    );
+  }
+  // Built in two halves rather than mapped over the table's own order, because
+  // "haus's own first" is a contract this endpoint states and a flakeref row
+  // dropped mid-table would quietly break it. Neither guard would catch that:
+  // check-rooms.mjs and the renderer both filter the flakeref rows out before
+  // they compare an order.
+  //
+  // `(key) => roomRow(key)` and not `.map(roomRow)`: roomRow takes the table as
+  // its second argument, which Array#map would fill with the index.
+  const keys = Object.keys(ROOMS);
+  const all = [
+    ...keys.filter((key) => !ROOMS[key].flakeref),
+    ...keys.filter((key) => ROOMS[key].flakeref),
+  ].map((key) => roomRow(key));
+  return jsonResponse(paginate(all, offset, limit), H);
+}
+
 function serveV1Apps(H) {
   const all = [...DOWNLOADABLE].map((app) => ({
     app,
@@ -1417,6 +1456,7 @@ function handleV1(request, env, url, ctx) {
   const H = rl.headers;
   if (method === "GET") {
     if (path === "/v1/desktops") return serveV1Desktops(url, H);
+    if (path === "/v1/rooms") return serveV1Rooms(url, H);
     if (path === "/v1/apps") return serveV1Apps(H);
     if (path === "/v1/search") return serveV1Search(url, env, H);
     if (path === "/v1/openapi.json") {
@@ -2205,6 +2245,11 @@ ${Object.entries(DESKTOPS)
 GET https://hausfold.co/v1/desktops is the whole gallery as JSON: author, what
 each one is for, the rooms it turns on, and the line that installs it.
 
+GET https://hausfold.co/v1/rooms is the rooms gallery beside it: every
+capability haus can turn on, the haus.* names it owns and its page in the docs.
+A room haus ships is already installed and has no command; a room in somebody
+else's repo carries the haus add --room --namespace line that pins it.
+
 ### Check a release
 
 GET https://hausfold.co/api/release/<app> answers JSON: tag, asset, size, url,
@@ -2226,7 +2271,7 @@ publishedAt, for the latest signed release of ${[...DOWNLOADABLE].join(" or ")}.
 
 ### The rest of the developer surface, by name
 
-- REST: https://hausfold.co/v1/search, /v1/desktops, /v1/apps,
+- REST: https://hausfold.co/v1/search, /v1/desktops, /v1/rooms, /v1/apps,
   /v1/releases/<app>, /v1/batch, /v1/jobs. Cursor pagination, RFC 9457
   problem+json errors, RateLimit headers.
 - Natural language over the same index: GET or POST https://hausfold.co/ask

@@ -11,7 +11,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import worker from '../worker.js';
 import { resetRateLimits, RATE_LIMIT } from '../worker-api.js';
-import { MCP_TOOLS } from '../worker-config.js';
+import { MCP_TOOLS, ROOMS } from '../worker-config.js';
 
 const req = (path, init) => new Request(`https://hausfold.co${path}`, init);
 
@@ -170,7 +170,7 @@ describe('/v1/search', () => {
   });
 });
 
-describe('/v1/desktops and /v1/apps', () => {
+describe('/v1/desktops, /v1/rooms and /v1/apps', () => {
   it('lists every desktop with its card and its install command', async () => {
     const { results, total } = await (await getV1('/v1/desktops')).json();
     expect(total).toBe(3);
@@ -209,6 +209,80 @@ describe('/v1/desktops and /v1/apps', () => {
     expect(producer.pins).toBeNull();
     expect(producer.command).not.toContain('producer.sh');
     expect(producer.author).toBe('hausfold');
+  });
+
+  it('lists every room with its card, haus\'s own first', async () => {
+    const { results, total, next_cursor } = await (await getV1('/v1/rooms?limit=50')).json();
+    // No page break at limit=50, so `total` is the whole gallery rather than
+    // the first page of it. Deliberately not a number: the count is haus's.
+    expect(total).toBe(results.length);
+    expect(next_cursor).toBeNull();
+    const shelf = results.find((r) => r.room === 'shelf');
+    expect(shelf.title).toBe('Shelf');
+    expect(shelf.author).toBe('hausfold');
+    expect(shelf.blurb).toMatch(/\S/);
+    expect(shelf.namespaces).toEqual(['haus.shelf']);
+    expect(shelf.docs).toBe('https://hausfold.co/docs/haus/rooms/shelf');
+    // A room haus ships is already installed, and the row says so with null
+    // rather than inventing a line to run.
+    expect(shelf.command).toBeNull();
+    expect(shelf.flakeref).toBeNull();
+    // One room, two namespaces: the reason `namespaces` is a list.
+    expect(results.find((r) => r.room === 'bar').namespaces).toEqual(['haus.menuBar', 'haus.bar']);
+    // haus's order, which is the order a person should meet the rooms in.
+    expect(results[0].room).toBe('apps');
+    // The shared surfaces and the host own haus.* namespaces and are not
+    // rooms, so the gallery does not carry them.
+    expect(results.map((r) => r.room)).not.toContain('haus');
+    expect(results.map((r) => r.room)).not.toContain('host');
+  });
+
+  it('pages the rooms gallery like every other /v1 list', async () => {
+    const one = await (await getV1('/v1/rooms?limit=2')).json();
+    expect(one.results).toHaveLength(2);
+    expect(one.next_cursor).toBeTruthy();
+    const two = await (await getV1(`/v1/rooms?limit=2&cursor=${one.next_cursor}`)).json();
+    expect(two.results[0].room).not.toBe(one.results[0].room);
+  });
+
+  // The claim `/v1/rooms`, openapi.json and the agent view all make, proven
+  // against a table that does not cooperate. The declaration-order pin in
+  // test/rooms-gallery.test.js keeps the real table tidy; this is what makes
+  // the endpoint's own contract independent of it.
+  it('serves haus\'s rooms before anybody else\'s, whatever order the table is in', async () => {
+    const original = Object.entries(ROOMS);
+    const jumbled = [...original];
+    jumbled.splice(1, 0, [
+      'photography',
+      {
+        icon: 'apps',
+        flakeref: 'github:ada/photo-room',
+        namespace: 'photography',
+        title: 'Photography',
+        author: 'ada',
+        blurb: 'A room somebody else wrote, inserted where it would do the most damage.',
+      },
+    ]);
+    const reset = (entries) => {
+      for (const key of Object.keys(ROOMS)) delete ROOMS[key];
+      for (const [key, row] of entries) ROOMS[key] = row;
+    };
+    reset(jumbled);
+    try {
+      const { results } = await (await getV1('/v1/rooms?limit=50')).json();
+      const rooms = results.map((r) => r.room);
+      expect(rooms[rooms.length - 1]).toBe('photography');
+      expect(rooms[1]).toBe('appearance');
+      // And it is described as itself, not as whatever the registry has under
+      // its key: its own title, its own namespace, no page here.
+      const row = results[results.length - 1];
+      expect(row.title).toBe('Photography');
+      expect(row.namespaces).toEqual(['haus.photography']);
+      expect(row.docs).toBeNull();
+      expect(row.command).toBe('haus add --room --namespace photography github:ada/photo-room');
+    } finally {
+      reset(original);
+    }
   });
 
   it('lists the downloadable apps with their URLs', async () => {

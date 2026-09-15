@@ -70,6 +70,7 @@ describe('openapi.json vs worker.js', () => {
     for (const path of [
       '/v1/search',
       '/v1/desktops',
+      '/v1/rooms',
       '/v1/apps',
       '/v1/releases/{app}',
       '/v1/batch',
@@ -117,7 +118,7 @@ describe('openapi.json vs worker.js', () => {
 
   it('documents the sandbox flag on the /v1 reads and the batch body', () => {
     expect(spec.components.parameters.sandbox).toBeDefined();
-    for (const path of ['/v1/search', '/v1/desktops', '/v1/apps', '/v1/releases/{app}']) {
+    for (const path of ['/v1/search', '/v1/desktops', '/v1/rooms', '/v1/apps', '/v1/releases/{app}']) {
       expect(spec.paths[path].get.parameters.some((p) => p.$ref === '#/components/parameters/sandbox'), path).toBe(true);
     }
     expect(spec.components.schemas.batchRequest.properties.sandbox).toBeDefined();

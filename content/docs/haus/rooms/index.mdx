@@ -24,6 +24,9 @@ Many of them are one line in your host file.
 haus.shelf.enable = true;
 ```
 
+{/* rooms:start — rendered from worker-config.js's ROOMS by `npm run rooms`.
+    Edit the row, not this block: `npm run rooms:check` reverts a hand edit. */}
+
 <Cards>
   <Card
     icon={<Icon name="apps" />}
@@ -105,6 +108,8 @@ haus.shelf.enable = true;
   />
 </Cards>
 
+{/* rooms:end */}
+
 Under all of them is the foundation nobody switches off: the macOS defaults, the
 Homebrew policy and the `haus` CLI. Development's terminal has no switch either,
 on purpose. It is the floor, not furniture.
@@ -164,5 +169,13 @@ running it. haus records the claim, and refuses the rebuild if two inputs turn
 out to want the same `haus.<name>`. Nothing here vouches for the code. Read it,
 or trust whoever wrote it.
 
-Everything on this page is haus's own. [Share a room](/docs/haus/rooms/sharing)
-is how you publish one of yours.
+{/* rooms:published:start — rendered from worker-config.js's ROOMS by `npm run rooms`.
+    Edit the row, not this block: `npm run rooms:check` reverts a hand edit. */}
+
+Nobody else's room is listed here yet. hausfold reads one before listing it,
+which is still not vouching for it, and `haus add --room` takes any flakeref in
+the meantime.
+
+{/* rooms:published:end */}
+
+[Share a room](/docs/haus/rooms/sharing) is how you publish one of yours.

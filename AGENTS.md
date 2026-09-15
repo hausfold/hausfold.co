@@ -28,7 +28,7 @@ URLs are public too.
 |---|---|
 | the landing page | `src/app/page.tsx` |
 | what the site says about **haus** | `content/docs/haus/index.mdx`. No `/haus` sheet; it 301s to `/docs/haus/` |
-| the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Cards, namespace table and the `---Rooms---` group are all held to haus's registry by `scripts/check-rooms.mjs`; `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
+| the **room catalogue** — which rooms there are, and which `haus.*` name belongs to which | `content/docs/haus/rooms/index.mdx`, the one room list. Its cards are **rendered from `worker-config.js`'s `ROOMS`** by `npm run rooms`, the table `/v1/rooms` serves: write the row, not the card. Namespace table and the `---Rooms---` group stay hand-written; all three, and `ROOMS` itself, are held to haus's registry by `scripts/check-rooms.mjs`. `index.mdx`'s `## What's in the box` is prose and a link to it, never a second list |
 | a **desktop's own page** | `content/docs/haus/desktops/<name>.mdx`. The catalogue is the gallery on [`desktops/choosing`](content/docs/haus/desktops/choosing.mdx), where `/desktops` 301s, and it is **rendered from `worker-config.js`'s `DESKTOPS`** by `npm run desktops` — what hausfold presents from its own URL first (the foundation among them), then what installs by flakeref. Write the row, not the block; `index.mdx`'s `## Desktops` is three sentences and a link to it |
 | **the docs** (`/docs/*`) | `content/docs/`, Fumadocs MDX. No `/docs` page; it 301s to `/docs/haus/` |
 | the install one-liner — URLs, the desktop table, the ref pinning | `worker.js`. `curl -fsSL https://hausfold.co/haus.sh \| bash` installs the foundation and asks no desktop question; `/hacker.sh` selects a desktop by URL. **A desktop is a row in `DESKTOPS`, not a new route**; a URL that stops being presented moves to `RETIRED_INSTALLERS` (`worker-config.js`), never out. **The reverse does not hold: a `DESKTOPS` row is not automatically a URL.** A row with a `flakeref` is a gallery card for a desktop in its own repo, installed by `--desktop=<flakeref>`, and `/<name>.sh` routes on `INSTALLER_DESKTOPS` so that name 404s |
@@ -302,10 +302,11 @@ the six `--a-*`. Miss the last and the tree renders in `--ink`, silently.
 - No em dashes in prose. Sentence case in headings. "desktop", never "rice".
   Never "opinionated" of haus.
 - **Never put a count of the rooms on a page**, and never hand-maintain a second
-  room list. `content/docs/haus/rooms/index.mdx` is the catalogue: its cards, its
-  namespace table and the `---Rooms---` group in `meta.json` are all held to
-  haus's registry by `scripts/check-rooms.mjs`, which also fails when a room haus
-  publishes has no page here. The group is one row per room plus the catalogue
+  room list. `content/docs/haus/rooms/index.mdx` is the catalogue: its cards are
+  rendered from `worker-config.js`'s `ROOMS`, and that table, its namespace table
+  and the `---Rooms---` group in `meta.json` are all held to haus's registry by
+  `scripts/check-rooms.mjs`, which also fails when a room haus publishes has no
+  row or no page here. The group is one row per room plus the catalogue
   at its head; a page *about* rooms goes in `---Build on it---`, and a shared
   surface (`rooms/keys`) goes in `---Reference---`. A count is still
   forbidden because nothing checks prose.
@@ -389,8 +390,8 @@ as much as they bound that one.
 yours. Not yours: the rung **names** and **order** (quietest first); the first
 column's header word, `tone` and `mark`; each being a plain markdown table.
 
-`desktops/choosing`'s gallery is the one **rendered block inside a written
-page**: everything between `{/* desktops:start ` and `{/* desktops:end */}` comes
+`desktops/choosing`'s gallery is a **rendered block inside a written page**:
+everything between `{/* desktops:start ` and `{/* desktops:end */}` comes
 from `worker-config.js`'s `DESKTOPS` through `scripts/gen-desktops.mjs`, and a
 hand edit is reverted by `npm run desktops:check` (docs.yml) and red in
 `npm test` (`test/desktops-gallery.test.js`). Yours: every other section, the
@@ -400,14 +401,24 @@ names and the two commands. Fix a blurb in the row. A row with an `image` makes
 the script refuse rather than guess, since the site ships no screenshots and
 nothing has decided what a card with one looks like.
 
-`rooms/index` is **written** on the same terms, pinned by
-`scripts/check-rooms.mjs` to `modules/options-groups.nix`. Yours: every card's
-one-line gloss and the prose around it, because haus writes its blurbs for the
-options reference and they point at that page's layout ("a shared surface
-below"). Not yours: which rooms there are, their **titles**, their **order**,
-each card's `href`, the namespaces in the `| Room |` table, or what sits in the
-`---Rooms---` group. A room haus publishes with no page here is a failure, not a
-gap to write up later.
+`rooms/index` carries **two** rendered blocks on the same terms, from
+`worker-config.js`'s `ROOMS` through `scripts/gen-rooms.mjs`: the `<Cards>`
+catalogue, and the rooms somebody else wrote (none today, so that one renders a
+sentence saying so). Both are `/v1/rooms`'s answer too, which is why the card's
+one-line gloss moved into the row — it is now written once and read by the page,
+the API and, later, the CLI and the palette. **Fix a gloss in the row**, then
+`npm run rooms`. Yours: everything outside the two marker blocks, the namespace
+table included.
+
+That page has one more link in its chain than `desktops/choosing`, because which
+rooms exist is haus's answer: registry → `src/data/rooms.json` (snapshot,
+`npm run rooms:drift`) → `ROOMS` (the sentence and the icon) → the page. Not
+yours anywhere along it: which rooms there are, their **titles**, their
+**order**, each card's `href`, the namespaces in the `| Room |` table, or what
+sits in the `---Rooms---` group. A room haus publishes with no `ROOMS` row or no
+page here is a failure, not a gap to write up later; haus's own blurb is never
+the gloss, because it is written for the options reference and points at that
+page's layout ("a shared surface below").
 
 `reference/options.mdx` is **rendered** by `scripts/gen-options.mjs` from haus's
 committed `docs/site-data/`. Four things it alone may do:
@@ -649,6 +660,18 @@ because they are positioning:
   `node scripts/gen-agent-skills.mjs` for its digest) and `src/lib/jsonld.ts`;
   a flakeref row reaches none of them, because none of them lists a desktop
   that has no URL.
+- **Listing a room somebody else wrote.** Structurally the desktop rule above,
+  one table over: a `ROOMS` row with a `flakeref`, a `namespace` and an
+  `author`, then `npm run rooms`. It gets **no `/<name>.sh`, no `openapi.json`
+  path, no page here and no `meta.json` entry** — it installs by
+  `haus add --room --namespace <ns> <flakeref>`, which is how anybody's room
+  installs. The bar is the one the desktops row states and `rooms/index` now
+  says out loud: **a card on this domain is a recommendation, so read the code
+  first.** A room is code rather than data, so `haus show` cannot help — it
+  classifies a room and exits 3, which is the whole reason the reading is a
+  person's. Reading is not vouching, and the page says that too. **How a third
+  party asks to be listed is undecided** (a PR here, or a form that files one),
+  so do not write a route down.
 - **Adding a product name that isn't real yet.** It needs a row in `PRESENCE.md`
   ([`hausfold/ops`](https://github.com/hausfold/ops), private) first. **One
   narrow exception**: the last line of `#made` may carry a workshop-stage name

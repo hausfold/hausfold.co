@@ -174,6 +174,66 @@
         }
       }
     },
+    "/v1/rooms": {
+      "get": {
+        "summary": "The rooms gallery: every room this site presents",
+        "description": "One row per room: what it turns on, who publishes it, the haus.* namespaces it owns and its page in the docs. The rooms haus ships come first, in haus's own order, and their command is null because they are installed already; their page names the option that turns each one on. A row with a 'flakeref' is a room in somebody else's repo, and its command is the 'haus add --room --namespace' line that pins it.",
+        "operationId": "listRooms",
+        "tags": [
+          "v1",
+          "install"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "$ref": "#/components/parameters/sandbox"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of rooms.",
+            "headers": {
+              "RateLimit-Limit": {
+                "description": "The per-window request ceiling.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Remaining": {
+                "description": "What is left of the current window.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "RateLimit-Reset": {
+                "description": "Seconds until the window turns.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/roomPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimited"
+          }
+        }
+      }
+    },
     "/v1/apps": {
       "get": {
         "summary": "Every app with signed macOS releases",
@@ -2398,6 +2458,91 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/desktop"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results",
+          "next_cursor",
+          "total"
+        ]
+      },
+      "room": {
+        "type": "object",
+        "properties": {
+          "room": {
+            "type": "string",
+            "description": "The room's key, which is also its page under /docs/haus/rooms/."
+          },
+          "title": {
+            "type": "string",
+            "description": "The room name the docs use."
+          },
+          "author": {
+            "type": "string",
+            "description": "Who publishes this room."
+          },
+          "blurb": {
+            "type": "string",
+            "description": "One sentence on what it turns on."
+          },
+          "namespaces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The haus.* namespaces this room owns, e.g. haus.bar. A room can own more than one, and every public haus.* name belongs to exactly one owner."
+          },
+          "flakeref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "For a room in its own repo, the flakeref 'haus add --room' pins. Null for a room haus ships."
+          },
+          "docs": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "This room's page in the haus docs. Null for a room in its own repo, which has no page here.",
+            "format": "uri"
+          },
+          "command": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The one line that installs it. Null for a room haus ships: it is already installed, and its page names the option that turns it on."
+          }
+        },
+        "required": [
+          "room",
+          "title",
+          "author",
+          "blurb",
+          "namespaces",
+          "flakeref",
+          "docs",
+          "command"
+        ]
+      },
+      "roomPage": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/room"
             }
           },
           "next_cursor": {
