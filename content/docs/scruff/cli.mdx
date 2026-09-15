@@ -51,8 +51,8 @@ lane refuses, and names them.
 | | |
 |---|---|
 | `scruff overlap` | what the **other** lanes on this repo have already changed, and where their edits and yours land in the same region of the same file. Measured from the shared object store, uncommitted work included, nothing declared by anyone. Exit **3** same file, **4** same region or a `merge-tree` conflict; it refuses nothing |
-| `… --brief` | one line per lane: the lane-start version |
-| `… --path <file>` | that file only, and **silent when it is clear**. The shape a hook wants |
+| `… --brief` | the roll call: every lane gets a row, even one that shares nothing, and the prose (the intent, the landing order) is dropped. The lane-start version |
+| `… --path <file>` | that file only, and **silent when it is clear**. The shape a hook wants: the rows and the prose are stdout, the summary and the merge-tree heading stderr |
 | `… --committed-only` | read every lane from its branch alone, skipping the working trees |
 | `… --pair <a> <b>` | two named lanes against each other, from wherever you stand |
 | `… --json` | the same report as [one document](/docs/scruff/json#the-overlap-report), the exit code inside it |

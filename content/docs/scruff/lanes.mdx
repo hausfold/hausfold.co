@@ -1,6 +1,6 @@
 ---
 title: Working in lanes
-description: Open a lane on this repo or another one, hand it to an agent on a first-turn task, list what you have going, and pick any of it back up later.
+description: Open a lane on this repo or another one, hand it to an agent on a first-turn task, list what you have going, pick any of it back up later, and see what the other lanes changed before you collide with them.
 icon: lanes
 related:
   - title: "Parking work"
@@ -180,13 +180,12 @@ Its usual caller is not a human. On a machine with
 Lanes collide by accident: two of them append to the same `AGENTS.md`, or
 rewrite the same paragraph, and nobody finds out until a PR won't merge.
 Because every lane of a repo is a branch in **one shared object store on one
-machine**, nothing has to be declared to see it coming. Every fact a claims
-ledger would ask an agent to write down (which files, which regions, whose
-work is where) is simply measured, offline, in milliseconds.
+machine**, nothing has to be declared to see it coming. Which files, which
+regions, whose work is where: all of it is measured, offline, in milliseconds.
 
 ```sh
 scruff overlap                 # who is in your files, and where
-scruff overlap --brief         # one line per lane: run it when a lane starts
+scruff overlap --brief         # the roll call, prose dropped: run it when a lane starts
 scruff overlap --path doc.md   # that file only; prints NOTHING when it is clear
 scruff overlap                 # from the MAIN checkout: every pair of lanes sharing a file
 scruff overlap --pair a b      # two lanes by name, from anywhere

@@ -131,10 +131,10 @@ scruff overlap --pair a b --json        # two lanes, from anywhere
 
 ```json
 {
-  "scruff": "1.5.0", "schema": 2,
+  "scruff": "…", "schema": 2,
   "repo": "hausfold/haus", "main": "/Users/j/code/workshop/haus",
   "mode": "lane",
-  "reader": { "name": "cuddly-sparrow", "branch": "worktree-cuddly-sparrow", "path": "…", "state": "live", "intent": "" },
+  "reader": { "name": "cuddly-sparrow", "branch": "worktree-cuddly-sparrow", "path": "…", "state": "live", "intent": "AGENTS.md: the overlap row" },
   "lanes": [ { "name": "tidy-raccoon", "branch": "…", "path": "…", "state": "live", "intent": "bar: the draft PR colour" } ],
   "findings": [ { "a": "cuddly-sparrow", "b": "tidy-raccoon", "path": "AGENTS.md", "level": "hunk", "from": 212, "to": 240, "whole_file": false } ],
   "merge_tree": [ { "a": "cuddly-sparrow", "b": "origin/main", "paths": ["flake.lock"] } ],
@@ -148,12 +148,12 @@ scruff overlap --pair a b --json        # two lanes, from anywhere
 |---|---|
 | `mode` | `lane` from inside a lane, `matrix` from the main checkout or with `--pair` |
 | `reader` | the lane asking. `null` in `matrix` mode |
-| `lanes` | the lanes measured. A lane with nothing left to land is **not here** |
+| `lanes` | the lanes measured, the reader itself excluded. A lane with nothing left to land is **not here** |
 | `intent` | that lane's last commit subject, `""` while it has no commits of its own |
 | `findings[].level` | `hunk`: the same region · `file`: the same file only |
 | `findings[].from` / `to` | the shared region in the merge base's line numbers. `null` for `file`, and for a `whole_file` add/add or delete/edit |
 | `merge_tree` | what a real three-way merge of the two committed tips leaves conflicted. `b` is a lane, or the ref main was read at |
-| `order` | the proposed landing order for each loud pair, and why: `already pushed`, `bigger: N files vs M`, or the alphabet |
+| `order` | in `lane` mode, the proposed landing order for each lane in your way, and why. `reason` is prose for a PR body, not an enum: `already pushed`, `bigger: N files vs M`, or the alphabetical tiebreak spelled out. Always `[]` in `matrix` mode and under `--brief` |
 | `exit` | the code the process ends on: `0`, `3` or `4`. A finding, never an error |
 
 The same rules as the listing: closed sets stay closed, unknown keys are yours
