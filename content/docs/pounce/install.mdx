@@ -22,7 +22,7 @@ compile step, no Xcode command-line tools to fetch, no Gatekeeper prompt.
 brew tap hausfold/tap
 brew install pounce
 brew services start pounce        # start the daemon
-pounce --request-accessibility    # one-time, approve the dialog
+pounce --request-accessibility    # one-time, the daemon raises the dialog
 ```
 
 Because that signing identity is stable, the Accessibility grant **survives
@@ -87,9 +87,13 @@ auto-quit](/docs/pounce/beyond-launching) read a live window snapshot. macOS
 gates all of it behind one grant:
 
 ```sh
-pounce --request-accessibility    # approve the dialog
-pounce --check-accessibility      # prints true when granted
+pounce --request-accessibility    # the daemon raises the dialog
+pounce --check-accessibility      # true, false, or unknown with no daemon
 ```
+
+Both ask the running daemon, which is the process macOS grants, so start it
+before you ask: with no daemon answering they print `unknown` instead of a guess
+that could read as granted.
 
 A global hotkey that works over every app can't be had without it. Three things
 ask for their own the first time you use them: the camera peek, the Bluetooth

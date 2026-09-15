@@ -47,7 +47,8 @@ pounce skill install              # write it where this Mac's agents look
 
 # housekeeping
 pounce doctor                     # diagnose a dead/slow hotkey or binding
-pounce --request-accessibility / --check-accessibility
+pounce --request-accessibility    # ask the daemon to raise the TCC dialog
+pounce --check-accessibility      # the daemon's grant: true/false/unknown
 pounce --request-bluetooth / --check-bluetooth
 pounce --help / --version
 ```
