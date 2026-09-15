@@ -156,6 +156,13 @@ the one you wanted. The one exception is a lane spawned by `scruff child`, whose
 conversation lives in a shared parent checkout full of unrelated sessions, so it
 gets the picker.
 
+Your client keys its history on the exact directory. A lane whose checkout has
+moved would open an empty session, so scruff brings the conversation over from
+the old path and says where it came from. It copies, so the original stays put.
+If two old paths could be the lane's it takes neither, and `scruff doctor` names
+them. A lane with no conversation anywhere opens a fresh one instead of a session
+that exits.
+
 Nothing records a session id, deliberately: a recorded id goes stale the moment a
 session is forked or compacted, and it fails **silently into the wrong chat**.
 
