@@ -1440,7 +1440,26 @@ async function serveJobGet(id, H) {
   });
 }
 
+// A HEAD of a /v1 route answers with the GET's status and headers and no
+// body: `curl -sI /v1/desktops` is how a readiness scanner reads the RateLimit
+// trio and the content-type. 🚨 It used to fall through to routeV1's own 404,
+// because only GET and POST were routed. One wrapper here rather than a
+// null-body fork in every serveV1*, which never see the method; the POST-only
+// routes (/v1/batch, /v1/jobs) keep refusing a HEAD the way they refuse a GET.
 function handleV1(request, env, url, ctx) {
+  const answer = routeV1(request, env, url, ctx);
+  return request.method === "HEAD" ? withoutBody(answer) : answer;
+}
+
+// Any answer with its body dropped. `res.headers` is the GET's whole header
+// set, RateLimit trio and content-type included, which is what `curl -sI`
+// came for.
+async function withoutBody(answer) {
+  const res = await answer;
+  return new Response(null, { status: res.status, headers: res.headers });
+}
+
+function routeV1(request, env, url, ctx) {
   const path = url.pathname.replace(/\/+$/, "") || "/v1";
   const method = request.method;
   const rl = rateLimit(request);
@@ -1454,7 +1473,7 @@ function handleV1(request, env, url, ctx) {
     );
   }
   const H = rl.headers;
-  if (method === "GET") {
+  if (method === "GET" || method === "HEAD") {
     if (path === "/v1/desktops") return serveV1Desktops(url, H);
     if (path === "/v1/rooms") return serveV1Rooms(url, H);
     if (path === "/v1/apps") return serveV1Apps(H);
@@ -1838,7 +1857,8 @@ async function serveAsk(request, env, url) {
   }
   let query;
   let streaming = false;
-  if (request.method === "GET") {
+  // A HEAD reads the URL the way a GET does; the dispatch drops its body.
+  if (request.method === "GET" || request.method === "HEAD") {
     query = url.searchParams.get("q") ?? url.searchParams.get("query");
     const prefer = url.searchParams.get("prefer") ?? "";
     streaming =
@@ -2678,16 +2698,18 @@ const hausfold = {
       return serveOAuthEndpoint(request, cleanPath);
     }
     if (cleanPath === "/ask") {
-      if (request.method !== "GET" && request.method !== "POST") {
+      if (!["GET", "HEAD", "POST"].includes(request.method)) {
         return problemResponse(
           405,
           "Method not allowed",
-          "/ask answers GET (query parameter) and POST (JSON body), including SSE streaming.",
+          "/ask answers GET (query parameter), HEAD, and POST (JSON body), including SSE streaming.",
           "method_not_allowed",
-          { allow: "GET, POST", ...rateLimit(request).headers },
+          { allow: "GET, HEAD, POST", ...rateLimit(request).headers },
         );
       }
-      return serveAsk(request, env, url);
+      // A HEAD is the GET's status and headers with no body, as on /v1.
+      const answer = serveAsk(request, env, url);
+      return request.method === "HEAD" ? withoutBody(answer) : answer;
     }
     if (cleanPath === "/a2a") {
       return serveA2a(request, env);

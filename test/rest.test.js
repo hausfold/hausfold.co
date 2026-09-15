@@ -477,7 +477,63 @@ describe('/ask (NLWeb)', () => {
     expect((await missing.json()).code).toBe('missing_query');
     const wrong = await worker.fetch(req('/ask', { method: 'PUT' }), { ASSETS: assetsWith() });
     expect(wrong.status).toBe(405);
-    expect(wrong.headers.get('allow')).toBe('GET, POST');
+    expect(wrong.headers.get('allow')).toBe('GET, HEAD, POST');
+  });
+});
+
+describe('HEAD answers with the GET headers on /v1 and /ask', () => {
+  // 🚨 The regression this pins: handleV1 routed GET and POST only, so
+  // `curl -sI /v1/desktops` got the 404 problem+json, and /ask refused a HEAD
+  // with a 405. `curl -sI` is what a readiness scanner runs, and the headers
+  // it came for (the RateLimit trio, the content-type) are the GET's.
+  const head = (path, init = {}) =>
+    worker.fetch(req(path, { ...init, method: 'HEAD' }), { ASSETS: assetsWith() }, {});
+
+  const routes = [
+    ['/v1', {}],
+    ['/v1/desktops', {}],
+    ['/v1/rooms', {}],
+    ['/v1/apps', {}],
+    ['/v1/search?q=notifications', {}],
+    ['/v1/releases/pounce', {}],
+    ['/v1/openapi.json', {}],
+    ['/v1/jobs/no-such-job', {}],
+    ['/v1/nope', {}],
+    ['/ask?q=notifications', {}],
+    ['/ask?q=notifications', { headers: { accept: 'text/event-stream' } }],
+    ['/ask', {}],
+  ];
+
+  for (const [path, init] of routes) {
+    const label = init.headers?.accept ? `${path} (${init.headers.accept})` : path;
+    it(`${label}: the GET's status and headers, and no body`, async () => {
+      const get = await worker.fetch(req(path, init), { ASSETS: assetsWith() }, {});
+      // The trio counts requests in the window; a fresh window makes the two
+      // comparable header for header, ratelimit-remaining included.
+      resetRateLimits();
+      const res = await head(path, init);
+      expect(res.status).toBe(get.status);
+      expect(Object.fromEntries(res.headers)).toEqual(Object.fromEntries(get.headers));
+      expect(res.body).toBeNull();
+      expect(await res.text()).toBe('');
+    });
+  }
+
+  it('carries the RateLimit trio and the content-type, which is what curl -sI came for', async () => {
+    const res = await head('/v1/desktops');
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('application/json');
+    for (const h of ['ratelimit-limit', 'ratelimit-remaining', 'ratelimit-reset']) {
+      expect(res.headers.get(h), h).toMatch(/^\d+$/);
+    }
+  });
+
+  it('the POST-only routes refuse a HEAD the way they refuse a GET', async () => {
+    for (const path of ['/v1/batch', '/v1/jobs']) {
+      const res = await head(path);
+      expect(res.status, path).toBe(404);
+      expect(res.headers.get('content-type'), path).toBe('application/problem+json');
+    }
   });
 });
 
