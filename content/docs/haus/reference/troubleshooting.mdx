@@ -34,9 +34,15 @@ If the palette opens but **clipboard and emoji paste** don't work, it's missing
 the Accessibility grant:
 
 ```sh
-pounce --request-accessibility   # approve the system dialog
-pounce --check-accessibility     # prints true once granted
+pounce --request-accessibility   # the daemon raises the dialog
+pounce --check-accessibility     # true, false, or unknown with no daemon
 ```
+
+Both questions go to the running daemon, because the daemon is the process that
+holds the grant. With nothing running they print `unknown` rather than guess, so
+kickstart it first. Older pounce releases answered for the *terminal* you typed
+in, so the check could print `true` while the palette had no grant at all: if it
+looks granted and paste is still dead, upgrade before you chase it any further.
 
 The grant survives rebuilds on its own; see [Granting
 Accessibility](/docs/pounce/install#grant-accessibility). If ⌘Space still opens
