@@ -46,6 +46,21 @@ lane refuses, and names them.
 | `scruff park [label]` | set the working tree aside as a `wip:` commit on this branch |
 | `scruff unpark` | put the last parked commit's changes back, uncommitted |
 
+## The other lanes
+
+| | |
+|---|---|
+| `scruff overlap` | what the **other** lanes on this repo have already changed, and where their edits and yours land in the same region of the same file. Measured from the shared object store, uncommitted work included, nothing declared by anyone. Exit **3** same file, **4** same region or a `merge-tree` conflict; it refuses nothing |
+| `… --brief` | the roll call: every lane gets a row, even one that shares nothing, and the prose (the intent, the landing order) is dropped. The lane-start version |
+| `… --path <file>` | that file only, and **silent when it is clear**. The shape a hook wants: the rows and the prose are stdout, the summary and the merge-tree heading stderr |
+| `… --committed-only` | read every lane from its branch alone, skipping the working trees |
+| `… --pair <a> <b>` | two named lanes against each other, from wherever you stand |
+| `… --json` | the same report as [one document](/docs/scruff/json#the-overlap-report), the exit code inside it |
+
+From the main checkout it is lane against lane instead: every pair that shares a
+file. [Working in lanes](/docs/scruff/lanes#notice-the-other-lanes) reads a
+report.
+
 ## Cleanup
 
 | | |
@@ -95,8 +110,8 @@ one means a different next move:
 | **0** | success, including "nothing to do" | report what happened |
 | **1** | usage or precondition error | fix the invocation |
 | **2** | **refused for safety**: occupied, dirty, or not provably landed | this is scruff working. Don't force it, ask why |
-| **3** | degraded: it completed, but a signal was unavailable | report the caveat |
-| **4** | conflict found | a finding, not an error. Somebody resolves it |
+| **3** | degraded: it completed, but a signal was unavailable. For `overlap`, the quiet finding: the same file, different regions | report the caveat |
+| **4** | conflict found: `overlap` saw the same region, or `merge-tree` saw a conflict | a finding, not an error. Somebody resolves it |
 | **5** | the registry is locked by another scruff | another scruff is mid-operation. Retry shortly |
 
 `2` versus `1` is the distinction the whole table exists for: a wrapper script
