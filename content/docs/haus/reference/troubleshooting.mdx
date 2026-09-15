@@ -68,6 +68,13 @@ session was ready parked itself instead of starting. Kick it:
 launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace
 ```
 
+If the kick doesn't take, check the Accessibility grant, because an ungranted
+AeroSpace looks dead rather than ungranted: it starts, stays running, and never
+opens its socket, so `aerospace --version` answers that the server is not
+responding and every other verb dies on `Connection refused`. `haus permissions`
+carries the card, with the System Settings pane to tick and the kickstart above
+to run once you have.
+
 The smaller ones:
 
 - **Scrambled after sleep, or a window on the wrong workspace?** Tap ⇪ then
