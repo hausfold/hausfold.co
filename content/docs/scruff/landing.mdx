@@ -129,8 +129,17 @@ never swept, and a **stray** (a directory git has disowned, from an interrupted
 ```
 reaped nebelung/sparkle
 kept pounce/smart-ranking — something is standing in the checkout: node (pid 46864)
+kept haus/quiet-bar — worktree-quiet-bar is not in main yet, and scruff only sweeps
+  what has landed. Nothing to do while it is still in flight; scruff drop haus/quiet-bar
+  retires it if it never will.
 nothing reaped — see above for what held each lane back.
 ```
+
+That second kind is the commonest and the one worth reading twice: it is what
+scruff **measured**, never what the forge said. On a repo whose pull requests
+scruff cannot see at all (GitLab, sourcehut, a bare remote, an unauthenticated
+`gh`, or [a fork](#working-in-a-fork) whose PRs live on `upstream`) every lane
+gets that line, forever, and none of them is a lane scruff forgot.
 
 ### Getting one back
 
@@ -202,7 +211,15 @@ scruff reship sparkle    # or name one, from anywhere
 It re-creates the remote the forge deleted and opens a PR against the default
 branch. If a PR is already open at that tip, the marker was never there in the
 first place: an open PR standing at this exact tip covers everything since the
-merge, so the lane is simply in flight.
+merge, so the lane is simply in flight, and the push lands on it.
+
+A branch with **no PR at all** has outrun nothing, so `reship` refuses it with
+exit 2 before it pushes rather than letting the remote answer. That branch just
+needs to go up the ordinary way:
+
+```sh
+git push -u origin worktree-sparkle && gh pr create
+```
 
 <Callout type="warn" title="`~3` is the lookalike, and it wants the opposite">
 `~3` means the branch has **diverged**: its tip does not build on what merged,
