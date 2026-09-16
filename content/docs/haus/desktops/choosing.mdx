@@ -231,22 +231,3 @@ installed by hand and the macOS settings haus never claimed all stay, and
 turning a room off removes what that room installed without tidying up after
 you. Homebrew casks a desktop brought in stay on disk too, unless
 [`haus.homebrew.cleanup`](/docs/haus/rooms/apps) says otherwise.
-
-## Retired names
-
-Three desktops used to ship beside hacker. A config that still names one keeps
-building the machine it always did, for one release, and warns on every rebuild
-with the line that replaces it. Each was either a name for the foundation or a
-set of rooms, and a set of rooms is one host line per room now:
-
-| was | is |
-|---|---|
-| `blank` | `desktop = null;` and nothing else. It never set anything. |
-| `minimal` | `desktop = null;` plus `haus.developer.enable = true;` (and `haus.security.touchId.enable = true;` for Touch ID `sudo`). |
-| `everyday` | `desktop = null;` plus `haus.bar.enable`, `haus.launcher.enable`, `haus.shelf.enable`, `haus.focus.enable` and `haus.security.touchId.enable`, each `= true;`, then `haus.keys.palette = "cmd-space";` and `haus.wallpaper.style = "minimal";`. |
-
-Their install URLs still resolve, so a command saved in a shell history lands a
-working machine: `everyday.sh` and `minimal.sh` install the foundation with the
-lines in their rows already written into the host file (the wallpaper too,
-unless `HAUS_WALLPAPER` says otherwise), and say so on the way. `HAUS_DESKTOP`
-reads `blank` and `none` as the foundation and `HAUS_PRESET=full` as hacker.
