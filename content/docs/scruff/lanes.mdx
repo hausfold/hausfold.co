@@ -1,6 +1,6 @@
 ---
 title: Working in lanes
-description: Open a lane on this repo or another one, hand it to an agent on a first-turn task, list what you have going, and pick any of it back up later.
+description: Open a lane on this repo or another one, hand it to an agent on a first-turn task, list what you have going, pick any of it back up later, and see what the other lanes changed before you collide with them.
 icon: lanes
 related:
   - title: "Parking work"
@@ -13,8 +13,9 @@ related:
     icon: "landed"
 ---
 
-Everything here is one of four moves: **open** a lane, **list** them, **resume**
-one, or **go to** the window one is already running in.
+Everything here is one of five moves: **open** a lane, **list** them, **resume**
+one, **go to** the window one is already running in, or **notice** what the
+other lanes have already changed before you collide with them.
 
 ## Open one, on this repo
 
@@ -180,6 +181,61 @@ the join from a lane to a window belongs to whatever opened it, so this is a
 
 Its usual caller is not a human. On a machine with
 [trill](/docs/trill), clicking a lane's notification runs exactly this.
+
+## Notice the other lanes
+
+Lanes collide by accident: two of them append to the same `AGENTS.md`, or
+rewrite the same paragraph, and nobody finds out until a PR won't merge.
+Because every lane of a repo is a branch in **one shared object store on one
+machine**, nothing has to be declared to see it coming. Which files, which
+regions, whose work is where: all of it is measured, offline, in milliseconds.
+
+```sh
+scruff overlap                 # who is in your files, and where
+scruff overlap --brief         # the roll call, prose dropped: run it when a lane starts
+scruff overlap --path doc.md   # that file only; prints NOTHING when it is clear
+scruff overlap                 # from the MAIN checkout: every pair of lanes sharing a file
+scruff overlap --pair a b      # two lanes by name, from anywhere
+```
+
+```
+≋  overlap — 3 other lane(s) on haus; 1 in your way, 1 nearby
+   ⚠ tidy-raccoon   AGENTS.md L212-240
+   · wobbly-weasel  README.md elsewhere in the file
+   tidy-raccoon — “bar: the draft PR colour, and the test that pins it”
+      ↳ tidy-raccoon lands first (already pushed) — then cuddly-sparrow rebases onto main
+   merge-tree: clean against every lane and origin/main
+```
+
+| | Means | Do |
+|---|---|---|
+| `⚠` | you and that lane changed the **same region** of the same file, within git's own three lines of context: what a merge presents as one conflicted hunk | move, narrow, or take the `↳` order into your PR body |
+| `·` | the same file, different regions | nothing. Co-editing a long shared file is normal |
+| `✗` | `git merge-tree` says the two committed tips **already** conflict | rebase onto the default branch once the other lands; never merge it into yours |
+| the quoted line | that lane's last commit subject: its intent, for free | read it before deciding whose work moves |
+
+Two signals, reported apart so they can disagree. The **hunk index** is every
+lane's changed line ranges since your common ancestor, **uncommitted and
+untracked work included**: the half `merge-tree` structurally cannot see, and
+where a lane spends most of its life. **`merge-tree`** is a real three-way
+merge of the two branches with no working tree touched: exact, committed work
+only. A parked lane is read from its branch, a live one from its checkout.
+
+A lane with **nothing left to land is left out entirely**. A branch outlives
+its own squash merge (the merge is a brand-new commit, so the branch is never
+an ancestor of main) and would otherwise claim every line it shipped for as
+long as it exists. `overlap` reads content, not ancestry: merged into main in
+the object store, a lane whose tree does not move main's has nothing to
+collide with. One that shipped and then kept committing is still holding those
+commits, and stays.
+
+The `↳` line is a default, not a rule: it reads only facts both lanes can see
+(who has pushed, whose diff is bigger, then the alphabet) so two agents reach
+the **same** answer without talking. Exit **0** clear, **3** same file, **4**
+same region or a `merge-tree` conflict. A finding, never a refusal. It cannot
+see semantic collisions across files, a rename on one side against an edit on
+the other until both have committed, or another repo at all: a `scruff child`
+lane has its own object store and cannot textually collide with this one.
 
 ## The two traps on day one
 
