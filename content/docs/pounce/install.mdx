@@ -19,8 +19,7 @@ compile step, no Xcode command-line tools to fetch, no Gatekeeper prompt.
 ## Homebrew
 
 ```sh
-brew tap hausfold/tap
-brew install pounce
+brew install hausfold/tap/pounce
 brew services start pounce        # start the daemon
 pounce --request-accessibility    # one-time, the daemon raises the dialog
 ```
@@ -127,7 +126,6 @@ Installed with Homebrew:
 ```sh
 brew services stop pounce
 brew uninstall pounce
-brew untap hausfold/tap
 ```
 
 From the DMG instead: quit Pounce and drag `Pounce.app` to the Trash. First
