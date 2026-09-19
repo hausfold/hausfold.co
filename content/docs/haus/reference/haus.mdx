@@ -165,6 +165,13 @@ the second is refused, naming the first and the `haus reset` that clears it.
 git-backed flake ignores untracked files. The file *is* the setting, and neither
 `set` nor `reset` commits or pushes for you.
 
+That file is written before the rebuild runs, and an assertion is whole-config,
+so the rebuild is the only thing that can catch one. A `set` or `reset` whose
+rebuild then fails to evaluate or build leaves its change on disk, and every
+rebuild after it fails the same way until that value changes. haus names the
+paths involved and prints the way back: `haus reset` after a `set`, `haus set`
+after a `reset`.
+
 ## Reading a desktop or room before you trust it
 
 Every other command drives *this* Mac. `haus show` reads someone else's work:
