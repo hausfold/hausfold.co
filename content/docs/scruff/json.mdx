@@ -69,8 +69,8 @@ common way to get this payload wrong.
   not exist.
 - **`chat`, not `parent`, says whether a lane has a pane of its own.** A lane
   made by `scruff child` and a lane opened from *inside* another lane's pane
-  record the same `parent`, and only the second has a window and a conversation
-  — so a picker that hides lanes on `parent` hides a running agent. `chat` is
+  record the same `parent`, and only the second has a window and a conversation,
+  so a picker that hides lanes on `parent` hides a running agent. `chat` is
   measured: equal to `path` when the lane holds its own chat, the parent's path
   when it doesn't. `""` means scruff could not tell (a client whose transcripts
   it cannot cheaply probe) and must be read as **show it**, the same safe
