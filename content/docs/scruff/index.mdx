@@ -44,13 +44,21 @@ reaped.
 Not a *worktree*, git's word for the checkout on disk, because a parked lane has
 no checkout at all and the branch is what survives. Not an *agent*, which here
 means the client a lane runs (`claude`, `codex`, `opencode`, `pi`). Not a
-*session*, which belongs to your multiplexer. Those three words are reserved.
+*session*, which is your client's word for a conversation and your multiplexer's
+for a pane. Those three words are reserved.
 
 ```
-create ──▶ live ──▶ parked ──▶ live ──▶ landed ──▶ reaped
-             │        │                    ▲
-             └────────┴────────────────────┘
+create ──▶ live ◀──▶ parked
+             └────┬────┘
+                  ▼
+               landed ──▶ reaped
 ```
+
+A lane is **live** while its checkout exists and **parked** once the pane closed
+and the checkout went; the two trade places every time you close a window and
+come back. **Landed** is not something you do to a lane. It is the verdict that
+its work reached the default branch, and the only thing that lets the sweep
+take it. `scruff drop`, a person typing one lane's name, is the one exception.
 
 The **branch is the durable artifact and the directory is disposable**, which is
 most of scruff's behaviour in one line: closing a pane can delete a checkout
@@ -102,6 +110,30 @@ scruff still drives it correctly the first time: `scruff` teaches the lifecycle,
 and `handoff` teaches the one thing with no verb, writing a brief a cold session
 can act on. [For coding agents](/docs/scruff/agents) is what is in them and how
 to install them.
+
+## Questions
+
+**Does it need GitHub?** No. `git` is the only requirement. With
+[`gh`](https://cli.github.com) signed in, scruff can also prove a branch landed
+through a squash merge, which git alone cannot see; without it, or on another
+forge, a squash-merged lane reads *not landed* and waits for you rather than
+being taken. Keeping more is the only way it degrades.
+
+**Which agents?** It opens and resumes `claude`, `codex`, `opencode` and `pi`,
+and `--cmd` runs anything else in a fresh lane. A lane is an ordinary directory
+on an ordinary branch, so every editor and shell you already use works in one.
+
+**I already use `claude --worktree`.** Keep it. Point Claude Code's
+`WorktreeCreate` and `WorktreeRemove` hooks at `scruff hook create` and
+`scruff hook remove`, and every one of those checkouts lands in the registry,
+gets parked instead of deleted, and shows up in `scruff`. [The
+wiring](/docs/scruff/seams#client-hooks-the-other-direction) is one block of
+JSON.
+
+**Does it touch my main checkout?** Lanes live outside the repo, under
+`~/.cache/scruff`, so your working tree never gains a directory, and the sweep
+only ever looks at lanes: your main checkout is not one, and the checkout scruff
+is run from is never swept either.
 
 ## Inside a haus machine
 

@@ -22,7 +22,7 @@ scruff overlap --json  # what the other lanes changed, as one document
 ## The envelope
 
 ```json
-{ "scruff": "1.3.0", "schema": 2, "warnings": [], "lanes": [ … ] }
+{ "scruff": "…", "schema": 2, "warnings": [], "lanes": [ … ] }
 ```
 
 `scruff` is the version, `schema` the payload version. Check `schema` rather
@@ -69,8 +69,8 @@ common way to get this payload wrong.
   not exist.
 - **`chat`, not `parent`, says whether a lane has a pane of its own.** A lane
   made by `scruff child` and a lane opened from *inside* another lane's pane
-  record the same `parent`, and only the second has a window and a conversation
-  — so a picker that hides lanes on `parent` hides a running agent. `chat` is
+  record the same `parent`, and only the second has a window and a conversation,
+  so a picker that hides lanes on `parent` hides a running agent. `chat` is
   measured: equal to `path` when the lane holds its own chat, the parent's path
   when it doesn't. `""` means scruff could not tell (a client whose transcripts
   it cannot cheaply probe) and must be read as **show it**, the same safe
@@ -95,7 +95,7 @@ One JSON object per line. A `hello` header first, then one `sync` per lane
 already alive, then `ready`, then the changes as they happen:
 
 ```json
-{"kind":"hello","seq":0,"scruff":"1.3.0","schema":2,"capabilities":["registry"]}
+{"kind":"hello","seq":0,"scruff":"…","schema":2,"capabilities":["registry"]}
 {"kind":"sync","seq":1,"ts":"…","source":"registry","lane":{…}}
 {"kind":"ready","seq":2}
 {"kind":"created","seq":3,"ts":"…","source":"registry","lane":{…}}

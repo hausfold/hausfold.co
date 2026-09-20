@@ -80,7 +80,7 @@ only the path, same as `new`.
 
 It is that pane's second checkout rather than a second agent: no window and no
 conversation of its own. `scruff` lists it under the lane that made it, and
-`--json` says so in [`chat`](/docs/scruff/json) — which is what a picker should
+`--json` says so in [`chat`](/docs/scruff/json), which is what a picker should
 read before deciding a lane has nowhere to go to.
 
 `spawn` is `child` for a caller with no pane of its own: a launcher, a cron job,
@@ -241,10 +241,12 @@ lane has its own object store and cannot textually collide with this one.
 
 <Callout type="warn" title="Commit something immediately">
 A brand-new lane has **zero commits of its own**, so it is trivially contained in
-the default branch and another session's `scruff reap` may take it. scruff
-reports it as [`fresh` rather than
-merged](/docs/scruff/landing#the-four-verdicts), but the checkout is still
-sweepable. Make a commit and it stops being.
+the default branch. scruff reports it as [`fresh` rather than
+merged](/docs/scruff/landing#the-four-verdicts), but a `scruff reap` run from
+anywhere else on the machine may still take it the moment nothing is standing in
+it. A shell or a client sitting in the checkout holds it; a tool that runs each
+command from a fresh directory holds nothing. Make a commit and it stops being
+sweepable.
 </Callout>
 
 <Callout type="info" title="A missing directory is not lost work">

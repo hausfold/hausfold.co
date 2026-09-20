@@ -42,8 +42,11 @@ scruff skill install   # teach the agents on this machine that scruff exists
 ```
 
 Without it an agent reaches for `git worktree add` and `git stash`, which is the
-one footgun scruff exists to close. It is already done on a
-[haus](/docs/haus) machine. See [agent skills](/docs/scruff/agents).
+one footgun scruff exists to close. [For coding agents](/docs/scruff/agents) is
+what the skills contain.
+
+On a [haus](/docs/haus) machine every line above is already done, **⌘⏎**
+included; [the AI room](/docs/haus/rooms/ai) owns that half.
 
 ## What it needs
 
@@ -66,15 +69,6 @@ yourself with a **lease**: `scruff heartbeat` marks the checkout in use for as
 long as the calling process lives. See
 [occupancy](/docs/scruff/landing#who-is-standing-here).
 </Callout>
-
-## Inside a haus machine
-
-If you run [haus](/docs/haus), scruff is already there: one option puts it on
-your `PATH`, binds **⌘⏎** to open a lane on whatever repo the focused window is
-looking at, and wires the client hooks and the statusline around it. Nothing on
-these pages changes; it is the same binary and the same lanes.
-
-[The AI room](/docs/haus/rooms/ai) is that half, and owns the option names.
 
 ## As a flake input
 
