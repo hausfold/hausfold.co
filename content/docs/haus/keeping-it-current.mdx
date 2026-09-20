@@ -42,10 +42,12 @@ haus lives upstream, pinned to an exact commit in your config's `flake.lock`.
 **Nothing about your machine changes until you run this**: no background
 updater, no surprise on a Monday. It moves that one pin to the latest haus,
 upgrades the family's Homebrew apps alongside it, prints what changed upstream,
-and rebuilds. `haus status` says where you stand: your current generation, the
-revision you're pinned to, and whether upstream has moved past it. The machinery
-behind the pin is [How the flakes fit
-together](/docs/haus/internals/flakes).
+and rebuilds. One of those apps, scruff, can trail its release by a few minutes,
+and a release whose formula stopped building never arrives and nothing says so;
+[scruff's install page](/docs/scruff/install) has the detail. `haus status` says
+where you stand: your current generation, the revision you're pinned to, and
+whether upstream has moved past it. The machinery behind the pin is [How the
+flakes fit together](/docs/haus/internals/flakes).
 
 ## When a change goes wrong
 

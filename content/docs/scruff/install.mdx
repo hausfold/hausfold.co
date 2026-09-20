@@ -25,8 +25,13 @@ go install github.com/hausfold/scruff/cmd/scruff@latest   # or, with Go 1.26+
 
 The Homebrew entry lives in [hausfold/tap](https://github.com/hausfold/homebrew-tap)
 and it compiles rather than unpacking a binary, so the first install downloads a
-Go toolchain and takes a minute. Nothing else about it is different: same
-version, same behaviour, and `brew upgrade` follows the releases.
+Go toolchain and takes a minute. Same version, same behaviour; the one other
+difference is timing. `brew upgrade` follows the releases a few minutes behind,
+because the tap builds and tests each new scruff formula before taking it. A
+formula that stops building never lands: the tap keeps the previous release and
+nothing announces it, so a `brew upgrade` that stays a version behind the
+[releases](https://github.com/hausfold/scruff/releases) is that check holding,
+not your Homebrew.
 
 Then, from inside any git repo:
 
