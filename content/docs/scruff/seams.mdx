@@ -164,3 +164,17 @@ the lane, which is how you tell which of eight agents needs you:
 Every banner is keyed by lane, so one lane never hangs two, and clicking one
 runs `scruff focus` on that lane. It exits 0 always and is a silent no-op
 without trill installed.
+
+### A turn that only looks over
+
+An agent can answer you with subagents still running. Walk over to that banner
+and you find a pane waiting on a list of background work, and a minute later a
+sticky `ask` that is asking nothing. So a `done` waits for the session's
+background agents, and so does the idle `ask` behind it. Nothing is lost by
+waiting: the agents landing wakes the session into another turn, and that turn's
+`Stop` is the banner you actually wanted.
+
+Only subagents and workflows hold a banner back. A background shell is routinely
+a dev server that never exits, and a monitor never exits by definition, so
+neither can keep a lane quiet. Neither can a real question: a permission prompt
+during background work has a session blocked behind it and goes up either way.
