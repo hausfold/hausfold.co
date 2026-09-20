@@ -147,11 +147,23 @@ scruff hook notify   < JSON on stdin  →  a banner, exit 0 always
 
 `create` and `remove` are what Claude Code's `WorktreeCreate` and
 `WorktreeRemove` hooks call, so a hand-run `claude --worktree` still lands in the
-registry and still gets parked rather than deleted. They accept a set of
-**aliases per logical field**, first hit wins, because the client's own docs and
-releases have disagreed about the spelling; which alias fired is logged, so a
-future bump is diagnosable rather than silent. The same JSON from a Codex or
-OpenCode plugin gets the same behaviour.
+registry and still gets parked rather than deleted. The wiring is one block in
+`~/.claude/settings.json`, and `scruff hook notify` takes the same shape on
+`Notification`, `Stop`, `UserPromptSubmit` and `PostToolUse`:
+
+```json
+{
+  "hooks": {
+    "WorktreeCreate": [{ "hooks": [{ "type": "command", "command": "scruff hook create" }] }],
+    "WorktreeRemove": [{ "hooks": [{ "type": "command", "command": "scruff hook remove" }] }]
+  }
+}
+```
+
+They accept a set of **aliases per logical field**, first hit wins, because the
+client's own docs and releases have disagreed about the spelling; which alias
+fired is logged, so a future bump is diagnosable rather than silent. The same
+JSON from a Codex or OpenCode plugin gets the same behaviour.
 
 `scruff hook notify` turns client events into a [trill](/docs/trill) banner for
 the lane, which is how you tell which of eight agents needs you:

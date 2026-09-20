@@ -241,10 +241,12 @@ lane has its own object store and cannot textually collide with this one.
 
 <Callout type="warn" title="Commit something immediately">
 A brand-new lane has **zero commits of its own**, so it is trivially contained in
-the default branch and another session's `scruff reap` may take it. scruff
-reports it as [`fresh` rather than
-merged](/docs/scruff/landing#the-four-verdicts), but the checkout is still
-sweepable. Make a commit and it stops being.
+the default branch. scruff reports it as [`fresh` rather than
+merged](/docs/scruff/landing#the-four-verdicts), but a `scruff reap` run from
+anywhere else on the machine may still take it the moment nothing is standing in
+it. A shell or a client sitting in the checkout holds it; a tool that runs each
+command from a fresh directory holds nothing. Make a commit and it stops being
+sweepable.
 </Callout>
 
 <Callout type="info" title="A missing directory is not lost work">

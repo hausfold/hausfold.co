@@ -19,7 +19,7 @@ related:
 | **Python** | `uv add hausfold-scruff` | [`sdk/python`](https://github.com/hausfold/scruff/tree/main/sdk/python) |
 | **Rust** | `cargo add hausfold-scruff` | [`sdk/rust`](https://github.com/hausfold/scruff/tree/main/sdk/rust) |
 | **Go** | `go get github.com/hausfold/scruff/sdk/go` | [`sdk/go`](https://github.com/hausfold/scruff/tree/main/sdk/go) |
-| **Swift** | [`hausfold/scruff-swift`](https://github.com/hausfold/scruff-swift) | [`sdk/swift`](https://github.com/hausfold/scruff/tree/main/sdk/swift) |
+| **Swift** | `.package(url: "https://github.com/hausfold/scruff-swift", from: "1.0.0")` | [`sdk/swift`](https://github.com/hausfold/scruff/tree/main/sdk/swift) |
 
 All five wrap the same CLI: `list`, `watch` as a native async stream,
 `child`/`spawn`, `park`/`unpark`/`reap`/`reship`, and occupancy leases. `scruff`
@@ -96,9 +96,11 @@ A lease can only ever *save* a lane from the sweep, never condemn one. Reach for
 one whenever the thing holding a lane is not visible as a cwd: a server's
 session is a connection, and only the server can see it.
 
-A whole machine that can answer for everyone at once wants the other shape, [an
-`occupied` seam](/docs/scruff/seams). Leases are per session, at connection
-speed; a seam replaces `lsof` outright.
+A deployment where **every** session is one your tool spawned can say so once,
+with [`SCRUFF_OCCUPANCY=lease`](/docs/scruff/config#environment) in scruff's
+environment: from then on a lane nobody leased counts as a lane nobody is in,
+and the live half of the sweep works with no `lsof` at all. Anywhere else a
+missing lease means *undetermined*, never *free*.
 
 ## Five clients, one number
 
