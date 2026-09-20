@@ -208,7 +208,11 @@ Write it **client-neutrally**: the same text reaches whichever agent your ⌘⏎
 spawned. Empty, the default, writes nothing, so a hand-managed instructions file
 is never touched; *setting* it on a machine that already has one moves yours aside
 to `<file>.backup`. `haus.ai.skill = false;` stops every skill above being
-written.
+written, and
+[`haus.ai.skillExclude`](/docs/haus/reference/options#haus-ai-skillexclude) drops
+only the ones you name. Every skill installed is a line in your agent's context
+on every turn, so a tool it never reaches for is worth naming there; Claude
+Code's `/skill-doctor` says which ones went unused.
 
 ## Reading the docs, without the skill
 
