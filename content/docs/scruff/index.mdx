@@ -57,8 +57,8 @@ create ──▶ live ◀──▶ parked
 A lane is **live** while its checkout exists and **parked** once the pane closed
 and the checkout went; the two trade places every time you close a window and
 come back. **Landed** is not something you do to a lane. It is the verdict that
-its work reached the default branch, and the only thing that lets **reaped**
-happen.
+its work reached the default branch, and the only thing that lets the sweep
+take it. `scruff drop`, a person typing one lane's name, is the one exception.
 
 The **branch is the durable artifact and the directory is disposable**, which is
 most of scruff's behaviour in one line: closing a pane can delete a checkout
@@ -115,9 +115,9 @@ to install them.
 
 **Does it need GitHub?** No. `git` is the only requirement. With
 [`gh`](https://cli.github.com) signed in, scruff can also prove a branch landed
-through a squash or rebase merge, which git alone cannot see; without it, or on
-another forge, those lanes read *not landed* and wait for you rather than being
-taken. Keeping more is the only way it degrades.
+through a squash merge, which git alone cannot see; without it, or on another
+forge, a squash-merged lane reads *not landed* and waits for you rather than
+being taken. Keeping more is the only way it degrades.
 
 **Which agents?** It opens and resumes `claude`, `codex`, `opencode` and `pi`,
 and `--cmd` runs anything else in a fresh lane. A lane is an ordinary directory
