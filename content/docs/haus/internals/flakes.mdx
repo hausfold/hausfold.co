@@ -102,6 +102,16 @@ and the line to add, rather than naming a derivation you have never heard of.
 (`mkHaus` applies all six itself, which is why a config built that way never
 meets any of this.)
 
+An export switches its own room on and claims none of the `haus.keys` chords.
+Those are a shared surface a [desktop](/docs/haus/desktops/choosing) sets, and no
+export selects a desktop, so `leader`, `windowNav` and `palette` all stay at
+`"none"`. What `darwinModules.windows` gives you is a tiler whose main and
+service binding blocks come out empty: nothing is bound until your own config
+sets `haus.keys.windowNav` and `haus.keys.leader`, and the palette under
+`darwinModules.launcher` runs the same way, with no hotkey on it.
+[Keys](/docs/haus/rooms/keys) is every chord those options move, and the
+generated `aerospace.toml` says which option emptied each block.
+
 haus's own [`flake.nix`](https://github.com/hausfold/haus/blob/main/flake.nix)
 has the whole thing spelled out as `standaloneSystem`, which is not an example
 but the fixture: a flake check builds every export through it, with snug's
