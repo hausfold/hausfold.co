@@ -376,6 +376,18 @@ Code's own entries stay in front of yours while `ai.autoMode.keepDefaults` is on
 turn that off and yours replace them, refusals included, so read the result back
 with `claude auto-mode config` first.
 
+Empty a list and the next rebuild takes that section back out of the file, along
+with anything you changed inside it with `claude auto-mode`. That is the point:
+an `allow` rule is a refusal you have lifted, and it should stop being lifted the
+moment you stop asking for it. haus keeps a note of which sections it wrote, so a
+section you wrote yourself and haus never named stays exactly where it is.
+
+That note starts the first time you rebuild on a haus new enough to keep one. A
+section you had already emptied before then has nothing behind it, so haus leaves
+it alone rather than risk deleting a rule you wrote by hand. Set the list again,
+rebuild, empty it, rebuild, and it goes. `claude auto-mode config` prints what is
+actually in force, which is the thing worth reading either way.
+
 The [guard](#the-screen-belongs-to-you) decides for itself whether a call touches
 what is in front of your eyes, so an `allow` rule here should leave the screen to
 it rather than gate it twice.
