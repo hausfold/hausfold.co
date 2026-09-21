@@ -45,6 +45,23 @@ haus.launcher.plugins = [ "docker" "tailscale" ];
 Naming one installs the CLI behind it: `bluetooth` brings `blueutil`. An app or
 daemon stays yours to provide.
 
+## Links into the palette
+
+`pounce://run?item=cmd:<id>` runs a palette item from anything that can open a
+URL: a row in an Obsidian base, a line in a note, a spreadsheet cell, a
+Shortcut. Pounce.app claims the scheme in its bundle and nothing at runtime can
+unclaim it, so these two are the machine's only say over it.
+
+```nix
+haus.launcher.urlScheme.enable = false;    # refuse every link, with a banner
+haus.launcher.urlScheme.confirm = false;   # trust a link as much as your keyboard
+```
+
+Both are on. A link that would *run* something asks on screen first, naming the
+app that opened it and every argument it carries; one that only opens a window
+or a settings pane never asks. What a link may carry, and what it is refused
+for, is [pounce's own page](/docs/pounce/config#running-an-item-from-a-link-urlscheme).
+
 ## Haus Settings
 
 Three haus settings change from the palette, no host file involved: *Make text
