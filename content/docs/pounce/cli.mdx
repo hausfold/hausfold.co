@@ -22,6 +22,7 @@ pounce -p "Search:" --chain       # picker whose free-text Enter feeds another p
 pounce -p "Project:" --grid       # the same rows as a two-column card grid
 pounce -p "Ask:" --dial "model=sonnet|opus|haiku"   # a chip the user cycles with ⇥
 pounce run cmd:emoji              # run one item by its key (for external binders)
+open 'pounce://run?item=cmd:emoji'   # …the same, from anything that opens a URL
 
 # built-in windows (items, not flags)
 pounce run mode:clipboard         # clipboard history
@@ -84,6 +85,31 @@ pounce --help / --version
 | `report [--print]` | Open Pounce's bug form with `doctor`'s whole report already in it, above the version, your macOS build, your Mac model and which install route this copy came from. `--print` writes the block and the URL to stdout and opens nothing, for a Mac you reached over ssh. There is no telemetry in Pounce, so that form is the only way anything gets back to us |
 | `focus <op>` | Focus/DND: `focus status\|toggle\|on\|off`, forwarded to the daemon |
 | `drafts <key> <op>` | `save` (stdin) / `list` / `get <i>` / `rm <i>` / `clear`. Files live in `~/.local/state/pounce/drafts/<key>.tsv`, newest first, capped at 20 |
+
+## From a link
+
+The item keys `run` takes are also reachable as a URL, so anything that can
+open one — a row in an Obsidian base, a note, a spreadsheet cell, a Shortcut, a
+web page — can run a palette command with no plugin of its own:
+
+```
+pounce://run?item=cmd:todos
+pounce://run?item=cmd:new-lane&arg=/Users/me/notes/a%20task.md
+```
+
+`arg` is repeatable and positional (`$1`, `$2` …) and only a `cmd:` item takes
+any; nothing crosses a shell, so a value with spaces or quotes in it arrives as
+one argument. Percent-encode `&`, `#`, `%` or a space.
+
+A link that would **run** something (`cmd:`, `app:`, `shortcut:`) is confirmed
+on screen first — the sheet names the app that opened the link and every
+argument it carries. A link that only **opens** something (`mode:`, `setting:`)
+isn't. Both dials are in [`urlScheme`](/docs/pounce/config#running-an-item-from-a-link-urlscheme):
+`confirm: false` trusts a link as much as your keyboard, `enabled: false`
+refuses every link.
+
+There is no exit code to hand back — a URL's caller has already moved on — so a
+link pounce can't honour says so in a notification rather than failing quietly.
 
 ## Reading it as data
 
