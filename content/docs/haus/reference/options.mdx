@@ -63,7 +63,7 @@ The apps a finished machine has: the curated picks, the packs that switch a whol
 
 ### haus.appStore
 
-Whether a rebuild may install the roster's `appStoreId` entries. Off by default: it reaches the network and acts on your Apple Account, and it can never be complete — `mas` cannot sign in, and cannot buy a paid app.
+Whether a rebuild may install the roster's `appStoreId` entries. Off by default: it reaches the network and acts on your Apple Account, and it can never be complete — `mas` cannot sign in, and cannot buy a paid app. Sign in once in App Store.app first, or every fetch waits on a sign-in sheet a rebuild cannot answer.
 
 #### `haus.appStore.install` [#haus-appstore-install]
 
@@ -83,12 +83,54 @@ window manager. It also can't be complete — `mas` cannot sign in
 PURCHASE, so a paid app you don't already own is reported and
 skipped rather than installed.
 
+Sign in once in App Store.app before you turn this on. A Mac
+that is signed out is asked for its Apple Account by a sheet on
+SCREEN, which a rebuild cannot fill in, so each fetch carries a
+clock (`haus.appStore.timeout`): it gives up, says why, and
+moves on rather than holding the rebuild open.
+
 Deliberately NOT nix-darwin's `homebrew.masApps`: that runs
 `mas install` through `brew bundle` as your user, and since
 macOS 13 the App Store install path requires root — so it stops
 for a password prompt that a rebuild has no terminal to show,
 and the rebuild hangs. The activation step this option enables
-is already running as root, so it neither prompts nor wedges.
+is already running as root, so no password is ever asked for.
+
+</details>
+
+<small>Declared in [`modules/options.nix`](https://github.com/hausfold/haus/blob/main/modules/options.nix).</small>
+
+#### `haus.appStore.timeout` [#haus-appstore-timeout]
+
+`positive integer, meaning >0` · default `3600` · e.g. `900`
+
+How long one App Store fetch may run before activation stops
+waiting on it, in seconds.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.appStore.timeout</span></summary>
+
+This is the bound on a question a rebuild cannot answer, not a
+slow-network allowance. `mas` has no way to ask whether this Mac
+is signed in, and a Mac that is signed out meets a fetch with a
+"Sign in to download from the App Store" sheet drawn on SCREEN,
+which an unattended rebuild can neither fill in nor outlive. A
+clock is the only bound on offer, so it has to sit above the
+longest fetch you would ever sit through — and it is the same
+clock either way, which is why it is yours to set.
+
+An hour by default, because it has to clear the biggest thing
+you might reasonably declare: Xcode is around 15 GB, and a
+deadline that a normal Xcode download cannot meet is not a
+safety net, it is a rebuild that gives up every time. Lower it
+if everything you fetch is small and you would rather hear about
+a stall sooner.
+
+The first fetch to run the clock out skips the App Store entries
+after it for that rebuild, since whatever stopped one is likely
+to stop the next — one deadline per rebuild rather than one per
+app. Fix the cause and rebuild again.
 
 </details>
 
@@ -254,7 +296,7 @@ How the machine looks: the palette and its accent, the wallpaper, the fonts, and
 
 ### haus.appearance
 
-The Appearance room's own profiles — named answers to whole-machine questions, where the groups below are the individual dials. `largePrint` sets the interface scale, the high-contrast palette, macOS's own contrast lift and the screen's scaled resolution together. `reduceMotion` stops the motion haus itself draws — the bar's hover sweeps, the pointer following focus, the pull back off an emptied workspace — and asks for macOS's own Reduce Motion alongside it. Both set every value as a default you can still pin by hand.
+The Appearance room's own profiles — named answers to whole-machine questions, where the groups below are the individual dials. `largePrint` sets the interface scale, the high-contrast palette, macOS's own contrast lift and the screen's scaled resolution together. `reduceMotion` stops the motion haus itself draws — the bar's hover sweeps, the pointer following focus, the pull back off an emptied workspace — and asks for macOS's own Reduce Motion alongside it. Both set every value as a default you can still pin by hand. Neither is symmetric: turning one off returns the leaves haus writes at both settings and leaves the ones it writes only while the profile is on standing — `largePrint`'s own description names the three that stay and the lines that put them back.
 
 #### `haus.appearance.largePrint` [#haus-appearance-largeprint]
 
@@ -289,6 +331,67 @@ haus.displays.main.uiScale = "larger-text"
   the only line here that reaches apps haus has never heard of, because
   it changes what a point means
 ```
+
+Turning it off is not the mirror image, and the arithmetic is worth
+having straight before you try it. `haus.ui.scale` and
+`haus.theme.contrast` go back to their own values and everything they
+render follows: the terminal drops 27 → 19 pt, the command palette returns
+to 1.0, the normal-contrast colours come back. The other two do not go
+back at all — they land on `null`, which haus reads as *leave whatever you
+have alone*. And `ui.scale` leaves one thing behind on the way down: the
+Dock's icon size, which it writes only while the scale is not 1.0. So two
+of the four return, and three settings stay on the Mac — Increase Contrast
+on, the Dock at 67, the display still a step down the ladder.
+
+That is what `false` means here rather than an oversight. The line the
+three fall on is whether haus writes that setting at BOTH values of this
+option: it writes the terminal's size, the palette and Finder's sidebar
+rows either way, so those follow, and it writes the other three only while
+the profile is on, so `false` writes nothing for them. Not writing a key
+is not the same as writing the old value back, and leaving a setting alone
+is the right answer for a personal one — nothing in the evaluation can
+tell your Mac apart from one that never asked for large print.
+
+So say it, in the same host, and one rebuild puts the three back:
+
+```nix
+haus.accessibility.increaseContrast = false;
+haus.displays.main.uiScale          = "default";
+system.defaults.dock.tilesize       = 48;
+```
+
+The third line is nix-darwin's own key rather than a haus one because haus
+has no leaf that says 48 — adding one would snap back every Dock anybody
+ever sized by hand.
+(`defaults delete com.apple.dock tilesize && killall Dock` is the same
+trip by hand, and leaves the key absent rather than pinned at 48.) The
+first line is FDA-gated exactly as setting it `true` was, so a Mac that has
+lost the grant since you turned this on gets the other two and a warning.
+
+Delete them again after the rebuild unless you meant to keep them, because
+they are ASSERTIONS rather than undos:
+`system.defaults.dock.tilesize` is a plain host value and outranks the
+`mkDefault` `haus.ui.scale` writes, so leaving it in means a later
+`ui.scale = 1.4` moves everything except your Dock — and a named
+`haus.displays` entry puts that panel under management, driven to its
+default rung at every activation rather than left alone. Only
+`increaseContrast = false` is the same kind of statement as the `true` it
+replaces.
+
+They also land you on the STOCK Mac rather than on your own old values,
+and `haus capture` is a smaller help here than it looks. Its snapshots
+restore through `defaults import`, which MERGES: a key the snapshot HOLDS
+goes back to what it held, and one that was unset when you captured is not
+removed again. Measured on haus `ef6e808d`: a `tilesize` absent at capture
+and written to 67 is still 67 after `haus revert-settings` reports the
+domain restored, while one captured at 48 does come back. The Dock and the
+contrast key are both normally unset on a Mac that never asked for them,
+which is the case it cannot help with — and if you DID pick your own Dock
+size, plain `haus capture` covers it, while your own contrast needs
+`haus capture com.apple.universalaccess` by name (and Full Disk Access at
+restore time, or it is skipped). The display is outside all of this: its
+scaled resolution is in no preference domain and no snapshot, so write
+that one down yourself.
 
 Each of those four says where it stops, and haus.ui.scale is the one to
 read: the shelf and the menu bar's height follow neither lever. One stop
@@ -363,6 +466,12 @@ so it rewrites the web as well, and
 `haus.accessibility.reduceMotion = false` in your host keeps haus's half
 without the web one. haus's half needs no permission, so it still applies
 on a machine where Apple's FDA-gated flag is skipped.
+
+That last line is also the way back. Turning this option off re-renders
+haus's own five and they stop, but Apple's flag is a preference macOS now
+holds rather than a file haus redraws, so it stays on until you say
+`haus.accessibility.reduceMotion = false` yourself — the same asymmetry
+`largePrint` has, one leaf instead of three.
 
 </details>
 
@@ -6005,7 +6114,7 @@ The ⌘Space command palette. Pounce is the app behind it.
 
 <div className="hf-optindex">
 
-[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`plugins`](#haus-launcher-plugins) [`scale`](#haus-launcher-scale) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
+[`autoQuit.delay`](#haus-launcher-autoquit-delay) [`autoQuit.enable`](#haus-launcher-autoquit-enable) [`autoQuit.exclude`](#haus-launcher-autoquit-exclude) [`enable`](#haus-launcher-enable) [`fnKey`](#haus-launcher-fnkey) [`followSystemAppearance`](#haus-launcher-followsystemappearance) [`items`](#haus-launcher-items) [`items.<name>.alias`](#haus-launcher-items-name-alias) [`items.<name>.bundleIds`](#haus-launcher-items-name-bundleids) [`items.<name>.caption`](#haus-launcher-items-name-caption) [`items.<name>.hotkey`](#haus-launcher-items-name-hotkey) [`items.<name>.listed`](#haus-launcher-items-name-listed) [`items.<name>.workspaces`](#haus-launcher-items-name-workspaces) [`plugins`](#haus-launcher-plugins) [`scale`](#haus-launcher-scale) [`urlScheme.confirm`](#haus-launcher-urlscheme-confirm) [`urlScheme.enable`](#haus-launcher-urlscheme-enable) [`windowMode`](#haus-launcher-windowmode) [`windowSwitcher`](#haus-launcher-windowswitcher)
 
 </div>
 
@@ -6509,6 +6618,64 @@ every panel's width is held inside the visible frame. That matters most
 alongside `haus.displays.<name>.uiScale` — a larger-text display mode
 and a larger palette multiply, and the palette is the one that would
 otherwise run off the edge.
+
+</details>
+
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
+
+#### `haus.launcher.urlScheme.confirm` [#haus-launcher-urlscheme-confirm]
+
+`boolean` · default `true`
+
+Ask on screen before a `pounce://` link RUNS something — a command, a
+Shortcut, an application, or the camera window, which starts a capture
+session rather than drawing a list. The sheet names the app that opened
+the link and every argument it carries, because the arguments are the
+half somebody else wrote. A link that only OPENS something — clipboard
+history, the emoji picker, a System Settings pane — is never confirmed.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.launcher.urlScheme.confirm</span></summary>
+
+On by default, and it is the one place pounce trusts your keyboard more
+than its caller: a hotkey is you, while a URL can be written into a page,
+an email or a shared note, and the Apple Event names the app that OPENED
+the link rather than whoever wrote it.
+
+Set false to trust a link exactly as much as a hotkey. The command's own
+`confirm =` header still gets its sheet — that is `pounce run`'s
+contract — and nothing else does. Worth doing on a machine whose links
+all come from your own notes, where a second sheet behind your note
+app's own "open this link?" is a keystroke you stop reading.
+
+</details>
+
+<small>Declared in [`modules/launcher/options.nix`](https://github.com/hausfold/haus/blob/main/modules/launcher/options.nix).</small>
+
+#### `haus.launcher.urlScheme.enable` [#haus-launcher-urlscheme-enable]
+
+`boolean` · default `true`
+
+Let a link run a palette item: `pounce://run?item=cmd:<id>&arg=<value>`,
+the same item keys `pounce run` takes. It is how something that can only
+produce a LINK — a row in an Obsidian base, a line in a note, a
+spreadsheet cell, a Shortcut, a web page — reaches a command with no
+plugin of its own to shell out for it.
+
+<details className="hf-more">
+
+<summary>More detail<span className="sr-only"> on haus.launcher.urlScheme.enable</span></summary>
+
+`arg` is repeatable (up to four) and positional: the script reads them as
+`$1`, `$2` and so on, nothing crosses a shell, and only a `cmd:` item
+takes any.
+
+The scheme itself is claimed by Pounce.app's bundle and cannot be
+unclaimed at runtime, so this is the switch that actually closes the
+door: with it false the daemon refuses every link and says so in a
+banner. Set it false on a machine where a link arriving from a page or
+an email is not something you want reaching the palette at all.
 
 </details>
 
@@ -9195,7 +9362,10 @@ What it currently moves:
     Find Files / cheatsheet panels behind it
   - the type in Bar's menu bar — pill labels, icons and popup rows —
     up to a ceiling; see below
-  - the Dock icon size (system.defaults.dock.tilesize)
+  - the Dock icon size (system.defaults.dock.tilesize) — written only
+    while the scale is not 1.0, so a Dock you sized by hand is left
+    alone, and one this option grew stays grown when you come back to
+    1.0; `system.defaults.dock.tilesize = 48` is how you say otherwise
   - Finder's sidebar rows (NSTableViewDefaultSizeMode) — a threshold
     rather than a multiplier, and it is set at every scale: at or below
     1.0 haus picks SMALL rows (more fits in a tiled window), above
