@@ -72,6 +72,36 @@ Disk Access on whatever you rebuild from. For bigger type along with it,
 scale, both contrast lifts and `displays.main.uiScale` together, each as a
 default you can still pin by hand.
 
+<Callout type="warn" title="Turning large print off is not the mirror image">
+`haus.appearance.largePrint = false` puts the interface scale and the contrast
+lift back. Three settings stay where the profile left them: macOS's own
+Increase Contrast, the display's scaled resolution, and the Dock's icon size,
+which `haus.ui.scale` moves on the profile's behalf. Each of the three is a key
+haus writes only while something declares it, so `false` stops declaring rather
+than declaring the opposite, and not writing a key is not the same as writing
+the old value back.
+
+These put the three back:
+
+```nix
+haus.accessibility.increaseContrast = false;
+haus.displays.main.uiScale          = "default";
+system.defaults.dock.tilesize       = 48;
+```
+
+They are assertions rather than undos, so delete them again after the rebuild
+unless you meant to keep them: a pinned `tilesize` outranks `haus.ui.scale`, so
+a later scale change would move everything except your Dock, and a named
+`uiScale` puts that panel under management instead of leaving it alone. Setting
+`increaseContrast` either way needs Full Disk Access.
+
+They also land you on a stock Mac rather than on your own old values.
+[`haus capture`](/docs/haus/keeping-it-current) before the rebuild is what
+records those, and `haus revert-settings` puts them back. It covers the Dock by
+default and the contrast key if you name `com.apple.universalaccess`, but not
+the display's mode, which lives in no preference domain at all.
+</Callout>
+
 ## Light mode
 
 ```nix
