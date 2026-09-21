@@ -87,6 +87,10 @@ older Pounce never chokes on a config written by a newer one.
   },
   "quickAnswers": { "currency": true },   // ECB rates, so "100 usd in eur" answers inline
   "updates": { "check": true },           // nudge (never install) when a release is out
+  "urlScheme": {             // pounce://run?item=… — an item behind a link, see below
+    "enabled": true,
+    "confirm": true          // ask on screen before a link RUNS something
+  },
   "shortcuts": { "enabled": true },       // your Shortcuts library, as rows
   "fileSearch": {
     "enabled": true,
@@ -337,6 +341,53 @@ pounce run mode:clipboard
 
 Same target grammar as `items`, through the same path a native binding takes; a
 malformed target exits non-zero with a reason.
+
+### Running an item from a link (`urlScheme`)
+
+A `pounce://` link runs the same item keys, from anywhere that can open a URL
+and nothing else — a row in an Obsidian base, a line in a note, a cell in a
+spreadsheet, a Shortcut, a web page:
+
+```
+pounce://run?item=cmd:todos
+pounce://run?item=cmd:new-lane&arg=/Users/me/notes/a%20task.md
+pounce://run?item=mode:clipboard
+```
+
+`arg` is repeatable and positional: the script reads them as `$1`, `$2` and so
+on, and nothing crosses a shell, so a value with spaces or quotes in it arrives
+as one argument and needs none of its own. Only a `cmd:` item takes arguments —
+an app, a Shortcut and a settings pane are told what to do by something that
+isn't `argv` — and a link that passes one to anything else is refused rather
+than quietly stripped. Four is the limit, because four is exactly what the
+confirm sheet can draw a row each for, and a link whose payload is summarised
+rather than shown is one you would be agreeing to unseen. Percent-encode a
+value that contains `&`, `#`, `%` or a space.
+
+**A link that would run something is confirmed on screen first.** The sheet
+names the command, the app that opened the link, and every argument it carries,
+because the arguments are the part somebody else wrote. A link that only
+*opens* something — clipboard history, the emoji picker, a System Settings pane
+— is not confirmed: that is what every link on a Mac already does.
+`mode:camera` is the exception on the other side, and asks like anything else
+that acts: it starts a capture session, indicator light and all, which is a
+device rather than a view.
+
+A link that arrives while pounce already has something on screen is refused
+rather than taking it. Every other way in is you — a hotkey pressed while a
+picker is up is you changing your mind — and a link is not: it can arrive from
+a background app at any moment, and it should not be able to end a picker some
+script is waiting on.
+
+| | |
+|---|---|
+| `enabled` | Whether links work at all. The scheme itself is claimed by Pounce.app and can't be unclaimed, so this is the switch that closes the door; every link is then refused with a banner |
+| `confirm` | Ask before a link runs a `cmd:`, an `app:` or a `shortcut:`. Set `false` to trust a link exactly as much as your keyboard — a command's own [`confirm =` header](/docs/pounce/writing-commands#what-a-command-says-it-will-do) still gets its sheet, and nothing else does |
+
+Nothing is handed back to whatever opened the link: a URL has no exit code, and
+the page or note that carried it has already moved on. So a link pounce can't
+honour — a typo'd item, an argument on something that takes none, a command
+that isn't installed — says so in a notification instead of failing silently.
 
 ## The Fn/Globe key (`fnKey`)
 
