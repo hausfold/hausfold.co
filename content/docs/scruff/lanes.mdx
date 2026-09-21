@@ -239,14 +239,17 @@ lane has its own object store and cannot textually collide with this one.
 
 ## The two traps on day one
 
-<Callout type="warn" title="Commit something immediately">
+<Callout type="warn" title="Commit inside the first hour">
 A brand-new lane has **zero commits of its own**, so it is trivially contained in
 the default branch. scruff reports it as [`fresh` rather than
-merged](/docs/scruff/landing#the-four-verdicts), but a `scruff reap` run from
-anywhere else on the machine may still take it the moment nothing is standing in
-it. A shell or a client sitting in the checkout holds it; a tool that runs each
-command from a fresh directory holds nothing. Make a commit and it stops being
-sweepable.
+merged](/docs/scruff/landing#the-four-verdicts) and keeps it out of the sweep for
+its first hour.
+
+That hour is there because of who is holding the lane. A shell or a client
+sitting in the checkout holds it, and a tool that runs each command from a fresh
+directory holds nothing at all, which is every agent between two tool calls. Make
+a commit inside the hour and the lane stops being sweepable on its own; leave it
+longer and a `scruff reap` run from anywhere else on the machine will take it.
 </Callout>
 
 <Callout type="info" title="A missing directory is not lost work">
