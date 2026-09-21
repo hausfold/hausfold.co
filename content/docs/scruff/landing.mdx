@@ -53,9 +53,10 @@ A lane cut from the default branch five seconds ago is trivially *contained in*
 the default branch, because it **is** the default branch. Render it as *nothing
 yet*, never as merged.
 
-It is a label, not a gate: a never-committed branch has nothing to lose, so it is
-still sweepable. That is why the first thing to do in a new lane is commit
-something.
+A never-committed branch has nothing on it to lose, so `fresh` stays reapable.
+What is worth protecting is the checkout, so the sweep spares a lane for its
+first hour and names the window it is inside. After that hour, the thing that
+holds a lane is a commit.
 </Callout>
 
 `contained` is deliberately not enough to delete on. An empty merge tree is true
@@ -120,8 +121,9 @@ idempotent backstop for the endings that skip the hook, a reboot, a crash, or a
 `scruff child` checkout that no pane owns.
 
 It is deliberately conservative and it tells you why, lane by lane. It keeps
-anything **dirty**, anything **not provably landed**, and any checkout somebody
-is **standing in**, including the one you are standing in right now. Two things
+anything **dirty**, anything **not provably landed**, any checkout somebody
+is **standing in**, including the one you are standing in right now, and any
+lane **made in the last hour** that has nothing committed on it yet. Two things
 no seam and no flag can override: the checkout scruff is being run **from** is
 never swept, and a **stray** (a directory git has disowned, from an interrupted
 `git worktree remove`) is only ever reported.
