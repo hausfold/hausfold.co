@@ -208,7 +208,9 @@ Write it **client-neutrally**: the same text reaches whichever agent your ⌘⏎
 spawned. Empty, the default, writes nothing, so a hand-managed instructions file
 is never touched; *setting* it on a machine that already has one moves yours aside
 to `<file>.backup`. `haus.ai.skill = false;` stops every skill above being
-written.
+written; `haus.ai.skillExclude = [ "factory" "pounce" ];` leaves out just the
+ones you name, and a name haus ships no skill by fails the rebuild rather than
+changing nothing.
 
 ## Reading the docs, without the skill
 
