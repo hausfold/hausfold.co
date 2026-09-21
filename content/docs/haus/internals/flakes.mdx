@@ -78,13 +78,35 @@ Each export is the bare foundation plus that one room, so it needs no desktop
 and switches no neighbour on. What it does need is the scaffolding `mkHaus`
 would otherwise have supplied: your own `darwinSystem` call with
 `nixpkgs.hostPlatform` (a room won't pick a platform for you),
-`system.primaryUser`, `system.stateVersion`, the palette and app overlays,
-home-manager, and two arguments the modules read: `username` in `specialArgs`
-and `nebelung` in `home-manager.extraSpecialArgs`. haus's own
-[`flake.nix`](https://github.com/hausfold/haus/blob/main/flake.nix) has the
-whole thing spelled out as `standaloneSystem`, which is not an example but the
-fixture: a flake check builds every export through it, so a room that quietly
-started asking for more than that fails in haus's CI rather than in your flake.
+`system.primaryUser`, `system.stateVersion`, home-manager, and two arguments
+the modules read: `username` in `specialArgs` and `nebelung` in
+`home-manager.extraSpecialArgs`.
+
+It also needs an overlay. snug is the painter haus's own commands draw
+through, and it ships from its own flake rather than from nixpkgs, so carry
+it whichever export you took:
+
+```nix
+inputs.snug.url = "github:hausfold/snug";
+# …
+nixpkgs.overlays = [ inputs.snug.overlays.default ];
+```
+
+For most exports that is the whole list. `darwinModules.launcher` activates
+its own room, so it wants pounce's overlay from the start, and
+`haus.ai.enable` wants scruff's and factory's wherever you turn it on.
+`darwinModules.default` holds the lot, so there
+`haus.notifications.compositor` wants trill's and `haus.shelf.enable` perch's.
+Leave one out and the build stops at eval with a message naming the overlay
+and the line to add, rather than naming a derivation you have never heard of.
+(`mkHaus` applies all six itself, which is why a config built that way never
+meets any of this.)
+
+haus's own [`flake.nix`](https://github.com/hausfold/haus/blob/main/flake.nix)
+has the whole thing spelled out as `standaloneSystem`, which is not an example
+but the fixture: a flake check builds every export through it, with snug's
+overlay alone as well as with all six, so a room that quietly started asking
+for more than that fails in haus's CI rather than in your flake.
 
 Rooms with no export of their own ride along with the full house instead. Which
 ones those are is a fact about `flake.nix`, not about the room: read the
@@ -94,7 +116,7 @@ install anything.
 
 ## The inputs
 
-The haus flake pulls together ten:
+The haus flake pulls together twelve:
 
 | Input | What it is |
 |---|---|
@@ -107,6 +129,8 @@ The haus flake pulls together ten:
 | `perch` | the notch file shelf; this input tracks perch's default branch, but what gets *built* is the notarized release zip perch's own flake pins |
 | `trill` | the notification compositor, packaged the same way as perch. The only input a room installs and no room needs: [`haus.notifications.compositor`](/docs/haus/rooms/notifications) places the bundle, and `haus-notify` finds it at runtime or falls back to Apple's banner |
 | `scruff` | the worktree substrate, put on your `PATH` when `haus.ai.enable` is on |
+| `snug` | the painter behind every haus command: one set of tables, spinners and colour tiers, shared by the tools that draw them. The one input a standalone `darwinModules` import has to carry itself |
+| `factory` | the unattended merge shift, on your `PATH` beside `scruff` when `haus.ai.enable` is on |
 | `nix-index-database` | the index behind `nix-index` and `comma` |
 
 ## Why a pin means "nothing changes until you say so"
