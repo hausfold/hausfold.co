@@ -86,6 +86,12 @@ haus.appStore.install = true;
 Sign in to App Store.app once, and buy paid apps there once. An unbought one is
 skipped, never fatal.
 
+A Mac that is signed out gets asked for its Apple Account by a sheet on screen,
+which a rebuild cannot fill in, so each fetch carries a clock. It is an hour by
+default, which is what a 15 GB Xcode needs; `haus.appStore.timeout` sets it in
+seconds. The first fetch to run it out skips the rest for that rebuild and tells
+you so.
+
 ## A CLI tool
 
 ```nix
