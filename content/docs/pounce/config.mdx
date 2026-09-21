@@ -359,14 +359,25 @@ on, and nothing crosses a shell, so a value with spaces or quotes in it arrives
 as one argument and needs none of its own. Only a `cmd:` item takes arguments —
 an app, a Shortcut and a settings pane are told what to do by something that
 isn't `argv` — and a link that passes one to anything else is refused rather
-than quietly stripped. Percent-encode a value that contains `&`, `#`, `%` or a
-space.
+than quietly stripped. Four is the limit, because four is exactly what the
+confirm sheet can draw a row each for, and a link whose payload is summarised
+rather than shown is one you would be agreeing to unseen. Percent-encode a
+value that contains `&`, `#`, `%` or a space.
 
 **A link that would run something is confirmed on screen first.** The sheet
 names the command, the app that opened the link, and every argument it carries,
 because the arguments are the part somebody else wrote. A link that only
-*opens* something — a built-in window, a System Settings pane — is not
-confirmed: that is what every link on a Mac already does.
+*opens* something — clipboard history, the emoji picker, a System Settings pane
+— is not confirmed: that is what every link on a Mac already does.
+`mode:camera` is the exception on the other side, and asks like anything else
+that acts: it starts a capture session, indicator light and all, which is a
+device rather than a view.
+
+A link that arrives while pounce already has something on screen is refused
+rather than taking it. Every other way in is you — a hotkey pressed while a
+picker is up is you changing your mind — and a link is not: it can arrive from
+a background app at any moment, and it should not be able to end a picker some
+script is waiting on.
 
 | | |
 |---|---|

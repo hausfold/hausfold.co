@@ -97,14 +97,17 @@ pounce://run?item=cmd:todos
 pounce://run?item=cmd:new-lane&arg=/Users/me/notes/a%20task.md
 ```
 
-`arg` is repeatable and positional (`$1`, `$2` …) and only a `cmd:` item takes
-any; nothing crosses a shell, so a value with spaces or quotes in it arrives as
-one argument. Percent-encode `&`, `#`, `%` or a space.
+`arg` is repeatable (up to four) and positional (`$1`, `$2` …) and only a
+`cmd:` item takes any; nothing crosses a shell, so a value with spaces or
+quotes in it arrives as one argument. Percent-encode `&`, `#`, `%` or a space.
 
-A link that would **run** something (`cmd:`, `app:`, `shortcut:`) is confirmed
-on screen first — the sheet names the app that opened the link and every
-argument it carries. A link that only **opens** something (`mode:`, `setting:`)
-isn't. Both dials are in [`urlScheme`](/docs/pounce/config#running-an-item-from-a-link-urlscheme):
+A link that would **run** something is confirmed on screen first — `cmd:`,
+`app:`, `shortcut:`, and `mode:camera`, which starts a capture session rather
+than drawing a list. The sheet names the app that opened the link and every
+argument it carries. A link that only **opens** something (the other `mode:`s,
+`setting:`) isn't, and a link that arrives while pounce already has something
+on screen is refused rather than taking it. Both dials are in
+[`urlScheme`](/docs/pounce/config#running-an-item-from-a-link-urlscheme):
 `confirm: false` trusts a link as much as your keyboard, `enabled: false`
 refuses every link.
 
