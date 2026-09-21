@@ -95,11 +95,16 @@ a later scale change would move everything except your Dock, and a named
 `uiScale` puts that panel under management instead of leaving it alone. Setting
 `increaseContrast` either way needs Full Disk Access.
 
-They also land you on a stock Mac rather than on your own old values.
-[`haus capture`](/docs/haus/keeping-it-current) before the rebuild is what
-records those, and `haus revert-settings` puts them back. It covers the Dock by
-default and the contrast key if you name `com.apple.universalaccess`, but not
-the display's mode, which lives in no preference domain at all.
+They also land you on a stock Mac rather than on your own old values, and
+[`haus capture`](/docs/haus/keeping-it-current) helps less here than it looks.
+A snapshot restores through `defaults import`, which merges: a key the snapshot
+holds goes back to what it held, and one that was unset when you captured is
+not removed again. The Dock and the contrast key are both normally unset on a
+Mac that never asked for them, which is the case it cannot help with. If you
+did pick your own Dock size, a plain `haus capture` covers it; your own
+contrast needs `haus capture com.apple.universalaccess` by name, and Full Disk
+Access at restore time or it is skipped. Write the display's mode down
+yourself: it is in no preference domain and no snapshot at all.
 </Callout>
 
 ## Light mode

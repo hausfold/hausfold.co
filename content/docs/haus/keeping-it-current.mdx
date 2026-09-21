@@ -65,7 +65,14 @@ known quirks and the command for each.
 A generation holds everything Nix wrote (packages, services, login agents), but
 **not** the macOS preferences a rebuild set imperatively: the Dock, Finder, the
 keyboard. `haus capture` before a risky change snapshots those, and `haus
-revert-settings` puts the snapshot back.
+revert-settings` writes them back.
+
+It restores what the snapshot holds, which is not quite the same as undoing the
+rebuild: the restore merges, so a setting you had already chosen goes back to
+your value, and one the rebuild added where you had nothing stays. Snapshot the
+domains you care about by name (`haus capture com.apple.universalaccess`, say)
+rather than relying on the default three, and expect the additions to need
+their own line in your host file.
 </Callout>
 
 ## A second Mac
