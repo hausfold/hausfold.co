@@ -71,9 +71,9 @@ export default function About() {
       <section className="block">
         <h2>How the house is run</h2>
         <p>
-          hausfold is a one-person house. The mail at{' '}
-          <a href="mailto:julien@hausfold.co">julien@hausfold.co</a> is read by the person who
-          wrote the software, which is why the address is a name. Where to send what is on the{' '}
+          hausfold is a one-person house. Julien Martel wrote the software and reads the mail at{' '}
+          <a href="mailto:julien@hausfold.co">julien@hausfold.co</a>, which is why the address is a
+          name. Where to send what is on the{' '}
           <Link href="/contact/">contact page</Link>, and how this site handles data (it handles
           none) is on <Link href="/privacy/">privacy</Link>.
         </p>

@@ -27,6 +27,9 @@ export const organizationJsonLd = {
   description:
     'hausfold makes Mac software: one layer that rebuilds the whole machine, and the small native tools that live inside it.',
   email: contactEmail,
+  // The one person behind the name, stated so a reviewer (OpenAI's app
+  // portal asked) can tie a verified individual to the brand.
+  founder: { '@type': 'Person', name: 'Julien Martel' },
   contactPoint: {
     '@type': 'ContactPoint',
     email: contactEmail,
