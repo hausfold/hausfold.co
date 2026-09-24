@@ -87,6 +87,12 @@ haus.lock.login.hideShutDown  = true;   # and .hideRestart, .hideSleep
 **on**, handing whoever holds the machine a browser, your network and any file
 share you are connected to, no password.
 
+**Coming off `blockAllIncoming` can leave ssh refused.** The first ssh that
+arrives while block-all is on can write a lasting "Block" entry for
+`/usr/libexec/sshd-auth`, and with the firewall still on that entry turns
+every new ssh away. While `firewall.enable` is true and `blockAllIncoming`
+isn't, every rebuild clears that one entry.
+
 `guestAccount` and every `haus.lock.login.*` key write to
 `com.apple.loginwindow`, which macOS reads once at login: the rebuild writes
 them, your next login shows them, and `haus plan` names them before you rebuild.
