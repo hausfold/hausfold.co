@@ -202,7 +202,7 @@ background") haus rewrites on every activation, so a hand flip lasts until the
 next rebuild.
 
 Two more are nix-darwin's own. **`NSGlobalDomain.AppleInterfaceStyle`** macOS
-ignores outright: on macOS 26 the key is where macOS *mirrors* the appearance
+ignores outright: on macOS 26 and 27 the key is where macOS *mirrors* the appearance
 it's showing rather than a lever, so even a plist read-back agrees with you while
 nothing changes. Use `haus.theme.systemAppearance`; `haus diff` flags the other
 one. **`power.sleep.computer`** and its neighbours work, but not the way they

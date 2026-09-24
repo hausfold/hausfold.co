@@ -682,7 +682,7 @@ dark       pin Dark, whatever the flavor is.
 haus flips it through System Events at each home-manager activation and
 confirms the result with `hausax`, which reads AppKit's effective
 appearance. It never writes `NSGlobalDomain.AppleInterfaceStyle`: that
-key is inert in both directions on macOS 26 and mirrors the appearance
+key is inert in both directions on macOS 26 and 27 and mirrors the appearance
 back at you, so a plist read calls an inert write applied.
 docs/macos-settings.md has the measurement.
 
@@ -3869,7 +3869,11 @@ A workspace and its pages are one family, and gravity prefers it:
 emptying `T/<repo>` lands on the most recent populated member of the T
 family — another page, even one never visited, or T itself — and only
 when the whole family is empty does it fall back to the most recently
-populated workspace anywhere.
+populated workspace anywhere. That holds when macOS moves you first,
+too: ending the agent in a lane quits that lane's Ghostty, macOS hands
+focus to the next app, and AeroSpace follows it to its workspace. If
+that lands you outside the family while a member is still populated,
+gravity takes you back into it; otherwise macOS's pick stands.
 
 Turn it off if a screen that changes without you touching it is worse
 than a blank one. That is what `haus.appearance.reduceMotion` decides on
@@ -4535,7 +4539,7 @@ The menu bar, and which pills it draws.
 
 <div className="hf-optindex">
 
-[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.factory`](#haus-bar-bottom-items-factory) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.trill`](#haus-bar-bottom-items-trill) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.factory`](#haus-bar-items-factory) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.trill`](#haus-bar-items-trill) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement) [`widgets.<name>.script`](#haus-bar-widgets-name-script) [`widgets.<name>.style`](#haus-bar-widgets-name-style)
+[`aiUsage.provider`](#haus-bar-aiusage-provider) [`battery.hideOver`](#haus-bar-battery-hideover) [`bottom.enable`](#haus-bar-bottom-enable) [`bottom.items`](#haus-bar-bottom-items) [`bottom.items.agents`](#haus-bar-bottom-items-agents) [`bottom.items.aiUsage`](#haus-bar-bottom-items-aiusage) [`bottom.items.battery`](#haus-bar-bottom-items-battery) [`bottom.items.caffeinate`](#haus-bar-bottom-items-caffeinate) [`bottom.items.calendar`](#haus-bar-bottom-items-calendar) [`bottom.items.clock`](#haus-bar-bottom-items-clock) [`bottom.items.cpu`](#haus-bar-bottom-items-cpu) [`bottom.items.elgato`](#haus-bar-bottom-items-elgato) [`bottom.items.factory`](#haus-bar-bottom-items-factory) [`bottom.items.focus`](#haus-bar-bottom-items-focus) [`bottom.items.github`](#haus-bar-bottom-items-github) [`bottom.items.harvest`](#haus-bar-bottom-items-harvest) [`bottom.items.media`](#haus-bar-bottom-items-media) [`bottom.items.memory`](#haus-bar-bottom-items-memory) [`bottom.items.trill`](#haus-bar-bottom-items-trill) [`bottom.items.volume`](#haus-bar-bottom-items-volume) [`bottom.items.weather`](#haus-bar-bottom-items-weather) [`bottom.items.wifi`](#haus-bar-bottom-items-wifi) [`calendar.horizon`](#haus-bar-calendar-horizon) [`calendar.imminent`](#haus-bar-calendar-imminent) [`calendar.joinHosts`](#haus-bar-calendar-joinhosts) [`calendar.marquee`](#haus-bar-calendar-marquee) [`calendar.me`](#haus-bar-calendar-me) [`calendar.past`](#haus-bar-calendar-past) [`calendar.preciseUnder`](#haus-bar-calendar-preciseunder) [`calendar.refresh`](#haus-bar-calendar-refresh) [`calendar.upcoming`](#haus-bar-calendar-upcoming) [`calendar.width`](#haus-bar-calendar-width) [`clock.mode`](#haus-bar-clock-mode) [`clock.monoFont`](#haus-bar-clock-monofont) [`elgato.host`](#haus-bar-elgato-host) [`enable`](#haus-bar-enable) [`github.refresh`](#haus-bar-github-refresh) [`github.sources`](#haus-bar-github-sources) [`github.sources.*.ci`](#haus-bar-github-sources-ci) [`github.sources.*.command`](#haus-bar-github-sources-command) [`github.sources.*.icon`](#haus-bar-github-sources-icon) [`github.sources.*.limit`](#haus-bar-github-sources-limit) [`github.sources.*.org`](#haus-bar-github-sources-org) [`github.sources.*.search`](#haus-bar-github-sources-search) [`github.sources.*.severity`](#haus-bar-github-sources-severity) [`github.sources.*.title`](#haus-bar-github-sources-title) [`items`](#haus-bar-items) [`items.agents`](#haus-bar-items-agents) [`items.aiUsage`](#haus-bar-items-aiusage) [`items.battery`](#haus-bar-items-battery) [`items.caffeinate`](#haus-bar-items-caffeinate) [`items.calendar`](#haus-bar-items-calendar) [`items.claudeUsage`](#haus-bar-items-claudeusage) [`items.clock`](#haus-bar-items-clock) [`items.cpu`](#haus-bar-items-cpu) [`items.elgato`](#haus-bar-items-elgato) [`items.factory`](#haus-bar-items-factory) [`items.github`](#haus-bar-items-github) [`items.harvest`](#haus-bar-items-harvest) [`items.media`](#haus-bar-items-media) [`items.memory`](#haus-bar-items-memory) [`items.trill`](#haus-bar-items-trill) [`items.volume`](#haus-bar-items-volume) [`items.weather`](#haus-bar-items-weather) [`items.wifi`](#haus-bar-items-wifi) [`logo.color`](#haus-bar-logo-color) [`logo.gestures`](#haus-bar-logo-gestures) [`logo.icon`](#haus-bar-logo-icon) [`logo.size`](#haus-bar-logo-size) [`logo.status`](#haus-bar-logo-status) [`logo.sweep`](#haus-bar-logo-sweep) [`logo.updateCheck`](#haus-bar-logo-updatecheck) [`media.artworkTint`](#haus-bar-media-artworktint) [`media.collapse`](#haus-bar-media-collapse) [`media.icons`](#haus-bar-media-icons) [`media.marquee`](#haus-bar-media-marquee) [`media.width`](#haus-bar-media-width) [`position`](#haus-bar-position) [`widgets`](#haus-bar-widgets) [`widgets.<name>.command`](#haus-bar-widgets-name-command) [`widgets.<name>.enable`](#haus-bar-widgets-name-enable) [`widgets.<name>.icon`](#haus-bar-widgets-name-icon) [`widgets.<name>.interval`](#haus-bar-widgets-name-interval) [`widgets.<name>.permissions`](#haus-bar-widgets-name-permissions) [`widgets.<name>.placement`](#haus-bar-widgets-name-placement) [`widgets.<name>.script`](#haus-bar-widgets-name-script) [`widgets.<name>.style`](#haus-bar-widgets-name-style) [`workspaces.buried`](#haus-bar-workspaces-buried) [`workspaces.windows`](#haus-bar-workspaces-windows)
 
 </div>
 
@@ -6101,6 +6105,42 @@ Example:
   "icon.color" = "$TEAL";
 }
 ```
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.workspaces.buried` [#haus-bar-workspaces-buried]
+
+`boolean` · default `true` · e.g. `false`
+
+Whether the bar names a floating window that has sunk behind the tiled
+ones. AeroSpace floats a window out of the tiling grid but keeps it in
+the ordinary stacking order, so the first tiled window you click covers
+it, and nothing else on screen says it is there.
+
+While a floating window on the focused workspace is less than a quarter
+visible, a pill after the workspace pills shows its app's logo and
+name, plus a count when there are more. Clicking it brings the window
+back to the front. It needs the windows room, which measures what each
+window has in front of it.
+
+<small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
+
+#### `haus.bar.workspaces.windows` [#haus-bar-workspaces-windows]
+
+`one of "dots", "count", "off"` · default `"dots"` · e.g. `"count"`
+
+How a workspace pill shows the windows on it, once there is more than
+one. `dots` draws a pip per window beside the workspace's glyph: filled
+for a tiled window, hollow for one off the tiling grid (floating,
+minimised, or belonging to a hidden app), which are the windows that
+get lost. Past six windows it switches to the number. `count` always
+draws the number, with a hollow ring after it when any window is off
+the grid. `off` draws neither, and the pill says only that something
+is there.
+
+A workspace with pages counts them in, because its pill stands for all
+of them. Click the pill you are on, or right-click any pill, for the
+list of those windows. Choosing one focuses it, wherever it is.
 
 <small>Declared in [`modules/bar/options.nix`](https://github.com/hausfold/haus/blob/main/modules/bar/options.nix).</small>
 
@@ -8641,6 +8681,11 @@ Block ALL incoming connections, including ones apps ask for (AirDrop,
 screen sharing, a dev server on your LAN). null (the default) leaves
 macOS's own choice alone. Has no effect while `enable` is null or
 false.
+
+Leaving block-all can leave ssh refused: the first inbound ssh while
+it is on can write a lasting "Block" entry for
+`/usr/libexec/sshd-auth`. While `enable` is true and this is not,
+every rebuild clears that one entry.
 
 <small>Declared in [`modules/core/options.nix`](https://github.com/hausfold/haus/blob/main/modules/core/options.nix).</small>
 
