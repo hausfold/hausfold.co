@@ -52,8 +52,8 @@ export default function About() {
         <p>
           The apps are smaller and work on their own. pounce is a launcher you teach your own
           commands. perch is a shelf that drops out of the notch mid-drag. scruff gives every
-          coding agent its own checkout, so parallel agents never collide. trill is younger still and
-          sits in the incubator.
+          coding agent its own checkout, so parallel agents never collide. trill puts quiet cards on
+          screen for anything that can run a command, your agents included.
         </p>
       </section>
 
