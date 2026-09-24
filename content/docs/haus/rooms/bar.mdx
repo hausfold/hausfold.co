@@ -26,7 +26,8 @@ haus.bar.enable = true;
 
 **Left, your workspaces**, one pill each, the focused one lit, the front app's
 title beside it. Tap the Caps-Lock leader and the whole left side flips into
-launcher letters. Two more come with [Windows](/docs/haus/rooms/windows):
+launcher letters. [Each pill tells you what's on it](#what-a-workspace-pill-says).
+Three more come with [Windows](/docs/haus/rooms/windows):
 
 - **The page.** A workspace with a `/` in its name (`T/haus`, an agent
   [lane](/docs/haus/rooms/development)'s) is a page. The pill names yours,
@@ -39,7 +40,40 @@ launcher letters. Two more come with [Windows](/docs/haus/rooms/windows):
   [last dealt](/docs/haus/rooms/windows#spin-the-layout-until-its-right) this
   workspace, once two windows are tiled. Clicking it advances the dial.
 
+- **Buried.** A floating window that has sunk behind your tiled windows.
+  AeroSpace takes a floating window off the grid but not out of the stack, so
+  the first tiled window you click covers it. When one on this workspace is
+  less than a quarter visible, this pill shows its app's logo and name, with
+  `+2` if two more are buried too, and clicking it brings that window back to
+  the front.
+
 **Right, the status cluster**, [toggled below](#toggling-pills).
+
+## What a workspace pill says
+
+A pill with more than one window on it shows a pip per window:
+
+| Pip | Window |
+|---|---|
+| `●` | tiled |
+| `○` | off the grid: floating, minimised, or belonging to a hidden app |
+
+So `1 ●●○` is two tiled windows and one that can get lost. Past six it
+switches to the count (`7○`). A workspace's pages count toward its pill.
+A pill with a ring around it is showing on your other display, even when
+nothing is on it.
+
+**Click the pill you're on** (or **right-click any pill**) for the list of
+windows on that workspace, grouped by page. Each row names the app and the
+window's title, with a badge for the state that's likely why you looked:
+`behind`, `fullscreen`, `minimised`, `hidden`, `floating`. Click a row to
+focus that window wherever it is. Clicking a pill you're not on takes you
+there, to the page of it you used last.
+
+```nix
+haus.bar.workspaces.windows = "count";  # or "off"; "dots" is the default
+haus.bar.workspaces.buried = false;     # no buried pill
+```
 
 ## The logo pill
 
