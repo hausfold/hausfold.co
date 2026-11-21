@@ -91,8 +91,9 @@ export const INSTALLER_DESKTOPS = Object.fromEntries(
 );
 
 // One gallery row, the shape every surface hands back: `/v1/desktops`, the
-// `get_install_command` tool, the `install` batch op and the A2A skill all call
-// this, so none of them can describe a desktop differently from the others.
+// `get_install_command` tool, the `install` batch op, the A2A skill, the agent
+// view and the gallery renderer (scripts/gen-desktops.mjs) all call this, so
+// none of them can describe a desktop differently from the others.
 //
 // `command` is the one line that installs it on a fresh Mac, and the two kinds
 // of row differ only there: a hausfold URL, or `/haus.sh` plus the
@@ -294,8 +295,9 @@ export function roomRow(room, rooms = ROOMS) {
 // apps the site actually presents belong in this set.
 export const DOWNLOADABLE = new Set(["pounce", "perch"]);
 
-// The version /mcp advertises. Supported-history is in worker.js; this export
-// is what the OpenAPI-era tool table and the tests read.
+// The version /mcp advertises: the `mcp-protocol-version` header on every
+// JSON-RPC reply, and what `initialize` falls back to when the client asks for one it
+// doesn't support. The supported set, MCP_SUPPORTED_PROTOCOLS, is in worker.js.
 export const MCP_PROTOCOL_VERSION = "2025-06-18";
 
 // The two MCP transports, in one place. The server card, /mcp.json and
@@ -617,8 +619,8 @@ export const MCP_TOOLS = [
 export const DOCS_MCP_TOOLS = MCP_TOOLS.filter((t) => t.name === "search_docs");
 
 // Where the A2A agent answers, and where its card is. Here rather than in
-// worker.js for the same reason MCP_TRANSPORTS is, recorded above: a node
-// script cannot import the Worker, and worker.js exports only handlers.
+// worker.js for the reason at the top of this file: worker.js exports only
+// handlers, so a node script cannot import a value from it.
 // scripts/dns-aid.mjs derives the `_a2a._agents.hausfold.co` SVCB record from
 // these two — the record's target is the card's hostname and its capability
 // document is the card. The card is served at the path A2A's own discovery
